@@ -23,6 +23,24 @@ Try the included sample:
 .\.venv\Scripts\python.exe -m tabalyst analyze examples\basic.csv -o reports\demo\report.html
 ```
 
+## Test with your own CSV
+
+Place your CSV in the project directory, then run:
+
+```powershell
+.\.venv\Scripts\python.exe -m tabalyst analyze data.csv -o reports\data\report.html
+```
+
+Replace `data.csv` with your file path. The command analyzes the complete CSV and
+creates both `reports\data\dataset.json` and `reports\data\report.html`. Open the
+HTML file directly in a browser to inspect the report. UTF-8 and a comma delimiter
+are used by default; specify other formats when needed:
+
+```powershell
+.\.venv\Scripts\python.exe -m tabalyst analyze "C:\data\customers.csv" `
+  -o reports\customers\report.html --encoding cp1252 --delimiter ";"
+```
+
 ## Iteration 1
 
 - Row/column counts, missing cells, exact duplicate rows and quality observations.
@@ -63,7 +81,8 @@ Per-column JSON files, contextual evidence rows, configurable semantic rules,
 sampling modes, localization and an HTTP API are planned. The JSON format is
 experimental and may change without backward compatibility.
 
-See [architecture and Python API](docs/architecture.md) for details.
+See [architecture and Python API](docs/architecture.md) for details and the
+[development progress](docs/progress.md) for the current implementation history.
 
 ## License
 
