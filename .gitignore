@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local analysis inputs and generated reports
+/data.csv
+/dataset.json
+/report.html
+/reports/
+/artifacts/

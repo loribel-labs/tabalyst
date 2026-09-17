@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ report.source.filename }} | Tabalyst</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdn.datatables.net/3.0.4/css/dataTables.bootstrap5.min.css" rel="stylesheet"
+        integrity="sha384-OZKa6QSlaaq/LGR1sBFkYhC0c/nacIFh1chsblhDUxggC9Zb0XLEEMs95i1Kydnt" crossorigin="anonymous">
+  <link href="https://cdn.datatables.net/columncontrol/2.0.2/css/columnControl.bootstrap5.min.css" rel="stylesheet"
+        integrity="sha384-Wk/gyUq2KPW83FLwX2RxZfE6EJg34PaQBWKfWAGJFHAiO60FC3On+ZjtZ70V+0BP" crossorigin="anonymous">
+  <style>{{ theme_css | safe }}</style>
+</head>
+<body>
+  <a class="visually-hidden-focusable" href="#overview">Skip to report</a>
+  <header class="topbar">
+    <div class="report-container topbar-inner">
+      <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">T</span>Tabalyst</a>
+      <nav aria-label="Report sections">
+        <a href="#overview">Overview</a><a href="#columns">Columns</a><a href="#sample">Data sample</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="report-container">
+    <section id="overview" class="report-section">
+      <div class="report-heading">
+        <div>
+          <p class="eyebrow">DATASET REPORT</p>
+          <h1>{{ report.source.filename }}</h1>
+          <p class="metadata">{{ (report.source.size_bytes / 1024) | round(1) }} KB
+            <span aria-hidden="true"> / </span> {{ report.source.encoding }}
+            <span aria-hidden="true"> / </span> Delimiter: <code>{{ report.source.delimiter }}</code></p>
+        </div>
+        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete
+          <time datetime="{{ report.generated_at.isoformat() }}">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time>
+        </div>
+      </div>
+
+      <dl class="metric-grid">
+        <div><dt>Rows</dt><dd>{{ report.summary.row_count | count }}</dd><span>All data records</span></div>
+        <div><dt>Columns</dt><dd>{{ report.summary.column_count | count }}</dd><span>{{ report.summary.cell_count | count }} cells analyzed</span></div>
+        <div><dt>Missing cells</dt><dd class="{{ 'metric-warning' if report.summary.missing_count }}">{{ report.summary.missing_percent }}<small>%</small></dd><span>{{ report.summary.missing_count | count }} cells</span></div>
+        <div><dt>Duplicate rows</dt><dd>{{ report.summary.duplicate_row_count | count }}</dd><span>Beyond the first occurrence</span></div>
+      </dl>
+
+      <div class="overview-grid">
+        <div>
+          <h2>Quality observations <span class="section-count">{{ report.issues | length }}</span></h2>
+          {% if report.issues %}
+          <ul class="observations">
+            {% for issue in report.issues %}
+            <li><span class="observation-dot {{ issue.severity }}" aria-hidden="true"></span>
+              <span><span class="visually-hidden">{{ issue.severity }}: </span>{{ issue.message }}</span>
+              <strong>{{ issue.count | count }}</strong></li>
+            {% endfor %}
+          </ul>
+          {% else %}<p class="empty-state">No issues detected by the current checks.</p>{% endif %}
+        </div>
+        <div class="type-overview">
+          <h2>Column types</h2>
+          <div class="type-bar" aria-hidden="true">
+            {% for kind, count in types.items() %}<span class="type-fill type-{{ kind }}" style="width: {{ 100 * count / report.summary.column_count }}%"></span>{% endfor %}
+          </div>
+          <ul class="type-legend">
+            {% for kind, count in types.items() %}
+            <li><span class="legend-dot type-{{ kind }}" aria-hidden="true"></span><span>{{ kind | capitalize }}</span><strong>{{ count }}</strong></li>
+            {% endfor %}
+          </ul>
+          <p class="metadata mt-3">Empty rows: {{ report.summary.empty_row_count | count }}<br>Empty columns: {{ report.summary.empty_column_count | count }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="columns" class="report-section">
+      <div class="section-heading">
+        <h2>Columns <span class="section-count">{{ report.summary.column_count }}</span></h2>
+        <div class="table-actions">
+          <div class="column-search">
+            <label class="visually-hidden" for="column-search">Filter columns by name</label>
+            <input type="search" id="column-search" class="form-control form-control-sm" placeholder="Filter columns" autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="columns-table" hidden>Reset</button>
+        </div>
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
+        <table id="columns-table" class="table table-hover align-middle column-table">
+          <thead><tr><th scope="col">Column</th><th scope="col">Inferred type</th><th scope="col">Missing (%)</th><th scope="col" class="text-end">Distinct</th><th scope="col">Examples</th></tr></thead>
+          <tbody>
+            {% for column in report.columns %}
+            <tr data-column-name="{{ column.name | lower }}" id="{{ column.id }}">
+              <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
+              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
+              <td data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}"><div class="missing-value"><span>{{ column.missing_percent }}%</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div></td>
+              <td class="text-end tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
+              <td class="examples">{% for example in column.examples %}<span>{{ example }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p id="filter-result" class="metadata filter-result" data-table-status="columns-table" role="status" hidden></p>
+
+      {% set numeric_columns = report.columns | selectattr('numeric') | list %}
+      {% if numeric_columns %}
+      <details class="numeric-details">
+        <summary>Numeric summary <span class="section-count">{{ numeric_columns | length }}</span></summary>
+        <div class="table-actions numeric-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
+        <div class="table-responsive mt-3" tabindex="0" role="region" aria-label="Numeric statistics">
+          <table id="numeric-table" class="table table-sm numeric-table">
+            <thead><tr><th scope="col">Column</th><th scope="col">Minimum</th><th scope="col">Maximum</th><th scope="col">Mean</th><th scope="col">Median</th></tr></thead>
+            <tbody>{% for column in numeric_columns %}<tr><th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}">{{ column.name or '(unnamed)' }}</th>{% for value in [column.numeric.minimum, column.numeric.maximum, column.numeric.mean, column.numeric.median] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | number }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        <p class="metadata filter-result" data-table-status="numeric-table" role="status" hidden></p>
+      </details>
+      {% endif %}
+    </section>
+
+    <section id="sample" class="report-section">
+      <div class="section-heading"><h2>Data sample</h2><div class="table-actions"><span class="metadata">{{ report.preview | length }} of {{ report.summary.row_count | count }} rows</span>{% if report.preview %}<button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="sample-table" hidden>Reset</button>{% endif %}</div></div>
+      {% if report.preview %}
+      <div class="table-responsive sample-scroll" tabindex="0" role="region" aria-label="Raw data sample">
+        <table id="sample-table" class="table table-sm table-striped sample-table">
+          <thead><tr><th scope="col" class="row-number" data-value-type="integer">Row</th>{% for column in report.columns %}<th scope="col" data-value-type="{{ column.inferred_type }}">{{ column.name or '(unnamed)' }}</th>{% endfor %}</tr></thead>
+          <tbody>{% for row in report.preview %}<tr><th scope="row" class="row-number" data-order="{{ row.row_number }}" data-search="{{ row.row_number }}">{{ row.row_number }}</th>{% for value in row.values %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      <p class="metadata filter-result" data-table-status="sample-table" role="status" hidden></p>
+      {% else %}<p class="empty-state">{{ 'No data records.' if report.summary.row_count == 0 else 'Data preview disabled.' }}</p>{% endif %}
+    </section>
+
+    <section class="report-section methodology">
+      <details>
+        <summary>Analysis settings</summary>
+        <dl class="settings-grid">
+          <div><dt>Scope</dt><dd>All {{ report.summary.row_count | count }} records</dd></div>
+          <div><dt>Missing-value markers</dt><dd>{% for marker in report.config.missing_values %}<code>{{ marker | tojson }}</code> {% else %}None{% endfor %}</dd></div>
+          <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
+          <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
+          <div><dt>Type inference</dt><dd>All present values; ISO dates (YYYY-MM-DD), dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
+          <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
+          <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>
+          <div><dt>JSON format</dt><dd>{{ report.format_version }} (experimental)</dd></div>
+        </dl>
+        <p class="metadata source-hash">Source SHA-256: <code>{{ report.source.sha256 }}</code></p>
+      </details>
+    </section>
+  </main>
+  <footer class="report-container footer"><span>Tabalyst</span><span>Gregory Borelli - Catalyseur Num&#233;rique</span></footer>
+  <script src="https://cdn.datatables.net/3.0.4/js/dataTables.min.js" integrity="sha384-i3qKUispup6yO0B16Bvnk2AmVi8O60Qww2omjtD9NHi1ns1H4jiz2EhYBjLew/9C" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/3.0.4/js/dataTables.bootstrap5.min.js" integrity="sha384-4d8X9sr6Gnv9AgIQn6bv3lmQxj5fD+9bVAun0/XMmdy7oPRvT0adfiUUiiYpi4Ck" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/dataTables.columnControl.min.js" integrity="sha384-s+uWQ72aUBdD8WMvuzuM/dgwuDT+sZo4mNvlZ9AAH6iZlX9hpJX6t4R7jbK26LZN" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/columnControl.bootstrap5.min.js" integrity="sha384-1QCMHcxcmlVHzTGWujfsVkg2KuWc4Mtd4lly3TIbzGhIwP0Bw3OQuJ5Po7oPN5sn" crossorigin="anonymous"></script>
+  <script>{{ report_js | safe }}</script>
+</body>
+</html>

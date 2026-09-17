@@ -1,0 +1,115 @@
+import json
+
+import pytest
+from typer.testing import CliRunner
+
+from tabalyst.cli import app
+from tabalyst.config import load_config
+
+runner = CliRunner()
+
+
+def test_end_to_end_and_independent_json_render(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("id,amount\n001,3\n002,4\n", encoding="utf-8")
+    html = tmp_path / "output/report.html"
+    result = runner.invoke(app, ["analyze", str(source), "--output", str(html)])
+    assert result.exit_code == 0, result.output
+    assert "2 rows and 2 columns" in result.output
+    data = json.loads(html.with_name("dataset.json").read_text(encoding="utf-8"))
+    assert data["preview"][0]["values"][0] == "001"
+    expected_html = html.read_text(encoding="utf-8")
+    assert "bootstrap@5.3.8" in expected_html
+    source.unlink()
+    second = tmp_path / "regenerated.html"
+    result = runner.invoke(
+        app, ["render", str(html.with_name("dataset.json")), "-o", str(second)]
+    )
+    assert result.exit_code == 0, result.output
+    assert second.read_text(encoding="utf-8") == expected_html
+
+
+@pytest.mark.parametrize("option", ["--output", "--json-output"])
+def test_source_file_cannot_be_overwritten(tmp_path, option):
+    source = tmp_path / "input.csv"
+    content = "a,b\n1,2\n"
+    source.write_text(content, encoding="utf-8")
+    result = runner.invoke(app, ["analyze", str(source), option, str(source)])
+    assert result.exit_code == 1
+    assert "overwrite an input" in result.output
+    assert source.read_text(encoding="utf-8") == content
+
+
+def test_same_output_paths_are_rejected(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("a,b\n1,2\n", encoding="utf-8")
+    output = tmp_path / "same.html"
+    result = runner.invoke(
+        app, ["analyze", str(source), "-o", str(output), "--json-output", str(output)]
+    )
+    assert result.exit_code == 1
+    assert "different" in result.output
+    assert not output.exists()
+
+
+def test_bad_csv_returns_actionable_error_without_artifacts(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("a,b\n1,2,3\n", encoding="utf-8")
+    output = tmp_path / "report.html"
+    result = runner.invoke(app, ["analyze", str(source), "-o", str(output)])
+    assert result.exit_code == 1
+    assert "Data record 1" in result.output
+    assert not output.exists()
+    assert not output.with_name("dataset.json").exists()
+
+
+def test_configuration_files_merge_and_cli_options_override(tmp_path):
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    first.write_text(
+        json.dumps(
+            {
+                "csv": {"delimiter": ";", "encoding": "cp1252"},
+                "missing_values": ["", "NULL"],
+            }
+        )
+    )
+    second.write_text(json.dumps({"csv": {"encoding": "utf-8"}, "preview_rows": 1}))
+    config = load_config([first, second])
+    assert config.csv.delimiter == ";"
+    assert config.csv.encoding == "utf-8"
+    assert config.missing_values == ["", "NULL"]
+    source = tmp_path / "input.csv"
+    source.write_text("a,b\n1,NULL\n2,ok\n", encoding="utf-8")
+    output = tmp_path / "report.html"
+    result = runner.invoke(
+        app,
+        [
+            "analyze",
+            str(source),
+            "--config",
+            str(first),
+            "--config",
+            str(second),
+            "--delimiter",
+            ",",
+            "--preview-rows",
+            "0",
+            "-o",
+            str(output),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(output.with_name("dataset.json").read_text(encoding="utf-8"))
+    assert data["summary"]["missing_count"] == 1
+    assert data["preview"] == []
+
+
+@pytest.mark.parametrize(
+    "content", ['{"unexpected": true}', "[1, 2]", '{"csv": {"delimiter": "||"}}']
+)
+def test_invalid_config_is_rejected(tmp_path, content):
+    config = tmp_path / "config.json"
+    config.write_text(content)
+    with pytest.raises(ValueError):
+        load_config([config])

@@ -1,0 +1,6 @@
+name,name,amount,"<img src=x onerror=globalThis.__tabalystXss=true>&"
+a & b,alpha,2,"<img src=x onerror=globalThis.__tabalystXss=true>&"
+b,beta,10,"<script>globalThis.__tabalystXss=true</script>"
+c,gamma,100,safe
+d,delta,1,plain
+e,epsilon,,

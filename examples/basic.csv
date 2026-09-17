@@ -1,0 +1,6 @@
+id,name,amount,joined,active,notes
+001,Alice,12.50,2026-01-01,true,First order
+002,Bob,,2026-02-01,false,
+003,Charlie,25.00,2026-03-01,true,"Two items, one order"
+003,Charlie,25.00,2026-03-01,true,"Two items, one order"
+004,Dana,not available,2026-04-01,true,Pending review
