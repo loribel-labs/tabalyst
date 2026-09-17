@@ -48,6 +48,28 @@ async function reset(page, table = 'columns-table') {
       await page.goto(pathToFileURL(path.resolve(process.argv[2])).href, { waitUntil: 'networkidle' });
       await page.waitForSelector('#columns-table[data-interactive="true"]');
       assert.equal(await page.evaluate(() => DataTable.version), '3.0.4');
+      assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Distinct', 'Inferred type', 'Examples']);
+      for (const header of await page.locator('#columns-table thead th:has(.dtcc-button_dropdown)').all()) {
+        const positions = await header.evaluate(cell => ({
+          filter: cell.querySelector('.dtcc-button_dropdown').getBoundingClientRect().left,
+          filterRight: cell.querySelector('.dtcc-button_dropdown').getBoundingClientRect().right,
+          label: cell.querySelector('.dt-column-title').getBoundingClientRect().left,
+          labelRight: cell.querySelector('.dt-column-title').getBoundingClientRect().right,
+          labelAlign: getComputedStyle(cell.querySelector('.dt-column-title')).textAlign,
+          sort: cell.querySelector('.dtcc-button_order').getBoundingClientRect().left,
+          sortRight: cell.querySelector('.dtcc-button_order').getBoundingClientRect().right,
+        }));
+        assert.ok(positions.label < positions.filter && positions.filter < positions.sort, JSON.stringify(positions));
+        assert.ok(positions.filter - positions.labelRight <= 7 && positions.sort - positions.filterRight <= 7, JSON.stringify(positions));
+        assert.equal(positions.labelAlign, 'left');
+      }
+      const firstHeader = page.locator('#columns-table thead th').first();
+      const firstHeaderControls = firstHeader.locator('.dtcc-button_order, .dtcc-button_dropdown');
+      assert.deepEqual(await firstHeaderControls.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).opacity)), ['0', '0']);
+      await firstHeader.hover();
+      await page.waitForFunction(nodes => nodes.every(node => getComputedStyle(node).opacity === '1'), await firstHeaderControls.elementHandles());
+      await page.mouse.move(0, 0);
+      await page.waitForFunction(nodes => nodes.every(node => getComputedStyle(node).opacity === '0'), await firstHeaderControls.elementHandles());
       const metrics = await page.locator('.metric-grid').innerText();
       await displayedColumns(page, profile.columns);
 
@@ -68,32 +90,38 @@ async function reset(page, table = 'columns-table') {
 
       // Type selections combine with OR; different column filters combine with AND.
       const types = [...new Set(profile.columns.map(column => column.inferred_type))].slice(0, 2);
-      menu = await popup(page, 'columns-table', 1);
-      for (const type of types) await menu.getByRole('checkbox', { name: type, exact: true }).click();
+      menu = await popup(page, 'columns-table', 3);
+      for (const type of types) {
+        const count = profile.columns.filter(column => column.inferred_type === type).length;
+        const option = menu.getByRole('checkbox', { name: `${type} (${count})`, exact: true });
+        assert.equal(await option.locator('.type-badge').innerText(), type);
+        await option.click();
+      }
       await page.keyboard.press('Escape');
       const byType = profile.columns.filter(column => types.includes(column.inferred_type));
       await displayedColumns(page, byType);
-      await numberFilter(page, 'columns-table', 2, 'greater', 5);
+      await numberFilter(page, 'columns-table', 1, 'greater', 5);
       const byMissing = byType.filter(column => column.missing_percent > 5);
       await displayedColumns(page, byMissing);
-      await numberFilter(page, 'columns-table', 3, 'less', 100);
+      await numberFilter(page, 'columns-table', 2, 'less', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count < 100));
-      await numberFilter(page, 'columns-table', 3, 'greater', 100);
+      await numberFilter(page, 'columns-table', 2, 'greater', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count > 100));
       await reset(page);
 
       // Strict greater-than includes a zero threshold and fractional percentages.
       for (const threshold of [0, 0.1, 100]) {
-        await numberFilter(page, 'columns-table', 2, 'greater', threshold);
+        await numberFilter(page, 'columns-table', 1, 'greater', threshold);
         await displayedColumns(page, profile.columns.filter(column => column.missing_percent > threshold));
       }
       assert.equal(await page.locator('#filter-result').innerText(), `0 of ${profile.columns.length} columns`);
       await reset(page);
 
       // Inclusive boundaries, zero, incomplete and reversed ranges, and individual clearing.
-      for (const [index, field] of [[2, 'missing_percent'], [3, 'distinct_count']]) {
+      for (const [index, field] of [[1, 'missing_percent'], [2, 'distinct_count']]) {
         const boundary = profile.columns[0][field];
         for (const [operator, compare] of [
+          ['equal', value => value === boundary],
           ['greaterOrEqual', value => value >= boundary],
           ['lessOrEqual', value => value <= boundary],
           ['less', value => value < boundary],
@@ -107,7 +135,9 @@ async function reset(page, table = 'columns-table') {
         }
         const trigger = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_dropdown');
         assert.equal(await trigger.evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
+        assert.equal(await trigger.evaluate(el => getComputedStyle(el).opacity), '1');
         assert.equal(await trigger.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(23, 111, 193)');
+        assert.equal(await trigger.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
         menu = await popup(page, 'columns-table', index);
         await menu.locator('.dtcc-button_searchClear').click();
         await displayedColumns(page, profile.columns);
@@ -122,7 +152,7 @@ async function reset(page, table = 'columns-table') {
       }
 
       // Sorting must use numbers, not formatted strings (e.g. 2,992 vs 31).
-      for (const index of [2, 3]) {
+      for (const index of [1, 2]) {
         await reset(page);
         const sort = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_order');
         for (const direction of [1, -1]) {
@@ -131,6 +161,11 @@ async function reset(page, table = 'columns-table') {
             const values = [...document.querySelectorAll('#columns-table tbody tr[id]')].map(row => Number(row.cells[index].dataset.order));
             return values.every((value, i) => i === 0 || direction * (value - values[i - 1]) >= 0);
           }, { index, direction }, { timeout: 5000 });
+          await sort.waitFor({ state: 'visible' });
+          await page.waitForFunction(element => element.classList.contains('dtcc-button_active'), await sort.elementHandle());
+          assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
+          assert.equal(await sort.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(23, 111, 193)');
+          assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
           const values = await page.locator('#columns-table tbody tr[id]').evaluateAll((rows, i) => rows.map(row => Number(row.cells[i].dataset.order)), index);
           assert.deepEqual(values, [...values].sort((a, b) => direction * (a - b)));
         }
@@ -181,11 +216,33 @@ async function reset(page, table = 'columns-table') {
       const backgrounds = await menu.locator('.dtcc-dropdown-liner, .dtcc-list, .dtcc-list-controls, .dtcc-list-buttons, .dtcc-list-buttons button').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundColor));
       assert.ok(backgrounds.every(color => color === 'rgb(243, 245, 247)'), JSON.stringify(backgrounds));
       assert.ok((await menu.locator('input').boundingBox()).height <= 28);
+      const handle = menu.locator('.filter-drag-handle');
+      const beforeDrag = await menu.boundingBox();
+      const handleBox = await handle.boundingBox();
+      const targetX = Math.max(24, Math.min(width - beforeDrag.width - 24, beforeDrag.x > 60 ? 24 : beforeDrag.x + 45));
+      const targetY = Math.max(24, Math.min(height - beforeDrag.height - 24, beforeDrag.y > 100 ? 24 : beforeDrag.y + 55));
+      await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(targetX + handleBox.width / 2, targetY + handleBox.height / 2);
+      await page.mouse.up();
+      const afterDrag = await menu.boundingBox();
+      assert.ok(Math.abs(afterDrag.x - beforeDrag.x) > 10 || Math.abs(afterDrag.y - beforeDrag.y) > 10);
+      const firstColumn = profile.columns[0];
+      await menu.getByRole('checkbox', { name: `#${firstColumn.position} ${firstColumn.name || '(unnamed)'}`, exact: true }).click();
+      await displayedColumns(page, [firstColumn]);
+      assert.equal(await menu.isVisible(), true);
+      const afterFilter = await menu.boundingBox();
+      assert.ok(Math.abs(afterFilter.x - afterDrag.x) < 2 && Math.abs(afterFilter.y - afterDrag.y) < 2);
+      await reset(page);
+      menu = await popup(page, 'columns-table', 0);
       await page.screenshot({ path: `artifacts/filters-${name}.png` });
-      await numberFilter(page, 'columns-table', 2, 'between', 0, 25);
-      menu = await popup(page, 'columns-table', 2);
+      await numberFilter(page, 'columns-table', 1, 'between', 0, 25);
+      menu = await popup(page, 'columns-table', 1);
       await page.screenshot({ path: `artifacts/numeric-filter-${name}.png` });
-      await page.keyboard.press('Escape');
+      const closeFilter = menu.getByRole('button', { name: 'Close filter' });
+      await closeFilter.click();
+      assert.equal(await menu.count(), 0);
+      assert.equal(await page.locator('#columns-table thead th').nth(1).locator('.dtcc-button_dropdown').getAttribute('aria-expanded'), 'false');
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
       assert.equal(overflow, false);
       assert.equal(await page.evaluate(() => !!globalThis.__tabalystXss), false);

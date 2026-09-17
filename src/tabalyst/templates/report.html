@@ -86,14 +86,14 @@
       </div>
       <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
         <table id="columns-table" class="table table-hover align-middle column-table">
-          <thead><tr><th scope="col">Column</th><th scope="col">Inferred type</th><th scope="col">Missing (%)</th><th scope="col" class="text-end">Distinct</th><th scope="col">Examples</th></tr></thead>
+          <thead><tr><th scope="col">Column</th><th scope="col">Missing (%)</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Examples</th></tr></thead>
           <tbody>
             {% for column in report.columns %}
             <tr data-column-name="{{ column.name | lower }}" id="{{ column.id }}">
               <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
               <td data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}"><div class="missing-value"><span>{{ column.missing_percent }}%</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div></td>
               <td class="text-end tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
+              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
               <td class="examples">{% for example in column.examples %}<span>{{ example }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}</td>
             </tr>
             {% endfor %}

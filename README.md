@@ -32,7 +32,7 @@ Try the included sample:
 - Sortable tables with column filters, multi-select checklists and numeric conditions.
 
 The column summary supports name/type selection and numeric filters on Missing (%)
-and Distinct: `>`, `>=`, `<`, `<=`, or an inclusive `[minimum, maximum]` range.
+and Distinct: `=`, `>`, `>=`, `<`, `<=`, or an inclusive `[minimum, maximum]` range.
 Filters combine and Reset restores the original
 view. Sample filters apply only to embedded preview rows, not the complete CSV.
 DataTables 3.0.4 and ColumnControl 2.0.2 load from their CDN alongside Bootstrap.
