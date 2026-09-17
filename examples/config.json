@@ -1,0 +1,8 @@
+{
+  "csv": {
+    "encoding": "utf-8-sig",
+    "delimiter": ","
+  },
+  "missing_values": ["", "N/A", "NULL"],
+  "preview_rows": 10
+}

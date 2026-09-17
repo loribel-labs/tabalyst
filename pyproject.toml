@@ -48,6 +48,15 @@ dev = [
     "ruff>=0.11",
 ]
 
+[project.scripts]
+tabalyst = "tabalyst.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tabalyst = ["templates/*.html", "static/*.css", "static/*.js"]
+
 [project.urls]
 Homepage = "https://github.com/chergreg/tabalyst"
 Repository = "https://github.com/chergreg/tabalyst.git"
@@ -55,6 +64,7 @@ Issues = "https://github.com/chergreg/tabalyst/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 88
