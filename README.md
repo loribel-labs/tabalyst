@@ -13,9 +13,9 @@ local virtual environment.
 Python 3.11+ is required. On Windows, a practical workspace layout is:
 
 ```text
-D:\CODEX\gb-csv-analysis\
+D:\projects\
 ├── tabalyst\              # Git clone: run all commands here
-└── test-divers\
+└── test-csv\
     └── data.csv            # Your local CSV file
 ```
 
@@ -37,8 +37,8 @@ are installed by that command. Repeat it after pulling dependency changes.
 Still from the clone directory, analyze the sibling file shown above:
 
 ```powershell
-.\.venv\Scripts\python.exe -m tabalyst analyze ..\test-divers\data.csv `
-  -o reports\data\report.html
+.\.venv\Scripts\python.exe -m tabalyst analyze ..\test-csv\data.csv `
+  -o reports\test-csv\report.html
 ```
 
 This creates local, Git-ignored output files:
