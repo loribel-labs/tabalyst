@@ -70,6 +70,7 @@
           if (String(value).trim() === "") return false;
           const number = Number(value);
           if (!Number.isFinite(number)) return false;
+          if (mode === "equal") return number === low;
           if (mode === "greater") return number > low;
           if (mode === "greaterOrEqual") return number >= low;
           if (mode === "less") return number < low;
@@ -81,6 +82,7 @@
         if (draw) dt.draw();
       };
       for (const [value, symbol, label] of [
+        ["equal", "=", "Equal to"],
         ["greater", ">", "Greater than"],
         ["greaterOrEqual", "\u2265", "Greater than or equal"],
         ["less", "<", "Less than"],
@@ -118,14 +120,18 @@
     };
   }
 
-  function checkboxFilter(element, index) {
-    const values = [...new Set([...element.tBodies[0].rows].map(row => row.cells[index].dataset.search))];
+  function checkboxFilter(element, index, formatLabel = value => DataTable.util.escapeHtml(value)) {
+    const counts = new Map();
+    for (const row of element.tBodies[0].rows) {
+      const value = row.cells[index].dataset.search;
+      counts.set(value, (counts.get(value) || 0) + 1);
+    }
     return {
       extend: "searchList",
       search: true,
       select: true,
       // Library labels accept HTML; CSV content must stay escaped in dropdowns too.
-      options: values.map(value => ({ value, label: DataTable.util.escapeHtml(value) })),
+      options: [...counts].map(([value, count]) => ({ value, label: formatLabel(value, count) })),
     };
   }
 
@@ -135,6 +141,13 @@
 
   function positionMenus() {
     for (const menu of document.querySelectorAll(".dtcc-dropdown")) {
+      if (menu.dataset.dragged === "true") {
+        const left = Math.max(12, Math.min(parseFloat(menu.style.left) || 12, innerWidth - menu.offsetWidth - 12));
+        const top = Math.max(12, Math.min(parseFloat(menu.style.top) || 12, innerHeight - menu.offsetHeight - 12));
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        continue;
+      }
       const trigger = menu.closest(".dt-container").querySelector(".dtcc-button_dropdown[aria-expanded='true']");
       if (!trigger) continue;
       const anchor = trigger.getBoundingClientRect();
@@ -147,8 +160,56 @@
     }
   }
 
+  function makeMenuMovable(menu) {
+    if (menu.querySelector(":scope > .filter-drag-handle")) return;
+    const handle = document.createElement("div");
+    handle.className = "filter-drag-handle";
+    const handleLabel = document.createElement("span");
+    handleLabel.textContent = "Move filter";
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "filter-close";
+    close.textContent = "\u00d7";
+    close.title = "Close filter";
+    close.setAttribute("aria-label", close.title);
+    close.addEventListener("pointerdown", event => event.stopPropagation());
+    close.addEventListener("click", event => {
+      event.stopPropagation();
+      if (typeof menu._close === "function") menu._close();
+    });
+    handle.append(handleLabel, close);
+    handle.title = "Drag to move this filter";
+    handle.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return;
+      const rect = menu.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      menu.dataset.dragged = "true";
+      handle.setPointerCapture(event.pointerId);
+      const move = pointer => {
+        const left = Math.max(12, Math.min(pointer.clientX - offsetX, innerWidth - menu.offsetWidth - 12));
+        const top = Math.max(12, Math.min(pointer.clientY - offsetY, innerHeight - menu.offsetHeight - 12));
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+      };
+      const stop = pointer => {
+        move(pointer);
+        handle.releasePointerCapture(pointer.pointerId);
+        handle.removeEventListener("pointermove", move);
+        handle.removeEventListener("pointerup", stop);
+        handle.removeEventListener("pointercancel", stop);
+      };
+      handle.addEventListener("pointermove", move);
+      handle.addEventListener("pointerup", stop);
+      handle.addEventListener("pointercancel", stop);
+      event.preventDefault();
+    });
+    menu.prepend(handle);
+  }
+
   // Preserve accessible checkbox states and viewport positioning in scrollable tables.
   const menuObserver = new MutationObserver(() => {
+    for (const menu of document.querySelectorAll(".dtcc-dropdown")) makeMenuMovable(menu);
     for (const button of document.querySelectorAll(".dtcc-list-buttons .dtcc-button")) {
       button.setAttribute("role", "checkbox");
       button.setAttribute("aria-checked", String(button.classList.contains("dtcc-button_active")));
@@ -211,9 +272,14 @@
 
   const summaryTable = attachTable(summary, [
     { type: "string", columnControl: controls(checkboxFilter(summary, 0)) },
-    { type: "string", columnControl: controls(checkboxFilter(summary, 1)) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Missing (%)" }) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Distinct values" }) },
+    { type: "string", columnControl: controls(checkboxFilter(summary, 3, (value, count) => {
+      const type = DataTable.util.escapeHtml(value);
+      const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(value)
+        ? `badge-${value}` : "badge-empty";
+      return `<span class="type-badge ${badge}">${type}</span> <span class="filter-option-count">(${count})</span>`;
+    })) },
     { orderable: false, columnControl: [] },
   ], "columns");
   nameSearch.addEventListener("input", () => {
