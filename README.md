@@ -3,43 +3,79 @@
 Tabalyst profiles CSV files into structured JSON and customizable HTML reports.
 Built with pandas, Pydantic, Jinja2 and Bootstrap 5.3.8.
 
-## Quick start
+## Run the alpha from a clone
 
-Python 3.11+ is required. From the project directory, on Windows:
+Tabalyst is currently an alpha project. It is not yet published as an application
+or a PyPI package: run it from a Git clone. The editable installation below only
+installs the clone's Python dependencies and makes its command available inside the
+local virtual environment.
+
+Python 3.11+ is required. On Windows, a practical workspace layout is:
+
+```text
+D:\CODEX\gb-csv-analysis\
+├── tabalyst\              # Git clone: run all commands here
+└── test-divers\
+    └── data.csv            # Your local CSV file
+```
+
+From `D:\CODEX\gb-csv-analysis\tabalyst`, create the virtual environment and
+install the runtime and development libraries:
 
 ```powershell
 python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m tabalyst analyze data.csv
+.\.venv\Scripts\python.exe -m tabalyst --help
 ```
 
-This creates `dataset.json` and `report.html` in the current directory. Open the
-HTML file directly in your browser; Bootstrap loads from a CDN and needs internet.
+`pandas`, `Pydantic`, `Jinja2`, `Typer`, `charset-normalizer`, `pytest` and Ruff
+are installed by that command. Repeat it after pulling dependency changes.
+
+### Analyze a CSV
+
+Still from the clone directory, analyze the sibling file shown above:
+
+```powershell
+.\.venv\Scripts\python.exe -m tabalyst analyze ..\test-divers\data.csv `
+  -o reports\data\report.html
+```
+
+This creates local, Git-ignored output files:
+
+```text
+tabalyst\reports\data\
+├── dataset.json            # Complete global analysis profile
+└── report.html             # Open this file directly in a browser
+```
+
 The default input is UTF-8 (with or without BOM), comma-separated, with a header.
-
-Try the included sample:
-
-```powershell
-.\.venv\Scripts\python.exe -m tabalyst analyze examples\basic.csv -o reports\demo\report.html
-```
-
-## Test with your own CSV
-
-Place your CSV in the project directory, then run:
-
-```powershell
-.\.venv\Scripts\python.exe -m tabalyst analyze data.csv -o reports\data\report.html
-```
-
-Replace `data.csv` with your file path. The command analyzes the complete CSV and
-creates both `reports\data\dataset.json` and `reports\data\report.html`. Open the
-HTML file directly in a browser to inspect the report. UTF-8 and a comma delimiter
-are used by default; specify other formats when needed:
+For a different encoding or delimiter:
 
 ```powershell
 .\.venv\Scripts\python.exe -m tabalyst analyze "C:\data\customers.csv" `
   -o reports\customers\report.html --encoding cp1252 --delimiter ";"
 ```
+
+To test the tracked sample instead, use:
+
+```powershell
+.\.venv\Scripts\python.exe -m tabalyst analyze examples\basic.csv `
+  -o reports\demo\report.html
+```
+
+### Optional package build
+
+A build is not required to analyze CSV files. To verify that the clone can produce
+a Python distribution, install the build helper and create artifacts in `dist\`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install build
+.\.venv\Scripts\python.exe -m build
+```
+
+`dist\` is Git-ignored. This is a packaging check for the alpha; it does not make
+Tabalyst a published or system-wide installed application.
 
 ## Iteration 1
 
