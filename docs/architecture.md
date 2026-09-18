@@ -1,8 +1,12 @@
 # Architecture
 
-Iteration 1 implements `CSV -> dataset.json -> report.html` with a single global
+Iteration 1 implements `CSV -> report.json -> report.html` with a single global
 JSON file. Its column summaries stay inside that file. The format is experimental;
 breaking changes are expected while iterating.
+
+During the `0.1.0aX` application series, profiles use `format_version: "0.1.0a"`.
+The integer `format_revision` increases for each meaningful structural or semantic
+change. See the [format changelog](format-changelog.md).
 
 ## Boundaries
 
@@ -13,6 +17,8 @@ breaking changes are expected while iterating.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
 - `service.py`: callable `analyze_csv(path, config)` for CLI and future HTTP adapters.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
+- `execution_log.py`: records successful CLI run metadata and timing in a shared,
+  atomically updated `execution.json` file.
 - `cli.py`: command-line options, error reporting and output files.
 - `templates/` and `static/`: report presentation; Bootstrap 5.3.8 CSS uses a CDN
   with an integrity hash. DataTables 3.0.4 and ColumnControl 2.0.2 also load from a
@@ -62,7 +68,8 @@ shared accordingly. Bootstrap needs an internet connection; data is embedded in
 the report and is not sent to the CDN.
 
 The JSON profile records end-to-end CSV ingestion and analysis time in
-`processing_seconds`. Report rendering is intentionally excluded from that value.
+`processing_seconds`. The adjacent `execution.json` also records total CLI time,
+including JSON and HTML generation, plus package and optional Git metadata.
 
 ## Browser checks
 
@@ -70,7 +77,7 @@ With Node.js, Playwright and Edge installed, run the interactive regression chec
 on a generated report and its JSON:
 
 ```powershell
-node tests/browser/report.cjs reports/data/report.html reports/data/dataset.json
+node tests/browser/report.cjs reports/data/report.html reports/data/report.json
 ```
 
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`

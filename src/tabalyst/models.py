@@ -82,6 +82,8 @@ class StringProfile(ResultModel):
     present_count: int
     minimum_length: int
     maximum_length: int
+    mean_length: FiniteFloat
+    median_length: FiniteFloat
     distinct_length_count: int
     fixed_length: int | None = None
     length_distribution: list[StringLengthDistribution]
@@ -160,7 +162,8 @@ class PreviewRow(ResultModel):
 
 
 class DatasetProfile(ResultModel):
-    format_version: Literal["0.3"] = "0.3"
+    format_version: Literal["0.1.0a"] = "0.1.0a"
+    format_revision: Literal[1] = 1
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

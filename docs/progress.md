@@ -28,3 +28,13 @@
 - Refined report interaction colors, quality metrics, percentage columns, large-number formatting, date variants and fixed-length string presentation.
 - Added end-to-end processing time and clearer data-cleaning observations.
 - Added distinct string-length counts and per-length occurrence examples to the report.
+- Expanded string distributions through medium-length values, retained up to ten
+  examples per length, and added mean and median length statistics.
+- Unified numeric table filters and numeric-column spacing across the report.
+- Derived profile JSON names from HTML outputs and added a cumulative, versioned
+  `execution.json` performance history with optional Git state.
+- Made filter-level Clear actions contextual and aligned them with each filter name.
+- Established application version `0.1.0a1` and separate profile format family and
+  revision identifiers with a dedicated format changelog.
+- Published preliminary `0.1.0a1` release notes with highlights, format identifiers,
+  validation coverage, upgrade guidance, and known limitations.

@@ -19,6 +19,8 @@ from tabalyst.models import DatasetProfile
 
 def test_basic_csv_statistics_and_json_roundtrip():
     profile = analyze_csv(Path(__file__).parents[1] / "examples/basic.csv")
+    assert profile.format_version == "0.1.0a"
+    assert profile.format_revision == 1
     assert profile.summary.row_count == 5
     assert profile.summary.column_count == 6
     assert profile.summary.cell_count == 30
@@ -386,6 +388,17 @@ def test_string_length_profiles(values, status, minimum, maximum, fixed):
     assert profile.string_profile.status == status
     assert profile.string_profile.minimum_length == minimum
     assert profile.string_profile.maximum_length == maximum
+    assert profile.string_profile.mean_length == round(
+        sum(len(value) for value in values) / len(values), 2
+    )
+    sorted_lengths = sorted(len(value) for value in values)
+    midpoint = len(sorted_lengths) // 2
+    expected_median = (
+        sorted_lengths[midpoint]
+        if len(sorted_lengths) % 2
+        else (sorted_lengths[midpoint - 1] + sorted_lengths[midpoint]) / 2
+    )
+    assert profile.string_profile.median_length == expected_median
     assert profile.string_profile.distinct_length_count == len(
         {len(value) for value in values}
     )
@@ -434,6 +447,7 @@ def test_string_length_profile_excludes_missing_and_uses_normalized_values():
                 short_max_length=20,
                 medium_max_length=30,
                 long_max_length=40,
+                length_distribution_max_length=30,
             )
         ),
     )
@@ -442,6 +456,18 @@ def test_string_length_profile_excludes_missing_and_uses_normalized_values():
     assert profile.string_profile.present_count == 2
     assert profile.string_profile.minimum_length == 5
     assert profile.string_profile.maximum_length == 10
+    assert profile.string_profile.mean_length == 7.5
+    assert profile.string_profile.median_length == 7.5
+
+
+def test_medium_strings_retain_at_most_ten_examples_per_length():
+    values = [f"value-{index:02}-" + "x" * 21 for index in range(12)]
+    profile = analyze_column(pd.Series(values))
+
+    assert profile.string_profile is not None
+    assert profile.string_profile.status == "medium"
+    assert len(profile.string_profile.length_distribution) == 1
+    assert len(profile.string_profile.length_distribution[0].examples) == 10
 
 
 def test_numeric_statistics_exclude_missing_values():

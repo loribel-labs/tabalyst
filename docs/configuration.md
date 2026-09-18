@@ -107,8 +107,8 @@ ambiguous dates contribute to the type error rate.
     "short_max_length": 20,
     "medium_max_length": 50,
     "long_max_length": 255,
-    "length_distribution_max_length": 20,
-    "examples_per_length": 5
+    "length_distribution_max_length": 50,
+    "examples_per_length": 10
   }
 }
 ```
@@ -116,14 +116,17 @@ ambiguous dates contribute to the type error rate.
 Present normalized values in physical `text` columns are classified from their
 maximum length as `very_short`, `short`, `medium`, `long` or `very_long`. A fixed
 length is recorded separately when minimum and maximum match. Missing values do
-not contribute to lengths.
+not contribute to lengths. Mean and median length are calculated for every text
+column; the report leaves them blank when the fixed length already conveys the
+same information.
 
 When the column maximum is at most `length_distribution_max_length`, JSON also
 contains occurrence and distinct-value counts for every observed length. Each
 length retains up to `examples_per_length` normalized distinct values, ordered by
 descending occurrence and then alphabetically. `distinct_length_count` remains
 available for every text column, including columns whose distribution is omitted.
-The report shows three retained examples per length in its String analysis tooltip.
+The report orders length groups by occurrence and shows three retained examples
+per length in its String analysis tooltip.
 
 ## Examples and value profiles
 

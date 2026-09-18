@@ -23,8 +23,8 @@
     "short_max_length": 20,
     "medium_max_length": 50,
     "long_max_length": 255,
-    "length_distribution_max_length": 20,
-    "examples_per_length": 5
+    "length_distribution_max_length": 50,
+    "examples_per_length": 10
   },
   "value_examples": {
     "full_distribution_max_distinct": 50,

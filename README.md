@@ -6,6 +6,8 @@ Built with pandas, Pydantic, Jinja2 and Bootstrap 5.3.8.
 Tabalyst is an alpha project. It is not published on PyPI and is not installed
 system-wide: it runs from a Git clone. If you are trying it for the first time,
 jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
+See the [Alpha 1 release notes](docs/releases/0.1.0a1.md) for the complete initial
+feature set and known limitations.
 
 ## Features
 
@@ -54,7 +56,7 @@ python -m tabalyst analyze data.csv --encoding cp1252 --delimiter ";"
 python -m tabalyst analyze data.csv --config examples\config.json --preview-rows 20
 
 # Regenerate a report from JSON, without the original CSV.
-python -m tabalyst render dataset.json -o report.html
+python -m tabalyst render report.json -o report.html
 
 # Full option list.
 python -m tabalyst --help
@@ -62,8 +64,44 @@ python -m tabalyst --help
 
 The default input is UTF-8 (with or without BOM), comma-separated, with a header row.
 
-Each `analyze` run writes two files in the output folder: `dataset.json`, the
-complete global analysis profile, and the HTML report itself.
+Each `analyze` run writes three files in the output folder. The JSON profile uses
+the HTML report's base name, while `execution.json` accumulates timing and version
+information across successful runs:
+
+```text
+reports\data\
+|-- report.html
+|-- report.json
+`-- execution.json
+```
+
+Running again with `-o reports\data\report2.html` creates `report2.html` and
+`report2.json`, then adds another item to the same `execution.json`. See the
+[execution history reference](docs/execution-history.md).
+
+## Versioning
+
+Tabalyst follows Python's PEP 440 version format. The current application version
+is `0.1.0a1`; future alpha checkpoints will use `0.1.0a2`, `0.1.0a3`, and so on.
+Git tags use the same value with a `v` prefix, for example `v0.1.0a1`.
+
+The generated profile has an independent version because its structure may evolve
+at a different pace from the application:
+
+```json
+{
+  "format_version": "0.1.0a",
+  "format_revision": 1
+}
+```
+
+`format_version` remains `0.1.0a` throughout the application `0.1.0aX` series.
+`format_revision` increases for each important structural or semantic change.
+Alpha revisions may be incompatible and do not have migration support yet. See
+the [profile format changelog](docs/format-changelog.md) for revision details and
+the [release notes](docs/releases/0.1.0a1.md) for application-level changes.
+
+The `execution.json` history has its own `schema_version`, currently `1.0`.
 
 ## Configuration
 

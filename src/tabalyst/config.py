@@ -96,8 +96,8 @@ class StringAnalysisConfig(BaseModel):
     short_max_length: int = Field(default=20, ge=1)
     medium_max_length: int = Field(default=50, ge=1)
     long_max_length: int = Field(default=255, ge=1)
-    length_distribution_max_length: int = Field(default=20, ge=1)
-    examples_per_length: int = Field(default=5, ge=1)
+    length_distribution_max_length: int = Field(default=50, ge=1)
+    examples_per_length: int = Field(default=10, ge=1)
 
     @model_validator(mode="after")
     def length_thresholds_must_increase(self):
@@ -109,9 +109,9 @@ class StringAnalysisConfig(BaseModel):
         ]
         if any(left >= right for left, right in pairwise(thresholds)):
             raise ValueError("String length thresholds must increase")
-        if self.length_distribution_max_length > self.short_max_length:
+        if self.length_distribution_max_length > self.medium_max_length:
             raise ValueError(
-                "length_distribution_max_length cannot exceed short_max_length"
+                "length_distribution_max_length cannot exceed medium_max_length"
             )
         return self
 
