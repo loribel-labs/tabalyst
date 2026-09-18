@@ -4,12 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ report.source.filename }} | Tabalyst</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Oswald:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link href="https://cdn.datatables.net/3.0.4/css/dataTables.bootstrap5.min.css" rel="stylesheet"
         integrity="sha384-OZKa6QSlaaq/LGR1sBFkYhC0c/nacIFh1chsblhDUxggC9Zb0XLEEMs95i1Kydnt" crossorigin="anonymous">
   <link href="https://cdn.datatables.net/columncontrol/2.0.2/css/columnControl.bootstrap5.min.css" rel="stylesheet"
         integrity="sha384-Wk/gyUq2KPW83FLwX2RxZfE6EJg34PaQBWKfWAGJFHAiO60FC3On+ZjtZ70V+0BP" crossorigin="anonymous">
+  <script>
+    (() => {
+      let theme = "dark";
+      try {
+        const saved = localStorage.getItem("tabalyst-theme");
+        if (saved === "light" || saved === "dark") theme = saved;
+      } catch (error) {
+        // Local files can disable storage; dark remains the deterministic default.
+      }
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.bsTheme = theme;
+    })();
+  </script>
   <style>{{ theme_css | safe }}</style>
 </head>
 <body>
@@ -17,9 +33,14 @@
   <header class="topbar">
     <div class="report-container topbar-inner">
       <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">T</span>Tabalyst</a>
-      <nav aria-label="Report sections">
-        <a href="#overview">Overview</a><a href="#columns">Columns</a><a href="#sample">Data sample</a>
-      </nav>
+      <div class="topbar-actions">
+        <nav aria-label="Report sections">
+          <a href="#overview">Overview</a><a href="#columns">Columns</a><a href="#sample">Data sample</a>
+        </nav>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode">
+          <span data-theme-icon aria-hidden="true">&#9788;</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -27,7 +48,7 @@
     <section id="overview" class="report-section">
       <div class="report-heading">
         <div>
-          <p class="eyebrow">DATASET REPORT</p>
+          <p class="eyebrow">Dataset report</p>
           <h1>{{ report.source.filename }}</h1>
           <p class="metadata">{{ (report.source.size_bytes / 1024) | round(1) }} KB
             <span aria-hidden="true"> / </span> {{ report.source.encoding }}
@@ -47,7 +68,7 @@
 
       <div class="overview-grid">
         <div>
-          <h2>Quality observations <span class="section-count">{{ report.issues | length }}</span></h2>
+          <h2>Quality observations <span class="section-count">({{ report.issues | length }})</span></h2>
           {% if report.issues %}
           <ul class="observations">
             {% for issue in report.issues %}
@@ -75,7 +96,7 @@
 
     <section id="columns" class="report-section">
       <div class="section-heading">
-        <h2>Columns <span class="section-count">{{ report.summary.column_count }}</span></h2>
+        <h2>Columns <span class="section-count">({{ report.summary.column_count }})</span></h2>
         <div class="table-actions">
           <div class="column-search">
             <label class="visually-hidden" for="column-search">Filter columns by name</label>
@@ -93,8 +114,22 @@
               <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
               <td data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}"><div class="missing-value"><span>{{ column.missing_percent }}%</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div></td>
               <td class="text-end tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
-              <td class="examples">{% for example in column.examples %}<span>{{ example }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}</td>
+              {% set display_type = column.inferred_type ~ (' · ' ~ column.semantic_type if column.semantic_type else '') %}
+              <td data-order="{{ display_type }}" data-search="{{ display_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span>{% if column.semantic_type %}<span class="semantic-separator" aria-hidden="true">·</span><span class="type-badge semantic-badge" title="Candidate semantic type; {{ column.enum.coverage_percent }}% coverage">{{ column.semantic_type }}</span>{% endif %}</td>
+              <td class="examples" tabindex="0" aria-describedby="{{ column.id }}-examples-tooltip">
+                {% set inline_count = report.config.value_examples.inline_display_size %}
+                {% for item in column.value_profile.values[:inline_count] %}<span class="example-value">{{ item.value }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}
+                {% set remaining = column.value_profile.values[inline_count:] %}
+                {% if remaining %}<span class="example-more" aria-hidden="true">{{ '++' if column.value_profile.selection != 'complete' else '+' ~ (remaining | length) }}</span>{% endif %}
+                {% if column.value_profile.values %}
+                <div id="{{ column.id }}-examples-tooltip" class="examples-tooltip" role="tooltip">
+                  <div class="examples-tooltip-title">Values <span>{{ column.value_profile.values | length }}{% if column.value_profile.selection != 'complete' %} / {{ column.distinct_count | count }}{% endif %}</span></div>
+                  <div class="examples-tooltip-list">
+                    {% for item in column.value_profile.values %}<div><span>{{ item.value }}</span><small>({{ item.count | count }})</small></div>{% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
@@ -105,7 +140,7 @@
       {% set numeric_columns = report.columns | selectattr('numeric') | list %}
       {% if numeric_columns %}
       <details class="numeric-details">
-        <summary>Numeric summary <span class="section-count">{{ numeric_columns | length }}</span></summary>
+        <summary>Numeric summary <span class="section-count">({{ numeric_columns | length }})</span></summary>
         <div class="table-actions numeric-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
         <div class="table-responsive mt-3" tabindex="0" role="region" aria-label="Numeric statistics">
           <table id="numeric-table" class="table table-sm numeric-table">
@@ -140,6 +175,8 @@
           <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
           <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
           <div><dt>Type inference</dt><dd>All present values; ISO dates (YYYY-MM-DD), dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
+          <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>
+          <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
           <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
           <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>
           <div><dt>JSON format</dt><dd>{{ report.format_version }} (experimental)</dd></div>
@@ -148,7 +185,7 @@
       </details>
     </section>
   </main>
-  <footer class="report-container footer"><span>Tabalyst</span><span>Gregory Borelli - Catalyseur Num&#233;rique</span></footer>
+  <footer class="footer"><div class="report-container footer-inner"><span>Tabalyst</span><span>Gregory Borelli - Catalyseur Num&#233;rique</span></div></footer>
   <script src="https://cdn.datatables.net/3.0.4/js/dataTables.min.js" integrity="sha384-i3qKUispup6yO0B16Bvnk2AmVi8O60Qww2omjtD9NHi1ns1H4jiz2EhYBjLew/9C" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/3.0.4/js/dataTables.bootstrap5.min.js" integrity="sha384-4d8X9sr6Gnv9AgIQn6bv3lmQxj5fD+9bVAun0/XMmdy7oPRvT0adfiUUiiYpi4Ck" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/dataTables.columnControl.min.js" integrity="sha384-s+uWQ72aUBdD8WMvuzuM/dgwuDT+sZo4mNvlZ9AAH6iZlX9hpJX6t4R7jbK26LZN" crossorigin="anonymous"></script>

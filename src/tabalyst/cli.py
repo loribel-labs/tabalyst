@@ -1,3 +1,5 @@
+"""Command-line entry points for CSV analysis and report rendering."""
+
 from pathlib import Path
 from typing import Annotated
 
@@ -10,6 +12,19 @@ from tabalyst.service import analyze_csv
 app = typer.Typer(
     no_args_is_help=True, help="Analyze CSV data and generate HTML reports."
 )
+PROJECT_CONFIG_NAME = "tabalyst.json"
+
+
+def analysis_config_paths(explicit: list[Path]) -> list[Path]:
+    """Put the current project's automatic config before explicit overrides."""
+    project_config = Path.cwd() / PROJECT_CONFIG_NAME
+    paths = [project_config] if project_config.is_file() else []
+    known = {path.resolve() for path in paths}
+    for path in explicit:
+        if path.resolve() not in known:
+            paths.append(path)
+            known.add(path.resolve())
+    return paths
 
 
 def check_outputs(inputs: list[Path], outputs: list[Path]) -> None:
@@ -53,8 +68,9 @@ def analyze(
     """Create dataset.json and an HTML report (UTF-8 CSV, comma delimiter by default)."""
     json_output = json_output or output.with_name("dataset.json")
     try:
-        check_outputs([source, *(config or [])], [output, json_output])
-        settings = load_config(config or []).model_dump()
+        config_paths = analysis_config_paths(config or [])
+        check_outputs([source, *config_paths], [output, json_output])
+        settings = load_config(config_paths).model_dump()
         if delimiter is not None:
             settings["csv"]["delimiter"] = delimiter
         if encoding is not None:
@@ -70,6 +86,8 @@ def analyze(
     typer.echo(
         f"Analyzed {profile.summary.row_count:,} rows and {profile.summary.column_count} columns."
     )
+    if config_paths:
+        typer.echo("Configuration: " + ", ".join(str(path.resolve()) for path in config_paths))
     typer.echo(f"JSON: {json_output.resolve()}")
     typer.echo(f"HTML: {output.resolve()}")
 

@@ -1,4 +1,30 @@
 (() => {
+  const root = document.documentElement;
+  const themeToggle = document.getElementById("theme-toggle");
+
+  function setTheme(theme, persist = true) {
+    root.dataset.theme = theme;
+    root.dataset.bsTheme = theme;
+    const dark = theme === "dark";
+    const label = dark ? "Switch to light mode" : "Switch to dark mode";
+    themeToggle.setAttribute("aria-label", label);
+    themeToggle.setAttribute("aria-pressed", String(dark));
+    themeToggle.title = label;
+    themeToggle.querySelector("[data-theme-icon]").textContent = dark ? "\u2600" : "\u263e";
+    if (persist) {
+      try {
+        localStorage.setItem("tabalyst-theme", theme);
+      } catch (error) {
+        // Theme switching still works when local files cannot use storage.
+      }
+    }
+  }
+
+  setTheme(root.dataset.theme || "dark", false);
+  themeToggle.addEventListener("click", () => {
+    setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+  });
+
   const nameSearch = document.getElementById("column-search");
   const summary = document.getElementById("columns-table");
 
@@ -213,13 +239,37 @@
     for (const button of document.querySelectorAll(".dtcc-list-buttons .dtcc-button")) {
       button.setAttribute("role", "checkbox");
       button.setAttribute("aria-checked", String(button.classList.contains("dtcc-button_active")));
-      button.setAttribute("aria-label", button.querySelector(".dtcc-button-text").textContent);
+      const badges = [...button.querySelectorAll(".type-badge")].map(badge => badge.textContent);
+      const count = button.querySelector(".filter-option-count")?.textContent || "";
+      const label = badges.length > 1
+        ? `${badges.join(" · ")} ${count}`
+        : button.querySelector(".dtcc-button-text").textContent;
+      button.setAttribute("aria-label", label);
     }
     positionMenus();
   });
   menuObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   document.addEventListener("scroll", positionMenus, { capture: true, passive: true });
   window.addEventListener("resize", () => requestAnimationFrame(positionMenus));
+
+  function positionExampleTooltip(cell) {
+    const tooltip = cell.querySelector(".examples-tooltip");
+    if (!tooltip) return;
+    const anchor = cell.getBoundingClientRect();
+    const overlap = Math.min(32, anchor.height * 0.65);
+    const left = Math.max(12, Math.min(anchor.left, innerWidth - tooltip.offsetWidth - 12));
+    const below = anchor.bottom - overlap;
+    const top = below + tooltip.offsetHeight <= innerHeight - 12
+      ? below
+      : anchor.top - tooltip.offsetHeight + overlap;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${Math.max(12, top)}px`;
+  }
+
+  for (const cell of document.querySelectorAll(".examples")) {
+    cell.addEventListener("pointerenter", () => positionExampleTooltip(cell));
+    cell.addEventListener("focusin", () => positionExampleTooltip(cell));
+  }
 
   function attachTable(element, columns, noun) {
     const table = new DataTable(element, {
@@ -275,10 +325,14 @@
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Missing (%)" }) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Distinct values" }) },
     { type: "string", columnControl: controls(checkboxFilter(summary, 3, (value, count) => {
-      const type = DataTable.util.escapeHtml(value);
-      const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(value)
-        ? `badge-${value}` : "badge-empty";
-      return `<span class="type-badge ${badge}">${type}</span> <span class="filter-option-count">(${count})</span>`;
+      const [physicalType, semanticType] = value.split(" · ");
+      const type = DataTable.util.escapeHtml(physicalType);
+      const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(physicalType)
+        ? `badge-${physicalType}` : "badge-empty";
+      const semantic = semanticType
+        ? `<span class="semantic-separator" aria-hidden="true">·</span><span class="type-badge semantic-badge">${DataTable.util.escapeHtml(semanticType)}</span>`
+        : "";
+      return `<span class="type-badge ${badge}">${type}</span>${semantic} <span class="filter-option-count">(${count})</span>`;
     })) },
     { orderable: false, columnControl: [] },
   ], "columns");
