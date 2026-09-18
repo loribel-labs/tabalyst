@@ -47,6 +47,22 @@ async function reset(page, table = 'columns-table') {
       page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
       await page.goto(pathToFileURL(path.resolve(process.argv[2])).href, { waitUntil: 'networkidle' });
       await page.waitForSelector('#columns-table[data-interactive="true"]');
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+      assert.equal(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(7, 10, 24)');
+      assert.ok((await page.locator('body').evaluate(el => getComputedStyle(el).fontFamily)).includes('Roboto'));
+      assert.ok((await page.locator('h1').evaluate(el => getComputedStyle(el).fontFamily)).includes('Oswald'));
+      assert.ok((await page.locator('#columns-table tbody td').first().evaluate(el => getComputedStyle(el).fontFamily)).includes('Consolas'));
+      assert.ok((await page.locator('.eyebrow').evaluate(el => getComputedStyle(el).fontFamily)).includes('Caveat'));
+      assert.equal(await page.locator('.topbar').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
+      assert.equal(await page.locator('.footer').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
+      await page.locator('#theme-toggle').click();
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+      assert.equal(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.waitForSelector('#columns-table[data-interactive="true"]');
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+      await page.locator('#theme-toggle').click();
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
       assert.equal(await page.evaluate(() => DataTable.version), '3.0.4');
       assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Distinct', 'Inferred type', 'Examples']);
       for (const header of await page.locator('#columns-table thead th:has(.dtcc-button_dropdown)').all()) {
@@ -89,16 +105,20 @@ async function reset(page, table = 'columns-table') {
       await reset(page);
 
       // Type selections combine with OR; different column filters combine with AND.
-      const types = [...new Set(profile.columns.map(column => column.inferred_type))].slice(0, 2);
+      const displayType = column => column.semantic_type
+        ? `${column.inferred_type} · ${column.semantic_type}`
+        : column.inferred_type;
+      const types = [...new Set(profile.columns.map(displayType))].slice(0, 2);
       menu = await popup(page, 'columns-table', 3);
       for (const type of types) {
-        const count = profile.columns.filter(column => column.inferred_type === type).length;
+        const count = profile.columns.filter(column => displayType(column) === type).length;
         const option = menu.getByRole('checkbox', { name: `${type} (${count})`, exact: true });
-        assert.equal(await option.locator('.type-badge').innerText(), type);
+        await option.waitFor();
+        assert.equal((await option.locator('.type-badge').allInnerTexts()).join(' · '), type);
         await option.click();
       }
       await page.keyboard.press('Escape');
-      const byType = profile.columns.filter(column => types.includes(column.inferred_type));
+      const byType = profile.columns.filter(column => types.includes(displayType(column)));
       await displayedColumns(page, byType);
       await numberFilter(page, 'columns-table', 1, 'greater', 5);
       const byMissing = byType.filter(column => column.missing_percent > 5);
@@ -108,6 +128,37 @@ async function reset(page, table = 'columns-table') {
       await numberFilter(page, 'columns-table', 2, 'greater', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count > 100));
       await reset(page);
+
+      const expanded = profile.columns.find(column => column.value_profile.values.length > profile.config.value_examples.inline_display_size);
+      if (expanded) {
+        const more = page.locator(`#${expanded.id} .example-more`);
+        const marker = expanded.value_profile.selection === 'complete'
+          ? `+${expanded.value_profile.values.length - profile.config.value_examples.inline_display_size}`
+          : '++';
+        assert.equal(await more.innerText(), marker);
+        const cell = page.locator(`#${expanded.id} .examples`);
+        await cell.hover();
+        const tooltip = cell.locator('.examples-tooltip');
+        await tooltip.waitFor({ state: 'visible' });
+        const totalLabel = expanded.value_profile.selection === 'complete'
+          ? String(expanded.value_profile.values.length)
+          : `${expanded.value_profile.values.length} / ${expanded.distinct_count.toLocaleString('en-US')}`;
+        assert.equal(await tooltip.locator('.examples-tooltip-title span').innerText(), totalLabel);
+        const rows = await tooltip.locator('.examples-tooltip-list > div').evaluateAll(nodes => nodes.map(node => ({
+          value: node.querySelector('span').textContent,
+          count: Number(node.querySelector('small').textContent.replace(/[^0-9]/g, '')),
+        })));
+        assert.deepEqual(rows, expanded.value_profile.values.map(item => ({ value: item.value, count: item.count })));
+        assert.deepEqual(rows.map(row => row.count), [...rows.map(row => row.count)].sort((a, b) => b - a));
+        const box = await tooltip.boundingBox();
+        const cellBox = await cell.boundingBox();
+        assert.ok(box.x >= 0 && box.x + box.width <= width + 1, JSON.stringify(box));
+        assert.ok(box.y >= 0 && box.y + box.height <= height + 1, JSON.stringify(box));
+        const verticalGap = Math.max(0, box.y - (cellBox.y + cellBox.height), cellBox.y - (box.y + box.height));
+        assert.ok(verticalGap <= 1, JSON.stringify({ box, cellBox, verticalGap }));
+        await page.mouse.move(box.x + box.width / 2, box.y + Math.min(20, box.height / 2));
+        assert.equal(await tooltip.isVisible(), true);
+      }
 
       // Strict greater-than includes a zero threshold and fractional percentages.
       for (const threshold of [0, 0.1, 100]) {
@@ -134,10 +185,11 @@ async function reset(page, table = 'columns-table') {
           await displayedColumns(page, profile.columns.filter(column => column[field] >= low && column[field] <= high));
         }
         const trigger = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_dropdown');
-        assert.equal(await trigger.evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
+        assert.equal(await trigger.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
+        assert.equal(await trigger.evaluate(el => getComputedStyle(el).color), 'rgb(0, 5, 26)');
         assert.equal(await trigger.evaluate(el => getComputedStyle(el).opacity), '1');
-        assert.equal(await trigger.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(23, 111, 193)');
-        assert.equal(await trigger.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
+        assert.equal(await trigger.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(0, 5, 26)');
+        assert.equal(await trigger.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(249, 133, 16)');
         menu = await popup(page, 'columns-table', index);
         await menu.locator('.dtcc-button_searchClear').click();
         await displayedColumns(page, profile.columns);
@@ -163,9 +215,10 @@ async function reset(page, table = 'columns-table') {
           }, { index, direction }, { timeout: 5000 });
           await sort.waitFor({ state: 'visible' });
           await page.waitForFunction(element => element.classList.contains('dtcc-button_active'), await sort.elementHandle());
-          assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
-          assert.equal(await sort.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(23, 111, 193)');
-          assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).color), 'rgb(23, 111, 193)');
+          assert.equal(await sort.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
+          assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(0, 5, 26)');
+          assert.equal(await sort.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(0, 5, 26)');
+          assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(249, 133, 16)');
           const values = await page.locator('#columns-table tbody tr[id]').evaluateAll((rows, i) => rows.map(row => Number(row.cells[i].dataset.order)), index);
           assert.deepEqual(values, [...values].sort((a, b) => direction * (a - b)));
         }
@@ -214,7 +267,7 @@ async function reset(page, table = 'columns-table') {
       if (scrollAreas.length) assert.equal(scrollAreas[0], 'dtcc-list-buttons');
       assert.equal(await menu.locator('.dtcc-list-buttons').evaluate(el => getComputedStyle(el).scrollbarWidth), 'thin');
       const backgrounds = await menu.locator('.dtcc-dropdown-liner, .dtcc-list, .dtcc-list-controls, .dtcc-list-buttons, .dtcc-list-buttons button').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundColor));
-      assert.ok(backgrounds.every(color => color === 'rgb(243, 245, 247)'), JSON.stringify(backgrounds));
+      assert.ok(backgrounds.every(color => color === backgrounds[0]), JSON.stringify(backgrounds));
       assert.ok((await menu.locator('input').boundingBox()).height <= 28);
       const handle = menu.locator('.filter-drag-handle');
       const beforeDrag = await menu.boundingBox();

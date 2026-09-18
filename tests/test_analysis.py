@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from tabalyst import AnalysisConfig, analyze_column, analyze_csv
-from tabalyst.config import CsvConfig
+from tabalyst.config import CsvConfig, EnumDetectionConfig, ValueExamplesConfig
 from tabalyst.ingestion import CsvInputError
 from tabalyst.models import DatasetProfile
 
@@ -166,3 +166,103 @@ def test_preview_size_does_not_change_analysis(tmp_path):
     assert profile.summary.row_count == 3
     assert profile.summary.duplicate_row_count == 1
     assert analyze_csv(source, AnalysisConfig(preview_rows=0)).preview == []
+
+
+def test_low_cardinality_values_include_complete_occurrence_counts():
+    profile = analyze_column(pd.Series(["beta", "alpha", "beta", "", "alpha", "beta"]))
+
+    assert profile.value_profile.selection == "complete"
+    assert [item.model_dump() for item in profile.value_profile.values] == [
+        {"value": "beta", "count": 3, "truncated": False},
+        {"value": "alpha", "count": 2, "truncated": False},
+    ]
+    assert profile.examples == ["beta", "alpha"]
+
+
+def test_high_cardinality_short_text_uses_reproducible_diverse_sample():
+    values = [f"item-{index:03}" for index in range(120)]
+    config = AnalysisConfig(
+        value_examples=ValueExamplesConfig(
+            candidate_sample_size=80,
+            short_text_result_size=12,
+            random_seed=7,
+        )
+    )
+
+    first = analyze_column(pd.Series(values), config=config)
+    second = analyze_column(pd.Series(values), config=config)
+
+    assert first.value_profile == second.value_profile
+    assert first.value_profile.selection == "diverse_sample"
+    assert first.value_profile.sampled_distinct_count == 80
+    assert len(first.value_profile.values) == 12
+    assert len({item.value for item in first.value_profile.values}) == 12
+
+
+def test_visible_examples_are_the_most_frequent_values():
+    values = [f"item-{index:03}" for index in range(60)]
+    values += ["popular"] * 8 + ["common"] * 5 + ["regular"] * 3
+
+    profile = analyze_column(pd.Series(values))
+
+    assert profile.examples == ["popular", "common", "regular"]
+    assert [(item.value, item.count) for item in profile.value_profile.values[:3]] == [
+        ("popular", 8),
+        ("common", 5),
+        ("regular", 3),
+    ]
+    assert [item.count for item in profile.value_profile.values] == sorted(
+        (item.count for item in profile.value_profile.values), reverse=True
+    )
+
+
+def test_high_cardinality_long_text_uses_bounded_truncated_sample():
+    values = [f"value-{index:03}-" + "x" * 40 for index in range(120)]
+    config = AnalysisConfig(
+        value_examples=ValueExamplesConfig(
+            long_text_result_size=7,
+            long_text_truncate_at=15,
+            truncation_suffix="[...]",
+        )
+    )
+
+    profile = analyze_column(pd.Series(values), config=config)
+
+    assert profile.value_profile.selection == "random_sample"
+    assert len(profile.value_profile.values) == 7
+    assert all(item.truncated for item in profile.value_profile.values)
+    assert all(len(item.value) == 20 for item in profile.value_profile.values)
+
+
+def test_enum_is_a_semantic_candidate_with_coverage_and_confidence():
+    values = ["open", "closed"] * 225 + [""] * 50
+    profile = analyze_column(pd.Series(values))
+
+    assert profile.inferred_type == "text"
+    assert profile.semantic_type == "enum"
+    assert profile.enum is not None
+    assert profile.enum.status == "candidate"
+    assert profile.enum.observed_distinct_count == 2
+    assert profile.enum.non_missing_count == 450
+    assert profile.enum.coverage_percent == 90.0
+    assert profile.enum.confidence == 0.9
+
+
+def test_enum_threshold_type_and_case_sensitivity_are_configurable():
+    below_minimum = analyze_column(pd.Series(["a"] * 499))
+    numeric = analyze_column(pd.Series(["1", "2"] * 250))
+    exact = analyze_column(pd.Series([f"Value-{index}" for index in range(50)] * 10))
+    insensitive = analyze_column(
+        pd.Series(["OPEN", "open"] * 250),
+        config=AnalysisConfig(
+            enum_detection=EnumDetectionConfig(
+                maximum_distinct_values=1,
+                case_sensitive=False,
+            )
+        ),
+    )
+
+    assert below_minimum.semantic_type is None
+    assert numeric.semantic_type is None
+    assert exact.semantic_type is None
+    assert insensitive.semantic_type == "enum"

@@ -27,6 +27,26 @@ class NumericStats(ResultModel):
     median: FiniteFloat
 
 
+class ValueOccurrence(ResultModel):
+    value: str
+    count: int
+    truncated: bool = False
+
+
+class ValueProfile(ResultModel):
+    selection: Literal["complete", "diverse_sample", "random_sample"]
+    sampled_distinct_count: int
+    values: list[ValueOccurrence]
+
+
+class EnumCandidate(ResultModel):
+    status: Literal["candidate"] = "candidate"
+    observed_distinct_count: int
+    non_missing_count: int
+    coverage_percent: float
+    confidence: float
+
+
 class ColumnProfile(ResultModel):
     id: str
     name: str
@@ -39,6 +59,9 @@ class ColumnProfile(ResultModel):
     missing_percent: float
     distinct_count: int
     examples: list[str]
+    value_profile: ValueProfile
+    semantic_type: Literal["enum"] | None = None
+    enum: EnumCandidate | None = None
     numeric: NumericStats | None = None
 
 
@@ -69,7 +92,7 @@ class PreviewRow(ResultModel):
 
 
 class DatasetProfile(ResultModel):
-    format_version: Literal["0.1"] = "0.1"
+    format_version: Literal["0.2"] = "0.2"
     generated_at: datetime
     source: SourceInfo
     config: AnalysisConfig

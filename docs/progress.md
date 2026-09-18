@@ -8,4 +8,7 @@
 - Built the Bootstrap HTML report with quality observations and numbered raw-data previews.
 - Added sortable and filterable tables, type badges, numeric comparisons and inclusive ranges.
 - Refined filter ergonomics with compact controls, active states, draggable dialogs and responsive desktop/mobile layouts.
+- Applied the report typography and semantic color system, with full-width bands and persistent dark/light themes.
 - Added automated Python and browser coverage, including malformed data and HTML-injection checks.
+- Added configurable value distributions and representative sampling, plus low-cardinality `enum` candidates with report tooltips.
+- Added automatic project configuration through a root-level `tabalyst.json`, with explicit files and CLI options as later overrides.

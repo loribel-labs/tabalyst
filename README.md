@@ -10,7 +10,8 @@ jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
 ## Features
 
 - Row and column counts, missing cells, exact duplicate rows and quality observations.
-- Column summaries: inferred types, distinct values, examples and numeric statistics.
+- Column summaries: inferred types, semantic enum candidates, value occurrences,
+  representative examples and numeric statistics.
 - Numbered raw-data preview; all records are analyzed regardless of preview size.
 - Independent JSON-to-HTML rendering, ready for custom report templates.
 - Sortable tables with column filters, multi-select checklists and numeric conditions.
@@ -20,6 +21,8 @@ Missing (%) and Distinct: `=`, `>`, `>=`, `<`, `<=`, or an inclusive
 `[minimum, maximum]` range. Filters combine, and Reset restores the original view.
 Sample filters apply only to the embedded preview rows, not to the complete CSV.
 DataTables 3.0.4 and ColumnControl 2.0.2 load from their CDN alongside Bootstrap.
+Google Fonts supplies Oswald, Roboto and Caveat, so the generated report needs an
+internet connection for its complete presentation.
 
 Raw values are preserved. Blank and whitespace-only values count as missing by
 default; literal `NA` and `NULL` do not. Malformed records produce errors rather
@@ -41,7 +44,7 @@ python -m tabalyst analyze data.csv -o reports\data\report.html
 # Non-default encoding or delimiter.
 python -m tabalyst analyze data.csv --encoding cp1252 --delimiter ";"
 
-# Load one or more configuration files, and set the preview size.
+# Add one or more overrides after the automatic tabalyst.json, and set the preview size.
 python -m tabalyst analyze data.csv --config examples\config.json --preview-rows 20
 
 # Regenerate a report from JSON, without the original CSV.
@@ -58,9 +61,16 @@ complete global analysis profile, and the HTML report itself.
 
 ## Configuration
 
-Configuration files merge in order: later values win, lists replace previous lists,
-and CLI options take precedence over every file. See
-[example settings](examples/config.json).
+When `tabalyst.json` exists in the directory where the command is run, Tabalyst
+loads it automatically. Files passed with `--config` merge afterward: later values
+win, lists replace previous lists, and CLI options take precedence over every file. See
+[example settings](examples/config.json) and the full
+[configuration reference](docs/configuration.md).
+
+The `value_examples` section controls distribution, sampling, text-length and
+display thresholds. The `enum_detection` section controls low-cardinality text
+classification. These values are part of the generated JSON so every report keeps
+the exact settings used for its analysis.
 
 ## Development
 

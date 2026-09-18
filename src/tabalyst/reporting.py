@@ -1,3 +1,5 @@
+"""Render self-contained analysis results as an interactive HTML report."""
+
 from collections import Counter
 from importlib.resources import files
 from pathlib import Path
@@ -8,6 +10,7 @@ from tabalyst.models import DatasetProfile
 
 
 def load_profile(path: str | Path) -> DatasetProfile:
+    """Validate and load the experimental JSON profile format."""
     return DatasetProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
 
 

@@ -105,6 +105,84 @@ def test_configuration_files_merge_and_cli_options_override(tmp_path):
     assert data["preview"] == []
 
 
+def test_nested_configuration_sections_merge_recursively(tmp_path):
+    first = tmp_path / "first.json"
+    second = tmp_path / "second.json"
+    first.write_text(
+        json.dumps(
+            {
+                "value_examples": {
+                    "candidate_sample_size": 25,
+                    "short_text_result_size": 8,
+                }
+            }
+        )
+    )
+    second.write_text(
+        json.dumps({"value_examples": {"candidate_sample_size": 40}})
+    )
+
+    config = load_config([first, second])
+
+    assert config.value_examples.candidate_sample_size == 40
+    assert config.value_examples.short_text_result_size == 8
+    assert config.value_examples.long_text_result_size == 20
+
+
+def test_project_config_is_automatic_and_explicit_config_overrides_it(
+    tmp_path, monkeypatch
+):
+    project_config = tmp_path / "tabalyst.json"
+    project_config.write_text(
+        json.dumps(
+            {
+                "preview_rows": 0,
+                "value_examples": {"short_text_result_size": 17},
+            }
+        )
+    )
+    override = tmp_path / "override.json"
+    override.write_text(json.dumps({"preview_rows": 1}))
+    source = tmp_path / "input.csv"
+    source.write_text("name\nalpha\nbeta\n", encoding="utf-8")
+    output = tmp_path / "report.html"
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        ["analyze", str(source), "--config", str(override), "-o", str(output)],
+    )
+
+    assert result.exit_code == 0, result.output
+    data = json.loads(output.with_name("dataset.json").read_text(encoding="utf-8"))
+    assert data["config"]["preview_rows"] == 1
+    assert data["config"]["value_examples"]["short_text_result_size"] == 17
+    assert str(project_config.resolve()) in result.output
+    assert str(override.resolve()) in result.output
+
+
+def test_internal_defaults_apply_outside_a_project_without_config(
+    tmp_path, monkeypatch
+):
+    source = tmp_path / "input.csv"
+    source.write_text(
+        "name\n" + "\n".join(f"value-{index:03}" for index in range(60)) + "\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "report.html"
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["analyze", str(source), "-o", str(output)])
+
+    assert result.exit_code == 0, result.output
+    assert "Configuration:" not in result.output
+    data = json.loads(output.with_name("dataset.json").read_text(encoding="utf-8"))
+    settings = data["config"]["value_examples"]
+    assert settings["short_text_result_size"] == 20
+    assert settings["long_text_result_size"] == 20
+    assert len(data["columns"][0]["value_profile"]["values"]) == 20
+
+
 @pytest.mark.parametrize(
     "content", ['{"unexpected": true}', "[1, 2]", '{"csv": {"delimiter": "||"}}']
 )
