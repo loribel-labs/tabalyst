@@ -27,6 +27,13 @@ class NumericStats(ResultModel):
     median: FiniteFloat
 
 
+class NormalizationStats(ResultModel):
+    trim_count: int
+    trim_percent: float
+    collapse_internal_whitespace_count: int
+    collapse_internal_whitespace_percent: float
+
+
 class ValueOccurrence(ResultModel):
     value: str
     count: int
@@ -57,6 +64,7 @@ class ColumnProfile(ResultModel):
     type_counts: dict[str, int]
     missing_count: int
     missing_percent: float
+    normalization: NormalizationStats
     distinct_count: int
     examples: list[str]
     value_profile: ValueProfile
@@ -71,6 +79,8 @@ class DatasetSummary(ResultModel):
     cell_count: int
     missing_count: int
     missing_percent: float
+    trim_count: int
+    collapse_internal_whitespace_count: int
     duplicate_row_count: int
     empty_row_count: int
     empty_column_count: int
@@ -92,7 +102,7 @@ class PreviewRow(ResultModel):
 
 
 class DatasetProfile(ResultModel):
-    format_version: Literal["0.2"] = "0.2"
+    format_version: Literal["0.3"] = "0.3"
     generated_at: datetime
     source: SourceInfo
     config: AnalysisConfig

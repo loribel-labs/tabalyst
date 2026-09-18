@@ -17,6 +17,7 @@ from tabalyst.models import (
     DatasetSummary,
     EnumCandidate,
     Issue,
+    NormalizationStats,
     NumericStats,
     PreviewRow,
     ValueOccurrence,
@@ -28,6 +29,7 @@ NUMBER = re.compile(
     r"[+-]?(?:(?:0|[1-9][0-9]*)(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
 )
 ISO_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+INTERNAL_HORIZONTAL_WHITESPACE = re.compile(r"[^\S\r\n]+")
 
 
 def percent(count: int, total: int) -> float:
@@ -52,6 +54,31 @@ def value_type(value: str) -> str:
 
 def missing_mask(values: pd.Series, config: AnalysisConfig) -> pd.Series:
     return values.str.strip().isin({marker.strip() for marker in config.missing_values})
+
+
+def normalize_values(
+    values: pd.Series, config: AnalysisConfig
+) -> tuple[pd.Series, NormalizationStats]:
+    """Normalize analysis values while counting each changed cell per operation."""
+    normalized = values
+    trim_count = 0
+    collapse_count = 0
+    if config.normalization.trim:
+        trimmed = normalized.str.strip()
+        trim_count = int((trimmed != normalized).sum())
+        normalized = trimmed
+    if config.normalization.collapse_internal_whitespace:
+        collapsed = normalized.str.replace(
+            INTERNAL_HORIZONTAL_WHITESPACE, " ", regex=True
+        )
+        collapse_count = int((collapsed != normalized).sum())
+        normalized = collapsed
+    return normalized, NormalizationStats(
+        trim_count=trim_count,
+        trim_percent=percent(trim_count, len(values)),
+        collapse_internal_whitespace_count=collapse_count,
+        collapse_internal_whitespace_percent=percent(collapse_count, len(values)),
+    )
 
 
 def normalized_edit_distance(left: str, right: str) -> float:
@@ -228,15 +255,16 @@ def analyze_column(
     config = config or AnalysisConfig()
     if not all(isinstance(value, str) for value in values):
         raise ValueError("Column analysis expects raw strings, without null objects.")
-    absent = missing_mask(values, config)
-    present = values[~absent]
+    normalized, normalization = normalize_values(values, config)
+    absent = missing_mask(normalized, config)
+    present = normalized[~absent]
     frequencies = sorted(
         ((str(value), int(count)) for value, count in present.value_counts().items()),
         key=lambda item: (-item[1], item[0]),
     )
     counts: Counter[str] = Counter()
     for value, count in frequencies:
-        counts[value_type(value.strip())] += count
+        counts[value_type(value)] += count
     kinds = set(counts)
     if not kinds:
         inferred = "empty"
@@ -247,7 +275,7 @@ def analyze_column(
 
     numeric = None
     if inferred in {"integer", "number"}:
-        numbers = pd.to_numeric(present.str.strip(), errors="coerce").astype(float)
+        numbers = pd.to_numeric(present, errors="coerce").astype(float)
         stats = [numbers.min(), numbers.max(), numbers.mean(), numbers.median()]
         if numbers.notna().all() and all(math.isfinite(value) for value in stats):
             numeric = NumericStats(
@@ -273,6 +301,7 @@ def analyze_column(
         type_counts=dict(counts),
         missing_count=int(absent.sum()),
         missing_percent=percent(int(absent.sum()), len(values)),
+        normalization=normalization,
         distinct_count=len(frequencies),
         examples=[
             item.value
@@ -294,6 +323,10 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
     absent = frame.apply(lambda values: missing_mask(values, config))
     duplicates = frame.duplicated(keep="first")
     missing_count = sum(column.missing_count for column in columns)
+    trim_count = sum(column.normalization.trim_count for column in columns)
+    collapse_count = sum(
+        column.normalization.collapse_internal_whitespace_count for column in columns
+    )
     empty = [column.id for column in columns if column.inferred_type == "empty"]
     constant = [column.id for column in columns if column.distinct_count == 1]
     mixed = [column.id for column in columns if column.inferred_type == "mixed"]
@@ -355,6 +388,8 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
             cell_count=frame.size,
             missing_count=missing_count,
             missing_percent=percent(missing_count, frame.size),
+            trim_count=trim_count,
+            collapse_internal_whitespace_count=collapse_count,
             duplicate_row_count=int(duplicates.sum()),
             empty_row_count=int(absent.all(axis=1).sum()),
             empty_column_count=len(empty),

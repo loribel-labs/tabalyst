@@ -12,6 +12,8 @@ jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
 - Row and column counts, missing cells, exact duplicate rows and quality observations.
 - Column summaries: inferred types, semantic enum candidates, value occurrences,
   representative examples and numeric statistics.
+- Configurable whitespace normalization with per-column and dataset-level change
+  counts while preserving raw preview values.
 - Numbered raw-data preview; all records are analyzed regardless of preview size.
 - Independent JSON-to-HTML rendering, ready for custom report templates.
 - Sortable tables with column filters, multi-select checklists and numeric conditions.
