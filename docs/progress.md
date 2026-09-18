@@ -12,3 +12,4 @@
 - Added automated Python and browser coverage, including malformed data and HTML-injection checks.
 - Added configurable value distributions and representative sampling, plus low-cardinality `enum` candidates with report tooltips.
 - Added automatic project configuration through a root-level `tabalyst.json`, with explicit files and CLI options as later overrides.
+- Added configurable trim and internal-whitespace normalization with detailed column and dataset counters.

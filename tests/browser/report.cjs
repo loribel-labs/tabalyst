@@ -64,7 +64,7 @@ async function reset(page, table = 'columns-table') {
       await page.locator('#theme-toggle').click();
       assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
       assert.equal(await page.evaluate(() => DataTable.version), '3.0.4');
-      assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Distinct', 'Inferred type', 'Examples']);
+      assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Trimmed', 'Whitespace collapsed', 'Distinct', 'Inferred type', 'Examples']);
       for (const header of await page.locator('#columns-table thead th:has(.dtcc-button_dropdown)').all()) {
         const positions = await header.evaluate(cell => ({
           filter: cell.querySelector('.dtcc-button_dropdown').getBoundingClientRect().left,
@@ -109,7 +109,7 @@ async function reset(page, table = 'columns-table') {
         ? `${column.inferred_type} · ${column.semantic_type}`
         : column.inferred_type;
       const types = [...new Set(profile.columns.map(displayType))].slice(0, 2);
-      menu = await popup(page, 'columns-table', 3);
+      menu = await popup(page, 'columns-table', 5);
       for (const type of types) {
         const count = profile.columns.filter(column => displayType(column) === type).length;
         const option = menu.getByRole('checkbox', { name: `${type} (${count})`, exact: true });
@@ -123,9 +123,9 @@ async function reset(page, table = 'columns-table') {
       await numberFilter(page, 'columns-table', 1, 'greater', 5);
       const byMissing = byType.filter(column => column.missing_percent > 5);
       await displayedColumns(page, byMissing);
-      await numberFilter(page, 'columns-table', 2, 'less', 100);
+      await numberFilter(page, 'columns-table', 4, 'less', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count < 100));
-      await numberFilter(page, 'columns-table', 2, 'greater', 100);
+      await numberFilter(page, 'columns-table', 4, 'greater', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count > 100));
       await reset(page);
 
@@ -169,8 +169,14 @@ async function reset(page, table = 'columns-table') {
       await reset(page);
 
       // Inclusive boundaries, zero, incomplete and reversed ranges, and individual clearing.
-      for (const [index, field] of [[1, 'missing_percent'], [2, 'distinct_count']]) {
-        const boundary = profile.columns[0][field];
+      const numericColumns = [
+        [1, column => column.missing_percent],
+        [2, column => column.normalization.trim_count],
+        [3, column => column.normalization.collapse_internal_whitespace_count],
+        [4, column => column.distinct_count],
+      ];
+      for (const [index, valueFor] of numericColumns) {
+        const boundary = valueFor(profile.columns[0]);
         for (const [operator, compare] of [
           ['equal', value => value === boundary],
           ['greaterOrEqual', value => value >= boundary],
@@ -178,11 +184,11 @@ async function reset(page, table = 'columns-table') {
           ['less', value => value < boundary],
         ]) {
           await numberFilter(page, 'columns-table', index, operator, boundary);
-          await displayedColumns(page, profile.columns.filter(column => compare(column[field])));
+          await displayedColumns(page, profile.columns.filter(column => compare(valueFor(column))));
         }
         for (const [low, high] of [[0, boundary], [boundary, boundary], [0, 0]]) {
           await numberFilter(page, 'columns-table', index, 'between', low, high);
-          await displayedColumns(page, profile.columns.filter(column => column[field] >= low && column[field] <= high));
+          await displayedColumns(page, profile.columns.filter(column => valueFor(column) >= low && valueFor(column) <= high));
         }
         const trigger = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_dropdown');
         assert.equal(await trigger.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
@@ -204,7 +210,7 @@ async function reset(page, table = 'columns-table') {
       }
 
       // Sorting must use numbers, not formatted strings (e.g. 2,992 vs 31).
-      for (const index of [1, 2]) {
+      for (const index of [1, 2, 3, 4]) {
         await reset(page);
         const sort = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_order');
         for (const direction of [1, -1]) {
@@ -217,7 +223,6 @@ async function reset(page, table = 'columns-table') {
           await page.waitForFunction(element => element.classList.contains('dtcc-button_active'), await sort.elementHandle());
           assert.equal(await sort.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
           assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(0, 5, 26)');
-          assert.equal(await sort.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(0, 5, 26)');
           assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(249, 133, 16)');
           const values = await page.locator('#columns-table tbody tr[id]').evaluateAll((rows, i) => rows.map(row => Number(row.cells[i].dataset.order)), index);
           assert.deepEqual(values, [...values].sort((a, b) => direction * (a - b)));

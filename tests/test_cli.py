@@ -137,6 +137,7 @@ def test_project_config_is_automatic_and_explicit_config_overrides_it(
         json.dumps(
             {
                 "preview_rows": 0,
+                "normalization": {"trim": False},
                 "value_examples": {"short_text_result_size": 17},
             }
         )
@@ -156,6 +157,10 @@ def test_project_config_is_automatic_and_explicit_config_overrides_it(
     assert result.exit_code == 0, result.output
     data = json.loads(output.with_name("dataset.json").read_text(encoding="utf-8"))
     assert data["config"]["preview_rows"] == 1
+    assert data["config"]["normalization"] == {
+        "trim": False,
+        "collapse_internal_whitespace": True,
+    }
     assert data["config"]["value_examples"]["short_text_result_size"] == 17
     assert str(project_config.resolve()) in result.output
     assert str(override.resolve()) in result.output

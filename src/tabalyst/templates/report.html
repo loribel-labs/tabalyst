@@ -89,7 +89,7 @@
             <li><span class="legend-dot type-{{ kind }}" aria-hidden="true"></span><span>{{ kind | capitalize }}</span><strong>{{ count }}</strong></li>
             {% endfor %}
           </ul>
-          <p class="metadata mt-3">Empty rows: {{ report.summary.empty_row_count | count }}<br>Empty columns: {{ report.summary.empty_column_count | count }}</p>
+          <p class="metadata mt-3">Empty rows: {{ report.summary.empty_row_count | count }}<br>Empty columns: {{ report.summary.empty_column_count | count }}<br>Trimmed cells: {{ report.summary.trim_count | count }}<br>Whitespace collapsed: {{ report.summary.collapse_internal_whitespace_count | count }}</p>
         </div>
       </div>
     </section>
@@ -107,12 +107,14 @@
       </div>
       <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
         <table id="columns-table" class="table table-hover align-middle column-table">
-          <thead><tr><th scope="col">Column</th><th scope="col">Missing (%)</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Examples</th></tr></thead>
+          <thead><tr><th scope="col">Column</th><th scope="col">Missing (%)</th><th scope="col">Trimmed</th><th scope="col">Whitespace collapsed</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Examples</th></tr></thead>
           <tbody>
             {% for column in report.columns %}
             <tr data-column-name="{{ column.name | lower }}" id="{{ column.id }}">
               <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
               <td data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}"><div class="missing-value"><span>{{ column.missing_percent }}%</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div></td>
+              <td data-order="{{ column.normalization.trim_count }}" data-search="{{ column.normalization.trim_count }}"><div class="normalization-value"><span>{{ column.normalization.trim_count | count }}</span><small>{{ column.normalization.trim_percent }}%</small></div></td>
+              <td data-order="{{ column.normalization.collapse_internal_whitespace_count }}" data-search="{{ column.normalization.collapse_internal_whitespace_count }}"><div class="normalization-value"><span>{{ column.normalization.collapse_internal_whitespace_count | count }}</span><small>{{ column.normalization.collapse_internal_whitespace_percent }}%</small></div></td>
               <td class="text-end tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
               {% set display_type = column.inferred_type ~ (' · ' ~ column.semantic_type if column.semantic_type else '') %}
               <td data-order="{{ display_type }}" data-search="{{ display_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span>{% if column.semantic_type %}<span class="semantic-separator" aria-hidden="true">·</span><span class="type-badge semantic-badge" title="Candidate semantic type; {{ column.enum.coverage_percent }}% coverage">{{ column.semantic_type }}</span>{% endif %}</td>
@@ -173,6 +175,7 @@
           <div><dt>Scope</dt><dd>All {{ report.summary.row_count | count }} records</dd></div>
           <div><dt>Missing-value markers</dt><dd>{% for marker in report.config.missing_values %}<code>{{ marker | tojson }}</code> {% else %}None{% endfor %}</dd></div>
           <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
+          <div><dt>Value normalization</dt><dd>Trim: {{ 'enabled' if report.config.normalization.trim else 'disabled' }}; collapse internal horizontal whitespace: {{ 'enabled' if report.config.normalization.collapse_internal_whitespace else 'disabled' }}. Raw preview values are preserved.</dd></div>
           <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
           <div><dt>Type inference</dt><dd>All present values; ISO dates (YYYY-MM-DD), dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
           <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>

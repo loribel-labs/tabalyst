@@ -4,7 +4,12 @@ import pandas as pd
 import pytest
 
 from tabalyst import AnalysisConfig, analyze_column, analyze_csv
-from tabalyst.config import CsvConfig, EnumDetectionConfig, ValueExamplesConfig
+from tabalyst.config import (
+    CsvConfig,
+    EnumDetectionConfig,
+    NormalizationConfig,
+    ValueExamplesConfig,
+)
 from tabalyst.ingestion import CsvInputError
 from tabalyst.models import DatasetProfile
 
@@ -86,6 +91,54 @@ def test_missing_markers_are_explicit_and_raw_values_are_preserved(tmp_path):
     configured = analyze_csv(source, AnalysisConfig(missing_values=["", "NA", "NULL"]))
     assert configured.summary.missing_count == 4
     assert configured.preview == profile.preview
+
+
+def test_whitespace_normalization_preserves_raw_preview_and_counts_operations(
+    tmp_path,
+):
+    source = tmp_path / "input.csv"
+    source.write_text(
+        'name,note\n"  Alpha  ","Jean\t  Pierre"\nAlpha,"Jean\u00a0Pierre"\n'
+        '   ,"line  one\nline   two"\n',
+        encoding="utf-8",
+    )
+
+    profile = analyze_csv(source)
+
+    name, note = profile.columns
+    assert name.normalization.trim_count == 2
+    assert name.normalization.collapse_internal_whitespace_count == 0
+    assert name.missing_count == 1
+    assert name.distinct_count == 1
+    assert name.value_profile.values[0].model_dump() == {
+        "value": "Alpha",
+        "count": 2,
+        "truncated": False,
+    }
+    assert note.normalization.trim_count == 0
+    assert note.normalization.collapse_internal_whitespace_count == 3
+    assert note.distinct_count == 2
+    assert profile.summary.trim_count == 2
+    assert profile.summary.collapse_internal_whitespace_count == 3
+    assert profile.preview[0].values == ["  Alpha  ", "Jean\t  Pierre"]
+    assert profile.preview[2].values[1].splitlines() == ["line  one", "line   two"]
+
+
+def test_whitespace_normalization_can_be_disabled():
+    profile = analyze_column(
+        pd.Series([" 1 ", "1", "a  b", "a b"]),
+        config=AnalysisConfig(
+            normalization=NormalizationConfig(
+                trim=False,
+                collapse_internal_whitespace=False,
+            )
+        ),
+    )
+
+    assert profile.normalization.trim_count == 0
+    assert profile.normalization.collapse_internal_whitespace_count == 0
+    assert profile.distinct_count == 4
+    assert profile.inferred_type == "mixed"
 
 
 def test_duplicate_and_blank_headers_keep_their_original_values(tmp_path):

@@ -323,8 +323,10 @@
   const summaryTable = attachTable(summary, [
     { type: "string", columnControl: controls(checkboxFilter(summary, 0)) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Missing (%)" }) },
+    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Trimmed cells" }) },
+    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Whitespace collapsed" }) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Distinct values" }) },
-    { type: "string", columnControl: controls(checkboxFilter(summary, 3, (value, count) => {
+    { type: "string", columnControl: controls(checkboxFilter(summary, 5, (value, count) => {
       const [physicalType, semanticType] = value.split(" · ");
       const type = DataTable.util.escapeHtml(physicalType);
       const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(physicalType)

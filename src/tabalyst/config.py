@@ -46,6 +46,13 @@ class ValueExamplesConfig(BaseModel):
     random_seed: int = 42
 
 
+class NormalizationConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    trim: bool = True
+    collapse_internal_whitespace: bool = True
+
+
 class EnumDetectionConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -62,6 +69,7 @@ class AnalysisConfig(BaseModel):
     csv: CsvConfig = Field(default_factory=CsvConfig)
     missing_values: list[str] = Field(default_factory=lambda: [""])
     preview_rows: int = Field(default=10, ge=0, le=100)
+    normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
     value_examples: ValueExamplesConfig = Field(default_factory=ValueExamplesConfig)
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
 

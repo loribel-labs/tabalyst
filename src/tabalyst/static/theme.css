@@ -122,12 +122,14 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .table { --bs-table-bg: transparent; --bs-table-color: var(--text); --bs-table-border-color: var(--border); --bs-table-hover-bg: var(--surface-hover); --bs-table-hover-color: var(--text); --bs-table-striped-bg: var(--surface-soft); --bs-table-striped-color: var(--text); margin-bottom: 0; }
 .table thead th { color: var(--heading); background: var(--surface-soft); font-size: 13px; font-weight: 600; white-space: nowrap; padding-block: 11px; }
 .table tbody th, .table tbody td { font-family: var(--font-mono); }
-.column-table { min-width: 900px; table-layout: fixed; font-size: 12px; }
-.column-table thead th:nth-child(1) { width: 27%; }
-.column-table thead th:nth-child(2) { width: 15%; }
-.column-table thead th:nth-child(3) { width: 14%; }
-.column-table thead th:nth-child(4) { width: 15%; }
-.column-table thead th:nth-child(5) { width: 29%; }
+.column-table { min-width: 1120px; table-layout: fixed; font-size: 12px; }
+.column-table thead th:nth-child(1) { width: 21%; }
+.column-table thead th:nth-child(2) { width: 11%; }
+.column-table thead th:nth-child(3) { width: 10%; }
+.column-table thead th:nth-child(4) { width: 14%; }
+.column-table thead th:nth-child(5) { width: 10%; }
+.column-table thead th:nth-child(6) { width: 13%; }
+.column-table thead th:nth-child(7) { width: 21%; }
 .column-table tbody th, .column-table tbody td { padding-block: 13px; }
 .column-table tbody th { font-weight: 700; overflow-wrap: anywhere; }
 .column-index { display: inline-block; width: 26px; color: var(--muted); font-size: 10px; font-weight: 400; vertical-align: top; padding-top: 2px; }
@@ -141,6 +143,8 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .semantic-badge { border-color: color-mix(in srgb, var(--concept) 65%, transparent); }
 .missing-value { display: flex; gap: 6px; justify-content: space-between; font-size: 11px; font-variant-numeric: tabular-nums; }
 .missing-value small { color: var(--muted); }
+.normalization-value { display: flex; gap: 6px; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.normalization-value small { color: var(--muted); font: inherit; }
 .missing-track { height: 3px; margin-top: 5px; border-radius: 2px; background: var(--surface-soft); }
 .missing-track div { height: 100%; background: var(--danger); border-radius: 2px; }
 .tabular { font-variant-numeric: tabular-nums; }

@@ -27,6 +27,29 @@ while CLI options remain the final override.
 - `preview_rows`: number of raw rows embedded in the report, from 0 to 100. It
   never limits analysis of the complete CSV.
 
+## Value normalization
+
+```json
+{
+  "normalization": {
+    "trim": true,
+    "collapse_internal_whitespace": true
+  }
+}
+```
+
+- `trim`: removes leading and trailing Unicode whitespace before analysis.
+- `collapse_internal_whitespace`: replaces each internal run of horizontal
+  whitespace, including tabs and non-breaking spaces, with one ordinary space.
+  Line breaks are preserved.
+
+Normalization affects type inference, distinct values, occurrences, examples and
+`enum` detection. Raw CSV values remain available in the data preview, and exact
+duplicate rows still compare raw values. Each column records the number and
+percentage of cells changed by each operation; the dataset summary also records
+both global counts. A cell changed by both operations contributes to both counts,
+but never more than once to the same operation.
+
 ## Examples and value profiles
 
 ```json
