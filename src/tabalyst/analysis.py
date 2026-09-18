@@ -24,6 +24,8 @@ from tabalyst.models import (
     NormalizationStats,
     NumericStats,
     PreviewRow,
+    StringLengthDistribution,
+    StringLengthExample,
     StringProfile,
     ValueOccurrence,
     ValueProfile,
@@ -380,26 +382,54 @@ def infer_column_type(
 
 
 def build_string_profile(
-    present: pd.Series, inferred_type: str, config: AnalysisConfig
+    present: pd.Series,
+    frequencies: list[tuple[str, int]],
+    inferred_type: str,
+    config: AnalysisConfig,
 ) -> StringProfile | None:
+    """Classify text length and retain a bounded short-value distribution."""
     if inferred_type != "text" or present.empty:
         return None
     lengths = present.str.len()
     minimum = int(lengths.min())
     maximum = int(lengths.max())
-    if minimum == maximum:
-        status = "fixed"
+    settings = config.string_analysis
+    if maximum <= settings.very_short_max_length:
+        status = "very_short"
     elif maximum <= config.string_analysis.short_max_length:
         status = "short"
+    elif maximum <= config.string_analysis.medium_max_length:
+        status = "medium"
     elif maximum <= config.string_analysis.long_max_length:
         status = "long"
     else:
         status = "very_long"
+    distribution = []
+    if maximum <= settings.length_distribution_max_length:
+        for length in sorted({int(value) for value in lengths}):
+            matching = [
+                (value, count) for value, count in frequencies if len(value) == length
+            ]
+            distribution.append(
+                StringLengthDistribution(
+                    length=length,
+                    count=sum(count for _, count in matching),
+                    percent=percent(sum(count for _, count in matching), len(present)),
+                    distinct_count=len(matching),
+                    examples=[
+                        StringLengthExample(value=value, count=count)
+                        for value, count in matching[: settings.examples_per_length]
+                    ],
+                )
+            )
     return StringProfile(
         status=status,
         present_count=len(present),
         minimum_length=minimum,
         maximum_length=maximum,
+        distinct_length_count=int(lengths.nunique()),
+        fixed_length=minimum if minimum == maximum else None,
+        length_distribution=distribution,
     )
 
 
@@ -616,7 +646,7 @@ def analyze_column(
     )
     if enum and semantic_type is None:
         semantic_type = "enum"
-    string_profile = build_string_profile(present, inferred, config)
+    string_profile = build_string_profile(present, frequencies, inferred, config)
     return ColumnProfile(
         id=f"column_{position}",
         name=name if name is not None else str(values.name or ""),
@@ -661,8 +691,10 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
     mixed = [column.id for column in columns if column.inferred_type == "mixed"]
     issues = []
 
-    def add_issue(code, message, count, ids=(), rows=(), severity="warning"):
-        if count:
+    def add_issue(
+        code, message, count, ids=(), rows=(), severity="warning", always=False
+    ):
+        if count or always:
             issues.append(
                 Issue(
                     code=code,
@@ -675,19 +707,35 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
             )
 
     add_issue(
+        "duplicate_rows",
+        "Duplicate rows beyond their first occurrence",
+        int(duplicates.sum()),
+        rows=(i + 1 for i, value in enumerate(duplicates) if value),
+    )
+    add_issue(
         "missing_values",
         "Missing cells",
         missing_count,
         [c.id for c in columns if c.missing_count],
         (i + 1 for i, value in enumerate(absent.any(axis=1)) if value),
     )
-    add_issue(
-        "duplicate_rows",
-        "Duplicate rows beyond their first occurrence",
-        int(duplicates.sum()),
-        rows=(i + 1 for i, value in enumerate(duplicates) if value),
-    )
     add_issue("empty_columns", "Columns without any present values", len(empty), empty)
+    add_issue(
+        "trimmed_cells",
+        "Cells changed by trimming surrounding whitespace",
+        trim_count,
+        [c.id for c in columns if c.normalization.trim_count],
+        severity="info",
+        always=True,
+    )
+    add_issue(
+        "collapsed_whitespace",
+        "Cells changed by collapsing repeated internal whitespace",
+        collapse_count,
+        [c.id for c in columns if c.normalization.collapse_internal_whitespace_count],
+        severity="info",
+        always=True,
+    )
     add_issue(
         "constant_columns",
         "Columns with one distinct present value",
@@ -709,6 +757,7 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
 
     return DatasetProfile(
         generated_at=datetime.now(UTC),
+        processing_seconds=0.0,
         source=dataset.source,
         config=config,
         summary=DatasetSummary(

@@ -103,10 +103,6 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .observations strong { margin-left: auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .observation-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--danger); }
 .observation-dot.info { background: var(--concept); }
-.quality-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 18px 0 0; background: var(--border); border: 1px solid var(--border); }
-.quality-metrics > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; padding: 9px 11px; background: var(--canvas); }
-.quality-metrics dt { color: var(--muted); font-size: 11px; font-weight: 400; }
-.quality-metrics dd { margin: 0; color: var(--heading); font-family: var(--font-mono); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .type-bar { height: 10px; display: flex; overflow: hidden; border-radius: 3px; margin-bottom: 16px; background: var(--surface-soft); }
 .type-fill { height: 100%; }
 .type-text { background: #7652d4; }
@@ -219,12 +215,14 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 :root[data-theme="light"] .status-mixed, :root[data-theme="light"] .status-invalid { color: #8f1715; background: #fae7e7; }
 :root[data-theme="light"] .status-ambiguous { color: #8a4700; background: #fff1e2; }
 :root[data-theme="light"] .status-valid, :root[data-theme="light"] .status-multiple_formats { color: #087c70; background: #e1f6f2; }
-.string-fixed { border-color: #0e9f8e; color: #8ce1d6; background: #0e9f8e33; }
+.string-very_short { color: #8ce1d6; background: #0e9f8e33; }
 .string-short { border-color: #2f9cc1; color: #aee8fb; background: #2f9cc133; }
+.string-medium { color: #bcd0ff; background: #4f7fe833; }
 .string-long { border-color: #7652d4; color: #d8ceff; background: #7652d433; }
 .string-very_long { border-color: #bf62aa; color: #f0b9e4; background: #bf62aa33; }
-:root[data-theme="light"] .string-fixed { border-color: #0e9f8e; color: #087c70; background: #e1f6f2; }
+:root[data-theme="light"] .string-very_short { color: #087c70; background: #e1f6f2; }
 :root[data-theme="light"] .string-short { border-color: #2f9cc1; color: #14637e; background: #e4f5fa; }
+:root[data-theme="light"] .string-medium { color: #234f9f; background: #e9f0ff; }
 :root[data-theme="light"] .string-long { border-color: #7652d4; color: #3a0ca3; background: #f0ebff; }
 :root[data-theme="light"] .string-very_long { border-color: #bf62aa; color: #83336f; background: #faeaf6; }
 
@@ -302,8 +300,23 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
 .numeric-table { font-size: 12px; min-width: 760px; }
 .numeric-table th { overflow-wrap: anywhere; }
 .numeric-table td { font-variant-numeric: tabular-nums; }
-.string-table { min-width: 650px; font-size: 12px; }
+.string-table { min-width: 1320px; table-layout: fixed; font-size: 12px; }
+.string-table thead th:nth-child(1) { width: 16%; }
+.string-table thead th:nth-child(2) { width: 9%; }
+.string-table thead th:nth-child(3) { width: 10%; }
+.string-table thead th:nth-child(4) { width: 9%; }
+.string-table thead th:nth-child(5) { width: 8%; }
+.string-table thead th:nth-child(6) { width: 8%; }
+.string-table thead th:nth-child(7) { width: 40%; }
+.string-table tbody th { overflow-wrap: anywhere; }
 .string-table td { font-variant-numeric: tabular-nums; }
+.length-examples { color: var(--muted); }
+.length-examples-tooltip { width: min(460px, calc(100vw - 24px)); }
+.length-tooltip-row { grid-template-columns: minmax(0, 1fr) 130px !important; align-items: center; }
+.length-tooltip-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.length-tooltip-copy strong { color: var(--heading); }
+.length-tooltip-copy span { color: var(--text); overflow-wrap: anywhere; }
+.length-tooltip-frequency { min-width: 0; }
 .sample-scroll { max-height: 390px; }
 .sample-table { width: max-content; min-width: 100%; font-size: 12px; }
 .sample-table th, .sample-table td { min-width: 120px; max-width: 300px; padding: 10px; overflow-wrap: anywhere; white-space: pre-wrap; }

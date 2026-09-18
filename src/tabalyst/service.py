@@ -1,6 +1,7 @@
 """Small public service boundary shared by the CLI and future HTTP API."""
 
 from pathlib import Path
+from time import perf_counter
 
 from tabalyst.analysis import analyze_dataset
 from tabalyst.config import AnalysisConfig
@@ -13,4 +14,7 @@ def analyze_csv(
 ) -> DatasetProfile:
     """Read and analyze one CSV without coupling callers to the CLI."""
     config = config or AnalysisConfig()
-    return analyze_dataset(read_csv(Path(path), config.csv), config)
+    started = perf_counter()
+    profile = analyze_dataset(read_csv(Path(path), config.csv), config)
+    profile.processing_seconds = round(perf_counter() - started, 4)
+    return profile
