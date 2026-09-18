@@ -153,6 +153,30 @@
         <p class="metadata filter-result" data-table-status="numeric-table" role="status" hidden></p>
       </details>
       {% endif %}
+
+      {% set date_columns = report.columns | selectattr('date_profile') | list %}
+      {% if date_columns %}
+      <details class="date-details">
+        <summary>Date analysis <span class="section-count">({{ date_columns | length }})</span></summary>
+        <div class="table-actions numeric-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
+        <div class="table-responsive mt-3" tabindex="0" role="region" aria-label="Date analysis">
+          <table id="date-table" class="table table-sm date-table">
+            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col">Valid</th><th scope="col">Ambiguous</th><th scope="col">Invalid</th><th scope="col">Other</th><th scope="col">Formats</th></tr></thead>
+            <tbody>
+              {% for column in date_columns %}
+              <tr>
+                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}">{{ column.name or '(unnamed)' }}</th>
+                <td data-order="{{ column.date_profile.status }}" data-search="{{ column.date_profile.status }}"><span class="type-badge date-status status-{{ column.date_profile.status }}">{{ column.date_profile.status | replace('_', ' ') }}</span></td>
+                {% for value in [column.date_profile.valid_count, column.date_profile.ambiguous_count, column.date_profile.invalid_date_count, column.date_profile.not_date_count] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | count }}</td>{% endfor %}
+                <td class="date-formats">{% for format in column.date_profile.formats %}<span><code>{{ format.order }} {{ format.separator | tojson }}</code> <small>({{ format.count | count }})</small>{% if format.iso %}<sup>ISO</sup>{% endif %}</span>{% else %}<span class="muted">No valid format</span>{% endfor %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="metadata filter-result" data-table-status="date-table" role="status" hidden></p>
+      </details>
+      {% endif %}
     </section>
 
     <section id="sample" class="report-section">
@@ -177,7 +201,8 @@
           <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
           <div><dt>Value normalization</dt><dd>Trim: {{ 'enabled' if report.config.normalization.trim else 'disabled' }}; collapse internal horizontal whitespace: {{ 'enabled' if report.config.normalization.collapse_internal_whitespace else 'disabled' }}. Raw preview values are preserved.</dd></div>
           <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
-          <div><dt>Type inference</dt><dd>All present values; ISO dates (YYYY-MM-DD), dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
+          <div><dt>Type inference</dt><dd>All present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
+          <div><dt>Date detection</dt><dd>Orders: {{ report.config.date_detection.orders | join(', ') }}; separators: {% for separator in report.config.date_detection.separators %}<code>{{ separator | tojson }}</code> {% endfor %}; ambiguous order: {{ report.config.date_detection.ambiguous_order or 'inferred only from unambiguous column evidence' }}</dd></div>
           <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>
           <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
           <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>

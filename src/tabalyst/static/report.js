@@ -350,6 +350,16 @@
     ], "columns");
   }
 
+  const dates = document.getElementById("date-table");
+  if (dates) {
+    attachTable(dates, [
+      { type: "string", columnControl: controls(checkboxFilter(dates, 0)) },
+      { type: "string", columnControl: controls(checkboxFilter(dates, 1)) },
+      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      { orderable: false, columnControl: [] },
+    ], "date columns");
+  }
+
   const sample = document.getElementById("sample-table");
   if (sample) {
     const columns = [...sample.tHead.rows[0].cells].map((cell, index) => {

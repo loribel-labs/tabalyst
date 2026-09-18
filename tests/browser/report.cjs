@@ -244,6 +244,20 @@ async function reset(page, table = 'columns-table') {
         await page.locator('.numeric-details summary').click();
       }
 
+      const dateColumns = profile.columns.filter(column => column.date_profile);
+      if (dateColumns.length) {
+        await page.locator('.date-details summary').click();
+        assert.deepEqual(
+          await page.locator('#date-table thead .dt-column-title').allTextContents(),
+          ['Column', 'Status', 'Valid', 'Ambiguous', 'Invalid', 'Other', 'Formats'],
+        );
+        await numberFilter(page, 'date-table', 2, 'greater', 0);
+        const expected = dateColumns.filter(column => column.date_profile.valid_count > 0).length;
+        await page.waitForFunction(text => document.querySelector('[data-table-status="date-table"]').textContent === text, `${expected} of ${dateColumns.length} date columns`);
+        await reset(page, 'date-table');
+        await page.locator('.date-details summary').click();
+      }
+
       if (profile.preview.length) {
         await numberFilter(page, 'sample-table', 0, 'greater', 5);
         const expected = profile.preview.filter(row => row.row_number > 5).length;

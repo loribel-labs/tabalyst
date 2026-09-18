@@ -167,6 +167,20 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .table-actions { display: flex; align-items: center; gap: 12px; max-width: 100%; }
 .table-reset { flex-shrink: 0; font-size: 12px; border-radius: 4px; }
 .numeric-actions { justify-content: flex-end; margin-top: 12px; }
+.date-details { margin-top: 18px; }
+.date-table { min-width: 880px; }
+.date-table td { font-variant-numeric: tabular-nums; }
+.date-formats { display: flex; flex-wrap: wrap; gap: 5px 10px; }
+.date-formats span { white-space: nowrap; }
+.date-formats small { color: var(--muted); font: inherit; }
+.date-formats sup { margin-left: 2px; color: var(--success); font: 8px var(--font-body); }
+.date-status { text-transform: none; }
+.status-valid, .status-multiple_formats { border-color: color-mix(in srgb, var(--success) 55%, transparent); color: #83dfd2; background: color-mix(in srgb, var(--success) 20%, transparent); }
+.status-mixed, .status-invalid { border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: #ffb8b6; background: color-mix(in srgb, var(--danger) 25%, transparent); }
+.status-ambiguous { border-color: color-mix(in srgb, var(--accent) 55%, transparent); color: var(--link); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+:root[data-theme="light"] .status-mixed, :root[data-theme="light"] .status-invalid { color: #8f1715; background: #fae7e7; }
+:root[data-theme="light"] .status-ambiguous { color: #8a4700; background: #fff1e2; }
+:root[data-theme="light"] .status-valid, :root[data-theme="light"] .status-multiple_formats { color: #087c70; background: #e1f6f2; }
 
 .dt-container { width: 100%; }
 table.dataTable thead th { text-align: left !important; }

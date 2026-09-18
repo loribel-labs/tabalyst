@@ -44,11 +44,13 @@ markers are matched after trimming whitespace, with case preserved. Distinct
 counts exclude missing values and compare raw values. Duplicate rows compare all
 raw cells exactly and exclude each group's first occurrence.
 
-Type inference checks every present value. It recognizes integers without leading
-zeros, dot-decimal/scientific numbers, true/false and valid ISO dates. Other dates,
-decimal commas, email addresses and postal codes remain text at this stage. Types
-are descriptive hints, not conversions or domain validation. Numeric statistics
-use floating-point arithmetic and are omitted when conversion is not finite.
+Type inference checks every present normalized value. It recognizes integers
+without leading zeros, dot-decimal/scientific numbers, true/false and configured
+strict YMD, MDY and DMY dates. Date profiles retain format, ambiguity and calendar
+error counts even when the resulting column type is mixed. Decimal commas, email
+addresses and postal codes remain text at this stage. Types are descriptive hints,
+not conversions or domain validation. Numeric statistics use floating-point
+arithmetic and are omitted when conversion is not finite.
 
 The complete CSV is loaded into memory. The preview contains the first N records;
 its size does not affect analysis. JSON and HTML may include raw data and should be

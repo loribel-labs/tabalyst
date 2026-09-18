@@ -34,6 +34,25 @@ class NormalizationStats(ResultModel):
     collapse_internal_whitespace_percent: float
 
 
+class DateFormatCount(ResultModel):
+    order: Literal["YMD", "MDY", "DMY"]
+    separator: str
+    count: int
+    iso: bool = False
+
+
+class DateProfile(ResultModel):
+    status: Literal["valid", "multiple_formats", "mixed", "ambiguous", "invalid"]
+    valid_count: int
+    ambiguous_count: int
+    invalid_date_count: int
+    not_date_count: int
+    resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
+    ambiguous_order_source: Literal["config", "column"] | None = None
+    formats: list[DateFormatCount]
+    errors: dict[str, int]
+
+
 class ValueOccurrence(ResultModel):
     value: str
     count: int
@@ -70,6 +89,7 @@ class ColumnProfile(ResultModel):
     value_profile: ValueProfile
     semantic_type: Literal["enum"] | None = None
     enum: EnumCandidate | None = None
+    date_profile: DateProfile | None = None
     numeric: NumericStats | None = None
 
 
