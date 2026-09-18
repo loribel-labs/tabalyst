@@ -387,7 +387,7 @@ def build_string_profile(
     inferred_type: str,
     config: AnalysisConfig,
 ) -> StringProfile | None:
-    """Classify text length and retain a bounded short-value distribution."""
+    """Summarize text lengths and retain bounded examples for shorter values."""
     if inferred_type != "text" or present.empty:
         return None
     lengths = present.str.len()
@@ -427,6 +427,8 @@ def build_string_profile(
         present_count=len(present),
         minimum_length=minimum,
         maximum_length=maximum,
+        mean_length=round(float(lengths.mean()), 2),
+        median_length=round(float(lengths.median()), 2),
         distinct_length_count=int(lengths.nunique()),
         fixed_length=minimum if minimum == maximum else None,
         length_distribution=distribution,

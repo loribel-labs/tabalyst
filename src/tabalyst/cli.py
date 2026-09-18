@@ -1,11 +1,17 @@
 """Command-line entry points for CSV analysis and report rendering."""
 
 from pathlib import Path
+from time import perf_counter
 from typing import Annotated
 
 import typer
 
 from tabalyst.config import AnalysisConfig, load_config
+from tabalyst.execution_log import (
+    EXECUTION_LOG_NAME,
+    append_execution,
+    build_execution_entry,
+)
 from tabalyst.reporting import load_profile, render_report
 from tabalyst.service import analyze_csv
 
@@ -30,7 +36,7 @@ def analysis_config_paths(explicit: list[Path]) -> list[Path]:
 def check_outputs(inputs: list[Path], outputs: list[Path]) -> None:
     resolved = [path.resolve() for path in outputs]
     if len(set(resolved)) != len(resolved):
-        raise ValueError("JSON and HTML output paths must be different.")
+        raise ValueError("Output paths must be different.")
     for output in outputs:
         if output.resolve() in {path.resolve() for path in inputs}:
             raise ValueError(f"Output would overwrite an input file: {output}")
@@ -43,7 +49,7 @@ def check_outputs(inputs: list[Path], outputs: list[Path]) -> None:
         and all(path.exists() for path in outputs)
         and outputs[0].samefile(outputs[1])
     ):
-        raise ValueError("JSON and HTML outputs refer to the same file.")
+        raise ValueError("Outputs refer to the same file.")
 
 
 def write_output(path: Path, content: str) -> None:
@@ -55,7 +61,6 @@ def write_output(path: Path, content: str) -> None:
 def analyze(
     source: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("report.html"),
-    json_output: Annotated[Path | None, typer.Option("--json-output")] = None,
     delimiter: Annotated[str | None, typer.Option("--delimiter")] = None,
     encoding: Annotated[str | None, typer.Option("--encoding")] = None,
     preview_rows: Annotated[
@@ -65,11 +70,15 @@ def analyze(
         list[Path] | None, typer.Option("--config", exists=True, dir_okay=False)
     ] = None,
 ) -> None:
-    """Create dataset.json and an HTML report (UTF-8 CSV, comma delimiter by default)."""
-    json_output = json_output or output.with_name("dataset.json")
+    """Create a named JSON profile, HTML report and execution history."""
+    started = perf_counter()
+    json_output = output.with_suffix(".json")
+    execution_output = output.parent / EXECUTION_LOG_NAME
     try:
         config_paths = analysis_config_paths(config or [])
-        check_outputs([source, *config_paths], [output, json_output])
+        check_outputs(
+            [source, *config_paths], [output, json_output, execution_output]
+        )
         settings = load_config(config_paths).model_dump()
         if delimiter is not None:
             settings["csv"]["delimiter"] = delimiter
@@ -80,6 +89,15 @@ def analyze(
         profile = analyze_csv(source, AnalysisConfig.model_validate(settings))
         write_output(json_output, profile.model_dump_json(indent=2) + "\n")
         write_output(output, render_report(load_profile(json_output)))
+        entry = build_execution_entry(
+            source=source,
+            html_output=output,
+            json_output=json_output,
+            profile=profile,
+            total_seconds=perf_counter() - started,
+            git_directory=Path.cwd(),
+        )
+        append_execution(execution_output, entry)
     except (OSError, ValueError, LookupError) as exc:
         typer.echo(f"Error: {exc}", err=True)
         raise typer.Exit(1) from exc
@@ -90,6 +108,7 @@ def analyze(
         typer.echo("Configuration: " + ", ".join(str(path.resolve()) for path in config_paths))
     typer.echo(f"JSON: {json_output.resolve()}")
     typer.echo(f"HTML: {output.resolve()}")
+    typer.echo(f"Execution history: {execution_output.resolve()}")
 
 
 @app.command()
@@ -97,7 +116,7 @@ def render(
     source: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("report.html"),
 ) -> None:
-    """Regenerate HTML from dataset.json without rereading the CSV."""
+    """Regenerate HTML from a report JSON profile without rereading the CSV."""
     try:
         check_outputs([source], [output])
         write_output(output, render_report(load_profile(source)))

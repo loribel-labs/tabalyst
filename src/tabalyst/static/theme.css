@@ -172,7 +172,8 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .percentage-track.track-success div { background: var(--success); }
 .percentage-track.track-accent div { background: var(--accent); }
 .percentage-track.track-muted div { background: var(--muted); }
-.table th.percentage-column, .table td.percentage-column { padding-right: 28px !important; }
+.table th.percentage-column, .table td.percentage-column,
+.table th.dt-type-numeric, .table td.dt-type-numeric { padding-right: 28px !important; }
 .tabular { font-variant-numeric: tabular-nums; }
 .examples { position: relative; color: var(--muted); outline: none; }
 .examples:focus-visible { box-shadow: inset 0 0 0 1px var(--interactive); }
@@ -252,7 +253,7 @@ table.dataTable span.dtcc button.dtcc-button_order.dtcc-button_active { --dtcc-b
 
 div.dtcc-dropdown { --filter-bg: var(--surface-soft); --filter-active: var(--interactive); position: fixed; z-index: 1050; max-width: min(340px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: hidden; border: 1px solid var(--border); border-radius: 5px; background: var(--filter-bg); box-shadow: 0 5px 18px var(--shadow); color: var(--text); font-family: var(--font-body); font-size: 12px; }
 div.dtcc-dropdown { --dtcc-list-buttons_background: var(--filter-bg); --dtcc-list-buttons_max-height: min(260px, calc(100dvh - 180px)); --dtcc-search-input_background-color: var(--field); --dtcc-search-input_background: var(--field); --dtcc-search-input_border: 1px solid var(--border); --dtcc-search-input_border-radius: 3px; --dtcc-search-input_padding: 3px 7px; padding: 0; }
-div.dtcc-dropdown div.dtcc-dropdown-liner { padding: 8px; background: var(--filter-bg); overflow: hidden; }
+div.dtcc-dropdown div.dtcc-dropdown-liner { position: relative; padding: 8px; background: var(--filter-bg); overflow: hidden; }
 div.dtcc-dropdown button.dtcc-button span.dtcc-button-text { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 div.dtcc-dropdown .dtcc-list { max-height: none; overflow: hidden; background: var(--filter-bg); }
 div.dtcc-dropdown div.dtcc-list div.dtcc-list-controls { background: var(--filter-bg); padding: 0 0 6px; grid-template-columns: max-content 1fr; gap: 4px; }
@@ -266,7 +267,9 @@ div.dtcc-dropdown div.dtcc-list div.dtcc-list-controls button.dtcc-list-selectAl
 div.dtcc-dropdown div.dtcc-list div.dtcc-list-controls button.dtcc-list-selectNone,
 div.dtcc-dropdown button.dtcc-button_searchClear { display: inline-flex; align-items: center; width: auto; min-height: 24px; padding: 2px 6px; margin: 2px 4px 2px 0; border: 1px solid var(--border); border-radius: 3px; background: var(--filter-bg); color: var(--muted); font-size: 11px; line-height: 18px; box-shadow: none; }
 div.dtcc-dropdown div.dtcc-list div.dtcc-list-controls button { justify-self: start; }
-div.dtcc-dropdown button.dtcc-button_searchClear { margin-top: 8px; }
+div.dtcc-dropdown button.dtcc-button_searchClear { margin: 0; }
+div.dtcc-dropdown button.filter-clear { position: absolute; top: 8px; right: 8px; z-index: 1; }
+div.dtcc-dropdown button.filter-clear:not(.filter-clear-active) { display: none !important; }
 div.dtcc-dropdown button.dtcc-button_searchClear .dtcc-button-icon { width: 13px; margin-right: 4px; }
 div.dtcc-dropdown button.dtcc-button_searchClear svg { width: 13px; height: 13px; }
 div.dtcc-dropdown input, div.dtcc-dropdown select { font-family: var(--font-mono); font-size: 12px; height: 28px; min-height: 28px; max-width: 100%; min-width: 0; padding: 3px 7px; border: 1px solid var(--border); border-radius: 3px; background-color: var(--field); color: var(--text); box-shadow: none; }
@@ -295,19 +298,23 @@ div.dtcc-dropdown button:focus-visible { outline: 2px solid var(--interactive); 
 .filter-drag-handle:hover { color: var(--text); }
 .filter-drag-handle .filter-close { position: absolute; right: 3px; top: 2px; display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; }
 .filter-drag-handle .filter-close:hover { background: var(--surface-hover); color: var(--text); }
+.filter-action-row { display: flex; min-height: 28px; align-items: center; gap: 12px; margin-bottom: 7px; padding-right: 72px; }
+.filter-action-label { min-width: 0; overflow-wrap: anywhere; color: var(--heading); font-family: var(--font-title); font-size: 12px; font-weight: 500; }
+.filter-action-row + .number-filter .number-filter-title { display: none; }
 
 summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500; font-size: 14px; }
 .numeric-table { font-size: 12px; min-width: 760px; }
 .numeric-table th { overflow-wrap: anywhere; }
 .numeric-table td { font-variant-numeric: tabular-nums; }
-.string-table { min-width: 1320px; table-layout: fixed; font-size: 12px; }
+.string-table { min-width: 1420px; table-layout: fixed; font-size: 12px; }
 .string-table thead th:nth-child(1) { width: 16%; }
 .string-table thead th:nth-child(2) { width: 9%; }
-.string-table thead th:nth-child(3) { width: 10%; }
-.string-table thead th:nth-child(4) { width: 9%; }
+.string-table thead th:nth-child(3) { width: 8%; }
+.string-table thead th:nth-child(4) { width: 8%; }
 .string-table thead th:nth-child(5) { width: 8%; }
 .string-table thead th:nth-child(6) { width: 8%; }
-.string-table thead th:nth-child(7) { width: 40%; }
+.string-table thead th:nth-child(7) { width: 8%; }
+.string-table thead th:nth-child(8) { width: 35%; }
 .string-table tbody th { overflow-wrap: anywhere; }
 .string-table td { font-variant-numeric: tabular-nums; }
 .length-examples { color: var(--muted); }

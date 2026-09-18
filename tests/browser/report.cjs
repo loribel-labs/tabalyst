@@ -1,4 +1,4 @@
-// Usage: node tests/browser/report.cjs report.html dataset.json [playwright module]
+// Usage: node tests/browser/report.cjs report.html report.json [playwright module]
 const { chromium } = require(process.argv[4] || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
@@ -20,14 +20,10 @@ async function popup(page, table, index) {
 
 async function numberFilter(page, table, index, operator, value, maximum) {
   const menu = await popup(page, table, index);
-  if (await menu.locator('.number-filter').count()) {
-    await menu.locator(`[data-operator="${operator}"]`).click();
-    await menu.locator('input').first().fill(String(value));
-    if (maximum !== undefined) await menu.locator('input').last().fill(String(maximum));
-  } else {
-    await menu.locator('select').selectOption(operator);
-    await menu.locator('input').fill(String(value));
-  }
+  assert.equal(await menu.locator('.number-filter').count(), 1);
+  await menu.locator(`[data-operator="${operator}"]`).click();
+  await menu.locator('input').first().fill(String(value));
+  if (maximum !== undefined) await menu.locator('input').last().fill(String(maximum));
   await page.keyboard.press('Escape');
 }
 
@@ -112,6 +108,9 @@ async function reset(page, table = 'columns-table') {
       await displayedColumns(page, profile.columns.slice(0, 2));
       await reset(page);
       menu = await popup(page, 'columns-table', 0);
+      const menuClear = menu.locator('.dtcc-button_searchClear');
+      assert.equal(await menuClear.isVisible(), false);
+      assert.equal(await menu.locator('.filter-action-label').innerText(), 'Column');
       const last = profile.columns.at(-1);
       await menu.getByRole('checkbox', { name: `#${last.position} ${last.name || '(unnamed)'}`, exact: true }).click();
       await page.keyboard.press('Escape');
@@ -365,7 +364,7 @@ async function reset(page, table = 'columns-table') {
         assert.equal(await stringReset.isVisible(), false);
         assert.deepEqual(
           await page.locator('#string-table thead .dt-column-title').allTextContents(),
-          ['Column', 'Class', 'Fixed length', 'Lengths', 'Min', 'Max', 'Examples'],
+          ['Column', 'Class', 'Fixed', 'Min', 'Max', 'Mean', 'Median', 'Examples'],
         );
         assert.deepEqual(
           await page.locator('#string-table tbody .column-index').allTextContents(),
@@ -383,6 +382,7 @@ async function reset(page, table = 'columns-table') {
           assert.equal(await cells.nth(2).innerText(), '');
           assert.equal(await cells.nth(3).innerText(), '');
           assert.equal(await cells.nth(4).innerText(), '');
+          assert.equal(await cells.nth(5).innerText(), '');
         }
         const distributedIndex = stringColumns.findIndex(column => column.string_profile.length_distribution.length);
         if (distributedIndex >= 0) {
@@ -402,11 +402,12 @@ async function reset(page, table = 'columns-table') {
             count: Number(node.querySelector('small').textContent.replace(/[^0-9]/g, '')),
             percent: Number(node.querySelector('.percentage-value > span').textContent.replace('%', '')),
           })));
-          assert.deepEqual(rows.map(row => row.count), source.length_distribution.map(item => item.count));
-          assert.deepEqual(rows.map(row => row.percent), source.length_distribution.map(item => item.percent));
-          assert.ok(rows.every((row, index) => source.length_distribution[index].examples.slice(0, 3).every(example => row.text.includes(example.value))));
+          const ordered = [...source.length_distribution].sort((a, b) => b.count - a.count);
+          assert.deepEqual(rows.map(row => row.count), ordered.map(item => item.count));
+          assert.deepEqual(rows.map(row => row.percent), ordered.map(item => item.percent));
+          assert.ok(rows.every((row, index) => ordered[index].examples.slice(0, 3).every(example => row.text.includes(example.value))));
         }
-        await numberFilter(page, 'string-table', 5, 'greater', 20);
+        await numberFilter(page, 'string-table', 4, 'greater', 20);
         assert.equal(await stringReset.isVisible(), true);
         const expected = stringColumns.filter(column => column.string_profile.maximum_length > 20).length;
         await page.waitForFunction(text => document.querySelector('[data-table-status="string-table"]').textContent === text, `${expected} of ${stringColumns.length} string columns`);
@@ -469,6 +470,15 @@ async function reset(page, table = 'columns-table') {
       const firstColumn = profile.columns[0];
       await menu.getByRole('checkbox', { name: `#${firstColumn.position} ${firstColumn.name || '(unnamed)'}`, exact: true }).click();
       await displayedColumns(page, [firstColumn]);
+      assert.equal(await menuClear.isVisible(), true);
+      assert.equal(await menuClear.innerText(), 'Clear');
+      assert.equal(await menuClear.locator('svg').count(), 1);
+      const clearAlignment = await menu.evaluate(element => {
+        const label = element.querySelector('.filter-action-label').getBoundingClientRect();
+        const clear = element.querySelector('.filter-clear').getBoundingClientRect();
+        return Math.abs((label.top + label.bottom) / 2 - (clear.top + clear.bottom) / 2);
+      });
+      assert.ok(clearAlignment <= 2, String(clearAlignment));
       assert.equal(await menu.isVisible(), true);
       const afterFilter = await menu.boundingBox();
       assert.ok(Math.abs(afterFilter.x - afterDrag.x) < 2 && Math.abs(afterFilter.y - afterDrag.y) < 2);

@@ -216,7 +216,7 @@
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="string-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="String analysis">
           <table id="string-table" class="table table-sm string-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed length</th><th scope="col">Lengths</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Examples</th></tr></thead>
+            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Mean</th><th scope="col">Median</th><th scope="col">Examples</th></tr></thead>
             <tbody>
               {% for column in string_columns %}
               {% set fixed = column.string_profile.fixed_length is not none %}
@@ -224,9 +224,10 @@
                 <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
                 <td data-order="{{ column.string_profile.status }}" data-search="{{ column.string_profile.status }}"><span class="type-badge string-status string-{{ column.string_profile.status }}">{{ column.string_profile.status | replace('_', ' ') }}</span></td>
                 <td data-order="{{ column.string_profile.fixed_length if fixed else -1 }}" data-search="{{ column.string_profile.fixed_length if fixed else '' }}">{% if fixed %}{{ column.string_profile.fixed_length | count }}{% endif %}</td>
-                <td data-order="{{ column.string_profile.distinct_length_count }}" data-search="{{ column.string_profile.distinct_length_count }}">{% if not fixed %}{{ column.string_profile.distinct_length_count | count }}{% endif %}</td>
                 <td data-order="{{ -1 if fixed else column.string_profile.minimum_length }}" data-search="{{ '' if fixed else column.string_profile.minimum_length }}">{% if not fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td>
                 <td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td>
+                <td data-order="{{ -1 if fixed else column.string_profile.mean_length }}" data-search="{{ '' if fixed else column.string_profile.mean_length }}">{% if not fixed %}{{ column.string_profile.mean_length | number }}{% endif %}</td>
+                <td data-order="{{ -1 if fixed else column.string_profile.median_length }}" data-search="{{ '' if fixed else column.string_profile.median_length }}">{% if not fixed %}{{ column.string_profile.median_length | number }}{% endif %}</td>
                 <td class="examples length-examples" tabindex="0"{% if column.string_profile.length_distribution %} aria-describedby="{{ column.id }}-lengths-tooltip"{% endif %}>
                   {% set representative_lengths = column.string_profile.length_distribution | sort(attribute='count', reverse=true) %}
                   {% for item in representative_lengths[:3] %}{% if item.examples %}<span class="example-value">{{ item.examples[0].value }}</span>{% endif %}{% endfor %}
@@ -235,7 +236,7 @@
                   <div id="{{ column.id }}-lengths-tooltip" class="examples-tooltip length-examples-tooltip" role="tooltip">
                     <div class="examples-tooltip-title">Lengths <span>{{ column.string_profile.distinct_length_count }}</span></div>
                     <div class="examples-tooltip-list">
-                      {% for item in column.string_profile.length_distribution %}<div class="length-tooltip-row"><div class="length-tooltip-copy"><strong>{{ item.length }} character{{ '' if item.length == 1 else 's' }}</strong>{% if item.examples %}<span>{% for example in item.examples[:3] %}{{ example.value }}{% if not loop.last %} / {% endif %}{% endfor %}</span>{% endif %}</div><div class="length-tooltip-frequency"><div class="percentage-value"><span>{{ item.percent }}%</span><small>{{ item.count | count }}</small></div><div class="percentage-track track-concept" aria-hidden="true"><div style="width: {{ item.percent }}%"></div></div></div></div>{% endfor %}
+                      {% for item in representative_lengths %}<div class="length-tooltip-row"><div class="length-tooltip-copy"><strong>{{ item.length }} character{{ '' if item.length == 1 else 's' }}</strong>{% if item.examples %}<span>{% for example in item.examples[:3] %}{{ example.value }}{% if not loop.last %} / {% endif %}{% endfor %}</span>{% endif %}</div><div class="length-tooltip-frequency"><div class="percentage-value"><span>{{ item.percent }}%</span><small>{{ item.count | count }}</small></div><div class="percentage-track track-concept" aria-hidden="true"><div style="width: {{ item.percent }}%"></div></div></div></div>{% endfor %}
                     </div>
                   </div>
                   {% endif %}
@@ -279,7 +280,7 @@
           <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
           <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
           <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>
-          <div><dt>JSON format</dt><dd>{{ report.format_version }} (experimental)</dd></div>
+          <div><dt>JSON format</dt><dd>{{ report.format_version }} - revision {{ report.format_revision }} (experimental)</dd></div>
         </dl>
         <p class="metadata source-hash">Source SHA-256: <code>{{ report.source.sha256 }}</code></p>
       </details>

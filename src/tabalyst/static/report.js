@@ -40,8 +40,6 @@
     return;
   }
 
-  const numberOperators = ["equal", "notEqual", "greater", "greaterOrEqual", "less", "lessOrEqual", "empty", "notEmpty"];
-
   DataTable.ColumnControl.content.compactNumber = {
     defaults: { title: "Numeric filter" },
     init(config) {
@@ -136,14 +134,8 @@
     },
   };
 
-  function numericFilter(operators = numberOperators, title = "") {
-    return {
-      extend: "searchNumber",
-      excludeLogic: numberOperators.filter(operator => !operators.includes(operator)),
-      title,
-      titleAttr: title || "Numeric filter",
-      placeholder: "Value",
-    };
+  function numericFilter(title = "Numeric filter") {
+    return { extend: "compactNumber", title };
   }
 
   function checkboxFilter(element, index, formatLabel = value => DataTable.util.escapeHtml(value)) {
@@ -233,9 +225,47 @@
     menu.prepend(handle);
   }
 
+  function organizeMenuActions(menu) {
+    const clear = menu.querySelector(".dtcc-button_searchClear");
+    const liner = menu.querySelector(":scope > .dtcc-dropdown-liner");
+    if (!clear || !liner) return;
+    let row = liner.querySelector(":scope > .filter-action-row");
+    if (!row) {
+      row = document.createElement("div");
+      row.className = "filter-action-row";
+      const label = document.createElement("span");
+      label.className = "filter-action-label";
+      row.append(label);
+      liner.prepend(row);
+    }
+    clear.classList.add("filter-clear");
+    const text = clear.querySelector(".dtcc-button-text");
+    if (text && text.textContent !== "Clear") text.textContent = "Clear";
+    const trigger = menu.closest(".dt-container")
+      ?.querySelector(".dtcc-button_dropdown[aria-expanded='true']");
+    const title = trigger?.getAttribute("title") || "Filter";
+    const label = row.querySelector(".filter-action-label");
+    const labelText = title.replace(/^Filter\s+/, "");
+    if (label.textContent !== labelText) label.textContent = labelText;
+    clear.classList.toggle(
+      "filter-clear-active",
+      Boolean(trigger?.classList.contains("dtcc-button_active")),
+    );
+  }
+
   // Preserve accessible checkbox states and viewport positioning in scrollable tables.
+  const menuObserverOptions = {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class"],
+  };
   const menuObserver = new MutationObserver(() => {
-    for (const menu of document.querySelectorAll(".dtcc-dropdown")) makeMenuMovable(menu);
+    menuObserver.disconnect();
+    for (const menu of document.querySelectorAll(".dtcc-dropdown")) {
+      makeMenuMovable(menu);
+      organizeMenuActions(menu);
+    }
     for (const button of document.querySelectorAll(".dtcc-list-buttons .dtcc-button")) {
       button.setAttribute("role", "checkbox");
       button.setAttribute("aria-checked", String(button.classList.contains("dtcc-button_active")));
@@ -247,8 +277,9 @@
       button.setAttribute("aria-label", label);
     }
     positionMenus();
+    menuObserver.observe(document.body, menuObserverOptions);
   });
-  menuObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+  menuObserver.observe(document.body, menuObserverOptions);
   document.addEventListener("scroll", positionMenus, { capture: true, passive: true });
   window.addEventListener("resize", () => requestAnimationFrame(positionMenus));
 
@@ -341,8 +372,8 @@
 
   const summaryTable = attachTable(summary, [
     { type: "string", columnControl: controls(checkboxFilter(summary, 0)) },
-    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Missing (%)" }) },
-    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Distinct values" }) },
+    { type: "num", columnControl: controls(numericFilter("Missing (%)")) },
+    { type: "num", columnControl: controls(numericFilter("Distinct values")) },
     { type: "string", columnControl: controls(checkboxFilter(summary, 3, (value, count) => {
       const type = DataTable.util.escapeHtml(value);
       const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(value)
@@ -352,7 +383,7 @@
     { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => value === "(none)"
       ? `<span class="muted">(none)</span> <span class="filter-option-count">(${count})</span>`
       : `<span class="type-badge semantic-badge semantic-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`)) },
-    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Type error (%)" }) },
+    { type: "num", columnControl: controls(numericFilter("Type error (%)")) },
     { orderable: false, columnControl: [] },
   ], "columns");
   nameSearch.addEventListener("input", () => {
@@ -391,7 +422,7 @@
       { type: "string", columnControl: controls(checkboxFilter(strings, 0)) },
       { type: "string", columnControl: controls(checkboxFilter(strings, 1, (value, count) =>
         `<span class="type-badge string-status string-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value.replaceAll("_", " "))}</span> <span class="filter-option-count">(${count})</span>`)) },
-      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
       { orderable: false, columnControl: [] },
     ], "string columns");
   }
