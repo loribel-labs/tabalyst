@@ -19,8 +19,12 @@
     "minimum_confidence": 0.95
   },
   "string_analysis": {
-    "short_max_length": 30,
-    "long_max_length": 255
+    "very_short_max_length": 5,
+    "short_max_length": 20,
+    "medium_max_length": 50,
+    "long_max_length": 255,
+    "length_distribution_max_length": 20,
+    "examples_per_length": 5
   },
   "value_examples": {
     "full_distribution_max_distinct": 50,

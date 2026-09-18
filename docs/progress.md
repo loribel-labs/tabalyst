@@ -19,7 +19,12 @@
 
 - Added confidence-based physical typing with separate semantic types and explicit error counts.
 - Split normalization metrics into a filterable Transformations table.
-- Added String analysis with fixed, short, long and very-long length categories.
+- Added five string-length categories, independent fixed lengths, and bounded
+  per-length occurrence samples for short values.
 - Expanded Date analysis with explicit format distributions in interactive tooltips.
-- Aligned secondary-table Reset controls with section titles and hid them while collapsed.
+- Aligned secondary-table Reset controls with section titles and show them only
+  while a filter or sort is active. The Columns reset remains available beside
+  its permanent text search field.
 - Refined report interaction colors, quality metrics, percentage columns, large-number formatting, date variants and fixed-length string presentation.
+- Added end-to-end processing time and clearer data-cleaning observations.
+- Added distinct string-length counts and per-length occurrence examples to the report.

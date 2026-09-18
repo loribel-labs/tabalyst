@@ -64,11 +64,27 @@ class DateProfile(ResultModel):
     errors: dict[str, int]
 
 
+class StringLengthExample(ResultModel):
+    value: str
+    count: int
+
+
+class StringLengthDistribution(ResultModel):
+    length: int
+    count: int
+    percent: float
+    distinct_count: int
+    examples: list[StringLengthExample]
+
+
 class StringProfile(ResultModel):
-    status: Literal["fixed", "short", "long", "very_long"]
+    status: Literal["very_short", "short", "medium", "long", "very_long"]
     present_count: int
     minimum_length: int
     maximum_length: int
+    distinct_length_count: int
+    fixed_length: int | None = None
+    length_distribution: list[StringLengthDistribution]
 
 
 class ValueOccurrence(ResultModel):
@@ -146,6 +162,7 @@ class PreviewRow(ResultModel):
 class DatasetProfile(ResultModel):
     format_version: Literal["0.3"] = "0.3"
     generated_at: datetime
+    processing_seconds: FiniteFloat
     source: SourceInfo
     config: AnalysisConfig
     summary: DatasetSummary

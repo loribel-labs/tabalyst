@@ -61,6 +61,9 @@ its size does not affect analysis. JSON and HTML may include raw data and should
 shared accordingly. Bootstrap needs an internet connection; data is embedded in
 the report and is not sent to the CDN.
 
+The JSON profile records end-to-end CSV ingestion and analysis time in
+`processing_seconds`. Report rendering is intentionally excluded from that value.
+
 ## Browser checks
 
 With Node.js, Playwright and Edge installed, run the interactive regression check

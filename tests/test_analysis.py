@@ -25,6 +25,7 @@ def test_basic_csv_statistics_and_json_roundtrip():
     assert profile.summary.missing_count == 2
     assert profile.summary.missing_percent == 6.67
     assert profile.summary.duplicate_row_count == 1
+    assert profile.processing_seconds >= 0
     assert profile.columns[0].inferred_type == "text"
     assert profile.columns[0].distinct_count == 4
     assert profile.preview[0].values[0] == "001"
@@ -369,21 +370,59 @@ def test_mixed_without_dominant_type_has_no_error_baseline():
 
 
 @pytest.mark.parametrize(
-    ("values", "status", "minimum", "maximum"),
+    ("values", "status", "minimum", "maximum", "fixed"),
     [
-        (["AA", "BB"], "fixed", 2, 2),
-        (["A", "short value"], "short", 1, 11),
-        (["A", "x" * 31], "long", 1, 31),
-        (["A", "x" * 256], "very_long", 1, 256),
+        (["AA", "BB"], "very_short", 2, 2, 2),
+        (["A", "short value"], "short", 1, 11, None),
+        (["A", "x" * 31], "medium", 1, 31, None),
+        (["A", "x" * 51], "long", 1, 51, None),
+        (["A", "x" * 256], "very_long", 1, 256, None),
     ],
 )
-def test_string_length_profiles(values, status, minimum, maximum):
+def test_string_length_profiles(values, status, minimum, maximum, fixed):
     profile = analyze_column(pd.Series(values))
 
     assert profile.string_profile is not None
     assert profile.string_profile.status == status
     assert profile.string_profile.minimum_length == minimum
     assert profile.string_profile.maximum_length == maximum
+    assert profile.string_profile.distinct_length_count == len(
+        {len(value) for value in values}
+    )
+    assert profile.string_profile.fixed_length == fixed
+
+
+def test_short_string_profile_retains_occurrences_and_frequent_examples():
+    profile = analyze_column(
+        pd.Series(["a", "a", "b", "cc", "dd", "ee", "ff", "gg", "hh"]),
+        config=AnalysisConfig(
+            string_analysis=StringAnalysisConfig(examples_per_length=5)
+        ),
+    )
+
+    assert profile.string_profile is not None
+    assert [item.model_dump() for item in profile.string_profile.length_distribution] == [
+        {
+            "length": 1,
+            "count": 3,
+            "percent": 33.33,
+            "distinct_count": 2,
+            "examples": [{"value": "a", "count": 2}, {"value": "b", "count": 1}],
+        },
+        {
+            "length": 2,
+            "count": 6,
+            "percent": 66.67,
+            "distinct_count": 6,
+            "examples": [
+                {"value": "cc", "count": 1},
+                {"value": "dd", "count": 1},
+                {"value": "ee", "count": 1},
+                {"value": "ff", "count": 1},
+                {"value": "gg", "count": 1},
+            ],
+        },
+    ]
 
 
 def test_string_length_profile_excludes_missing_and_uses_normalized_values():
@@ -391,7 +430,9 @@ def test_string_length_profile_excludes_missing_and_uses_normalized_values():
         pd.Series(["", "  alpha  ", "beta   value"]),
         config=AnalysisConfig(
             string_analysis=StringAnalysisConfig(
+                very_short_max_length=5,
                 short_max_length=20,
+                medium_max_length=30,
                 long_max_length=40,
             )
         ),

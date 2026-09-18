@@ -55,13 +55,13 @@
             <span aria-hidden="true"> / </span> {{ report.source.encoding }}
             <span aria-hidden="true"> / </span> Delimiter: <code>{{ report.source.delimiter }}</code></p>
         </div>
-        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete
+        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in {{ report.processing_seconds }} s
           <time datetime="{{ report.generated_at.isoformat() }}">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time>
         </div>
       </div>
 
       <dl class="metric-grid">
-        <div><dt>Rows</dt><dd>{{ report.summary.row_count | count }}</dd><span>All data records</span></div>
+        <div><dt>Rows</dt><dd>{{ report.summary.row_count | count }}</dd><span>{{ 'No empty rows' if report.summary.empty_row_count == 0 else (report.summary.empty_row_count | count) ~ (' empty row' if report.summary.empty_row_count == 1 else ' empty rows') }}</span></div>
         <div><dt>Columns</dt><dd>{{ report.summary.column_count | count }}</dd><span>{{ report.summary.cell_count | count }} cells analyzed</span></div>
         <div><dt>Missing cells</dt><dd class="{{ 'metric-warning' if report.summary.missing_count }}">{{ report.summary.missing_percent }}<small>%</small></dd><span>{{ report.summary.missing_count | count }} cells</span></div>
         <div><dt>Duplicate rows</dt><dd>{{ report.summary.duplicate_row_count | count }}</dd><span>Beyond the first occurrence</span></div>
@@ -79,12 +79,6 @@
             {% endfor %}
           </ul>
           {% else %}<p class="empty-state">No issues detected by the current checks.</p>{% endif %}
-          <dl class="quality-metrics">
-            <div><dt>Empty rows</dt><dd>{{ report.summary.empty_row_count | count }}</dd></div>
-            <div><dt>Empty columns</dt><dd>{{ report.summary.empty_column_count | count }}</dd></div>
-            <div><dt>Trimmed cells</dt><dd>{{ report.summary.trim_count | count }}</dd></div>
-            <div><dt>Whitespace collapsed</dt><dd>{{ report.summary.collapse_internal_whitespace_count | count }}</dd></div>
-          </dl>
         </div>
         <div class="type-overview">
           <h2>Column types</h2>
@@ -222,8 +216,33 @@
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="string-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="String analysis">
           <table id="string-table" class="table table-sm string-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col">Fixed length</th><th scope="col">Length min</th><th scope="col">Length max</th></tr></thead>
-            <tbody>{% for column in string_columns %}{% set fixed = column.string_profile.status == 'fixed' %}<tr><th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th><td data-order="{{ column.string_profile.status }}" data-search="{{ column.string_profile.status }}"><span class="type-badge string-status string-{{ column.string_profile.status }}">{{ column.string_profile.status | replace('_', ' ') }}</span></td><td data-order="{{ column.string_profile.minimum_length if fixed else -1 }}" data-search="{{ column.string_profile.minimum_length if fixed else '' }}">{% if fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td><td data-order="{{ -1 if fixed else column.string_profile.minimum_length }}" data-search="{{ '' if fixed else column.string_profile.minimum_length }}">{% if not fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td><td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td></tr>{% endfor %}</tbody>
+            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed length</th><th scope="col">Lengths</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Examples</th></tr></thead>
+            <tbody>
+              {% for column in string_columns %}
+              {% set fixed = column.string_profile.fixed_length is not none %}
+              <tr>
+                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
+                <td data-order="{{ column.string_profile.status }}" data-search="{{ column.string_profile.status }}"><span class="type-badge string-status string-{{ column.string_profile.status }}">{{ column.string_profile.status | replace('_', ' ') }}</span></td>
+                <td data-order="{{ column.string_profile.fixed_length if fixed else -1 }}" data-search="{{ column.string_profile.fixed_length if fixed else '' }}">{% if fixed %}{{ column.string_profile.fixed_length | count }}{% endif %}</td>
+                <td data-order="{{ column.string_profile.distinct_length_count }}" data-search="{{ column.string_profile.distinct_length_count }}">{% if not fixed %}{{ column.string_profile.distinct_length_count | count }}{% endif %}</td>
+                <td data-order="{{ -1 if fixed else column.string_profile.minimum_length }}" data-search="{{ '' if fixed else column.string_profile.minimum_length }}">{% if not fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td>
+                <td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td>
+                <td class="examples length-examples" tabindex="0"{% if column.string_profile.length_distribution %} aria-describedby="{{ column.id }}-lengths-tooltip"{% endif %}>
+                  {% set representative_lengths = column.string_profile.length_distribution | sort(attribute='count', reverse=true) %}
+                  {% for item in representative_lengths[:3] %}{% if item.examples %}<span class="example-value">{{ item.examples[0].value }}</span>{% endif %}{% endfor %}
+                  {% if representative_lengths | length > 3 %}<span class="example-more" aria-hidden="true">+{{ (representative_lengths | length) - 3 }}</span>{% endif %}
+                  {% if column.string_profile.length_distribution %}
+                  <div id="{{ column.id }}-lengths-tooltip" class="examples-tooltip length-examples-tooltip" role="tooltip">
+                    <div class="examples-tooltip-title">Lengths <span>{{ column.string_profile.distinct_length_count }}</span></div>
+                    <div class="examples-tooltip-list">
+                      {% for item in column.string_profile.length_distribution %}<div class="length-tooltip-row"><div class="length-tooltip-copy"><strong>{{ item.length }} character{{ '' if item.length == 1 else 's' }}</strong>{% if item.examples %}<span>{% for example in item.examples[:3] %}{{ example.value }}{% if not loop.last %} / {% endif %}{% endfor %}</span>{% endif %}</div><div class="length-tooltip-frequency"><div class="percentage-value"><span>{{ item.percent }}%</span><small>{{ item.count | count }}</small></div><div class="percentage-track track-concept" aria-hidden="true"><div style="width: {{ item.percent }}%"></div></div></div></div>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
           </table>
         </div>
         <p class="metadata filter-result" data-table-status="string-table" role="status" hidden></p>
@@ -256,7 +275,7 @@
           <div><dt>Type inference</dt><dd>At least {{ (report.config.type_inference.minimum_confidence * 100) | round(1) }}% agreement across present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
           <div><dt>Date detection</dt><dd>Orders: {{ report.config.date_detection.orders | join(', ') }}; separators: {% for separator in report.config.date_detection.separators %}<code>{{ separator | tojson }}</code> {% endfor %}; ambiguous order: {{ report.config.date_detection.ambiguous_order or 'inferred only from unambiguous column evidence' }}</dd></div>
           <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>
-          <div><dt>String lengths</dt><dd>Short through {{ report.config.string_analysis.short_max_length }} characters; long through {{ report.config.string_analysis.long_max_length }}; otherwise very long. Equal minimum and maximum lengths are fixed.</dd></div>
+          <div><dt>String lengths</dt><dd>Very short through {{ report.config.string_analysis.very_short_max_length }}; short through {{ report.config.string_analysis.short_max_length }}; medium through {{ report.config.string_analysis.medium_max_length }}; long through {{ report.config.string_analysis.long_max_length }}; otherwise very long. Up to {{ report.config.string_analysis.examples_per_length }} examples per length are retained when the maximum is {{ report.config.string_analysis.length_distribution_max_length }} or less.</dd></div>
           <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
           <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
           <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>

@@ -299,9 +299,6 @@
       status.hidden = false;
       status.textContent = `${visible} of ${total} ${noun}`;
     };
-    table.on("draw", updateStatus);
-    updateStatus();
-
     for (const cell of element.tHead.rows[0].cells) {
       const title = cell.querySelector(".dt-column-title").textContent;
       for (const [selector, action] of [[".dtcc-button_order", "Sort by"], [".dtcc-button_dropdown", "Filter"]]) {
@@ -314,7 +311,24 @@
     }
 
     const reset = document.querySelector(`[data-reset-table="${element.id}"]`);
-    reset.hidden = false;
+    const updateResetVisibility = () => {
+      const hasActiveControl = Boolean(element.tHead.querySelector(".dtcc-button_active"));
+      let hasColumnSearch = false;
+      table.columns().every(function () {
+        hasColumnSearch ||= this.search() !== "";
+      });
+      const hasSearch = table.search() !== "" || hasColumnSearch;
+      reset.hidden = element !== summary
+        && !hasActiveControl
+        && !hasSearch
+        && table.order().length === 0;
+    };
+    table.on("draw", () => {
+      updateStatus();
+      updateResetVisibility();
+    });
+    updateStatus();
+    updateResetVisibility();
     reset.addEventListener("click", () => {
       table.columns().columnControl.searchClear();
       table.search("").columns().search("");
@@ -377,7 +391,8 @@
       { type: "string", columnControl: controls(checkboxFilter(strings, 0)) },
       { type: "string", columnControl: controls(checkboxFilter(strings, 1, (value, count) =>
         `<span class="type-badge string-status string-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value.replaceAll("_", " "))}</span> <span class="filter-option-count">(${count})</span>`)) },
-      ...Array.from({ length: 3 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      { orderable: false, columnControl: [] },
     ], "string columns");
   }
 
