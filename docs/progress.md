@@ -14,3 +14,12 @@
 - Added automatic project configuration through a root-level `tabalyst.json`, with explicit files and CLI options as later overrides.
 - Added configurable trim and internal-whitespace normalization with detailed column and dataset counters.
 - Added strict multi-format date profiling with ambiguity, validation-error and format occurrence counts.
+
+## 2026-09-18
+
+- Added confidence-based physical typing with separate semantic types and explicit error counts.
+- Split normalization metrics into a filterable Transformations table.
+- Added String analysis with fixed, short, long and very-long length categories.
+- Expanded Date analysis with explicit format distributions in interactive tooltips.
+- Aligned secondary-table Reset controls with section titles and hid them while collapsed.
+- Refined report interaction colors, quality metrics, percentage columns, large-number formatting, date variants and fixed-length string presentation.

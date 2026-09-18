@@ -16,6 +16,7 @@ from tabalyst.models import (
     ColumnProfile,
     DatasetProfile,
     DatasetSummary,
+    DateBreakdownItem,
     DateFormatCount,
     DateProfile,
     EnumCandidate,
@@ -23,6 +24,7 @@ from tabalyst.models import (
     NormalizationStats,
     NumericStats,
     PreviewRow,
+    StringProfile,
     ValueOccurrence,
     ValueProfile,
 )
@@ -82,7 +84,9 @@ class DateValueResult:
     state: str
     order: str | None = None
     separator: str | None = None
+    format: str | None = None
     possible_orders: tuple[str, ...] = ()
+    possible_formats: tuple[str, ...] = ()
     error: str | None = None
 
 
@@ -98,6 +102,28 @@ def valid_calendar_date(order: str, first: int, second: int, third: int) -> bool
     except ValueError:
         return False
     return True
+
+
+def date_format_name(
+    order: str,
+    first: str,
+    second: str,
+    third: str,
+    separator: str,
+) -> str:
+    """Describe component order, separator and zero-padding explicitly."""
+    month = "MM" if len(second if order == "YMD" else first) == 2 else "M"
+    if order == "YMD":
+        day = "DD" if len(third) == 2 else "D"
+        parts = ("YYYY", month, day)
+    elif order == "MDY":
+        day = "DD" if len(second) == 2 else "D"
+        parts = (month, day, "YYYY")
+    else:
+        day = "DD" if len(first) == 2 else "D"
+        month = "MM" if len(second) == 2 else "M"
+        parts = (day, month, "YYYY")
+    return separator.join(parts)
 
 
 def classify_date_value(value: str, config: AnalysisConfig) -> DateValueResult:
@@ -143,9 +169,25 @@ def classify_date_value(value: str, config: AnalysisConfig) -> DateValueResult:
     if not valid_orders:
         return DateValueResult("invalid", error="invalid_calendar_date")
     if len(valid_orders) == 1:
-        return DateValueResult("valid", order=valid_orders[0], separator=separator)
+        order = valid_orders[0]
+        return DateValueResult(
+            "valid",
+            order=order,
+            separator=separator,
+            format=date_format_name(
+                order, first_text, second_text, third_text, separator
+            ),
+        )
     return DateValueResult(
-        "ambiguous", separator=separator, possible_orders=valid_orders
+        "ambiguous",
+        separator=separator,
+        possible_orders=valid_orders,
+        possible_formats=tuple(
+            date_format_name(
+                order, first_text, second_text, third_text, separator
+            )
+            for order in valid_orders
+        ),
     )
 
 
@@ -177,7 +219,8 @@ def build_date_profile(
             resolution_source = "column"
 
     valid_values: set[str] = set()
-    formats: Counter[tuple[str, str]] = Counter()
+    formats: Counter[tuple[str, str, str]] = Counter()
+    ambiguous_formats: Counter[str] = Counter()
     errors: Counter[str] = Counter()
     valid_count = 0
     ambiguous_count = 0
@@ -186,17 +229,24 @@ def build_date_profile(
     for value, count in frequencies:
         result = classified[value]
         order = result.order
+        format_name = result.format
         if (
             result.state == "ambiguous"
             and resolved_order in result.possible_orders
         ):
             order = resolved_order
+            format_name = result.possible_formats[
+                result.possible_orders.index(str(resolved_order))
+            ]
         if result.state == "valid" or order:
             valid_values.add(value)
             valid_count += count
-            formats[(str(order), str(result.separator))] += count
+            formats[(str(format_name), str(order), str(result.separator))] += count
         elif result.state == "ambiguous":
             ambiguous_count += count
+            ambiguous_formats[
+                "Ambiguous: " + " or ".join(result.possible_formats)
+            ] += count
         elif result.state == "invalid":
             invalid_count += count
             errors[str(result.error)] += count
@@ -212,6 +262,52 @@ def build_date_profile(
         status = "invalid"
     else:
         status = "mixed"
+    format_items = [
+        DateFormatCount(
+            format=format_name,
+            order=order,
+            separator=separator,
+            count=count,
+            percent=percent(count, total),
+            iso=format_name == "YYYY-MM-DD",
+        )
+        for (format_name, order, separator), count in sorted(
+            formats.items(), key=lambda item: (-item[1], item[0])
+        )
+    ]
+    date_breakdown = [
+        DateBreakdownItem(
+            label=item.format,
+            category="valid",
+            count=item.count,
+            percent=item.percent,
+        )
+        for item in format_items
+    ]
+    date_breakdown.extend(
+        DateBreakdownItem(
+            label=label,
+            category="ambiguous",
+            count=count,
+            percent=percent(count, total),
+        )
+        for label, count in ambiguous_formats.items()
+    )
+    date_breakdown.sort(key=lambda item: (-item.count, item.label))
+    breakdown = date_breakdown + [
+        DateBreakdownItem(
+            label="Invalid date",
+            category="invalid",
+            count=invalid_count,
+            percent=percent(invalid_count, total),
+        ),
+        DateBreakdownItem(
+            label="Not a date",
+            category="not_date",
+            count=not_date_count,
+            percent=percent(not_date_count, total),
+        ),
+    ]
     return (
         DateProfile(
             status=status,
@@ -221,20 +317,89 @@ def build_date_profile(
             not_date_count=not_date_count,
             resolved_ambiguous_order=resolved_order,
             ambiguous_order_source=resolution_source,
-            formats=[
-                DateFormatCount(
-                    order=order,
-                    separator=separator,
-                    count=count,
-                    iso=order == "YMD" and separator == "-",
-                )
-                for (order, separator), count in sorted(
-                    formats.items(), key=lambda item: (-item[1], item[0])
-                )
-            ],
+            formats=format_items,
+            format_count=len(format_items),
+            breakdown=breakdown,
             errors=dict(errors),
         ),
         valid_values,
+    )
+
+
+def infer_column_type(
+    counts: Counter[str],
+    date_profile: DateProfile | None,
+    total: int,
+    config: AnalysisConfig,
+) -> tuple[str, str | None, float, int | None, float | None]:
+    """Infer a dominant type and quantify values outside the accepted family."""
+    if not total:
+        return "empty", None, 1.0, 0, 0.0
+    threshold = config.type_inference.minimum_confidence
+    candidates = [
+        ("integer", counts["integer"]),
+        ("number", counts["integer"] + counts["number"]),
+    ]
+    for inferred_type, accepted in candidates:
+        confidence = accepted / total
+        if confidence >= threshold:
+            errors = total - accepted
+            return inferred_type, None, confidence, errors, percent(errors, total)
+
+    date_accepted = (
+        date_profile.valid_count + date_profile.ambiguous_count
+        if date_profile
+        else 0
+    )
+    date_confidence = date_accepted / total
+    if date_profile and date_confidence >= threshold:
+        inferred_type = (
+            "date"
+            if date_profile.format_count == 1
+            and date_profile.ambiguous_count == 0
+            else "mixed"
+        )
+        errors = total - date_profile.valid_count
+        return inferred_type, "date", date_confidence, errors, percent(errors, total)
+
+    for inferred_type in ("boolean", "text"):
+        accepted = counts[inferred_type]
+        confidence = accepted / total
+        if confidence >= threshold:
+            errors = total - accepted
+            return inferred_type, None, confidence, errors, percent(errors, total)
+
+    family_counts = [
+        counts["integer"],
+        counts["integer"] + counts["number"],
+        date_accepted,
+        counts["boolean"],
+        counts["text"],
+    ]
+    return "mixed", None, max(family_counts) / total, None, None
+
+
+def build_string_profile(
+    present: pd.Series, inferred_type: str, config: AnalysisConfig
+) -> StringProfile | None:
+    if inferred_type != "text" or present.empty:
+        return None
+    lengths = present.str.len()
+    minimum = int(lengths.min())
+    maximum = int(lengths.max())
+    if minimum == maximum:
+        status = "fixed"
+    elif maximum <= config.string_analysis.short_max_length:
+        status = "short"
+    elif maximum <= config.string_analysis.long_max_length:
+        status = "long"
+    else:
+        status = "very_long"
+    return StringProfile(
+        status=status,
+        present_count=len(present),
+        minimum_length=minimum,
+        maximum_length=maximum,
     )
 
 
@@ -423,17 +588,15 @@ def analyze_column(
     counts: Counter[str] = Counter()
     for value, count in frequencies:
         counts["date" if value in valid_date_values else value_type(value)] += count
-    kinds = set(counts)
-    if not kinds:
-        inferred = "empty"
-    elif kinds <= {"integer", "number"}:
-        inferred = "number" if "number" in kinds else "integer"
-    else:
-        inferred = next(iter(kinds)) if len(kinds) == 1 else "mixed"
+    inferred, semantic_type, type_confidence, type_error_count, type_error_percent = (
+        infer_column_type(counts, date_profile, len(present), config)
+    )
 
     numeric = None
     if inferred in {"integer", "number"}:
-        numbers = pd.to_numeric(present, errors="coerce").astype(float)
+        accepted_types = {"integer"} if inferred == "integer" else {"integer", "number"}
+        numeric_values = present[present.map(lambda value: value_type(value) in accepted_types)]
+        numbers = pd.to_numeric(numeric_values, errors="coerce").astype(float)
         stats = [numbers.min(), numbers.max(), numbers.mean(), numbers.median()]
         if numbers.notna().all() and all(math.isfinite(value) for value in stats):
             numeric = NumericStats(
@@ -451,12 +614,18 @@ def analyze_column(
         row_count=len(values),
         config=config,
     )
+    if enum and semantic_type is None:
+        semantic_type = "enum"
+    string_profile = build_string_profile(present, inferred, config)
     return ColumnProfile(
         id=f"column_{position}",
         name=name if name is not None else str(values.name or ""),
         position=position,
         inferred_type=inferred,
         type_counts=dict(counts),
+        type_confidence=round(type_confidence, 4),
+        type_error_count=type_error_count,
+        type_error_percent=type_error_percent,
         missing_count=int(absent.sum()),
         missing_percent=percent(int(absent.sum()), len(values)),
         normalization=normalization,
@@ -466,9 +635,10 @@ def analyze_column(
             for item in value_profile.values[: config.value_examples.inline_display_size]
         ],
         value_profile=value_profile,
-        semantic_type="enum" if enum else None,
+        semantic_type=semantic_type,
         enum=enum,
         date_profile=date_profile,
+        string_profile=string_profile,
         numeric=numeric,
     )
 

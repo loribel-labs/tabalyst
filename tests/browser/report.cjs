@@ -64,7 +64,7 @@ async function reset(page, table = 'columns-table') {
       await page.locator('#theme-toggle').click();
       assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
       assert.equal(await page.evaluate(() => DataTable.version), '3.0.4');
-      assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Trimmed', 'Whitespace collapsed', 'Distinct', 'Inferred type', 'Examples']);
+      assert.deepEqual(await page.locator('#columns-table thead .dt-column-title').allTextContents(), ['Column', 'Missing (%)', 'Distinct', 'Inferred type', 'Semantic type', 'Error (%)', 'Examples']);
       for (const header of await page.locator('#columns-table thead th:has(.dtcc-button_dropdown)').all()) {
         const positions = await header.evaluate(cell => ({
           filter: cell.querySelector('.dtcc-button_dropdown').getBoundingClientRect().left,
@@ -87,7 +87,23 @@ async function reset(page, table = 'columns-table') {
       await page.mouse.move(0, 0);
       await page.waitForFunction(nodes => nodes.every(node => getComputedStyle(node).opacity === '0'), await firstHeaderControls.elementHandles());
       const metrics = await page.locator('.metric-grid').innerText();
+      assert.deepEqual(
+        await page.locator('.quality-metrics dd').allTextContents(),
+        [
+          profile.summary.empty_row_count,
+          profile.summary.empty_column_count,
+          profile.summary.trim_count,
+          profile.summary.collapse_internal_whitespace_count,
+        ].map(value => value.toLocaleString('en-US')),
+      );
       await displayedColumns(page, profile.columns);
+      const zeroMissing = profile.columns.find(column => column.missing_percent === 0);
+      if (zeroMissing) assert.equal((await page.locator(`#${zeroMissing.id} td`).nth(0).innerText()).trim(), '');
+      const typeColors = await page.locator('#columns-table tbody tr[id]').evaluateAll(rows => Object.fromEntries(rows.map(row => {
+        const badge = row.cells[3].querySelector('.type-badge');
+        return [badge.textContent, getComputedStyle(badge).backgroundColor];
+      })));
+      assert.equal(new Set(Object.values(typeColors)).size, Object.keys(typeColors).length);
 
       // Explicit column selection uses stable positions, including repeated names.
       let menu = await popup(page, 'columns-table', 0);
@@ -105,28 +121,35 @@ async function reset(page, table = 'columns-table') {
       await reset(page);
 
       // Type selections combine with OR; different column filters combine with AND.
-      const displayType = column => column.semantic_type
-        ? `${column.inferred_type} · ${column.semantic_type}`
-        : column.inferred_type;
-      const types = [...new Set(profile.columns.map(displayType))].slice(0, 2);
-      menu = await popup(page, 'columns-table', 5);
+      const types = [...new Set(profile.columns.map(column => column.inferred_type))].slice(0, 2);
+      menu = await popup(page, 'columns-table', 3);
       for (const type of types) {
-        const count = profile.columns.filter(column => displayType(column) === type).length;
+        const count = profile.columns.filter(column => column.inferred_type === type).length;
         const option = menu.getByRole('checkbox', { name: `${type} (${count})`, exact: true });
         await option.waitFor();
-        assert.equal((await option.locator('.type-badge').allInnerTexts()).join(' · '), type);
+        assert.equal(await option.locator('.type-badge').innerText(), type);
         await option.click();
       }
       await page.keyboard.press('Escape');
-      const byType = profile.columns.filter(column => types.includes(displayType(column)));
+      const byType = profile.columns.filter(column => types.includes(column.inferred_type));
       await displayedColumns(page, byType);
       await numberFilter(page, 'columns-table', 1, 'greater', 5);
       const byMissing = byType.filter(column => column.missing_percent > 5);
       await displayedColumns(page, byMissing);
-      await numberFilter(page, 'columns-table', 4, 'less', 100);
+      await numberFilter(page, 'columns-table', 2, 'less', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count < 100));
-      await numberFilter(page, 'columns-table', 4, 'greater', 100);
+      await numberFilter(page, 'columns-table', 2, 'greater', 100);
       await displayedColumns(page, byMissing.filter(column => column.distinct_count > 100));
+      await reset(page);
+
+      const semantics = [...new Set(profile.columns.map(column => column.semantic_type || '(none)'))].slice(0, 2);
+      menu = await popup(page, 'columns-table', 4);
+      for (const semantic of semantics) {
+        const count = profile.columns.filter(column => (column.semantic_type || '(none)') === semantic).length;
+        await menu.getByRole('checkbox', { name: `${semantic} (${count})`, exact: true }).click();
+      }
+      await page.keyboard.press('Escape');
+      await displayedColumns(page, profile.columns.filter(column => semantics.includes(column.semantic_type || '(none)')));
       await reset(page);
 
       const expanded = profile.columns.find(column => column.value_profile.values.length > profile.config.value_examples.inline_display_size);
@@ -171,9 +194,8 @@ async function reset(page, table = 'columns-table') {
       // Inclusive boundaries, zero, incomplete and reversed ranges, and individual clearing.
       const numericColumns = [
         [1, column => column.missing_percent],
-        [2, column => column.normalization.trim_count],
-        [3, column => column.normalization.collapse_internal_whitespace_count],
-        [4, column => column.distinct_count],
+        [2, column => column.distinct_count],
+        [5, column => column.type_error_percent ?? -1],
       ];
       for (const [index, valueFor] of numericColumns) {
         const boundary = valueFor(profile.columns[0]);
@@ -191,11 +213,11 @@ async function reset(page, table = 'columns-table') {
           await displayedColumns(page, profile.columns.filter(column => valueFor(column) >= low && valueFor(column) <= high));
         }
         const trigger = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_dropdown');
-        assert.equal(await trigger.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
-        assert.equal(await trigger.evaluate(el => getComputedStyle(el).color), 'rgb(0, 5, 26)');
+        assert.equal(await trigger.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(118, 82, 212)');
+        assert.equal(await trigger.evaluate(el => getComputedStyle(el).color), 'rgb(255, 255, 255)');
         assert.equal(await trigger.evaluate(el => getComputedStyle(el).opacity), '1');
-        assert.equal(await trigger.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(0, 5, 26)');
-        assert.equal(await trigger.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(249, 133, 16)');
+        assert.equal(await trigger.locator('svg:visible').evaluate(el => getComputedStyle(el).stroke), 'rgb(255, 255, 255)');
+        assert.equal(await trigger.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(118, 82, 212)');
         menu = await popup(page, 'columns-table', index);
         await menu.locator('.dtcc-button_searchClear').click();
         await displayedColumns(page, profile.columns);
@@ -210,7 +232,7 @@ async function reset(page, table = 'columns-table') {
       }
 
       // Sorting must use numbers, not formatted strings (e.g. 2,992 vs 31).
-      for (const index of [1, 2, 3, 4]) {
+      for (const index of [1, 2, 5]) {
         await reset(page);
         const sort = page.locator('#columns-table thead th').nth(index).locator('.dtcc-button_order');
         for (const direction of [1, -1]) {
@@ -221,9 +243,9 @@ async function reset(page, table = 'columns-table') {
           }, { index, direction }, { timeout: 5000 });
           await sort.waitFor({ state: 'visible' });
           await page.waitForFunction(element => element.classList.contains('dtcc-button_active'), await sort.elementHandle());
-          assert.equal(await sort.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(249, 133, 16)');
-          assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(0, 5, 26)');
-          assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(249, 133, 16)');
+          assert.equal(await sort.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(118, 82, 212)');
+          assert.equal(await sort.evaluate(el => getComputedStyle(el).color), 'rgb(255, 255, 255)');
+          assert.equal(await sort.locator('xpath=ancestor::div[contains(@class,"dt-column-header")]/*[contains(@class,"dt-column-title")]').evaluate(el => getComputedStyle(el).textDecorationColor), 'rgb(118, 82, 212)');
           const values = await page.locator('#columns-table tbody tr[id]').evaluateAll((rows, i) => rows.map(row => Number(row.cells[i].dataset.order)), index);
           assert.deepEqual(values, [...values].sort((a, b) => direction * (a - b)));
         }
@@ -234,28 +256,127 @@ async function reset(page, table = 'columns-table') {
       await displayedColumns(page, profile.columns.filter(column => (`#${column.position} ${column.name || '(unnamed)'}`).toLowerCase().includes(first.name.toLowerCase())));
       await reset(page);
 
+      const transformationDetails = page.locator('.transformation-details');
+      const transformationReset = transformationDetails.locator('[data-reset-table="transformations-table"]');
+      assert.equal(await transformationReset.isVisible(), false);
+      await transformationDetails.locator('summary').click();
+      assert.deepEqual(
+        await page.locator('#transformations-table thead .dt-column-title').allTextContents(),
+        ['Column', 'Missing (%)', 'Trimmed (%)', 'Whitespace collapsed (%)', 'Distinct'],
+      );
+      assert.deepEqual(
+        await page.locator('#transformations-table tbody .column-index').allTextContents(),
+        profile.columns.map(column => String(column.position)),
+      );
+      const transformationAlignment = await transformationDetails.evaluate(details => {
+        const summaryBox = details.querySelector('summary').getBoundingClientRect();
+        const resetBox = details.querySelector('.details-actions').getBoundingClientRect();
+        const tableBox = details.querySelector('.secondary-table-wrap').getBoundingClientRect();
+        return { titleTop: summaryBox.top, resetTop: resetBox.top, titleBottom: summaryBox.bottom, tableTop: tableBox.top };
+      });
+      assert.ok(Math.abs(transformationAlignment.titleTop - transformationAlignment.resetTop) <= 3, JSON.stringify(transformationAlignment));
+      assert.ok(transformationAlignment.tableTop - transformationAlignment.titleBottom <= 14, JSON.stringify(transformationAlignment));
+      await numberFilter(page, 'transformations-table', 2, 'greater', 0);
+      const transformedCount = profile.columns.filter(column => column.normalization.trim_percent > 0).length;
+      await page.waitForFunction(text => document.querySelector('[data-table-status="transformations-table"]').textContent === text, `${transformedCount} of ${profile.columns.length} columns`);
+      await reset(page, 'transformations-table');
+      await transformationDetails.screenshot({ path: `artifacts/transformations-${name}.png` });
+      await transformationDetails.locator('summary').click();
+      assert.equal(await transformationReset.isVisible(), false);
+
       if (profile.columns.some(column => column.numeric)) {
+        const numericReset = page.locator('.numeric-details [data-reset-table="numeric-table"]');
+        assert.equal(await numericReset.isVisible(), false);
         await page.locator('.numeric-details summary').click();
+        assert.deepEqual(
+          await page.locator('#numeric-table tbody .column-index').allTextContents(),
+          profile.columns.filter(column => column.numeric).map(column => String(column.position)),
+        );
+        const alignment = await page.locator('.numeric-details').evaluate(details => {
+          const summaryBox = details.querySelector('summary').getBoundingClientRect();
+          const resetBox = details.querySelector('.details-actions').getBoundingClientRect();
+          return { titleTop: summaryBox.top, resetTop: resetBox.top };
+        });
+        assert.ok(Math.abs(alignment.titleTop - alignment.resetTop) <= 3, JSON.stringify(alignment));
         const numericCount = profile.columns.filter(column => column.numeric).length;
         await numberFilter(page, 'numeric-table', 1, 'greater', 0);
         const expected = profile.columns.filter(column => column.numeric && column.numeric.minimum > 0).length;
         await page.waitForFunction(text => document.querySelector('[data-table-status="numeric-table"]').textContent === text, `${expected} of ${numericCount} columns`);
         await reset(page, 'numeric-table');
         await page.locator('.numeric-details summary').click();
+        assert.equal(await numericReset.isVisible(), false);
       }
 
       const dateColumns = profile.columns.filter(column => column.date_profile);
       if (dateColumns.length) {
+        const dateReset = page.locator('.date-details [data-reset-table="date-table"]');
+        assert.equal(await dateReset.isVisible(), false);
         await page.locator('.date-details summary').click();
         assert.deepEqual(
           await page.locator('#date-table thead .dt-column-title').allTextContents(),
-          ['Column', 'Status', 'Valid', 'Ambiguous', 'Invalid', 'Other', 'Formats'],
+          ['Column', 'Status', 'Valid (%)', 'Ambiguous (%)', 'Invalid (%)', 'Other (%)', 'Formats'],
+        );
+        assert.deepEqual(
+          await page.locator('#date-table tbody .column-index').allTextContents(),
+          dateColumns.map(column => String(column.position)),
         );
         await numberFilter(page, 'date-table', 2, 'greater', 0);
         const expected = dateColumns.filter(column => column.date_profile.valid_count > 0).length;
         await page.waitForFunction(text => document.querySelector('[data-table-status="date-table"]').textContent === text, `${expected} of ${dateColumns.length} date columns`);
         await reset(page, 'date-table');
+        const firstDate = dateColumns[0];
+        const formatCell = page.locator('#date-table tbody tr').first().locator('.date-formats-cell');
+        const variantLabel = `${firstDate.date_profile.format_count} variant${firstDate.date_profile.format_count === 1 ? '' : 's'}`;
+        assert.equal(await formatCell.locator('.date-format-count').innerText(), variantLabel);
+        await formatCell.hover();
+        const formatTooltip = formatCell.locator('.date-formats-tooltip');
+        await formatTooltip.waitFor({ state: 'visible' });
+        assert.equal(await formatTooltip.locator('.examples-tooltip-title').innerText(), variantLabel);
+        const formatRows = await formatTooltip.locator('.examples-tooltip-list > div').evaluateAll(nodes => nodes.map(node => ({
+          label: node.querySelector('span').textContent,
+          count: Number(node.querySelector('small').textContent.split(' ')[0].replace(/[^0-9]/g, '')),
+          percent: Number(node.querySelector('small').textContent.match(/\(([-0-9.]+)%\)/)[1]),
+        })));
+        assert.deepEqual(formatRows, firstDate.date_profile.breakdown.map(item => ({
+          label: item.label,
+          count: item.count,
+          percent: item.percent,
+        })));
+        assert.deepEqual(formatRows.slice(-2).map(item => item.label), ['Invalid date', 'Not a date']);
+        assert.equal(await formatTooltip.locator('.date-breakdown-invalid').evaluate(el => getComputedStyle(el).borderTopWidth), '2px');
+        await page.locator('.date-details').screenshot({ path: `artifacts/dates-${name}.png` });
         await page.locator('.date-details summary').click();
+        assert.equal(await dateReset.isVisible(), false);
+      }
+
+      const stringColumns = profile.columns.filter(column => column.string_profile);
+      if (stringColumns.length) {
+        const stringDetails = page.locator('.string-details');
+        const stringReset = stringDetails.locator('[data-reset-table="string-table"]');
+        assert.equal(await stringReset.isVisible(), false);
+        await stringDetails.locator('summary').click();
+        assert.deepEqual(
+          await page.locator('#string-table thead .dt-column-title').allTextContents(),
+          ['Column', 'Status', 'Fixed length', 'Length min', 'Length max'],
+        );
+        assert.deepEqual(
+          await page.locator('#string-table tbody .column-index').allTextContents(),
+          stringColumns.map(column => String(column.position)),
+        );
+        const fixedColumnIndex = stringColumns.findIndex(column => column.string_profile.status === 'fixed');
+        if (fixedColumnIndex >= 0) {
+          const cells = page.locator('#string-table tbody tr').nth(fixedColumnIndex).locator('td');
+          assert.equal(await cells.nth(1).innerText(), String(stringColumns[fixedColumnIndex].string_profile.minimum_length));
+          assert.equal(await cells.nth(2).innerText(), '');
+          assert.equal(await cells.nth(3).innerText(), '');
+        }
+        await numberFilter(page, 'string-table', 4, 'greater', 20);
+        const expected = stringColumns.filter(column => column.string_profile.maximum_length > 20).length;
+        await page.waitForFunction(text => document.querySelector('[data-table-status="string-table"]').textContent === text, `${expected} of ${stringColumns.length} string columns`);
+        await reset(page, 'string-table');
+        await stringDetails.screenshot({ path: `artifacts/strings-${name}.png` });
+        await stringDetails.locator('summary').click();
+        assert.equal(await stringReset.isVisible(), false);
       }
 
       if (profile.preview.length) {
@@ -288,6 +409,14 @@ async function reset(page, table = 'columns-table') {
       const backgrounds = await menu.locator('.dtcc-dropdown-liner, .dtcc-list, .dtcc-list-controls, .dtcc-list-buttons, .dtcc-list-buttons button').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundColor));
       assert.ok(backgrounds.every(color => color === backgrounds[0]), JSON.stringify(backgrounds));
       assert.ok((await menu.locator('input').boundingBox()).height <= 28);
+      const filterInput = menu.locator('input').first();
+      await filterInput.focus();
+      assert.equal(await filterInput.evaluate(el => getComputedStyle(el).borderTopColor), 'rgb(41, 49, 79)');
+      assert.equal(await filterInput.evaluate(el => getComputedStyle(el).outlineColor), 'rgb(118, 82, 212)');
+      const smallButton = menu.locator('.dtcc-list-selectAll').first();
+      await smallButton.hover();
+      const smallButtonShadow = await smallButton.evaluate(el => getComputedStyle(el).boxShadow);
+      assert.ok(smallButtonShadow.includes('rgb(118, 82, 212)'), smallButtonShadow);
       const handle = menu.locator('.filter-drag-handle');
       const beforeDrag = await menu.boundingBox();
       const handleBox = await handle.boundingBox();
@@ -313,7 +442,7 @@ async function reset(page, table = 'columns-table') {
       await page.screenshot({ path: `artifacts/numeric-filter-${name}.png` });
       const closeFilter = menu.getByRole('button', { name: 'Close filter' });
       await closeFilter.click();
-      assert.equal(await menu.count(), 0);
+      await menu.waitFor({ state: 'hidden' });
       assert.equal(await page.locator('#columns-table thead th').nth(1).locator('.dtcc-button_dropdown').getAttribute('aria-expanded'), 'false');
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
       assert.equal(overflow, false);

@@ -35,10 +35,19 @@ class NormalizationStats(ResultModel):
 
 
 class DateFormatCount(ResultModel):
+    format: str
     order: Literal["YMD", "MDY", "DMY"]
     separator: str
     count: int
+    percent: float
     iso: bool = False
+
+
+class DateBreakdownItem(ResultModel):
+    label: str
+    category: Literal["valid", "ambiguous", "invalid", "not_date"]
+    count: int
+    percent: float
 
 
 class DateProfile(ResultModel):
@@ -50,7 +59,16 @@ class DateProfile(ResultModel):
     resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
     ambiguous_order_source: Literal["config", "column"] | None = None
     formats: list[DateFormatCount]
+    format_count: int
+    breakdown: list[DateBreakdownItem]
     errors: dict[str, int]
+
+
+class StringProfile(ResultModel):
+    status: Literal["fixed", "short", "long", "very_long"]
+    present_count: int
+    minimum_length: int
+    maximum_length: int
 
 
 class ValueOccurrence(ResultModel):
@@ -81,15 +99,19 @@ class ColumnProfile(ResultModel):
         "empty", "boolean", "integer", "number", "date", "text", "mixed"
     ]
     type_counts: dict[str, int]
+    type_confidence: float
+    type_error_count: int | None
+    type_error_percent: float | None
     missing_count: int
     missing_percent: float
     normalization: NormalizationStats
     distinct_count: int
     examples: list[str]
     value_profile: ValueProfile
-    semantic_type: Literal["enum"] | None = None
+    semantic_type: Literal["enum", "date"] | None = None
     enum: EnumCandidate | None = None
     date_profile: DateProfile | None = None
+    string_profile: StringProfile | None = None
     numeric: NumericStats | None = None
 
 

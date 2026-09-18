@@ -9,6 +9,8 @@ from tabalyst.config import (
     DateDetectionConfig,
     EnumDetectionConfig,
     NormalizationConfig,
+    StringAnalysisConfig,
+    TypeInferenceConfig,
     ValueExamplesConfig,
 )
 from tabalyst.ingestion import CsvInputError
@@ -196,28 +198,60 @@ def test_multiple_strict_date_formats_and_separators_are_counted():
         pd.Series(["2024-02-29", "02/29/2024", "29.02.2024", "2025/1/2"])
     )
 
-    assert profile.inferred_type == "date"
+    assert profile.inferred_type == "mixed"
+    assert profile.semantic_type == "date"
     assert profile.date_profile is not None
     assert profile.date_profile.status == "multiple_formats"
     assert profile.date_profile.valid_count == 4
     assert profile.date_profile.ambiguous_count == 0
     assert [item.model_dump() for item in profile.date_profile.formats] == [
-        {"order": "DMY", "separator": ".", "count": 1, "iso": False},
-        {"order": "MDY", "separator": "/", "count": 1, "iso": False},
-        {"order": "YMD", "separator": "-", "count": 1, "iso": True},
-        {"order": "YMD", "separator": "/", "count": 1, "iso": False},
+        {
+            "format": "DD.MM.YYYY",
+            "order": "DMY",
+            "separator": ".",
+            "count": 1,
+            "percent": 25.0,
+            "iso": False,
+        },
+        {
+            "format": "MM/DD/YYYY",
+            "order": "MDY",
+            "separator": "/",
+            "count": 1,
+            "percent": 25.0,
+            "iso": False,
+        },
+        {
+            "format": "YYYY-MM-DD",
+            "order": "YMD",
+            "separator": "-",
+            "count": 1,
+            "percent": 25.0,
+            "iso": True,
+        },
+        {
+            "format": "YYYY/M/D",
+            "order": "YMD",
+            "separator": "/",
+            "count": 1,
+            "percent": 25.0,
+            "iso": False,
+        },
     ]
 
 
 def test_ambiguous_dates_remain_unresolved_without_column_evidence():
     profile = analyze_column(pd.Series(["02/03/2025", "11/12/2025"]))
 
-    assert profile.inferred_type == "text"
+    assert profile.inferred_type == "mixed"
+    assert profile.semantic_type == "date"
     assert profile.date_profile is not None
     assert profile.date_profile.status == "ambiguous"
     assert profile.date_profile.valid_count == 0
     assert profile.date_profile.ambiguous_count == 2
     assert profile.date_profile.resolved_ambiguous_order is None
+    assert profile.type_error_count == 2
+    assert profile.type_error_percent == 100.0
 
 
 def test_unambiguous_column_evidence_resolves_dates_consistently():
@@ -230,9 +264,11 @@ def test_unambiguous_column_evidence_resolves_dates_consistently():
     assert profile.date_profile.resolved_ambiguous_order == "DMY"
     assert profile.date_profile.ambiguous_order_source == "column"
     assert profile.date_profile.formats[0].model_dump() == {
+        "format": "DD/MM/YYYY",
         "order": "DMY",
         "separator": "/",
         "count": 2,
+        "percent": 100.0,
         "iso": False,
     }
 
@@ -289,6 +325,82 @@ def test_date_detection_can_be_disabled():
 
     assert profile.inferred_type == "text"
     assert profile.date_profile is None
+
+
+def test_dominant_integer_type_reports_error_count_and_percent():
+    profile = analyze_column(pd.Series(["1"] * 998 + ["invalid"] * 2))
+
+    assert profile.inferred_type == "integer"
+    assert profile.type_confidence == 0.998
+    assert profile.type_error_count == 2
+    assert profile.type_error_percent == 0.2
+    assert profile.numeric is not None
+    assert profile.numeric.mean == 1.0
+
+
+def test_integer_and_decimal_values_fall_back_to_number_family():
+    profile = analyze_column(pd.Series(["1"] * 80 + ["2.5"] * 20))
+
+    assert profile.inferred_type == "number"
+    assert profile.type_confidence == 1.0
+    assert profile.type_error_count == 0
+
+
+def test_type_confidence_threshold_is_configurable():
+    profile = analyze_column(
+        pd.Series(["true"] * 8 + ["unexpected"] * 2),
+        config=AnalysisConfig(
+            type_inference=TypeInferenceConfig(minimum_confidence=0.8)
+        ),
+    )
+
+    assert profile.inferred_type == "boolean"
+    assert profile.type_error_count == 2
+    assert profile.type_error_percent == 20.0
+
+
+def test_mixed_without_dominant_type_has_no_error_baseline():
+    profile = analyze_column(pd.Series(["1", "true", "text"]))
+
+    assert profile.inferred_type == "mixed"
+    assert profile.semantic_type is None
+    assert profile.type_error_count is None
+    assert profile.type_error_percent is None
+
+
+@pytest.mark.parametrize(
+    ("values", "status", "minimum", "maximum"),
+    [
+        (["AA", "BB"], "fixed", 2, 2),
+        (["A", "short value"], "short", 1, 11),
+        (["A", "x" * 31], "long", 1, 31),
+        (["A", "x" * 256], "very_long", 1, 256),
+    ],
+)
+def test_string_length_profiles(values, status, minimum, maximum):
+    profile = analyze_column(pd.Series(values))
+
+    assert profile.string_profile is not None
+    assert profile.string_profile.status == status
+    assert profile.string_profile.minimum_length == minimum
+    assert profile.string_profile.maximum_length == maximum
+
+
+def test_string_length_profile_excludes_missing_and_uses_normalized_values():
+    profile = analyze_column(
+        pd.Series(["", "  alpha  ", "beta   value"]),
+        config=AnalysisConfig(
+            string_analysis=StringAnalysisConfig(
+                short_max_length=20,
+                long_max_length=40,
+            )
+        ),
+    )
+
+    assert profile.string_profile is not None
+    assert profile.string_profile.present_count == 2
+    assert profile.string_profile.minimum_length == 5
+    assert profile.string_profile.maximum_length == 10
 
 
 def test_numeric_statistics_exclude_missing_values():

@@ -10,19 +10,21 @@ jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
 ## Features
 
 - Row and column counts, missing cells, exact duplicate rows and quality observations.
-- Column summaries: inferred types, semantic enum candidates, value occurrences,
-  representative examples and numeric statistics.
+- Column summaries: confidence-based inferred types, semantic enum/date markers,
+  explicit error rates, value occurrences, representative examples and numeric statistics.
 - Configurable whitespace normalization with per-column and dataset-level change
   counts while preserving raw preview values.
 - Strict YMD, MDY and DMY date detection with configurable separators, calendar
   validation, ambiguity handling and per-format counts.
 - Numbered raw-data preview; all records are analyzed regardless of preview size.
 - Independent JSON-to-HTML rendering, ready for custom report templates.
-- Sortable tables with column filters, multi-select checklists and numeric conditions.
+- Dedicated transformation, numeric, date and string-length tables, all sortable
+  and filterable with multi-select checklists and numeric conditions.
 
-The column summary supports name and type selection, plus numeric filters on
-Missing (%) and Distinct: `=`, `>`, `>=`, `<`, `<=`, or an inclusive
-`[minimum, maximum]` range. Filters combine, and Reset restores the original view.
+The column summary supports name, inferred-type and semantic-type selection, plus
+numeric filters on Missing (%), Distinct and Error (%): `=`, `>`, `>=`, `<`, `<=`,
+or an inclusive `[minimum, maximum]` range. Filters combine, and Reset restores the
+original view.
 Sample filters apply only to the embedded preview rows, not to the complete CSV.
 DataTables 3.0.4 and ColumnControl 2.0.2 load from their CDN alongside Bootstrap.
 Google Fonts supplies Oswald, Roboto and Caveat, so the generated report needs an

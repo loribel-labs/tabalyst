@@ -2,6 +2,14 @@ import csv
 from html.parser import HTMLParser
 
 from tabalyst import analyze_csv, render_report
+from tabalyst.reporting import format_number
+
+
+def test_report_numbers_use_scientific_notation_only_above_threshold():
+    assert format_number(10**10) == "10,000,000,000"
+    assert format_number(12_345_678_901) == "1.2346e+10"
+    assert format_number(-123_456_789_012) == "-1.2346e+11"
+    assert format_number(1234.5) == "1,234.5"
 
 
 def test_csv_content_cannot_inject_markup(tmp_path):

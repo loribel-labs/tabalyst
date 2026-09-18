@@ -9,6 +9,13 @@ from jinja2 import Environment, StrictUndefined
 from tabalyst.models import DatasetProfile
 
 
+def format_number(number: float) -> str:
+    """Keep ordinary values readable and compact only genuinely large magnitudes."""
+    if abs(number) > 10**10:
+        return f"{number:.4e}"
+    return f"{number:,.4f}".rstrip("0").rstrip(".")
+
+
 def load_profile(path: str | Path) -> DatasetProfile:
     """Validate and load the experimental JSON profile format."""
     return DatasetProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
@@ -19,7 +26,7 @@ def render_report(profile: DatasetProfile) -> str:
     resources = files("tabalyst")
     environment = Environment(autoescape=True, undefined=StrictUndefined)
     environment.filters["count"] = lambda number: f"{number:,}"
-    environment.filters["number"] = lambda number: f"{number:,.4g}"
+    environment.filters["number"] = format_number
     template = environment.from_string(
         resources.joinpath("templates/report.html").read_text(encoding="utf-8")
     )
