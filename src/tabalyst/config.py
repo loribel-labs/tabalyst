@@ -2,8 +2,9 @@
 
 import codecs
 from pathlib import Path
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class CsvConfig(BaseModel):
@@ -53,6 +54,34 @@ class NormalizationConfig(BaseModel):
     collapse_internal_whitespace: bool = True
 
 
+class DateDetectionConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = True
+    orders: list[Literal["YMD", "MDY", "DMY"]] = Field(
+        default_factory=lambda: ["YMD", "MDY", "DMY"]
+    )
+    separators: list[str] = Field(default_factory=lambda: ["-", "/", "."])
+    ambiguous_order: Literal["MDY", "DMY"] | None = None
+
+    @field_validator("separators")
+    @classmethod
+    def valid_separators(cls, values: list[str]) -> list[str]:
+        if not values or any(
+            len(value) != 1 or value.isdigit() or value in "\r\n" for value in values
+        ):
+            raise ValueError("Date separators must be non-digit single characters")
+        if len(set(values)) != len(values):
+            raise ValueError("Date separators must be unique")
+        return values
+
+    @model_validator(mode="after")
+    def ambiguous_order_must_be_enabled(self):
+        if self.ambiguous_order and self.ambiguous_order not in self.orders:
+            raise ValueError("ambiguous_order must also appear in date orders")
+        return self
+
+
 class EnumDetectionConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -70,6 +99,7 @@ class AnalysisConfig(BaseModel):
     missing_values: list[str] = Field(default_factory=lambda: [""])
     preview_rows: int = Field(default=10, ge=0, le=100)
     normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
+    date_detection: DateDetectionConfig = Field(default_factory=DateDetectionConfig)
     value_examples: ValueExamplesConfig = Field(default_factory=ValueExamplesConfig)
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
 

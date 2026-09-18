@@ -189,7 +189,14 @@ def test_internal_defaults_apply_outside_a_project_without_config(
 
 
 @pytest.mark.parametrize(
-    "content", ['{"unexpected": true}', "[1, 2]", '{"csv": {"delimiter": "||"}}']
+    "content",
+    [
+        '{"unexpected": true}',
+        "[1, 2]",
+        '{"csv": {"delimiter": "||"}}',
+        '{"date_detection": {"separators": ["--"]}}',
+        '{"date_detection": {"orders": ["YMD"], "ambiguous_order": "DMY"}}',
+    ],
 )
 def test_invalid_config_is_rejected(tmp_path, content):
     config = tmp_path / "config.json"

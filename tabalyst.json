@@ -9,6 +9,12 @@
     "trim": true,
     "collapse_internal_whitespace": true
   },
+  "date_detection": {
+    "enabled": true,
+    "orders": ["YMD", "MDY", "DMY"],
+    "separators": ["-", "/", "."],
+    "ambiguous_order": null
+  },
   "value_examples": {
     "full_distribution_max_distinct": 50,
     "candidate_sample_size": 100,

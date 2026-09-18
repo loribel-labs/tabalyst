@@ -6,6 +6,7 @@ import pytest
 from tabalyst import AnalysisConfig, analyze_column, analyze_csv
 from tabalyst.config import (
     CsvConfig,
+    DateDetectionConfig,
     EnumDetectionConfig,
     NormalizationConfig,
     ValueExamplesConfig,
@@ -188,6 +189,106 @@ def test_explicit_empty_rows_are_counted(tmp_path):
 def test_column_inference(values, kind):
     profile = analyze_column(pd.Series(values))
     assert profile.inferred_type == kind
+
+
+def test_multiple_strict_date_formats_and_separators_are_counted():
+    profile = analyze_column(
+        pd.Series(["2024-02-29", "02/29/2024", "29.02.2024", "2025/1/2"])
+    )
+
+    assert profile.inferred_type == "date"
+    assert profile.date_profile is not None
+    assert profile.date_profile.status == "multiple_formats"
+    assert profile.date_profile.valid_count == 4
+    assert profile.date_profile.ambiguous_count == 0
+    assert [item.model_dump() for item in profile.date_profile.formats] == [
+        {"order": "DMY", "separator": ".", "count": 1, "iso": False},
+        {"order": "MDY", "separator": "/", "count": 1, "iso": False},
+        {"order": "YMD", "separator": "-", "count": 1, "iso": True},
+        {"order": "YMD", "separator": "/", "count": 1, "iso": False},
+    ]
+
+
+def test_ambiguous_dates_remain_unresolved_without_column_evidence():
+    profile = analyze_column(pd.Series(["02/03/2025", "11/12/2025"]))
+
+    assert profile.inferred_type == "text"
+    assert profile.date_profile is not None
+    assert profile.date_profile.status == "ambiguous"
+    assert profile.date_profile.valid_count == 0
+    assert profile.date_profile.ambiguous_count == 2
+    assert profile.date_profile.resolved_ambiguous_order is None
+
+
+def test_unambiguous_column_evidence_resolves_dates_consistently():
+    profile = analyze_column(pd.Series(["13/02/2025", "02/03/2025"]))
+
+    assert profile.inferred_type == "date"
+    assert profile.date_profile is not None
+    assert profile.date_profile.status == "valid"
+    assert profile.date_profile.valid_count == 2
+    assert profile.date_profile.resolved_ambiguous_order == "DMY"
+    assert profile.date_profile.ambiguous_order_source == "column"
+    assert profile.date_profile.formats[0].model_dump() == {
+        "order": "DMY",
+        "separator": "/",
+        "count": 2,
+        "iso": False,
+    }
+
+
+def test_configured_date_order_resolves_otherwise_ambiguous_values():
+    profile = analyze_column(
+        pd.Series(["02-03-2025", "11-12-2025"]),
+        config=AnalysisConfig(
+            date_detection=DateDetectionConfig(ambiguous_order="MDY")
+        ),
+    )
+
+    assert profile.inferred_type == "date"
+    assert profile.date_profile is not None
+    assert profile.date_profile.valid_count == 2
+    assert profile.date_profile.resolved_ambiguous_order == "MDY"
+    assert profile.date_profile.ambiguous_order_source == "config"
+
+
+def test_mixed_date_column_reports_calendar_structure_and_text_errors():
+    profile = analyze_column(
+        pd.Series(["2025-01-01", "2025-02-30", "2025/01-02", "hello"])
+    )
+
+    assert profile.inferred_type == "mixed"
+    assert profile.date_profile is not None
+    assert profile.date_profile.status == "mixed"
+    assert profile.date_profile.valid_count == 1
+    assert profile.date_profile.invalid_date_count == 2
+    assert profile.date_profile.not_date_count == 1
+    assert profile.date_profile.errors == {
+        "invalid_calendar_date": 1,
+        "mixed_separators": 1,
+    }
+
+
+def test_conflicting_date_orders_do_not_resolve_ambiguous_values():
+    profile = analyze_column(
+        pd.Series(["13/02/2025", "02/13/2025", "02/03/2025"])
+    )
+
+    assert profile.inferred_type == "mixed"
+    assert profile.date_profile is not None
+    assert profile.date_profile.valid_count == 2
+    assert profile.date_profile.ambiguous_count == 1
+    assert profile.date_profile.resolved_ambiguous_order is None
+
+
+def test_date_detection_can_be_disabled():
+    profile = analyze_column(
+        pd.Series(["2025-01-01"]),
+        config=AnalysisConfig(date_detection=DateDetectionConfig(enabled=False)),
+    )
+
+    assert profile.inferred_type == "text"
+    assert profile.date_profile is None
 
 
 def test_numeric_statistics_exclude_missing_values():

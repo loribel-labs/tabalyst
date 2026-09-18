@@ -14,6 +14,8 @@ jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
   representative examples and numeric statistics.
 - Configurable whitespace normalization with per-column and dataset-level change
   counts while preserving raw preview values.
+- Strict YMD, MDY and DMY date detection with configurable separators, calendar
+  validation, ambiguity handling and per-format counts.
 - Numbered raw-data preview; all records are analyzed regardless of preview size.
 - Independent JSON-to-HTML rendering, ready for custom report templates.
 - Sortable tables with column filters, multi-select checklists and numeric conditions.

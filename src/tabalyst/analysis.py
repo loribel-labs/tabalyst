@@ -4,6 +4,7 @@ import math
 import random
 import re
 from collections import Counter
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from itertools import combinations, islice
 
@@ -15,6 +16,8 @@ from tabalyst.models import (
     ColumnProfile,
     DatasetProfile,
     DatasetSummary,
+    DateFormatCount,
+    DateProfile,
     EnumCandidate,
     Issue,
     NormalizationStats,
@@ -28,7 +31,6 @@ INTEGER = re.compile(r"[+-]?(?:0|[1-9][0-9]*)")
 NUMBER = re.compile(
     r"[+-]?(?:(?:0|[1-9][0-9]*)(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
 )
-ISO_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 INTERNAL_HORIZONTAL_WHITESPACE = re.compile(r"[^\S\r\n]+")
 
 
@@ -43,12 +45,6 @@ def value_type(value: str) -> str:
         return "integer"
     if NUMBER.fullmatch(value):
         return "number"
-    if ISO_DATE.fullmatch(value):
-        try:
-            date.fromisoformat(value)
-            return "date"
-        except ValueError:
-            pass
     return "text"
 
 
@@ -78,6 +74,167 @@ def normalize_values(
         trim_percent=percent(trim_count, len(values)),
         collapse_internal_whitespace_count=collapse_count,
         collapse_internal_whitespace_percent=percent(collapse_count, len(values)),
+    )
+
+
+@dataclass(frozen=True)
+class DateValueResult:
+    state: str
+    order: str | None = None
+    separator: str | None = None
+    possible_orders: tuple[str, ...] = ()
+    error: str | None = None
+
+
+def valid_calendar_date(order: str, first: int, second: int, third: int) -> bool:
+    if order == "YMD":
+        year, month, day = first, second, third
+    elif order == "MDY":
+        month, day, year = first, second, third
+    else:
+        day, month, year = first, second, third
+    try:
+        date(year, month, day)
+    except ValueError:
+        return False
+    return True
+
+
+def classify_date_value(value: str, config: AnalysisConfig) -> DateValueResult:
+    """Recognize configured numeric date structures without fuzzy interpretation."""
+    settings = config.date_detection
+    if not settings.enabled:
+        return DateValueResult("not_date")
+    separators = "".join(re.escape(separator) for separator in settings.separators)
+    match = re.fullmatch(
+        rf"(?P<a>\d{{1,4}})(?P<s1>[{separators}])(?P<b>\d{{1,4}})"
+        rf"(?P<s2>[{separators}])(?P<c>\d{{1,4}})",
+        value,
+    )
+    if not match:
+        return DateValueResult("not_date")
+    first_text, second_text, third_text = (
+        match.group("a"),
+        match.group("b"),
+        match.group("c"),
+    )
+    first, second, third = map(int, (first_text, second_text, third_text))
+    separator = match.group("s1")
+    year_first = len(first_text) == 4
+    year_last = len(third_text) == 4
+    if year_first and len(second_text) <= 2 and len(third_text) <= 2:
+        possible_orders = ("YMD",)
+    elif year_last and len(first_text) <= 2 and len(second_text) <= 2:
+        possible_orders = ("MDY", "DMY")
+    elif year_first:
+        return DateValueResult("invalid", error="invalid_component_width")
+    else:
+        return DateValueResult("not_date")
+    if match.group("s1") != match.group("s2"):
+        return DateValueResult("invalid", error="mixed_separators")
+    allowed_orders = [order for order in possible_orders if order in settings.orders]
+    if not allowed_orders:
+        return DateValueResult("invalid", error="unsupported_order")
+    valid_orders = tuple(
+        order
+        for order in allowed_orders
+        if valid_calendar_date(order, first, second, third)
+    )
+    if not valid_orders:
+        return DateValueResult("invalid", error="invalid_calendar_date")
+    if len(valid_orders) == 1:
+        return DateValueResult("valid", order=valid_orders[0], separator=separator)
+    return DateValueResult(
+        "ambiguous", separator=separator, possible_orders=valid_orders
+    )
+
+
+def build_date_profile(
+    frequencies: list[tuple[str, int]], config: AnalysisConfig
+) -> tuple[DateProfile | None, set[str]]:
+    """Summarize strict date formats and resolve ambiguity only from clear evidence."""
+    if not config.date_detection.enabled:
+        return None, set()
+    classified = {
+        value: classify_date_value(value, config) for value, _ in frequencies
+    }
+    if not any(result.state != "not_date" for result in classified.values()):
+        return None, set()
+
+    evidence = Counter()
+    for value, count in frequencies:
+        result = classified[value]
+        if result.state == "valid" and result.order in {"MDY", "DMY"}:
+            evidence[result.order] += count
+    resolved_order = config.date_detection.ambiguous_order
+    resolution_source = "config" if resolved_order else None
+    if not resolved_order:
+        if evidence["MDY"] and not evidence["DMY"]:
+            resolved_order = "MDY"
+            resolution_source = "column"
+        elif evidence["DMY"] and not evidence["MDY"]:
+            resolved_order = "DMY"
+            resolution_source = "column"
+
+    valid_values: set[str] = set()
+    formats: Counter[tuple[str, str]] = Counter()
+    errors: Counter[str] = Counter()
+    valid_count = 0
+    ambiguous_count = 0
+    invalid_count = 0
+    not_date_count = 0
+    for value, count in frequencies:
+        result = classified[value]
+        order = result.order
+        if (
+            result.state == "ambiguous"
+            and resolved_order in result.possible_orders
+        ):
+            order = resolved_order
+        if result.state == "valid" or order:
+            valid_values.add(value)
+            valid_count += count
+            formats[(str(order), str(result.separator))] += count
+        elif result.state == "ambiguous":
+            ambiguous_count += count
+        elif result.state == "invalid":
+            invalid_count += count
+            errors[str(result.error)] += count
+        else:
+            not_date_count += count
+
+    total = sum(count for _, count in frequencies)
+    if valid_count == total:
+        status = "valid" if len(formats) == 1 else "multiple_formats"
+    elif ambiguous_count == total:
+        status = "ambiguous"
+    elif invalid_count == total:
+        status = "invalid"
+    else:
+        status = "mixed"
+    return (
+        DateProfile(
+            status=status,
+            valid_count=valid_count,
+            ambiguous_count=ambiguous_count,
+            invalid_date_count=invalid_count,
+            not_date_count=not_date_count,
+            resolved_ambiguous_order=resolved_order,
+            ambiguous_order_source=resolution_source,
+            formats=[
+                DateFormatCount(
+                    order=order,
+                    separator=separator,
+                    count=count,
+                    iso=order == "YMD" and separator == "-",
+                )
+                for (order, separator), count in sorted(
+                    formats.items(), key=lambda item: (-item[1], item[0])
+                )
+            ],
+            errors=dict(errors),
+        ),
+        valid_values,
     )
 
 
@@ -262,9 +419,10 @@ def analyze_column(
         ((str(value), int(count)) for value, count in present.value_counts().items()),
         key=lambda item: (-item[1], item[0]),
     )
+    date_profile, valid_date_values = build_date_profile(frequencies, config)
     counts: Counter[str] = Counter()
     for value, count in frequencies:
-        counts[value_type(value)] += count
+        counts["date" if value in valid_date_values else value_type(value)] += count
     kinds = set(counts)
     if not kinds:
         inferred = "empty"
@@ -310,6 +468,7 @@ def analyze_column(
         value_profile=value_profile,
         semantic_type="enum" if enum else None,
         enum=enum,
+        date_profile=date_profile,
         numeric=numeric,
     )
 

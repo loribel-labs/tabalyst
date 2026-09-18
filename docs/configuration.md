@@ -50,6 +50,34 @@ percentage of cells changed by each operation; the dataset summary also records
 both global counts. A cell changed by both operations contributes to both counts,
 but never more than once to the same operation.
 
+## Date detection
+
+```json
+{
+  "date_detection": {
+    "enabled": true,
+    "orders": ["YMD", "MDY", "DMY"],
+    "separators": ["-", "/", "."],
+    "ambiguous_order": null
+  }
+}
+```
+
+- `enabled`: turns strict date profiling on or off.
+- `orders`: accepted component orders. Years must use four digits; months and days
+  may use one or two digits.
+- `separators`: accepted single-character separators. Each value must use the same
+  separator between both component pairs.
+- `ambiguous_order`: optionally resolves values such as `02/03/2025` as `MDY` or
+  `DMY`. With `null`, Tabalyst resolves them only when the same column contains
+  unambiguous evidence for one order and none for the other.
+
+Every recognized structure is validated against the calendar, including leap
+years. Profiles count valid, ambiguous, invalid and non-date values separately,
+then group valid occurrences by order and separator. `YYYY-MM-DD` is specifically
+marked as ISO; other separators using `YMD` remain valid but are not labeled ISO.
+Arbitrary text is not treated as a date error.
+
 ## Examples and value profiles
 
 ```json

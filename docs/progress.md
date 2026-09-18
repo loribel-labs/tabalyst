@@ -13,3 +13,4 @@
 - Added configurable value distributions and representative sampling, plus low-cardinality `enum` candidates with report tooltips.
 - Added automatic project configuration through a root-level `tabalyst.json`, with explicit files and CLI options as later overrides.
 - Added configurable trim and internal-whitespace normalization with detailed column and dataset counters.
+- Added strict multi-format date profiling with ambiguity, validation-error and format occurrence counts.
