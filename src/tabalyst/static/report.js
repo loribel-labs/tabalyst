@@ -252,8 +252,8 @@
   document.addEventListener("scroll", positionMenus, { capture: true, passive: true });
   window.addEventListener("resize", () => requestAnimationFrame(positionMenus));
 
-  function positionExampleTooltip(cell) {
-    const tooltip = cell.querySelector(".examples-tooltip");
+  function positionHoverTooltip(cell, selector) {
+    const tooltip = cell.querySelector(selector);
     if (!tooltip) return;
     const anchor = cell.getBoundingClientRect();
     const overlap = Math.min(32, anchor.height * 0.65);
@@ -266,9 +266,14 @@
     tooltip.style.top = `${Math.max(12, top)}px`;
   }
 
-  for (const cell of document.querySelectorAll(".examples")) {
-    cell.addEventListener("pointerenter", () => positionExampleTooltip(cell));
-    cell.addEventListener("focusin", () => positionExampleTooltip(cell));
+  for (const [cellSelector, tooltipSelector] of [
+    [".examples", ".examples-tooltip"],
+    [".date-formats-cell", ".date-formats-tooltip"],
+  ]) {
+    for (const cell of document.querySelectorAll(cellSelector)) {
+      cell.addEventListener("pointerenter", () => positionHoverTooltip(cell, tooltipSelector));
+      cell.addEventListener("focusin", () => positionHoverTooltip(cell, tooltipSelector));
+    }
   }
 
   function attachTable(element, columns, noun) {
@@ -323,24 +328,30 @@
   const summaryTable = attachTable(summary, [
     { type: "string", columnControl: controls(checkboxFilter(summary, 0)) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Missing (%)" }) },
-    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Trimmed cells" }) },
-    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Whitespace collapsed" }) },
     { type: "num", columnControl: controls({ extend: "compactNumber", title: "Distinct values" }) },
-    { type: "string", columnControl: controls(checkboxFilter(summary, 5, (value, count) => {
-      const [physicalType, semanticType] = value.split(" · ");
-      const type = DataTable.util.escapeHtml(physicalType);
-      const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(physicalType)
-        ? `badge-${physicalType}` : "badge-empty";
-      const semantic = semanticType
-        ? `<span class="semantic-separator" aria-hidden="true">·</span><span class="type-badge semantic-badge">${DataTable.util.escapeHtml(semanticType)}</span>`
-        : "";
-      return `<span class="type-badge ${badge}">${type}</span>${semantic} <span class="filter-option-count">(${count})</span>`;
+    { type: "string", columnControl: controls(checkboxFilter(summary, 3, (value, count) => {
+      const type = DataTable.util.escapeHtml(value);
+      const badge = ["text", "integer", "number", "date", "boolean", "mixed", "empty"].includes(value)
+        ? `badge-${value}` : "badge-empty";
+      return `<span class="type-badge ${badge}">${type}</span> <span class="filter-option-count">(${count})</span>`;
     })) },
+    { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => value === "(none)"
+      ? `<span class="muted">(none)</span> <span class="filter-option-count">(${count})</span>`
+      : `<span class="type-badge semantic-badge semantic-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`)) },
+    { type: "num", columnControl: controls({ extend: "compactNumber", title: "Type error (%)" }) },
     { orderable: false, columnControl: [] },
   ], "columns");
   nameSearch.addEventListener("input", () => {
     summaryTable.column(0).search(nameSearch.value, { regex: false, smart: false }).draw();
   });
+
+  const transformations = document.getElementById("transformations-table");
+  if (transformations) {
+    attachTable(transformations, [
+      { type: "string", columnControl: controls(checkboxFilter(transformations, 0)) },
+      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+    ], "columns");
+  }
 
   const numeric = document.getElementById("numeric-table");
   if (numeric) {
@@ -358,6 +369,16 @@
       ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
       { orderable: false, columnControl: [] },
     ], "date columns");
+  }
+
+  const strings = document.getElementById("string-table");
+  if (strings) {
+    attachTable(strings, [
+      { type: "string", columnControl: controls(checkboxFilter(strings, 0)) },
+      { type: "string", columnControl: controls(checkboxFilter(strings, 1, (value, count) =>
+        `<span class="type-badge string-status string-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value.replaceAll("_", " "))}</span> <span class="filter-option-count">(${count})</span>`)) },
+      ...Array.from({ length: 3 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+    ], "string columns");
   }
 
   const sample = document.getElementById("sample-table");

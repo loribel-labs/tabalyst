@@ -78,6 +78,42 @@ then group valid occurrences by order and separator. `YYYY-MM-DD` is specificall
 marked as ISO; other separators using `YMD` remain valid but are not labeled ISO.
 Arbitrary text is not treated as a date error.
 
+## Type inference
+
+```json
+{
+  "type_inference": {
+    "minimum_confidence": 0.95
+  }
+}
+```
+
+`minimum_confidence` is the proportion of present values that must agree before a
+column receives a dominant physical type. Values outside that type are retained as
+errors with a count and percentage. A column with no dominant family remains
+`mixed` and has no misleading error rate. Numeric statistics use accepted numeric
+values only.
+
+A date column with one valid format has physical type `date`. Multiple valid date
+formats produce `mixed` with semantic type `date`; malformed and unresolved
+ambiguous dates contribute to the type error rate.
+
+## String analysis
+
+```json
+{
+  "string_analysis": {
+    "short_max_length": 30,
+    "long_max_length": 255
+  }
+}
+```
+
+Present normalized values in physical `text` columns are classified as `fixed`
+when minimum and maximum lengths match, otherwise `short`, `long` or `very_long`
+according to these maximum-length thresholds. Missing values do not contribute to
+the minimum length.
+
 ## Examples and value profiles
 
 ```json
@@ -128,7 +164,7 @@ count.
   "enum_detection": {
     "enabled": true,
     "minimum_row_count": 500,
-    "maximum_distinct_values": 49,
+    "maximum_distinct_values": 50,
     "eligible_types": ["text"],
     "case_sensitive": true
   }
@@ -142,5 +178,5 @@ count.
   detection to `text` columns.
 - `case_sensitive`: decides whether `Open` and `open` are separate values.
 
-`enum` is a semantic hint: its physical type remains `text`. The report then shows
-both badges as `text · enum`.
+`enum` is a semantic hint: its physical type remains `text`. The report exposes
+physical and semantic types in separate columns so each can be filtered directly.

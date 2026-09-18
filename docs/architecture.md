@@ -40,17 +40,21 @@ correctly sized record are supported.
 
 Raw strings are preserved. Whitespace-only values are missing by default; literal
 `NA`, `NULL` and `NaN` remain text unless configured as missing markers. Missing
-markers are matched after trimming whitespace, with case preserved. Distinct
-counts exclude missing values and compare raw values. Duplicate rows compare all
-raw cells exactly and exclude each group's first occurrence.
+markers are matched after trimming whitespace, with case preserved. Normalization
+is applied before distinct counts, occurrences, examples, enum detection, type
+inference and string-length analysis. The preview and duplicate-row comparison
+deliberately retain raw values; duplicate counts exclude each group's first row.
 
-Type inference checks every present normalized value. It recognizes integers
-without leading zeros, dot-decimal/scientific numbers, true/false and configured
-strict YMD, MDY and DMY dates. Date profiles retain format, ambiguity and calendar
-error counts even when the resulting column type is mixed. Decimal commas, email
-addresses and postal codes remain text at this stage. Types are descriptive hints,
-not conversions or domain validation. Numeric statistics use floating-point
-arithmetic and are omitted when conversion is not finite.
+Type inference checks every present normalized value and applies the configured
+confidence threshold. It recognizes integers without leading zeros,
+dot-decimal/scientific numbers, true/false and configured strict YMD, MDY and DMY
+dates. Date profiles retain explicit format, ambiguity and calendar-error counts
+even when the resulting column type is mixed. Error counts describe values outside
+the accepted dominant type; a generic mixed column has no error rate. Decimal
+commas, email addresses and postal codes remain text at this stage. Types are
+descriptive hints, not conversions or domain validation. Numeric statistics use
+accepted numeric values with floating-point arithmetic and are omitted when
+conversion is not finite.
 
 The complete CSV is loaded into memory. The preview contains the first N records;
 its size does not affect analysis. JSON and HTML may include raw data and should be
@@ -71,7 +75,10 @@ selects another installed browser channel. Run from the repository root with an
 `artifacts/` directory available for screenshots. Checks cover combined filters,
 numeric ordering, reset, original row numbers, and desktop/mobile popup layout.
 `tests/fixtures/report_filters.csv` additionally exercises duplicate column names
-and HTML-like content in filter menus. Filtering never recalculates dataset metrics.
+and HTML-like content in filter menus. Checks include combined filters, numeric
+ordering, secondary-table reset placement, date-format tooltips, original row
+numbers and desktop/mobile popup layout. Filtering never recalculates dataset
+metrics.
 
 ## Next iterations
 

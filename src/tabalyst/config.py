@@ -82,6 +82,25 @@ class DateDetectionConfig(BaseModel):
         return self
 
 
+class TypeInferenceConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    minimum_confidence: float = Field(default=0.95, gt=0.5, le=1)
+
+
+class StringAnalysisConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    short_max_length: int = Field(default=30, ge=1)
+    long_max_length: int = Field(default=255, ge=1)
+
+    @model_validator(mode="after")
+    def length_thresholds_must_increase(self):
+        if self.long_max_length <= self.short_max_length:
+            raise ValueError("long_max_length must exceed short_max_length")
+        return self
+
+
 class EnumDetectionConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -100,6 +119,8 @@ class AnalysisConfig(BaseModel):
     preview_rows: int = Field(default=10, ge=0, le=100)
     normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
     date_detection: DateDetectionConfig = Field(default_factory=DateDetectionConfig)
+    type_inference: TypeInferenceConfig = Field(default_factory=TypeInferenceConfig)
+    string_analysis: StringAnalysisConfig = Field(default_factory=StringAnalysisConfig)
     value_examples: ValueExamplesConfig = Field(default_factory=ValueExamplesConfig)
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
 

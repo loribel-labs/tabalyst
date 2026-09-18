@@ -1,3 +1,4 @@
+{% macro percent_label(value) %}{{ '' if value == 0 else value ~ '%' }}{% endmacro %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -78,6 +79,12 @@
             {% endfor %}
           </ul>
           {% else %}<p class="empty-state">No issues detected by the current checks.</p>{% endif %}
+          <dl class="quality-metrics">
+            <div><dt>Empty rows</dt><dd>{{ report.summary.empty_row_count | count }}</dd></div>
+            <div><dt>Empty columns</dt><dd>{{ report.summary.empty_column_count | count }}</dd></div>
+            <div><dt>Trimmed cells</dt><dd>{{ report.summary.trim_count | count }}</dd></div>
+            <div><dt>Whitespace collapsed</dt><dd>{{ report.summary.collapse_internal_whitespace_count | count }}</dd></div>
+          </dl>
         </div>
         <div class="type-overview">
           <h2>Column types</h2>
@@ -89,7 +96,6 @@
             <li><span class="legend-dot type-{{ kind }}" aria-hidden="true"></span><span>{{ kind | capitalize }}</span><strong>{{ count }}</strong></li>
             {% endfor %}
           </ul>
-          <p class="metadata mt-3">Empty rows: {{ report.summary.empty_row_count | count }}<br>Empty columns: {{ report.summary.empty_column_count | count }}<br>Trimmed cells: {{ report.summary.trim_count | count }}<br>Whitespace collapsed: {{ report.summary.collapse_internal_whitespace_count | count }}</p>
         </div>
       </div>
     </section>
@@ -107,17 +113,16 @@
       </div>
       <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
         <table id="columns-table" class="table table-hover align-middle column-table">
-          <thead><tr><th scope="col">Column</th><th scope="col">Missing (%)</th><th scope="col">Trimmed</th><th scope="col">Whitespace collapsed</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Examples</th></tr></thead>
+          <thead><tr><th scope="col">Column</th><th scope="col" class="percentage-column">Missing (%)</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Semantic type</th><th scope="col" class="percentage-column">Error (%)</th><th scope="col">Examples</th></tr></thead>
           <tbody>
             {% for column in report.columns %}
             <tr data-column-name="{{ column.name | lower }}" id="{{ column.id }}">
               <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-              <td data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}"><div class="missing-value"><span>{{ column.missing_percent }}%</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div></td>
-              <td data-order="{{ column.normalization.trim_count }}" data-search="{{ column.normalization.trim_count }}"><div class="normalization-value"><span>{{ column.normalization.trim_count | count }}</span><small>{{ column.normalization.trim_percent }}%</small></div></td>
-              <td data-order="{{ column.normalization.collapse_internal_whitespace_count }}" data-search="{{ column.normalization.collapse_internal_whitespace_count }}"><div class="normalization-value"><span>{{ column.normalization.collapse_internal_whitespace_count | count }}</span><small>{{ column.normalization.collapse_internal_whitespace_percent }}%</small></div></td>
-              <td class="text-end tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-              {% set display_type = column.inferred_type ~ (' · ' ~ column.semantic_type if column.semantic_type else '') %}
-              <td data-order="{{ display_type }}" data-search="{{ display_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span>{% if column.semantic_type %}<span class="semantic-separator" aria-hidden="true">·</span><span class="type-badge semantic-badge" title="Candidate semantic type; {{ column.enum.coverage_percent }}% coverage">{{ column.semantic_type }}</span>{% endif %}</td>
+              <td class="percentage-column" data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}">{% if column.missing_percent != 0 %}<div class="missing-value"><span>{{ percent_label(column.missing_percent) }}</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div>{% endif %}</td>
+              <td class="tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
+              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
+              <td data-order="{{ column.semantic_type or '(none)' }}" data-search="{{ column.semantic_type or '(none)' }}">{% if column.semantic_type %}<span class="type-badge semantic-badge semantic-{{ column.semantic_type }}">{{ column.semantic_type }}</span>{% endif %}</td>
+              <td class="percentage-column" data-order="{{ column.type_error_percent if column.type_error_percent is not none else -1 }}" data-search="{{ column.type_error_percent if column.type_error_percent is not none else '' }}">{% if column.type_error_percent is not none and column.type_error_percent != 0 %}<div class="percentage-value"><span>{{ percent_label(column.type_error_percent) }}</span><small>{{ column.type_error_count | count }}</small></div><div class="percentage-track track-danger" aria-hidden="true"><div style="width: {{ column.type_error_percent }}%"></div></div>{% endif %}</td>
               <td class="examples" tabindex="0" aria-describedby="{{ column.id }}-examples-tooltip">
                 {% set inline_count = report.config.value_examples.inline_display_size %}
                 {% for item in column.value_profile.values[:inline_count] %}<span class="example-value">{{ item.value }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}
@@ -139,15 +144,37 @@
       </div>
       <p id="filter-result" class="metadata filter-result" data-table-status="columns-table" role="status" hidden></p>
 
+      <details class="secondary-details transformation-details">
+        <summary>Transformations <span class="section-count">({{ report.columns | length }})</span></summary>
+        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="transformations-table" hidden>Reset</button></div>
+        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Value transformations">
+          <table id="transformations-table" class="table table-sm transformations-table">
+            <thead><tr><th scope="col">Column</th><th scope="col" class="percentage-column">Missing (%)</th><th scope="col" class="percentage-column">Trimmed (%)</th><th scope="col" class="percentage-column">Whitespace collapsed (%)</th><th scope="col">Distinct</th></tr></thead>
+            <tbody>
+              {% for column in report.columns %}
+              <tr>
+                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
+                {% for percent, count, track in [(column.missing_percent, column.missing_count, 'danger'), (column.normalization.trim_percent, column.normalization.trim_count, 'concept'), (column.normalization.collapse_internal_whitespace_percent, column.normalization.collapse_internal_whitespace_count, 'concept')] %}
+                <td class="percentage-column" data-order="{{ percent }}" data-search="{{ percent }}">{% if percent != 0 %}<div class="percentage-value"><span>{{ percent_label(percent) }}</span><small>{{ count | count }}</small></div><div class="percentage-track track-{{ track }}" aria-hidden="true"><div style="width: {{ percent }}%"></div></div>{% endif %}</td>
+                {% endfor %}
+                <td class="tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="metadata filter-result" data-table-status="transformations-table" role="status" hidden></p>
+      </details>
+
       {% set numeric_columns = report.columns | selectattr('numeric') | list %}
       {% if numeric_columns %}
-      <details class="numeric-details">
+      <details class="secondary-details numeric-details">
         <summary>Numeric summary <span class="section-count">({{ numeric_columns | length }})</span></summary>
-        <div class="table-actions numeric-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
-        <div class="table-responsive mt-3" tabindex="0" role="region" aria-label="Numeric statistics">
+        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
+        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Numeric statistics">
           <table id="numeric-table" class="table table-sm numeric-table">
             <thead><tr><th scope="col">Column</th><th scope="col">Minimum</th><th scope="col">Maximum</th><th scope="col">Mean</th><th scope="col">Median</th></tr></thead>
-            <tbody>{% for column in numeric_columns %}<tr><th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}">{{ column.name or '(unnamed)' }}</th>{% for value in [column.numeric.minimum, column.numeric.maximum, column.numeric.mean, column.numeric.median] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | number }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+            <tbody>{% for column in numeric_columns %}<tr><th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>{% for value in [column.numeric.minimum, column.numeric.maximum, column.numeric.mean, column.numeric.median] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | number }}</td>{% endfor %}</tr>{% endfor %}</tbody>
           </table>
         </div>
         <p class="metadata filter-result" data-table-status="numeric-table" role="status" hidden></p>
@@ -156,25 +183,50 @@
 
       {% set date_columns = report.columns | selectattr('date_profile') | list %}
       {% if date_columns %}
-      <details class="date-details">
+      <details class="secondary-details date-details">
         <summary>Date analysis <span class="section-count">({{ date_columns | length }})</span></summary>
-        <div class="table-actions numeric-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
-        <div class="table-responsive mt-3" tabindex="0" role="region" aria-label="Date analysis">
+        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
+        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Date analysis">
           <table id="date-table" class="table table-sm date-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col">Valid</th><th scope="col">Ambiguous</th><th scope="col">Invalid</th><th scope="col">Other</th><th scope="col">Formats</th></tr></thead>
+            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col" class="percentage-column">Valid (%)</th><th scope="col" class="percentage-column">Ambiguous (%)</th><th scope="col" class="percentage-column">Invalid (%)</th><th scope="col" class="percentage-column">Other (%)</th><th scope="col">Formats</th></tr></thead>
             <tbody>
               {% for column in date_columns %}
               <tr>
-                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}">{{ column.name or '(unnamed)' }}</th>
+                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
                 <td data-order="{{ column.date_profile.status }}" data-search="{{ column.date_profile.status }}"><span class="type-badge date-status status-{{ column.date_profile.status }}">{{ column.date_profile.status | replace('_', ' ') }}</span></td>
-                {% for value in [column.date_profile.valid_count, column.date_profile.ambiguous_count, column.date_profile.invalid_date_count, column.date_profile.not_date_count] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | count }}</td>{% endfor %}
-                <td class="date-formats">{% for format in column.date_profile.formats %}<span><code>{{ format.order }} {{ format.separator | tojson }}</code> <small>({{ format.count | count }})</small>{% if format.iso %}<sup>ISO</sup>{% endif %}</span>{% else %}<span class="muted">No valid format</span>{% endfor %}</td>
+                {% set present_count = column.date_profile.valid_count + column.date_profile.ambiguous_count + column.date_profile.invalid_date_count + column.date_profile.not_date_count %}
+                {% for value, track in [(column.date_profile.valid_count, 'success'), (column.date_profile.ambiguous_count, 'accent'), (column.date_profile.invalid_date_count, 'danger'), (column.date_profile.not_date_count, 'muted')] %}{% set percentage = ((100 * value / present_count) | round(2)) if present_count else 0 %}<td class="percentage-column" data-order="{{ percentage }}" data-search="{{ percentage }}">{% if percentage != 0 %}<div class="percentage-value"><span>{{ percent_label(percentage) }}</span><small>{{ value | count }}</small></div><div class="percentage-track track-{{ track }}" aria-hidden="true"><div style="width: {{ percentage }}%"></div></div>{% endif %}</td>{% endfor %}
+                <td class="date-formats-cell" tabindex="0" aria-describedby="{{ column.id }}-date-formats-tooltip">
+                  {% set variant_label = column.date_profile.format_count ~ (' variant' if column.date_profile.format_count == 1 else ' variants') %}
+                  <span class="date-format-count">{{ variant_label }}</span>
+                  <div id="{{ column.id }}-date-formats-tooltip" class="date-formats-tooltip" role="tooltip">
+                    <div class="examples-tooltip-title">{{ variant_label }}</div>
+                    <div class="examples-tooltip-list">
+                      {% for item in column.date_profile.breakdown %}<div class="date-breakdown-{{ item.category }}"><span>{{ item.label }}</span><small>{{ item.count | count }} ({{ item.percent }}%)</small></div>{% endfor %}
+                    </div>
+                  </div>
+                </td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
         <p class="metadata filter-result" data-table-status="date-table" role="status" hidden></p>
+      </details>
+      {% endif %}
+
+      {% set string_columns = report.columns | selectattr('string_profile') | list %}
+      {% if string_columns %}
+      <details class="secondary-details string-details">
+        <summary>String analysis <span class="section-count">({{ string_columns | length }})</span></summary>
+        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="string-table" hidden>Reset</button></div>
+        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="String analysis">
+          <table id="string-table" class="table table-sm string-table">
+            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col">Fixed length</th><th scope="col">Length min</th><th scope="col">Length max</th></tr></thead>
+            <tbody>{% for column in string_columns %}{% set fixed = column.string_profile.status == 'fixed' %}<tr><th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th><td data-order="{{ column.string_profile.status }}" data-search="{{ column.string_profile.status }}"><span class="type-badge string-status string-{{ column.string_profile.status }}">{{ column.string_profile.status | replace('_', ' ') }}</span></td><td data-order="{{ column.string_profile.minimum_length if fixed else -1 }}" data-search="{{ column.string_profile.minimum_length if fixed else '' }}">{% if fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td><td data-order="{{ -1 if fixed else column.string_profile.minimum_length }}" data-search="{{ '' if fixed else column.string_profile.minimum_length }}">{% if not fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td><td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        <p class="metadata filter-result" data-table-status="string-table" role="status" hidden></p>
       </details>
       {% endif %}
     </section>
@@ -201,9 +253,10 @@
           <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
           <div><dt>Value normalization</dt><dd>Trim: {{ 'enabled' if report.config.normalization.trim else 'disabled' }}; collapse internal horizontal whitespace: {{ 'enabled' if report.config.normalization.collapse_internal_whitespace else 'disabled' }}. Raw preview values are preserved.</dd></div>
           <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
-          <div><dt>Type inference</dt><dd>All present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
+          <div><dt>Type inference</dt><dd>At least {{ (report.config.type_inference.minimum_confidence * 100) | round(1) }}% agreement across present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
           <div><dt>Date detection</dt><dd>Orders: {{ report.config.date_detection.orders | join(', ') }}; separators: {% for separator in report.config.date_detection.separators %}<code>{{ separator | tojson }}</code> {% endfor %}; ambiguous order: {{ report.config.date_detection.ambiguous_order or 'inferred only from unambiguous column evidence' }}</dd></div>
           <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>
+          <div><dt>String lengths</dt><dd>Short through {{ report.config.string_analysis.short_max_length }} characters; long through {{ report.config.string_analysis.long_max_length }}; otherwise very long. Equal minimum and maximum lengths are fixed.</dd></div>
           <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
           <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
           <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>
