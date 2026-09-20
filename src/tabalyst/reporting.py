@@ -17,6 +17,18 @@ def format_number(number: float) -> str:
     return f"{number:,.4f}".rstrip("0").rstrip(".")
 
 
+def format_seconds(seconds: float) -> str:
+    """Display elapsed time with no more than two decimal places."""
+    return f"{seconds:.2f}".rstrip("0").rstrip(".")
+
+
+def format_size(size_bytes: int) -> str:
+    """Display source size in KB, switching to MB at one mebibyte."""
+    if size_bytes >= 1024**2:
+        return f"{size_bytes / 1024**2:.1f} MB"
+    return f"{size_bytes / 1024:.1f} KB"
+
+
 def load_profile(path: str | Path) -> DatasetProfile:
     """Validate and load the experimental JSON profile format."""
     return DatasetProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
@@ -28,6 +40,8 @@ def render_report(profile: DatasetProfile) -> str:
     environment = Environment(autoescape=True, undefined=StrictUndefined)
     environment.filters["count"] = lambda number: f"{number:,}"
     environment.filters["number"] = format_number
+    environment.filters["seconds"] = format_seconds
+    environment.filters["size"] = format_size
     template = environment.from_string(
         resources.joinpath("templates/report.html").read_text(encoding="utf-8")
     )

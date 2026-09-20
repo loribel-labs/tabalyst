@@ -43,3 +43,22 @@
 
 - Added the Tabalyst application version and a GitHub repository link to the generated report footer.
 - Released Tabalyst `0.1.0a2` with the report footer improvements.
+- Reworked the generated report layout with a responsive, sticky left navigation
+  that groups report and analysis sections.
+- Made navigation links open collapsed analysis sections and expanded the desktop
+  report content to the full available layout width.
+- Unified report sections as collapsible panels, retaining quality information and
+  columns open by default while keeping the data sample collapsed.
+- Refined report metadata formatting for compact elapsed times and KB/MB source
+  sizes, and aligned the footer with the main layout width.
+- Added smooth open and close transitions for report panels, respecting reduced
+  motion preferences.
+- Enhanced panel transitions with animated chevrons and a staged content reveal.
+- Added distinct-value counts to string analysis and standardized compact table
+  widths while preserving space for example and format columns.
+- Prepared Tabalyst `0.1.0a3` for the report navigation update.
+
+## 2026-09-20
+
+- Finalized and published Tabalyst `0.1.0a3` with the responsive report navigation,
+  animated collapsible panels, compact tables, and metadata presentation updates.

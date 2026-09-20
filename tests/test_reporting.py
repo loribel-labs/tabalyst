@@ -3,7 +3,7 @@ from html.parser import HTMLParser
 
 from tabalyst import analyze_csv, render_report
 from tabalyst.execution_log import tabalyst_version
-from tabalyst.reporting import format_number
+from tabalyst.reporting import format_number, format_seconds, format_size
 
 
 def test_report_numbers_use_scientific_notation_only_above_threshold():
@@ -11,6 +11,13 @@ def test_report_numbers_use_scientific_notation_only_above_threshold():
     assert format_number(12_345_678_901) == "1.2346e+10"
     assert format_number(-123_456_789_012) == "-1.2346e+11"
     assert format_number(1234.5) == "1,234.5"
+
+
+def test_report_metadata_formats_duration_and_source_size_compactly():
+    assert format_seconds(0.645) == "0.65"
+    assert format_seconds(1.0) == "1"
+    assert format_size(805 * 1024 + 307) == "805.3 KB"
+    assert format_size(1024**2) == "1.0 MB"
 
 
 def test_csv_content_cannot_inject_markup(tmp_path):
@@ -44,6 +51,23 @@ def test_footer_includes_application_version_and_repository_link(tmp_path):
 
     assert f"Tabalyst {tabalyst_version()}" in html
     assert 'href="https://github.com/loribel-labs/tabalyst"' in html
+
+
+def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("amount,joined,name\n1,2026-01-01,Alice\n", encoding="utf-8")
+
+    html = render_report(analyze_csv(source))
+
+    assert 'class="topbar sidebar"' in html
+    assert 'rel="icon" type="image/svg+xml"' in html
+    assert '<details id="overview" class="report-details quality-details" open>' in html
+    assert '<details id="columns" class="report-details columns-details" open>' in html
+    assert '<details id="sample" class="report-details secondary-details sample-details">' in html
+    assert 'Numeric analysis' in html
+    assert html.count('class="nav-count"') == 7
+    for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "sample", "settings"):
+        assert f'href="#{section}"' in html
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
