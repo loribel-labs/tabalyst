@@ -178,7 +178,7 @@ count.
   "enum_detection": {
     "enabled": true,
     "minimum_row_count": 500,
-    "maximum_distinct_values": 50,
+    "maximum_distinct_values": 49,
     "eligible_types": ["text"],
     "case_sensitive": true
   }
@@ -187,7 +187,8 @@ count.
 
 - `enabled`: turns on optional semantic classification.
 - `minimum_row_count`: minimum dataset size before an `enum` candidate is proposed.
-- `maximum_distinct_values`: maximum observed non-missing value count.
+- `maximum_distinct_values`: maximum observed non-missing value count. The default
+  is `49`.
 - `eligible_types`: physical types that can receive the marker; the default limits
   detection to `text` columns.
 - `case_sensitive`: decides whether `Open` and `open` are separate values.

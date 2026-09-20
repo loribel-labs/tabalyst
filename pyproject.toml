@@ -58,9 +58,9 @@ where = ["src"]
 tabalyst = ["templates/*.html", "static/*.css", "static/*.js"]
 
 [project.urls]
-Homepage = "https://github.com/chergreg/tabalyst"
-Repository = "https://github.com/chergreg/tabalyst.git"
-Issues = "https://github.com/chergreg/tabalyst/issues"
+Homepage = "https://github.com/loribel-labs/tabalyst"
+Repository = "https://github.com/loribel-labs/tabalyst.git"
+Issues = "https://github.com/loribel-labs/tabalyst/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
