@@ -38,3 +38,8 @@
   revision identifiers with a dedicated format changelog.
 - Published preliminary `0.1.0a1` release notes with highlights, format identifiers,
   validation coverage, upgrade guidance, and known limitations.
+
+## 2026-09-19
+
+- Added the Tabalyst application version and a GitHub repository link to the generated report footer.
+- Released Tabalyst `0.1.0a2` with the report footer improvements.

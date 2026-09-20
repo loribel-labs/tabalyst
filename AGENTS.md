@@ -51,6 +51,8 @@ After Python changes:
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
 regression check described in `docs/architecture.md` at desktop and mobile sizes.
+After every project modification, regenerate the reference report at
+`reports/data/rapport.html` from `reports/data/report.json`.
 
 Update `docs/progress.md` for meaningful work. Update the format changelog only
 when the JSON structure or semantics change. Update release notes for release

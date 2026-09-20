@@ -2,6 +2,7 @@ import csv
 from html.parser import HTMLParser
 
 from tabalyst import analyze_csv, render_report
+from tabalyst.execution_log import tabalyst_version
 from tabalyst.reporting import format_number
 
 
@@ -33,6 +34,16 @@ def test_header_only_report_is_renderable(tmp_path):
     html = render_report(analyze_csv(source))
     assert "No data records." in html
     assert "NaN" not in html
+
+
+def test_footer_includes_application_version_and_repository_link(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("a\n1\n", encoding="utf-8")
+
+    html = render_report(analyze_csv(source))
+
+    assert f"Tabalyst {tabalyst_version()}" in html
+    assert 'href="https://github.com/loribel-labs/tabalyst"' in html
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
