@@ -183,7 +183,7 @@ cd C:\projects
 ## 3. Clone the repository
 
 ```powershell
-git clone <repository-url>
+git clone https://github.com/loribel-labs/tabalyst.git
 cd tabalyst
 ```
 
@@ -283,7 +283,7 @@ python -m tabalyst analyze ..\test-csv\data.csv -o reports\test-csv\report.html 
 | `No module named tabalyst` | The environment is not active, or step 5 did not complete. Rerun `.venv\Scripts\Activate.ps1`, then `pip install -e .`. |
 | `UnicodeDecodeError` | Wrong encoding. Add `--encoding cp1252`. |
 | Everything lands in a single column | Wrong delimiter. Add `--delimiter ";"`. |
-| `FileNotFoundError` | Check that you are in `D:\projects\tabalyst` and that the path to your CSV is correct. |
+| `FileNotFoundError` | Check that you are in `C:\projects\tabalyst` and that the path to your CSV is correct. |
 
 ## Starting a new session
 
