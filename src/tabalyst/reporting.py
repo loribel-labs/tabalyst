@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined
 
-from tabalyst.execution_log import tabalyst_version
+from tabalyst._version import get_version
 from tabalyst.models import DatasetProfile
 
 
@@ -47,7 +47,7 @@ def render_report(profile: DatasetProfile) -> str:
     )
     return template.render(
         report=profile,
-        tabalyst_version=tabalyst_version(),
+        tabalyst_version=get_version(),
         types=Counter(column.inferred_type for column in profile.columns),
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),

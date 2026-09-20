@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "executions": [
+    {
+      "timestamp": "2026-09-20T22:49:08.195895Z",
+      "tabalyst_version": "0.1.0",
+      "source_file": "basic.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 5,
+      "columns": 6,
+      "analysis_seconds": 0.0085,
+      "total_seconds": 0.0452,
+      "git": {
+        "available": true,
+        "commit": "54c3b8f0ea2105e4c7b162688f32ad17a2af34a6",
+        "dirty": true,
+        "state": "54c3b8f0+working"
+      }
+    }
+  ]
+}
