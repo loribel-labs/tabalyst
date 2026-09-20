@@ -1,11 +1,21 @@
 """Experimental configuration. Later files override earlier settings."""
 
 import codecs
+from collections.abc import Iterable
 from itertools import pairwise
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
+
+from tabalyst.errors import ConfigurationError
 
 
 class CsvConfig(BaseModel):
@@ -140,7 +150,16 @@ class AnalysisConfig(BaseModel):
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
 
 
-def load_config(paths: list[Path]) -> AnalysisConfig:
+def _validation_message(exc: ValidationError) -> str:
+    first = exc.errors(include_url=False)[0]
+    location = ".".join(str(part) for part in first["loc"])
+    message = first["msg"]
+    return f"{location}: {message}" if location else message
+
+
+def load_config(paths: Iterable[Path]) -> AnalysisConfig:
+    """Load and recursively merge strict JSON configuration files."""
+
     def merge(base: dict, override: dict) -> dict:
         result = dict(base)
         for key, value in override.items():
@@ -152,8 +171,44 @@ def load_config(paths: list[Path]) -> AnalysisConfig:
 
     merged = {}
     for path in paths:
-        current = AnalysisConfig.model_validate_json(
-            path.read_text(encoding="utf-8-sig")
-        ).model_dump(exclude_unset=True)
+        try:
+            content = path.read_text(encoding="utf-8-sig")
+        except OSError as exc:
+            raise ConfigurationError(
+                f"Cannot read configuration file {path}: {exc}"
+            ) from exc
+        try:
+            current = AnalysisConfig.model_validate_json(content).model_dump(
+                exclude_unset=True
+            )
+        except ValidationError as exc:
+            raise ConfigurationError(
+                f"Invalid configuration in {path}: {_validation_message(exc)}"
+            ) from exc
         merged = merge(merged, current)
-    return AnalysisConfig.model_validate(merged)
+    try:
+        return AnalysisConfig.model_validate(merged)
+    except ValidationError as exc:
+        raise ConfigurationError(
+            f"Invalid merged configuration: {_validation_message(exc)}"
+        ) from exc
+
+
+def resolve_config(
+    paths: Iterable[Path] = (),
+    *,
+    separator: str | None = None,
+    encoding: str | None = None,
+) -> AnalysisConfig:
+    """Resolve defaults, files and explicit values in one shared layer."""
+    settings = load_config(paths).model_dump()
+    if separator is not None:
+        settings["csv"]["delimiter"] = separator
+    if encoding is not None:
+        settings["csv"]["encoding"] = encoding
+    try:
+        return AnalysisConfig.model_validate(settings)
+    except ValidationError as exc:
+        raise ConfigurationError(
+            f"Invalid configuration: {_validation_message(exc)}"
+        ) from exc

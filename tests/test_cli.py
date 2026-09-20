@@ -11,7 +11,7 @@ runner = CliRunner()
 
 
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.1.0a3"
+    assert tabalyst_version() == "0.1.0"
 
 
 def test_end_to_end_and_independent_json_render(tmp_path):
@@ -48,7 +48,7 @@ def test_source_file_cannot_be_overwritten(tmp_path):
 def test_execution_filename_cannot_be_used_as_report_output(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("a,b\n1,2\n", encoding="utf-8")
-    output = tmp_path / "execution.json"
+    output = tmp_path / "executions.json"
     result = runner.invoke(app, ["analyze", str(source), "-o", str(output)])
     assert result.exit_code == 1
     assert "different" in result.output
@@ -64,7 +64,7 @@ def test_bad_csv_returns_actionable_error_without_artifacts(tmp_path):
     assert "Data record 1" in result.output
     assert not output.exists()
     assert not output.with_suffix(".json").exists()
-    assert not output.with_name("execution.json").exists()
+    assert not output.with_name("executions.json").exists()
 
 
 def test_configuration_files_merge_and_cli_options_override(tmp_path):
@@ -214,7 +214,7 @@ def test_execution_history_accumulates_named_reports(tmp_path, monkeypatch):
     assert (output_folder / "report1.json").is_file()
     assert (output_folder / "report2.json").is_file()
     history = json.loads(
-        (output_folder / "execution.json").read_text(encoding="utf-8")
+        (output_folder / "executions.json").read_text(encoding="utf-8")
     )
     assert history["schema_version"] == "1.0"
     assert [item["source_file"] for item in history["executions"]] == [

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tabalyst"
-version = "0.1.0a3"
+version = "0.1.0"
 description = "Open-source data profiling engine for structured JSON and customizable HTML reports."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,7 +22,7 @@ keywords = [
     "json",
 ]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
@@ -34,7 +34,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
-    "charset-normalizer>=3.4",
     "jinja2>=3.1",
     "pandas>=2.2",
     "pydantic>=2.10",
@@ -43,13 +42,14 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "build>=1.2",
     "pytest>=8",
     "pytest-cov>=6",
     "ruff>=0.11",
 ]
 
 [project.scripts]
-tabalyst = "tabalyst.cli:app"
+tabalyst = "tabalyst.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

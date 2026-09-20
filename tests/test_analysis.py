@@ -18,7 +18,7 @@ from tabalyst.models import DatasetProfile
 
 
 def test_basic_csv_statistics_and_json_roundtrip():
-    profile = analyze_csv(Path(__file__).parents[1] / "examples/basic.csv")
+    profile = analyze_csv(Path(__file__).parents[1] / "examples/input/basic.csv")
     assert profile.format_version == "0.1.0a"
     assert profile.format_revision == 1
     assert profile.summary.row_count == 5

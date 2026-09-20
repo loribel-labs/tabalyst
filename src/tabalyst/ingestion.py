@@ -9,10 +9,11 @@ from pathlib import Path
 import pandas as pd
 
 from tabalyst.config import CsvConfig
+from tabalyst.errors import InputError
 from tabalyst.models import SourceInfo
 
 
-class CsvInputError(ValueError):
+class CsvInputError(InputError):
     pass
 
 

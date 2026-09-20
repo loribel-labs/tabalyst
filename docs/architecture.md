@@ -15,11 +15,13 @@ change. See the [format changelog](format-changelog.md).
 - `analysis.py`: computes dataset and column statistics without writing files.
 - `models.py`: Pydantic models for JSON serialization and validation.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
-- `service.py`: callable `analyze_csv(path, config)` for CLI and future HTTP adapters.
+- `service.py`: public `analyze(...)` orchestration plus the reusable
+  `analyze_csv(path, config)` engine boundary.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
-- `execution_log.py`: records successful CLI run metadata and timing in a shared,
-  atomically updated `execution.json` file.
-- `cli.py`: command-line options, error reporting and output files.
+- `execution_log.py`: records successful run metadata and timing in a shared,
+  atomically updated `executions.json` file.
+- `cli.py`: thin command-line parsing and error presentation over `analyze()`,
+  plus the retained alpha `render` compatibility command.
 - `templates/` and `static/`: report presentation; Bootstrap 5.3.8 CSS uses a CDN
   with an integrity hash. DataTables 3.0.4 and ColumnControl 2.0.2 also load from a
   CDN with pinned versions and integrity hashes. The Tabalyst theme and table
@@ -28,14 +30,14 @@ change. See the [format changelog](format-changelog.md).
 ## Python API
 
 ```python
-import pandas as pd
-from tabalyst import AnalysisConfig, analyze_column, analyze_csv, render_report
+import tabalyst
 
-profile = analyze_csv("data.csv", AnalysisConfig(preview_rows=10))
-json_text = profile.model_dump_json(indent=2)
-html_text = render_report(profile)
-column = analyze_column(pd.Series(["001", "002", ""]), name="customer_id")
+result = tabalyst.analyze("data.csv", "reports/client-a.html")
+print(result["summary"]["row_count"])
 ```
+
+The alpha low-level imports remain available for compatibility but are not part
+of the supported 0.1.0 public surface.
 
 ## Current semantics
 
@@ -68,7 +70,7 @@ shared accordingly. Bootstrap needs an internet connection; data is embedded in
 the report and is not sent to the CDN.
 
 The JSON profile records end-to-end CSV ingestion and analysis time in
-`processing_seconds`. The adjacent `execution.json` also records total CLI time,
+`processing_seconds`. The adjacent `executions.json` also records total run time,
 including JSON and HTML generation, plus package and optional Git metadata.
 
 ## Browser checks
@@ -77,7 +79,7 @@ With Node.js, Playwright and Edge installed, run the interactive regression chec
 on a generated report and its JSON:
 
 ```powershell
-node tests/browser/report.cjs reports/data/report.html reports/data/report.json
+node tests/browser/report.cjs examples/output/insurance-customers/report.html examples/output/insurance-customers/report.json
 ```
 
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`

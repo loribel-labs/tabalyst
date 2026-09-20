@@ -51,8 +51,8 @@ After Python changes:
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
 regression check described in `docs/architecture.md` at desktop and mobile sizes.
-After every project modification, regenerate the reference report at
-`reports/data/report.html` from `reports/data/report.json`.
+After every project modification, regenerate both public demos using the commands
+in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
 Update `docs/progress.md` for meaningful work. Update the format changelog only
 when the JSON structure or semantics change. Update release notes for release
@@ -64,6 +64,6 @@ milestones.
 - Git release tags use the matching `v` prefix, for example `v0.1.0a1`.
 - During the alpha family, JSON uses `format_version: "0.1.0a"` and a monotonic
   `format_revision`.
-- `execution.json` has its own `schema_version`.
+- `executions.json` has its own `schema_version`.
 
 Never create a commit, tag, push or release unless the user explicitly requests it.

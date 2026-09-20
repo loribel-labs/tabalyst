@@ -1,10 +1,11 @@
 # Configuration
 
 Tabalyst reads strict JSON configuration files. JSON does not allow comments;
-this page is the descriptive reference for supported settings. A `tabalyst.json`
-file in the current working directory is loaded automatically. Files passed to
-`--config` are applied afterward in order: later settings replace earlier ones,
-while CLI options remain the final override.
+this page is the descriptive reference for supported settings. The public API
+and direct CLI load the file passed with `config_path` or `--config`; explicit
+separator and encoding values are the final override. The legacy alpha
+`tabalyst analyze` command additionally discovers `tabalyst.json` in the current
+working directory and accepts multiple `--config` files.
 
 ## CSV and preview
 

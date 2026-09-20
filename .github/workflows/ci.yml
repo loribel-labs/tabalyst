@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest
+      - run: python -m ruff check .
+
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: python -m pip install build
+      - run: python -m build
+      - name: Smoke-test the installed wheel outside the repository
+        shell: bash
+        run: |
+          wheel_path=$(find "$GITHUB_WORKSPACE/dist" -name '*.whl' -print -quit)
+          python -m venv "$RUNNER_TEMP/tabalyst-wheel"
+          "$RUNNER_TEMP/tabalyst-wheel/bin/python" -m pip install "$wheel_path"
+          mkdir -p "$RUNNER_TEMP/tabalyst-smoke"
+          cd "$RUNNER_TEMP/tabalyst-smoke"
+          printf 'id,name\n1,Alice\n2,Bob\n' > sample.csv
+          "$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import tabalyst; assert tabalyst.__version__ == '0.1.0'; tabalyst.analyze('sample.csv', 'api/report.html')"
+          "$RUNNER_TEMP/tabalyst-wheel/bin/tabalyst" sample.csv cli/report.html
+          test -f api/report.json
+          test -f api/executions.json
+          test -f cli/report.json
+          test -f cli/executions.json
+          grep -q 'Tabalyst 0.1.0' api/report.html
+          grep -q 'tabalyst-theme' api/report.html
+      - uses: actions/upload-artifact@v7
+        with:
+          name: distributions
+          path: dist/
+          if-no-files-found: error

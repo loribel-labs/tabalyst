@@ -62,3 +62,11 @@
 
 - Finalized and published Tabalyst `0.1.0a3` with the responsive report navigation,
   animated collapsible panels, compact tables, and metadata presentation updates.
+- Prepared the `0.1.0` public package with `tabalyst.analyze()`, direct CLI syntax,
+  public exceptions, metadata-backed versioning, and retained alpha compatibility.
+- Centralized HTML, JSON, and cumulative `executions.json` production behind the
+  public API and added contract tests for configuration precedence and errors.
+- Added Python 3.11-3.14 CI, clean-wheel smoke coverage, PyPI Trusted Publishing,
+  release documentation, and concise package-oriented README guidance.
+- Reorganized public examples into named inputs and matching generated outputs,
+  including a small smoke dataset and a 3,000-row synthetic insurance dataset.

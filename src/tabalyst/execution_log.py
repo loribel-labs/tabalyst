@@ -2,28 +2,20 @@
 
 import json
 import subprocess
-import tomllib
 from datetime import UTC, datetime
-from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any
 
+from tabalyst._version import get_version
 from tabalyst.models import DatasetProfile
 
-EXECUTION_LOG_NAME = "execution.json"
+EXECUTION_LOG_NAME = "executions.json"
 EXECUTION_SCHEMA_VERSION = "1.0"
 
 
 def tabalyst_version() -> str:
-    """Return source metadata in a clone and installed metadata elsewhere."""
-    project_file = Path(__file__).resolve().parents[2] / "pyproject.toml"
-    if project_file.is_file():
-        project = tomllib.loads(project_file.read_text(encoding="utf-8"))
-        return str(project["project"]["version"])
-    try:
-        return version("tabalyst")
-    except PackageNotFoundError:
-        return "unknown"
+    """Return the package version for execution-history compatibility."""
+    return get_version()
 
 
 def git_state(directory: Path) -> dict[str, Any]:
