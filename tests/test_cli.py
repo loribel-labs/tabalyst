@@ -11,7 +11,7 @@ runner = CliRunner()
 
 
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.1.0a1"
+    assert tabalyst_version() == "0.1.0a2"
 
 
 def test_end_to_end_and_independent_json_render(tmp_path):

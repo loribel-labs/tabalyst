@@ -339,6 +339,8 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
 .footer { width: 100%; background: var(--band); color: #b8bdcf; }
 .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 24px; font-size: 11px; }
 .footer-inner > span:first-child { color: #ffffff; font-family: var(--font-title); font-size: 14px; font-weight: 600; }
+.footer a { color: #ffffff; }
+.footer a:hover { color: #a9d8ff; }
 
 @media (max-width: 700px) {
   .report-container { width: calc(100% - 32px); }
