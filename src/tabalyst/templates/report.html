@@ -1,10 +1,14 @@
 {% macro percent_label(value) %}{{ '' if value == 0 else value ~ '%' }}{% endmacro %}
+{% set numeric_columns = report.columns | selectattr('numeric') | list %}
+{% set date_columns = report.columns | selectattr('date_profile') | list %}
+{% set string_columns = report.columns | selectattr('string_profile') | list %}
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ report.source.filename }} | Tabalyst</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2300051a'/%3E%3Cpath d='M14 15h36v10H37v25H27V25H14z' fill='%23f98510'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Oswald:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -31,13 +35,25 @@
 </head>
 <body>
   <a class="visually-hidden-focusable" href="#overview">Skip to report</a>
-  <header class="topbar">
-    <div class="report-container topbar-inner">
+  <div class="app-shell">
+  <header class="topbar sidebar">
+    <div class="topbar-inner">
       <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">T</span>Tabalyst</a>
+      <nav aria-label="Report sections">
+        <p class="nav-label">Report</p>
+        <a href="#overview">Overview <span class="nav-count">({{ report.issues | length }})</span></a>
+        <a href="#columns">Columns <span class="nav-count">({{ report.summary.column_count }})</span></a>
+        <a href="#transformations">Transformations <span class="nav-count">({{ report.columns | length }})</span></a>
+        <p class="nav-label">Analysis</p>
+        <a href="#numeric">Numeric analysis <span class="nav-count">({{ numeric_columns | length }})</span></a>
+        <a href="#dates">Date analysis <span class="nav-count">({{ date_columns | length }})</span></a>
+        <a href="#strings">String analysis <span class="nav-count">({{ string_columns | length }})</span></a>
+        <p class="nav-label">Data</p>
+        <a href="#sample">Data sample <span class="nav-count">({{ report.preview | length }})</span></a>
+        <p class="nav-label">Settings</p>
+        <a href="#settings">Analysis settings</a>
+      </nav>
       <div class="topbar-actions">
-        <nav aria-label="Report sections">
-          <a href="#overview">Overview</a><a href="#columns">Columns</a><a href="#sample">Data sample</a>
-        </nav>
         <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode">
           <span data-theme-icon aria-hidden="true">&#9788;</span>
         </button>
@@ -45,17 +61,18 @@
     </div>
   </header>
 
-  <main class="report-container">
-    <section id="overview" class="report-section">
+  <div class="report-page">
+  <main class="report-container report-content">
+    <section class="report-section">
       <div class="report-heading">
         <div>
           <p class="eyebrow">Dataset report</p>
           <h1>{{ report.source.filename }}</h1>
-          <p class="metadata">{{ (report.source.size_bytes / 1024) | round(1) }} KB
+          <p class="metadata">{{ report.source.size_bytes | size }}
             <span aria-hidden="true"> / </span> {{ report.source.encoding }}
             <span aria-hidden="true"> / </span> Delimiter: <code>{{ report.source.delimiter }}</code></p>
         </div>
-        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in {{ report.processing_seconds }} s
+        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in {{ report.processing_seconds | seconds }} s
           <time datetime="{{ report.generated_at.isoformat() }}">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time>
         </div>
       </div>
@@ -67,9 +84,10 @@
         <div><dt>Duplicate rows</dt><dd>{{ report.summary.duplicate_row_count | count }}</dd><span>Beyond the first occurrence</span></div>
       </dl>
 
+      <details id="overview" class="report-details quality-details" open>
+        <summary>Quality information <span class="section-count">({{ report.issues | length }})</span></summary>
       <div class="overview-grid">
         <div>
-          <h2>Quality observations <span class="section-count">({{ report.issues | length }})</span></h2>
           {% if report.issues %}
           <ul class="observations">
             {% for issue in report.issues %}
@@ -92,11 +110,12 @@
           </ul>
         </div>
       </div>
+      </details>
     </section>
 
-    <section id="columns" class="report-section">
-      <div class="section-heading">
-        <h2>Columns <span class="section-count">({{ report.summary.column_count }})</span></h2>
+    <section class="report-section">
+      <details id="columns" class="report-details columns-details" open>
+        <summary>Columns <span class="section-count">({{ report.summary.column_count }})</span></summary>
         <div class="table-actions">
           <div class="column-search">
             <label class="visually-hidden" for="column-search">Filter columns by name</label>
@@ -104,7 +123,6 @@
           </div>
           <button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="columns-table" hidden>Reset</button>
         </div>
-      </div>
       <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
         <table id="columns-table" class="table table-hover align-middle column-table">
           <thead><tr><th scope="col">Column</th><th scope="col" class="percentage-column">Missing (%)</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Semantic type</th><th scope="col" class="percentage-column">Error (%)</th><th scope="col">Examples</th></tr></thead>
@@ -137,8 +155,9 @@
         </table>
       </div>
       <p id="filter-result" class="metadata filter-result" data-table-status="columns-table" role="status" hidden></p>
+      </details>
 
-      <details class="secondary-details transformation-details">
+      <details id="transformations" class="report-details secondary-details transformation-details">
         <summary>Transformations <span class="section-count">({{ report.columns | length }})</span></summary>
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="transformations-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Value transformations">
@@ -160,10 +179,9 @@
         <p class="metadata filter-result" data-table-status="transformations-table" role="status" hidden></p>
       </details>
 
-      {% set numeric_columns = report.columns | selectattr('numeric') | list %}
       {% if numeric_columns %}
-      <details class="secondary-details numeric-details">
-        <summary>Numeric summary <span class="section-count">({{ numeric_columns | length }})</span></summary>
+      <details id="numeric" class="report-details secondary-details numeric-details">
+        <summary>Numeric analysis <span class="section-count">({{ numeric_columns | length }})</span></summary>
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Numeric statistics">
           <table id="numeric-table" class="table table-sm numeric-table">
@@ -175,9 +193,8 @@
       </details>
       {% endif %}
 
-      {% set date_columns = report.columns | selectattr('date_profile') | list %}
       {% if date_columns %}
-      <details class="secondary-details date-details">
+      <details id="dates" class="report-details secondary-details date-details">
         <summary>Date analysis <span class="section-count">({{ date_columns | length }})</span></summary>
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Date analysis">
@@ -209,14 +226,13 @@
       </details>
       {% endif %}
 
-      {% set string_columns = report.columns | selectattr('string_profile') | list %}
       {% if string_columns %}
-      <details class="secondary-details string-details">
+      <details id="strings" class="report-details secondary-details string-details">
         <summary>String analysis <span class="section-count">({{ string_columns | length }})</span></summary>
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="string-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="String analysis">
           <table id="string-table" class="table table-sm string-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Mean</th><th scope="col">Median</th><th scope="col">Examples</th></tr></thead>
+            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Mean</th><th scope="col">Median</th><th scope="col">Distinct</th><th scope="col">Examples</th></tr></thead>
             <tbody>
               {% for column in string_columns %}
               {% set fixed = column.string_profile.fixed_length is not none %}
@@ -228,6 +244,7 @@
                 <td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td>
                 <td data-order="{{ -1 if fixed else column.string_profile.mean_length }}" data-search="{{ '' if fixed else column.string_profile.mean_length }}">{% if not fixed %}{{ column.string_profile.mean_length | number }}{% endif %}</td>
                 <td data-order="{{ -1 if fixed else column.string_profile.median_length }}" data-search="{{ '' if fixed else column.string_profile.median_length }}">{% if not fixed %}{{ column.string_profile.median_length | number }}{% endif %}</td>
+                <td data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
                 <td class="examples length-examples" tabindex="0"{% if column.string_profile.length_distribution %} aria-describedby="{{ column.id }}-lengths-tooltip"{% endif %}>
                   {% set representative_lengths = column.string_profile.length_distribution | sort(attribute='count', reverse=true) %}
                   {% for item in representative_lengths[:3] %}{% if item.examples %}<span class="example-value">{{ item.examples[0].value }}</span>{% endif %}{% endfor %}
@@ -251,8 +268,10 @@
       {% endif %}
     </section>
 
-    <section id="sample" class="report-section">
-      <div class="section-heading"><h2>Data sample</h2><div class="table-actions"><span class="metadata">{{ report.preview | length }} of {{ report.summary.row_count | count }} rows</span>{% if report.preview %}<button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="sample-table" hidden>Reset</button>{% endif %}</div></div>
+    <section class="report-section">
+      <details id="sample" class="report-details secondary-details sample-details">
+      <summary>Data sample</summary>
+      <div class="table-actions details-actions"><span class="metadata">{{ report.preview | length }} of {{ report.summary.row_count | count }} rows</span>{% if report.preview %}<button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="sample-table" hidden>Reset</button>{% endif %}</div>
       {% if report.preview %}
       <div class="table-responsive sample-scroll" tabindex="0" role="region" aria-label="Raw data sample">
         <table id="sample-table" class="table table-sm table-striped sample-table">
@@ -262,10 +281,11 @@
       </div>
       <p class="metadata filter-result" data-table-status="sample-table" role="status" hidden></p>
       {% else %}<p class="empty-state">{{ 'No data records.' if report.summary.row_count == 0 else 'Data preview disabled.' }}</p>{% endif %}
+      </details>
     </section>
 
     <section class="report-section methodology">
-      <details>
+      <details id="settings" class="report-details methodology-details">
         <summary>Analysis settings</summary>
         <dl class="settings-grid">
           <div><dt>Scope</dt><dd>All {{ report.summary.row_count | count }} records</dd></div>
@@ -287,6 +307,8 @@
     </section>
   </main>
   <footer class="footer"><div class="report-container footer-inner"><span>Tabalyst {{ tabalyst_version }}</span><span><a href="https://github.com/loribel-labs/tabalyst">GitHub repository</a> &middot; Gregory Borelli - Catalyseur Num&#233;rique</span></div></footer>
+  </div>
+  </div>
   <script src="https://cdn.datatables.net/3.0.4/js/dataTables.min.js" integrity="sha384-i3qKUispup6yO0B16Bvnk2AmVi8O60Qww2omjtD9NHi1ns1H4jiz2EhYBjLew/9C" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/3.0.4/js/dataTables.bootstrap5.min.js" integrity="sha384-4d8X9sr6Gnv9AgIQn6bv3lmQxj5fD+9bVAun0/XMmdy7oPRvT0adfiUUiiYpi4Ck" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/dataTables.columnControl.min.js" integrity="sha384-s+uWQ72aUBdD8WMvuzuM/dgwuDT+sZo4mNvlZ9AAH6iZlX9hpJX6t4R7jbK26LZN" crossorigin="anonymous"></script>

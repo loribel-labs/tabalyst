@@ -6,7 +6,7 @@ Built with pandas, Pydantic, Jinja2 and Bootstrap 5.3.8.
 Tabalyst is an alpha project. It is not published on PyPI and is not installed
 system-wide: it runs from a Git clone. If you are trying it for the first time,
 jump to [Testing the alpha](#testing-the-alpha) at the end of this file.
-See the [Alpha 2 release notes](docs/releases/0.1.0a2.md) for the latest changes,
+See the [Alpha 3 release notes](docs/releases/0.1.0a3.md) for the latest changes,
 and the initial feature set and known limitations.
 
 ## Features
@@ -82,8 +82,8 @@ Running again with `-o reports\data\report2.html` creates `report2.html` and
 ## Versioning
 
 Tabalyst follows Python's PEP 440 version format. The current application version
-is `0.1.0a2`; future alpha checkpoints will use `0.1.0a3`, `0.1.0a4`, and so on.
-Git tags use the same value with a `v` prefix, for example `v0.1.0a2`.
+is `0.1.0a3`; future alpha checkpoints will use `0.1.0a4`, `0.1.0a5`, and so on.
+Git tags use the same value with a `v` prefix, for example `v0.1.0a3`.
 
 The generated profile has an independent version because its structure may evolve
 at a different pace from the application:
@@ -99,7 +99,7 @@ at a different pace from the application:
 `format_revision` increases for each important structural or semantic change.
 Alpha revisions may be incompatible and do not have migration support yet. See
 the [profile format changelog](docs/format-changelog.md) for revision details and
-the [release notes](docs/releases/0.1.0a2.md) for application-level changes.
+the [release notes](docs/releases/0.1.0a3.md) for application-level changes.
 
 The `execution.json` history has its own `schema_version`, currently `1.0`.
 

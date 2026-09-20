@@ -25,6 +25,65 @@
     setTheme(root.dataset.theme === "dark" ? "light" : "dark");
   });
 
+  function toggleDetails(details, open) {
+    if (details.dataset.animating || details.open === open) return;
+    const summary = details.querySelector(":scope > summary");
+    if (!summary || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      details.open = open;
+      return;
+    }
+
+    const startHeight = details.offsetHeight;
+    const content = [...details.children].filter(element => element !== summary);
+    if (open) {
+      details.open = true;
+    } else {
+      details.dataset.collapsing = "true";
+    }
+    const endHeight = open
+      ? details.offsetHeight
+      : summary.offsetHeight
+        + Number.parseFloat(getComputedStyle(details).paddingTop)
+        + Number.parseFloat(getComputedStyle(details).paddingBottom);
+
+    details.dataset.animating = "true";
+    details.style.height = `${startHeight}px`;
+    details.style.overflow = "hidden";
+    const animation = details.animate(
+      { height: [`${startHeight}px`, `${endHeight}px`] },
+      { duration: 240, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+    for (const element of content) {
+      element.animate(
+        open
+          ? { opacity: [0.35, 1], transform: ["translateY(-4px)", "translateY(0)"] }
+          : { opacity: [1, 0.35], transform: ["translateY(0)", "translateY(-4px)"] },
+        { duration: 150, delay: open ? 25 : 0, easing: "ease-out" },
+      );
+    }
+    animation.onfinish = () => {
+      if (!open) details.open = false;
+      delete details.dataset.animating;
+      delete details.dataset.collapsing;
+      details.style.height = "";
+      details.style.overflow = "";
+    };
+  }
+
+  document.querySelectorAll(".report-details > summary").forEach(summary => {
+    summary.addEventListener("click", event => {
+      event.preventDefault();
+      toggleDetails(summary.parentElement, !summary.parentElement.open);
+    });
+  });
+
+  document.querySelectorAll(".sidebar nav a[href^='#']").forEach(link => {
+    link.addEventListener("click", () => {
+      const section = document.getElementById(link.hash.slice(1));
+      if (section instanceof HTMLDetailsElement) toggleDetails(section, true);
+    });
+  });
+
   const nameSearch = document.getElementById("column-search");
   const summary = document.getElementById("columns-table");
 
@@ -422,7 +481,7 @@
       { type: "string", columnControl: controls(checkboxFilter(strings, 0)) },
       { type: "string", columnControl: controls(checkboxFilter(strings, 1, (value, count) =>
         `<span class="type-badge string-status string-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value.replaceAll("_", " "))}</span> <span class="filter-option-count">(${count})</span>`)) },
-      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 6 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
       { orderable: false, columnControl: [] },
     ], "string columns");
   }

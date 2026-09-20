@@ -51,7 +51,26 @@ async function reset(page, table = 'columns-table') {
       assert.ok((await page.locator('.eyebrow').evaluate(el => getComputedStyle(el).fontFamily)).includes('Caveat'));
       assert.equal(await page.locator('.topbar').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
       assert.equal(await page.locator('.footer').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
-      assert.ok((await page.locator('.generation').innerText()).includes(`Analysis complete in ${profile.processing_seconds} s`));
+      assert.equal(
+        await page.locator('.sidebar').evaluate(el => getComputedStyle(el).position),
+        width > 800 ? 'sticky' : 'static',
+      );
+      assert.equal(await page.locator('.sidebar nav a[href="#sample"]').count(), 1);
+      assert.equal(await page.locator('.sidebar .nav-count').count(), 7);
+      assert.deepEqual(await page.locator('.sidebar .nav-label').allTextContents(), ['Report', 'Analysis', 'Data', 'Settings']);
+      assert.equal(await page.locator('#overview').evaluate(element => element.open), true);
+      assert.equal(await page.locator('#columns').evaluate(element => element.open), true);
+      assert.equal(await page.locator('#sample').evaluate(element => element.open), false);
+      const dateNavigation = page.locator('.sidebar nav a[href="#dates"]');
+      const dateDetails = page.locator('.date-details');
+      if (await dateNavigation.count() && await dateDetails.count()) {
+        assert.equal(await dateDetails.evaluate(element => element.open), false);
+        await dateNavigation.click();
+        assert.equal(await dateDetails.evaluate(element => element.open), true);
+        await dateDetails.locator('summary').click();
+      }
+      const formattedSeconds = String(Number(profile.processing_seconds.toFixed(2)));
+      assert.ok((await page.locator('.generation').innerText()).includes(`Analysis complete in ${formattedSeconds} s`));
       await page.locator('#theme-toggle').click();
       assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
       assert.equal(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
@@ -364,11 +383,15 @@ async function reset(page, table = 'columns-table') {
         assert.equal(await stringReset.isVisible(), false);
         assert.deepEqual(
           await page.locator('#string-table thead .dt-column-title').allTextContents(),
-          ['Column', 'Class', 'Fixed', 'Min', 'Max', 'Mean', 'Median', 'Examples'],
+          ['Column', 'Class', 'Fixed', 'Min', 'Max', 'Mean', 'Median', 'Distinct', 'Examples'],
         );
         assert.deepEqual(
           await page.locator('#string-table tbody .column-index').allTextContents(),
           stringColumns.map(column => String(column.position)),
+        );
+        assert.deepEqual(
+          await page.locator('#string-table tbody tr').evaluateAll(rows => rows.map(row => Number(row.cells[7].dataset.order))),
+          stringColumns.map(column => column.distinct_count),
         );
         assert.equal(await page.locator('#string-table tbody tr').evaluateAll(rows => rows.some(row => {
           const name = row.querySelector('.column-name').getBoundingClientRect();
