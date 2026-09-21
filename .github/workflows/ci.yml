@@ -44,13 +44,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/tabalyst-smoke"
           cd "$RUNNER_TEMP/tabalyst-smoke"
           printf 'id,name\n1,Alice\n2,Bob\n' > sample.csv
-          "$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import tabalyst; assert tabalyst.__version__ == '0.1.0'; tabalyst.analyze('sample.csv', 'api/report.html')"
+          "$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import importlib.metadata as metadata; import tabalyst; assert tabalyst.__version__ == metadata.version('tabalyst'); tabalyst.analyze('sample.csv', 'api/report.html')"
+          package_version=$("$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import tabalyst; print(tabalyst.__version__)")
           "$RUNNER_TEMP/tabalyst-wheel/bin/tabalyst" sample.csv cli/report.html
           test -f api/report.json
           test -f api/executions.json
           test -f cli/report.json
           test -f cli/executions.json
-          grep -q 'Tabalyst 0.1.0' api/report.html
+          grep -q "Version $package_version" api/report.html
           grep -q 'tabalyst-theme' api/report.html
       - uses: actions/upload-artifact@v7
         with:

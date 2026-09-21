@@ -76,3 +76,5 @@
   analysis, plus consistent badge styling for the empty semantic-type filter.
 - Reworked the generated report footer into a responsive product footer with
   version, copyright, official website, and GitHub information.
+- Made the clean-wheel CI smoke test version-agnostic so patch releases validate
+  installed metadata and generated footer versions without hard-coded numbers.
