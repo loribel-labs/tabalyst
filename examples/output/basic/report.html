@@ -98,19 +98,21 @@ code, pre, kbd, samp { font-family: var(--font-mono); }
 .topbar-inner { display: flex; height: 100%; flex-direction: column; align-items: stretch; gap: 34px; padding: 28px 22px; }
 .brand { display: inline-flex; gap: 9px; align-items: center; color: #ffffff; text-decoration: none; font-family: var(--font-title); font-weight: 600; font-size: 19px; }
 .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-title); font-size: 19px; border-radius: 4px; }
+.nav-icon-library { position: absolute; width: 0; height: 0; overflow: hidden; }
 .sidebar nav { display: flex; flex-direction: column; gap: 3px; }
 .sidebar .nav-label { margin: 14px 0 4px; color: #7f8aaf; font-family: var(--font-title); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 .sidebar .nav-label:first-child { margin-top: 0; }
-.sidebar nav a { position: relative; display: flex; align-items: center; min-height: 36px; padding: 7px 9px 7px 27px; border-radius: 6px; color: #c9ccda; font-size: 12px; font-weight: 500; text-decoration: none; }
-.sidebar nav a::before { position: absolute; left: 10px; width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 2px; content: ""; }
-.sidebar .nav-count { margin-left: 3px; color: #7f8aaf; font: inherit; font-weight: 400; }
+.sidebar nav a { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 9px; border-radius: 6px; color: #c9ccda; font-size: 12px; font-weight: 500; text-decoration: none; }
+.sidebar .nav-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.sidebar .nav-item-label { min-width: 0; }
+.sidebar .nav-count { margin-left: -5px; color: #7f8aaf; font: inherit; font-weight: 400; }
 .sidebar nav a:hover .nav-count, .sidebar nav a:focus-visible .nav-count { color: #a7afc4; }
 .sidebar nav a:hover, .sidebar nav a:focus-visible { background: #151d3c; color: #ffffff; outline: none; }
 .topbar-actions { display: flex; margin-top: auto; align-items: center; justify-content: space-between; gap: 12px; }
 .theme-toggle { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid #3b4260; border-radius: 4px; background: #0c1229; color: #ffffff; cursor: pointer; font-size: 18px; }
 .theme-toggle:hover, .theme-toggle:focus-visible { border-color: var(--accent); outline: none; }
-.report-page { min-width: 0; flex: 1; }
-.report-content { width: 100%; min-height: calc(100vh - 73px); margin: 0; padding-inline: 32px; }
+.report-page { display: flex; min-width: 0; min-height: 100vh; flex: 1; flex-direction: column; }
+.report-content { width: 100%; flex: 1; margin: 0; padding-inline: 32px; }
 
 .report-section { padding: 32px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
 .report-details { position: relative; padding-block: 24px; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
@@ -206,6 +208,7 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 :root[data-theme="light"] .badge-boolean { border-color: #bf62aa; color: #83336f; background: #faeaf6; }
 .semantic-separator { display: inline-block; margin: 0 4px; color: var(--muted); }
 .semantic-badge { border-color: color-mix(in srgb, var(--concept) 65%, transparent); }
+.semantic-none { border-color: var(--border-strong); color: var(--muted); background: var(--surface-soft); }
 .semantic-enum { border-color: #9b7dea; color: #ded4ff; background: #7652d426; }
 .semantic-date { border-color: #35bbaa; color: #9de8de; background: #0e9f8e26; }
 :root[data-theme="light"] .semantic-enum { border-color: #7652d4; color: #3a0ca3; background: #f3efff; }
@@ -257,7 +260,7 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .transformations-table thead th:first-child { width: var(--report-name-column) !important; }
 .transformations-table thead th:not(:first-child) { width: 135px !important; max-width: 150px; }
 .transformations-table td { font-variant-numeric: tabular-nums; }
-.date-table { min-width: 1030px; table-layout: fixed; }
+.date-table { min-width: 1145px; table-layout: fixed; }
 .date-table thead th:first-child { width: var(--report-name-column) !important; }
 .date-table thead th:nth-child(2) { width: 135px !important; max-width: 135px; }
 .date-table thead th:nth-child(n+3):not(:last-child) { width: 115px !important; max-width: 115px; }
@@ -363,9 +366,10 @@ div.dtcc-dropdown button:focus-visible { outline: 2px solid var(--interactive); 
 .filter-action-row + .number-filter .number-filter-title { display: none; }
 
 summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500; font-size: 14px; }
-.numeric-table { table-layout: fixed; font-size: 12px; min-width: 700px; }
+.numeric-table { table-layout: fixed; font-size: 12px; min-width: 1000px; }
 .numeric-table thead th:first-child { width: var(--report-name-column) !important; }
-.numeric-table thead th:not(:first-child) { width: 120px !important; max-width: 120px; }
+.numeric-table thead th:nth-child(n+2):not(:last-child) { width: 120px !important; max-width: 120px; }
+.numeric-table thead th:last-child { width: auto !important; }
 .numeric-table th { overflow-wrap: anywhere; }
 .numeric-table td { font-variant-numeric: tabular-nums; }
 .string-table { min-width: 1220px; table-layout: fixed; font-size: 12px; }
@@ -394,20 +398,29 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
 .source-hash { overflow-wrap: anywhere; }
 .empty-state { color: var(--muted); padding: 16px 0; font-size: 13px; }
 
-.footer { width: 100%; background: var(--band); color: #b8bdcf; }
+.footer { width: 100%; margin-top: auto; border-top: 1px solid #252c49; background: linear-gradient(135deg, #00051a 0%, #080e27 100%); color: #aeb5ca; }
 .footer .report-container { width: 100%; margin: 0; padding-inline: 32px; }
-.footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 24px; font-size: 11px; }
-.footer-inner > span:first-child { color: #ffffff; font-family: var(--font-title); font-size: 14px; font-weight: 600; }
-.footer a { color: #ffffff; }
-.footer a:hover { color: #a9d8ff; }
+.footer-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 32px; padding: 27px 0 20px; }
+.footer-product p { margin: 8px 0 0; color: #8992ad; font-size: 12px; }
+.footer-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.footer-mark { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-title); font-size: 16px; font-weight: 600; }
+.footer-title { color: #ffffff; font-family: var(--font-title); font-size: 17px; font-weight: 600; }
+.footer-version { padding: 3px 7px; border: 1px solid #343c5d; border-radius: 999px; color: #aeb5ca; font-family: var(--font-mono); font-size: 10px; line-height: 1; }
+.footer-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.footer-links a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 11px; border: 1px solid #343c5d; border-radius: 5px; color: #eef1fa; font-size: 11px; font-weight: 500; text-decoration: none; }
+.footer-links a span { color: #7883a5; font-size: 12px; transition: transform .15s ease, color .15s ease; }
+.footer-links a:hover, .footer-links a:focus-visible { border-color: var(--accent); background: #151d3c; color: #ffffff; outline: none; }
+.footer-links a:hover span, .footer-links a:focus-visible span { color: var(--accent); transform: translate(1px, -1px); }
+.footer-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 14px 0 19px; border-top: 1px solid #252c49; color: #737d9c; font-size: 10px; }
 
 @media (max-width: 800px) {
   .app-shell { display: block; }
+  .report-page { min-height: 0; }
   .sidebar { position: static; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid #252c49; }
   .topbar-inner { gap: 18px; padding: 18px 16px; }
   .sidebar nav { flex-flow: row wrap; gap: 6px; }
   .sidebar .nav-label { width: 100%; margin: 8px 0 1px; }
-  .sidebar nav a { min-height: 32px; padding: 6px 8px 6px 23px; }
+  .sidebar nav a { min-height: 32px; padding: 6px 8px; }
   .topbar-actions { margin-top: 0; }
 }
 
@@ -415,6 +428,9 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
   .report-container { width: calc(100% - 32px); }
   .report-content { width: 100%; padding-inline: 16px; }
   .footer .report-container { padding-inline: 16px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 20px; }
+  .footer-links { justify-content: flex-start; }
+  .footer-meta { flex-direction: column; }
   .report-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
   .generation { text-align: left; }
   .generation time { display: inline; margin-left: 8px; }
@@ -450,19 +466,31 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
   <header class="topbar sidebar">
     <div class="topbar-inner">
       <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">T</span>Tabalyst</a>
+      <svg class="nav-icon-library" aria-hidden="true">
+        <defs>
+          <symbol id="nav-icon-overview" viewBox="0 0 24 24"><path d="M4 15a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M5 19h14"/></symbol>
+          <symbol id="nav-icon-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><rect x="16" y="4" width="5" height="16" rx="1"/></symbol>
+          <symbol id="nav-icon-transformations" viewBox="0 0 24 24"><path d="M4 7h14"/><path d="m15 4 3 3-3 3"/><path d="M20 17H6"/><path d="m9 14-3 3 3 3"/></symbol>
+          <symbol id="nav-icon-numeric" viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><path d="m7 15 4-4 3 2 5-6"/></symbol>
+          <symbol id="nav-icon-dates" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M7 14h2M12 14h2M17 14h1M7 18h2M12 18h2"/></symbol>
+          <symbol id="nav-icon-strings" viewBox="0 0 24 24"><path d="M5 8V4h14v4M12 4v16M8 20h8"/></symbol>
+          <symbol id="nav-icon-sample" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+          <symbol id="nav-icon-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+        </defs>
+      </svg>
       <nav aria-label="Report sections">
         <p class="nav-label">Report</p>
-        <a href="#overview">Overview <span class="nav-count">(5)</span></a>
-        <a href="#columns">Columns <span class="nav-count">(6)</span></a>
-        <a href="#transformations">Transformations <span class="nav-count">(6)</span></a>
+        <a href="#overview"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-overview"></use></svg><span class="nav-item-label">Overview</span><span class="nav-count">(5)</span></a>
+        <a href="#columns"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-columns"></use></svg><span class="nav-item-label">Columns</span><span class="nav-count">(6)</span></a>
+        <a href="#transformations"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-transformations"></use></svg><span class="nav-item-label">Transformations</span><span class="nav-count">(6)</span></a>
         <p class="nav-label">Analysis</p>
-        <a href="#numeric">Numeric analysis <span class="nav-count">(0)</span></a>
-        <a href="#dates">Date analysis <span class="nav-count">(1)</span></a>
-        <a href="#strings">String analysis <span class="nav-count">(3)</span></a>
+        <a href="#numeric"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-numeric"></use></svg><span class="nav-item-label">Numeric analysis</span><span class="nav-count">(0)</span></a>
+        <a href="#dates"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-dates"></use></svg><span class="nav-item-label">Date analysis</span><span class="nav-count">(1)</span></a>
+        <a href="#strings"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-strings"></use></svg><span class="nav-item-label">String analysis</span><span class="nav-count">(3)</span></a>
         <p class="nav-label">Data</p>
-        <a href="#sample">Data sample <span class="nav-count">(5)</span></a>
+        <a href="#sample"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-sample"></use></svg><span class="nav-item-label">Data sample</span><span class="nav-count">(5)</span></a>
         <p class="nav-label">Settings</p>
-        <a href="#settings">Analysis settings</a>
+        <a href="#settings"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-settings"></use></svg><span class="nav-item-label">Analysis settings</span></a>
       </nav>
       <div class="topbar-actions">
         <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode">
@@ -484,7 +512,7 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
             <span aria-hidden="true"> / </span> Delimiter: <code>,</code></p>
         </div>
         <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in 0.01 s
-          <time datetime="2026-09-20T22:49:08.159657+00:00">2026-09-20 22:49 UTC</time>
+          <time datetime="2026-09-21T01:55:12.324408+00:00">2026-09-21 01:55 UTC</time>
         </div>
       </div>
 
@@ -799,7 +827,7 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
         <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
         <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Date analysis">
           <table id="date-table" class="table table-sm date-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col" class="percentage-column">Valid (%)</th><th scope="col" class="percentage-column">Ambiguous (%)</th><th scope="col" class="percentage-column">Invalid (%)</th><th scope="col" class="percentage-column">Other (%)</th><th scope="col">Formats</th></tr></thead>
+            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col" class="percentage-column">Valid (%)</th><th scope="col" class="percentage-column">Ambiguous (%)</th><th scope="col" class="percentage-column">Invalid (%)</th><th scope="col" class="percentage-column">Other (%)</th><th scope="col">Distinct</th><th scope="col">Formats</th></tr></thead>
             <tbody>
               
               <tr>
@@ -807,6 +835,7 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
                 <td data-order="valid" data-search="valid"><span class="type-badge date-status status-valid">valid</span></td>
                 
                 <td class="percentage-column" data-order="100.0" data-search="100.0"><div class="percentage-value"><span>100.0%</span><small>5</small></div><div class="percentage-track track-success" aria-hidden="true"><div style="width: 100.0%"></div></div></td><td class="percentage-column" data-order="0.0" data-search="0.0"></td><td class="percentage-column" data-order="0.0" data-search="0.0"></td><td class="percentage-column" data-order="0.0" data-search="0.0"></td>
+                <td data-order="4" data-search="4">4</td>
                 <td class="date-formats-cell" tabindex="0" aria-describedby="column_4-date-formats-tooltip">
                   
                   <span class="date-format-count">1 variant</span>
@@ -956,7 +985,24 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
       </details>
     </section>
   </main>
-  <footer class="footer"><div class="report-container footer-inner"><span>Tabalyst 0.1.0</span><span><a href="https://github.com/loribel-labs/tabalyst">GitHub repository</a> &middot; Gregory Borelli - Catalyseur Num&#233;rique</span></div></footer>
+  <footer class="footer" aria-label="About Tabalyst">
+    <div class="report-container footer-container">
+      <div class="footer-inner">
+        <div class="footer-product">
+          <div class="footer-title-row"><span class="footer-mark" aria-hidden="true">T</span><span class="footer-title">Tabalyst</span><span class="footer-version">Version 0.1.1</span></div>
+          <p>Local-first CSV profiling and analysis.</p>
+        </div>
+        <nav class="footer-links" aria-label="Tabalyst links">
+          <a href="https://tabalyst.com" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">&#8599;</span></a>
+          <a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">&#8599;</span></a>
+        </nav>
+      </div>
+      <div class="footer-meta">
+        <span>&copy; 2026 Gregory Borelli &middot; Catalyseur Num&#233;rique</span>
+        <span>Report generated locally by Tabalyst</span>
+      </div>
+    </div>
+  </footer>
   </div>
   </div>
   <script src="https://cdn.datatables.net/3.0.4/js/dataTables.min.js" integrity="sha384-i3qKUispup6yO0B16Bvnk2AmVi8O60Qww2omjtD9NHi1ns1H4jiz2EhYBjLew/9C" crossorigin="anonymous"></script>
@@ -1404,9 +1450,10 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
         ? `badge-${value}` : "badge-empty";
       return `<span class="type-badge ${badge}">${type}</span> <span class="filter-option-count">(${count})</span>`;
     })) },
-    { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => value === "(none)"
-      ? `<span class="muted">(none)</span> <span class="filter-option-count">(${count})</span>`
-      : `<span class="type-badge semantic-badge semantic-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`)) },
+    { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => {
+      const semanticClass = ["enum", "date"].includes(value) ? value : "none";
+      return `<span class="type-badge semantic-badge semantic-${semanticClass}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`;
+    })) },
     { type: "num", columnControl: controls(numericFilter("Type error (%)")) },
     { orderable: false, columnControl: [] },
   ], "columns");
@@ -1426,7 +1473,8 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
   if (numeric) {
     attachTable(numeric, [
       { type: "string", columnControl: controls(checkboxFilter(numeric, 0)) },
-      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      { orderable: false, columnControl: [] },
     ], "columns");
   }
 
@@ -1435,7 +1483,7 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
     attachTable(dates, [
       { type: "string", columnControl: controls(checkboxFilter(dates, 0)) },
       { type: "string", columnControl: controls(checkboxFilter(dates, 1)) },
-      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
       { orderable: false, columnControl: [] },
     ], "date columns");
   }

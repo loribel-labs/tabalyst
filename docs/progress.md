@@ -70,3 +70,9 @@
   release documentation, and concise package-oriented README guidance.
 - Reorganized public examples into named inputs and matching generated outputs,
   including a small smoke dataset and a 3,000-row synthetic insurance dataset.
+- Published Tabalyst `0.1.0` on PyPI through the Trusted Publishing workflow.
+- Prepared Tabalyst `0.1.1` with section-specific sidebar icons, distinct counts
+  and representative examples in numeric analysis, and distinct counts in date
+  analysis, plus consistent badge styling for the empty semantic-type filter.
+- Reworked the generated report footer into a responsive product footer with
+  version, copyright, official website, and GitHub information.

@@ -38,19 +38,26 @@ def test_csv_content_cannot_inject_markup(tmp_path):
 def test_header_only_report_is_renderable(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("a,b\n", encoding="utf-8")
-    html = render_report(analyze_csv(source))
+    profile = analyze_csv(source)
+    html = render_report(profile)
     assert "No data records." in html
     assert "NaN" not in html
 
 
-def test_footer_includes_application_version_and_repository_link(tmp_path):
+def test_footer_includes_version_copyright_and_official_links(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("a\n1\n", encoding="utf-8")
 
-    html = render_report(analyze_csv(source))
+    profile = analyze_csv(source)
+    html = render_report(profile)
 
-    assert f"Tabalyst {tabalyst_version()}" in html
+    assert f"Version {tabalyst_version()}" in html
+    assert "Gregory Borelli" in html
+    assert "Catalyseur Num&#233;rique" in html
+    assert f"&copy; {profile.generated_at.year} Gregory Borelli" in html
+    assert 'href="https://tabalyst.com"' in html
     assert 'href="https://github.com/loribel-labs/tabalyst"' in html
+    assert html.count('target="_blank" rel="noopener noreferrer"') == 2
 
 
 def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
@@ -66,8 +73,12 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert '<details id="sample" class="report-details secondary-details sample-details">' in html
     assert 'Numeric analysis' in html
     assert html.count('class="nav-count"') == 7
+    assert html.count('class="nav-icon"') == 8
     for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "sample", "settings"):
         assert f'href="#{section}"' in html
+
+    assert "<th scope=\"col\">Median</th><th scope=\"col\">Distinct</th><th scope=\"col\">Examples</th>" in html
+    assert "<th scope=\"col\">Distinct</th><th scope=\"col\">Formats</th>" in html
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
