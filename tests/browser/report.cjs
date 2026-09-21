@@ -50,13 +50,20 @@ async function reset(page, table = 'columns-table') {
       assert.ok((await page.locator('#columns-table tbody td').first().evaluate(el => getComputedStyle(el).fontFamily)).includes('Consolas'));
       assert.ok((await page.locator('.eyebrow').evaluate(el => getComputedStyle(el).fontFamily)).includes('Caveat'));
       assert.equal(await page.locator('.topbar').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
-      assert.equal(await page.locator('.footer').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 5, 26)');
+      assert.equal(await page.locator('.footer').count(), 1);
+      assert.ok((await page.locator('.footer-version').innerText()).startsWith('Version '));
+      assert.ok((await page.locator('.footer-meta').innerText()).includes('Gregory Borelli'));
+      assert.deepEqual(await page.locator('.footer-links a').evaluateAll(links => links.map(link => link.href)), [
+        'https://tabalyst.com/',
+        'https://github.com/loribel-labs/tabalyst',
+      ]);
       assert.equal(
         await page.locator('.sidebar').evaluate(el => getComputedStyle(el).position),
         width > 800 ? 'sticky' : 'static',
       );
       assert.equal(await page.locator('.sidebar nav a[href="#sample"]').count(), 1);
       assert.equal(await page.locator('.sidebar .nav-count').count(), 7);
+      assert.equal(await page.locator('.sidebar .nav-icon').count(), 8);
       assert.deepEqual(await page.locator('.sidebar .nav-label').allTextContents(), ['Report', 'Analysis', 'Data', 'Settings']);
       assert.equal(await page.locator('#overview').evaluate(element => element.open), true);
       assert.equal(await page.locator('#columns').evaluate(element => element.open), true);
@@ -160,6 +167,11 @@ async function reset(page, table = 'columns-table') {
 
       const semantics = [...new Set(profile.columns.map(column => column.semantic_type || '(none)'))].slice(0, 2);
       menu = await popup(page, 'columns-table', 4);
+      if (profile.columns.some(column => !column.semantic_type)) {
+        const noneBadge = menu.locator('.semantic-none');
+        assert.equal(await noneBadge.innerText(), '(none)');
+        assert.notEqual(await noneBadge.evaluate(element => getComputedStyle(element).backgroundColor), 'rgba(0, 0, 0, 0)');
+      }
       for (const semantic of semantics) {
         const count = profile.columns.filter(column => (column.semantic_type || '(none)') === semantic).length;
         await menu.getByRole('checkbox', { name: `${semantic} (${count})`, exact: true }).click();
@@ -309,8 +321,16 @@ async function reset(page, table = 'columns-table') {
         await page.locator('.numeric-details summary').click();
         assert.equal(await numericReset.isVisible(), false);
         assert.deepEqual(
+          await page.locator('#numeric-table thead .dt-column-title').allTextContents(),
+          ['Column', 'Minimum', 'Maximum', 'Mean', 'Median', 'Distinct', 'Examples'],
+        );
+        assert.deepEqual(
           await page.locator('#numeric-table tbody .column-index').allTextContents(),
           profile.columns.filter(column => column.numeric).map(column => String(column.position)),
+        );
+        assert.deepEqual(
+          await page.locator('#numeric-table tbody tr').evaluateAll(rows => rows.map(row => Number(row.cells[5].dataset.order))),
+          profile.columns.filter(column => column.numeric).map(column => column.distinct_count),
         );
         const alignment = await page.locator('.numeric-details').evaluate(details => {
           const summaryBox = details.querySelector('summary').getBoundingClientRect();
@@ -337,11 +357,15 @@ async function reset(page, table = 'columns-table') {
         assert.equal(await dateReset.isVisible(), false);
         assert.deepEqual(
           await page.locator('#date-table thead .dt-column-title').allTextContents(),
-          ['Column', 'Status', 'Valid (%)', 'Ambiguous (%)', 'Invalid (%)', 'Other (%)', 'Formats'],
+          ['Column', 'Status', 'Valid (%)', 'Ambiguous (%)', 'Invalid (%)', 'Other (%)', 'Distinct', 'Formats'],
         );
         assert.deepEqual(
           await page.locator('#date-table tbody .column-index').allTextContents(),
           dateColumns.map(column => String(column.position)),
+        );
+        assert.deepEqual(
+          await page.locator('#date-table tbody tr').evaluateAll(rows => rows.map(row => Number(row.cells[6].dataset.order))),
+          dateColumns.map(column => column.distinct_count),
         );
         await numberFilter(page, 'date-table', 2, 'greater', 0);
         assert.equal(await dateReset.isVisible(), true);

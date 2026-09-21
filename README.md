@@ -27,7 +27,7 @@ python -m pip install -e ".[dev]"
 Pass the CSV source and the complete HTML report path as positional arguments:
 
 ```console
-tabalyst data.csv reports/client-a.html
+tabalyst data.csv reports/report.html
 ```
 
 The report path must end in `.html`. Parent directories are created
@@ -35,8 +35,8 @@ automatically, and existing artifacts are replaced. A successful run creates:
 
 ```text
 reports/
-|-- client-a.html
-|-- client-a.json
+|-- report.html
+|-- report.json
 `-- executions.json
 ```
 
@@ -47,8 +47,8 @@ several named reports can coexist there.
 Common options are:
 
 ```console
-tabalyst data.csv reports/client-a.html --separator ";" --encoding cp1252
-tabalyst data.csv reports/client-a.html --config tabalyst.json
+tabalyst data.csv reports/report.html --separator ";" --encoding cp1252
+tabalyst data.csv reports/report.html --config tabalyst.json
 tabalyst --help
 tabalyst --version
 ```
@@ -62,7 +62,7 @@ import tabalyst
 
 result = tabalyst.analyze(
     "data.csv",
-    "reports/client-a.html",
+    "reports/report.html",
     separator=";",
     encoding="cp1252",
     config_path="tabalyst.json",
@@ -141,8 +141,8 @@ included in the Python package.
 The earlier commands remain available during the `0.1.x` transition:
 
 ```console
-tabalyst analyze data.csv -o reports/client-a.html
-tabalyst render reports/client-a.json -o reports/regenerated.html
+tabalyst analyze data.csv -o reports/report.html
+tabalyst render reports/report.json -o reports/regenerated.html
 ```
 
 The alpha `analyze` form also retains automatic `tabalyst.json` discovery,
@@ -160,6 +160,8 @@ python -m build
 The build creates a wheel and source distribution under `dist/`. Release steps,
 including the clean-wheel smoke test and PyPI Trusted Publishing setup, are in
 [RELEASING.md](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md).
+The packaging architecture and automated publication flow are documented in
+[docs/python-package-and-release.md](https://github.com/loribel-labs/tabalyst/blob/main/docs/python-package-and-release.md).
 
 Report format details and internal boundaries are documented in
 [docs/architecture.md](https://github.com/loribel-labs/tabalyst/blob/main/docs/architecture.md).

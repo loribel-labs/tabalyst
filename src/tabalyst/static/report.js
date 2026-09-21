@@ -439,9 +439,10 @@
         ? `badge-${value}` : "badge-empty";
       return `<span class="type-badge ${badge}">${type}</span> <span class="filter-option-count">(${count})</span>`;
     })) },
-    { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => value === "(none)"
-      ? `<span class="muted">(none)</span> <span class="filter-option-count">(${count})</span>`
-      : `<span class="type-badge semantic-badge semantic-${DataTable.util.escapeHtml(value)}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`)) },
+    { type: "string", columnControl: controls(checkboxFilter(summary, 4, (value, count) => {
+      const semanticClass = ["enum", "date"].includes(value) ? value : "none";
+      return `<span class="type-badge semantic-badge semantic-${semanticClass}">${DataTable.util.escapeHtml(value)}</span> <span class="filter-option-count">(${count})</span>`;
+    })) },
     { type: "num", columnControl: controls(numericFilter("Type error (%)")) },
     { orderable: false, columnControl: [] },
   ], "columns");
@@ -461,7 +462,8 @@
   if (numeric) {
     attachTable(numeric, [
       { type: "string", columnControl: controls(checkboxFilter(numeric, 0)) },
-      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      { orderable: false, columnControl: [] },
     ], "columns");
   }
 
@@ -470,7 +472,7 @@
     attachTable(dates, [
       { type: "string", columnControl: controls(checkboxFilter(dates, 0)) },
       { type: "string", columnControl: controls(checkboxFilter(dates, 1)) },
-      ...Array.from({ length: 4 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
+      ...Array.from({ length: 5 }, () => ({ type: "num", columnControl: controls(numericFilter()) })),
       { orderable: false, columnControl: [] },
     ], "date columns");
   }

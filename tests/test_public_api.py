@@ -22,7 +22,7 @@ def test_public_api_writes_canonical_reports_and_execution_history(tmp_path):
     assert json_report.is_file()
     assert execution_report.is_file()
     assert result == json.loads(json_report.read_text(encoding="utf-8"))
-    assert "Tabalyst 0.1.0" in report.read_text(encoding="utf-8")
+    assert f"Version {tabalyst.__version__}" in report.read_text(encoding="utf-8")
     history = json.loads(execution_report.read_text(encoding="utf-8"))
     assert history["executions"][0]["html_file"] == "client-a.html"
     assert history["executions"][0]["json_file"] == "client-a.json"
@@ -106,7 +106,7 @@ def test_official_cli_help_version_and_analysis(tmp_path):
 
     version_result = runner.invoke(official_app, ["--version"])
     assert version_result.exit_code == 0
-    assert version_result.output.strip() == "0.1.0"
+    assert version_result.output.strip() == tabalyst.__version__
 
     source = tmp_path / "input.csv"
     source.write_text("a;b\n1;2\n", encoding="utf-8")
