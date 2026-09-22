@@ -81,6 +81,18 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert "<th scope=\"col\">Distinct</th><th scope=\"col\">Formats</th>" in html
 
 
+def test_report_omits_navigation_for_absent_analysis_sections(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("name\nAlice\nBob\n", encoding="utf-8")
+
+    html = render_report(analyze_csv(source))
+
+    assert 'href="#numeric"' not in html
+    assert 'href="#dates"' not in html
+    assert 'href="#strings"' in html
+    assert html.count('class="metric-note"') == 4
+
+
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("amount,name\n1.234567,A\n9.876543,B\n,C\n", encoding="utf-8")

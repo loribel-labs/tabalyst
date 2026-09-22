@@ -145,7 +145,7 @@ h2 { font-size: 19px; line-height: 1.4; font-weight: 600; margin: 0 0 16px; }
 .metric-grid dt { color: var(--muted); font-family: var(--font-title); font-size: 13px; font-weight: 500; }
 .metric-grid dd { color: var(--heading); font-family: var(--font-mono); font-size: 30px; font-weight: 700; line-height: 1.3; margin: 7px 0 4px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .metric-grid dd small { font-size: 18px; margin-left: 2px; }
-.metric-grid span { color: var(--muted); font-size: 11px; display: block; }
+.metric-grid .metric-note { color: var(--muted); font-family: inherit; font-size: 11px; font-weight: 400; line-height: normal; margin: 0; }
 .metric-grid .metric-warning { color: var(--danger); }
 
 .overview-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 60px; }
@@ -483,10 +483,18 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
         <a href="#overview"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-overview"></use></svg><span class="nav-item-label">Overview</span><span class="nav-count">(5)</span></a>
         <a href="#columns"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-columns"></use></svg><span class="nav-item-label">Columns</span><span class="nav-count">(34)</span></a>
         <a href="#transformations"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-transformations"></use></svg><span class="nav-item-label">Transformations</span><span class="nav-count">(34)</span></a>
+
         <p class="nav-label">Analysis</p>
+
         <a href="#numeric"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-numeric"></use></svg><span class="nav-item-label">Numeric analysis</span><span class="nav-count">(4)</span></a>
+
+
         <a href="#dates"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-dates"></use></svg><span class="nav-item-label">Date analysis</span><span class="nav-count">(6)</span></a>
+
+
         <a href="#strings"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-strings"></use></svg><span class="nav-item-label">String analysis</span><span class="nav-count">(24)</span></a>
+
+
         <p class="nav-label">Data</p>
         <a href="#sample"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-sample"></use></svg><span class="nav-item-label">Data sample</span><span class="nav-count">(20)</span></a>
         <p class="nav-label">Settings</p>
@@ -511,16 +519,16 @@ summary { width: fit-content; max-width: 100%; cursor: pointer; font-weight: 500
             <span aria-hidden="true"> / </span> utf-8-sig
             <span aria-hidden="true"> / </span> Delimiter: <code>,</code></p>
         </div>
-        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in 0.64 s
-          <time datetime="2026-09-21T01:55:13.535824+00:00">2026-09-21 01:55 UTC</time>
+        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in 0.69 s
+          <time datetime="2026-09-21T04:57:13.091602+00:00">2026-09-21 04:57 UTC</time>
         </div>
       </div>
 
       <dl class="metric-grid">
-        <div><dt>Rows</dt><dd>3,000</dd><span>No empty rows</span></div>
-        <div><dt>Columns</dt><dd>34</dd><span>102,000 cells analyzed</span></div>
-        <div><dt>Missing cells</dt><dd class="metric-warning">12.29<small>%</small></dd><span>12,532 cells</span></div>
-        <div><dt>Duplicate rows</dt><dd>8</dd><span>Beyond the first occurrence</span></div>
+        <div><dt>Rows</dt><dd>3,000</dd><dd class="metric-note">No empty rows</dd></div>
+        <div><dt>Columns</dt><dd>34</dd><dd class="metric-note">102,000 cells analyzed</dd></div>
+        <div><dt>Missing cells</dt><dd class="metric-warning">12.29<small>%</small></dd><dd class="metric-note">12,532 cells</dd></div>
+        <div><dt>Duplicate rows</dt><dd>8</dd><dd class="metric-note">Beyond the first occurrence</dd></div>
       </dl>
 
       <details id="overview" class="report-details quality-details" open>

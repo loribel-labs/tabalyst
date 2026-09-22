@@ -78,3 +78,8 @@
   version, copyright, official website, and GitHub information.
 - Made the clean-wheel CI smoke test version-agnostic so patch releases validate
   installed metadata and generated footer versions without hard-coded numbers.
+
+## 2026-09-21
+
+- Hid sidebar analysis links when their report sections are absent and corrected
+  the overview metric list to use valid description-list markup.
