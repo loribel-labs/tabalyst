@@ -51,7 +51,7 @@ jobs:
           test -f api/executions.json
           test -f cli/report.json
           test -f cli/executions.json
-          grep -q "Version $package_version" api/report.html
+          grep -q ">v$package_version<" api/report.html
           grep -q 'tabalyst-theme' api/report.html
       - uses: actions/upload-artifact@v7
         with:
