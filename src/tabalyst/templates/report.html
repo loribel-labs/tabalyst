@@ -1,378 +1,83 @@
-{% macro percent_label(value) %}{{ '' if value == 0 else value ~ '%' }}{% endmacro %}
-{% set numeric_columns = report.columns | selectattr('numeric') | list %}
-{% set date_columns = report.columns | selectattr('date_profile') | list %}
-{% set string_columns = report.columns | selectattr('string_profile') | list %}
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ report.source.filename }} | Tabalyst</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2300051a'/%3E%3Cpath d='M14 15h36v10H37v25H27V25H14z' fill='%23f98510'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Oswald:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link href="https://cdn.datatables.net/3.0.4/css/dataTables.bootstrap5.min.css" rel="stylesheet"
-        integrity="sha384-OZKa6QSlaaq/LGR1sBFkYhC0c/nacIFh1chsblhDUxggC9Zb0XLEEMs95i1Kydnt" crossorigin="anonymous">
-  <link href="https://cdn.datatables.net/columncontrol/2.0.2/css/columnControl.bootstrap5.min.css" rel="stylesheet"
-        integrity="sha384-Wk/gyUq2KPW83FLwX2RxZfE6EJg34PaQBWKfWAGJFHAiO60FC3On+ZjtZ70V+0BP" crossorigin="anonymous">
-  <script>
-    (() => {
-      let theme = "dark";
-      try {
-        const saved = localStorage.getItem("tabalyst-theme");
-        if (saved === "light" || saved === "dark") theme = saved;
-      } catch (error) {
-        // Local files can disable storage; dark remains the deterministic default.
-      }
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.dataset.bsTheme = theme;
-    })();
-  </script>
-  <style>{{ theme_css | safe }}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ report.source.filename }} | Tabalyst</title>
+<meta name="description" content="Tabalyst profiling report for {{ report.source.filename }}">
+<meta name="theme-color" content="#00051A">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2300051a'/%3E%3Cpath%20d='M14%2015h36v10H37v25H27V25H14z'%20fill='%23f98510'/%3E%3C/svg%3E">
+<script>(()=>{let t="dark";try{const s=localStorage.getItem("tabalyst-theme");if(s==="light"||s==="dark")t=s}catch(e){}document.documentElement.dataset.theme=t})();</script>
+<style>{{ theme_css | safe }}</style>
 </head>
 <body>
-  <a class="visually-hidden-focusable" href="#overview">Skip to report</a>
-  <div class="app-shell">
-  <header class="topbar sidebar">
-    <div class="topbar-inner">
-      <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">T</span>Tabalyst</a>
-      <svg class="nav-icon-library" aria-hidden="true">
-        <defs>
-          <symbol id="nav-icon-overview" viewBox="0 0 24 24"><path d="M4 15a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><path d="M5 19h14"/></symbol>
-          <symbol id="nav-icon-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><rect x="16" y="4" width="5" height="16" rx="1"/></symbol>
-          <symbol id="nav-icon-transformations" viewBox="0 0 24 24"><path d="M4 7h14"/><path d="m15 4 3 3-3 3"/><path d="M20 17H6"/><path d="m9 14-3 3 3 3"/></symbol>
-          <symbol id="nav-icon-numeric" viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><path d="m7 15 4-4 3 2 5-6"/></symbol>
-          <symbol id="nav-icon-dates" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M7 14h2M12 14h2M17 14h1M7 18h2M12 18h2"/></symbol>
-          <symbol id="nav-icon-strings" viewBox="0 0 24 24"><path d="M5 8V4h14v4M12 4v16M8 20h8"/></symbol>
-          <symbol id="nav-icon-sample" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
-          <symbol id="nav-icon-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
-        </defs>
-      </svg>
-      <nav aria-label="Report sections">
-        <p class="nav-label">Report</p>
-        <a href="#overview"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-overview"></use></svg><span class="nav-item-label">Overview</span><span class="nav-count">({{ report.issues | length }})</span></a>
-        <a href="#columns"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-columns"></use></svg><span class="nav-item-label">Columns</span><span class="nav-count">({{ report.summary.column_count }})</span></a>
-        <a href="#transformations"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-transformations"></use></svg><span class="nav-item-label">Transformations</span><span class="nav-count">({{ report.columns | length }})</span></a>
-{% if numeric_columns or date_columns or string_columns %}
-        <p class="nav-label">Analysis</p>
-{% if numeric_columns %}
-        <a href="#numeric"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-numeric"></use></svg><span class="nav-item-label">Numeric analysis</span><span class="nav-count">({{ numeric_columns | length }})</span></a>
-{% endif %}
-{% if date_columns %}
-        <a href="#dates"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-dates"></use></svg><span class="nav-item-label">Date analysis</span><span class="nav-count">({{ date_columns | length }})</span></a>
-{% endif %}
-{% if string_columns %}
-        <a href="#strings"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-strings"></use></svg><span class="nav-item-label">String analysis</span><span class="nav-count">({{ string_columns | length }})</span></a>
-{% endif %}
-{% endif %}
-        <p class="nav-label">Data</p>
-        <a href="#sample"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-sample"></use></svg><span class="nav-item-label">Data sample</span><span class="nav-count">({{ report.preview | length }})</span></a>
-        <p class="nav-label">Settings</p>
-        <a href="#settings"><svg class="nav-icon" aria-hidden="true"><use href="#nav-icon-settings"></use></svg><span class="nav-item-label">Analysis settings</span></a>
-      </nav>
-      <div class="topbar-actions">
-        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode">
-          <span data-theme-icon aria-hidden="true">&#9788;</span>
-        </button>
-      </div>
+{% macro logo() -%}
+<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19.5 16H92.27A2.73 2.73 0 0 1 95 18.73v1.4a3.5 3.5 0 0 1-1.56 2.91L74.88 35.41A3.5 3.5 0 0 1 72.94 36H64.5a3.5 3.5 0 0 0-3.5 3.5v25.96a3.5 3.5 0 0 0 1.56 2.91l15.5 10.34a3.5 3.5 0 0 0 3.88 0l24.77-16.51a3.41 3.41 0 0 1 5.29 2.83v5.76a3.5 3.5 0 0 1-1.56 2.92L88.56 88.29A3.5 3.5 0 0 0 87 91.21v17.29a3.5 3.5 0 0 1-3.5 3.5h-7a3.5 3.5 0 0 1-3.5-3.5V91.21a3.5 3.5 0 0 0-1.56-2.92l-5-3.33A3.5 3.5 0 0 0 61 87.87v20.63a3.5 3.5 0 0 1-3.5 3.5h-7a3.5 3.5 0 0 1-3.5-3.5v-69A3.5 3.5 0 0 0 43.5 36h-24a3.5 3.5 0 0 1-3.5-3.5v-13a3.5 3.5 0 0 1 3.5-3.5Zm0 25h19a3.5 3.5 0 0 1 3.5 3.5v22a3.5 3.5 0 0 1-3.5 3.5h-19a3.5 3.5 0 0 1-3.5-3.5v-22a3.5 3.5 0 0 1 3.5-3.5Zm0 34h19a3.5 3.5 0 0 1 3.5 3.5v30a3.5 3.5 0 0 1-3.5 3.5h-19a3.5 3.5 0 0 1-3.5-3.5v-30a3.5 3.5 0 0 1 3.5-3.5Zm74.06 15.96 13-8.67a3.5 3.5 0 0 1 5.44 2.92v23.29a3.5 3.5 0 0 1-3.5 3.5h-13a3.5 3.5 0 0 1-3.5-3.5V93.87a3.5 3.5 0 0 1 1.56-2.91Z"/><path fill="#F98510" d="M69.5 46h5a3.5 3.5 0 0 1 3.5 3.5v11a3.5 3.5 0 0 1-3.5 3.5h-5a3.5 3.5 0 0 1-3.5-3.5v-11a3.5 3.5 0 0 1 3.5-3.5Zm17-10h5a3.5 3.5 0 0 1 3.5 3.5v21a3.5 3.5 0 0 1-3.5 3.5h-5a3.5 3.5 0 0 1-3.5-3.5v-21a3.5 3.5 0 0 1 3.5-3.5Zm17-20h5a3.5 3.5 0 0 1 3.5 3.5v31.29a3.5 3.5 0 0 1-1.56 2.92l-5 3.33a3.5 3.5 0 0 1-5.44-2.91V19.5a3.5 3.5 0 0 1 3.5-3.5Z"/></svg>
+{%- endmacro %}
+{% macro icons() -%}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-menu" viewBox="0 0 14 14"><path d="M2 3h10M4 7h6M6 11h2"/></symbol>
+<symbol id="i-none" viewBox="0 0 14 14"><path d="m4 5 3-3 3 3M10 9l-3 3-3-3"/></symbol>
+<symbol id="i-asc" viewBox="0 0 14 14"><path d="m3 8 4-4 4 4"/></symbol>
+<symbol id="i-desc" viewBox="0 0 14 14"><path d="m3 6 4 4 4-4"/></symbol>
+</defs></svg>
+{%- endmacro %}
+{% macro table_head(label, kind='text', align=false, pill=false, filter=true) -%}
+<th scope="col"{% if align %} class="r"{% endif %}{% if filter %} data-kind="{{ kind }}" data-label="{{ label }}"{% if pill %} data-pill="1"{% endif %}{% endif %}><div class="hc"><span class="ht">{{ label }}</span>{% if filter %}<button type="button" class="hb hb-f" aria-label="Filter {{ label }}" title="Filter {{ label }}" aria-haspopup="dialog"><svg class="i-menu" aria-hidden="true"><use href="#i-menu"/></svg></button><button type="button" class="hb hb-s" aria-label="Sort by {{ label }}" title="Sort by {{ label }}"><svg class="i-none" aria-hidden="true"><use href="#i-none"/></svg><svg class="i-asc" aria-hidden="true"><use href="#i-asc"/></svg><svg class="i-desc" aria-hidden="true"><use href="#i-desc"/></svg></button>{% endif %}</div></th>
+{%- endmacro %}
+{% macro column_name(column) -%}<th scope="row" data-v="{{ column.name }}"><span class="cname"><small>{{ column.position }}</small>{{ column.name or '(unnamed)' }}</span></th>{%- endmacro %}
+{% macro percent_cell(value, count, color='var(--attn)', attention=false) -%}
+<td class="r" data-v="{{ value if value is not none else '' }}">{% if value %}<span class="pct{% if attention %} attn{% endif %}"><span class="l">{{ value }}%<small>{{ count | count }}</small></span><span class="tr" aria-hidden="true"><span style="width:{{ value }}%;--c:{{ color }}"></span></span></span>{% else %}<span class="none">–</span>{% endif %}</td>
+{%- endmacro %}
+{% macro value_examples(column, prefix='col') -%}
+<td class="ex" tabindex="0" aria-describedby="tip-{{ prefix }}-{{ column.position }}"><span class="exs">{% for value in column.examples %}<span class="exv">{{ value }}</span>{% endfor %}{% if column.distinct_count > column.examples|length %}<span class="exm" aria-hidden="true">{% if column.value_profile.selection == 'complete' %}+{{ column.distinct_count - column.examples|length }}{% else %}++{% endif %}</span>{% endif %}</span><div id="tip-{{ prefix }}-{{ column.position }}" class="tip" role="tooltip"><div class="tip-h">Values <span>{{ column.value_profile.sampled_distinct_count | count }}{% if column.value_profile.sampled_distinct_count < column.distinct_count %} / {{ column.distinct_count | count }}{% endif %}</span></div><div class="tip-l">{% for item in column.value_profile.values %}<div><span>{{ item.value }}</span><small>({{ item.count | count }})</small></div>{% endfor %}</div></div></td>
+{%- endmacro %}
+{{ icons() }}
+<a class="skip" href="#content">Skip to report</a>
+<div class="shell">
+  <aside class="side" aria-label="Report navigation">
+    <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}<span class="word">Tabalyst</span></a>
+    <p class="side-label">Explore the report</p>
+    <nav class="rep-nav" aria-label="Report sections">
+      <p class="side-group">Report</p>
+      <a class="rep-tab" href="#overview"><small>01</small>Overview<span class="ct">{{ report.issues | length }}</span></a>
+      <a class="rep-tab" href="#columns"><small>02</small>Columns<span class="ct">{{ report.summary.column_count }}</span></a>
+      <a class="rep-tab" href="#transformations"><small>03</small>Transformations<span class="ct">{{ report.summary.column_count }}</span></a>
+      <p class="side-group">Analysis</p>
+      {% if numeric_columns %}<a class="rep-tab" href="#numeric"><small>04</small>Numeric<span class="ct">{{ report.summary.numeric_column_count }}</span></a>{% endif %}
+      {% if date_columns %}<a class="rep-tab" href="#dates"><small>05</small>Dates<span class="ct{% if report.date_summary and report.date_summary.ambiguous_count %} attn{% endif %}">{{ report.summary.date_column_count }}</span></a>{% endif %}
+      {% if string_columns %}<a class="rep-tab" href="#strings"><small>06</small>Strings<span class="ct">{{ report.summary.string_column_count }}</span></a>{% endif %}
+      <p class="side-group">Data</p>
+      <a class="rep-tab" href="#sample"><small>07</small>Data sample<span class="ct">{{ report.preview | length }}</span></a>
+      <a class="rep-tab" href="#settings"><small>08</small>Analysis settings</a>
+    </nav>
+    <div class="side-foot">
+      <button type="button" class="btn reset-all" id="reset-all" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2.5V5h2.5"/></svg>Reset all filters<span class="c" id="reset-all-count"></span></button>
+      <div class="row"><button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Switch to light theme" title="Switch to light theme"><svg data-icon="dark" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg><svg data-icon="light" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg></button><button type="button" class="btn print" data-print style="flex:1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2.5V6.5h11V12H12M4 10h8v4H4z"/></svg>Print / PDF</button></div>
     </div>
-  </header>
-
-  <div class="report-page">
-  <main class="report-container report-content">
-    <section class="report-section">
-      <div class="report-heading">
-        <div>
-          <p class="eyebrow">Dataset report</p>
-          <h1>{{ report.source.filename }}</h1>
-          <p class="metadata">{{ report.source.size_bytes | size }}
-            <span aria-hidden="true"> / </span> {{ report.source.encoding }}
-            <span aria-hidden="true"> / </span> Delimiter: <code>{{ report.source.delimiter }}</code></p>
-        </div>
-        <div class="generation"><span class="status-dot" aria-hidden="true"></span> Analysis complete in {{ report.processing_seconds | seconds }} s
-          <time datetime="{{ report.generated_at.isoformat() }}">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time>
-        </div>
-      </div>
-
-      <dl class="metric-grid">
-        <div><dt>Rows</dt><dd>{{ report.summary.row_count | count }}</dd><dd class="metric-note">{{ 'No empty rows' if report.summary.empty_row_count == 0 else (report.summary.empty_row_count | count) ~ (' empty row' if report.summary.empty_row_count == 1 else ' empty rows') }}</dd></div>
-        <div><dt>Columns</dt><dd>{{ report.summary.column_count | count }}</dd><dd class="metric-note">{{ report.summary.cell_count | count }} cells analyzed</dd></div>
-        <div><dt>Missing cells</dt><dd class="{{ 'metric-warning' if report.summary.missing_count }}">{{ report.summary.missing_percent }}<small>%</small></dd><dd class="metric-note">{{ report.summary.missing_count | count }} cells</dd></div>
-        <div><dt>Duplicate rows</dt><dd>{{ report.summary.duplicate_row_count | count }}</dd><dd class="metric-note">Beyond the first occurrence</dd></div>
-      </dl>
-
-      <details id="overview" class="report-details quality-details" open>
-        <summary>Quality information <span class="section-count">({{ report.issues | length }})</span></summary>
-      <div class="overview-grid">
-        <div>
-          {% if report.issues %}
-          <ul class="observations">
-            {% for issue in report.issues %}
-            <li><span class="observation-dot {{ issue.severity }}" aria-hidden="true"></span>
-              <span><span class="visually-hidden">{{ issue.severity }}: </span>{{ issue.message }}</span>
-              <strong>{{ issue.count | count }}</strong></li>
-            {% endfor %}
-          </ul>
-          {% else %}<p class="empty-state">No issues detected by the current checks.</p>{% endif %}
-        </div>
-        <div class="type-overview">
-          <h2>Column types</h2>
-          <div class="type-bar" aria-hidden="true">
-            {% for kind, count in types.items() %}<span class="type-fill type-{{ kind }}" style="width: {{ 100 * count / report.summary.column_count }}%"></span>{% endfor %}
-          </div>
-          <ul class="type-legend">
-            {% for kind, count in types.items() %}
-            <li><span class="legend-dot type-{{ kind }}" aria-hidden="true"></span><span>{{ kind | capitalize }}</span><strong>{{ count }}</strong></li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      </details>
-    </section>
-
-    <section class="report-section">
-      <details id="columns" class="report-details columns-details" open>
-        <summary>Columns <span class="section-count">({{ report.summary.column_count }})</span></summary>
-        <div class="table-actions">
-          <div class="column-search">
-            <label class="visually-hidden" for="column-search">Filter columns by name</label>
-            <input type="search" id="column-search" class="form-control form-control-sm" placeholder="Filter columns" autocomplete="off">
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="columns-table" hidden>Reset</button>
-        </div>
-      <div class="table-responsive" tabindex="0" role="region" aria-label="Column summary">
-        <table id="columns-table" class="table table-hover align-middle column-table">
-          <thead><tr><th scope="col">Column</th><th scope="col" class="percentage-column">Missing (%)</th><th scope="col">Distinct</th><th scope="col">Inferred type</th><th scope="col">Semantic type</th><th scope="col" class="percentage-column">Error (%)</th><th scope="col">Examples</th></tr></thead>
-          <tbody>
-            {% for column in report.columns %}
-            <tr data-column-name="{{ column.name | lower }}" id="{{ column.id }}">
-              <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-              <td class="percentage-column" data-order="{{ column.missing_percent }}" data-search="{{ column.missing_percent }}">{% if column.missing_percent != 0 %}<div class="missing-value"><span>{{ percent_label(column.missing_percent) }}</span><small>{{ column.missing_count | count }}</small></div><div class="missing-track" aria-hidden="true"><div style="width: {{ column.missing_percent }}%"></div></div>{% endif %}</td>
-              <td class="tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-              <td data-order="{{ column.inferred_type }}" data-search="{{ column.inferred_type }}"><span class="type-badge badge-{{ column.inferred_type }}">{{ column.inferred_type }}</span></td>
-              <td data-order="{{ column.semantic_type or '(none)' }}" data-search="{{ column.semantic_type or '(none)' }}">{% if column.semantic_type %}<span class="type-badge semantic-badge semantic-{{ column.semantic_type }}">{{ column.semantic_type }}</span>{% endif %}</td>
-              <td class="percentage-column" data-order="{{ column.type_error_percent if column.type_error_percent is not none else -1 }}" data-search="{{ column.type_error_percent if column.type_error_percent is not none else '' }}">{% if column.type_error_percent is not none and column.type_error_percent != 0 %}<div class="percentage-value"><span>{{ percent_label(column.type_error_percent) }}</span><small>{{ column.type_error_count | count }}</small></div><div class="percentage-track track-danger" aria-hidden="true"><div style="width: {{ column.type_error_percent }}%"></div></div>{% endif %}</td>
-              <td class="examples" tabindex="0" aria-describedby="{{ column.id }}-examples-tooltip">
-                {% set inline_count = report.config.value_examples.inline_display_size %}
-                {% for item in column.value_profile.values[:inline_count] %}<span class="example-value">{{ item.value }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}
-                {% set remaining = column.value_profile.values[inline_count:] %}
-                {% if remaining %}<span class="example-more" aria-hidden="true">{{ '++' if column.value_profile.selection != 'complete' else '+' ~ (remaining | length) }}</span>{% endif %}
-                {% if column.value_profile.values %}
-                <div id="{{ column.id }}-examples-tooltip" class="examples-tooltip" role="tooltip">
-                  <div class="examples-tooltip-title">Values <span>{{ column.value_profile.values | length }}{% if column.value_profile.selection != 'complete' %} / {{ column.distinct_count | count }}{% endif %}</span></div>
-                  <div class="examples-tooltip-list">
-                    {% for item in column.value_profile.values %}<div><span>{{ item.value }}</span><small>({{ item.count | count }})</small></div>{% endfor %}
-                  </div>
-                </div>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <p id="filter-result" class="metadata filter-result" data-table-status="columns-table" role="status" hidden></p>
-      </details>
-
-      <details id="transformations" class="report-details secondary-details transformation-details">
-        <summary>Transformations <span class="section-count">({{ report.columns | length }})</span></summary>
-        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="transformations-table" hidden>Reset</button></div>
-        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Value transformations">
-          <table id="transformations-table" class="table table-sm transformations-table">
-            <thead><tr><th scope="col">Column</th><th scope="col" class="percentage-column">Missing (%)</th><th scope="col" class="percentage-column">Trimmed (%)</th><th scope="col" class="percentage-column">Whitespace collapsed (%)</th><th scope="col">Distinct</th></tr></thead>
-            <tbody>
-              {% for column in report.columns %}
-              <tr>
-                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-                {% for percent, count, track in [(column.missing_percent, column.missing_count, 'danger'), (column.normalization.trim_percent, column.normalization.trim_count, 'concept'), (column.normalization.collapse_internal_whitespace_percent, column.normalization.collapse_internal_whitespace_count, 'concept')] %}
-                <td class="percentage-column" data-order="{{ percent }}" data-search="{{ percent }}">{% if percent != 0 %}<div class="percentage-value"><span>{{ percent_label(percent) }}</span><small>{{ count | count }}</small></div><div class="percentage-track track-{{ track }}" aria-hidden="true"><div style="width: {{ percent }}%"></div></div>{% endif %}</td>
-                {% endfor %}
-                <td class="tabular" data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <p class="metadata filter-result" data-table-status="transformations-table" role="status" hidden></p>
-      </details>
-
-      {% if numeric_columns %}
-      <details id="numeric" class="report-details secondary-details numeric-details">
-        <summary>Numeric analysis <span class="section-count">({{ numeric_columns | length }})</span></summary>
-        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="numeric-table" hidden>Reset</button></div>
-        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Numeric statistics">
-          <table id="numeric-table" class="table table-sm numeric-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Minimum</th><th scope="col">Maximum</th><th scope="col">Mean</th><th scope="col">Median</th><th scope="col">Distinct</th><th scope="col">Examples</th></tr></thead>
-            <tbody>
-{% for column in numeric_columns %}
-              <tr>
-                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-{% for value in [column.numeric.minimum, column.numeric.maximum, column.numeric.mean, column.numeric.median] %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value | number }}</td>{% endfor %}
-                <td data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-                <td class="examples" tabindex="0" aria-describedby="{{ column.id }}-numeric-examples-tooltip">
-{% set inline_count = report.config.value_examples.inline_display_size %}
-{% for item in column.value_profile.values[:inline_count] %}<span class="example-value">{{ item.value }}</span>{% else %}<span class="muted">No present values</span>{% endfor %}
-{% set remaining = column.value_profile.values[inline_count:] %}
-{% if remaining %}<span class="example-more" aria-hidden="true">{{ '++' if column.value_profile.selection != 'complete' else '+' ~ (remaining | length) }}</span>{% endif %}
-{% if column.value_profile.values %}
-                  <div id="{{ column.id }}-numeric-examples-tooltip" class="examples-tooltip" role="tooltip">
-                    <div class="examples-tooltip-title">Values <span>{{ column.value_profile.values | length }}{% if column.value_profile.selection != 'complete' %} / {{ column.distinct_count | count }}{% endif %}</span></div>
-                    <div class="examples-tooltip-list">
-                      {% for item in column.value_profile.values %}<div><span>{{ item.value }}</span><small>({{ item.count | count }})</small></div>{% endfor %}
-                    </div>
-                  </div>
-{% endif %}
-                </td>
-              </tr>
-{% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <p class="metadata filter-result" data-table-status="numeric-table" role="status" hidden></p>
-      </details>
-      {% endif %}
-
-      {% if date_columns %}
-      <details id="dates" class="report-details secondary-details date-details">
-        <summary>Date analysis <span class="section-count">({{ date_columns | length }})</span></summary>
-        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="date-table" hidden>Reset</button></div>
-        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="Date analysis">
-          <table id="date-table" class="table table-sm date-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Status</th><th scope="col" class="percentage-column">Valid (%)</th><th scope="col" class="percentage-column">Ambiguous (%)</th><th scope="col" class="percentage-column">Invalid (%)</th><th scope="col" class="percentage-column">Other (%)</th><th scope="col">Distinct</th><th scope="col">Formats</th></tr></thead>
-            <tbody>
-              {% for column in date_columns %}
-              <tr>
-                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-                <td data-order="{{ column.date_profile.status }}" data-search="{{ column.date_profile.status }}"><span class="type-badge date-status status-{{ column.date_profile.status }}">{{ column.date_profile.status | replace('_', ' ') }}</span></td>
-                {% set present_count = column.date_profile.valid_count + column.date_profile.ambiguous_count + column.date_profile.invalid_date_count + column.date_profile.not_date_count %}
-                {% for value, track in [(column.date_profile.valid_count, 'success'), (column.date_profile.ambiguous_count, 'accent'), (column.date_profile.invalid_date_count, 'danger'), (column.date_profile.not_date_count, 'muted')] %}{% set percentage = ((100 * value / present_count) | round(2)) if present_count else 0 %}<td class="percentage-column" data-order="{{ percentage }}" data-search="{{ percentage }}">{% if percentage != 0 %}<div class="percentage-value"><span>{{ percent_label(percentage) }}</span><small>{{ value | count }}</small></div><div class="percentage-track track-{{ track }}" aria-hidden="true"><div style="width: {{ percentage }}%"></div></div>{% endif %}</td>{% endfor %}
-                <td data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-                <td class="date-formats-cell" tabindex="0" aria-describedby="{{ column.id }}-date-formats-tooltip">
-                  {% set variant_label = column.date_profile.format_count ~ (' variant' if column.date_profile.format_count == 1 else ' variants') %}
-                  <span class="date-format-count">{{ variant_label }}</span>
-                  <div id="{{ column.id }}-date-formats-tooltip" class="date-formats-tooltip" role="tooltip">
-                    <div class="examples-tooltip-title">{{ variant_label }}</div>
-                    <div class="examples-tooltip-list">
-                      {% for item in column.date_profile.breakdown %}<div class="date-breakdown-{{ item.category }}"><span>{{ item.label }}</span><small>{{ item.count | count }} ({{ item.percent }}%)</small></div>{% endfor %}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <p class="metadata filter-result" data-table-status="date-table" role="status" hidden></p>
-      </details>
-      {% endif %}
-
-      {% if string_columns %}
-      <details id="strings" class="report-details secondary-details string-details">
-        <summary>String analysis <span class="section-count">({{ string_columns | length }})</span></summary>
-        <div class="table-actions details-actions"><button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="string-table" hidden>Reset</button></div>
-        <div class="table-responsive secondary-table-wrap" tabindex="0" role="region" aria-label="String analysis">
-          <table id="string-table" class="table table-sm string-table">
-            <thead><tr><th scope="col">Column</th><th scope="col">Class</th><th scope="col">Fixed</th><th scope="col">Min</th><th scope="col">Max</th><th scope="col">Mean</th><th scope="col">Median</th><th scope="col">Distinct</th><th scope="col">Examples</th></tr></thead>
-            <tbody>
-              {% for column in string_columns %}
-              {% set fixed = column.string_profile.fixed_length is not none %}
-              <tr>
-                <th scope="row" data-order="{{ column.name }}" data-search="#{{ column.position }} {{ column.name or '(unnamed)' }}"><span class="column-index">{{ column.position }}</span><span class="column-name">{{ column.name or '(unnamed)' }}</span></th>
-                <td data-order="{{ column.string_profile.status }}" data-search="{{ column.string_profile.status }}"><span class="type-badge string-status string-{{ column.string_profile.status }}">{{ column.string_profile.status | replace('_', ' ') }}</span></td>
-                <td data-order="{{ column.string_profile.fixed_length if fixed else -1 }}" data-search="{{ column.string_profile.fixed_length if fixed else '' }}">{% if fixed %}{{ column.string_profile.fixed_length | count }}{% endif %}</td>
-                <td data-order="{{ -1 if fixed else column.string_profile.minimum_length }}" data-search="{{ '' if fixed else column.string_profile.minimum_length }}">{% if not fixed %}{{ column.string_profile.minimum_length | count }}{% endif %}</td>
-                <td data-order="{{ -1 if fixed else column.string_profile.maximum_length }}" data-search="{{ '' if fixed else column.string_profile.maximum_length }}">{% if not fixed %}{{ column.string_profile.maximum_length | count }}{% endif %}</td>
-                <td data-order="{{ -1 if fixed else column.string_profile.mean_length }}" data-search="{{ '' if fixed else column.string_profile.mean_length }}">{% if not fixed %}{{ column.string_profile.mean_length | number }}{% endif %}</td>
-                <td data-order="{{ -1 if fixed else column.string_profile.median_length }}" data-search="{{ '' if fixed else column.string_profile.median_length }}">{% if not fixed %}{{ column.string_profile.median_length | number }}{% endif %}</td>
-                <td data-order="{{ column.distinct_count }}" data-search="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>
-                <td class="examples length-examples" tabindex="0"{% if column.string_profile.length_distribution %} aria-describedby="{{ column.id }}-lengths-tooltip"{% endif %}>
-                  {% set representative_lengths = column.string_profile.length_distribution | sort(attribute='count', reverse=true) %}
-                  {% for item in representative_lengths[:3] %}{% if item.examples %}<span class="example-value">{{ item.examples[0].value }}</span>{% endif %}{% endfor %}
-                  {% if representative_lengths | length > 3 %}<span class="example-more" aria-hidden="true">+{{ (representative_lengths | length) - 3 }}</span>{% endif %}
-                  {% if column.string_profile.length_distribution %}
-                  <div id="{{ column.id }}-lengths-tooltip" class="examples-tooltip length-examples-tooltip" role="tooltip">
-                    <div class="examples-tooltip-title">Lengths <span>{{ column.string_profile.distinct_length_count }}</span></div>
-                    <div class="examples-tooltip-list">
-                      {% for item in representative_lengths %}<div class="length-tooltip-row"><div class="length-tooltip-copy"><strong>{{ item.length }} character{{ '' if item.length == 1 else 's' }}</strong>{% if item.examples %}<span>{% for example in item.examples[:3] %}{{ example.value }}{% if not loop.last %} / {% endif %}{% endfor %}</span>{% endif %}</div><div class="length-tooltip-frequency"><div class="percentage-value"><span>{{ item.percent }}%</span><small>{{ item.count | count }}</small></div><div class="percentage-track track-concept" aria-hidden="true"><div style="width: {{ item.percent }}%"></div></div></div></div>{% endfor %}
-                    </div>
-                  </div>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <p class="metadata filter-result" data-table-status="string-table" role="status" hidden></p>
-      </details>
-      {% endif %}
-    </section>
-
-    <section class="report-section">
-      <details id="sample" class="report-details secondary-details sample-details">
-      <summary>Data sample</summary>
-      <div class="table-actions details-actions"><span class="metadata">{{ report.preview | length }} of {{ report.summary.row_count | count }} rows</span>{% if report.preview %}<button type="button" class="btn btn-sm btn-outline-secondary table-reset" data-reset-table="sample-table" hidden>Reset</button>{% endif %}</div>
-      {% if report.preview %}
-      <div class="table-responsive sample-scroll" tabindex="0" role="region" aria-label="Raw data sample">
-        <table id="sample-table" class="table table-sm table-striped sample-table">
-          <thead><tr><th scope="col" class="row-number" data-value-type="integer">Row</th>{% for column in report.columns %}<th scope="col" data-value-type="{{ column.inferred_type }}">{{ column.name or '(unnamed)' }}</th>{% endfor %}</tr></thead>
-          <tbody>{% for row in report.preview %}<tr><th scope="row" class="row-number" data-order="{{ row.row_number }}" data-search="{{ row.row_number }}">{{ row.row_number }}</th>{% for value in row.values %}<td data-order="{{ value }}" data-search="{{ value }}">{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-        </table>
-      </div>
-      <p class="metadata filter-result" data-table-status="sample-table" role="status" hidden></p>
-      {% else %}<p class="empty-state">{{ 'No data records.' if report.summary.row_count == 0 else 'Data preview disabled.' }}</p>{% endif %}
-      </details>
-    </section>
-
-    <section class="report-section methodology">
-      <details id="settings" class="report-details methodology-details">
-        <summary>Analysis settings</summary>
-        <dl class="settings-grid">
-          <div><dt>Scope</dt><dd>All {{ report.summary.row_count | count }} records</dd></div>
-          <div><dt>Missing-value markers</dt><dd>{% for marker in report.config.missing_values %}<code>{{ marker | tojson }}</code> {% else %}None{% endfor %}</dd></div>
-          <div><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd></div>
-          <div><dt>Value normalization</dt><dd>Trim: {{ 'enabled' if report.config.normalization.trim else 'disabled' }}; collapse internal horizontal whitespace: {{ 'enabled' if report.config.normalization.collapse_internal_whitespace else 'disabled' }}. Raw preview values are preserved.</dd></div>
-          <div><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd></div>
-          <div><dt>Type inference</dt><dd>At least {{ (report.config.type_inference.minimum_confidence * 100) | round(1) }}% agreement across present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd></div>
-          <div><dt>Date detection</dt><dd>Orders: {{ report.config.date_detection.orders | join(', ') }}; separators: {% for separator in report.config.date_detection.separators %}<code>{{ separator | tojson }}</code> {% endfor %}; ambiguous order: {{ report.config.date_detection.ambiguous_order or 'inferred only from unambiguous column evidence' }}</dd></div>
-          <div><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd></div>
-          <div><dt>String lengths</dt><dd>Very short through {{ report.config.string_analysis.very_short_max_length }}; short through {{ report.config.string_analysis.short_max_length }}; medium through {{ report.config.string_analysis.medium_max_length }}; long through {{ report.config.string_analysis.long_max_length }}; otherwise very long. Up to {{ report.config.string_analysis.examples_per_length }} examples per length are retained when the maximum is {{ report.config.string_analysis.length_distribution_max_length }} or less.</dd></div>
-          <div><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd></div>
-          <div><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd></div>
-          <div><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd></div>
-          <div><dt>JSON format</dt><dd>{{ report.format_version }} - revision {{ report.format_revision }} (experimental)</dd></div>
-        </dl>
-        <p class="metadata source-hash">Source SHA-256: <code>{{ report.source.sha256 }}</code></p>
-      </details>
-    </section>
-  </main>
-  <footer class="footer" aria-label="About Tabalyst">
-    <div class="report-container footer-container">
-      <div class="footer-inner">
-        <div class="footer-product">
-          <div class="footer-title-row"><span class="footer-mark" aria-hidden="true">T</span><span class="footer-title">Tabalyst</span><span class="footer-version">Version {{ tabalyst_version }}</span></div>
-          <p>Local-first CSV profiling and analysis.</p>
-        </div>
-        <nav class="footer-links" aria-label="Tabalyst links">
-          <a href="https://tabalyst.com" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">&#8599;</span></a>
-          <a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">&#8599;</span></a>
-        </nav>
-      </div>
-      <div class="footer-meta">
-        <span>&copy; {{ report.generated_at.year }} Gregory Borelli &middot; Catalyseur Num&#233;rique</span>
-        <span>Report generated locally by Tabalyst</span>
-      </div>
-    </div>
-  </footer>
+  </aside>
+  <div class="main">
+    <header class="rhead"><div class="wrap"><p class="eyebrow">Dataset report</p><div class="rhead-top"><div><h1>{{ source_stem }}<span class="ext">{{ source_suffix }}</span></h1><ul class="facts"><li><b>CSV</b></li><li><b>{{ report.summary.row_count | count }}</b> rows</li><li><b>{{ report.summary.column_count | count }}</b> columns</li><li>{{ report.source.size_bytes | size }}</li><li>{{ report.source.encoding }}</li><li>Delimiter <code>{{ report.source.delimiter }}</code></li></ul></div><div class="gen"><span class="badge"><i aria-hidden="true"></i>Analysis complete · {{ report.processing_seconds | seconds }} s</span><time datetime="{{ report.generated_at.isoformat() }}">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></div></div></div></header>
+    <main id="content" class="wrap content" tabindex="-1">
+<section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Dataset overview</h2><p>Size, completeness and the main signal to check first.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="overview-b" aria-label="Collapse Dataset overview" data-name="Dataset overview"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="overview-b">
+<dl class="metrics"><div class="metric"><dt>Rows</dt><dd><span class="v">{{ report.summary.row_count | count }}</span><span class="s">{% if report.summary.empty_row_count %}{{ report.summary.empty_row_count | count }} empty rows{% else %}No empty rows{% endif %}</span></dd></div><div class="metric"><dt>Columns</dt><dd><span class="v">{{ report.summary.column_count | count }}</span><span class="s">{{ report.summary.cell_count | count }} cells analyzed</span></dd></div><div class="metric{% if report.summary.missing_count %} attn{% endif %}"><dt>Missing cells</dt><dd><span class="v">{{ report.summary.missing_percent }}<small>%</small></span><span class="s">{{ report.summary.missing_count | count }} cells</span></dd></div><div class="metric{% if report.summary.duplicate_row_count %} attn{% endif %}"><dt>Duplicate rows</dt><dd><span class="v">{{ report.summary.duplicate_row_count | count }}</span><span class="s">Beyond the first occurrence</span></dd></div></dl>
+<div class="ov-grid">
+<div class="focus">{% if report.date_summary %}<span class="k">Derived · sum of {{ report.summary.date_column_count }} date columns</span><div class="big">{{ report.date_summary.ambiguous_count | count }}</div><p class="big-label">ambiguous dates, kept unresolved.</p><p>Values that match more than one configured date order. That is {{ report.date_summary.ambiguous_percent }}% of the {{ report.date_summary.present_count | count }} present date values. Tabalyst does not guess the order.</p>{% if report.date_summary.columns %}<ul class="bars" role="img" aria-label="Ambiguous dates per column">{% for item in report.date_summary.columns %}<li><span>{{ item.name or '(unnamed)' }}</span><span class="t"><span style="width:{{ item.relative_ambiguous_percent }}%"></span></span><b>{{ item.ambiguous_count | count }}</b></li>{% endfor %}</ul>{% endif %}<a class="link" href="#dates">See date analysis <span aria-hidden="true">↓</span></a>{% else %}<span class="k">Date analysis</span><div class="big">0</div><p class="big-label">date columns detected.</p><p>No date-shaped values were identified with the configured rules.</p>{% endif %}</div>
+<div class="rcard"><p class="rcard-title">Quality observations</p><ul class="findings">{% for issue in report.issues %}<li class="{{ 'warn' if issue.severity == 'warning' else 'info' }}"><i aria-hidden="true"></i><span><span class="vh">{{ issue.severity }}: </span>{% if issue.code in ['missing_values','empty_columns','constant_columns','ambiguous_headers'] %}<a href="#columns">{{ issue.message }}</a>{% elif issue.code in ['trimmed_values','collapsed_whitespace'] %}<a href="#transformations">{{ issue.message }}</a>{% elif issue.code == 'mixed_types' %}<a href="#dates">{{ issue.message }}</a>{% else %}{{ issue.message }}{% endif %}</span><b>{{ issue.count | count }}</b></li>{% endfor %}</ul><div class="key" aria-hidden="true"><span><i></i>Warning</span><span class="info"><i></i>Information</span></div></div>
+<div class="rcard"><p class="rcard-title">Column types</p><div class="dist" role="img" aria-label="Physical column types">{% for name, count in report.summary.inferred_type_counts.items() %}<span style="width:{{ report.summary.inferred_type_percents[name] }}%;background:{{ type_colors[name] }}"></span>{% endfor %}</div><ul class="legend">{% for name, count in report.summary.inferred_type_counts.items() %}<li style="--c:{{ type_colors[name] }}">{{ name | replace('_',' ') | title }} <b>{{ count }}</b></li>{% endfor %}</ul><div class="sem"><p class="rcard-title">Semantic types</p><div class="dist" role="img" aria-label="Semantic column types">{% for name, count in report.summary.semantic_type_counts.items() %}<span style="width:{{ report.summary.semantic_type_percents[name] }}%;background:{{ semantic_colors[name] }}"></span>{% endfor %}</div><ul class="legend">{% for name, count in report.summary.semantic_type_counts.items() %}<li style="--c:{{ semantic_colors[name] }}">{{ 'No semantic type' if name == 'none' else name | title }} <b>{{ count }}</b></li>{% endfor %}</ul></div><p class="types-note">Mixed: fewer than {{ (report.config.type_inference.minimum_confidence * 100) | round(1) }}% of present values agree on one type.</p></div>
+</div></div></section>
+<section class="panel" id="columns" aria-labelledby="columns-h"><div class="phead"><div><p class="eyebrow">02 / Structure</p><h2 id="columns-h">Columns<span class="n">({{ report.summary.column_count }})</span></h2><p>Inferred and semantic types per column. <em>With issues</em>: missing values or mixed type.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="columns-b" aria-label="Collapse Columns" data-name="Columns"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="columns-b"><div class="toolbar"><label class="search"><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="6" cy="6" r="4.2"/><path d="m9.2 9.2 3.3 3.3"/></svg><span class="vh">Filter columns by name</span><input id="col-filter" type="search" placeholder="Filter columns" autocomplete="off"></label><div class="seg" id="col-seg" role="group" aria-label="Show columns"><button type="button" data-mode="all" aria-pressed="true">All<span class="c">{{ report.summary.column_count }}</span></button><button type="button" data-mode="flag" aria-pressed="false">With issues<span class="c">{{ report.summary.with_issues_column_count }}</span></button></div><span class="live" id="columns-table-live" aria-live="polite">{{ report.summary.column_count }} of {{ report.summary.column_count }} columns</span><button type="button" class="btn btn-sm reset" data-reset="columns-table" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2.5V5h2.5"/></svg>Reset</button></div>
+<div class="tscroll" tabindex="0" role="region" aria-label="Column summary"><table class="dtable" id="columns-table" data-table data-noun="columns"><thead><tr>{{ table_head('Column','list') }}{{ table_head('Missing','num',true) }}{{ table_head('Distinct','num',true) }}{{ table_head('Inferred type','list',false,true) }}{{ table_head('Semantic type','list',false,true) }}{{ table_head('Error','num',true) }}{{ table_head('Examples',filter=false) }}</tr></thead><tbody>{% for column in report.columns %}<tr data-name="{{ column.name | lower }}" data-flag="{{ 1 if column.with_issues else 0 }}">{{ column_name(column) }}{{ percent_cell(column.missing_percent,column.missing_count) }}<td class="num" data-v="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td><td data-v="{{ column.inferred_type }}"><span class="pill{% if column.inferred_type == 'mixed' %} attn{% endif %}">{{ column.inferred_type }}</span></td><td data-v="{{ column.semantic_type or '(none)' }}">{% if column.semantic_type %}<span class="pill">{{ column.semantic_type }}</span>{% else %}<span class="none">–</span>{% endif %}</td>{{ percent_cell(column.type_error_percent,column.type_error_count or 0,'var(--attn)',column.type_error_count != 0) }}{{ value_examples(column) }}</tr>{% endfor %}</tbody></table></div></div></section>
+<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">03 / Cleaning</p><h2 id="transformations-h">Transformations<span class="n">({{ report.summary.column_count }})</span></h2><p>Normalization changes recorded during analysis. Raw preview values remain unchanged.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="transformations-b" aria-label="Collapse Transformations" data-name="Transformations"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="transformations-b"><div class="toolbar"><span class="live" id="transformations-table-live" aria-live="polite">{{ report.summary.column_count }} of {{ report.summary.column_count }} columns</span><button type="button" class="btn btn-sm reset" data-reset="transformations-table" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2.5V5h2.5"/></svg>Reset</button></div><div class="tscroll" tabindex="0" role="region" aria-label="Transformations"><table class="dtable" id="transformations-table" data-table data-noun="columns"><thead><tr>{{ table_head('Column','list') }}{{ table_head('Missing','num',true) }}{{ table_head('Trimmed','num',true) }}{{ table_head('Whitespace collapsed','num',true) }}{{ table_head('Distinct','num',true) }}</tr></thead><tbody>{% for column in report.columns %}<tr>{{ column_name(column) }}{{ percent_cell(column.missing_percent,column.missing_count) }}{{ percent_cell(column.normalization.trim_percent,column.normalization.trim_count,'var(--d2)') }}{{ percent_cell(column.normalization.collapse_internal_whitespace_percent,column.normalization.collapse_internal_whitespace_count,'var(--d2)') }}<td class="num" data-v="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td></tr>{% endfor %}</tbody></table></div></div></section>
+{% if numeric_columns %}<section class="panel" id="numeric" aria-labelledby="numeric-h"><div class="phead"><div><p class="eyebrow">04 / Numeric</p><h2 id="numeric-h">Numeric analysis<span class="n">({{ report.summary.numeric_column_count }})</span></h2><p>Range and distribution statistics for accepted numeric values.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="numeric-b" aria-label="Collapse Numeric analysis" data-name="Numeric analysis"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="numeric-b"><div class="toolbar"><span class="live" id="numeric-table-live" aria-live="polite">{{ report.summary.numeric_column_count }} of {{ report.summary.numeric_column_count }} columns</span><button type="button" class="btn btn-sm reset" data-reset="numeric-table" hidden>Reset</button></div><div class="tscroll" tabindex="0" role="region" aria-label="Numeric analysis"><table class="dtable" id="numeric-table" data-table data-noun="columns"><thead><tr>{{ table_head('Column','list') }}{{ table_head('Range','num',true) }}{{ table_head('Minimum','num',true) }}{{ table_head('Maximum','num',true) }}{{ table_head('Mean','num',true) }}{{ table_head('Median','num',true) }}{{ table_head('Distinct','num',true) }}{{ table_head('Examples',filter=false) }}</tr></thead><tbody>{% for column in numeric_columns %}<tr>{{ column_name(column) }}<td class="num" data-v="{{ column.numeric.range }}">{{ column.numeric.range | number }}</td><td class="num" data-v="{{ column.numeric.minimum }}">{{ column.numeric.minimum | number }}</td><td class="num" data-v="{{ column.numeric.maximum }}">{{ column.numeric.maximum | number }}</td><td class="num" data-v="{{ column.numeric.mean }}">{{ column.numeric.mean | number }}</td><td class="num" data-v="{{ column.numeric.median }}">{{ column.numeric.median | number }}</td><td class="num" data-v="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td>{{ value_examples(column,'num') }}</tr>{% endfor %}</tbody></table></div></div></section>{% endif %}
+{% if date_columns %}<section class="panel" id="dates" aria-labelledby="dates-h"><div class="phead"><div><p class="eyebrow">05 / Dates</p><h2 id="dates-h">Date analysis<span class="n">({{ report.summary.date_column_count }})</span></h2><p>Strict date parsing keeps ambiguous, invalid and non-date values separate.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="dates-b" aria-label="Collapse Date analysis" data-name="Date analysis"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="dates-b"><div class="toolbar"><span class="live" id="date-table-live" aria-live="polite">{{ report.summary.date_column_count }} of {{ report.summary.date_column_count }} date columns</span><button type="button" class="btn btn-sm reset" data-reset="date-table" hidden>Reset</button></div><div class="tscroll" tabindex="0" role="region" aria-label="Date analysis"><table class="dtable" id="date-table" data-table data-noun="date columns"><thead><tr>{{ table_head('Column','list') }}{{ table_head('Status','list',false,true) }}{{ table_head('Breakdown',filter=false) }}{{ table_head('Valid','num',true) }}{{ table_head('Ambiguous','num',true) }}{{ table_head('Invalid','num',true) }}{{ table_head('Other','num',true) }}{{ table_head('Distinct','num',true) }}{{ table_head('Formats',filter=false) }}</tr></thead><tbody>{% for column in date_columns %}<tr>{{ column_name(column) }}<td data-v="{{ column.date_profile.status }}"><span class="pill{% if column.date_profile.status in ['mixed','invalid','ambiguous'] %} attn{% endif %}">{{ column.date_profile.status | replace('_',' ') }}</span></td><td><div class="stack" role="img" aria-label="Valid {{ column.date_profile.valid_percent }}%, ambiguous {{ column.date_profile.ambiguous_percent }}%, invalid {{ column.date_profile.invalid_date_percent }}%"><span class="v" style="width:{{ column.date_profile.valid_percent }}%"></span><span class="a" style="width:{{ column.date_profile.ambiguous_percent }}%"></span><span class="x" style="width:{{ column.date_profile.invalid_date_percent }}%"></span></div></td>{{ percent_cell(column.date_profile.valid_percent,column.date_profile.valid_count,'var(--ok)') }}{{ percent_cell(column.date_profile.ambiguous_percent,column.date_profile.ambiguous_count,'var(--attn)',true) }}{{ percent_cell(column.date_profile.invalid_date_percent,column.date_profile.invalid_date_count,'var(--attn)',true) }}{{ percent_cell(column.date_profile.not_date_percent,column.date_profile.not_date_count,'var(--d3)') }}<td class="num" data-v="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td><td class="ex fmt" tabindex="0" aria-describedby="tip-date-{{ column.position }}"><span class="exs"><span class="fmtc">{{ column.date_profile.format_count }} variant{{ '' if column.date_profile.format_count == 1 else 's' }}</span></span><div id="tip-date-{{ column.position }}" class="tip" role="tooltip"><div class="tip-h">{{ column.date_profile.format_count }} variant{{ '' if column.date_profile.format_count == 1 else 's' }}</div><div class="tip-l">{% for item in column.date_profile.breakdown %}<div class="k-{{ item.category }}"><span>{{ item.label }}</span><small>{{ item.count | count }} ({{ item.percent }}%)</small></div>{% endfor %}</div></div></td></tr>{% endfor %}</tbody></table></div><div class="dkey" aria-hidden="true"><span><i style="background:var(--ok)"></i>Valid</span><span><i style="background:var(--attn)"></i>Ambiguous</span><span><i class="x" style="background:repeating-linear-gradient(135deg,var(--attn) 0 2px,transparent 2px 4px);box-shadow:inset 0 0 0 1px var(--attn)"></i>Invalid</span></div></div></section>{% endif %}
+{% if string_columns %}<section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis<span class="n">({{ report.summary.string_column_count }})</span></h2><p>Length classes, fixed widths and representative values.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="strings-b" aria-label="Collapse String analysis" data-name="String analysis"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="strings-b"><div class="toolbar"><span class="live" id="string-table-live" aria-live="polite">{{ report.summary.string_column_count }} of {{ report.summary.string_column_count }} string columns</span><button type="button" class="btn btn-sm reset" data-reset="string-table" hidden>Reset</button></div><div class="tscroll" tabindex="0" role="region" aria-label="String analysis"><table class="dtable" id="string-table" data-table data-noun="string columns"><thead><tr>{{ table_head('Column','list') }}{{ table_head('Class','list',false,true) }}{{ table_head('Fixed','num',true) }}{{ table_head('Min','num',true) }}{{ table_head('Max','num',true) }}{{ table_head('Mean','num',true) }}{{ table_head('Median','num',true) }}{{ table_head('Lengths',filter=false) }}{{ table_head('Distinct','num',true) }}{{ table_head('Examples',filter=false) }}</tr></thead><tbody>{% for column in string_columns %}<tr>{{ column_name(column) }}<td data-v="{{ column.string_profile.status }}"><span class="pill">{{ column.string_profile.status | replace('_',' ') }}</span></td><td class="num" data-v="{{ column.string_profile.fixed_length or '' }}">{% if column.string_profile.fixed_length is not none %}{{ column.string_profile.fixed_length }}{% else %}<span class="none">–</span>{% endif %}</td>{% if column.string_profile.fixed_length is not none %}<td class="num" data-v=""><span class="none">–</span></td><td class="num" data-v=""><span class="none">–</span></td><td class="num" data-v=""><span class="none">–</span></td><td class="num" data-v=""><span class="none">–</span></td>{% else %}<td class="num" data-v="{{ column.string_profile.minimum_length }}">{{ column.string_profile.minimum_length }}</td><td class="num" data-v="{{ column.string_profile.maximum_length }}">{{ column.string_profile.maximum_length }}</td><td class="num" data-v="{{ column.string_profile.mean_length }}">{{ column.string_profile.mean_length }}</td><td class="num" data-v="{{ column.string_profile.median_length }}">{{ column.string_profile.median_length }}</td>{% endif %}<td><span class="spark" role="img" aria-label="Length distribution">{% for item in column.string_profile.length_distribution %}<i style="height:{{ item.relative_percent }}%"></i>{% endfor %}</span></td><td class="num" data-v="{{ column.distinct_count }}">{{ column.distinct_count | count }}</td><td class="ex" tabindex="0" aria-describedby="tip-str-{{ column.position }}"><span class="exs">{% for value in column.string_profile.representative_examples %}<span class="exv">{{ value }}</span>{% endfor %}</span><div id="tip-str-{{ column.position }}" class="tip tip-wide" role="tooltip"><div class="tip-h">Lengths <span>{{ column.string_profile.distinct_length_count }}</span></div><div class="tip-l">{% for item in column.string_profile.length_distribution | sort(attribute='count', reverse=true) %}<div class="lrow"><div class="lcopy"><strong>{{ item.length }} character{{ '' if item.length == 1 else 's' }}</strong><span>{% for example in item.examples[:3] %}{{ example.value }}{% if not loop.last %} / {% endif %}{% endfor %}</span></div><div class="lfreq"><span class="pct"><span class="l">{{ item.percent }}%<small>{{ item.count | count }}</small></span><span class="tr" aria-hidden="true"><span style="width:{{ item.percent }}%;--c:var(--d2)"></span></span></span></div></div>{% endfor %}</div></div></td></tr>{% endfor %}</tbody></table></div></div></section>{% endif %}
+<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">07 / Raw values</p><h2 id="sample-h">Data sample<span class="n">({{ report.preview | length }})</span></h2><p>First {{ report.preview | length }} records with original row numbers and raw values.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="sample-b" aria-label="Collapse Data sample" data-name="Data sample"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody sample" id="sample-b">{% if report.preview %}<div class="toolbar"><span class="live" id="sample-table-live" aria-live="polite">{{ report.preview | length }} of {{ report.preview | length }} sample rows</span><button type="button" class="btn btn-sm reset" data-reset="sample-table" hidden>Reset</button></div><div class="tscroll" tabindex="0" role="region" aria-label="Raw data sample"><table class="dtable raw" id="sample-table" data-table data-noun="sample rows"><thead><tr><th scope="col" class="rn" data-kind="num" data-label="Row"><div class="hc"><span class="ht">Row</span><button type="button" class="hb hb-f" aria-label="Filter Row" title="Filter Row" aria-haspopup="dialog"><svg class="i-menu" aria-hidden="true"><use href="#i-menu"/></svg></button><button type="button" class="hb hb-s" aria-label="Sort by Row" title="Sort by Row"><svg class="i-none" aria-hidden="true"><use href="#i-none"/></svg><svg class="i-asc" aria-hidden="true"><use href="#i-asc"/></svg><svg class="i-desc" aria-hidden="true"><use href="#i-desc"/></svg></button></div></th>{% for column in report.columns %}<th scope="col" class="{{ 'mixcol' if column.inferred_type == 'mixed' else '' }}" data-kind="{{ 'num' if column.inferred_type in ['integer','number'] else 'text' }}" data-label="{{ column.name or '(unnamed)' }}"><div class="hc"><span class="ht">{{ column.name or '(unnamed)' }}<span class="pill{% if column.inferred_type == 'mixed' %} attn{% endif %}">{{ column.inferred_type }}</span></span><button type="button" class="hb hb-f" aria-label="Filter {{ column.name or '(unnamed)' }}" title="Filter {{ column.name or '(unnamed)' }}" aria-haspopup="dialog"><svg class="i-menu" aria-hidden="true"><use href="#i-menu"/></svg></button><button type="button" class="hb hb-s" aria-label="Sort by {{ column.name or '(unnamed)' }}" title="Sort by {{ column.name or '(unnamed)' }}"><svg class="i-none" aria-hidden="true"><use href="#i-none"/></svg><svg class="i-asc" aria-hidden="true"><use href="#i-asc"/></svg><svg class="i-desc" aria-hidden="true"><use href="#i-desc"/></svg></button></div></th>{% endfor %}</tr></thead><tbody>{% for row in report.preview %}<tr><th scope="row" class="rn" data-v="{{ row.row_number }}">{{ row.row_number }}</th>{% for value in row.values %}<td{% if value == '' %} class="e"{% endif %} data-v="{{ value }}">{% if value == '' %}<span class="vh">empty</span>{% else %}{{ value }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div><div class="dkey" aria-hidden="true"><span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,var(--line-strong) 3px 4px);border:1px solid var(--line)"></i>Empty cell</span><span><i style="background:var(--orange);height:2px"></i>Mixed-type column</span></div>{% else %}<p class="muted">No data records.</p>{% endif %}</div></section>
+<section class="panel" id="settings" aria-labelledby="settings-h"><div class="phead"><div><p class="eyebrow">08 / Method</p><h2 id="settings-h">Analysis settings</h2><p>Rules used for this analysis, so the result can be reproduced.</p></div><button type="button" class="collapse" aria-expanded="true" aria-controls="settings-b" aria-label="Collapse Analysis settings" data-name="Analysis settings"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button></div><div class="pbody" id="settings-b"><dl class="schema"><dt>Scope</dt><dd>All {{ report.summary.row_count | count }} records</dd><dt>Missing-value markers</dt><dd>{% for marker in report.config.missing_values %}<code>{{ marker | tojson }}</code> {% else %}None{% endfor %}</dd><dt>Missing-value comparison</dt><dd>Whitespace trimmed; case-sensitive</dd><dt>Value normalization</dt><dd>Trim: {{ 'enabled' if report.config.normalization.trim else 'disabled' }}; collapse internal horizontal whitespace: {{ 'enabled' if report.config.normalization.collapse_internal_whitespace else 'disabled' }}. Raw preview values are preserved.</dd><dt>Duplicate comparison</dt><dd>Exact raw values across every column</dd><dt>Type inference</dt><dd>At least {{ (report.config.type_inference.minimum_confidence * 100) | round(1) }}% agreement across present values; configured strict date formats, dot-decimal numbers and true/false. Leading-zero identifiers remain text.</dd><dt>Date detection</dt><dd>Orders: {{ report.config.date_detection.orders | join(', ') }}; separators: {% for separator in report.config.date_detection.separators %}<code>{{ separator | tojson }}</code> {% endfor %}; ambiguous order: {{ report.config.date_detection.ambiguous_order or 'inferred only from unambiguous column evidence' }}</dd><dt>Enum candidates</dt><dd>Text columns with at most {{ report.config.enum_detection.maximum_distinct_values }} values when the dataset has at least {{ report.config.enum_detection.minimum_row_count | count }} rows</dd><dt>String lengths</dt><dd>Very short through {{ report.config.string_analysis.very_short_max_length }}; short through {{ report.config.string_analysis.short_max_length }}; medium through {{ report.config.string_analysis.medium_max_length }}; long through {{ report.config.string_analysis.long_max_length }}; otherwise very long. Up to {{ report.config.string_analysis.examples_per_length }} examples per length are retained when the maximum is {{ report.config.string_analysis.length_distribution_max_length }} or less.</dd><dt>Value representation</dt><dd>Complete through {{ report.config.value_examples.full_distribution_max_distinct }} distinct values; otherwise a reproducible sample of {{ report.config.value_examples.candidate_sample_size }}</dd><dt>Row numbering</dt><dd>Data records start at 1, excluding the header. Quoted multiline values count as one record.</dd><dt>Preview selection</dt><dd>First {{ report.config.preview_rows }} records; raw values preserved</dd><dt>JSON format</dt><dd>{{ report.format_version }} - revision {{ report.format_revision }} (experimental)</dd></dl><div class="hash"><span class="mono">SOURCE SHA-256</span><code>{{ report.source.sha256 }}</code><button type="button" class="btn btn-sm copy" data-copy="{{ report.source.sha256 }}">Copy</button></div></div></section>
+    </main>
+    <footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}Tabalyst<span class="ver">v{{ tabalyst_version }}</span></a><p>Local-first CSV profiling and analysis.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>© {{ report.generated_at.year }} Gregory Borelli · Catalyseur Numérique</span><span>Report generated locally by Tabalyst</span></div></div></footer>
   </div>
-  </div>
-  <script src="https://cdn.datatables.net/3.0.4/js/dataTables.min.js" integrity="sha384-i3qKUispup6yO0B16Bvnk2AmVi8O60Qww2omjtD9NHi1ns1H4jiz2EhYBjLew/9C" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/3.0.4/js/dataTables.bootstrap5.min.js" integrity="sha384-4d8X9sr6Gnv9AgIQn6bv3lmQxj5fD+9bVAun0/XMmdy7oPRvT0adfiUUiiYpi4Ck" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/dataTables.columnControl.min.js" integrity="sha384-s+uWQ72aUBdD8WMvuzuM/dgwuDT+sZo4mNvlZ9AAH6iZlX9hpJX6t4R7jbK26LZN" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/columncontrol/2.0.2/js/columnControl.bootstrap5.min.js" integrity="sha384-1QCMHcxcmlVHzTGWujfsVkg2KuWc4Mtd4lly3TIbzGhIwP0Bw3OQuJ5Po7oPN5sn" crossorigin="anonymous"></script>
-  <script>{{ report_js | safe }}</script>
+</div>
+<script>{{ report_js | safe }}</script>
 </body>
 </html>

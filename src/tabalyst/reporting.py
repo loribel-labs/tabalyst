@@ -1,6 +1,5 @@
 """Render self-contained analysis results as an interactive HTML report."""
 
-from collections import Counter
 from importlib.resources import files
 from pathlib import Path
 
@@ -45,10 +44,30 @@ def render_report(profile: DatasetProfile) -> str:
     template = environment.from_string(
         resources.joinpath("templates/report.html").read_text(encoding="utf-8")
     )
+    type_colors = {
+        "text": "var(--d2)",
+        "mixed": "var(--attn)",
+        "integer": "var(--d3)",
+        "number": "var(--d1)",
+        "boolean": "var(--ok)",
+        "date": "var(--d1)",
+        "empty": "var(--line-strong)",
+    }
+    semantic_colors = {
+        "enum": "var(--d2)",
+        "date": "var(--d1)",
+        "none": "var(--d3)",
+    }
     return template.render(
         report=profile,
         tabalyst_version=get_version(),
-        types=Counter(column.inferred_type for column in profile.columns),
+        source_stem=Path(profile.source.filename).stem,
+        source_suffix=Path(profile.source.filename).suffix,
+        numeric_columns=[column for column in profile.columns if column.numeric],
+        date_columns=[column for column in profile.columns if column.date_profile],
+        string_columns=[column for column in profile.columns if column.string_profile],
+        type_colors=type_colors,
+        semantic_colors=semantic_colors,
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
     )

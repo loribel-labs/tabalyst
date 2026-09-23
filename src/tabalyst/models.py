@@ -23,6 +23,7 @@ class SourceInfo(ResultModel):
 class NumericStats(ResultModel):
     minimum: FiniteFloat
     maximum: FiniteFloat
+    range: FiniteFloat
     mean: FiniteFloat
     median: FiniteFloat
 
@@ -52,10 +53,15 @@ class DateBreakdownItem(ResultModel):
 
 class DateProfile(ResultModel):
     status: Literal["valid", "multiple_formats", "mixed", "ambiguous", "invalid"]
+    present_count: int
     valid_count: int
+    valid_percent: float
     ambiguous_count: int
+    ambiguous_percent: float
     invalid_date_count: int
+    invalid_date_percent: float
     not_date_count: int
+    not_date_percent: float
     resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
     ambiguous_order_source: Literal["config", "column"] | None = None
     formats: list[DateFormatCount]
@@ -73,6 +79,7 @@ class StringLengthDistribution(ResultModel):
     length: int
     count: int
     percent: float
+    relative_percent: float
     distinct_count: int
     examples: list[StringLengthExample]
 
@@ -87,6 +94,7 @@ class StringProfile(ResultModel):
     distinct_length_count: int
     fixed_length: int | None = None
     length_distribution: list[StringLengthDistribution]
+    representative_examples: list[str]
 
 
 class ValueOccurrence(ResultModel):
@@ -122,6 +130,7 @@ class ColumnProfile(ResultModel):
     type_error_percent: float | None
     missing_count: int
     missing_percent: float
+    with_issues: bool
     normalization: NormalizationStats
     distinct_count: int
     examples: list[str]
@@ -145,6 +154,33 @@ class DatasetSummary(ResultModel):
     empty_row_count: int
     empty_column_count: int
     constant_column_count: int
+    with_issues_column_count: int
+    numeric_column_count: int
+    date_column_count: int
+    string_column_count: int
+    inferred_type_counts: dict[str, int]
+    inferred_type_percents: dict[str, float]
+    semantic_type_counts: dict[str, int]
+    semantic_type_percents: dict[str, float]
+
+
+class DatasetDateColumnSummary(ResultModel):
+    column_id: str
+    name: str
+    position: int
+    ambiguous_count: int
+    relative_ambiguous_percent: float
+
+
+class DatasetDateSummary(ResultModel):
+    present_count: int
+    valid_count: int
+    ambiguous_count: int
+    ambiguous_percent: float
+    invalid_date_count: int
+    not_date_count: int
+    maximum_column_ambiguous_count: int
+    columns: list[DatasetDateColumnSummary]
 
 
 class Issue(ResultModel):
@@ -163,12 +199,13 @@ class PreviewRow(ResultModel):
 
 class DatasetProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[1] = 1
+    format_revision: Literal[2] = 2
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo
     config: AnalysisConfig
     summary: DatasetSummary
+    date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]
     issues: list[Issue]
     preview: list[PreviewRow]

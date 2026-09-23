@@ -14,6 +14,8 @@ from tabalyst.config import AnalysisConfig
 from tabalyst.ingestion import CsvDataset
 from tabalyst.models import (
     ColumnProfile,
+    DatasetDateColumnSummary,
+    DatasetDateSummary,
     DatasetProfile,
     DatasetSummary,
     DateBreakdownItem,
@@ -313,10 +315,15 @@ def build_date_profile(
     return (
         DateProfile(
             status=status,
+            present_count=total,
             valid_count=valid_count,
+            valid_percent=percent(valid_count, total),
             ambiguous_count=ambiguous_count,
+            ambiguous_percent=percent(ambiguous_count, total),
             invalid_date_count=invalid_count,
+            invalid_date_percent=percent(invalid_count, total),
             not_date_count=not_date_count,
+            not_date_percent=percent(not_date_count, total),
             resolved_ambiguous_order=resolved_order,
             ambiguous_order_source=resolution_source,
             formats=format_items,
@@ -406,15 +413,19 @@ def build_string_profile(
         status = "very_long"
     distribution = []
     if maximum <= settings.length_distribution_max_length:
+        length_counts = lengths.value_counts()
+        maximum_length_count = int(length_counts.max())
         for length in sorted({int(value) for value in lengths}):
             matching = [
                 (value, count) for value, count in frequencies if len(value) == length
             ]
+            length_count = sum(count for _, count in matching)
             distribution.append(
                 StringLengthDistribution(
                     length=length,
-                    count=sum(count for _, count in matching),
-                    percent=percent(sum(count for _, count in matching), len(present)),
+                    count=length_count,
+                    percent=percent(length_count, len(present)),
+                    relative_percent=percent(length_count, maximum_length_count),
                     distinct_count=len(matching),
                     examples=[
                         StringLengthExample(value=value, count=count)
@@ -432,6 +443,11 @@ def build_string_profile(
         distinct_length_count=int(lengths.nunique()),
         fixed_length=minimum if minimum == maximum else None,
         length_distribution=distribution,
+        representative_examples=[
+            item.examples[0].value
+            for item in sorted(distribution, key=lambda item: -item.count)[:3]
+            if item.examples
+        ],
     )
 
 
@@ -632,7 +648,11 @@ def analyze_column(
         stats = [numbers.min(), numbers.max(), numbers.mean(), numbers.median()]
         if numbers.notna().all() and all(math.isfinite(value) for value in stats):
             numeric = NumericStats(
-                minimum=stats[0], maximum=stats[1], mean=stats[2], median=stats[3]
+                minimum=stats[0],
+                maximum=stats[1],
+                range=stats[1] - stats[0],
+                mean=stats[2],
+                median=stats[3],
             )
     value_profile = build_value_profile(
         frequencies,
@@ -649,6 +669,7 @@ def analyze_column(
     if enum and semantic_type is None:
         semantic_type = "enum"
     string_profile = build_string_profile(present, frequencies, inferred, config)
+    missing_count = int(absent.sum())
     return ColumnProfile(
         id=f"column_{position}",
         name=name if name is not None else str(values.name or ""),
@@ -658,8 +679,9 @@ def analyze_column(
         type_confidence=round(type_confidence, 4),
         type_error_count=type_error_count,
         type_error_percent=type_error_percent,
-        missing_count=int(absent.sum()),
-        missing_percent=percent(int(absent.sum()), len(values)),
+        missing_count=missing_count,
+        missing_percent=percent(missing_count, len(values)),
+        with_issues=missing_count > 0 or inferred == "mixed",
         normalization=normalization,
         distinct_count=len(frequencies),
         examples=[
@@ -691,6 +713,40 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
     empty = [column.id for column in columns if column.inferred_type == "empty"]
     constant = [column.id for column in columns if column.distinct_count == 1]
     mixed = [column.id for column in columns if column.inferred_type == "mixed"]
+    numeric_columns = [column for column in columns if column.numeric is not None]
+    date_columns = [column for column in columns if column.date_profile is not None]
+    string_columns = [column for column in columns if column.string_profile is not None]
+    inferred_type_counts = Counter(column.inferred_type for column in columns)
+    semantic_type_counts = Counter(column.semantic_type or "none" for column in columns)
+    date_present_count = sum(
+        column.date_profile.present_count for column in date_columns if column.date_profile
+    )
+    date_valid_count = sum(
+        column.date_profile.valid_count for column in date_columns if column.date_profile
+    )
+    date_ambiguous_count = sum(
+        column.date_profile.ambiguous_count
+        for column in date_columns
+        if column.date_profile
+    )
+    date_invalid_count = sum(
+        column.date_profile.invalid_date_count
+        for column in date_columns
+        if column.date_profile
+    )
+    date_not_date_count = sum(
+        column.date_profile.not_date_count
+        for column in date_columns
+        if column.date_profile
+    )
+    maximum_column_ambiguous_count = max(
+        (
+            column.date_profile.ambiguous_count
+            for column in date_columns
+            if column.date_profile
+        ),
+        default=0,
+    )
     issues = []
 
     def add_issue(
@@ -774,6 +830,47 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
             empty_row_count=int(absent.all(axis=1).sum()),
             empty_column_count=len(empty),
             constant_column_count=len(constant),
+            with_issues_column_count=sum(column.with_issues for column in columns),
+            numeric_column_count=len(numeric_columns),
+            date_column_count=len(date_columns),
+            string_column_count=len(string_columns),
+            inferred_type_counts=dict(inferred_type_counts),
+            inferred_type_percents={
+                name: percent(count, len(columns))
+                for name, count in inferred_type_counts.items()
+            },
+            semantic_type_counts=dict(semantic_type_counts),
+            semantic_type_percents={
+                name: percent(count, len(columns))
+                for name, count in semantic_type_counts.items()
+            },
+        ),
+        date_summary=(
+            DatasetDateSummary(
+                present_count=date_present_count,
+                valid_count=date_valid_count,
+                ambiguous_count=date_ambiguous_count,
+                ambiguous_percent=percent(date_ambiguous_count, date_present_count),
+                invalid_date_count=date_invalid_count,
+                not_date_count=date_not_date_count,
+                maximum_column_ambiguous_count=maximum_column_ambiguous_count,
+                columns=[
+                    DatasetDateColumnSummary(
+                        column_id=column.id,
+                        name=column.name,
+                        position=column.position,
+                        ambiguous_count=column.date_profile.ambiguous_count,
+                        relative_ambiguous_percent=percent(
+                            column.date_profile.ambiguous_count,
+                            maximum_column_ambiguous_count,
+                        ),
+                    )
+                    for column in date_columns
+                    if column.date_profile and column.date_profile.ambiguous_count
+                ],
+            )
+            if date_columns
+            else None
         ),
         columns=columns,
         issues=issues,
