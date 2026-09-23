@@ -22,7 +22,7 @@ def test_public_api_writes_canonical_reports_and_execution_history(tmp_path):
     assert json_report.is_file()
     assert execution_report.is_file()
     assert result == json.loads(json_report.read_text(encoding="utf-8"))
-    assert f"Version {tabalyst.__version__}" in report.read_text(encoding="utf-8")
+    assert f"v{tabalyst.__version__}" in report.read_text(encoding="utf-8")
     history = json.loads(execution_report.read_text(encoding="utf-8"))
     assert history["executions"][0]["html_file"] == "client-a.html"
     assert history["executions"][0]["json_file"] == "client-a.json"

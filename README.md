@@ -128,13 +128,12 @@ See the complete layout and maintenance notes in the
 - Physical and semantic type inference with explicit confidence and error rates.
 - Numeric, date, string-length, normalization, and value-distribution profiles.
 - A bounded raw-data preview while all records are analyzed.
-- Sortable and filterable HTML tables.
+- Sortable and filterable HTML tables in the self-contained Signature report.
 
 Raw strings are preserved. The complete CSV is currently loaded into memory.
-Report data remains local and Tabalyst adds no telemetry or remote analysis.
-Bootstrap, DataTables, and Google Fonts are loaded from pinned CDNs for the full
-interactive presentation; the Tabalyst template, theme, and report JavaScript are
-included in the Python package.
+Report data remains local and Tabalyst adds no telemetry or remote analysis. The
+report embeds its design system, font subsets and interaction code, so it works
+without CDN or network access.
 
 ## Compatibility with alpha commands
 

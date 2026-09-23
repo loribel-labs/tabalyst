@@ -26,3 +26,13 @@ Alpha revisions may be incompatible. No automatic migration is provided yet.
   occurrences, bounded examples, numeric statistics, date analysis, and string
   length statistics.
 - Added `format_version` and monotonic `format_revision` identifiers.
+
+## Revision 2 - 2026-09-23
+
+- Materialized per-column `with_issues`, defined as missing values or inferred
+  type `mixed`.
+- Added dataset-level physical/semantic type distributions and report section
+  counts.
+- Added dataset-level date aggregates and per-date-column ambiguity summaries.
+- Added present counts and percentages to date profiles, numeric ranges, and
+  relative/representative string-length values used by the report.

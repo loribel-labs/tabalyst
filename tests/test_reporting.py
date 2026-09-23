@@ -41,7 +41,7 @@ def test_header_only_report_is_renderable(tmp_path):
     profile = analyze_csv(source)
     html = render_report(profile)
     assert "No data records." in html
-    assert "NaN" not in html
+    assert ">NaN<" not in html
 
 
 def test_footer_includes_version_copyright_and_official_links(tmp_path):
@@ -51,13 +51,14 @@ def test_footer_includes_version_copyright_and_official_links(tmp_path):
     profile = analyze_csv(source)
     html = render_report(profile)
 
-    assert f"Version {tabalyst_version()}" in html
+    assert f"v{tabalyst_version()}" in html
     assert "Gregory Borelli" in html
-    assert "Catalyseur Num&#233;rique" in html
-    assert f"&copy; {profile.generated_at.year} Gregory Borelli" in html
-    assert 'href="https://tabalyst.com"' in html
+    assert "Catalyseur Numérique" in html
+    assert f"© {profile.generated_at.year} Gregory Borelli" in html
+    assert html.count('href="https://tabalyst.com/"') == 3
+    assert html.count('aria-label="Tabalyst official website"') == 2
     assert 'href="https://github.com/loribel-labs/tabalyst"' in html
-    assert html.count('target="_blank" rel="noopener noreferrer"') == 2
+    assert html.count('target="_blank" rel="noopener noreferrer"') == 4
 
 
 def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
@@ -66,19 +67,19 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
 
     html = render_report(analyze_csv(source))
 
-    assert 'class="topbar sidebar"' in html
+    assert 'class="side"' in html
     assert 'rel="icon" type="image/svg+xml"' in html
-    assert '<details id="overview" class="report-details quality-details" open>' in html
-    assert '<details id="columns" class="report-details columns-details" open>' in html
-    assert '<details id="sample" class="report-details secondary-details sample-details">' in html
+    assert '<section class="panel" id="overview"' in html
+    assert '<section class="panel" id="columns"' in html
+    assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
-    assert html.count('class="nav-count"') == 7
-    assert html.count('class="nav-icon"') == 8
+    assert html.count('class="rep-tab"') == 8
     for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "sample", "settings"):
         assert f'href="#{section}"' in html
 
-    assert "<th scope=\"col\">Median</th><th scope=\"col\">Distinct</th><th scope=\"col\">Examples</th>" in html
-    assert "<th scope=\"col\">Distinct</th><th scope=\"col\">Formats</th>" in html
+    assert 'data-label="Median"' in html
+    assert 'data-label="Distinct"' in html
+    assert '<span class="ht">Formats</span>' in html
 
 
 def test_report_omits_navigation_for_absent_analysis_sections(tmp_path):
@@ -90,7 +91,7 @@ def test_report_omits_navigation_for_absent_analysis_sections(tmp_path):
     assert 'href="#numeric"' not in html
     assert 'href="#dates"' not in html
     assert 'href="#strings"' in html
-    assert html.count('class="metric-note"') == 4
+    assert html.count('<div class="metric') == 4
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
@@ -105,17 +106,14 @@ def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
 
         def handle_starttag(self, tag, attrs):
             attrs = dict(attrs)
-            if tag in {"td", "th"} and "data-order" in attrs:
+            if tag in {"td", "th"} and "data-v" in attrs:
                 self.values.append(attrs)
 
     parser = Cells()
     parser.feed(render_report(profile))
     expected = str(profile.columns[0].numeric.minimum)
+    assert any(cell["data-v"] == expected for cell in parser.values)
     assert any(
-        cell["data-order"] == expected and cell["data-search"] == expected
-        for cell in parser.values
-    )
-    assert any(
-        cell["data-order"] == "33.33" and cell["data-search"] == "33.33"
+        cell["data-v"] == "33.33"
         for cell in parser.values
     )

@@ -83,3 +83,19 @@
 
 - Hid sidebar analysis links when their report sections are absent and corrected
   the overview metric list to use valid description-list markup.
+
+## 2026-09-23
+
+- Ported the Signature v1 report design into the JSON-driven generator, including
+  self-contained fonts, responsive panels, custom sorting/filtering and print
+  presentation without third-party CDNs.
+- Materialized report semantics in profile revision 2: `with_issues`, type and
+  section counts, date aggregates and percentages, numeric ranges, and string
+  length display values.
+- Defined `with_issues` as columns with missing values or inferred type `mixed`.
+- Aligned percentages to the left and occurrence counts to the right across all
+  percentage cells.
+- Reworked browser regression coverage for the Signature report at desktop and
+  mobile sizes.
+- Prepared Tabalyst `0.1.2` with the Signature v1 report, profile revision 2,
+  report-facing JSON semantics, and the final table-hover and product-link polish.

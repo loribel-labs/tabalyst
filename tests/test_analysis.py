@@ -20,7 +20,7 @@ from tabalyst.models import DatasetProfile
 def test_basic_csv_statistics_and_json_roundtrip():
     profile = analyze_csv(Path(__file__).parents[1] / "examples/input/basic.csv")
     assert profile.format_version == "0.1.0a"
-    assert profile.format_revision == 1
+    assert profile.format_revision == 2
     assert profile.summary.row_count == 5
     assert profile.summary.column_count == 6
     assert profile.summary.cell_count == 30
@@ -32,12 +32,29 @@ def test_basic_csv_statistics_and_json_roundtrip():
     assert profile.columns[0].distinct_count == 4
     assert profile.preview[0].values[0] == "001"
     assert profile.columns[2].inferred_type == "mixed"
+    assert profile.columns[0].with_issues is False
+    assert profile.columns[2].with_issues is True
+    assert profile.summary.with_issues_column_count == sum(
+        column.with_issues for column in profile.columns
+    )
     assert profile.columns[3].inferred_type == "date"
     assert profile.columns[4].inferred_type == "boolean"
     assert next(
         i for i in profile.issues if i.code == "duplicate_rows"
     ).row_numbers == [4]
     assert DatasetProfile.model_validate_json(profile.model_dump_json()) == profile
+
+
+def test_with_issues_is_materialized_from_missing_or_mixed_status():
+    clean = analyze_column(pd.Series(["a", "b"]))
+    missing = analyze_column(pd.Series(["a", ""]))
+    mixed = analyze_column(pd.Series(["1", "not a number"]))
+
+    assert clean.with_issues is False
+    assert missing.with_issues is True
+    assert mixed.inferred_type == "mixed"
+    assert mixed.missing_count == 0
+    assert mixed.with_issues is True
 
 
 @pytest.mark.parametrize(
@@ -419,6 +436,7 @@ def test_short_string_profile_retains_occurrences_and_frequent_examples():
             "length": 1,
             "count": 3,
             "percent": 33.33,
+            "relative_percent": 50.0,
             "distinct_count": 2,
             "examples": [{"value": "a", "count": 2}, {"value": "b", "count": 1}],
         },
@@ -426,6 +444,7 @@ def test_short_string_profile_retains_occurrences_and_frequent_examples():
             "length": 2,
             "count": 6,
             "percent": 66.67,
+            "relative_percent": 100.0,
             "distinct_count": 6,
             "examples": [
                 {"value": "cc", "count": 1},
@@ -475,6 +494,7 @@ def test_numeric_statistics_exclude_missing_values():
     assert profile.numeric.model_dump() == {
         "minimum": 1.0,
         "maximum": 4.0,
+        "range": 3.0,
         "mean": 2.5,
         "median": 2.5,
     }

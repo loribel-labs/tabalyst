@@ -22,10 +22,9 @@ change. See the [format changelog](format-changelog.md).
   atomically updated `executions.json` file.
 - `cli.py`: thin command-line parsing and error presentation over `analyze()`,
   plus the retained alpha `render` compatibility command.
-- `templates/` and `static/`: report presentation; Bootstrap 5.3.8 CSS uses a CDN
-  with an integrity hash. DataTables 3.0.4 and ColumnControl 2.0.2 also load from a
-  CDN with pinned versions and integrity hashes. The Tabalyst theme and table
-  configuration script are embedded.
+- `templates/` and `static/`: self-contained report presentation. The Signature
+  design system, embedded font subsets, table controls and interaction script are
+  included directly in every report; no CDN is required.
 
 ## Python API
 
@@ -64,10 +63,15 @@ descriptive hints, not conversions or domain validation. Numeric statistics use
 accepted numeric values with floating-point arithmetic and are omitted when
 conversion is not finite.
 
+Each column materializes `with_issues` in the canonical JSON. It is true exactly
+when the column has one or more missing values or its inferred type is `mixed`.
+Dataset-level type counts, section counts and date aggregates are also serialized
+so the HTML renderer does not recreate analysis rules.
+
 The complete CSV is loaded into memory. The preview contains the first N records;
 its size does not affect analysis. JSON and HTML may include raw data and should be
-shared accordingly. Bootstrap needs an internet connection; data is embedded in
-the report and is not sent to the CDN.
+shared accordingly. The generated report is self-contained and does not need an
+internet connection.
 
 The JSON profile records end-to-end CSV ingestion and analysis time in
 `processing_seconds`. The adjacent `executions.json` also records total run time,
@@ -84,13 +88,10 @@ node tests/browser/report.cjs examples/output/insurance-customers/report.html ex
 
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`
 selects another installed browser channel. Run from the repository root with an
-`artifacts/` directory available for screenshots. Checks cover combined filters,
-numeric ordering, reset, original row numbers, and desktop/mobile popup layout.
-`tests/fixtures/report_filters.csv` additionally exercises duplicate column names
-and HTML-like content in filter menus. Checks include combined filters, numeric
-ordering, secondary-table reset placement, date-format tooltips, original row
-numbers and desktop/mobile popup layout. Filtering never recalculates dataset
-metrics.
+`artifacts/` directory available for screenshots. Checks cover JSON-backed issue
+filtering, numeric ordering and filtering, percentage/count alignment,
+date-format tooltips, theme persistence, collapsible panels and desktop/mobile
+popup layout. Filtering never recalculates dataset metrics.
 
 ## Next iterations
 

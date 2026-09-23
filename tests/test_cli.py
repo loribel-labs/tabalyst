@@ -11,7 +11,7 @@ runner = CliRunner()
 
 
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.1.1"
+    assert tabalyst_version() == "0.1.2"
 
 
 def test_end_to_end_and_independent_json_render(tmp_path):
@@ -25,7 +25,8 @@ def test_end_to_end_and_independent_json_render(tmp_path):
     data = json.loads(profile_json.read_text(encoding="utf-8"))
     assert data["preview"][0]["values"][0] == "001"
     expected_html = html.read_text(encoding="utf-8")
-    assert "bootstrap@5.3.8" in expected_html
+    assert "Tabalyst Design Model · Signature v1.0" in expected_html
+    assert "cdn." not in expected_html
     source.unlink()
     second = tmp_path / "regenerated.html"
     result = runner.invoke(

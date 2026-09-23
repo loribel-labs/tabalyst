@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 1,
-  "generated_at": "2026-09-21T04:57:04.690705Z",
-  "processing_seconds": 0.0087,
+  "format_revision": 2,
+  "generated_at": "2026-09-23T06:28:35.233619Z",
+  "processing_seconds": 0.0103,
   "source": {
     "filename": "basic.csv",
     "size_bytes": 274,
@@ -83,7 +83,41 @@
     "duplicate_row_count": 1,
     "empty_row_count": 0,
     "empty_column_count": 0,
-    "constant_column_count": 0
+    "constant_column_count": 0,
+    "with_issues_column_count": 2,
+    "numeric_column_count": 0,
+    "date_column_count": 1,
+    "string_column_count": 3,
+    "inferred_type_counts": {
+      "text": 3,
+      "mixed": 1,
+      "date": 1,
+      "boolean": 1
+    },
+    "inferred_type_percents": {
+      "text": 50.0,
+      "mixed": 16.67,
+      "date": 16.67,
+      "boolean": 16.67
+    },
+    "semantic_type_counts": {
+      "none": 5,
+      "date": 1
+    },
+    "semantic_type_percents": {
+      "none": 83.33,
+      "date": 16.67
+    }
+  },
+  "date_summary": {
+    "present_count": 5,
+    "valid_count": 5,
+    "ambiguous_count": 0,
+    "ambiguous_percent": 0.0,
+    "invalid_date_count": 0,
+    "not_date_count": 0,
+    "maximum_column_ambiguous_count": 0,
+    "columns": []
   },
   "columns": [
     {
@@ -99,6 +133,7 @@
       "type_error_percent": 0.0,
       "missing_count": 0,
       "missing_percent": 0.0,
+      "with_issues": false,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -154,6 +189,7 @@
             "length": 3,
             "count": 5,
             "percent": 100.0,
+            "relative_percent": 100.0,
             "distinct_count": 4,
             "examples": [
               {
@@ -174,6 +210,9 @@
               }
             ]
           }
+        ],
+        "representative_examples": [
+          "003"
         ]
       },
       "numeric": null
@@ -191,6 +230,7 @@
       "type_error_percent": 0.0,
       "missing_count": 0,
       "missing_percent": 0.0,
+      "with_issues": false,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -246,6 +286,7 @@
             "length": 3,
             "count": 1,
             "percent": 20.0,
+            "relative_percent": 50.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -258,6 +299,7 @@
             "length": 4,
             "count": 1,
             "percent": 20.0,
+            "relative_percent": 50.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -270,6 +312,7 @@
             "length": 5,
             "count": 1,
             "percent": 20.0,
+            "relative_percent": 50.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -282,6 +325,7 @@
             "length": 7,
             "count": 2,
             "percent": 40.0,
+            "relative_percent": 100.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -290,6 +334,11 @@
               }
             ]
           }
+        ],
+        "representative_examples": [
+          "Charlie",
+          "Bob",
+          "Dana"
         ]
       },
       "numeric": null
@@ -308,6 +357,7 @@
       "type_error_percent": null,
       "missing_count": 1,
       "missing_percent": 20.0,
+      "with_issues": true,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -360,6 +410,7 @@
       "type_error_percent": 0.0,
       "missing_count": 0,
       "missing_percent": 0.0,
+      "with_issues": false,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -402,10 +453,15 @@
       "enum": null,
       "date_profile": {
         "status": "valid",
+        "present_count": 5,
         "valid_count": 5,
+        "valid_percent": 100.0,
         "ambiguous_count": 0,
+        "ambiguous_percent": 0.0,
         "invalid_date_count": 0,
+        "invalid_date_percent": 0.0,
         "not_date_count": 0,
+        "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
         "formats": [
@@ -457,6 +513,7 @@
       "type_error_percent": 0.0,
       "missing_count": 0,
       "missing_percent": 0.0,
+      "with_issues": false,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -503,6 +560,7 @@
       "type_error_percent": 0.0,
       "missing_count": 1,
       "missing_percent": 20.0,
+      "with_issues": true,
       "normalization": {
         "trim_count": 0,
         "trim_percent": 0.0,
@@ -553,6 +611,7 @@
             "length": 11,
             "count": 1,
             "percent": 25.0,
+            "relative_percent": 50.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -565,6 +624,7 @@
             "length": 14,
             "count": 1,
             "percent": 25.0,
+            "relative_percent": 50.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -577,6 +637,7 @@
             "length": 20,
             "count": 2,
             "percent": 50.0,
+            "relative_percent": 100.0,
             "distinct_count": 1,
             "examples": [
               {
@@ -585,6 +646,11 @@
               }
             ]
           }
+        ],
+        "representative_examples": [
+          "Two items, one order",
+          "First order",
+          "Pending review"
         ]
       },
       "numeric": null
