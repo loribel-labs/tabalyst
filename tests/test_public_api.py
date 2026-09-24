@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 from typer.testing import CliRunner
@@ -8,6 +9,7 @@ from tabalyst.cli import app
 from tabalyst.progress import ProgressPhase
 
 runner = CliRunner()
+ANSI_ESCAPE_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 def test_public_api_writes_canonical_reports_and_execution_history(tmp_path):
@@ -148,11 +150,12 @@ def test_batch_api_plans_outputs_and_emits_progress(tmp_path):
 
 
 def test_cli_help_version_and_report(tmp_path):
-    help_result = runner.invoke(app, ["report", "--help"], color=False)
+    help_result = runner.invoke(app, ["report", "--help"], color=True)
+    help_output = ANSI_ESCAPE_RE.sub("", help_result.output)
     assert help_result.exit_code == 0
-    assert "INPUT" in help_result.output
-    assert "--output" in help_result.output
-    assert "--output-dir" in help_result.output
+    assert "INPUT" in help_output
+    assert "--output" in help_output
+    assert "--output-dir" in help_output
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
