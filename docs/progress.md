@@ -118,4 +118,7 @@
   exact file position and processing phase in interactive terminals and continues
   with remaining inputs after an individual CSV failure.
 - Prepared version `0.2.0` with concise release highlights for the new CLI and
-  batch workflows; no publication tag has been created.
+  batch workflows.
+- Hardened the CLI help regression test against ANSI styling differences on
+  GitHub Actions and prepared the corrective `0.2.1` release after the `v0.2.0`
+  workflow stopped before publication.
