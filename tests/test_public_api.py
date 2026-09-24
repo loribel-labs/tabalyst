@@ -148,7 +148,7 @@ def test_batch_api_plans_outputs_and_emits_progress(tmp_path):
 
 
 def test_cli_help_version_and_report(tmp_path):
-    help_result = runner.invoke(app, ["report", "--help"])
+    help_result = runner.invoke(app, ["report", "--help"], color=False)
     assert help_result.exit_code == 0
     assert "INPUT" in help_result.output
     assert "--output" in help_result.output
