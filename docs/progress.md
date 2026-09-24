@@ -109,3 +109,13 @@
 - Repositioned the public README around Tabalyst as the platform, Tabalyst Report
   as the first tool, and Tabalyst CSV Report as the currently available format-
   specific offering.
+- Added automatic source-stem outputs, multiple positional inputs,
+  `-d/--output-dir`, native non-recursive glob resolution and deterministic input
+  deduplication to Tabalyst Report.
+- Added complete batch preflight checks for existing artifacts, input/output
+  conflicts and same-stem collisions before any report is processed.
+- Added reusable batch result models and engine progress events; the CLI now shows
+  exact file position and processing phase in interactive terminals and continues
+  with remaining inputs after an individual CSV failure.
+- Prepared version `0.2.0` with release notes for the breaking CLI and batch
+  workflow changes; no publication tag has been created.

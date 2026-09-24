@@ -11,7 +11,7 @@ runner = CliRunner()
 
 
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.1.2"
+    assert tabalyst_version() == "0.2.0"
 
 
 def test_root_help_and_version_describe_the_toolkit():
@@ -22,7 +22,7 @@ def test_root_help_and_version_describe_the_toolkit():
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
-    assert version_result.output.strip() == "0.1.2"
+    assert version_result.output.strip() == "0.2.0"
 
 
 def test_report_generates_html_json_and_history(tmp_path):
@@ -44,15 +44,184 @@ def test_report_generates_html_json_and_history(tmp_path):
     assert (html.parent / "executions.json").is_file()
 
 
-def test_report_requires_an_explicit_output(tmp_path):
+def test_report_uses_source_stem_when_output_is_omitted(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("a\n1\n", encoding="utf-8")
 
     result = runner.invoke(app, ["report", str(source)])
 
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "input.html").is_file()
+    assert (tmp_path / "input.json").is_file()
+    assert (tmp_path / "executions.json").is_file()
+
+
+def test_multiple_inputs_use_source_stems_in_output_directory(tmp_path):
+    first = tmp_path / "customers.csv"
+    second = tmp_path / "orders.csv"
+    first.write_text("id\n1\n", encoding="utf-8")
+    second.write_text("id\n2\n", encoding="utf-8")
+    reports = tmp_path / "reports"
+
+    result = runner.invoke(
+        app,
+        ["report", str(first), str(second), "-d", str(reports)],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert (reports / "customers.html").is_file()
+    assert (reports / "customers.json").is_file()
+    assert (reports / "orders.html").is_file()
+    assert (reports / "orders.json").is_file()
+    assert "2 succeeded, 0 failed" in result.stderr
+
+
+@pytest.mark.parametrize("directory", ["reports", "reports/"])
+def test_output_dir_accepts_optional_trailing_separator(
+    tmp_path, monkeypatch, directory
+):
+    monkeypatch.chdir(tmp_path)
+    source = tmp_path / "data.csv"
+    source.write_text("id\n1\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["report", "data.csv", "-d", directory])
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "reports/data.html").is_file()
+
+
+def test_native_glob_is_sorted_and_deduplicated(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "b.csv").write_text("id\n2\n", encoding="utf-8")
+    (tmp_path / "a.csv").write_text("id\n1\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["report", "*.csv", "a.csv", "-d", "reports"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "reports/a.html").is_file()
+    assert (tmp_path / "reports/b.html").is_file()
+    history = json.loads(
+        (tmp_path / "reports/executions.json").read_text(encoding="utf-8")
+    )
+    assert [entry["source_file"] for entry in history["executions"]] == [
+        "a.csv",
+        "b.csv",
+    ]
+
+
+def test_unmatched_glob_is_an_input_error(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(app, ["report", "*.csv", "-d", "reports"])
+
+    assert result.exit_code == 4
+    assert "matched no files" in result.output
+
+
+def test_output_file_is_rejected_for_multiple_inputs(tmp_path):
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    first.write_text("id\n1\n", encoding="utf-8")
+    second.write_text("id\n2\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "report",
+            str(first),
+            str(second),
+            "-o",
+            str(tmp_path / "report.html"),
+        ],
+    )
+
     assert result.exit_code == 2
-    assert "Missing option" in result.output
-    assert "--output" in result.output
+    assert "only be used with one input" in result.output
+    assert not (tmp_path / "report.html").exists()
+
+
+def test_output_and_output_dir_are_mutually_exclusive(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("id\n1\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "report",
+            str(source),
+            "-o",
+            str(tmp_path / "report.html"),
+            "-d",
+            str(tmp_path / "reports"),
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "cannot be used together" in result.output
+
+
+def test_output_dir_collision_stops_batch_before_processing(tmp_path):
+    france = tmp_path / "france"
+    canada = tmp_path / "canada"
+    france.mkdir()
+    canada.mkdir()
+    first = france / "data.csv"
+    second = canada / "data.csv"
+    first.write_text("id\n1\n", encoding="utf-8")
+    second.write_text("id\n2\n", encoding="utf-8")
+    reports = tmp_path / "reports"
+
+    result = runner.invoke(
+        app,
+        ["report", str(first), str(second), "-d", str(reports)],
+    )
+
+    assert result.exit_code == 1
+    assert "Output name collision" in result.output
+    assert not reports.exists()
+
+
+def test_existing_output_stops_entire_batch_without_force(tmp_path):
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    first.write_text("id\n1\n", encoding="utf-8")
+    second.write_text("id\n2\n", encoding="utf-8")
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    existing = reports / "second.html"
+    existing.write_text("keep", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["report", str(first), str(second), "-d", str(reports)],
+    )
+
+    assert result.exit_code == 1
+    assert "already exists" in result.output
+    assert not (reports / "first.html").exists()
+    assert existing.read_text(encoding="utf-8") == "keep"
+
+
+def test_batch_continues_after_invalid_input_and_returns_nonzero(tmp_path):
+    good = tmp_path / "good.csv"
+    bad = tmp_path / "bad.csv"
+    good.write_text("a,b\n1,2\n", encoding="utf-8")
+    bad.write_text("a,b\n1,2,3\n", encoding="utf-8")
+    reports = tmp_path / "reports"
+
+    result = runner.invoke(
+        app,
+        ["report", str(bad), str(good), "-d", str(reports)],
+    )
+
+    assert result.exit_code == 4
+    assert (reports / "good.html").is_file()
+    assert not (reports / "bad.html").exists()
+    assert "Error" in result.stderr
+    assert "1 succeeded, 1 failed" in result.stderr
 
 
 def test_legacy_direct_and_analyze_syntax_are_not_available(tmp_path):

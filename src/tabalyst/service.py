@@ -16,18 +16,25 @@ from tabalyst.execution_log import (
 )
 from tabalyst.ingestion import read_csv
 from tabalyst.models import DatasetProfile
-from tabalyst.reporting import load_profile, render_report
+from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
+from tabalyst.reporting import render_report
 
 ConfigPath = str | Path | Sequence[str | Path]
 
 
 def analyze_csv(
-    path: str | Path, config: AnalysisConfig | None = None
+    path: str | Path,
+    config: AnalysisConfig | None = None,
+    on_progress: ProgressCallback | None = None,
 ) -> DatasetProfile:
     """Read and analyze one CSV without coupling callers to the CLI."""
     config = config or AnalysisConfig()
+    source = Path(path)
     started = perf_counter()
-    profile = analyze_dataset(read_csv(Path(path), config.csv), config)
+    emit_progress(on_progress, source, ProgressPhase.READING)
+    dataset = read_csv(source, config.csv)
+    emit_progress(on_progress, source, ProgressPhase.ANALYZING)
+    profile = analyze_dataset(dataset, config)
     profile.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
@@ -90,38 +97,25 @@ def _write_text(path: Path, content: str) -> None:
         raise ReportError(f"Cannot write report file {path}: {exc}") from exc
 
 
-def analyze(
-    csv_path: str | Path,
-    report_path: str | Path,
-    separator: str | None = None,
-    encoding: str | None = None,
-    config_path: ConfigPath | None = None,
-    force: bool = False,
+def _analyze_resolved(
+    source: Path,
+    report: Path,
+    config: AnalysisConfig,
+    config_paths: list[Path],
+    *,
+    force: bool,
+    on_progress: ProgressCallback | None,
 ) -> dict[str, Any]:
-    """Analyze one CSV, write sibling JSON/HTML reports and return the result.
-
-    Explicit ``separator`` and ``encoding`` values override configuration-file
-    values, which in turn override Tabalyst's built-in defaults.
-    Existing report artifacts require ``force=True`` before replacement.
-    """
     started = perf_counter()
-    source = Path(csv_path)
-    report = Path(report_path)
-    config_paths = _config_paths(config_path)
     json_report, execution_report = _validate_paths(
         source,
         report,
         config_paths,
         force=force,
     )
-    config = resolve_config(
-        config_paths,
-        separator=separator,
-        encoding=encoding,
-    )
 
     try:
-        profile = analyze_csv(source, config)
+        profile = analyze_csv(source, config, on_progress=on_progress)
     except InputError:
         raise
     except OSError as exc:
@@ -129,11 +123,14 @@ def analyze(
 
     result = profile.model_dump(mode="json")
     json_text = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
-    _write_text(json_report, json_text)
+    emit_progress(on_progress, source, ProgressPhase.RENDERING)
     try:
-        html = render_report(load_profile(json_report))
+        html = render_report(profile)
     except OSError as exc:
         raise ReportError(f"Cannot render HTML report {report}: {exc}") from exc
+
+    emit_progress(on_progress, source, ProgressPhase.WRITING)
+    _write_text(json_report, json_text)
     _write_text(report, html)
     try:
         entry = build_execution_entry(
@@ -149,4 +146,37 @@ def analyze(
         raise ReportError(
             f"Cannot update execution history {execution_report}: {exc}"
         ) from exc
+    emit_progress(on_progress, source, ProgressPhase.COMPLETE)
     return result
+
+
+def analyze(
+    csv_path: str | Path,
+    report_path: str | Path,
+    separator: str | None = None,
+    encoding: str | None = None,
+    config_path: ConfigPath | None = None,
+    force: bool = False,
+) -> dict[str, Any]:
+    """Analyze one CSV, write sibling JSON/HTML reports and return the result.
+
+    Explicit ``separator`` and ``encoding`` values override configuration-file
+    values, which in turn override Tabalyst's built-in defaults.
+    Existing report artifacts require ``force=True`` before replacement.
+    """
+    source = Path(csv_path)
+    report = Path(report_path)
+    config_paths = _config_paths(config_path)
+    config = resolve_config(
+        config_paths,
+        separator=separator,
+        encoding=encoding,
+    )
+    return _analyze_resolved(
+        source,
+        report,
+        config,
+        config_paths,
+        force=force,
+        on_progress=None,
+    )

@@ -5,6 +5,7 @@ from typer.testing import CliRunner
 
 import tabalyst
 from tabalyst.cli import app
+from tabalyst.progress import ProgressPhase
 
 runner = CliRunner()
 
@@ -111,11 +112,47 @@ def test_existing_public_api_report_requires_explicit_force(tmp_path):
     tabalyst.analyze(source, report, force=True)
 
 
+def test_batch_api_plans_outputs_and_emits_progress(tmp_path):
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    first.write_text("a\n1\n", encoding="utf-8")
+    second.write_text("a\n2\n", encoding="utf-8")
+    events = []
+
+    batch = tabalyst.generate_reports(
+        [first, second],
+        output_dir=tmp_path / "reports",
+        on_progress=events.append,
+    )
+
+    assert batch.succeeded
+    assert [success.job.output.name for success in batch.successes] == [
+        "first.html",
+        "second.html",
+    ]
+    assert [event.phase for event in events] == [
+        ProgressPhase.READING,
+        ProgressPhase.ANALYZING,
+        ProgressPhase.RENDERING,
+        ProgressPhase.WRITING,
+        ProgressPhase.COMPLETE,
+        ProgressPhase.READING,
+        ProgressPhase.ANALYZING,
+        ProgressPhase.RENDERING,
+        ProgressPhase.WRITING,
+        ProgressPhase.COMPLETE,
+    ]
+    assert [(event.index, event.total) for event in events] == [(1, 2)] * 5 + [
+        (2, 2)
+    ] * 5
+
+
 def test_cli_help_version_and_report(tmp_path):
     help_result = runner.invoke(app, ["report", "--help"])
     assert help_result.exit_code == 0
     assert "INPUT" in help_result.output
     assert "--output" in help_result.output
+    assert "--output-dir" in help_result.output
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0

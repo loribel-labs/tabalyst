@@ -68,6 +68,57 @@
         "dirty": true,
         "state": "7ee48a21+working"
       }
+    },
+    {
+      "timestamp": "2026-09-24T04:01:22.240928Z",
+      "tabalyst_version": "0.1.2",
+      "source_file": "basic.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 5,
+      "columns": 6,
+      "analysis_seconds": 0.0096,
+      "total_seconds": 0.0507,
+      "git": {
+        "available": true,
+        "commit": "017dd10ae2f884ee98fa1ef27fb37f673f09e3d4",
+        "dirty": true,
+        "state": "017dd10a+working"
+      }
+    },
+    {
+      "timestamp": "2026-09-24T04:04:17.949234Z",
+      "tabalyst_version": "0.1.2",
+      "source_file": "basic.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 5,
+      "columns": 6,
+      "analysis_seconds": 0.009,
+      "total_seconds": 0.0519,
+      "git": {
+        "available": true,
+        "commit": "017dd10ae2f884ee98fa1ef27fb37f673f09e3d4",
+        "dirty": true,
+        "state": "017dd10a+working"
+      }
+    },
+    {
+      "timestamp": "2026-09-24T11:03:08.507896Z",
+      "tabalyst_version": "0.2.0",
+      "source_file": "basic.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 5,
+      "columns": 6,
+      "analysis_seconds": 0.0086,
+      "total_seconds": 0.049,
+      "git": {
+        "available": true,
+        "commit": "017dd10ae2f884ee98fa1ef27fb37f673f09e3d4",
+        "dirty": true,
+        "state": "017dd10a+working"
+      }
     }
   ]
 }

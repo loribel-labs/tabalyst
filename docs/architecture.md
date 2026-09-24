@@ -18,6 +18,10 @@ change. See the [format changelog](format-changelog.md).
 - `service.py`: public `analyze(...)` orchestration plus the reusable
   `analyze_csv(path, config)` engine boundary. Output replacement is an explicit
   service-level choice rather than a CLI-only safeguard.
+- `report_service.py`: shell-independent input resolution, complete batch
+  planning, collision checks and sequential multi-report execution.
+- `progress.py`: presentation-neutral progress events emitted by report services
+  and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
@@ -43,6 +47,24 @@ The equivalent CLI operation is:
 tabalyst report data.csv -o reports/client-a.html
 ```
 
+When no output is specified, the source stem is preserved beside the source.
+Batch inputs use the same rule or a shared explicit output directory:
+
+```console
+tabalyst report data.csv
+tabalyst report *.csv -d reports
+```
+
+`report_service.py` resolves explicit paths and non-recursive globs, deduplicates
+inputs, and validates every planned artifact before processing begins. `-o`
+maps one input to one explicit HTML file. `-d` maps one or more inputs to HTML
+files named from their source stems. Output collisions and existing artifacts
+without `--force` reject the complete plan before any report is generated.
+
+Processing errors remain attached to their individual jobs. Other jobs continue,
+and the batch result exposes its complete successes and failures to the CLI or
+another adapter.
+
 The command layer contains no profiling or rendering rules. Status and diagnostic
 messages use standard error so standard output remains available for future data
 streams. Existing report artifacts require explicit replacement through
@@ -50,15 +72,17 @@ streams. Existing report artifacts require explicit replacement through
 
 ## Progress reporting boundary
 
-Progress belongs at the boundary between the engine and its adapters. The CLI may
-render engine progress events as a spinner or progress bar, but the engine must
-not depend on terminal libraries. Stage-level events can cover opening, reading,
-analysis, rendering and writing. Accurate row counts, throughput and estimates
-require the future chunked reader; a blocking `pandas.read_csv()` call cannot
-provide a truthful percentage.
+Progress belongs at the boundary between the engine and its adapters. The engine
+emits reading, analysis, rendering, writing, completion and failure events without
+depending on terminal libraries. The CLI combines these events with exact batch
+positions such as `[2/8]`.
+
+Accurate row counts, throughput and estimates require the future chunked reader;
+a blocking `pandas.read_csv()` call cannot provide a truthful per-file percentage.
 
 Interactive progress must use standard error, remain silent under `--quiet`, and
-disable terminal animation when output is redirected.
+disable terminal animation when output is redirected. `--no-progress` disables it
+explicitly.
 
 ## Current semantics
 

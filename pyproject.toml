@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tabalyst"
-version = "0.1.2"
+version = "0.2.0"
 description = "Open-source toolkit for understanding and working with unfamiliar data."
 readme = "README.md"
 requires-python = ">=3.11"
