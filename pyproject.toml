@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tabalyst"
 version = "0.1.2"
-description = "Open-source data profiling engine for structured JSON and customizable HTML reports."
+description = "Open-source toolkit for understanding and working with unfamiliar data."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

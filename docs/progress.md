@@ -99,3 +99,13 @@
   mobile sizes.
 - Prepared Tabalyst `0.1.2` with the Signature v1 report, profile revision 2,
   report-facing JSON semantics, and the final table-hover and product-link polish.
+- Replaced the transitional direct/alpha CLI dispatch with the command-oriented
+  `tabalyst report INPUT -o OUTPUT` contract.
+- Split the CLI into root application and report-command adapters, with diagnostics
+  on stderr, documented exit codes, quiet/verbose modes and explicit overwrite
+  protection through `--force`.
+- Defined the engine/adapter boundary for future progress events; truthful
+  percentage and throughput reporting will accompany chunked ingestion.
+- Repositioned the public README around Tabalyst as the platform, Tabalyst Report
+  as the first tool, and Tabalyst CSV Report as the currently available format-
+  specific offering.

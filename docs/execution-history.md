@@ -7,7 +7,7 @@ comparing reports as Tabalyst and its configuration evolve.
 Given this command:
 
 ```console
-tabalyst examples/input/basic.csv examples/output/basic/report.html --config examples/config.json
+tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json
 ```
 
 Tabalyst writes `report.html`, `report.json`, and `executions.json` in
