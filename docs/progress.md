@@ -117,5 +117,5 @@
 - Added reusable batch result models and engine progress events; the CLI now shows
   exact file position and processing phase in interactive terminals and continues
   with remaining inputs after an individual CSV failure.
-- Prepared version `0.2.0` with release notes for the breaking CLI and batch
-  workflow changes; no publication tag has been created.
+- Prepared version `0.2.0` with concise release highlights for the new CLI and
+  batch workflows; no publication tag has been created.
