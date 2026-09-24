@@ -30,7 +30,8 @@ Breaking changes are allowed and migration support is not required yet.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/reporting.py`: JSON-to-HTML rendering without CSV access.
-- `src/tabalyst/cli.py`: command-line workflow and output management.
+- `src/tabalyst/cli/`: thin command adapters, error presentation and terminal
+  output management.
 - `src/tabalyst/templates/` and `src/tabalyst/static/`: report presentation.
 
 Read `README.md`, `docs/architecture.md` and the relevant configuration or format

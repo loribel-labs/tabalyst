@@ -1,13 +1,46 @@
 # Tabalyst
 
-Tabalyst is a local-first CSV profiling library and command-line tool. It reads a
-CSV file once, produces a structured JSON profile, and renders the same result as
-an interactive HTML report.
+**Tools for unfamiliar data.**
 
-Version `0.1.0` is the first packaged public API. The analysis format is still
-young, so larger schema changes are reserved for future minor releases.
+Tabalyst is an open-source, local-first toolkit for understanding and working
+with structured data before you import it, build around it, or add it to a
+pipeline.
 
-## Requirements and installation
+Give Tabalyst a file and it helps answer the first practical questions: What is
+in it? Is its structure consistent? Which values are missing? What types and
+distributions does it contain? Are there quality issues worth investigating?
+
+Tabalyst is not intended to replace pandas, DuckDB, Excel, or a general-purpose
+data-science environment. It focuses on the beginning of the data workflow:
+
+> **Understand. Explore. Clean. Validate.**
+
+## Project status
+
+Tabalyst is in active alpha development. Its first available tool is
+**Tabalyst Report**. The current CSV implementation can be referred to more
+specifically as **Tabalyst CSV Report**.
+
+Tabalyst CSV Report reads a CSV file, produces a structured JSON profile, and
+renders the same result as a self-contained interactive HTML report. Future input
+formats will use the same `report` command rather than introducing a separate CLI
+namespace for each format.
+
+The command-line and Python interfaces may still change incompatibly while the
+toolkit architecture is being established.
+
+| Tool | Purpose | Status |
+| --- | --- | --- |
+| Tabalyst Report (`report`) | Analyze and profile a dataset | Available for CSV |
+| Tabalyst Sample (`sample`) | Create a practical or representative subset | Planned |
+| Tabalyst Clean (`clean`) | Detect, explain, and apply data-quality fixes | Planned |
+| Tabalyst Query (`query`) | Query a dataset directly | Planned |
+| Tabalyst Explore (`explore`) | Explore data interactively | Planned |
+| Tabalyst Validate (`validate`) | Check data against rules or a schema | Planned |
+| Tabalyst Convert (`convert`) | Convert between structured-data formats | Planned |
+| Tabalyst Compare (`compare`) | Compare datasets or dataset versions | Planned |
+
+## Install
 
 Tabalyst supports Python 3.11, 3.12, 3.13, and 3.14.
 
@@ -22,16 +55,15 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 ```
 
-## Command line
+## Quick start: Tabalyst CSV Report
 
-Pass the CSV source and the complete HTML report path as positional arguments:
+Generate a report:
 
 ```console
-tabalyst data.csv reports/report.html
+tabalyst report data.csv -o reports/report.html
 ```
 
-The report path must end in `.html`. Parent directories are created
-automatically, and existing artifacts are replaced. A successful run creates:
+A successful run creates:
 
 ```text
 reports/
@@ -40,22 +72,72 @@ reports/
 `-- executions.json
 ```
 
-The JSON profile always shares the HTML filename stem. `executions.json` keeps a
-cumulative history for successful analyses in the same report directory, so
-several named reports can coexist there.
+- `report.html` is the self-contained interactive report.
+- `report.json` is the canonical, structured analysis result.
+- `executions.json` records successful runs in the output directory.
 
-Common options are:
+The output path must end in `.html`. Parent directories are created
+automatically. Existing report artifacts are protected unless replacement is
+explicitly requested:
 
 ```console
-tabalyst data.csv reports/report.html --separator ";" --encoding cp1252
-tabalyst data.csv reports/report.html --config tabalyst.json
-tabalyst --help
+tabalyst report data.csv -o reports/report.html --force
+```
+
+## Command line
+
+The CLI follows one grammar across the toolkit:
+
+```text
+tabalyst COMMAND INPUT [OPTIONS]
+```
+
+Current report examples:
+
+```console
+tabalyst report data.csv -o report.html
+tabalyst report data.csv -o report.html --delimiter ";"
+tabalyst report data.csv -o report.html --encoding cp1252
+tabalyst report data.csv -o report.html --config tabalyst.json
+tabalyst report data.csv -o report.html --verbose
+tabalyst report data.csv -o report.html --quiet
+tabalyst report --help
 tabalyst --version
 ```
 
 `python -m tabalyst` accepts the same arguments.
 
+Success messages, warnings, and diagnostics are written to standard error. This
+keeps standard output available for future structured output and pipeline
+composition. `--quiet` suppresses success messages, while `--verbose` shows
+detected input details.
+
+CLI exit codes are:
+
+| Code | Meaning |
+| ---: | --- |
+| `0` | Success |
+| `1` | Processing or output error |
+| `2` | Invalid CLI usage or configuration |
+| `4` | Input is unreadable, invalid, or unsupported |
+
+## What Tabalyst Report analyzes
+
+- Dataset dimensions, missing cells, duplicate rows, and quality observations.
+- Physical and semantic type inference with confidence and error rates.
+- Numeric, date, string-length, normalization, and value-distribution profiles.
+- Distinct values, representative examples, enum candidates, and date formats.
+- CSV structure, record widths, quoting, encoding, and delimiter configuration.
+- A bounded raw-data preview while all records are analyzed.
+- Sortable and filterable tables in the Signature HTML report.
+
+Raw strings are preserved. The JSON profile contains the analysis semantics used
+by the HTML renderer, so other tools can consume the same result without parsing
+the presentation.
+
 ## Python API
+
+The report workflow is also available without the CLI:
 
 ```python
 import tabalyst
@@ -72,15 +154,17 @@ print(tabalyst.__version__)
 print(result["summary"]["row_count"])
 ```
 
-`analyze()` returns a JSON-serializable dictionary whose logical content matches
-the adjacent JSON file. The HTML is rendered from that canonical JSON profile.
-Expected failures derive from `tabalyst.TabalystError`; callers may distinguish
-`InputError`, `ConfigurationError`, and `ReportError`.
+`analyze()` returns a JSON-serializable dictionary matching the adjacent JSON
+profile. Expected failures derive from `tabalyst.TabalystError`; callers can
+distinguish `InputError`, `ConfigurationError`, and `ReportError`.
+
+Existing report artifacts are not replaced by default. Pass `force=True` when
+replacement is intentional.
 
 ## Configuration
 
-Configuration files are strict JSON. Unknown names and invalid values are errors.
-The existing analysis settings remain available; the smallest useful file is:
+Configuration files are strict JSON. Unknown names and invalid values are
+rejected. A minimal file is:
 
 ```json
 {
@@ -93,62 +177,46 @@ The existing analysis settings remain available; the smallest useful file is:
 
 Resolution order is:
 
-1. an explicit `separator` or `encoding` argument;
+1. explicit `separator` or `encoding` Python arguments, or CLI `--delimiter` and
+   `--encoding` options;
 2. the file passed with `config_path` or `--config`;
 3. Tabalyst defaults: comma and `utf-8-sig`.
 
 `utf-8-sig` accepts ordinary UTF-8 and UTF-8 with a byte-order mark. See the
 [configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/configuration.md)
-for analysis, normalization,
-date, type-inference, sampling, and enum settings.
+for normalization, date detection, type inference, sampling, value examples, and
+enum settings.
 
-## Public examples
+## Local-first behavior and current limits
 
-The repository contains two reproducible examples:
+Tabalyst performs analysis locally and adds no telemetry or remote processing.
+The generated report embeds its design system, fonts, and interaction code, so it
+works without a CDN or network connection.
+
+The complete CSV is currently loaded into memory. Progress reporting and accurate
+throughput estimates for very large files will be introduced with chunked
+ingestion. Generated JSON and HTML may contain source values and should be shared
+accordingly.
+
+## Reproducible examples
+
+The repository contains two public synthetic examples:
 
 - `basic`: five rows covering common CSV values and one duplicate row.
-- `insurance-customers`: 3,000 synthetic customer and contract records across
-  34 columns. Names and contact details are fictional, and email addresses use
-  reserved `.example` domains.
+- `insurance-customers`: 3,000 fictional customer and contract records across
+  34 columns; email addresses use reserved `.example` domains.
 
-Each dataset under `examples/input/` has a matching generated report under
-`examples/output/`. Regenerate both with:
+Regenerate them from the repository root:
 
 ```console
-tabalyst examples/input/basic.csv examples/output/basic/report.html --config examples/config.json
-tabalyst examples/input/insurance-customers.csv examples/output/insurance-customers/report.html --config examples/config.json
+tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
+tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --force
 ```
 
-See the complete layout and maintenance notes in the
-[examples README](https://github.com/loribel-labs/tabalyst/blob/main/examples/README.md).
+See the [examples README](https://github.com/loribel-labs/tabalyst/blob/main/examples/README.md)
+for the complete layout.
 
-## What the report contains
-
-- Dataset dimensions, missing cells, duplicate rows, and quality observations.
-- Physical and semantic type inference with explicit confidence and error rates.
-- Numeric, date, string-length, normalization, and value-distribution profiles.
-- A bounded raw-data preview while all records are analyzed.
-- Sortable and filterable HTML tables in the self-contained Signature report.
-
-Raw strings are preserved. The complete CSV is currently loaded into memory.
-Report data remains local and Tabalyst adds no telemetry or remote analysis. The
-report embeds its design system, font subsets and interaction code, so it works
-without CDN or network access.
-
-## Compatibility with alpha commands
-
-The earlier commands remain available during the `0.1.x` transition:
-
-```console
-tabalyst analyze data.csv -o reports/report.html
-tabalyst render reports/report.json -o reports/regenerated.html
-```
-
-The alpha `analyze` form also retains automatic `tabalyst.json` discovery,
-multiple `--config` overrides, and `--preview-rows`. New integrations should use
-the direct command or `tabalyst.analyze()`.
-
-## Development and packaging
+## Development
 
 ```console
 python -m pytest
@@ -156,20 +224,18 @@ python -m ruff check .
 python -m build
 ```
 
-The build creates a wheel and source distribution under `dist/`. Release steps,
-including the clean-wheel smoke test and PyPI Trusted Publishing setup, are in
-[RELEASING.md](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md).
-The packaging architecture and automated publication flow are documented in
-[docs/python-package-and-release.md](https://github.com/loribel-labs/tabalyst/blob/main/docs/python-package-and-release.md).
+Architecture and release documentation:
 
-Report format details and internal boundaries are documented in
-[docs/architecture.md](https://github.com/loribel-labs/tabalyst/blob/main/docs/architecture.md).
-Please report defects through the
+- [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/architecture.md)
+- [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/configuration.md)
+- [Packaging and releases](https://github.com/loribel-labs/tabalyst/blob/main/docs/python-package-and-release.md)
+- [Release procedure](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md)
+
+Please report defects and feature requests through the
 [GitHub issue tracker](https://github.com/loribel-labs/tabalyst/issues).
 
 ## License
 
-Tabalyst is released under the
-[MIT License](https://github.com/loribel-labs/tabalyst/blob/main/LICENSE).
+Tabalyst is released under the [MIT License](LICENSE).
 
-Created by Gregory Borelli - Catalyseur Numérique.
+Created by Gregory Borelli — Catalyseur Numérique.

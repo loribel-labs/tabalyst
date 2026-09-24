@@ -28,8 +28,8 @@ domains.
 From the repository root, regenerate both outputs with:
 
 ```console
-tabalyst examples/input/basic.csv examples/output/basic/report.html --config examples/config.json
-tabalyst examples/input/insurance-customers.csv examples/output/insurance-customers/report.html --config examples/config.json
+tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
+tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --force
 ```
 
 Every output folder is independent and contains its own HTML report, canonical

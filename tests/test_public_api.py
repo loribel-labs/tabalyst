@@ -4,7 +4,7 @@ import pytest
 from typer.testing import CliRunner
 
 import tabalyst
-from tabalyst.cli import official_app
+from tabalyst.cli import app
 
 runner = CliRunner()
 
@@ -98,13 +98,26 @@ def test_multiple_named_reports_share_execution_history(tmp_path):
     ]
 
 
-def test_official_cli_help_version_and_analysis(tmp_path):
-    help_result = runner.invoke(official_app, ["--help"])
-    assert help_result.exit_code == 0
-    assert "CSV_PATH" in help_result.output
-    assert "REPORT_PATH" in help_result.output
+def test_existing_public_api_report_requires_explicit_force(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("a\n1\n", encoding="utf-8")
+    report = tmp_path / "report.html"
 
-    version_result = runner.invoke(official_app, ["--version"])
+    tabalyst.analyze(source, report)
+
+    with pytest.raises(tabalyst.ReportError, match="already exists"):
+        tabalyst.analyze(source, report)
+
+    tabalyst.analyze(source, report, force=True)
+
+
+def test_cli_help_version_and_report(tmp_path):
+    help_result = runner.invoke(app, ["report", "--help"])
+    assert help_result.exit_code == 0
+    assert "INPUT" in help_result.output
+    assert "--output" in help_result.output
+
+    version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
     assert version_result.output.strip() == tabalyst.__version__
 
@@ -112,8 +125,17 @@ def test_official_cli_help_version_and_analysis(tmp_path):
     source.write_text("a;b\n1;2\n", encoding="utf-8")
     report = tmp_path / "cli" / "report.html"
     result = runner.invoke(
-        official_app,
-        [str(source), str(report), "--separator", ";", "--encoding", "utf-8"],
+        app,
+        [
+            "report",
+            str(source),
+            "-o",
+            str(report),
+            "--delimiter",
+            ";",
+            "--encoding",
+            "utf-8",
+        ],
     )
     assert result.exit_code == 0, result.output
     assert report.is_file()
@@ -121,12 +143,14 @@ def test_official_cli_help_version_and_analysis(tmp_path):
     assert (report.parent / "executions.json").is_file()
 
 
-def test_official_cli_has_concise_user_errors(tmp_path):
+def test_cli_has_concise_user_errors(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("a\n1\n", encoding="utf-8")
 
-    result = runner.invoke(official_app, [str(source), str(tmp_path / "report.txt")])
+    result = runner.invoke(
+        app, ["report", str(source), "-o", str(tmp_path / "report.txt")]
+    )
 
-    assert result.exit_code == 1
+    assert result.exit_code == 4
     assert "ending in .html" in result.output
     assert "Traceback" not in result.output

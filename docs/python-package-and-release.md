@@ -51,15 +51,17 @@ L'objectif est d'éviter que les utilisateurs dépendent directement de la struc
 
 L'installation du package crée la commande `tabalyst`.
 
-La syntaxe principale utilise un fichier CSV source et le chemin complet du rapport HTML à générer.
+La syntaxe principale utilise la commande `report`, un fichier source et une
+sortie HTML explicite.
 
 ```console
-tabalyst data.csv reports/report.html
+tabalyst report data.csv -o reports/report.html
 ```
 
 Le même fonctionnement est également accessible avec `python -m tabalyst`.
 
-Les anciennes commandes introduites pendant les versions alpha peuvent être conservées pour compatibilité, mais elles ne constituent plus l'interface principale documentée.
+Les anciennes syntaxes alpha ne sont pas conservées. La CLI peut évoluer de
+manière incompatible tant que le produit reste en phase alpha.
 
 ## Fichiers produits
 
@@ -230,7 +232,7 @@ Python propre :
 ```console
 python -m pip install "tabalyst==X.Y.Z"
 tabalyst --version
-tabalyst data.csv reports/report.html
+tabalyst report data.csv -o reports/report.html
 ```
 
 ## Principe de sécurité

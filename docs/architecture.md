@@ -16,12 +16,14 @@ change. See the [format changelog](format-changelog.md).
 - `models.py`: Pydantic models for JSON serialization and validation.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
 - `service.py`: public `analyze(...)` orchestration plus the reusable
-  `analyze_csv(path, config)` engine boundary.
+  `analyze_csv(path, config)` engine boundary. Output replacement is an explicit
+  service-level choice rather than a CLI-only safeguard.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
-- `cli.py`: thin command-line parsing and error presentation over `analyze()`,
-  plus the retained alpha `render` compatibility command.
+- `cli/app.py`: root command registration and global options.
+- `cli/report.py`: thin `report` command adapter and error/diagnostic
+  presentation over `analyze()`.
 - `templates/` and `static/`: self-contained report presentation. The Signature
   design system, embedded font subsets, table controls and interaction script are
   included directly in every report; no CDN is required.
@@ -35,8 +37,28 @@ result = tabalyst.analyze("data.csv", "reports/client-a.html")
 print(result["summary"]["row_count"])
 ```
 
-The alpha low-level imports remain available for compatibility but are not part
-of the supported 0.1.0 public surface.
+The equivalent CLI operation is:
+
+```console
+tabalyst report data.csv -o reports/client-a.html
+```
+
+The command layer contains no profiling or rendering rules. Status and diagnostic
+messages use standard error so standard output remains available for future data
+streams. Existing report artifacts require explicit replacement through
+`--force` or `force=True`.
+
+## Progress reporting boundary
+
+Progress belongs at the boundary between the engine and its adapters. The CLI may
+render engine progress events as a spinner or progress bar, but the engine must
+not depend on terminal libraries. Stage-level events can cover opening, reading,
+analysis, rendering and writing. Accurate row counts, throughput and estimates
+require the future chunked reader; a blocking `pandas.read_csv()` call cannot
+provide a truthful percentage.
+
+Interactive progress must use standard error, remain silent under `--quiet`, and
+disable terminal animation when output is redirected.
 
 ## Current semantics
 
@@ -95,6 +117,7 @@ popup layout. Filtering never recalculates dataset metrics.
 
 ## Next iterations
 
-Per-column JSON files, an evidence CSV with selected/context rows, advanced sampling,
-configurable semantic rules, localization and an HTTP adapter build on these
-boundaries. No compatibility layer or migration system is planned yet.
+The shared dataset source, chunked readers, engine progress events, sampling,
+per-column JSON files, an evidence CSV with selected/context rows, configurable
+semantic rules, localization and an HTTP adapter build on these boundaries. No
+compatibility layer or migration system is planned during the current alpha.

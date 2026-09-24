@@ -48,7 +48,11 @@ def _config_paths(config_path: ConfigPath | None) -> list[Path]:
 
 
 def _validate_paths(
-    source: Path, report: Path, config_paths: list[Path]
+    source: Path,
+    report: Path,
+    config_paths: list[Path],
+    *,
+    force: bool,
 ) -> tuple[Path, Path]:
     if not source.exists():
         raise InputError(f"CSV file does not exist: {source}")
@@ -68,6 +72,13 @@ def _validate_paths(
     for output in outputs:
         if output in inputs:
             raise InputError(f"Report would overwrite an input file: {output}")
+    if not force:
+        for output in (report, json_report):
+            if output.exists():
+                raise ReportError(
+                    f"Output file already exists: {output}. "
+                    "Enable overwrite explicitly to replace it."
+                )
     return json_report, execution_report
 
 
@@ -85,17 +96,24 @@ def analyze(
     separator: str | None = None,
     encoding: str | None = None,
     config_path: ConfigPath | None = None,
+    force: bool = False,
 ) -> dict[str, Any]:
     """Analyze one CSV, write sibling JSON/HTML reports and return the result.
 
     Explicit ``separator`` and ``encoding`` values override configuration-file
     values, which in turn override Tabalyst's built-in defaults.
+    Existing report artifacts require ``force=True`` before replacement.
     """
     started = perf_counter()
     source = Path(csv_path)
     report = Path(report_path)
     config_paths = _config_paths(config_path)
-    json_report, execution_report = _validate_paths(source, report, config_paths)
+    json_report, execution_report = _validate_paths(
+        source,
+        report,
+        config_paths,
+        force=force,
+    )
     config = resolve_config(
         config_paths,
         separator=separator,
