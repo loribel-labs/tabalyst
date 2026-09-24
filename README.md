@@ -22,6 +22,13 @@ pip install tabalyst
 
 ## Tabalyst Report
 
+| Use case | Command | Destination |
+| --- | --- | --- |
+| One file, automatic name | `tabalyst report data.csv` | `data.html` beside the source |
+| One file, custom name | `tabalyst report data.csv -o report.html` | The file `report.html` |
+| Several files, automatic names | `tabalyst report *.csv` | Beside each source |
+| Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
+
 The simplest command keeps the source filename:
 
 ```console
@@ -62,7 +69,7 @@ products.csv  → products.html
 Use `-d` to place all reports in one directory:
 
 ```console
-tabalyst report *.csv -d reports
+tabalyst report *.csv -d reports/
 ```
 
 This produces:
@@ -78,11 +85,20 @@ reports/
 └── executions.json
 ```
 
-Both `-d reports` and `-d reports/` are accepted. Quotes are only needed when a
+Both `-d reports/` and `-d reports` are accepted. Quotes are only needed when a
 path contains spaces.
 
 `-o` always names one output file and therefore accepts only one input. `-d`
 always names an output directory and accepts one or many inputs.
+
+This is invalid because several inputs cannot share one output file:
+
+```console
+tabalyst report *.csv -o report.html
+```
+
+Tabalyst rejects the command before processing any file. Use `-d reports/`
+instead.
 
 ### Safe batch behavior
 
@@ -91,7 +107,7 @@ stops the entire batch if output names collide or if an output already exists.
 Use `--force` only when replacing all matching report artifacts is intentional:
 
 ```console
-tabalyst report *.csv -d reports --force
+tabalyst report *.csv -d reports/ --force
 ```
 
 If one CSV is malformed during analysis, Tabalyst reports that error, continues

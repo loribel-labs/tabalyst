@@ -121,20 +121,20 @@ def test_unmatched_glob_is_an_input_error(tmp_path, monkeypatch):
     assert "matched no files" in result.output
 
 
-def test_output_file_is_rejected_for_multiple_inputs(tmp_path):
-    first = tmp_path / "first.csv"
-    second = tmp_path / "second.csv"
-    first.write_text("id\n1\n", encoding="utf-8")
-    second.write_text("id\n2\n", encoding="utf-8")
+def test_output_file_is_rejected_when_glob_matches_multiple_inputs(
+    tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "first.csv").write_text("id\n1\n", encoding="utf-8")
+    (tmp_path / "second.csv").write_text("id\n2\n", encoding="utf-8")
 
     result = runner.invoke(
         app,
         [
             "report",
-            str(first),
-            str(second),
+            "*.csv",
             "-o",
-            str(tmp_path / "report.html"),
+            "report.html",
         ],
     )
 
