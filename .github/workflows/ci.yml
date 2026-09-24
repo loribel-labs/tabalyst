@@ -46,7 +46,7 @@ jobs:
           printf 'id,name\n1,Alice\n2,Bob\n' > sample.csv
           "$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import importlib.metadata as metadata; import tabalyst; assert tabalyst.__version__ == metadata.version('tabalyst'); tabalyst.analyze('sample.csv', 'api/report.html')"
           package_version=$("$RUNNER_TEMP/tabalyst-wheel/bin/python" -c "import tabalyst; print(tabalyst.__version__)")
-          "$RUNNER_TEMP/tabalyst-wheel/bin/tabalyst" sample.csv cli/report.html
+          "$RUNNER_TEMP/tabalyst-wheel/bin/tabalyst" report sample.csv -o cli/report.html
           test -f api/report.json
           test -f api/executions.json
           test -f cli/report.json

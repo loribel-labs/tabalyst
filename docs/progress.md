@@ -122,3 +122,5 @@
 - Hardened the CLI help regression test against ANSI styling differences on
   GitHub Actions and prepared the corrective `0.2.1` release after the `v0.2.0`
   workflow stopped before publication.
+- Updated the clean-wheel CI smoke test to invoke the command-oriented
+  `tabalyst report` interface.
