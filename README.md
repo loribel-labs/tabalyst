@@ -190,7 +190,7 @@ Configuration files are strict JSON. A minimal file is:
 
 Explicit CLI or Python arguments override the configuration file, which overrides
 Tabalyst defaults. See the
-[configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/configuration.md)
+[configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
 for all analysis settings.
 
 ## Local-first behavior and current limits
@@ -217,8 +217,8 @@ python -m build
 
 Additional documentation:
 
-- [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/architecture.md)
-- [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/configuration.md)
+- [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/dev/architecture.md)
+- [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
 - [Release procedure](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md)
 
 Please report defects and feature requests through the

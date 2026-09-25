@@ -1,4 +1,7 @@
-# Execution history
+---
+title: Execution history
+description: Reference for executions.json, the cumulative performance history written next to each report.
+---
 
 Every successful Tabalyst analysis updates `executions.json` in the HTML
 report's output folder. The file provides a lightweight performance history for
