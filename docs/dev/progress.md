@@ -124,3 +124,12 @@
   workflow stopped before publication.
 - Updated the clean-wheel CI smoke test to invoke the command-oriented
   `tabalyst report` interface.
+
+## 2026-09-25
+
+- Split `docs/` into published user documentation (`docs/en/`, `docs/fr/`) and
+  maintainer documentation (`docs/dev/`), with a CC BY 4.0 license for the
+  published pages, a bilingual glossary and documentation rules in `AGENTS.md`.
+- Wrote the first English pages for the future docs.tabalyst.com site: home,
+  installation (Windows first), first-report tutorial, JSON profile reference
+  and known limitations, checked against the published `0.2.1` behavior.
