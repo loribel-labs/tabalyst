@@ -43,8 +43,8 @@ Breaking changes are allowed and migration support is not required yet.
   output management.
 - `src/tabalyst/templates/` and `src/tabalyst/static/`: report presentation.
 
-Read `README.md`, `docs/architecture.md` and the relevant configuration or format
-changelog before changing shared behavior.
+Read `README.md`, `docs/dev/architecture.md` and the relevant configuration or
+format changelog (`docs/en/reference/`) before changing shared behavior.
 
 ## Development workflow
 
@@ -60,13 +60,50 @@ After Python changes:
 ```
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
-regression check described in `docs/architecture.md` at desktop and mobile sizes.
+regression check described in `docs/dev/architecture.md` at desktop and mobile sizes.
 After every project modification, regenerate both public demos using the commands
 in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
-Update `docs/progress.md` for meaningful work. Update the format changelog only
-when the JSON structure or semantics change. Update release notes for release
+Update `docs/dev/progress.md` for meaningful work. Update
+`docs/en/reference/profile-format-changelog.md` only when the JSON structure or
+semantics change. Update release notes in `docs/dev/releases/` for release
 milestones.
+
+## Documentation
+
+`docs/` holds the sources of the public documentation site (docs.tabalyst.com,
+built by `tabalyst-studio` from the latest release tag) and the maintainer
+documentation. See `docs/README.md`.
+
+- `docs/en/`: user documentation, published, organized as `tutorials/`,
+  `how-to/`, `reference/` and `explanation/`.
+- `docs/fr/`: French translation of `docs/en/`, published under `/fr/`.
+- `docs/dev/`: maintainer documentation, never published.
+
+Writing and translation rules for `docs/en/` and `docs/fr/`:
+
+1. English is the source of truth. French is always derived from English, never
+   the reverse.
+2. Never translate commands, CLI options, JSON keys, module names, file paths or
+   product names.
+3. "Tabalyst" is always one word with a capital T only. "Tabalyst" is the
+   toolkit; "Tabalyst Report" is a tool included in it; users always install
+   Tabalyst, never "Tabalyst Report".
+4. Every page is self-contained: an AI may retrieve a single page or section.
+5. Put the essentials first on each page (what it does, command, result), then
+   details.
+6. No essential content in images or JavaScript-only components. Prefer plain
+   `.md` over `.mdx`.
+7. Only document what is available in the latest release published on PyPI.
+   Document a feature in the same change that implements it, so the docs ship
+   with the release.
+8. Slugs are in English in both languages, with the same file names and folders.
+9. Use the terms of `docs/en/reference/glossary.md` in every translation.
+10. Pages start with a `title` and `description` frontmatter and have no `# H1`.
+
+When a user-facing behavior changes, update the matching page in `docs/en/`.
+The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
+(`docs/LICENSE`); the code stays MIT.
 
 ## Versioning
 

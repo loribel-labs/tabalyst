@@ -6,7 +6,7 @@ breaking changes are expected while iterating.
 
 During the `0.1.0aX` application series, profiles use `format_version: "0.1.0a"`.
 The integer `format_revision` increases for each meaningful structural or semantic
-change. See the [format changelog](format-changelog.md).
+change. See the [format changelog](../en/reference/profile-format-changelog.md).
 
 ## Boundaries
 

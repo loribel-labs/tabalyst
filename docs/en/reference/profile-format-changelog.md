@@ -1,11 +1,14 @@
-# Profile format changelog
+---
+title: Profile format changelog
+description: How report.json identifies its format, and the changes of each format revision.
+---
 
 The generated `report.json` identifies its contract with two independent fields:
 
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 1
+  "format_revision": 2
 }
 ```
 

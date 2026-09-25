@@ -1,4 +1,7 @@
-# Configuration
+---
+title: Configuration
+description: Reference for the JSON configuration file read by tabalyst report and the Python API.
+---
 
 Tabalyst reads strict JSON configuration files. JSON does not allow comments;
 this page is the descriptive reference for supported settings. The public API
