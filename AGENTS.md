@@ -16,6 +16,12 @@ Breaking changes are allowed and migration support is not required yet.
 - This repository is the public source of truth for Tabalyst code and public documentation.
 - Keep private strategy, personal notes, confidential data and unpublished research in `tabalyst-gb`, not here.
 - Do not commit secrets, credentials or real sensitive datasets.
+- The sibling repository `tabalyst-studio` holds the public website
+  (`tabalyst.com`), brand guidelines and DNS references. It consumes this
+  repository: it copies `examples/output/insurance-customers/` into its site and
+  only advertises features documented in this `README.md`. When a change affects
+  the CLI, the public API, the report or the demos, mention the follow-up needed
+  in `tabalyst-studio` (see its `AGENTS.md`), but do not edit it unless asked.
 
 ## Language
 
