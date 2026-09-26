@@ -1,0 +1,36 @@
+name: Docs dispatch
+
+# After a successful release, ask tabalyst-studio to rebuild docs.tabalyst.com
+# from the released tag. Requires the STUDIO_DISPATCH_TOKEN secret: a
+# fine-grained token limited to loribel-labs/tabalyst-studio with
+# "Contents: read and write". Without it, the job is skipped with a warning.
+
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the documentation build
+        env:
+          GH_TOKEN: ${{ secrets.STUDIO_DISPATCH_TOKEN }}
+          TAG: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::STUDIO_DISPATCH_TOKEN is not set; docs.tabalyst.com was not rebuilt."
+            exit 0
+          fi
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9][A-Za-z0-9.]*$'; then
+            echo "::error::Unexpected release tag: $TAG"
+            exit 1
+          fi
+          gh api --method POST repos/loribel-labs/tabalyst-studio/dispatches \
+            -f event_type=tabalyst-release \
+            -f "client_payload[tag]=$TAG"
+          echo "Requested a docs.tabalyst.com build for $TAG" >> "$GITHUB_STEP_SUMMARY"
