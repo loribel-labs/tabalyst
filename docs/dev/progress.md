@@ -20,6 +20,15 @@
   measurement tools in `benchmarks/`, and the baseline of the current engine:
   about 9,000 rows per second and 4.6 GB of memory for 1 million CSV rows.
   Every design decision was accepted at gate 0.
+- Completed Tabalyst Scan lot 1a: `tabalyst.scanner` package with `scan()`,
+  the complete `ScanConfig` schema with hard caps and fingerprint, immutable
+  result models and measure envelopes, reversible path display syntax, the
+  reader protocol and a streaming CSV reader that hashes while reading, strict
+  and tolerant error policies with located diagnostics, presence counters,
+  disjoint string categories, derived missing values and scan scope. Its
+  contract tests are enabled. A 1-million-row CSV scans in about 13 seconds
+  with about 77 MB of peak memory (lot 1a counters only). The minimum Pydantic
+  version is now 2.11.
 
 ## 2026-09-17
 

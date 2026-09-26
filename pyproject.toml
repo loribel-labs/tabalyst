@@ -36,7 +36,7 @@ classifiers = [
 dependencies = [
     "jinja2>=3.1",
     "pandas>=2.2",
-    "pydantic>=2.10",
+    "pydantic>=2.11",
     "typer>=0.12",
 ]
 

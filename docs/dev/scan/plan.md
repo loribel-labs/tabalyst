@@ -12,8 +12,8 @@ regenerated, documentation consistent with what is released.
 | Lot | Title | Status | Model | Effort | Branch |
 | --- | --- | --- | --- | --- | --- |
 | 0 | Design, contract tests, baseline benchmark | Done | Opus 5.5 | High | `scan/phase-0` |
-| 1a | Engine core and CSV reader | Next | Opus 5.5 | High | `scan/phase-1` |
-| 1b | JSON reader, collections and structural limits | Planned | Opus 5.5 | High | `scan/phase-1` |
+| 1a | Engine core and CSV reader | Done | Opus 5.5 | High | `scan/phase-1` |
+| 1b | JSON reader, collections and structural limits | Next | Opus 5.5 | High | `scan/phase-1` |
 | 2a | Values, frequencies, limits and statistics | Planned | Sonnet 5 | High | `scan/phase-2` |
 | 2b | Normalization version 1 and variant groups | Planned | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Planned | Opus 5.5 | High | `scan/phase-3` |
@@ -123,6 +123,7 @@ benchmarks.md.
   `values.count`, diagnostics collector, scan status and scope.
 - Done when: `tests/scan/test_scan_csv.py` passes. Reuse the CSV error
   messages of `ingestion.py` and `sampling.py` where they apply.
+- Done on 2026-09-26; contract changes recorded in design section 17.
 
 ### Lot 1b: JSON reader, collections and structural limits
 
@@ -227,3 +228,29 @@ done, and anything the next lot must know.
 - Lot 0: the current report engine resolves date ambiguity from evidence in
   the same column; Scan exposes that evidence without applying it (design
   section 12.6). Lot 5a must decide how the report presents it.
+- Lot 1a, for lot 1b:
+  - `scanner/api.py` rejects `.json` sources with "not supported yet"; lot 1b
+    replaces that with the JSON reader and sets `scope.collections`
+    (`null` for CSV).
+  - The engine already handles any path, the root field (listed only when a
+    record is not an object), items presence (`absent: null`), the `arrays`
+    block and `f<n>` identifiers. Unit behavior for JSON is not tested yet:
+    `test_scan_json.py` is the reference.
+  - Provisional choices to confirm at gate 1: the `name` of an items field is
+    `"[]"` and of the root field `"$"`; `missing.components.absent` is `null`
+    for items fields and counts as 0 in `missing.count`; a field's `parent` is
+    `null` for top-level fields even when the root field is listed.
+  - `structure` is always `complete` with zero untracked and truncated
+    observations; lot 1b adds `max_fields`, `max_depth` and
+    `max_record_observations` (`RecordExcluded` with reason
+    `record_too_large` under the tolerant policy).
+  - `RecordExcluded.index` counts every record read, so indices of analyzed
+    records have gaps after exclusions.
+  - Open for gate 1: the CSV reader keeps the default `csv.field_size_limit`
+    (131,072 characters), so a longer cell is a fatal quoting error, as in the
+    current engine. Raising it changes process-wide state and lets one cell
+    use unbounded memory; decide on a bounded, configurable cell limit with the
+    structural limits.
+- Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows
+  of `synthetic-1m.csv` in about 13 s with 77 MB peak memory, counters only.
+  Each cell creates one `Observation`; a CSV fast path is an option for lot 6.

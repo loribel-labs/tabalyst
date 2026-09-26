@@ -224,6 +224,13 @@ class DatasetOpened:
     dataset: str                 # "rows", "$", "$[]", "$.customers[]"
     kind: Literal["table", "document", "collection"]
     collection_path: FieldPath | None
+    fields: tuple[DeclaredField, ...] = ()   # known before any record
+
+@dataclass(frozen=True, slots=True)
+class DeclaredField:
+    path: FieldPath
+    name: str                    # CSV header name
+    display: str                 # CSV label: "name", "name#3", "#4"
 
 @dataclass(slots=True)
 class Record:
@@ -235,9 +242,11 @@ class Record:
 @dataclass(frozen=True, slots=True)
 class RecordExcluded:
     dataset: str
-    index: int
+    index: int                   # counts every record read, excluded or not
     location: Location
     reason: str                  # "width_mismatch", "record_too_large"
+    code: str                    # diagnostic code, "csv_width_mismatch"
+    message: str                 # diagnostic message, same for every record
 ```
 
 ```python
@@ -262,7 +271,14 @@ class Observation:
 - A CSV location is the record index and the first physical line of the
   record; a JSON location is the record index and the element index in its
   array.
-- A reader raises `InputError` for fatal problems (section 14).
+- A reader raises `InputError` for fatal problems (section 14). Readers
+  receive the configuration and apply the error policy themselves: under
+  `strict` they raise a format-specific `InputError`; under `tolerant` they
+  yield `RecordExcluded`, whose `code` and `message` become the diagnostic, so
+  the engine never tests the source format.
+- Declared fields are registered before any record, in order, so a CSV with
+  only a header still lists its columns, with the header names and labels
+  that only the reader knows. Other fields are discovered from observations.
 - Records are materialized one at a time. `limits.max_record_observations`
   protects against a single huge record.
 
@@ -795,6 +811,14 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
 }
 ```
 
+- `source.csv` is `{"delimiter": ",", "header": [...]}` for CSV sources and
+  `null` otherwise; `source.size_bytes` is the number of bytes read and hashed.
+- `scope.collections` describes JSON collection selection and is `null` for
+  CSV sources, which have no collections to select.
+- A `limited` envelope omits `lower_bound` when no bound is proven.
+- Diagnostic `locations` list only the keys that apply: `{record, line}` for
+  CSV, `{record, element}` for JSON.
+
 The format follows the repository convention: `format_version` names the
 alpha family and `format_revision` increases for each meaningful change. It
 gets its own changelog page when `tabalyst scan` is released.
@@ -863,3 +887,5 @@ input.
 | --- | --- | --- | --- |
 | 2026-09-26 | 0 | Initial contract. | Phase 0. |
 | 2026-09-26 | 0 | Gate 0: every Proposed decision accepted without change. | Maintainer validation. |
+| 2026-09-26 | 1a | Section 6: `DatasetOpened.fields` (declared fields), `RecordExcluded.code` and `message`, readers apply the error policy. | A header-only CSV must list its columns, and the engine must not know CSV diagnostic codes. |
+| 2026-09-26 | 1a | Section 16.1: `source.csv` content, `scope.collections` null for CSV, `lower_bound` omitted when unproven, location keys per format. | Details the example did not settle. |

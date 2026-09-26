@@ -29,6 +29,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
+- `scanner/`: Tabalyst Scan, the streaming engine being built beside the pandas
+  engine (see below). It imports no pandas and is not wired to the CLI yet.
 - `cli/app.py`: root command registration and global options.
 - `cli/report.py`: thin `report` command adapter and error/diagnostic
   presentation over `analyze()`.
@@ -166,4 +168,6 @@ compatibility layer or migration system is planned during the current alpha.
 
 Tabalyst Scan will replace the pandas engine with a streaming, bounded-memory
 engine for CSV and JSON. Its contract is [scan/design.md](scan/design.md) and
-its lots are in [scan/plan.md](scan/plan.md).
+its lots are in [scan/plan.md](scan/plan.md). Since lot 1a, `tabalyst.scanner`
+provides `scan()`, `ScanConfig` and `ScanResult`, the streaming CSV reader,
+paths, presence and string categories.
