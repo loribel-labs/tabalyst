@@ -296,3 +296,231 @@ def test_field_limit_bounds_structure_and_says_so(tmp_path):
         for item in result["diagnostics"]
     )
     assert result["status"] == "complete"
+
+
+def test_numbers_keep_the_type_of_their_lexical_form(tmp_path):
+    """Section 6: 1 is an integer, 1.0 and 1e3 are numbers, "1" is a string."""
+    source = write_text(
+        tmp_path, "numbers.json", '[1, -0, 12345678901234567890123, 1.0, 1e3, "1"]'
+    )
+
+    root = field(dataset(run_scan(source), "$[]"), "$")
+
+    assert root["native_types"] == {"integer": 3, "number": 2, "string": 1}
+    assert root["values"]["count"] == 6
+
+
+def test_document_links_promoted_arrays_up_to_the_discovery_depth(tmp_path):
+    """Section 5.2: arrays reachable through keys only become collections."""
+    data = {"a": {"b": {"c": [1, 2]}}, "d": [{"x": 1}], "e": [[1], [2, 3]]}
+    source = write_json(tmp_path, "document.json", data)
+
+    automatic = run_scan(source)
+    shallow = run_scan(source, json={"discovery_max_depth": 2})
+    none = run_scan(source, json={"discovery_max_depth": 0})
+
+    assert [item["id"] for item in automatic["datasets"]] == [
+        "$",
+        "$.a.b.c[]",
+        "$.d[]",
+        "$.e[]",
+    ]
+    document = dataset(automatic, "$")
+    assert document["collection_path"] is None
+    assert field(document, "a.b.c")["collection"] == "$.a.b.c[]"
+    assert field(document, "a.b")["collection"] is None
+    nested = dataset(automatic, "$.e[]")
+    assert nested["record_types"] == {"array": 2}
+    assert field(nested, "[]")["native_types"] == {"integer": 3}
+    assert field(dataset(automatic, "$.d[]"), "x")["presence"]["present"] == 1
+
+    assert [item["id"] for item in shallow["datasets"]] == ["$", "$.d[]", "$.e[]"]
+    shallow_document = dataset(shallow, "$")
+    assert field(shallow_document, "a.b.c")["collection"] is None
+    assert field(shallow_document, "a.b.c[]")["native_types"] == {"integer": 2}
+    assert [item["id"] for item in none["datasets"]] == ["$"]
+
+
+def test_explicit_collection_without_array_is_empty_and_says_so(tmp_path):
+    source = write_json(tmp_path, "export.json", {"customers": {"id": 1}})
+
+    result = run_scan(source, json={"collections": ["$.customers[]", "$.orders[]"]})
+
+    assert [item["id"] for item in result["datasets"]] == [
+        "$.customers[]",
+        "$.orders[]",
+    ]
+    assert all(item["record_count"] == 0 for item in result["datasets"])
+    warnings = [
+        item["dataset"]
+        for item in result["diagnostics"]
+        if item["code"] == "json_collection_not_found"
+    ]
+    assert warnings == ["$.customers[]", "$.orders[]"]
+    assert result["status"] == "complete"
+
+
+@pytest.mark.parametrize(
+    "collections",
+    [[], ["$.a[]", "$.a[].b[]"], ["$.a[]", '$["a"][]'], ["$.a"], ["a[]"]],
+)
+def test_invalid_collection_selections_are_rejected(collections):
+    from tabalyst.scanner import ScanConfig
+
+    with pytest.raises(ValueError):
+        ScanConfig.model_validate({"json": {"collections": collections}})
+
+
+@pytest.mark.parametrize(
+    "content",
+    [b"", b"  ", b'["\xff"]', b'"\xed\xa0\x80"', b"[NaN]", b"[1] [2]", b'"a\x00b"'],
+    ids=["empty", "blank", "utf8", "surrogate", "nan", "trailing", "control"],
+)
+@pytest.mark.parametrize("backend", ["yajl2_c", "python"])
+def test_unreadable_json_is_an_input_error(tmp_path, monkeypatch, content, backend):
+    import ijson
+
+    from tabalyst.scanner.readers import json_reader
+
+    monkeypatch.setattr(json_reader, "BACKEND", ijson.get_backend(backend))
+    source = tmp_path / "bad.json"
+    source.write_bytes(content)
+
+    with pytest.raises(InputError, match=r"bad\.json") as error:
+        run_scan(source, errors={"policy": "tolerant"})
+    assert "b'" not in str(error.value)
+
+
+def test_errors_outside_the_parser_are_not_reported_as_invalid_json(
+    tmp_path, monkeypatch
+):
+    """Only parser failures become input errors; other exceptions stay bugs."""
+    from tabalyst.scanner.readers import json_reader
+
+    def broken(event, value):
+        raise ValueError("engine bug")
+
+    monkeypatch.setattr(json_reader, "_native", broken)
+    source = write_json(tmp_path, "ok.json", [1])
+
+    with pytest.raises(ValueError, match="engine bug") as error:
+        run_scan(source)
+    assert not isinstance(error.value, InputError)
+
+
+def test_canonical_collection_spelling_names_the_dataset(tmp_path):
+    source = write_json(tmp_path, "export.json", {"a": [{"x": 1}]})
+
+    result = run_scan(source, json={"collections": ['$["a"][]']})
+
+    assert [item["id"] for item in result["datasets"]] == ["$.a[]"]
+    assert result["scope"]["collections"]["requested"] == ["$.a[]"]
+    assert dataset(result, "$.a[]")["record_count"] == 1
+
+
+def test_utf8_byte_order_mark_is_accepted(tmp_path):
+    source = tmp_path / "bom.json"
+    content = b'\xef\xbb\xbf[{"a": 1}]'
+    source.write_bytes(content)
+
+    result = run_scan(source)
+
+    assert result["source"]["encoding"] == "utf-8-sig"
+    assert result["source"]["size_bytes"] == len(content)
+    assert dataset(result, "$[]")["record_count"] == 1
+
+
+@pytest.mark.parametrize("policy", ["strict", "tolerant"])
+def test_duplicate_keys_make_a_record_malformed(tmp_path, policy):
+    """Which duplicate applies is ambiguous; presence must stay exact."""
+    source = write_text(
+        tmp_path, "dup.json", '[{"a": 1}, {"a": 2, "b": {"a": 3, "a": 4}}, {"a": 5}]'
+    )
+
+    if policy == "strict":
+        with pytest.raises(InputError, match="Record 2.*duplicate key 'a'"):
+            run_scan(source)
+        return
+    result = run_scan(source, errors={"policy": policy})
+
+    assert result["status"] == "partial"
+    assert result["scope"]["exclusions"] == {"duplicate_key": 1}
+    records = dataset(result, "$[]")
+    assert records["record_count"] == 2
+    assert field(records, "a")["presence"]["present"] == 2
+    [diagnostic] = result["diagnostics"]
+    assert diagnostic["code"] == "json_duplicate_key"
+    assert diagnostic["level"] == "error"
+    assert diagnostic["locations"] == [{"record": 2, "element": 1}]
+
+
+def test_depth_limit_truncates_deeper_content_and_says_so(tmp_path):
+    """ET06: content below max_depth is counted, not analyzed."""
+    source = write_json(
+        tmp_path, "deep.json", [{"a": {"b": {"c": 1, "d": [1]}}}, {"a": 1}]
+    )
+
+    result = run_scan(source, limits={"max_depth": 2})
+
+    records = dataset(result, "$[]")
+    assert [item["display"] for item in records["fields"]] == ["a", "a.b"]
+    assert field(records, "a.b")["native_types"] == {"object": 1}
+    assert records["structure"]["depth_truncated_observations"] == 3
+    assert records["structure"]["max_depth_seen"] == 2
+    assert records["structure"]["paths"] == {"status": "complete", "value": 2}
+    [diagnostic] = result["diagnostics"]
+    assert (diagnostic["code"], diagnostic["level"]) == ("depth_limit", "warning")
+    assert diagnostic["locations"] == [{"record": 1, "element": 0}]
+    assert result["status"] == "complete"
+
+
+def test_array_length_counts_elements_below_the_depth_limit(tmp_path):
+    source = write_json(tmp_path, "deep.json", [{"a": [[1, 2], [3]]}])
+
+    records = dataset(run_scan(source, limits={"max_depth": 2}), "$[]")
+
+    assert field(records, "a")["arrays"]["total_items"] == 2
+    assert field(records, "a[]")["arrays"]["total_items"] == 3
+    assert records["structure"]["depth_truncated_observations"] == 3
+
+
+@pytest.mark.parametrize("policy", ["strict", "tolerant"])
+def test_record_above_the_observation_limit(tmp_path, policy):
+    """Section 14: fatal when strict, excluded and visible when tolerant."""
+    records = [{"a": 1}, {"a": [1, 2, 3, 4]}, {"a": 2}]
+    source = write_json(tmp_path, "large.json", records)
+    limits = {"max_record_observations": 4}
+
+    if policy == "strict":
+        with pytest.raises(InputError, match="Record 2.*max_record_observations"):
+            run_scan(source, limits=limits)
+        return
+    result = run_scan(source, errors={"policy": policy}, limits=limits)
+
+    assert result["status"] == "partial"
+    assert result["scope"]["records_read"] == 3
+    assert result["scope"]["exclusions"] == {"record_too_large": 1}
+    collection = dataset(result, "$[]")
+    assert collection["record_count"] == 2
+    assert field(collection, "a")["native_types"] == {"integer": 2}
+    [diagnostic] = result["diagnostics"]
+    assert diagnostic["code"] == "record_too_large"
+    assert diagnostic["locations"] == [{"record": 2, "element": 1}]
+
+
+def test_compiled_and_python_backends_give_the_same_result(tmp_path, monkeypatch):
+    """Principle 6: the ijson backend changes speed, never results."""
+    import ijson
+
+    from tabalyst.scanner.readers import json_reader
+
+    data = dict(NESTED_ORDERS, big=12345678901234567890123, values=[1.5, True, "é"])
+    source = write_json(tmp_path, "customers.json", data)
+
+    compiled = run_scan(source)
+    monkeypatch.setattr(json_reader, "BACKEND", ijson.get_backend("python"))
+    python = run_scan(source)
+
+    for result in (compiled, python):
+        del result["started_at"], result["duration_seconds"]
+    assert python == compiled

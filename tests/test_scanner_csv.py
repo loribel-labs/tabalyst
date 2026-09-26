@@ -141,11 +141,6 @@ def test_missing_and_non_file_sources_are_input_errors(tmp_path):
         scan(tmp_path)
 
 
-def test_json_sources_wait_for_their_reader(tmp_path):
-    with pytest.raises(InputError, match="not supported yet"):
-        scan(_write(tmp_path, b"[]", "data.json"))
-
-
 def test_progress_reports_reading_and_completion(tmp_path):
     events = []
 

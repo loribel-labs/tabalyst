@@ -34,6 +34,7 @@ class CsvReader:
         self.encoding = config.csv.encoding
         self.delimiter = config.csv.delimiter
         self.tolerant = config.errors.policy == "tolerant"
+        self.max_observations = config.limits.max_record_observations
         self._summary: SourceSummary | None = None
 
     def summary(self) -> SourceSummary:
@@ -83,6 +84,14 @@ class CsvReader:
 
     def _records(self, reader, header: list[str]) -> Iterator[StreamItem]:
         width = len(header)
+        # Each record observes its root and every column: with a wider header,
+        # every record would be too large, whatever the error policy.
+        if width + 1 > self.max_observations:
+            raise InputError(
+                f"CSV header has {width} columns, so each record has "
+                f"{width + 1} observations, above limits.max_record_observations "
+                f"({self.max_observations})."
+            )
         paths = [(Column(position),) for position in range(1, width + 1)]
         yield DatasetOpened(
             dataset=DATASET,

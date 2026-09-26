@@ -51,6 +51,12 @@ class JsonSettings(_Settings):
     def absolute_paths(cls, values: list[str] | None) -> list[str] | None:
         if values is None:
             return None
+        if not values:
+            raise ValueError(
+                "Collection paths cannot be an empty list; use null for automatic "
+                "discovery"
+            )
+        paths: dict[tuple, str] = {}
         for value in values:
             if not value.startswith("$"):
                 raise ValueError(f"Collection paths must be absolute: {value!r}")
@@ -59,8 +65,19 @@ class JsonSettings(_Settings):
                 raise ValueError(
                     f"Collection paths must select array elements with '[]': {value!r}"
                 )
-        if len(set(values)) != len(values):
-            raise ValueError("Collection paths must be unique")
+            if path in paths:
+                raise ValueError(
+                    f"Collection paths must be unique: {paths[path]!r} and {value!r}"
+                )
+            paths[path] = value
+        # Overlapping selections would put one record in two datasets.
+        for path, value in paths.items():
+            for other, other_value in paths.items():
+                if len(other) > len(path) and other[: len(path)] == path:
+                    raise ValueError(
+                        f"Collection paths cannot overlap: {value!r} contains "
+                        f"{other_value!r}"
+                    )
         return values
 
 
