@@ -139,6 +139,34 @@ tabalyst --version
 
 `python -m tabalyst` accepts the same commands.
 
+## Tabalyst Sample
+
+Create a smaller CSV without modifying the source:
+
+```console
+tabalyst sample customers.csv --sample-method random --rows 1000 --seed 42
+```
+
+The default output is `customers.sample.csv` beside the source. Use `-o` to
+name the output for one input, or `-d` to sample several files into one
+directory:
+
+```console
+tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
+tabalyst sample *.csv --sample-method random --percent 5 -d samples/
+```
+
+Available methods are `first`, `last`, `random` and `stratified`. Stratified
+sampling approximately preserves the distribution of a selected field:
+
+```console
+tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
+```
+
+Sampling reads CSV records as a stream. Random and stratified sampling keep
+only the requested sample, plus stratum counts, in memory. Existing outputs
+require `--force`, and an input file is never overwritten.
+
 ## What the report analyzes
 
 - Dataset dimensions, missing cells, duplicates, and quality observations.
@@ -168,6 +196,13 @@ result = tabalyst.analyze(
 batch = tabalyst.generate_reports(
     ["*.csv"],
     output_dir="reports",
+)
+
+sample = tabalyst.sample_csv(
+    "customers.csv",
+    method="random",
+    rows=1000,
+    seed=42,
 )
 ```
 
@@ -202,8 +237,9 @@ Tabalyst performs analysis locally and adds no telemetry or remote processing.
 Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
-The complete CSV is currently loaded into memory. File and phase progress is
-available now; row percentages, throughput estimates, recursive directory input,
+Report analysis currently loads the complete CSV into memory. Sampling uses a
+streaming reader with bounded row storage. File and phase progress is available
+for reports; row percentages, throughput estimates, recursive directory input,
 and parallel batch execution will require later ingestion work.
 
 ## Examples and development

@@ -6,6 +6,7 @@ import typer
 
 from tabalyst import __version__
 from tabalyst.cli.report import report_command
+from tabalyst.cli.sample import sample_command
 
 app = typer.Typer(
     add_completion=False,
@@ -37,6 +38,7 @@ def root(
 
 
 app.command("report")(report_command)
+app.command("sample")(sample_command)
 
 
 def main() -> None:

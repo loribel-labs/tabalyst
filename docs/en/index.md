@@ -26,6 +26,8 @@ documentation describes the latest release published on PyPI.
 - [Install Tabalyst](how-to/install.md), on Windows, macOS or Linux, and
   [keep it up to date](how-to/install.md#keep-tabalyst-up-to-date).
 - [Create your first report](tutorials/first-report.md) from a small CSV file.
+- [Sample CSV files](how-to/sample-csv.md) with first, last, random or
+  stratified selection.
 
 ## Reference
 
