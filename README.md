@@ -17,8 +17,11 @@ the shared toolkit architecture is being established.
 Tabalyst supports Python 3.11, 3.12, 3.13, and 3.14.
 
 ```console
-pip install tabalyst
+pip install --upgrade tabalyst
 ```
+
+The same command installs Tabalyst or updates it. Tabalyst is in alpha and
+changes often: update it before each new test.
 
 ## Tabalyst Report
 

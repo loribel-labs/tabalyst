@@ -5,7 +5,13 @@ description: Tutorial that profiles a five-row CSV file with tabalyst report, op
 
 In this tutorial you create a small CSV file, run `tabalyst report` on it, open
 the HTML report and read the problems Tabalyst detects. It takes about five
-minutes. You need Tabalyst installed: see [Install Tabalyst](../how-to/install.md).
+minutes. You need Tabalyst installed and up to date: see
+[Install Tabalyst](../how-to/install.md). If it is already installed, update it
+first, since the output shown here comes from the latest release:
+
+```console
+pip install --upgrade tabalyst
+```
 
 ## 1. Create a CSV file
 

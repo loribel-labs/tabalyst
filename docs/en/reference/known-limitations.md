@@ -44,7 +44,8 @@ published release lifts them.
   incompatibly between releases. No migration tool is provided. Check
   `format_version` and `format_revision` before reading a profile.
 - **Changing commands.** Commands and options may change incompatibly while
-  Tabalyst is in alpha.
+  Tabalyst is in alpha. Update often with `pip install --upgrade tabalyst`: this
+  documentation describes the latest release.
 - **English report.** The HTML report is only available in English.
 - **Raw data in outputs.** The report and the JSON profile contain values from
   the source file, including a preview of the first rows. Share them as you
