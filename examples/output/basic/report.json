@@ -1,12 +1,12 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 2,
-  "generated_at": "2026-09-24T12:41:27.258163Z",
-  "processing_seconds": 0.0094,
+  "generated_at": "2026-09-26T14:51:38.257277Z",
+  "processing_seconds": 0.0089,
   "source": {
     "filename": "basic.csv",
-    "size_bytes": 274,
-    "sha256": "7d426449e1217d4dbcad1e7e4c862d360c63d927cb775caa48007d70ac36c0c8",
+    "size_bytes": 280,
+    "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
     "encoding": "utf-8-sig",
     "delimiter": ","
   },

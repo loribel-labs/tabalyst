@@ -20,6 +20,10 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   service-level choice rather than a CLI-only safeguard.
 - `report_service.py`: shell-independent input resolution, complete batch
   planning, collision checks and sequential multi-report execution.
+- `sampling.py`: streaming, reusable single-file CSV sampling strategies and
+  atomic output writing.
+- `sampling_service.py`: wildcard resolution, batch planning, collision checks
+  and sequential multi-sample execution.
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
@@ -69,6 +73,20 @@ The command layer contains no profiling or rendering rules. Status and diagnosti
 messages use standard error so standard output remains available for future data
 streams. Existing report artifacts require explicit replacement through
 `--force` or `force=True`.
+
+`sample_csv()` is the reusable single-file sampling boundary. It validates CSV
+structure in a first streaming pass, then keeps bounded selection state in a
+second pass. `first` and `last` retain only the requested rows; `random` uses
+reservoir sampling; `stratified` first counts distinct field values, allocates
+the exact requested size with largest remainders, then uses one bounded
+reservoir per stratum. Selected records are written in source order through an
+atomic temporary file replacement.
+
+`generate_samples()` resolves explicit paths and non-recursive globs before any
+work begins. Without an output option, `data.csv` maps to `data.sample.csv`.
+`-o` maps one source to one file and `-d` maps one or more sources into a shared
+directory. The complete plan rejects input/output conflicts, duplicate output
+names and existing files unless `--force` is explicit.
 
 ## Progress reporting boundary
 

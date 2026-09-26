@@ -1,12 +1,12 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 2,
-  "generated_at": "2026-09-24T12:41:28.557273Z",
-  "processing_seconds": 0.6375,
+  "generated_at": "2026-09-26T14:51:39.137520Z",
+  "processing_seconds": 0.8153,
   "source": {
     "filename": "insurance-customers.csv",
-    "size_bytes": 824599,
-    "sha256": "4a17423af446a11e119f954fe24d60d72b4bfc855b068096497e920ce0c364f4",
+    "size_bytes": 827600,
+    "sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
     "encoding": "utf-8-sig",
     "delimiter": ","
   },

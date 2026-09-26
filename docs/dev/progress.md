@@ -1,5 +1,17 @@
 # Development progress
 
+## 2026-09-26
+
+- Added `tabalyst sample` with streaming first, last, random and proportional
+  stratified strategies, reproducible seeds, row or percentage sizing and
+  atomic CSV output.
+- Added multi-file and non-recursive wildcard sampling, `[name].sample.csv`
+  default names, `-o` and `-d` destinations, batch collision protection and a
+  reusable Python API.
+- Documented sampling in English and French and added coverage for strategies,
+  proportions, null and small strata, invalid requests, empty inputs and batch
+  output planning.
+
 ## 2026-09-17
 
 - Established the Python project, dependencies, CLI, configuration loading and reusable analysis service.
