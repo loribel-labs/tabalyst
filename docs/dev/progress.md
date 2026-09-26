@@ -29,6 +29,13 @@
   contract tests are enabled. A 1-million-row CSV scans in about 13 seconds
   with about 77 MB of peak memory (lot 1a counters only). The minimum Pydantic
   version is now 2.11.
+- Completed Tabalyst Scan lot 1b: streaming JSON reader on `ijson` (new
+  runtime dependency, compiled backend required in CI) with its own path
+  stack, automatic document and collection datasets, explicit collections that
+  may cross arrays, duplicate-key and byte-order-mark handling, and the
+  structural limits `max_fields`, `max_depth` and `max_record_observations`
+  for CSV and JSON. Its contract tests are enabled; gate 1 items are listed in
+  `docs/dev/scan/plan.md`.
 
 ## 2026-09-17
 

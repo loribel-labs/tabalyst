@@ -13,8 +13,8 @@ regenerated, documentation consistent with what is released.
 | --- | --- | --- | --- | --- | --- |
 | 0 | Design, contract tests, baseline benchmark | Done | Opus 5.5 | High | `scan/phase-0` |
 | 1a | Engine core and CSV reader | Done | Opus 5.5 | High | `scan/phase-1` |
-| 1b | JSON reader, collections and structural limits | Next | Opus 5.5 | High | `scan/phase-1` |
-| 2a | Values, frequencies, limits and statistics | Planned | Sonnet 5 | High | `scan/phase-2` |
+| 1b | JSON reader, collections and structural limits | Done | Opus 5.5 | High | `scan/phase-1` |
+| 2a | Values, frequencies, limits and statistics | Next | Sonnet 5 | High | `scan/phase-2` |
 | 2b | Normalization version 1 and variant groups | Planned | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Planned | Opus 5.5 | High | `scan/phase-3` |
 | 3b | Priority 1 catalogue, patterns, sensitive values | Planned | Sonnet 5 | Medium | `scan/phase-3` |
@@ -36,7 +36,8 @@ The maintainer validates before the next lot starts:
 - **Gate 0**, before 1a: the Proposed decisions of the design register
   (design.md section 1) become Accepted or are amended. Passed on 2026-09-26:
   all accepted without change.
-- **Gate 1**, after 1b: reader contract, paths and presence semantics.
+- **Gate 1**, after 1b: reader contract, paths and presence semantics. The
+  items to validate are listed in the lot 1b notes.
 - **Gate 3**, after 3a: detector contract and ambiguity handling.
 - **Gate 4**, before releasing `tabalyst scan`.
 - **Gate 5**, before removing the pandas engine in 5c.
@@ -133,6 +134,7 @@ benchmarks.md.
   document, collection and scalar datasets; root field; arrays block.
 - Structural limits: `max_fields`, `max_depth`, `max_record_observations`.
 - Done when: `tests/scan/test_scan_json.py` passes. Then gate 1.
+- Done on 2026-09-26; contract changes recorded in design section 17.
 
 ### Lot 2a: values, frequencies, limits and statistics
 
@@ -228,29 +230,35 @@ done, and anything the next lot must know.
 - Lot 0: the current report engine resolves date ambiguity from evidence in
   the same column; Scan exposes that evidence without applying it (design
   section 12.6). Lot 5a must decide how the report presents it.
-- Lot 1a, for lot 1b:
-  - `scanner/api.py` rejects `.json` sources with "not supported yet"; lot 1b
-    replaces that with the JSON reader and sets `scope.collections`
-    (`null` for CSV).
-  - The engine already handles any path, the root field (listed only when a
-    record is not an object), items presence (`absent: null`), the `arrays`
-    block and `f<n>` identifiers. Unit behavior for JSON is not tested yet:
-    `test_scan_json.py` is the reference.
-  - Provisional choices to confirm at gate 1: the `name` of an items field is
-    `"[]"` and of the root field `"$"`; `missing.components.absent` is `null`
-    for items fields and counts as 0 in `missing.count`; a field's `parent` is
-    `null` for top-level fields even when the root field is listed.
-  - `structure` is always `complete` with zero untracked and truncated
-    observations; lot 1b adds `max_fields`, `max_depth` and
-    `max_record_observations` (`RecordExcluded` with reason
-    `record_too_large` under the tolerant policy).
-  - `RecordExcluded.index` counts every record read, so indices of analyzed
+- Lot 1b, for gate 1 (the maintainer validates or amends):
+  - Provisional choices of lot 1a: the `name` of an items field is `"[]"` and
+    of the root field `"$"`; `missing.components.absent` is `null` for items
+    fields and counts as 0 in `missing.count`; a field's `parent` is `null`
+    for top-level fields even when the root field is listed;
+    `RecordExcluded.index` counts every record read, so indices of analyzed
     records have gaps after exclusions.
-  - Open for gate 1: the CSV reader keeps the default `csv.field_size_limit`
-    (131,072 characters), so a longer cell is a fatal quoting error, as in the
-    current engine. Raising it changes process-wide state and lets one cell
-    use unbounded memory; decide on a bounded, configurable cell limit with the
-    structural limits.
+  - Decided with the maintainer during lot 1b: duplicate keys make a record
+    malformed (fatal, or `duplicate_key` exclusion); a UTF-8 byte order mark
+    is accepted and reported as `utf-8-sig`.
+  - Lot 1b choices: JSON `element` locations are 0-based; the `max_fields`
+    lower bound is `max_fields + 1`; `max_record_observations` counts emitted
+    observations only; explicit collections are always listed, with
+    `json_collection_not_found` when absent; `DatasetOpened.container`,
+    `Record.depth_truncated` and `Notice` extend the reader contract.
+  - Still open: the CSV reader keeps the default `csv.field_size_limit`
+    (131,072 characters), so a longer cell is a fatal quoting error, and JSON
+    strings have no length bound while reading. Recommendation: one bounded,
+    configurable `limits.max_value_length` shared by CSV and JSON (fatal, or a
+    `value_too_long` exclusion under the tolerant policy) rather than raising
+    the process-wide `csv` limit.
+- Lot 1b, for lot 2a: the two `ijson` backends differ on a lone surrogate
+  escape (the JSON text `"\ud800"`): the compiled backend yields `"?"`, the
+  pure-Python backend keeps the surrogate, which cannot be encoded as UTF-8.
+  Lot 2a stores and outputs values: decide how such strings are represented
+  and extend the backend parity test in `test_scan_json.py`.
 - Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows
   of `synthetic-1m.csv` in about 13 s with 77 MB peak memory, counters only.
   Each cell creates one `Observation`; a CSV fast path is an option for lot 6.
+- Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
+  records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
+  about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.

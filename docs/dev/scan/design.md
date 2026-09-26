@@ -201,12 +201,28 @@ Automatic mode (default):
   record of the dataset is not an object; `record_types` always gives the
   native types of the records.
 - An empty collection is a dataset with zero records.
+- The document dataset has `collection_path: null`; its promoted arrays are
+  listed after it, in document order.
+- Promotion needs the array to be analyzed in the document: an array deeper
+  than `limits.max_depth` is truncated there and never promoted.
 
 Explicit mode: `json.collections` lists absolute paths, which may cross arrays
 (`$.customers[].orders[]` gathers every order into one dataset). Only the
 selected collections are analyzed; the rest of the document is outside the
-requested scope, which the result states (EF05). Overlapping selections are
-rejected in the first implementation.
+requested scope, which the result states (EF05). Overlapping selections (one
+path extending another), equivalent spellings of one path and an empty list are
+configuration errors. Dataset identifiers and `scope.collections.requested`
+use the canonical spelling (`$["a"][]` becomes `$.a[]`). Every requested
+dataset is listed, in requested order;
+when no array exists at its path, it has zero records and a
+`json_collection_not_found` warning.
+
+Every value of a JSON source is read; a source is UTF-8, optionally preceded
+by a byte order mark, which RFC 8259 lets parsers ignore (`source.encoding` is
+then `utf-8-sig`). An object with a duplicate key makes its record malformed:
+which value applies is ambiguous and presence would exceed its parent count.
+Under `strict` it is fatal; under `tolerant` the record is excluded with
+reason `duplicate_key` (section 14).
 
 The JSON reader tracks its own path stack. It must not use `ijson` prefix
 strings as identities, because they join keys with dots and would merge `a.b`
@@ -225,6 +241,8 @@ class DatasetOpened:
     kind: Literal["table", "document", "collection"]
     collection_path: FieldPath | None
     fields: tuple[DeclaredField, ...] = ()   # known before any record
+    container: tuple[str, FieldPath] | None = None   # ("$", customers): field
+                                 # whose arrays hold the records (field.collection)
 
 @dataclass(frozen=True, slots=True)
 class DeclaredField:
@@ -238,6 +256,15 @@ class Record:
     index: int                   # 1-based within its dataset
     location: Location           # CSV physical lines, JSON element index
     observations: list[Observation]
+    depth_truncated: int = 0     # observations below limits.max_depth, not emitted
+
+@dataclass(frozen=True, slots=True)
+class Notice:                    # technical event forwarded as a diagnostic
+    code: str                    # "json_collection_not_found"
+    level: Literal["error", "warning"]
+    message: str
+    dataset: str | None = None
+    location: Location | None = None
 
 @dataclass(frozen=True, slots=True)
 class RecordExcluded:
@@ -269,8 +296,10 @@ class Observation:
   during reading: bytes read, SHA-256 computed while streaming, encoding, CSV
   header and delimiter.
 - A CSV location is the record index and the first physical line of the
-  record; a JSON location is the record index and the element index in its
-  array.
+  record; a JSON location is the record index and the 0-based element index in
+  its array (none for the document record).
+- Records of different datasets may interleave: the JSON reader yields each
+  collection element as soon as it ends and the document record last.
 - A reader raises `InputError` for fatal problems (section 14). Readers
   receive the configuration and apply the error policy themselves: under
   `strict` they raise a format-specific `InputError`; under `tolerant` they
@@ -280,7 +309,10 @@ class Observation:
   only a header still lists its columns, with the header names and labels
   that only the reader knows. Other fields are discovered from observations.
 - Records are materialized one at a time. `limits.max_record_observations`
-  protects against a single huge record.
+  protects against a single huge record; it counts the observations the reader
+  emits, so content truncated by `limits.max_depth` does not count. Readers
+  apply both limits, so they never build paths deeper than `max_depth`; the
+  engine applies `max_fields`.
 
 ## 7. Presence and value categories (D12, D13, EF06-EF10, O04)
 
@@ -523,8 +555,19 @@ run in this order; each can be disabled:
   rejected before the scan starts (CA13).
 - `max_distinct_per_field` must not exceed `max_tracked_values`.
 - `max_fields` and `structure.paths` count field paths other than the record
-  root. The lower bound published when `max_fields` is reached is the number of
-  distinct paths actually seen, at least `max_fields + 1`.
+  root, including declared CSV columns. The lower bound published when
+  `max_fields` is reached is `max_fields + 1`: untracked paths are not
+  remembered, so state stays bounded and no larger count is proven. The
+  `field_limit` warning locates the first record with an untracked
+  observation.
+- `max_depth` is relative to the record root (`orders[].amount` has depth 3).
+  An observation deeper than the limit is not emitted; every value of the
+  truncated subtree counts in `depth_truncated_observations`. Array lengths
+  still count truncated elements. `max_depth_seen` is the deepest analyzed
+  observation, tracked or not, so it never exceeds `max_depth`. The
+  `depth_limit` warning locates the first truncated record.
+- A CSV header with more than `max_record_observations - 1` columns is fatal
+  in both policies: every record would be too large.
 
 ## 12. Detectors (EF24-EF32, D09, D14)
 
@@ -711,8 +754,11 @@ never guessed when corruption prevents delimiting them.
 | Unreadable file, undecodable text, NUL characters | Fatal `InputError` | Fatal |
 | CSV record of unexpected width, including blank lines | Fatal `InputError` naming record and line | Record excluded, `csv_width_mismatch` error, scan status `partial` |
 | CSV quoting error (`csv.Error`) | Fatal | Fatal: resynchronization is uncertain |
-| Invalid JSON syntax | Fatal | Fatal |
+| Invalid JSON syntax, empty JSON file, invalid UTF-8 | Fatal | Fatal |
+| JSON object with a duplicate key | Fatal `InputError` naming record and key | Record excluded, `json_duplicate_key` error, reason `duplicate_key`, status `partial` |
+| Explicit JSON collection without any array at its path | Warning `json_collection_not_found`, empty dataset | Same |
 | Record above `max_record_observations` | Fatal | Record excluded, `record_too_large` error, status `partial` |
+| CSV header wider than `max_record_observations - 1` columns | Fatal | Fatal |
 | Structural limit (`max_fields`, `max_depth`) | Warning, scan continues | Same |
 | Measure limit | Envelope status, plus one `measures_limited` warning listing fields | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
@@ -889,3 +935,6 @@ input.
 | 2026-09-26 | 0 | Gate 0: every Proposed decision accepted without change. | Maintainer validation. |
 | 2026-09-26 | 1a | Section 6: `DatasetOpened.fields` (declared fields), `RecordExcluded.code` and `message`, readers apply the error policy. | A header-only CSV must list its columns, and the engine must not know CSV diagnostic codes. |
 | 2026-09-26 | 1a | Section 16.1: `source.csv` content, `scope.collections` null for CSV, `lower_bound` omitted when unproven, location keys per format. | Details the example did not settle. |
+| 2026-09-26 | 1b | Section 6: `DatasetOpened.container`, `Record.depth_truncated`, `Notice` stream item; readers apply `max_depth` and `max_record_observations`; JSON element index is 0-based; records of datasets may interleave. | The engine links promoted arrays and reports truncation without knowing JSON; readers never build over-deep paths. |
+| 2026-09-26 | 1b | Section 5.2: duplicate keys make a record malformed; UTF-8 byte order mark accepted; explicit selections listed in order, with `json_collection_not_found` when absent; overlapping, equivalent or empty selections rejected; document `collection_path` null. | Presence must stay exact; Windows tools write a byte order mark; a mistyped path must not pass silently. Maintainer decision. |
+| 2026-09-26 | 1b | Section 11: `max_fields` lower bound is `max_fields + 1`; `max_fields` covers declared CSV columns; `max_depth` and `max_depth_seen` defined; CSV header above `max_record_observations` fatal. Section 14 rows added. | Counting every distinct untracked path would break bounded state (specification scenario 5). |

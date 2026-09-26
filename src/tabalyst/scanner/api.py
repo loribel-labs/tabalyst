@@ -12,22 +12,40 @@ from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
 from tabalyst.scanner.config import ScanConfig, config_sha256
 from tabalyst.scanner.engine import ScanEngine
 from tabalyst.scanner.models import (
+    CollectionScope,
     CsvSourceInfo,
     EngineInfo,
     ScanResult,
     Scope,
     SourceInfo,
 )
+from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
+from tabalyst.scanner.readers.json_reader import JsonReader
 
 NORMALIZATION_VERSION = 1
 
 
 def _open_reader(path: Path, config: ScanConfig) -> Reader:
     if path.suffix.lower() == ".json":
-        raise InputError(f"JSON sources are not supported yet: {path}")
+        return JsonReader(path, config)
     return CsvReader(path, config)
+
+
+def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope | None:
+    if source_format != "json":
+        return None
+    requested = config.json_.collections
+    return CollectionScope(
+        mode="auto" if requested is None else "explicit",
+        # Canonical spellings, equal to the dataset identifiers.
+        requested=(
+            None
+            if requested is None
+            else [format_absolute(parse_path(text)) for text in requested]
+        ),
+    )
 
 
 def scan(
@@ -89,7 +107,7 @@ def scan(
         config=config,
         config_sha256=config_sha256(config),
         scope=Scope(
-            collections=None,
+            collections=_collection_scope(summary.format, config),
             records_read=engine.records_analyzed + excluded,
             records_analyzed=engine.records_analyzed,
             records_excluded=excluded,
