@@ -11,6 +11,8 @@
 - Documented sampling in English and French and added coverage for strategies,
   proportions, null and small strata, invalid requests, empty inputs and batch
   output planning.
+- Prepared Tabalyst `0.3.0` with Tabalyst Sample, its reusable Python APIs and
+  unchanged report-profile compatibility.
 
 ## 2026-09-17
 
