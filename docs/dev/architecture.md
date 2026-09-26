@@ -163,3 +163,7 @@ The shared dataset source, chunked readers, engine progress events, sampling,
 per-column JSON files, an evidence CSV with selected/context rows, configurable
 semantic rules, localization and an HTTP adapter build on these boundaries. No
 compatibility layer or migration system is planned during the current alpha.
+
+Tabalyst Scan will replace the pandas engine with a streaming, bounded-memory
+engine for CSV and JSON. Its contract is [scan/design.md](scan/design.md) and
+its lots are in [scan/plan.md](scan/plan.md).

@@ -65,6 +65,9 @@ Issues = "https://github.com/loribel-labs/tabalyst/issues"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "lot(name): Tabalyst Scan implementation lot that provides the tested behavior",
+]
 
 [tool.ruff]
 line-length = 88

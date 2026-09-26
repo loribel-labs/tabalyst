@@ -13,6 +13,13 @@
   output planning.
 - Prepared Tabalyst `0.3.0` with Tabalyst Sample, its reusable Python APIs and
   unchanged report-profile compatibility.
+- Completed phase 0 of Tabalyst Scan: design contract (`docs/dev/scan/design.md`)
+  with its decision register, lot plan with models and session management
+  (`docs/dev/scan/plan.md`), contract tests for lots 1a to 3b in `tests/scan/`
+  (skipped until each lot is enabled), deterministic benchmark data and
+  measurement tools in `benchmarks/`, and the baseline of the current engine:
+  about 9,000 rows per second and 4.6 GB of memory for 1 million CSV rows.
+  Every design decision was accepted at gate 0.
 
 ## 2026-09-17
 

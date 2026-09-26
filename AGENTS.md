@@ -46,6 +46,11 @@ Breaking changes are allowed and migration support is not required yet.
 Read `README.md`, `docs/dev/architecture.md` and the relevant configuration or
 format changelog (`docs/en/reference/`) before changing shared behavior.
 
+Tabalyst Scan, the future core analysis engine (`src/tabalyst/scanner/`), is
+built in lots. Before working on it, read `docs/dev/scan/plan.md` (lots,
+status, models, sessions) and `docs/dev/scan/design.md` (the contract). Its
+contract tests in `tests/scan/` are enabled lot by lot.
+
 ## Development workflow
 
 Use the existing patterns and keep changes focused. Preserve user changes already
