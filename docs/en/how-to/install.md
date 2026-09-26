@@ -11,7 +11,7 @@ pip install --upgrade tabalyst
 tabalyst --version
 ```
 
-The second command prints the installed version, for example `0.2.1`.
+The second command prints the installed version, for example `0.3.0`.
 
 > **Update before each test.** Tabalyst is in alpha and new versions are
 > released often, with fixes and new options. Run
