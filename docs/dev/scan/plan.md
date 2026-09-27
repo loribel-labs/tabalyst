@@ -14,8 +14,8 @@ regenerated, documentation consistent with what is released.
 | 0 | Design, contract tests, baseline benchmark | Done | Opus 5.5 | High | `scan/phase-0` |
 | 1a | Engine core and CSV reader | Done | Opus 5.5 | High | `scan/phase-1` |
 | 1b | JSON reader, collections and structural limits | Done | Opus 5.5 | High | `scan/phase-1` |
-| 2a | Values, frequencies, limits and statistics | Next | Sonnet 5 | High | `scan/phase-2` |
-| 2b | Normalization version 1 and variant groups | Planned | Sonnet 5 | High | `scan/phase-2` |
+| 2a | Values, frequencies, limits and statistics | Done | Sonnet 5 | High | `scan/phase-2` |
+| 2b | Normalization version 1 and variant groups | Next | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Planned | Opus 5.5 | High | `scan/phase-3` |
 | 3b | Priority 1 catalogue, patterns, sensitive values | Planned | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Planned | Sonnet 5 | Medium | `scan/phase-4` |
@@ -143,6 +143,7 @@ benchmarks.md.
 - String characteristics and lengths, exact numeric statistics, booleans,
   `not_applicable` measures, `measures_limited` diagnostic.
 - Done when: `tests/scan/test_scan_measures.py` passes.
+- Done on 2026-09-26; contract changes recorded in design section 17.
 
 ### Lot 2b: normalization version 1 and variant groups
 
@@ -251,14 +252,36 @@ done, and anything the next lot must know.
     configurable `limits.max_value_length` shared by CSV and JSON (fatal, or a
     `value_too_long` exclusion under the tolerant policy) rather than raising
     the process-wide `csv` limit.
-- Lot 1b, for lot 2a: the two `ijson` backends differ on a lone surrogate
-  escape (the JSON text `"\ud800"`): the compiled backend yields `"?"`, the
-  pure-Python backend keeps the surrogate, which cannot be encoded as UTF-8.
-  Lot 2a stores and outputs values: decide how such strings are represented
-  and extend the backend parity test in `test_scan_json.py`.
+- Lot 1b, for lot 2a, settled in lot 2a: a lone surrogate escape (the JSON
+  text `"\ud800"`) makes the source invalid. The pure-Python backend is
+  checked by the reader; the compiled backend rejects lone low surrogates and
+  replaces lone high ones with `"?"`, a documented limitation (design 5.2).
+- Found in lot 2a, to fix before `tabalyst scan` is released (lot 4 at the
+  latest): the compiled `ijson` backend crashes the Python process
+  (segmentation fault) on a JSON integer of more than 4,300 digits, Python's
+  `sys.int_max_str_digits` limit; the pure-Python backend raises a parse
+  error, which becomes an `InputError`. Options: report upstream, and reject
+  such integers before parsing or fall back to the pure-Python backend.
+- Lot 2a, for lot 2b:
+  - `normalization.py` already computes the analytical value (`nfc`, `trim`,
+    `collapse_whitespace`); lot 2b adds the stage counters, stage
+    cardinalities and variant groups. The value tracker (`values.py`) computes
+    per-value facts once per distinct value while the table is complete, then
+    per occurrence through a bounded cache after release: stage change
+    counters should be facts too, so they continue after release.
+  - `measures_limited` looks at `values.cardinality` and `numeric`; add the
+    normalization envelopes when they exist.
+- Lot 2a, still open with the `max_value_length` question of gate 1: `first`
+  and `last` keep whole values, even beyond `max_stored_value_length`.
 - Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows
   of `synthetic-1m.csv` in about 13 s with 77 MB peak memory, counters only.
   Each cell creates one `Observation`; a CSV fast path is an option for lot 6.
+- Lot 2a, for lot 6: indicative measure, not a benchmark row: 1 million rows
+  of `synthetic-1m.csv` in about 40 s with value measures (13 s with counters
+  only in lot 1a), 100,000 rows in about 4 s. Most of the time is per-distinct
+  facts of high-cardinality columns (characteristics, analytical value, number
+  parsing). The global budget finds the largest table by scanning the fields,
+  O(fields) per release.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.

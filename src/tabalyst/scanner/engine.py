@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.field import StringClassifier
-from tabalyst.scanner.models import DatasetResult
+from tabalyst.scanner.models import DatasetResult, FieldResult
 from tabalyst.scanner.observations import (
     DatasetOpened,
     Notice,
@@ -21,6 +21,17 @@ from tabalyst.scanner.observations import (
     StreamItem,
 )
 from tabalyst.scanner.structure import DatasetState
+from tabalyst.scanner.values import ValueContext
+
+# Fields named in the message of a ``measures_limited`` warning.
+LISTED_LIMITED_FIELDS = 10
+
+
+def _has_limited_measure(field: FieldResult) -> bool:
+    return any(
+        measure.status == "limited"
+        for measure in (field.values.cardinality, field.numeric)
+    )
 
 
 class ScanEngine:
@@ -28,6 +39,9 @@ class ScanEngine:
         self.config = config
         self.strings = StringClassifier(
             config.values.null_markers, config.values.null_markers_case_sensitive
+        )
+        self.values = ValueContext(
+            config.limits, config.normalization, config.random_seed
         )
         self.diagnostics = DiagnosticCollector(config.errors.max_locations)
         self.datasets: dict[str, DatasetState] = {}
@@ -50,6 +64,7 @@ class ScanEngine:
                     item.collection_path,
                     item.fields,
                     max_fields=self.config.limits.max_fields,
+                    values=self.values,
                 )
                 if item.container is not None:
                     holder, path = item.container
@@ -103,5 +118,32 @@ class ScanEngine:
                     "limits.max_depth to analyze it.",
                     dataset=state.id,
                     location=state.depth_limit_location,
+                )
+        budget = self.values.budget
+        if budget.released:
+            self.diagnostics.add(
+                "global_budget",
+                "warning",
+                f"More than {limits.max_tracked_values} distinct values were "
+                "stored for the whole scan: the largest frequency tables were "
+                "released and their table-based measures are limited with reason "
+                "global_budget. Raise limits.max_tracked_values to keep them.",
+                count=budget.released,
+            )
+        for result in results:
+            limited = [
+                field.display for field in result.fields if _has_limited_measure(field)
+            ]
+            if limited:
+                named = ", ".join(limited[:LISTED_LIMITED_FIELDS])
+                if len(limited) > LISTED_LIMITED_FIELDS:
+                    named += f" and {len(limited) - LISTED_LIMITED_FIELDS} more"
+                self.diagnostics.add(
+                    "measures_limited",
+                    "warning",
+                    f"Some measures of {len(limited)} field(s) are limited: "
+                    f"{named}. The status of each measure gives its reason.",
+                    dataset=result.id,
+                    count=len(limited),
                 )
         return results

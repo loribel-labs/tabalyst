@@ -222,7 +222,12 @@ by a byte order mark, which RFC 8259 lets parsers ignore (`source.encoding` is
 then `utf-8-sig`). An object with a duplicate key makes its record malformed:
 which value applies is ambiguous and presence would exceed its parent count.
 Under `strict` it is fatal; under `tolerant` the record is excluded with
-reason `duplicate_key` (section 14).
+reason `duplicate_key` (section 14). A string or key holding a lone
+surrogate escape, such as `"\ud800"`, is not valid Unicode (I-JSON, RFC
+7493): the source is invalid. The pure-Python backend of `ijson` keeps such
+surrogates, and Tabalyst rejects them; the compiled backend rejects lone low
+surrogates itself but replaces a lone high surrogate with `?` before
+Tabalyst sees it, a known limitation of that backend.
 
 The JSON reader tracks its own path stack. It must not use `ijson` prefix
 strings as identities, because they join keys with dots and would merge `a.b`
@@ -406,66 +411,98 @@ envelope. The JSON layout is summarized in section 16.
 
 - The raw frequency table stores each distinct value as `(native type,
   canonical text)`, so the string `"123"` and the integer `123` are distinct
-  (EF10, CA05). Canonical text is the source text for JSON numbers and
-  `true`/`false` for booleans.
+  (EF10, CA05). Canonical text is the raw string for strings, `true`/`false`
+  for booleans and `str()` of the parsed value for JSON numbers. `ijson` does
+  not keep the source text, so it matches the source except for the exponent
+  spelling (`1e3` becomes `1E+3`) and the integer `-0`, which becomes `0`.
+- Values are output as `{value, type, ...}`, where `value` is always the
+  canonical text of the analytical value (a JSON string) and `type` its native
+  type.
 - `values.cardinality`: envelope, exact raw distinct count.
 - `values.frequencies`: envelope whose value is `{distinct, listed, truncated}`.
-  `listed` holds the `limits.max_listed_frequencies` most frequent analytical
-  values as `{value, type, count}`, ordered by count then value. Output
-  truncation is not a limitation of the measure: `truncated` says the listing is
-  shorter than `distinct`.
-- `values.samples`: up to `limits.max_samples` distinct analytical values, with
-  `selection` set to `all` (every distinct value), `uniform_distinct` (seeded
-  uniform sample of the complete table) or `first_seen` (first distinct values,
-  used when the table is limited), listed as `{value, type, count}`. Samples
-  are examples, not statistics.
+  `distinct` counts distinct analytical values (`(type, analytical text)`),
+  which may be fewer than the raw cardinality. `listed` holds the
+  `limits.max_listed_frequencies` most frequent analytical values as
+  `{value, type, count}`, ordered by count (descending), then value, then
+  native type (`string`, `integer`, `number`, `boolean`). Output truncation is
+  not a limitation of the measure: `truncated` says the listing is shorter than
+  `distinct`. When the table is released, the envelope is `limited` without
+  `lower_bound`: raw distinct values do not prove analytical ones.
+- `values.samples`: a plain object `{selection, listed}` with up to
+  `limits.max_samples` distinct analytical values, with `selection` set to
+  `all` (every distinct value), `uniform_distinct` (sample of the complete
+  table drawn with `random.Random(random_seed)`) or `first_seen` (first
+  distinct values, used when the table is released), listed as
+  `{value, type, count}` in first-seen order. Counts are complete in every
+  selection. Values longer than `limits.max_stored_value_length` are never
+  sampled. Samples are examples, not statistics.
 - `values.first` and `values.last`: `{value, type, record}` for the first and
-  last analytical values (EF21).
+  last analytical values (EF21), `null` without values. They keep the whole
+  value, even beyond `limits.max_stored_value_length`.
 - Shares and confidences are rounded to four decimals; counts are never
   rounded.
 
 ### 9.2 String characteristics (lot 2a)
 
-Over `content` strings, on raw values: `non_ascii`, `with_line_breaks`,
-`with_control_characters`, `with_surrounding_whitespace`,
-`with_repeated_whitespace`, `uppercase`, `lowercase`, `mixed_case`,
-`no_letters`. Plain counters.
+Over `content` strings, on raw values. Plain counters, always present:
+
+| Counter | Rule |
+| --- | --- |
+| `non_ascii` | A character above U+007F. |
+| `with_line_breaks` | A line boundary of `str.splitlines` (`\n`, `\r`, `\v`, `\f`, U+001C to U+001E, U+0085, U+2028, U+2029). |
+| `with_control_characters` | A character of category `Cc` other than the tabulation and line breaks. |
+| `with_surrounding_whitespace` | `value != value.strip()`. |
+| `with_repeated_whitespace` | Two consecutive whitespace characters in `value.strip()`. |
+| `uppercase`, `lowercase` | `str.isupper()`, `str.islower()`. |
+| `mixed_case` | Cased characters, but neither `isupper()` nor `islower()`. |
+| `no_letters` | No character with `str.isalpha()`. |
+
+Case counters are exclusive; letters without case (such as CJK) count in none
+of them.
 
 ### 9.3 String lengths (lot 2a)
 
 Envelope over analytical `content` strings, in code points: `count`,
 `min_length`, `max_length`, `mean_length`, `median_length` and
-`length_histogram` (`[{length, count}]`). The length histogram is always small
-and independent of the frequency table, so string lengths and their median stay
-exact when the table is limited.
+`length_histogram` (`[{length, count}]`, ordered by length). The mean and the
+median (mean of the two middle lengths for an even count) follow the numeric
+output rule of 9.4. The length histogram is independent of the frequency
+table, so string lengths and their median stay exact when the table is
+limited.
 
 ### 9.4 Numbers (lot 2a, extended in 3a) (EF15, O05)
 
-Population: native `integer` and `number` values, plus strings that the number
-interpretation accepts without ambiguity. Until lot 3a that interpretation is
-the current strict rule (optional sign, digits, optional dot decimal, optional
-exponent, no leading zeros for integers); from lot 3a it is the number detector
-with its configured conventions.
+Population: native `integer` and `number` values, plus strings whose
+analytical value the number interpretation accepts without ambiguity. Until
+lot 3a that interpretation is the current strict rule (optional sign, digits,
+optional dot decimal, optional exponent, no leading zeros for integers); from
+lot 3a it is the number detector with its configured conventions.
 
 Envelope value: `count`, `native_count`, `text_count`, `min`, `max`, `sum`,
 `mean`, `population_variance`, `population_std`, `positive`, `negative`, `zero`,
 `integral_decimals` (decimal representations with an integral value, such as
-`1.0`) and `median` (nested envelope).
+`1.0` or `1e3`) and `median` (nested envelope).
 
-- Integers accumulate as Python `int`; decimals as `Decimal` in a high-precision
-  context with the `Inexact` trap. If an operation would round, the envelope
-  becomes `limited` with reason `precision`.
+- Integers accumulate as Python `int`; decimals as `Decimal` in an exact
+  context of 200 significant digits with exponents between -1,000 and 1,000,
+  trapping `Inexact`. If an operation would round or leave that range, the
+  envelope becomes `limited` with reason `precision` and limit `200`. So does
+  a number beyond the range of `decimal` (`1e9999999999999999999999`); a zero
+  is exact whatever its exponent (`0e-5000`).
 - Variance uses the complete population (divide by `n`), from exact sums.
-- Output: integral results are JSON integers; other results are float64.
-- `median` is exact when derived from a complete frequency table, otherwise
-  `limited` with reason `frequency_table_limited`. Other quantiles are
-  deferred (EF22, O20).
+- Output: integral results below 10^200 are JSON integers; other results are
+  float64. A result that is not a finite float64 makes the envelope `limited`
+  with reason `precision`.
+- `median` (mean of the two middle values for an even count) is exact when
+  derived from a complete frequency table. Otherwise it is `limited` with the
+  reason and limit of the table (`distinct_limit`, `global_budget` or
+  `value_too_long`, section 11). Other quantiles are deferred (EF22, O20).
 - Values that are not finite in text (`NaN`, `inf`) are not numbers.
 
 ### 9.5 Booleans (lot 2a)
 
-Native booleans: counts of `true` and `false`. Textual booleans become an
-interpretation in lot 3a.
+Envelope of native booleans: `{"true": n, "false": m}`, `not_applicable`
+without native booleans. Textual booleans become an interpretation in lot 3a.
 
 ### 9.6 Temporal values (lot 3a) (EF16)
 
@@ -493,6 +530,8 @@ See section 10.
   `not_applicable` with reason `no_values`.
 - An empty JSON array gives a dataset with zero records and no fields.
 - A field without values gives `not_applicable` value measures.
+- `not_applicable` measures of lot 2a use the reason `no_values`: the
+  population of the measure is empty.
 - An empty file is fatal: a CSV needs a header, and an empty file is not JSON.
 - Percentages are left to consumers; the scan publishes counts and
   denominators, so no division by zero can occur in the scan.
@@ -539,7 +578,7 @@ run in this order; each can be disabled:
 | `max_record_observations` | 100,000 | 100,000,000 | Record excluded (tolerant) or fatal (strict); `record_too_large`. |
 | `max_distinct_per_field` | 100,000 | 50,000,000 | The raw table is released; cardinality, frequencies, variant groups and derived medians become limited with reason `distinct_limit`. |
 | `max_tracked_values` | 2,000,000 per scan | 500,000,000 | Global budget: the largest table is released first (ties: most recently discovered field); reason `global_budget`; warning `global_budget`. |
-| `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored; table-based measures of that field become limited with reason `value_too_long`. |
+| `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. |
 | `max_listed_frequencies` | 100 | 100,000 | Output truncation only. |
 | `max_samples` | 100 | 10,000 | Output size only. |
 | `max_variant_groups` | 100 | 100,000 | Variant groups limited. |
@@ -554,6 +593,16 @@ run in this order; each can be disabled:
 - Hard caps are the protected core configuration: a user value above a cap is
   rejected before the scan starts (CA13).
 - `max_distinct_per_field` must not exceed `max_tracked_values`.
+- Discovery order for budget ties is the order in which fields are registered
+  across the datasets of the scan (declared CSV columns in header order), not
+  the order of their first values.
+- Proven lower bounds of a released table: `L + 1` for `distinct_limit`, the
+  stored distinct count for `global_budget`, and the stored distinct count plus
+  one for `value_too_long`, the long value being longer than every stored one.
+  Canonical text lengths are compared.
+- The global budget counts stored distinct values of every field of the scan.
+  Finding the largest table scans the fields with a table; lot 6 may make it
+  cheaper for wide sources.
 - `max_fields` and `structure.paths` count field paths other than the record
   root, including declared CSV columns. The lower bound published when
   `max_fields` is reached is `max_fields + 1`: untracked paths are not
@@ -755,12 +804,14 @@ never guessed when corruption prevents delimiting them.
 | CSV record of unexpected width, including blank lines | Fatal `InputError` naming record and line | Record excluded, `csv_width_mismatch` error, scan status `partial` |
 | CSV quoting error (`csv.Error`) | Fatal | Fatal: resynchronization is uncertain |
 | Invalid JSON syntax, empty JSON file, invalid UTF-8 | Fatal | Fatal |
+| JSON string or key with a lone surrogate escape (`"\ud800"`) | Fatal `InputError` | Fatal |
 | JSON object with a duplicate key | Fatal `InputError` naming record and key | Record excluded, `json_duplicate_key` error, reason `duplicate_key`, status `partial` |
 | Explicit JSON collection without any array at its path | Warning `json_collection_not_found`, empty dataset | Same |
 | Record above `max_record_observations` | Fatal | Record excluded, `record_too_large` error, status `partial` |
 | CSV header wider than `max_record_observations - 1` columns | Fatal | Fatal |
 | Structural limit (`max_fields`, `max_depth`) | Warning, scan continues | Same |
-| Measure limit | Envelope status, plus one `measures_limited` warning listing fields | Same |
+| Measure limit | Envelope status, plus one `measures_limited` warning per dataset: `count` is the number of fields, the message names at most 10 | Same |
+| Global value budget | One `global_budget` warning per scan: `count` is the number of released tables | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
@@ -938,3 +989,5 @@ input.
 | 2026-09-26 | 1b | Section 6: `DatasetOpened.container`, `Record.depth_truncated`, `Notice` stream item; readers apply `max_depth` and `max_record_observations`; JSON element index is 0-based; records of datasets may interleave. | The engine links promoted arrays and reports truncation without knowing JSON; readers never build over-deep paths. |
 | 2026-09-26 | 1b | Section 5.2: duplicate keys make a record malformed; UTF-8 byte order mark accepted; explicit selections listed in order, with `json_collection_not_found` when absent; overlapping, equivalent or empty selections rejected; document `collection_path` null. | Presence must stay exact; Windows tools write a byte order mark; a mistyped path must not pass silently. Maintainer decision. |
 | 2026-09-26 | 1b | Section 11: `max_fields` lower bound is `max_fields + 1`; `max_fields` covers declared CSV columns; `max_depth` and `max_depth_seen` defined; CSV header above `max_record_observations` fatal. Section 14 rows added. | Counting every distinct untracked path would break bounded state (specification scenario 5). |
+| 2026-09-26 | 2a | Sections 9.1 to 9.5: canonical text is `str()` of the parsed value; values output as canonical text; `frequencies.distinct` counts analytical values, limited frequencies have no bound; samples are a plain object in first-seen order; first and last values keep whole values; characteristic definitions; exact context of 200 digits and exponents within 1,000, integral output below 10^200; median limited with the table's reason and limit; booleans envelope. | `ijson` does not keep the source text; listings are analytical; a `limited` envelope needs a limit, and section 11 already named the table's reason. |
+| 2026-09-26 | 2a | Section 11: the first value too long releases the table; proven lower bounds per reason. Section 14: `measures_limited` per dataset, `global_budget` per scan, lone surrogate escapes fatal. Section 9.9: `no_values` reason. Section 5.2: lone surrogates. | Details the contract did not settle; lone surrogates cannot be written as UTF-8 and the two `ijson` backends disagreed (lot 1b note). Maintainer decision. |

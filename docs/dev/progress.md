@@ -36,6 +36,15 @@
   structural limits `max_fields`, `max_depth` and `max_record_observations`
   for CSV and JSON. Its contract tests are enabled; gate 1 items are listed in
   `docs/dev/scan/plan.md`.
+- Completed Tabalyst Scan lot 2a: raw frequency tables keyed by native type,
+  exact cardinality with proven bounds, per-field and global limits, long
+  values, analytical frequency listings, seeded samples, first and last
+  values, string characteristics and lengths, exact numeric statistics with a
+  `precision` limit, native boolean counts, `measures_limited` and
+  `global_budget` warnings. Per-value work runs once per distinct value, or in
+  streaming after a table is released, with identical results. JSON strings
+  with a lone surrogate escape are now rejected by both `ijson` backends where
+  they can be detected. Its contract tests are enabled.
 
 ## 2026-09-17
 

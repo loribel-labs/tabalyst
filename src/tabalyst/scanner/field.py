@@ -1,4 +1,4 @@
-"""Per-field accumulator: presence, native types and string categories.
+"""Per-field accumulator: presence, native types, string categories and values.
 
 Accumulators are mutable slotted classes; the dataset turns them into
 immutable models at finalization (design section 3).
@@ -10,6 +10,9 @@ from collections.abc import Sequence
 
 from tabalyst.scanner.observations import DeclaredField, Observation
 from tabalyst.scanner.paths import FieldPath
+from tabalyst.scanner.values import ValueContext, ValueTracker
+
+_SCALARS = frozenset({"integer", "number", "boolean"})
 
 
 class StringClassifier:
@@ -42,16 +45,22 @@ class FieldState:
         "blank",
         "content",
         "declared",
+        "discovery",
         "empty",
         "first_record",
         "marker",
         "native_types",
         "occurrences",
         "path",
+        "values",
     )
 
-    def __init__(self, path: FieldPath, declared: DeclaredField | None = None) -> None:
+    def __init__(
+        self, path: FieldPath, discovery: int, declared: DeclaredField | None = None
+    ) -> None:
         self.path = path
+        # Order of discovery across the datasets of a scan.
+        self.discovery = discovery
         self.declared = declared
         self.occurrences = 0
         self.native_types: dict[str, int] = {}
@@ -65,9 +74,15 @@ class FieldState:
         self.array_min_length = 0
         self.array_max_length = 0
         self.array_items = 0
+        # Created with the first analyzable value.
+        self.values: ValueTracker | None = None
 
     def observe(
-        self, observation: Observation, record: int, strings: StringClassifier
+        self,
+        observation: Observation,
+        record: int,
+        strings: StringClassifier,
+        values: ValueContext,
     ) -> None:
         self.occurrences += 1
         if self.first_record is None:
@@ -84,6 +99,9 @@ class FieldState:
                 self.marker += 1
             else:
                 self.content += 1
+                self._value(native_type, value, record, values)
+        elif native_type in _SCALARS:
+            self._value(native_type, observation.value, record, values)
         elif native_type == "array":
             length = observation.value
             if self.arrays == 0 or length < self.array_min_length:
@@ -93,6 +111,14 @@ class FieldState:
             self.array_items += length
             if length == 0:
                 self.arrays_empty += 1
+
+    def _value(
+        self, native_type: str, value: object, record: int, context: ValueContext
+    ) -> None:
+        tracker = self.values
+        if tracker is None:
+            tracker = self.values = ValueTracker(context, self.discovery)
+        tracker.add(native_type, value, record)
 
     def count(self, native_type: str) -> int:
         return self.native_types.get(native_type, 0)

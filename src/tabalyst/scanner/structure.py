@@ -38,6 +38,7 @@ from tabalyst.scanner.paths import (
     format_relative,
     path_to_json,
 )
+from tabalyst.scanner.values import ValueContext, no_values
 
 
 def _ordered_types(counts: dict[str, int]) -> dict[str, int]:
@@ -66,6 +67,7 @@ class DatasetState:
         "record_types",
         "untracked_max_depth",
         "untracked_observations",
+        "values",
     )
 
     def __init__(
@@ -76,6 +78,7 @@ class DatasetState:
         declared: tuple[DeclaredField, ...] = (),
         *,
         max_fields: int,
+        values: ValueContext,
     ) -> None:
         self.id = dataset_id
         self.kind = kind
@@ -92,18 +95,22 @@ class DatasetState:
         self.field_limit_location: dict[str, int] | None = None
         self.depth_limit_location: dict[str, int] | None = None
         # The record root is always tracked: its containers are parent counts.
-        self.fields: dict[FieldPath, FieldState] = {ROOT: FieldState(ROOT)}
+        self.values = values
+        self.fields: dict[FieldPath, FieldState] = {
+            ROOT: FieldState(ROOT, values.discover())
+        }
         for item in declared:
             if len(self.fields) > max_fields:
                 self.paths_limited = True
                 break
-            self.fields[item.path] = FieldState(item.path, item)
+            self.fields[item.path] = FieldState(item.path, values.discover(), item)
 
     def add_record(self, record: Record, strings: StringClassifier) -> None:
         self.record_count += 1
         observations = record.observations
         self.record_types[observations[0].type] += 1
         fields = self.fields
+        values = self.values
         index = record.index
         for observation in observations:
             state = fields.get(observation.path)
@@ -112,8 +119,10 @@ class DatasetState:
                 if len(fields) > self.max_fields:
                     self._untracked(observation.path, record)
                     continue
-                state = fields[observation.path] = FieldState(observation.path)
-            state.observe(observation, index, strings)
+                state = fields[observation.path] = FieldState(
+                    observation.path, values.discover()
+                )
+            state.observe(observation, index, strings, values)
         if record.depth_truncated:
             self.depth_truncated += record.depth_truncated
             if self.depth_limit_location is None:
@@ -207,6 +216,7 @@ class DatasetState:
     ) -> FieldResult:
         path = state.path
         presence = self._presence(state)
+        blocks = no_values() if state.values is None else state.values.finalize()
         components = MissingComponents(
             absent=presence.absent,
             null=state.count("null"),
@@ -254,5 +264,16 @@ class DatasetState:
                     total_items=state.array_items,
                 )
             ),
-            values=FieldValues(count=state.value_count),
+            values=FieldValues(
+                count=state.value_count,
+                cardinality=blocks["cardinality"],
+                frequencies=blocks["frequencies"],
+                samples=blocks["samples"],
+                first=blocks["first"],
+                last=blocks["last"],
+            ),
+            string_characteristics=blocks["string_characteristics"],
+            string_lengths=blocks["string_lengths"],
+            numeric=blocks["numeric"],
+            booleans=blocks["booleans"],
         )

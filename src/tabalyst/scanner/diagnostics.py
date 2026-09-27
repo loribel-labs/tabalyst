@@ -52,15 +52,16 @@ class DiagnosticCollector:
         field: str | None = None,
         detector: str | None = None,
         location: dict[str, int] | None = None,
+        count: int = 1,
     ) -> int:
-        """Record one event and return the index of its diagnostic."""
+        """Record ``count`` events and return the index of their diagnostic."""
         key = (code, dataset, field, detector)
         group = self._groups.get(key)
         if group is None:
             group = self._groups[key] = _Group(
                 len(self._groups), code, level, message, dataset, field, detector
             )
-        group.count += 1
+        group.count += count
         if location is not None and len(group.locations) < self.max_locations:
             group.locations.append(location)
         return group.index
