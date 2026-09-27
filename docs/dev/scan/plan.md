@@ -19,7 +19,7 @@ regenerated, documentation consistent with what is released.
 | 3a | Detector framework, technical type, ported detectors | Done | Opus 5.5 | High | `scan/phase-3` |
 | 3b | Priority 1 catalogue, patterns, sensitive values | Done | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Done | Sonnet 5 | Medium | `scan/phase-4` |
-| 4-fr | French translation of the lot 4 documentation | Next | Sonnet 5 | Low | `scan/phase-4` |
+| 4-fr | French translation of the lot 4 documentation | Done | Sonnet 5 | Low | `scan/phase-4-fr` |
 | 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
 | 5b | JSON sources and new sections in the report | Planned | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
@@ -217,6 +217,17 @@ benchmarks.md.
 
 - Translate the lot 4 pages to `docs/fr/` with the glossary. Can run in
   parallel once the English pages are merged.
+- Done on 2026-09-27, branch `scan/phase-4-fr`: French pages for `index`,
+  `how-to/scan-files`, `reference/configuration`, `reference/glossary`,
+  `reference/known-limitations`, `reference/scan-format` and
+  `reference/scan-format-changelog`, translated in full since `docs/fr/` held
+  only `how-to/sample-csv`. Relative links are unchanged, so links to pages
+  not yet translated (install, first report, JSON profile, execution
+  history, profile format changelog) have no French target yet. French
+  headings change the generated anchors: `configuration.md` keeps an explicit
+  `<a id="scan-settings"></a>` for the links of the other pages, while the
+  anchor `install.md#keep-tabalyst-up-to-date` of the French index will need
+  the same when `install` is translated.
 
 ### Lot 5a: report built on Scan
 
