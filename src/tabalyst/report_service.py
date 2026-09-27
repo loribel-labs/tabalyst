@@ -1,14 +1,13 @@
 """Reusable planning and batch execution for Tabalyst Report."""
 
-import glob
-import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tabalyst.batch import path_key, plan_outputs, validate_outputs
 from tabalyst.config import resolve_config
-from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
+from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.execution_log import EXECUTION_LOG_NAME
 from tabalyst.progress import (
     ProgressCallback,
@@ -61,46 +60,6 @@ class BatchReportResult:
         return not self.failures
 
 
-def _path_key(path: Path) -> str:
-    return os.path.normcase(str(path.resolve()))
-
-
-def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
-    """Resolve explicit files and shell-independent, non-recursive glob patterns."""
-    if not input_specs:
-        raise ConfigurationError("At least one input file is required.")
-
-    sources: list[Path] = []
-    known: set[str] = set()
-    for value in input_specs:
-        text = os.fspath(value)
-        if "**" in text:
-            raise ConfigurationError(
-                f"Recursive input patterns are not supported yet: {text}"
-            )
-        if glob.has_magic(text):
-            matches = sorted(
-                (Path(match) for match in glob.glob(text) if Path(match).is_file()),
-                key=_path_key,
-            )
-            if not matches:
-                raise InputError(f'Input pattern matched no files: "{text}"')
-        else:
-            path = Path(text)
-            if not path.exists():
-                raise InputError(f"Input file does not exist: {path}")
-            if not path.is_file():
-                raise InputError(f"Input path is not a file: {path}")
-            matches = [path]
-
-        for path in matches:
-            key = _path_key(path)
-            if key not in known:
-                sources.append(path)
-                known.add(key)
-    return sources
-
-
 def build_report_plan(
     input_specs: Sequence[str | Path],
     *,
@@ -109,69 +68,39 @@ def build_report_plan(
     force: bool = False,
 ) -> ReportPlan:
     """Resolve all report paths and reject the whole batch on unsafe plans."""
-    if output is not None and output_dir is not None:
-        raise ConfigurationError("--output and --output-dir cannot be used together.")
-
-    sources = resolve_input_specs(input_specs)
-    if output is not None and len(sources) != 1:
-        raise ConfigurationError("--output can only be used with one input file.")
-
-    destination = Path(output_dir) if output_dir is not None else None
-    if destination is not None and destination.exists() and not destination.is_dir():
-        raise ReportError(f"Output directory path is a file: {destination}")
-
     jobs = tuple(
-        ReportJob(
-            source=source,
-            output=(
-                Path(output)
-                if output is not None
-                else destination / f"{source.stem}.html"
-                if destination is not None
-                else source.with_suffix(".html")
-            ),
+        ReportJob(source=source, output=target)
+        for source, target in plan_outputs(
+            input_specs,
+            output=output,
+            output_dir=output_dir,
+            output_name=lambda source: f"{source.stem}.html",
         )
-        for source in sources
     )
     _validate_report_plan(jobs, force=force)
     return ReportPlan(jobs=jobs)
 
 
 def _validate_report_plan(jobs: tuple[ReportJob, ...], *, force: bool) -> None:
-    input_owners = {_path_key(job.source): job.source for job in jobs}
-    output_owners: dict[str, ReportJob] = {}
-    existing: list[Path] = []
-
     for job in jobs:
         if job.output.suffix.lower() != ".html":
             raise InputError("--output must be a complete filename ending in .html")
-        if job.output.exists() and job.output.is_dir():
-            raise InputError(f"Report path is a directory: {job.output}")
-
-        execution_key = _path_key(job.execution_output)
+        execution_key = path_key(job.execution_output)
         for artifact in (job.output, job.profile_output):
-            key = _path_key(artifact)
-            if key == execution_key:
+            if path_key(artifact) == execution_key:
                 raise ReportError(
                     f"Report artifact conflicts with execution history: {artifact}"
                 )
-            if key in input_owners:
-                raise InputError(f"Report would overwrite an input file: {artifact}")
-            previous = output_owners.get(key)
-            if previous is not None:
-                raise ReportError(
-                    "Output name collision: "
-                    f"{previous.source} and {job.source} both map to {artifact}."
-                )
-            output_owners[key] = job
-            if not force and artifact.exists():
-                existing.append(artifact)
-
-    if existing:
-        lines = "\n".join(f"  {path}" for path in existing)
-        raise ReportError(
-            "Report output already exists. Use --force to replace it:\n" + lines
-        )
+    validate_outputs(
+        (
+            (job.source, artifact)
+            for job in jobs
+            for artifact in (job.output, job.profile_output)
+        ),
+        sources=(job.source for job in jobs),
+        force=force,
+        label="Report",
+    )
 
 
 def generate_reports(

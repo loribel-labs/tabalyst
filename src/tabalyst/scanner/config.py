@@ -10,12 +10,28 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable, Sequence
 from fractions import Fraction
+from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
-from tabalyst.config import CsvConfig, DateDetectionConfig
+from tabalyst.config import (
+    CsvConfig,
+    DateDetectionConfig,
+    load_config_layers,
+    merge_settings,
+    validation_message,
+)
+from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.paths import Items, parse_path
 
 HARD_CAPS: dict[str, int] = {
@@ -424,3 +440,33 @@ def config_sha256(config: ScanConfig) -> str:
         ensure_ascii=False,
     )
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def resolve_scan_config(
+    paths: Iterable[Path] = (),
+    *,
+    delimiter: str | None = None,
+    encoding: str | None = None,
+    collections: Sequence[str] | None = None,
+) -> ScanConfig:
+    """Resolve the configuration layers of a scan (design section 15).
+
+    From lowest to highest priority: built-in defaults, the ``scan`` section
+    of each configuration file in order, then explicit options. Hard caps are
+    enforced by validation. Objects merge; lists, such as ``collections``,
+    replace.
+    """
+    _, settings = load_config_layers(paths)
+    options: dict = {}
+    if delimiter is not None:
+        options.setdefault("csv", {})["delimiter"] = delimiter
+    if encoding is not None:
+        options.setdefault("csv", {})["encoding"] = encoding
+    if collections:
+        options["json"] = {"collections": list(collections)}
+    try:
+        return ScanConfig.model_validate(merge_settings(settings, options))
+    except ValidationError as exc:
+        raise ConfigurationError(
+            f"Invalid scan configuration: {validation_message(exc, 'scan')}"
+        ) from exc

@@ -1,0 +1,163 @@
+---
+title: Scan CSV and JSON files
+description: Describe every field of a CSV or JSON file in a complete JSON scan document with tabalyst scan, in one streaming pass.
+---
+
+Use `tabalyst scan` to describe a CSV or JSON file in a JSON document: every
+field, its presence, values, statistics, formats and detected meanings, such
+as email addresses, dates or amounts.
+
+```console
+tabalyst scan customers.csv
+```
+
+This creates `customers.scan.json` beside `customers.csv`. The source file is
+never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
+so memory depends on the configured limits, not on the number of records. The
+structure of the result is described in the
+[scan format reference](../reference/scan-format.md).
+
+## Scan JSON files
+
+Files ending in `.json` are read as JSON; every other file is read as CSV.
+
+```console
+tabalyst scan orders.json
+```
+
+By default, Tabalyst finds the records itself. A top-level array is one
+collection of records. A top-level object is one document record, and every
+array reachable from it through objects, at most three levels deep, is also a
+collection, such as `customers` in `{"customers": [...]}`. Arrays inside records,
+such as the `orders` of each customer, stay fields of their records. Name the
+collections explicitly with `--collection`, repeated for several:
+
+```console
+tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[]"
+```
+
+A collection path starts with `$`, the document root, and ends with `[]`, the
+elements of an array. Nested fields are written with dots, such as
+`orders[].amount`. A collection that is not found is reported as a warning,
+with an empty dataset.
+
+## Choose output locations
+
+Use `-o` for the complete output filename when scanning one source. The name
+must end in `.json`:
+
+```console
+tabalyst scan customers.csv -o scans/customers.json
+```
+
+Wildcards are resolved by Tabalyst, including on shells that do not expand
+them. Use `-d` to put the scans of one or more sources in a directory:
+
+```console
+tabalyst scan data/*.csv data/*.json -d scans/
+```
+
+The outputs are named `customers.scan.json`, `orders.scan.json`, and so on.
+`-o` accepts only one resolved input; `-o` and `-d` cannot be combined.
+Recursive `**` patterns are not supported.
+
+## Safe batch behavior
+
+Before scanning, Tabalyst resolves every input and output and rejects the whole
+batch when:
+
+- two sources map to the same output, such as `data.csv` and `data.json`;
+- an output would replace an input or a configuration file;
+- an output already exists and `--force` is not given.
+
+Each result is written to a temporary file in the target directory, then moved
+into place: an interrupted scan never leaves a partial result. When one source
+fails, for example with invalid JSON, Tabalyst reports the error, continues
+with the other sources and returns a non-zero exit code at the end.
+
+A pattern such as `data/*.json` also matches earlier results such as
+`data/orders.scan.json`. Write scans to another directory with `-d` to keep
+them apart from the sources.
+
+## Configure the scan
+
+Scan settings live in the `scan` section of a JSON
+[configuration file](../reference/configuration.md#scan-settings):
+
+```json
+{
+  "scan": {
+    "values": {"null_markers": ["N/A", "NULL"]},
+    "errors": {"policy": "tolerant"},
+    "exposure": {"sensitive_values": "hide"}
+  }
+}
+```
+
+```console
+tabalyst scan customers.csv --config tabalyst.json
+```
+
+Repeat `--config` to combine several files: later files override earlier ones.
+`--delimiter`, `--encoding` and `--collection` override every file. Unknown
+settings are errors, so a misspelled name never passes silently.
+
+The CSV delimiter is a comma and the encoding accepts UTF-8 with or without a
+byte order mark by default:
+
+```console
+tabalyst scan data.csv --delimiter ";" --encoding cp1252
+```
+
+## Errors and partial scans
+
+By default, a CSV record with the wrong number of fields, or a JSON object with
+a duplicate key, stops the scan of that file with an error. With
+`"errors": {"policy": "tolerant"}`, such records are excluded and counted, and
+the scan finishes with status `partial`. The command then succeeds and prints a
+warning:
+
+```text
+Warning [data.csv]: partial scan, 2 records excluded (width_mismatch: 2).
+```
+
+Exit codes: `0` for success, including partial scans; `2` for configuration
+errors; `4` for unreadable or invalid inputs; `1` for other failures, such as
+an existing output without `--force`.
+
+## Sensitive values
+
+Fields holding email addresses, phone numbers or IP addresses are sensitive.
+By default, their values are masked in the result: letters become `A` or `a`
+and digits `9`, so `jane@example.com` is listed as `aaaa@aaaaaaa.aaa`. Counts
+and formats stay exact. Set `exposure.sensitive_values` to `hide` to remove
+these values, or to `show` to keep them. Values of other fields are always
+shown: share a scan as you would share the data.
+
+## Progress and messages
+
+Interactive terminals show the file and the share of it already read:
+
+```text
+[2/8] orders.json - Reading 42%
+```
+
+Progress and messages use standard error. Progress is disabled outside a
+terminal and with `--no-progress` or `--quiet`. `--verbose` adds the detected
+format, encoding, delimiter, status and number of diagnostics.
+
+## Python API
+
+```python
+import tabalyst
+
+result = tabalyst.scan("orders.json")
+print(result.scope.records_analyzed)
+
+batch = tabalyst.generate_scans(["data/*.csv"], output_dir="scans")
+```
+
+`tabalyst.scan()` reads one source and returns the result without writing
+anything; `result.model_dump(mode="json")` gives the document. Pass
+`config=tabalyst.ScanConfig(...)` to change settings. `tabalyst.generate_scans()`
+does what the command does and returns the plan, successes and failures.

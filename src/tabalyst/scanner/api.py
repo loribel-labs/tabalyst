@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
@@ -30,12 +31,40 @@ from tabalyst.scanner.readers.csv_reader import CsvReader
 from tabalyst.scanner.readers.json_reader import JsonReader
 
 NORMALIZATION_VERSION = 1
+# Reading progress is reported at most once per percent of the source, and
+# never more often than every MiB.
+_PROGRESS_MIN_STEP = 1 << 20
 
 
-def _open_reader(path: Path, config: ScanConfig) -> Reader:
+def _open_reader(
+    path: Path, config: ScanConfig, on_bytes: Callable[[int], None] | None
+) -> Reader:
     if path.suffix.lower() == ".json":
-        return JsonReader(path, config)
-    return CsvReader(path, config)
+        return JsonReader(path, config, on_bytes)
+    return CsvReader(path, config, on_bytes)
+
+
+def _byte_progress(
+    on_progress: ProgressCallback | None, path: Path, total: int
+) -> Callable[[int], None] | None:
+    if on_progress is None:
+        return None
+    step = max(_PROGRESS_MIN_STEP, total // 100)
+    next_report = step
+
+    def report(bytes_read: int) -> None:
+        nonlocal next_report
+        if bytes_read >= next_report:
+            next_report = bytes_read + step
+            emit_progress(
+                on_progress,
+                path,
+                ProgressPhase.READING,
+                bytes_read=bytes_read,
+                bytes_total=max(total, bytes_read),
+            )
+
+    return report
 
 
 def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope | None:
@@ -77,8 +106,12 @@ def scan(
     if not path.is_file():
         raise InputError(f"Source does not exist or is not a file: {path}")
 
-    emit_progress(on_progress, path, ProgressPhase.READING)
-    reader = _open_reader(path, config)
+    emit_progress(
+        on_progress, path, ProgressPhase.READING, bytes_read=0, bytes_total=stat.st_size
+    )
+    reader = _open_reader(
+        path, config, _byte_progress(on_progress, path, stat.st_size)
+    )
     detectors = DetectorSet(
         default_registry() if registry is None else registry, config
     )

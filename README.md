@@ -167,6 +167,29 @@ Sampling reads CSV records as a stream. Random and stratified sampling keep
 only the requested sample, plus stratum counts, in memory. Existing outputs
 require `--force`, and an input file is never overwritten.
 
+## Tabalyst Scan
+
+Describe every field of a CSV or JSON file in one JSON document:
+
+```console
+tabalyst scan customers.csv
+tabalyst scan orders.json --collection "$.customers[]"
+```
+
+The default output is `customers.scan.json` beside the source; `-o`, `-d` and
+`--force` work as for the other commands. Tabalyst Scan reads the file once as
+a stream, with memory bounded by configurable limits, and records for each
+field its presence, native types, missing values, frequencies, exact
+statistics, normalization variants, technical type and the result of every
+detector: numbers with decimal commas, dates, booleans, enumerations, email
+addresses, URLs, phone numbers, postal codes, currency amounts, percentages,
+quantities, UUIDs and IP addresses. Values of sensitive fields, such as email
+addresses, are masked by default. Results are written atomically: an
+interrupted scan never leaves a partial file.
+
+See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/scan-files.md)
+and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/scan-format.md).
+
 ## What the report analyzes
 
 - Dataset dimensions, missing cells, duplicates, and quality observations.
@@ -204,10 +227,15 @@ sample = tabalyst.sample_csv(
     rows=1000,
     seed=42,
 )
+
+scan = tabalyst.scan("orders.json")
+scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
 ```
 
 `analyze()` returns the JSON-serializable profile for one report.
 `generate_reports()` returns the complete batch plan, successes, and failures.
+`scan()` returns a scan result without writing anything; `generate_scans()`
+writes one `.scan.json` document per source.
 Expected failures derive from `tabalyst.TabalystError`.
 
 Existing artifacts are never replaced silently. Pass `force=True` when
@@ -226,8 +254,9 @@ Configuration files are strict JSON. A minimal file is:
 }
 ```
 
-Explicit CLI or Python arguments override the configuration file, which overrides
-Tabalyst defaults. See the
+Scan settings go in a `scan` object of the same file. Explicit CLI or Python
+arguments override the configuration file, which overrides Tabalyst defaults.
+No configuration file is loaded unless it is passed with `--config`. See the
 [configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
 for all analysis settings.
 
@@ -237,10 +266,10 @@ Tabalyst performs analysis locally and adds no telemetry or remote processing.
 Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
-Report analysis currently loads the complete CSV into memory. Sampling uses a
-streaming reader with bounded row storage. File and phase progress is available
-for reports; row percentages, throughput estimates, recursive directory input,
-and parallel batch execution will require later ingestion work.
+Report analysis currently loads the complete CSV into memory. Sampling and
+scanning use streaming readers with bounded memory. Reports show file and phase
+progress, scans the share of the file read; throughput estimates, recursive
+directory input, and parallel batch execution will require later work.
 
 ## Examples and development
 
