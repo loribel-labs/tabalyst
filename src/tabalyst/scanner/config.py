@@ -314,6 +314,27 @@ class QuantitySettings(NumberSettings):
     max_listed_units: int = Field(default=20, ge=0, le=10_000)
 
 
+class UuidSettings(_Settings):
+    enabled: bool = True
+
+
+IpVersion = Literal["ipv4", "ipv6"]
+
+
+class IpAddressSettings(_Settings):
+    enabled: bool = True
+    versions: list[IpVersion] = Field(
+        default_factory=lambda: ["ipv4", "ipv6"], min_length=1
+    )
+
+    @field_validator("versions")
+    @classmethod
+    def unique_versions(cls, values: list[str]) -> list[str]:
+        if len(set(values)) != len(values):
+            raise ValueError("IP address versions must be unique")
+        return values
+
+
 class DetectorSettings(_Settings):
     number: NumberSettings = Field(default_factory=NumberSettings)
     date: DateSettings = Field(default_factory=DateSettings)
@@ -326,6 +347,8 @@ class DetectorSettings(_Settings):
     currency: CurrencySettings = Field(default_factory=CurrencySettings)
     percentage: PercentageSettings = Field(default_factory=PercentageSettings)
     quantity: QuantitySettings = Field(default_factory=QuantitySettings)
+    uuid: UuidSettings = Field(default_factory=UuidSettings)
+    ip_address: IpAddressSettings = Field(default_factory=IpAddressSettings)
 
 
 class PatternSettings(_Settings):

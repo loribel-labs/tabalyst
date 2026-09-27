@@ -728,7 +728,8 @@ class DetectorAccumulator:
 - `DetectorRegistry` holds detector classes by `id`, in registration order.
   `default_registry()` returns a fresh registry with the built-ins `number`,
   `date`, `boolean`, `enumeration`, `email`, `url`, `phone`, `postal_code`,
-  `currency`, `percentage` and `quantity`; `register(cls)` adds one and rejects
+  `currency`, `percentage`, `quantity`, `uuid` and `ip_address`;
+  `register(cls)` adds one and rejects
   a duplicate id. External plugin loading is deferred (O21). Declarative
   patterns (12.7) follow the registry's detectors, in configuration order.
 - Configuration: `detectors.<id>` holds `enabled` and detector parameters
@@ -1025,7 +1026,9 @@ around it.
                      "ambiguous_convention": null},
       "quantity": {"enabled": true, "conventions": ["dot", "comma"],
                    "ambiguous_convention": null, "max_tracked_units": 10000,
-                   "max_listed_units": 20}
+                   "max_listed_units": 20},
+      "uuid": {"enabled": true},
+      "ip_address": {"enabled": true, "versions": ["ipv4", "ipv6"]}
     },
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -1063,7 +1066,8 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
              "detectors": {"number": 1, "date": 1, "boolean": 1,
                            "enumeration": 1, "email": 1, "url": 1,
                            "phone": 1, "postal_code": 1, "currency": 1,
-                           "percentage": 1, "quantity": 1}},
+                           "percentage": 1, "quantity": 1, "uuid": 1,
+                           "ip_address": 1}},
   "status": "complete",
   "started_at": "2026-09-26T22:00:00Z",
   "duration_seconds": 0.012,
@@ -1171,3 +1175,4 @@ input.
 | 2026-09-26 | 3b | Sections 12.1, 15 and 16.1: built-in `phone` detector (regions `nanp` and `fr`), enabled by default, with its `regions` setting; its specification is in `detectors.md`. | Priority 1 catalogue, phone family. |
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `postal_code` detector (regions `ca` for Canadian postal codes and `us` for ZIP codes), enabled by default and not sensitive, with its `regions` setting; its specification is in `detectors.md`. | Priority 1 catalogue, postal code family. |
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `currency` (symbols and ISO 4217 codes), `percentage` and `quantity` (a number and any unit) detectors, enabled by default and not sensitive, with their own number conventions and ambiguity blocks, and bounded counted units for `quantity`; their specifications are in `detectors.md`. | Priority 1 catalogue, currency and percentage family, extended to generic quantities at the maintainer's request. |
+| 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `uuid` (hyphenated, braced and URN forms, versions counted, not sensitive) and `ip_address` (versions `ipv4` and `ipv6`, sensitive) detectors, enabled by default, with the `versions` setting of `ip_address`; their specifications are in `detectors.md`. | Priority 1 catalogue, UUID and IP address family, the last of lot 3b. |
