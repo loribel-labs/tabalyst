@@ -167,8 +167,134 @@ session (plan.md, lot 3b):
 - currency amounts and percentages;
 - UUID and IP addresses.
 
-Catalogue detectors are costlier than the built-ins: they should declare
-`shapes` (design 12.5) and a `max_input_length`. A detector whose values
+Catalogue detectors are costlier than the built-ins: they should declare a
+`max_input_length`, and reject most values with a cheap exact check, such as
+a required character or first character, or declare `shapes` (design 12.5)
+when no such check exists. Measured in the email and URL session: shapes on
+both detectors made the 100,000-row benchmark file about 30% slower, a
+required character check about 8%, because the signature is computed for
+nearly every value. A detector whose values
 identify people (email addresses, phone numbers) is `sensitive`, so its
 fields are masked by default; any value it carries in `details` goes through
 the exposure gate.
+
+### Domain names (shared by `email` and `url`)
+
+A domain name is one or more labels separated by dots. A label has 1 to 63
+characters among letters of any script (`str.isalpha`, so internationalized
+names such as `exemple.québec` are accepted as written), ASCII digits and
+`-`, and neither starts nor ends with `-`. The name has at most 253
+characters, no empty label (so no leading, trailing or doubled dot), and its
+last label is not made of digits only. Punycode labels (`xn--`) are ordinary
+labels; they are not decoded.
+
+### Counted names (shared by `email` and `url`)
+
+`email` counts domains and `url` counts hosts, lowercased with
+`str.lower` (not `casefold`, which would merge `straße` and `strasse`), with the same
+block. Only `matched` values count.
+
+```json
+{"status": "complete", "value": {"distinct": 3, "listed": [{"value": "example.com", "count": 5}], "truncated": false}}
+{"status": "limited", "reason": "max_tracked", "limit": 10000, "lower_bound": 10001}
+```
+
+- A name is tracked from its first occurrence, so tracked counts are exact.
+  When a name beyond `max_tracked` distinct names arrives, the block is
+  `limited` and has no value: the most frequent names are no longer proven.
+- `listed` holds the `max_listed` most frequent names, ordered by count
+  (descending), then name; `truncated` says the listing is shorter than
+  `distinct`.
+- The names go through the exposure gate (`gate.counts`): under `mask`,
+  equal masks merge before ranking and `distinct` counts masks; under `hide`,
+  `listed` is empty and `truncated` is `true` when a name was hidden. A
+  `limited` block publishes `lower_bound` under `show` and `hide`, where
+  `distinct` counts raw names, and omits it under `mask`, since distinct raw
+  names do not prove distinct masks.
+
+### `email` (family `contact`, version 1)
+
+- Accepts: strings; input cap 254 characters (the longest address SMTP
+  allows); no shapes: a value without `@` is rejected first, which is
+  cheaper than a shape signature.
+- Formats: none. Only a bare address (`addr-spec`) is recognized: quoted
+  local parts, comments, display names (`Jane <jane@example.com>`), IP
+  address literals (`jane@[192.0.2.1]`) and `mailto:` are not matched.
+- Normalization: the analytical value. The domain ignores case in `details`;
+  the local part is kept as written.
+- Validation: a value is a candidate when it has exactly one `@`, a non-empty
+  local part without `:`, `/`, `<` or `>`, and a domain with at least one dot and
+  none of `/`, `?`, `#`, `:`, `<`, `>`, `[`, `]`. These characters mark URLs,
+  display names and address literals; other values are `not_matched`. A
+  space or an underscore does not, so a mistyped address such as
+  `jane@gmail. com` or `jane doe@example.com` is `invalid`.
+  A candidate is `invalid` with the reason of the first failed check, in
+  this order:
+  - `local_part_too_long`: more than 64 characters;
+  - `invalid_local_part`: not a dot-atom, that is characters outside ASCII
+    letters, digits and ``!#$%&'*+/=?^_`{|}~-`` separated by single dots,
+    with no leading or trailing dot (non-ASCII local parts included);
+  - `invalid_domain`: not a domain name (above).
+
+  No value is ambiguous.
+- Details: `domains`, the counted names block (above).
+- Settings: `max_tracked_domains` (10,000, at most 1,000,000),
+  `max_listed_domains` (20, at most 10,000).
+- Overlaps: `url` never matches an address: a `www.` URL has no `@` in its
+  authority, and a URL with `@` elsewhere has `:` or `/` before the `@`; `enumeration` and patterns
+  may.
+- Sensitive: yes, an address identifies a person.
+- Test values: `jane@example.com`, `Jane.Doe+tag@Mail.Example.CO.UK`,
+  `j@exemple.québec`, `o'brien@example.ie`; invalid `.jane@example.com`,
+  `jane..doe@example.com`, `josé@example.com`, `jane@-example.com`,
+  `jane@example.123`, `jane@gmail. com`, `jane doe@example.com`, a
+  65-character local part; not matched `jane`,
+  `jane@localhost`, `jane@@example.com`, `a@b@example.com`,
+  `Jane <jane@example.com>`, `mailto:jane@example.com`,
+  `https://jane@example.com`.
+
+### `url` (family `web`, version 1)
+
+- Accepts: strings; input cap 8,192 characters; no shapes: a value whose
+  first character is not the first letter of a configured scheme or `w`,
+  ignoring case, is rejected first.
+- Formats: absolute URLs of a configured scheme, ignoring case, followed by
+  `://`, with format the scheme in lowercase (`http`, `https`, `ftp`); URLs
+  without scheme starting with `www.`, ignoring case, with format `www`.
+- Normalization: the analytical value. The scheme and the host ignore case.
+- Validation: a value is a candidate when it starts with `<scheme>://` of a
+  configured scheme, or with `www.` followed by an authority without `@`;
+  other values are `not_matched`. The authority runs up to the first `/`, `?`
+  or `#`: optional user information ending with `@` (scheme form only),
+  host, optional `:port`. A candidate is `invalid` with the reason of the
+  first failed check, in this order:
+  - `invalid_character`: whitespace, a control character or an ASCII
+    character outside RFC 3986 (`"`, `<`, `>`, `\`, `^`, `` ` ``, `{`, `|`,
+    `}`) anywhere in the value. Other non-ASCII characters are accepted,
+    as browsers display them (IRI);
+  - `invalid_percent_encoding`: `%` not followed by two hexadecimal digits;
+  - `invalid_host`: empty host, or a host that is neither a domain name
+    (above; a single label such as `localhost` is accepted in the scheme
+    form), nor an IPv4 address in dotted decimal, nor an IPv6 address between
+    brackets (checked with `ipaddress`);
+  - `invalid_port`: a port that is empty or not 1 to 5 ASCII digits up to
+    65535.
+
+  No value is ambiguous.
+- Details: `hosts`, the counted names block (above), without user
+  information or port; IPv6 hosts keep their brackets.
+- Settings: `schemes` (default `["http", "https", "ftp"]`, unique lowercase
+  ASCII letters), `www` (true), `max_tracked_hosts` (10,000, at most
+  1,000,000), `max_listed_hosts` (20, at most 10,000).
+- Overlaps: `email` (see above); `number` and `date` never match a candidate;
+  `enumeration` and patterns may.
+- Sensitive: no. A URL names a resource, not a person; query strings may
+  still carry personal data or tokens, which a sensitive pattern can flag.
+- Test values: `https://example.com`, `HTTP://Example.com:8080/a?b=c#d`,
+  `ftp://files.example.com/x.csv`, `http://localhost:8000`,
+  `http://192.0.2.1/`, `http://[2001:db8::1]/`, `https://user:pw@example.com`,
+  `https://exemple.québec/été`, `www.example.com/path`; invalid
+  `https://`, `https://exa mple.com`, `http://example.com:99999`,
+  `http://example.com/%zz`, `http://-example.com`, `http://999.1.1.1`,
+  `http://example.com/{id}`; not matched `example.com`, `mailto:x@y.z`,
+  `file:///tmp/x`, `javascript:alert(1)`, `www.jane@example.com`, `wwwexample`.
