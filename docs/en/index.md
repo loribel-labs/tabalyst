@@ -28,6 +28,8 @@ documentation describes the latest release published on PyPI.
 - [Create your first report](tutorials/first-report.md) from a small CSV file.
 - [Sample CSV files](how-to/sample-csv.md) with first, last, random or
   stratified selection.
+- [Scan CSV and JSON files](how-to/scan-files.md) into a complete JSON
+  description of every field.
 
 ## Reference
 
@@ -37,6 +39,8 @@ documentation describes the latest release published on PyPI.
 - [Execution history](reference/execution-history.md): the `executions.json`
   file.
 - [Profile format changelog](reference/profile-format-changelog.md).
+- [Scan format](reference/scan-format.md): the structure of the `.scan.json`
+  file, and its [changelog](reference/scan-format-changelog.md).
 - [Known limitations](reference/known-limitations.md): what Tabalyst does not do
   yet.
 - [Glossary](reference/glossary.md): English and French terms.

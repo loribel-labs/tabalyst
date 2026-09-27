@@ -1,6 +1,7 @@
 """Experimental configuration. Later files override earlier settings."""
 
 import codecs
+import json
 from collections.abc import Iterable
 from itertools import pairwise
 from pathlib import Path
@@ -150,47 +151,93 @@ class AnalysisConfig(BaseModel):
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
 
 
-def _validation_message(exc: ValidationError) -> str:
+def validation_message(exc: ValidationError, section: str | None = None) -> str:
+    """First validation error, located by its dotted path in the file."""
     first = exc.errors(include_url=False)[0]
-    location = ".".join(str(part) for part in first["loc"])
+    location = ".".join(
+        str(part) for part in ((section,) if section else ()) + tuple(first["loc"])
+    )
     message = first["msg"]
     return f"{location}: {message}" if location else message
 
 
-def load_config(paths: Iterable[Path]) -> AnalysisConfig:
-    """Load and recursively merge strict JSON configuration files."""
+def merge_settings(base: dict, override: dict) -> dict:
+    """Merge configuration layers: objects merge recursively, any other value,
+    lists included, replaces the previous one."""
+    result = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = merge_settings(result[key], value)
+        else:
+            result[key] = value
+    return result
 
-    def merge(base: dict, override: dict) -> dict:
-        result = dict(base)
-        for key, value in override.items():
-            if isinstance(value, dict) and isinstance(result.get(key), dict):
-                result[key] = merge(result[key], value)
-            else:
-                result[key] = value
-        return result
 
-    merged = {}
+def _read_config_file(path: Path) -> dict:
+    try:
+        content = path.read_text(encoding="utf-8-sig")
+    except OSError as exc:
+        raise ConfigurationError(f"Cannot read configuration file {path}: {exc}") from exc
+    try:
+        document = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ConfigurationError(
+            f"Invalid configuration in {path}: invalid JSON: {exc}"
+        ) from exc
+    if not isinstance(document, dict):
+        raise ConfigurationError(
+            f"Invalid configuration in {path}: the file must hold a JSON object"
+        )
+    return document
+
+
+def load_config_layers(paths: Iterable[Path]) -> tuple[dict, dict]:
+    """Validate each file, then merge the files in order.
+
+    Returns the explicitly set report settings and ``scan`` section. Each file
+    is validated completely, whichever command reads it, so a mistake in the
+    section of another command is never silently ignored.
+    """
+    # Imported here: the scan configuration builds on this module.
+    from tabalyst.scanner.config import ScanConfig
+
+    report: dict = {}
+    scan: dict = {}
     for path in paths:
+        document = _read_config_file(path)
+        has_scan = "scan" in document
+        section = document.pop("scan", None)
         try:
-            content = path.read_text(encoding="utf-8-sig")
-        except OSError as exc:
-            raise ConfigurationError(
-                f"Cannot read configuration file {path}: {exc}"
-            ) from exc
-        try:
-            current = AnalysisConfig.model_validate_json(content).model_dump(
+            current = AnalysisConfig.model_validate(document).model_dump(
                 exclude_unset=True
             )
         except ValidationError as exc:
             raise ConfigurationError(
-                f"Invalid configuration in {path}: {_validation_message(exc)}"
+                f"Invalid configuration in {path}: {validation_message(exc)}"
             ) from exc
-        merged = merge(merged, current)
+        report = merge_settings(report, current)
+        if not has_scan:
+            continue
+        try:
+            current = ScanConfig.model_validate(section).model_dump(
+                exclude_unset=True, by_alias=True
+            )
+        except ValidationError as exc:
+            raise ConfigurationError(
+                f"Invalid configuration in {path}: {validation_message(exc, 'scan')}"
+            ) from exc
+        scan = merge_settings(scan, current)
+    return report, scan
+
+
+def load_config(paths: Iterable[Path]) -> AnalysisConfig:
+    """Load and recursively merge strict JSON configuration files."""
+    merged, _ = load_config_layers(paths)
     try:
         return AnalysisConfig.model_validate(merged)
     except ValidationError as exc:
         raise ConfigurationError(
-            f"Invalid merged configuration: {_validation_message(exc)}"
+            f"Invalid merged configuration: {validation_message(exc)}"
         ) from exc
 
 
@@ -210,5 +257,5 @@ def resolve_config(
         return AnalysisConfig.model_validate(settings)
     except ValidationError as exc:
         raise ConfigurationError(
-            f"Invalid configuration: {_validation_message(exc)}"
+            f"Invalid configuration: {validation_message(exc)}"
         ) from exc

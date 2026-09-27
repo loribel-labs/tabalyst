@@ -13,10 +13,12 @@ mode analyzes only the collections listed in ``json.collections``.
 
 from __future__ import annotations
 
+import decimal
 import io
 import json
 import re
-from collections.abc import Iterable, Iterator
+import sys
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 
 import ijson
@@ -68,8 +70,42 @@ _EXCLUSIONS = {
     ),
 }
 # Parser failures of both backends; other exceptions are bugs, not bad input.
-_PARSE_ERRORS = (ijson.JSONError, json.JSONDecodeError, UnicodeDecodeError)
+# ``InvalidOperation``: a number whose exponent ``Decimal`` cannot represent.
+_PARSE_ERRORS = (
+    ijson.JSONError,
+    json.JSONDecodeError,
+    UnicodeDecodeError,
+    decimal.InvalidOperation,
+)
 _SURROGATE = re.compile(r"[\ud800-\udfff]")
+_MAX_DETAIL = 200
+# Every digit becomes "0" and every other byte "x": a digit run is then a run
+# of "0", found by a substring search at memory speed.
+_DIGIT_MASK = bytes(0x30 if 0x30 <= byte <= 0x39 else 0x78 for byte in range(256))
+
+
+def _has_long_digit_run(path: Path) -> bool:
+    """Whether the file holds more consecutive digits than Python converts.
+
+    The compiled backend crashes the process (segmentation fault) on an
+    integer above ``sys.int_max_str_digits`` digits in some parser states;
+    such files are parsed by the pure-Python backend, which reports a parse
+    error instead. Digit runs inside strings also match: they only cost the
+    slower backend. Runs spanning read chunks are included.
+    """
+    limit = sys.get_int_max_str_digits()
+    if limit == 0:
+        return False
+    needle = b"0" * (limit + 1)
+    tail = b""
+    with path.open("rb") as raw:
+        while chunk := raw.read(1 << 20):
+            # The tail is already masked; masking is idempotent.
+            data = (tail + chunk).translate(_DIGIT_MASK)
+            if needle in data:
+                return True
+            tail = data[len(data.rstrip(b"0")) :]
+    return False
 
 
 def _reject_surrogates(
@@ -176,8 +212,14 @@ class _Frame:
 
 
 class JsonReader:
-    def __init__(self, path: Path, config: ScanConfig) -> None:
+    def __init__(
+        self,
+        path: Path,
+        config: ScanConfig,
+        on_bytes: Callable[[int], None] | None = None,
+    ) -> None:
         self.path = path
+        self.on_bytes = on_bytes
         self.tolerant = config.errors.policy == "tolerant"
         self.max_depth = config.limits.max_depth
         self.max_observations = config.limits.max_record_observations
@@ -202,11 +244,14 @@ class JsonReader:
         return self._summary
 
     def __iter__(self) -> Iterator[StreamItem]:
+        backend = BACKEND
         try:
+            if backend.backend_name == "yajl2_c" and _has_long_digit_run(self.path):
+                backend = ijson.get_backend("python")
             raw = self.path.open("rb")
         except OSError as exc:
             raise InputError(f"Cannot read JSON file {self.path}: {exc}") from exc
-        stream = HashingStream(raw)
+        stream = HashingStream(raw, self.on_bytes)
         buffered = io.BufferedReader(stream)
         try:
             # RFC 8259 lets parsers ignore a byte order mark; some Windows
@@ -214,8 +259,8 @@ class JsonReader:
             bom = buffered.peek(len(UTF8_BOM))[: len(UTF8_BOM)] == UTF8_BOM
             if bom:
                 buffered.read(len(UTF8_BOM))
-            events = BACKEND.basic_parse(buffered, use_float=False)
-            if BACKEND.backend_name != "yajl2_c":
+            events = backend.basic_parse(buffered, use_float=False)
+            if backend.backend_name != "yajl2_c":
                 events = _reject_surrogates(events)
             try:
                 yield from self._walk(events)
@@ -231,7 +276,12 @@ class JsonReader:
                 lines = str(exc).strip().splitlines()
                 # The compiled backend reports some errors as a bytes repr.
                 detail = lines[0].strip().removeprefix("b'") if lines else ""
+                if isinstance(exc, decimal.InvalidOperation):
+                    detail = "a number has an exponent out of range"
                 detail = detail or type(exc).__name__
+                # Parser messages may quote a whole token, such as a long number.
+                if len(detail) > _MAX_DETAIL:
+                    detail = detail[:_MAX_DETAIL] + "..."
                 raise InputError(f"Invalid JSON in {self.path.name}: {detail}") from exc
             stream.drain()
         finally:
