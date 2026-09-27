@@ -216,7 +216,9 @@ class DatasetState:
     ) -> FieldResult:
         path = state.path
         presence = self._presence(state)
-        blocks = no_values() if state.values is None else state.values.finalize()
+        blocks = (
+            no_values(self.values) if state.values is None else state.values.finalize()
+        )
         components = MissingComponents(
             absent=presence.absent,
             null=state.count("null"),
@@ -276,4 +278,5 @@ class DatasetState:
             string_lengths=blocks["string_lengths"],
             numeric=blocks["numeric"],
             booleans=blocks["booleans"],
+            normalization=blocks["normalization"],
         )
