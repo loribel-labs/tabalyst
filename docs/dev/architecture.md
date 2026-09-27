@@ -10,16 +10,24 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 
 ## Boundaries
 
-- `ingestion.py`: validates record widths and quoting, then loads raw strings with
-  pandas. Duplicate and blank headers retain their names and get positional IDs.
-- `analysis.py`: computes dataset and column statistics without writing files.
-- `models.py`: Pydantic models for JSON serialization and validation.
+- `report_profile.py`: builds the report profile from a `ScanResult` and the
+  record-level facts (`RowFacts`: preview, duplicate, empty and incomplete
+  rows) collected in the same pass through the `on_record` hook of `scan()`.
+  No pandas and no file access.
+- `report_config.py`: `ReportConfig`, the effective report settings: the
+  top-level presentation settings and the `scan` configuration.
+- `models.py`: Pydantic models of the report profile (revision 3).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
-  `load_config_layers()` validates every file completely (report keys and the
-  `scan` section) and merges files in order; each command resolves its own
-  settings from the merged layers.
+  `load_config_layers()` validates every file completely (top-level settings and
+  the `scan` section), rejects the settings moved to `scan` with their new
+  location, and merges files in order; each command resolves its own settings
+  from the merged layers.
+- `ingestion.py`, `analysis.py`, `legacy_models.py`: the pandas engine and its
+  revision 2 models, kept only for `analyze_column` and the parity tests of
+  Scan lot 5a; removed in lot 5c.
 - `service.py`: public `analyze(...)` orchestration plus the reusable
-  `analyze_csv(path, config)` engine boundary. Output replacement is an explicit
+  `analyze_csv(path, config)` boundary, which scans the CSV and builds its
+  profile. Output replacement is an explicit
   service-level choice rather than a CLI-only safeguard.
 - `batch.py`: shared batch planning: shell-independent input resolution,
   output naming for `-o` and `-d`, collision, input-overwrite and `--force`
@@ -107,11 +115,10 @@ emits reading, analysis, rendering, writing, completion and failure events witho
 depending on terminal libraries. The CLI combines these events with exact batch
 positions such as `[2/8]`.
 
-Accurate row counts, throughput and estimates require the future chunked reader;
-a blocking `pandas.read_csv()` call cannot provide a truthful per-file percentage.
-Scans report reading progress by bytes: the readers' hashing stream counts every
-byte, and `scan()` emits `reading` events with `bytes_read` and `bytes_total` at
-most once per percent of the file and never more often than every MiB.
+Scans and reports report reading progress by bytes: the readers' hashing
+stream counts every byte, and `scan()` emits `reading` events with
+`bytes_read` and `bytes_total` at most once per percent of the file and never
+more often than every MiB. Reports then emit analyzing, rendering and writing.
 
 Interactive progress must use standard error, remain silent under `--quiet`, and
 disable terminal animation when output is redirected. `--no-progress` disables it
@@ -119,42 +126,40 @@ explicitly.
 
 ## Current semantics
 
-The first record is the header. Row numbers identify logical data records, starting
-at 1; quoted multiline cells count as one record. Structural errors stop ingestion,
-including blank physical records, short rows and extra fields. Empty cells in a
-correctly sized record are supported.
+The report is built on Tabalyst Scan ([scan/design.md](scan/design.md)). The
+first record is the header. Row numbers identify logical data records, starting
+at 1; quoted multiline cells count as one record. Structural errors stop the
+report under the default `strict` policy; under `tolerant`, malformed records
+are excluded and listed by the `excluded_records` issue.
 
-Raw strings are preserved. Whitespace-only values are missing by default; literal
-`NA`, `NULL` and `NaN` remain text unless configured as missing markers. Missing
-markers are matched after trimming whitespace, with case preserved. Normalization
-is applied before distinct counts, occurrences, examples, enum detection, type
-inference and string-length analysis. The preview and duplicate-row comparison
-deliberately retain raw values; duplicate counts exclude each group's first row.
+Raw strings are preserved. Missing cells follow `scan.values`: empty and
+whitespace-only cells by default, plus configured markers compared after
+trimming. Distinct values, examples, types and lengths use the analytical value
+(NFC, trim, collapse whitespace). The preview and duplicate-row comparison
+retain raw values; duplicate counts exclude each group's first row and compare
+a 128-bit BLAKE2b digest per row, one per distinct row, the only record-level
+state that grows with the file (lot 5c bounds it).
 
-Type inference checks every present normalized value and applies the configured
-confidence threshold. It recognizes integers without leading zeros,
-dot-decimal/scientific numbers, true/false and configured strict YMD, MDY and DMY
-dates. Date profiles retain explicit format, ambiguity and calendar-error counts
-even when the resulting column type is mixed. Error counts describe values outside
-the accepted dominant type; a generic mixed column has no error rate. Decimal
-commas, email addresses and postal codes remain text at this stage. Types are
-descriptive hints, not conversions or domain validation. Numeric statistics use
-accepted numeric values with floating-point arithmetic and are omitted when
-conversion is not finite.
+Column types are the scan's technical types. A date column is `date` even with
+several formats or ambiguous values; ambiguous values are never resolved from
+column evidence (design 12.6): the report shows the evidence and suggests
+`scan.detectors.date.ambiguous_order` when it is one-sided, and the
+`ambiguous_dates` issue counts them. Semantic types are `date` for date columns,
+otherwise the scan's primary interpretation. Values of sensitive columns are
+masked by default in examples, value profiles and the preview.
 
-Each column materializes `with_issues` in the canonical JSON. It is true exactly
-when the column has one or more missing values or its inferred type is `mixed`.
-Dataset-level type counts, section counts and date aggregates are also serialized
-so the HTML renderer does not recreate analysis rules.
+Each column materializes `with_issues`: missing values, inferred type `mixed` or
+unresolved ambiguous dates. Dataset-level type counts, section counts and date
+aggregates are also serialized so the HTML renderer does not recreate analysis
+rules. A measure stopped by a scan limit is `null` in the profile, shown as
+`limited`, and listed by the `limited_measures` issue.
 
-The complete CSV is loaded into memory. The preview contains the first N records;
-its size does not affect analysis. JSON and HTML may include raw data and should be
-shared accordingly. The generated report is self-contained and does not need an
-internet connection.
+JSON and HTML may include raw data and should be shared accordingly. The
+generated report is self-contained and does not need an internet connection.
 
-The JSON profile records end-to-end CSV ingestion and analysis time in
-`processing_seconds`. The adjacent `executions.json` also records total run time,
-including JSON and HTML generation, plus package and optional Git metadata.
+The JSON profile records the scan and profile time in `processing_seconds`. The
+adjacent `executions.json` also records total run time, including JSON and HTML
+generation, plus package and optional Git metadata.
 
 ## Browser checks
 
@@ -184,4 +189,5 @@ engine for CSV and JSON. Its contract is [scan/design.md](scan/design.md) and
 its lots are in [scan/plan.md](scan/plan.md). `tabalyst.scanner` provides
 `scan()`, `ScanConfig` and `ScanResult`; since lot 4, the `tabalyst scan`
 command and the top-level `tabalyst.scan()` and `tabalyst.generate_scans()`
-expose it, and the `scan` section of configuration files configures it.
+expose it, and the `scan` section of configuration files configures it. Since
+lot 5a, `tabalyst report` is built on it.

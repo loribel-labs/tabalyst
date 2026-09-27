@@ -19,7 +19,8 @@ from time import perf_counter
 
 TASKS = {
     "csv-read": "Stream every record with csv.reader (lower bound for a Python reader)",
-    "report-engine": "Current report engine: tabalyst.analyze_csv() with defaults",
+    "report-engine": "Report engine: tabalyst.analyze_csv() with defaults (Scan since lot 5a)",
+    "pandas-engine": "Former pandas report engine, kept until Scan lot 5c",
 }
 
 
@@ -67,15 +68,19 @@ def _run_task(task: str, path: Path) -> int:
         with path.open("r", encoding="utf-8-sig", newline="") as stream:
             return sum(1 for _ in csv.reader(stream, strict=True)) - 1
     if task == "report-engine":
-        from tabalyst import AnalysisConfig, analyze_csv
+        from tabalyst import analyze_csv
 
-        return analyze_csv(path, AnalysisConfig()).summary.row_count
+        return analyze_csv(path).summary.row_count
+    if task == "pandas-engine":
+        from tabalyst.analysis import analyze_csv_file
+
+        return analyze_csv_file(path).summary.row_count
     raise ValueError(f"Unknown task: {task}")
 
 
 def _child(task: str, path: Path) -> None:
-    if task == "report-engine":
-        import tabalyst  # noqa: F401  Import cost is excluded from the timing.
+    if task in {"report-engine", "pandas-engine"}:
+        import tabalyst.analysis  # noqa: F401  Import cost is excluded from the timing.
     start_memory, _ = _memory_bytes()
     started = perf_counter()
     rows = _run_task(task, path)

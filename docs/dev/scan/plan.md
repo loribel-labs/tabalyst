@@ -20,7 +20,8 @@ regenerated, documentation consistent with what is released.
 | 3b | Priority 1 catalogue, patterns, sensitive values | Done | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Done | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Done | Sonnet 5 | Low | `scan/phase-4-fr` |
-| 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
+| 5a | Report built on Scan, parity on the demos | Done | Opus 5.5 | High | `scan/phase-5` |
+| 5a-fr | French translation of the lot 5a documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 5b | JSON sources and new sections in the report | Planned | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
 | 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
@@ -234,6 +235,19 @@ benchmarks.md.
 - Adapter from `ScanResult` to the report, profile format revision 3, parity
   tests on both demos, decision on how the report presents date ambiguity and
   evidence (design section 12.6).
+- Done on 2026-09-27: `report_profile.py` (adapter and `RowFacts`),
+  `report_config.py`, `scan(on_record=...)`, profile revision 3, report
+  settings moved to `scan`, template and documentation updated;
+  `tests/scan/test_scan_report.py` passes. Decisions recorded in design
+  section 16.4 (O16). Notes for lots 5b and 5c below.
+
+### Lot 5a-fr: French documentation
+
+- Update the French pages changed by lot 5a from the English ones:
+  `reference/configuration`, `reference/glossary` and
+  `reference/known-limitations`, and translate `reference/json-profile` and
+  `reference/profile-format-changelog` if the maintainer wants them. Can run
+  in parallel with lot 5b.
 
 ### Lot 5b: JSON sources and new report sections
 
@@ -577,6 +591,44 @@ done, and anything the next lot must know.
   `Decimal` parsing, and one `DetectorTally.add` per detector and distinct
   value. Candidates: dispatch by first character, skipping detectors a
   cheap check rules out, and batching tallies.
+- Lot 5a, for lot 5b:
+  - The report shows one semantic type per column (the primary
+    interpretation) and `limited_measures` / `excluded_records` issues as a
+    stopgap; detectors, formats, normalization variants (NFC changes
+    included), limits and structure sections are lot 5b.
+  - JSON sources are rejected by `analyze_csv()` with an `InputError`;
+    `build_profile()` assumes one CSV dataset (`rows`).
+  - The tooltip of a masked column shows sampled masks against the raw
+    distinct count (`100 / 2,992`), and a complete masked listing shows no
+    `+N`: a dedicated presentation of masked values may be better.
+  - `executions.json` still records `rows` and `columns` only; scan status and
+    `config_sha256` could join it.
+- Lot 5a, for lot 5c and gate 5:
+  - The pandas engine remains only for `analyze_column`, `tabalyst.AnalysisConfig`
+    (alpha compatibility exports), `tests/test_analysis.py`, the parity half of
+    `tests/scan/test_scan_report.py` and the `pandas-engine` benchmark task:
+    `analysis.py`, `ingestion.py`, `legacy_models.py` and the `AnalysisConfig`
+    classes of `config.py` (`NormalizationConfig`, `TypeInferenceConfig`,
+    `EnumDetectionConfig`, `ValueExamplesConfig`) go with it.
+  - `RowFacts` keeps one 16-byte digest per distinct row for duplicates: the
+    only record-level state that grows with the file. A report reusing a scan
+    (`--scan`) has no records: duplicates, empty rows, rows with missing values
+    and the preview must then come from the scan document or a second read.
+  - Measured on `synthetic-100k.csv` (benchmarks.md, lot 5a): the report on
+    Scan takes about 45% more time than the pandas engine, with about 40% of
+    its memory growth. Lot 6 sets targets.
+- Lot 5a, for the maintainer and release preparation:
+  - Breaking changes for users: configuration keys moved to `scan` (clear
+    error messages), profile revision 3, masked emails and phones in reports,
+    `date` instead of `mixed`, `enumeration` instead of `enum`. The release
+    notes must say so.
+  - `tabalyst-studio` follow-up: the insurance demo changed (masked
+    `courriel` and `telephone`, `date` types, `ambiguous_dates` issue, new
+    semantic types, resampled examples); `examples/config.json` has the new
+    structure; the configuration, JSON profile, profile changelog, known
+    limitations and glossary pages changed.
+  - The browser check needs the Playwright Node module; lot 5a installed it
+    outside the repository for the session.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.

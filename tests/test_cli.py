@@ -285,9 +285,11 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
     config.write_text(
         json.dumps(
             {
-                "csv": {"delimiter": ";", "encoding": "cp1252"},
-                "missing_values": ["", "NULL"],
                 "preview_rows": 0,
+                "scan": {
+                    "csv": {"delimiter": ";", "encoding": "cp1252"},
+                    "values": {"null_markers": ["NULL"]},
+                },
             }
         )
     )
@@ -398,17 +400,19 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         json.dumps(
             {
                 "value_examples": {
-                    "candidate_sample_size": 25,
+                    "full_distribution_max_distinct": 25,
                     "short_text_result_size": 8,
                 }
             }
         )
     )
-    second.write_text(json.dumps({"value_examples": {"candidate_sample_size": 40}}))
+    second.write_text(
+        json.dumps({"value_examples": {"full_distribution_max_distinct": 40}})
+    )
 
     config = load_config([first, second])
 
-    assert config.value_examples.candidate_sample_size == 40
+    assert config.value_examples.full_distribution_max_distinct == 40
     assert config.value_examples.short_text_result_size == 8
     assert config.value_examples.long_text_result_size == 20
 
@@ -419,8 +423,8 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         '{"unexpected": true}',
         "[1, 2]",
         '{"csv": {"delimiter": "||"}}',
-        '{"date_detection": {"separators": ["--"]}}',
-        '{"date_detection": {"orders": ["YMD"], "ambiguous_order": "DMY"}}',
+        '{"string_analysis": {"short_max_length": 3}}',
+        '{"value_examples": {"inline_display_size": 0}}',
     ],
 )
 def test_invalid_config_is_rejected(tmp_path, content):

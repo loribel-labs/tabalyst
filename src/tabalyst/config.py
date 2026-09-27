@@ -1,4 +1,11 @@
-"""Experimental configuration. Later files override earlier settings."""
+"""Experimental configuration. Later files override earlier settings.
+
+A configuration file holds report and sample settings at the top level
+(``SettingsFile``) and scan settings in its ``scan`` object. The report is
+built on Tabalyst Scan, so its analysis settings live in ``scan`` too
+(``tabalyst.report_config``). ``AnalysisConfig`` configures the pandas engine
+only, which remains until Scan lot 5c for the parity tests.
+"""
 
 import codecs
 import json
@@ -44,7 +51,26 @@ class CsvConfig(BaseModel):
         return value
 
 
+class ValueExamplesSettings(BaseModel):
+    """How the report represents the values of a column. The candidates of a
+    sample are the scan samples (``scan.limits.max_samples``, drawn with
+    ``scan.random_seed``)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    full_distribution_max_distinct: int = Field(default=50, ge=1)
+    short_text_max_length: int = Field(default=20, ge=1)
+    short_text_percentile: float = Field(default=0.95, gt=0, le=1)
+    short_text_result_size: int = Field(default=20, ge=1)
+    long_text_result_size: int = Field(default=20, ge=1)
+    long_text_truncate_at: int = Field(default=30, ge=1)
+    truncation_suffix: str = "..."
+    inline_display_size: int = Field(default=3, ge=1)
+
+
 class ValueExamplesConfig(BaseModel):
+    """Value examples of the pandas engine (``AnalysisConfig``)."""
+
     model_config = ConfigDict(extra="forbid")
 
     full_distribution_max_distinct: int = Field(default=50, ge=1)
@@ -138,6 +164,9 @@ class EnumDetectionConfig(BaseModel):
 
 
 class AnalysisConfig(BaseModel):
+    """Settings of the pandas engine (``analysis.py``), removed in Scan lot
+    5c. Configuration files no longer use them: see ``SettingsFile``."""
+
     model_config = ConfigDict(extra="forbid")
 
     csv: CsvConfig = Field(default_factory=CsvConfig)
@@ -149,6 +178,54 @@ class AnalysisConfig(BaseModel):
     string_analysis: StringAnalysisConfig = Field(default_factory=StringAnalysisConfig)
     value_examples: ValueExamplesConfig = Field(default_factory=ValueExamplesConfig)
     enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
+
+
+class PresentationSettings(BaseModel):
+    """Report presentation settings, at the top level of configuration files."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    preview_rows: int = Field(default=10, ge=0, le=100)
+    string_analysis: StringAnalysisConfig = Field(default_factory=StringAnalysisConfig)
+    value_examples: ValueExamplesSettings = Field(
+        default_factory=ValueExamplesSettings
+    )
+
+
+class SettingsFile(PresentationSettings):
+    """Top-level settings of a configuration file, besides its ``scan`` object:
+    ``csv`` for ``tabalyst sample``, the others for the report presentation."""
+
+    csv: CsvConfig = Field(default_factory=CsvConfig)
+
+
+# Report settings moved to the ``scan`` object when the report moved onto
+# Tabalyst Scan (profile revision 3), with their new location.
+MOVED_SETTINGS: dict[tuple[str, ...], str] = {
+    ("missing_values",): "scan.values.null_markers and scan.values.missing",
+    ("normalization",): "scan.normalization",
+    ("date_detection",): "scan.detectors.date",
+    ("type_inference",): "scan.types",
+    ("enum_detection",): "scan.detectors.enumeration",
+    ("value_examples", "candidate_sample_size"): "scan.limits.max_samples",
+    ("value_examples", "random_seed"): "scan.random_seed",
+}
+
+
+def _moved_setting(document: dict) -> str | None:
+    for path, target in MOVED_SETTINGS.items():
+        node = document
+        for key in path:
+            if not isinstance(node, dict) or key not in node:
+                break
+            node = node[key]
+        else:
+            return (
+                f"{'.'.join(path)} moved to {target}: the report is built on "
+                "Tabalyst Scan and reads its analysis settings from the scan "
+                "object"
+            )
+    return None
 
 
 def validation_message(exc: ValidationError, section: str | None = None) -> str:
@@ -207,8 +284,11 @@ def load_config_layers(paths: Iterable[Path]) -> tuple[dict, dict]:
         document = _read_config_file(path)
         has_scan = "scan" in document
         section = document.pop("scan", None)
+        moved = _moved_setting(document)
+        if moved:
+            raise ConfigurationError(f"Invalid configuration in {path}: {moved}")
         try:
-            current = AnalysisConfig.model_validate(document).model_dump(
+            current = SettingsFile.model_validate(document).model_dump(
                 exclude_unset=True
             )
         except ValidationError as exc:
@@ -230,11 +310,17 @@ def load_config_layers(paths: Iterable[Path]) -> tuple[dict, dict]:
     return report, scan
 
 
-def load_config(paths: Iterable[Path]) -> AnalysisConfig:
-    """Load and recursively merge strict JSON configuration files."""
+def load_config(paths: Iterable[Path]) -> SettingsFile:
+    """Load and recursively merge the top-level settings of strict JSON
+    configuration files."""
     merged, _ = load_config_layers(paths)
+    return settings_from_layer(merged)
+
+
+def settings_from_layer(merged: dict) -> SettingsFile:
+    """The top-level settings of merged configuration layers."""
     try:
-        return AnalysisConfig.model_validate(merged)
+        return SettingsFile.model_validate(merged)
     except ValidationError as exc:
         raise ConfigurationError(
             f"Invalid merged configuration: {validation_message(exc)}"
@@ -246,15 +332,16 @@ def resolve_config(
     *,
     separator: str | None = None,
     encoding: str | None = None,
-) -> AnalysisConfig:
-    """Resolve defaults, files and explicit values in one shared layer."""
+) -> SettingsFile:
+    """Resolve defaults, files and explicit CSV options of the top-level
+    settings (``tabalyst sample``)."""
     settings = load_config(paths).model_dump()
     if separator is not None:
         settings["csv"]["delimiter"] = separator
     if encoding is not None:
         settings["csv"]["encoding"] = encoding
     try:
-        return AnalysisConfig.model_validate(settings)
+        return SettingsFile.model_validate(settings)
     except ValidationError as exc:
         raise ConfigurationError(
             f"Invalid configuration: {validation_message(exc)}"

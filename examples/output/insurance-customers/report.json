@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 2,
-  "generated_at": "2026-09-27T14:07:08.414486Z",
-  "processing_seconds": 0.7926,
+  "format_revision": 3,
+  "generated_at": "2026-09-27T20:12:33.136348Z",
+  "processing_seconds": 0.8007,
   "source": {
     "filename": "insurance-customers.csv",
     "size_bytes": 827600,
@@ -11,37 +11,7 @@
     "delimiter": ","
   },
   "config": {
-    "csv": {
-      "encoding": "utf-8-sig",
-      "delimiter": ","
-    },
-    "missing_values": [
-      "",
-      "N/A",
-      "NULL"
-    ],
     "preview_rows": 20,
-    "normalization": {
-      "trim": true,
-      "collapse_internal_whitespace": true
-    },
-    "date_detection": {
-      "enabled": true,
-      "orders": [
-        "YMD",
-        "MDY",
-        "DMY"
-      ],
-      "separators": [
-        "-",
-        "/",
-        "."
-      ],
-      "ambiguous_order": null
-    },
-    "type_inference": {
-      "minimum_confidence": 0.95
-    },
     "string_analysis": {
       "very_short_max_length": 5,
       "short_max_length": 20,
@@ -52,24 +22,197 @@
     },
     "value_examples": {
       "full_distribution_max_distinct": 50,
-      "candidate_sample_size": 100,
       "short_text_max_length": 20,
       "short_text_percentile": 0.95,
       "short_text_result_size": 20,
       "long_text_result_size": 20,
       "long_text_truncate_at": 30,
       "truncation_suffix": "...",
-      "inline_display_size": 3,
-      "random_seed": 42
+      "inline_display_size": 3
     },
-    "enum_detection": {
-      "enabled": true,
-      "minimum_row_count": 500,
-      "maximum_distinct_values": 49,
-      "eligible_types": [
-        "text"
-      ],
-      "case_sensitive": true
+    "scan": {
+      "csv": {
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      },
+      "json": {
+        "collections": null,
+        "discovery_max_depth": 3
+      },
+      "errors": {
+        "policy": "strict",
+        "max_locations": 10
+      },
+      "values": {
+        "null_markers": [
+          "N/A",
+          "NULL"
+        ],
+        "null_markers_case_sensitive": true,
+        "missing": [
+          "absent",
+          "null",
+          "empty",
+          "blank",
+          "marker"
+        ]
+      },
+      "normalization": {
+        "nfc": true,
+        "trim": true,
+        "collapse_whitespace": true,
+        "casefold": true,
+        "strip_accents": true
+      },
+      "limits": {
+        "max_fields": 10000,
+        "max_depth": 64,
+        "max_record_observations": 100000,
+        "max_distinct_per_field": 100000,
+        "max_tracked_values": 2000000,
+        "max_stored_value_length": 1000,
+        "max_listed_frequencies": 100,
+        "max_samples": 100,
+        "max_variant_groups": 100,
+        "max_variants_per_group": 20,
+        "max_evidence_examples": 10
+      },
+      "types": {
+        "minimum_confidence": 0.95
+      },
+      "detection": {
+        "minimum_share": 0.95
+      },
+      "detectors": {
+        "number": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "date": {
+          "enabled": true,
+          "orders": [
+            "YMD",
+            "MDY",
+            "DMY"
+          ],
+          "separators": [
+            "-",
+            "/",
+            "."
+          ],
+          "ambiguous_order": null,
+          "month_languages": [
+            "en",
+            "fr"
+          ]
+        },
+        "boolean": {
+          "enabled": true,
+          "pairs": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ],
+            [
+              "y",
+              "n"
+            ],
+            [
+              "oui",
+              "non"
+            ],
+            [
+              "vrai",
+              "faux"
+            ]
+          ]
+        },
+        "enumeration": {
+          "enabled": true,
+          "minimum_values": 500,
+          "maximum_distinct": 49,
+          "case_sensitive": true
+        },
+        "email": {
+          "enabled": true,
+          "max_tracked_domains": 10000,
+          "max_listed_domains": 20
+        },
+        "url": {
+          "enabled": true,
+          "schemes": [
+            "http",
+            "https",
+            "ftp"
+          ],
+          "www": true,
+          "max_tracked_hosts": 10000,
+          "max_listed_hosts": 20
+        },
+        "phone": {
+          "enabled": true,
+          "regions": [
+            "nanp",
+            "fr"
+          ]
+        },
+        "postal_code": {
+          "enabled": true,
+          "regions": [
+            "ca",
+            "us"
+          ]
+        },
+        "currency": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "percentage": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "quantity": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null,
+          "max_tracked_units": 10000,
+          "max_listed_units": 20
+        },
+        "uuid": {
+          "enabled": true
+        },
+        "ip_address": {
+          "enabled": true,
+          "versions": [
+            "ipv4",
+            "ipv6"
+          ]
+        }
+      },
+      "patterns": [],
+      "exposure": {
+        "sensitive_values": "mask"
+      },
+      "random_seed": 42
     }
   },
   "summary": {
@@ -90,25 +233,31 @@
     "string_column_count": 24,
     "inferred_type_counts": {
       "text": 24,
-      "mixed": 6,
+      "date": 6,
       "integer": 2,
       "number": 2
     },
     "inferred_type_percents": {
       "text": 70.59,
-      "mixed": 17.65,
+      "date": 17.65,
       "integer": 5.88,
       "number": 5.88
     },
     "semantic_type_counts": {
-      "enum": 15,
-      "none": 13,
-      "date": 6
+      "enumeration": 14,
+      "none": 11,
+      "date": 6,
+      "postal_code": 1,
+      "email": 1,
+      "phone": 1
     },
     "semantic_type_percents": {
-      "enum": 44.12,
-      "none": 38.24,
-      "date": 17.65
+      "enumeration": 41.18,
+      "none": 32.35,
+      "date": 17.65,
+      "postal_code": 2.94,
+      "email": 2.94,
+      "phone": 2.94
     }
   },
   "date_summary": {
@@ -212,14 +361,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 3,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -236,7 +379,6 @@
             "count": 568,
             "percent": 18.93,
             "relative_percent": 26.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "quebec",
@@ -249,7 +391,6 @@
             "count": 247,
             "percent": 8.23,
             "relative_percent": 11.3,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "ontario",
@@ -262,7 +403,6 @@
             "count": 2185,
             "percent": 72.83,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "principal",
@@ -325,94 +465,94 @@
             "truncated": false
           },
           {
-            "value": "CLI-00022272",
+            "value": "CLI-00006847",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00037737",
+            "value": "CLI-00039141",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00054391",
+            "value": "CLI-00060958",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00061860",
+            "value": "CLI-00064436",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00081118",
+            "value": "CLI-00073463",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-0012694",
+            "value": "CLI-00128253",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00139389",
+            "value": "CLI-00144919",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00151155",
+            "value": "CLI-00159408",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CLI-00195423",
+            "value": "CLI-00181670",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "ONT0004764",
+            "value": "CLI-00193541",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "ONT0015428",
+            "value": "ONT0002696",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "ONT0020382",
+            "value": "ONT0007921",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "ONT0023298",
+            "value": "ONT0011490",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "ONT0024540",
+            "value": "ONT0018008",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "QC-0001-5694",
+            "value": "QC-0002-9919",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "QC-0002-8083",
+            "value": "QC-0003-4507",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "QC-0003-1752",
+            "value": "QC-0004-1864",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -429,59 +569,52 @@
             "count": 1,
             "percent": 0.03,
             "relative_percent": 0.04,
-            "distinct_count": 1,
-            "examples": [
-              {
-                "value": "ONT000933",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 10,
             "count": 246,
             "percent": 8.2,
             "relative_percent": 9.05,
-            "distinct_count": 245,
             "examples": [
               {
                 "value": "ONT0011035",
                 "count": 2
               },
               {
-                "value": "ONT0000116",
+                "value": "ONT0000982",
                 "count": 1
               },
               {
-                "value": "ONT0000157",
+                "value": "ONT0002696",
                 "count": 1
               },
               {
-                "value": "ONT0000188",
+                "value": "ONT0004892",
                 "count": 1
               },
               {
-                "value": "ONT0000289",
+                "value": "ONT0004923",
                 "count": 1
               },
               {
-                "value": "ONT0000508",
+                "value": "ONT0007842",
                 "count": 1
               },
               {
-                "value": "ONT0000556",
+                "value": "ONT0007921",
                 "count": 1
               },
               {
-                "value": "ONT0000818",
+                "value": "ONT0011463",
                 "count": 1
               },
               {
-                "value": "ONT0000860",
+                "value": "ONT0011490",
                 "count": 1
               },
               {
-                "value": "ONT0000920",
+                "value": "ONT0015049",
                 "count": 1
               }
             ]
@@ -491,7 +624,6 @@
             "count": 19,
             "percent": 0.63,
             "relative_percent": 0.7,
-            "distinct_count": 19,
             "examples": [
               {
                 "value": "CLI-0000043",
@@ -499,38 +631,6 @@
               },
               {
                 "value": "CLI-0000072",
-                "count": 1
-              },
-              {
-                "value": "CLI-0003004",
-                "count": 1
-              },
-              {
-                "value": "CLI-0003382",
-                "count": 1
-              },
-              {
-                "value": "CLI-0004728",
-                "count": 1
-              },
-              {
-                "value": "CLI-0006360",
-                "count": 1
-              },
-              {
-                "value": "CLI-0009344",
-                "count": 1
-              },
-              {
-                "value": "CLI-0010123",
-                "count": 1
-              },
-              {
-                "value": "CLI-0010840",
-                "count": 1
-              },
-              {
-                "value": "CLI-0012694",
                 "count": 1
               }
             ]
@@ -540,7 +640,6 @@
             "count": 2717,
             "percent": 90.57,
             "relative_percent": 100.0,
-            "distinct_count": 2710,
             "examples": [
               {
                 "value": "CLI-00002347",
@@ -589,7 +688,6 @@
             "count": 17,
             "percent": 0.57,
             "relative_percent": 0.63,
-            "distinct_count": 17,
             "examples": [
               {
                 "value": "CLI--00001642",
@@ -683,14 +781,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 2,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -707,7 +799,6 @@
             "count": 1517,
             "percent": 50.57,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "M.",
@@ -720,7 +811,6 @@
             "count": 1483,
             "percent": 49.43,
             "relative_percent": 97.76,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Mme",
@@ -782,13 +872,38 @@
             "truncated": false
           },
           {
-            "value": "Ava",
+            "value": "Louise",
+            "count": 26,
+            "truncated": false
+          },
+          {
+            "value": "Martin",
+            "count": 25,
+            "truncated": false
+          },
+          {
+            "value": "Stéphane",
             "count": 22,
             "truncated": false
           },
           {
-            "value": "Patrick",
+            "value": "Audrey",
             "count": 21,
+            "truncated": false
+          },
+          {
+            "value": "Thomas",
+            "count": 19,
+            "truncated": false
+          },
+          {
+            "value": "Pierre-Luc",
+            "count": 17,
+            "truncated": false
+          },
+          {
+            "value": "Ezra",
+            "count": 16,
             "truncated": false
           },
           {
@@ -797,18 +912,23 @@
             "truncated": false
           },
           {
-            "value": "Félix",
+            "value": "Olivia",
             "count": 15,
             "truncated": false
           },
           {
-            "value": "Marie-Claude",
+            "value": "Jack",
             "count": 14,
             "truncated": false
           },
           {
-            "value": "Sofia",
-            "count": 14,
+            "value": "Evelyn",
+            "count": 13,
+            "truncated": false
+          },
+          {
+            "value": "Gianna",
+            "count": 13,
             "truncated": false
           },
           {
@@ -817,23 +937,13 @@
             "truncated": false
           },
           {
-            "value": "Willow",
-            "count": 11,
+            "value": "Jean-Philippe",
+            "count": 12,
             "truncated": false
           },
           {
-            "value": "Océane",
-            "count": 7,
-            "truncated": false
-          },
-          {
-            "value": "Benajmin",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "Dxvid",
-            "count": 1,
+            "value": "Zoé",
+            "count": 12,
             "truncated": false
           },
           {
@@ -842,34 +952,14 @@
             "truncated": false
           },
           {
-            "value": "Harp er",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "Loe",
-            "count": 1,
-            "truncated": false
-          },
-          {
             "value": "Noa h",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "francois",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "lÉise",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -886,7 +976,6 @@
             "count": 113,
             "percent": 3.78,
             "relative_percent": 15.35,
-            "distinct_count": 9,
             "examples": [
               {
                 "value": "Luc",
@@ -913,14 +1002,6 @@
                 "count": 12
               },
               {
-                "value": "Leo",
-                "count": 6
-              },
-              {
-                "value": "Loe",
-                "count": 1
-              },
-              {
                 "value": "Zoe",
                 "count": 1
               }
@@ -931,7 +1012,6 @@
             "count": 376,
             "percent": 12.56,
             "relative_percent": 51.09,
-            "distinct_count": 27,
             "examples": [
               {
                 "value": "Marc",
@@ -980,7 +1060,6 @@
             "count": 629,
             "percent": 21.02,
             "relative_percent": 85.46,
-            "distinct_count": 49,
             "examples": [
               {
                 "value": "Julie",
@@ -1029,7 +1108,6 @@
             "count": 736,
             "percent": 24.59,
             "relative_percent": 100.0,
-            "distinct_count": 49,
             "examples": [
               {
                 "value": "Daniel",
@@ -1078,7 +1156,6 @@
             "count": 421,
             "percent": 14.07,
             "relative_percent": 57.2,
-            "distinct_count": 35,
             "examples": [
               {
                 "value": "Mélanie",
@@ -1127,7 +1204,6 @@
             "count": 304,
             "percent": 10.16,
             "relative_percent": 41.3,
-            "distinct_count": 26,
             "examples": [
               {
                 "value": "Isabelle",
@@ -1176,7 +1252,6 @@
             "count": 285,
             "percent": 9.52,
             "relative_percent": 38.72,
-            "distinct_count": 18,
             "examples": [
               {
                 "value": "Charlotte",
@@ -1225,38 +1300,17 @@
             "count": 59,
             "percent": 1.97,
             "relative_percent": 8.02,
-            "distinct_count": 8,
             "examples": [
               {
                 "value": "Pierre-Luc",
                 "count": 17
               },
               {
-                "value": "Marguerite",
-                "count": 14
-              },
-              {
-                "value": "Anne-Marie",
-                "count": 13
-              },
-              {
                 "value": "Marc-André",
                 "count": 11
               },
               {
-                "value": "Charlottee",
-                "count": 1
-              },
-              {
                 "value": "MMarie-Ève",
-                "count": 1
-              },
-              {
-                "value": "Mar ie-Ève",
-                "count": 1
-              },
-              {
-                "value": "Margnerite",
                 "count": 1
               }
             ]
@@ -1266,20 +1320,13 @@
             "count": 13,
             "percent": 0.43,
             "relative_percent": 1.77,
-            "distinct_count": 1,
-            "examples": [
-              {
-                "value": "Sarah-Maude",
-                "count": 13
-              }
-            ]
+            "examples": []
           },
           {
             "length": 12,
             "count": 14,
             "percent": 0.47,
             "relative_percent": 1.9,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Marie-Claude",
@@ -1292,7 +1339,6 @@
             "count": 26,
             "percent": 0.87,
             "relative_percent": 3.53,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Jean-François",
@@ -1309,15 +1355,10 @@
             "count": 17,
             "percent": 0.57,
             "relative_percent": 2.31,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Louis-Philippe",
                 "count": 16
-              },
-              {
-                "value": "louis-philippe",
-                "count": 1
               }
             ]
           }
@@ -1376,28 +1417,13 @@
             "truncated": false
           },
           {
-            "value": "Johnson",
-            "count": 42,
+            "value": "Poirier",
+            "count": 31,
             "truncated": false
           },
           {
-            "value": "Brown",
-            "count": 34,
-            "truncated": false
-          },
-          {
-            "value": "Nguyen",
+            "value": "Scott",
             "count": 27,
-            "truncated": false
-          },
-          {
-            "value": "Landry",
-            "count": 19,
-            "truncated": false
-          },
-          {
-            "value": "Mitchell",
-            "count": 18,
             "truncated": false
           },
           {
@@ -1406,7 +1432,7 @@
             "truncated": false
           },
           {
-            "value": "Ahmed",
+            "value": "Adams",
             "count": 14,
             "truncated": false
           },
@@ -1416,27 +1442,32 @@
             "truncated": false
           },
           {
-            "value": "D'Souza",
-            "count": 4,
+            "value": "Wu",
+            "count": 6,
             "truncated": false
           },
           {
-            "value": "Liu",
+            "value": "Zhang",
+            "count": 5,
+            "truncated": false
+          },
+          {
+            "value": "O'Connor",
             "count": 3,
             "truncated": false
           },
           {
-            "value": "Hal",
+            "value": "Clarkk",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "P elletier",
+            "value": "De Luca",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "St-Pirere",
+            "value": "Halll",
             "count": 1,
             "truncated": false
           },
@@ -1456,14 +1487,24 @@
             "truncated": false
           },
           {
-            "value": "ôCté",
+            "value": "eLfebvre",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "karquis",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "wilson",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -1480,7 +1521,6 @@
             "count": 46,
             "percent": 1.54,
             "relative_percent": 6.08,
-            "distinct_count": 5,
             "examples": [
               {
                 "value": "Li",
@@ -1495,10 +1535,6 @@
                 "count": 6
               },
               {
-                "value": "Ho",
-                "count": 4
-              },
-              {
                 "value": "ho",
                 "count": 1
               }
@@ -1509,7 +1545,6 @@
             "count": 151,
             "percent": 5.04,
             "relative_percent": 19.97,
-            "distinct_count": 10,
             "examples": [
               {
                 "value": "Roy",
@@ -1530,26 +1565,6 @@
               {
                 "value": "Cox",
                 "count": 11
-              },
-              {
-                "value": "Liu",
-                "count": 3
-              },
-              {
-                "value": "Cux",
-                "count": 1
-              },
-              {
-                "value": "Hal",
-                "count": 1
-              },
-              {
-                "value": "iKm",
-                "count": 1
-              },
-              {
-                "value": "lAi",
-                "count": 1
               }
             ]
           },
@@ -1558,7 +1573,6 @@
             "count": 247,
             "percent": 8.24,
             "relative_percent": 32.67,
-            "distinct_count": 28,
             "examples": [
               {
                 "value": "Côté",
@@ -1593,11 +1607,11 @@
                 "count": 10
               },
               {
-                "value": "Tran",
-                "count": 7
+                "value": "Cook",
+                "count": 6
               },
               {
-                "value": "Cook",
+                "value": "Park",
                 "count": 6
               }
             ]
@@ -1607,7 +1621,6 @@
             "count": 529,
             "percent": 17.66,
             "relative_percent": 69.97,
-            "distinct_count": 34,
             "examples": [
               {
                 "value": "Morin",
@@ -1656,7 +1669,6 @@
             "count": 756,
             "percent": 25.23,
             "relative_percent": 100.0,
-            "distinct_count": 44,
             "examples": [
               {
                 "value": "Fortin",
@@ -1705,7 +1717,6 @@
             "count": 385,
             "percent": 12.85,
             "relative_percent": 50.93,
-            "distinct_count": 35,
             "examples": [
               {
                 "value": "Ouellet",
@@ -1754,7 +1765,6 @@
             "count": 735,
             "percent": 24.53,
             "relative_percent": 97.22,
-            "distinct_count": 41,
             "examples": [
               {
                 "value": "Tremblay",
@@ -1803,7 +1813,6 @@
             "count": 125,
             "percent": 4.17,
             "relative_percent": 16.53,
-            "distinct_count": 13,
             "examples": [
               {
                 "value": "Pelletier",
@@ -1838,11 +1847,11 @@
                 "count": 1
               },
               {
-                "value": "Gaut hier",
+                "value": "Rdoriguez",
                 "count": 1
               },
               {
-                "value": "Rdoriguez",
+                "value": "Tremblayy",
                 "count": 1
               }
             ]
@@ -1852,7 +1861,6 @@
             "count": 22,
             "percent": 0.73,
             "relative_percent": 2.91,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "Desjardins",
@@ -1885,14 +1893,14 @@
       "id": "column_6",
       "name": "date_naissance",
       "position": 6,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "date": 2635,
-        "text": 359
+        "date": 2991,
+        "text": 3
       },
       "type_confidence": 0.999,
-      "type_error_count": 359,
-      "type_error_percent": 11.99,
+      "type_error_count": 3,
+      "type_error_percent": 0.1,
       "missing_count": 6,
       "missing_percent": 0.2,
       "with_issues": true,
@@ -1928,94 +1936,94 @@
             "truncated": false
           },
           {
-            "value": "2008-01-29",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "11-23-1987",
+            "value": "09-25-1942",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "16-05-1999",
+            "value": "12-06-1985",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1937-10-27",
+            "value": "15-04-1988",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1939-10-18",
+            "value": "18-07-1986",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1944-01-18",
+            "value": "1937-09-30",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1947-04-19",
+            "value": "1940-04-26",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1947-08-27",
+            "value": "1949-08-25",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1959-03-17",
+            "value": "1951-09-23",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1961-05-04",
+            "value": "1968/12/04",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1976-12-30",
+            "value": "1979-06-17",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1984-11-22",
+            "value": "1981-04-22",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1986-08-19",
+            "value": "1986-02-01",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1990-12-23",
+            "value": "1987-05-18",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1993-02-17",
+            "value": "1987-12-10",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1994-09-23",
+            "value": "1998-02-18",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2006-10-22",
+            "value": "20-10-1979",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "2007-07-24",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 2994,
@@ -2029,6 +2037,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 325,
+          "MDY": 138
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -2088,7 +2100,7 @@
             "percent": 72.34
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 356,
             "percent": 11.89
@@ -2135,10 +2147,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 3
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -2184,14 +2193,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 2,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -2208,7 +2211,6 @@
             "count": 3000,
             "percent": 100.0,
             "relative_percent": 100.0,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "M",
@@ -2268,14 +2270,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 2,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -2292,7 +2288,6 @@
             "count": 3000,
             "percent": 100.0,
             "relative_percent": 100.0,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "fr",
@@ -2357,94 +2352,94 @@
             "truncated": false
           },
           {
-            "value": "4215",
+            "value": "3069",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "8893",
+            "value": "3866",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "3239",
+            "value": "7447",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "9852",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "3905",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "4393",
+            "value": "3932",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "4420",
+            "value": "5062",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "4546",
+            "value": "5310",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "4834",
+            "value": "58",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "5771",
+            "value": "609",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "6030",
+            "value": "654",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "6469",
+            "value": "6959",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "6621",
+            "value": "7140",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "6745",
+            "value": "8067",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "7587",
+            "value": "916",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "8136",
+            "value": "9295",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "8432",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "882",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "9363",
+            "value": "9959",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": null,
       "numeric": {
@@ -2642,14 +2637,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 31,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -2666,7 +2655,6 @@
             "count": 487,
             "percent": 16.23,
             "relative_percent": 51.92,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "rue",
@@ -2683,7 +2671,6 @@
             "count": 308,
             "percent": 10.27,
             "relative_percent": 32.84,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "rang",
@@ -2708,7 +2695,6 @@
             "count": 491,
             "percent": 16.37,
             "relative_percent": 52.35,
-            "distinct_count": 8,
             "examples": [
               {
                 "value": "route",
@@ -2749,7 +2735,6 @@
             "count": 938,
             "percent": 31.27,
             "relative_percent": 100.0,
-            "distinct_count": 6,
             "examples": [
               {
                 "value": "avenue",
@@ -2782,7 +2767,6 @@
             "count": 116,
             "percent": 3.87,
             "relative_percent": 12.37,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "impasse",
@@ -2807,7 +2791,6 @@
             "count": 104,
             "percent": 3.47,
             "relative_percent": 11.09,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "terrasse",
@@ -2824,7 +2807,6 @@
             "count": 556,
             "percent": 18.53,
             "relative_percent": 59.28,
-            "distinct_count": 5,
             "examples": [
               {
                 "value": "boulevard",
@@ -2903,13 +2885,8 @@
             "truncated": false
           },
           {
-            "value": "Riverside",
-            "count": 35,
-            "truncated": false
-          },
-          {
-            "value": "Spring",
-            "count": 35,
+            "value": "Cedar",
+            "count": 43,
             "truncated": false
           },
           {
@@ -2918,13 +2895,13 @@
             "truncated": false
           },
           {
-            "value": "Kingfisher",
+            "value": "Brookside",
             "count": 25,
             "truncated": false
           },
           {
-            "value": "Valleyview",
-            "count": 20,
+            "value": "Northgate",
+            "count": 18,
             "truncated": false
           },
           {
@@ -2933,64 +2910,69 @@
             "truncated": false
           },
           {
-            "value": "de la Gare",
-            "count": 15,
-            "truncated": false
-          },
-          {
-            "value": "Lakeshore",
+            "value": "du Vieux-Pont",
             "count": 14,
             "truncated": false
           },
           {
-            "value": "Harbour",
-            "count": 12,
+            "value": "Eastwood",
+            "count": 13,
             "truncated": false
           },
           {
-            "value": "Railway",
+            "value": "Church",
+            "count": 10,
+            "truncated": false
+          },
+          {
+            "value": "Foxglove",
             "count": 7,
             "truncated": false
           },
           {
-            "value": "du Petit-Bois",
-            "count": 4,
-            "truncated": false
-          },
-          {
-            "value": "Seabreeze",
-            "count": 3,
-            "truncated": false
-          },
-          {
-            "value": "Woodland",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "des champs",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "Churrch",
+            "value": "Evergreen",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Fohest",
+            "value": "MMaple",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Meeadow",
+            "value": "Mouuntainview",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "Pnie",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "dez Sommets",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "du aLc",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "e la Rivière",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "highland",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -3007,15 +2989,10 @@
             "count": 34,
             "percent": 1.13,
             "relative_percent": 7.1,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Oak",
                 "count": 32
-              },
-              {
-                "value": "Oai",
-                "count": 1
               },
               {
                 "value": "oak",
@@ -3028,7 +3005,6 @@
             "count": 33,
             "percent": 1.1,
             "relative_percent": 6.89,
-            "distinct_count": 5,
             "examples": [
               {
                 "value": "Pine",
@@ -3037,10 +3013,6 @@
               {
                 "value": "Mill",
                 "count": 8
-              },
-              {
-                "value": "Cear",
-                "count": 1
               },
               {
                 "value": "Milg",
@@ -3057,7 +3029,6 @@
             "count": 124,
             "percent": 4.13,
             "relative_percent": 25.89,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "Birch",
@@ -3070,10 +3041,6 @@
               {
                 "value": "Maple",
                 "count": 35
-              },
-              {
-                "value": "Mrket",
-                "count": 1
               }
             ]
           },
@@ -3082,7 +3049,6 @@
             "count": 295,
             "percent": 9.83,
             "relative_percent": 61.59,
-            "distinct_count": 16,
             "examples": [
               {
                 "value": "du Lac",
@@ -3131,7 +3097,6 @@
             "count": 114,
             "percent": 3.8,
             "relative_percent": 23.8,
-            "distinct_count": 10,
             "examples": [
               {
                 "value": "du Parc",
@@ -3158,18 +3123,6 @@
                 "count": 7
               },
               {
-                "value": "Churrch",
-                "count": 1
-              },
-              {
-                "value": "Forrest",
-                "count": 1
-              },
-              {
-                "value": "Heather",
-                "count": 1
-              },
-              {
                 "value": "Meeadow",
                 "count": 1
               }
@@ -3180,7 +3133,6 @@
             "count": 334,
             "percent": 11.13,
             "relative_percent": 69.73,
-            "distinct_count": 26,
             "examples": [
               {
                 "value": "des Pins",
@@ -3229,7 +3181,6 @@
             "count": 479,
             "percent": 15.97,
             "relative_percent": 100.0,
-            "distinct_count": 28,
             "examples": [
               {
                 "value": "du Moulin",
@@ -3278,7 +3229,6 @@
             "count": 388,
             "percent": 12.93,
             "relative_percent": 81.0,
-            "distinct_count": 24,
             "examples": [
               {
                 "value": "des Champs",
@@ -3327,7 +3277,6 @@
             "count": 353,
             "percent": 11.77,
             "relative_percent": 73.7,
-            "distinct_count": 16,
             "examples": [
               {
                 "value": "des Mélèzes",
@@ -3362,12 +3311,12 @@
                 "count": 6
               },
               {
-                "value": "des erables",
+                "value": "dess Champs",
                 "count": 2
               },
               {
-                "value": "dess Champs",
-                "count": 2
+                "value": "Morningstar",
+                "count": 1
               }
             ]
           },
@@ -3376,7 +3325,6 @@
             "count": 262,
             "percent": 8.73,
             "relative_percent": 54.7,
-            "distinct_count": 12,
             "examples": [
               {
                 "value": "des Bouleaux",
@@ -3411,11 +3359,11 @@
                 "count": 3
               },
               {
-                "value": "de al Pinède",
+                "value": "du Belvedere",
                 "count": 1
               },
               {
-                "value": "des Cacsades",
+                "value": "e la Rivière",
                 "count": 1
               }
             ]
@@ -3425,7 +3373,6 @@
             "count": 320,
             "percent": 10.67,
             "relative_percent": 66.81,
-            "distinct_count": 14,
             "examples": [
               {
                 "value": "de la Rivière",
@@ -3460,11 +3407,11 @@
                 "count": 14
               },
               {
-                "value": "du Petit-Bois",
-                "count": 4
+                "value": "Mouuntainview",
+                "count": 1
               },
               {
-                "value": "Mouuntainview",
+                "value": "de la Riviere",
                 "count": 1
               }
             ]
@@ -3474,7 +3421,6 @@
             "count": 38,
             "percent": 1.27,
             "relative_percent": 7.93,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "de la Traverse",
@@ -3499,7 +3445,6 @@
             "count": 183,
             "percent": 6.1,
             "relative_percent": 38.2,
-            "distinct_count": 7,
             "examples": [
               {
                 "value": "des Hirondelles",
@@ -3522,10 +3467,6 @@
                 "count": 1
               },
               {
-                "value": "des Ghais-Bleus",
-                "count": 1
-              },
-              {
                 "value": "des hirondelles",
                 "count": 1
               }
@@ -3536,7 +3477,6 @@
             "count": 22,
             "percent": 0.73,
             "relative_percent": 4.59,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "du Soleil-Levant",
@@ -3545,14 +3485,6 @@
               {
                 "value": "de la Côte-Verte",
                 "count": 8
-              },
-              {
-                "value": "des Geaais-Bleus",
-                "count": 1
-              },
-              {
-                "value": "du Soliel-Levant",
-                "count": 1
               }
             ]
           },
@@ -3561,7 +3493,6 @@
             "count": 8,
             "percent": 0.27,
             "relative_percent": 1.67,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "des Deux-Rivières",
@@ -3574,7 +3505,6 @@
             "count": 13,
             "percent": 0.43,
             "relative_percent": 2.71,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "de la Grande-Allée",
@@ -3663,14 +3593,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 8,
-        "non_missing_count": 720,
-        "coverage_percent": 24.0,
-        "confidence": 0.24
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -3687,7 +3611,6 @@
             "count": 238,
             "percent": 33.06,
             "relative_percent": 97.94,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Sud",
@@ -3704,7 +3627,6 @@
             "count": 239,
             "percent": 33.19,
             "relative_percent": 98.35,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Nord",
@@ -3725,7 +3647,6 @@
             "count": 243,
             "percent": 33.75,
             "relative_percent": 100.0,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Ouest",
@@ -3796,94 +3717,94 @@
             "truncated": false
           },
           {
-            "value": "76",
+            "value": "703",
             "count": 4,
             "truncated": false
           },
           {
-            "value": "238",
-            "count": 3,
-            "truncated": false
-          },
-          {
-            "value": "809",
-            "count": 3,
-            "truncated": false
-          },
-          {
-            "value": "373",
+            "value": "244",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "64",
+            "value": "655",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "993",
+            "value": "883",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "221",
+            "value": "959",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "996",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "243",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "236",
+            "value": "320",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "328",
+            "value": "367",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "39",
+            "value": "395",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "520",
+            "value": "518",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "542",
+            "value": "533",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "591",
+            "value": "585",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "635",
+            "value": "600",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "661",
+            "value": "607",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "696",
+            "value": "757",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "853",
+            "value": "870",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": null,
       "numeric": {
@@ -3940,18 +3861,8 @@
             "truncated": false
           },
           {
-            "value": "Hamilton",
-            "count": 40,
-            "truncated": false
-          },
-          {
-            "value": "Rimouski",
+            "value": "Châteauguay",
             "count": 30,
-            "truncated": false
-          },
-          {
-            "value": "Sorel-Tracy",
-            "count": 28,
             "truncated": false
           },
           {
@@ -3960,17 +3871,17 @@
             "truncated": false
           },
           {
-            "value": "Rivière-du-Loup",
-            "count": 18,
+            "value": "Gaspé",
+            "count": 19,
             "truncated": false
           },
           {
-            "value": "Beloeil",
-            "count": 17,
+            "value": "Val-d'Or",
+            "count": 19,
             "truncated": false
           },
           {
-            "value": "Regina",
+            "value": "Baie-Comeau",
             "count": 12,
             "truncated": false
           },
@@ -3980,12 +3891,27 @@
             "truncated": false
           },
           {
-            "value": "DDrummondville",
+            "value": "Charlottetown",
+            "count": 7,
+            "truncated": false
+          },
+          {
+            "value": "Prince George",
+            "count": 5,
+            "truncated": false
+          },
+          {
+            "value": "Montréla",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "Blainvville",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Graanby",
+            "value": "Brosssard",
             "count": 1,
             "truncated": false
           },
@@ -3995,39 +3921,34 @@
             "truncated": false
           },
           {
-            "value": "Montrsal",
+            "value": "Lévib",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Otta wa",
+            "value": "Quuébec",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Terr ebonne",
+            "value": "Repenttigny",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "Val-q'Or",
+            "value": "Rimmouski",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "quebec",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "trois-rivieres",
+            "value": "Sherbroo ke",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "medium",
@@ -4044,7 +3965,6 @@
             "count": 24,
             "percent": 0.8,
             "relative_percent": 2.78,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Alma",
@@ -4061,7 +3981,6 @@
             "count": 281,
             "percent": 9.37,
             "relative_percent": 32.52,
-            "distinct_count": 8,
             "examples": [
               {
                 "value": "Laval",
@@ -4102,7 +4021,6 @@
             "count": 376,
             "percent": 12.53,
             "relative_percent": 43.52,
-            "distinct_count": 12,
             "examples": [
               {
                 "value": "Québec",
@@ -4151,7 +4069,6 @@
             "count": 257,
             "percent": 8.57,
             "relative_percent": 29.75,
-            "distinct_count": 18,
             "examples": [
               {
                 "value": "Toronto",
@@ -4200,7 +4117,6 @@
             "count": 864,
             "percent": 28.8,
             "relative_percent": 100.0,
-            "distinct_count": 29,
             "examples": [
               {
                 "value": "Montréal",
@@ -4249,7 +4165,6 @@
             "count": 207,
             "percent": 6.9,
             "relative_percent": 23.96,
-            "distinct_count": 18,
             "examples": [
               {
                 "value": "Longueuil",
@@ -4298,7 +4213,6 @@
             "count": 372,
             "percent": 12.4,
             "relative_percent": 43.06,
-            "distinct_count": 11,
             "examples": [
               {
                 "value": "Sherbrooke",
@@ -4347,7 +4261,6 @@
             "count": 151,
             "percent": 5.03,
             "relative_percent": 17.48,
-            "distinct_count": 13,
             "examples": [
               {
                 "value": "Mississauga",
@@ -4396,7 +4309,6 @@
             "count": 60,
             "percent": 2.0,
             "relative_percent": 6.94,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Saint-Jérôme",
@@ -4405,10 +4317,6 @@
               {
                 "value": "Sainte-Julie",
                 "count": 11
-              },
-              {
-                "value": "saint-jerome",
-                "count": 1
               }
             ]
           },
@@ -4417,7 +4325,6 @@
             "count": 163,
             "percent": 5.43,
             "relative_percent": 18.87,
-            "distinct_count": 9,
             "examples": [
               {
                 "value": "Drummondville",
@@ -4448,10 +4355,6 @@
                 "count": 1
               },
               {
-                "value": "Victorivaille",
-                "count": 1
-              },
-              {
                 "value": "krummondville",
                 "count": 1
               }
@@ -4462,7 +4365,6 @@
             "count": 71,
             "percent": 2.37,
             "relative_percent": 8.22,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Trois-Rivières",
@@ -4483,7 +4385,6 @@
             "count": 51,
             "percent": 1.7,
             "relative_percent": 5.9,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Saint-Hyacinthe",
@@ -4500,7 +4401,6 @@
             "count": 17,
             "percent": 0.57,
             "relative_percent": 1.97,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Vaudreuil-Dorion",
@@ -4513,7 +4413,6 @@
             "count": 27,
             "percent": 0.9,
             "relative_percent": 3.12,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Dollard-des-Ormeaux",
@@ -4526,7 +4425,6 @@
             "count": 1,
             "percent": 0.03,
             "relative_percent": 0.12,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Doll ard-des-Ormeaux",
@@ -4539,7 +4437,6 @@
             "count": 78,
             "percent": 2.6,
             "relative_percent": 9.03,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "Saint-Jean-sur-Richelieu",
@@ -4548,14 +4445,6 @@
               {
                 "value": "Salaberry-de-Valleyfield",
                 "count": 16
-              },
-              {
-                "value": "Sahnt-Jean-sur-Richelieu",
-                "count": 1
-              },
-              {
-                "value": "aSint-Jean-sur-Richelieu",
-                "count": 1
               }
             ]
           }
@@ -4680,14 +4569,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 16,
-        "non_missing_count": 2997,
-        "coverage_percent": 99.9,
-        "confidence": 0.999
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -4704,7 +4587,6 @@
             "count": 2997,
             "percent": 100.0,
             "relative_percent": 100.0,
-            "distinct_count": 16,
             "examples": [
               {
                 "value": "QC",
@@ -4877,14 +4759,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 18,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "medium",
@@ -4901,7 +4777,6 @@
             "count": 5,
             "percent": 0.17,
             "relative_percent": 0.22,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Yukon",
@@ -4914,7 +4789,6 @@
             "count": 2244,
             "percent": 74.8,
             "relative_percent": 100.0,
-            "distinct_count": 3,
             "examples": [
               {
                 "value": "Québec",
@@ -4935,7 +4809,6 @@
             "count": 509,
             "percent": 16.97,
             "relative_percent": 22.68,
-            "distinct_count": 4,
             "examples": [
               {
                 "value": "Ontario",
@@ -4960,7 +4833,6 @@
             "count": 32,
             "percent": 1.07,
             "relative_percent": 1.43,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Manitoba",
@@ -4973,7 +4845,6 @@
             "count": 23,
             "percent": 0.77,
             "relative_percent": 1.02,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Saskatchewan",
@@ -4986,7 +4857,6 @@
             "count": 24,
             "percent": 0.8,
             "relative_percent": 1.07,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Nouvelle-Écosse",
@@ -5003,7 +4873,6 @@
             "count": 56,
             "percent": 1.87,
             "relative_percent": 2.5,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Nouveau-Brunswick",
@@ -5016,7 +4885,6 @@
             "count": 86,
             "percent": 2.87,
             "relative_percent": 3.83,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "Colombie-Britannique",
@@ -5033,7 +4901,6 @@
             "count": 7,
             "percent": 0.23,
             "relative_percent": 0.31,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Île-du-Prince-Édouard",
@@ -5046,7 +4913,6 @@
             "count": 12,
             "percent": 0.4,
             "relative_percent": 0.53,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Terre-Neuve-et-Labrador",
@@ -5059,7 +4925,6 @@
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.09,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "Territoires du Nord-Ouest",
@@ -5122,52 +4987,42 @@
             "truncated": false
           },
           {
-            "value": "E3C 0K7",
+            "value": "E1A 5A2",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "G1R 9Z2",
+            "value": "G1R 3P9",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "G5L 8A3",
+            "value": "G4Z 8E2",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "G6V 1S0",
+            "value": "G7J 0N0",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "G7J 0C5",
+            "value": "H3G 4V0",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "H2X 9Y6",
+            "value": "H4A 7G3",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "H4A 5E8",
+            "value": "H7N 6X1",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "H9G 4T5",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "J2C 1J2",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "J4H 3P3",
+            "value": "J1H 4K8",
             "count": 1,
             "truncated": false
           },
@@ -5177,39 +5032,49 @@
             "truncated": false
           },
           {
-            "value": "J7Y 4V6",
+            "value": "J8X 9W5",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "K2P 5P1",
+            "value": "L5B 6M8",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "L8P 7L5",
+            "value": "M5V 7V2",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "M4W 4J0",
+            "value": "P3E 1H5",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "M6G 7M3",
+            "value": "R3C 2W4",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "N6A 2B4",
+            "value": "T2P 2S2",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "V2L 9T6",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "V5K 8S5",
             "count": 1,
             "truncated": false
           }
         ]
       },
-      "semantic_type": null,
-      "enum": null,
+      "semantic_type": "postal_code",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -5226,7 +5091,6 @@
             "count": 21,
             "percent": 0.7,
             "relative_percent": 0.7,
-            "distinct_count": 21,
             "examples": [
               {
                 "value": "1K 1T8",
@@ -5263,10 +5127,6 @@
               {
                 "value": "9P 7L8",
                 "count": 1
-              },
-              {
-                "value": "G1 8T0",
-                "count": 1
               }
             ]
           },
@@ -5275,7 +5135,6 @@
             "count": 2979,
             "percent": 99.3,
             "relative_percent": 100.0,
-            "distinct_count": 2941,
             "examples": [
               {
                 "value": "E2L 6H3",
@@ -5368,14 +5227,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 2,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "very_short",
@@ -5392,7 +5245,6 @@
             "count": 3000,
             "percent": 100.0,
             "relative_percent": 100.0,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "CA",
@@ -5433,118 +5285,118 @@
       },
       "distinct_count": 2992,
       "examples": [
-        "emile.rodriguez@yahoo.example",
-        "ezra-taylor@outlook.example",
-        "gabrielroy@yahoo.example"
+        "aaa9999@aaaaa.aaaaaaa",
+        "aaa999@aaaaa.aaaaaaa",
+        "aaa99@aaaaa.aaaaaaa"
       ],
       "value_profile": {
         "selection": "random_sample",
         "sampled_distinct_count": 100,
         "values": [
           {
-            "value": "emile.rodriguez@yahoo.example",
+            "value": "aaa9999@aaaaa.aaaaaaa",
+            "count": 82,
+            "truncated": false
+          },
+          {
+            "value": "aaa999@aaaaa.aaaaaaa",
+            "count": 74,
+            "truncated": false
+          },
+          {
+            "value": "aaa99@aaaaa.aaaaaaa",
+            "count": 54,
+            "truncated": false
+          },
+          {
+            "value": "aaa99@aaaaaaa.aaaaaaa",
+            "count": 50,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaaa@aaaa.aaaaaaa",
+            "count": 6,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaa-aaaaaaaa@aaaaa.aaaaaaa",
+            "count": 5,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaaa_aaaaaaaa@aaaaaaa.aaaaa...",
+            "count": 5,
+            "truncated": true
+          },
+          {
+            "value": "aaaaa_aaaaaa@aaaaaa.aaaaaaa",
+            "count": 3,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaa_aaaaaaaa@aaaaaa.aaaaaaa",
+            "count": 3,
+            "truncated": false
+          },
+          {
+            "value": "aa99@aaaaaaaaa.aaaaaaa",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "ezra-taylor@outlook.example",
+            "value": "aaaa_aaaaaaaaa@aaaaa.aaaaaaa",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "gabrielroy@yahoo.example",
+            "value": "aaaaa-aaaaaaaa@aaaaa.aaaaaaa",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "ameliawhite@proton.example",
-            "count": 1,
+            "value": "aaaaa.aaaaaa@aaaa.aaaaaaa",
+            "count": 2,
             "truncated": false
           },
           {
-            "value": "averyparker@gmail.example",
-            "count": 1,
+            "value": "aaaaaa.aaa@aaaaaaa.aaaaaaa",
+            "count": 2,
             "truncated": false
           },
           {
-            "value": "dianecormier@yahoo.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "eliaswilson@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "ezr9309@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "isabelle3182@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "jeanphilippe.stpierre@yahoo.ex...",
+            "value": "aaaaaa.aaaaaaaaaa@aaaaa.aaaaaa...",
             "count": 1,
             "truncated": true
           },
           {
-            "value": "jeanphilippe076@hotmail.exampl...",
+            "value": "aaaaaaa_aaaa@aaaaaaaaa.aaaaaaa",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaaaa99@aaaaaaaaa.aaaaaaa",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "aaaaaaaaa_aaaaaaa@aaaaaaa.aaaa...",
             "count": 1,
             "truncated": true
           },
           {
-            "value": "jos7682@outlook.example",
+            "value": "aaaaaaaaaa.aaaaaaa@aaaaaa.aaaa...",
             "count": 1,
-            "truncated": false
+            "truncated": true
           },
           {
-            "value": "leapelletier@gmail.example",
+            "value": "aaaaaaaaaaaa.aaaaaaa@aaaaaa.aa...",
             "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "leblanc3053@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "luca842@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "matthew.hall@hotmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "michel49@gmail.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "moniqueali@yahoo.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "patel.emilie@icloud.example",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "tremblay70@icloud.example",
-            "count": 1,
-            "truncated": false
+            "truncated": true
           }
         ]
       },
-      "semantic_type": null,
-      "enum": null,
+      "semantic_type": "email",
+      "exposure": "mask",
       "date_profile": null,
       "string_profile": {
         "status": "medium",
@@ -5561,64 +5413,17 @@
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.72,
-            "distinct_count": 2,
-            "examples": [
-              {
-                "value": "eho@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "eli@gmail.example",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 18,
             "count": 27,
             "percent": 0.9,
             "relative_percent": 9.75,
-            "distinct_count": 26,
             "examples": [
               {
-                "value": "lm19@gmail.example",
-                "count": 2
-              },
-              {
-                "value": "al38@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "an64@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "avam@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "aw26@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "dan69@bell.example",
-                "count": 1
-              },
-              {
-                "value": "dia86@bell.example",
-                "count": 1
-              },
-              {
-                "value": "em19@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "er06@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "ip66@gmail.example",
-                "count": 1
+                "value": "aa99@aaaaa.aaaaaaa",
+                "count": 20
               }
             ]
           },
@@ -5627,47 +5432,18 @@
             "count": 100,
             "percent": 3.33,
             "relative_percent": 36.1,
-            "distinct_count": 100,
             "examples": [
               {
-                "value": "abell@gmail.example",
-                "count": 1
+                "value": "aaa99@aaaaa.aaaaaaa",
+                "count": 54
               },
               {
-                "value": "ac21@icloud.example",
-                "count": 1
+                "value": "aa999@aaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "ac896@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "af20@icloud.example",
-                "count": 1
-              },
-              {
-                "value": "ag668@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "ari53@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "ascott@bell.example",
-                "count": 1
-              },
-              {
-                "value": "aud18@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "avam@icloud.example",
-                "count": 1
-              },
-              {
-                "value": "car81@gmail.example",
-                "count": 1
+                "value": "aaaaa@aaaaa.aaaaaaa",
+                "count": 11
               }
             ]
           },
@@ -5676,47 +5452,34 @@
             "count": 181,
             "percent": 6.03,
             "relative_percent": 65.34,
-            "distinct_count": 181,
             "examples": [
               {
-                "value": "aali@outlook.example",
-                "count": 1
+                "value": "aaa999@aaaaa.aaaaaaa",
+                "count": 74
               },
               {
-                "value": "abi726@gmail.example",
-                "count": 1
+                "value": "aa9999@aaaaa.aaaaaaa",
+                "count": 22
               },
               {
-                "value": "achen@icloud.example",
-                "count": 1
+                "value": "aaa99@aaaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "al3815@yahoo.example",
-                "count": 1
+                "value": "aa99@aaaaaaa.aaaaaaa",
+                "count": 19
               },
               {
-                "value": "alainl@gmail.example",
-                "count": 1
+                "value": "aaaaaa@aaaaa.aaaaaaa",
+                "count": 11
               },
               {
-                "value": "ale749@gmail.example",
-                "count": 1
+                "value": "aaaa99@aaaaa.aaaaaaa",
+                "count": 9
               },
               {
-                "value": "ale802@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "ame30@proton.example",
-                "count": 1
-              },
-              {
-                "value": "andre54@bell.example",
-                "count": 1
-              },
-              {
-                "value": "ann508@gmail.example",
-                "count": 1
+                "value": "aaaaaaa@aaaa.aaaaaaa",
+                "count": 6
               }
             ]
           },
@@ -5725,47 +5488,46 @@
             "count": 277,
             "percent": 9.23,
             "relative_percent": 100.0,
-            "distinct_count": 277,
             "examples": [
               {
-                "value": "abaker@proton.example",
-                "count": 1
+                "value": "aaa9999@aaaaa.aaaaaaa",
+                "count": 82
               },
               {
-                "value": "al638@outlook.example",
-                "count": 1
+                "value": "aaa99@aaaaaaa.aaaaaaa",
+                "count": 50
               },
               {
-                "value": "ala82@outlook.example",
-                "count": 1
+                "value": "aaaaa99@aaaaa.aaaaaaa",
+                "count": 27
               },
               {
-                "value": "alain43@gmail.example",
-                "count": 1
+                "value": "aaaaaaa@aaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "alain88@gmail.example",
-                "count": 1
+                "value": "aaaa999@aaaaa.aaaaaaa",
+                "count": 18
               },
               {
-                "value": "ale3108@gmail.example",
-                "count": 1
+                "value": "aa999@aaaaaaa.aaaaaaa",
+                "count": 15
               },
               {
-                "value": "ale585@icloud.example",
-                "count": 1
+                "value": "aaaaaa@aaaaaa.aaaaaaa",
+                "count": 15
               },
               {
-                "value": "ale89@outlook.example",
-                "count": 1
+                "value": "aaa999@aaaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "ali6934@gmail.example",
-                "count": 1
+                "value": "aaaaa@aaaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "alice00@gmail.example",
-                "count": 1
+                "value": "aa9999@aaaaaa.aaaaaaa",
+                "count": 8
               }
             ]
           },
@@ -5774,47 +5536,46 @@
             "count": 235,
             "percent": 7.83,
             "relative_percent": 84.84,
-            "distinct_count": 235,
             "examples": [
               {
-                "value": "ahmed445@gmail.example",
-                "count": 1
+                "value": "aaa999@aaaaaaa.aaaaaaa",
+                "count": 49
               },
               {
-                "value": "ala9410@proton.example",
-                "count": 1
+                "value": "aaaaaa99@aaaaa.aaaaaaa",
+                "count": 27
               },
               {
-                "value": "alain90@icloud.example",
-                "count": 1
+                "value": "aa9999@aaaaaaa.aaaaaaa",
+                "count": 25
               },
               {
-                "value": "ale331@outlook.example",
-                "count": 1
+                "value": "aaaaa999@aaaaa.aaaaaaa",
+                "count": 22
               },
               {
-                "value": "alexis19@yahoo.example",
-                "count": 1
+                "value": "aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "alexis24@yahoo.example",
-                "count": 1
+                "value": "aaaaaaa@aaaaaa.aaaaaaa",
+                "count": 17
               },
               {
-                "value": "ali269@hotmail.example",
-                "count": 1
+                "value": "aaaaaa@aaaaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "alice15@icloud.example",
-                "count": 1
+                "value": "aaa9999@aaaaaa.aaaaaaa",
+                "count": 15
               },
               {
-                "value": "amarquis@yahoo.example",
-                "count": 1
+                "value": "aaaa99@aaaaaaa.aaaaaaa",
+                "count": 11
               },
               {
-                "value": "ameliel@proton.example",
-                "count": 1
+                "value": "aaaa9999@aaaaa.aaaaaaa",
+                "count": 9
               }
             ]
           },
@@ -5823,47 +5584,46 @@
             "count": 264,
             "percent": 8.8,
             "relative_percent": 95.31,
-            "distinct_count": 264,
             "examples": [
               {
-                "value": "ala4298@hotmail.example",
-                "count": 1
+                "value": "aaa9999@aaaaaaa.aaaaaaa",
+                "count": 52
               },
               {
-                "value": "ala97@videotron.example",
-                "count": 1
+                "value": "aaaaaa999@aaaaa.aaaaaaa",
+                "count": 37
               },
               {
-                "value": "alain4439@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 25
               },
               {
-                "value": "alain807@icloud.example",
-                "count": 1
+                "value": "aaaaa9999@aaaaa.aaaaaaa",
+                "count": 23
               },
               {
-                "value": "alexislee@yahoo.example",
-                "count": 1
+                "value": "aaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 22
               },
               {
-                "value": "alexisp@outlook.example",
-                "count": 1
+                "value": "aaaaa99@aaaaaaa.aaaaaaa",
+                "count": 18
               },
               {
-                "value": "alexisroy@gmail.example",
-                "count": 1
+                "value": "aaaa999@aaaaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "ame2823@outlook.example",
-                "count": 1
+                "value": "aaaaaaa99@aaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "ame7778@outlook.example",
-                "count": 1
+                "value": "aaaaa999@aaaaaa.aaaaaaa",
+                "count": 11
               },
               {
-                "value": "amelia638@gmail.example",
-                "count": 1
+                "value": "aaaaaa99@aaaaaa.aaaaaaa",
+                "count": 9
               }
             ]
           },
@@ -5872,47 +5632,46 @@
             "count": 227,
             "percent": 7.57,
             "relative_percent": 81.95,
-            "distinct_count": 226,
             "examples": [
               {
-                "value": "gabrielroy@yahoo.example",
-                "count": 2
+                "value": "aaaaaa9999@aaaaa.aaaaaaa",
+                "count": 33
               },
               {
-                "value": "alain.khan@gmail.example",
-                "count": 1
+                "value": "aaaaaaa999@aaaaa.aaaaaaa",
+                "count": 25
               },
               {
-                "value": "alexis_lee@gmail.example",
-                "count": 1
+                "value": "aaaaaa99@aaaaaaa.aaaaaaa",
+                "count": 20
               },
               {
-                "value": "amelie0935@gmail.example",
-                "count": 1
+                "value": "aaaaa999@aaaaaaa.aaaaaaa",
+                "count": 18
               },
               {
-                "value": "amelie620@proton.example",
-                "count": 1
+                "value": "aaaaaaaa99@aaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "anderson20@gmail.example",
-                "count": 1
+                "value": "aaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "anderson43@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "andre.roy@proton.example",
-                "count": 1
+                "value": "aaaaaa999@aaaaaa.aaaaaaa",
+                "count": 9
               },
               {
-                "value": "andre_wu@outlook.example",
-                "count": 1
+                "value": "aaaaaaaaa@aaaaaa.aaaaaaa",
+                "count": 9
               },
               {
-                "value": "anne.smith@gmail.example",
-                "count": 1
+                "value": "aaaa9999@aaaaaaa.aaaaaaa",
+                "count": 8
               }
             ]
           },
@@ -5921,47 +5680,46 @@
             "count": 276,
             "percent": 9.2,
             "relative_percent": 99.64,
-            "distinct_count": 276,
             "examples": [
               {
-                "value": "ahmed8567@outlook.example",
-                "count": 1
+                "value": "aaaaaa999@aaaaaaa.aaaaaaa",
+                "count": 29
               },
               {
-                "value": "alain5263@outlook.example",
-                "count": 1
+                "value": "aaaaaaa9999@aaaaa.aaaaaaa",
+                "count": 28
               },
               {
-                "value": "alainvachon@yahoo.example",
-                "count": 1
+                "value": "aaaaaaaa999@aaaaa.aaaaaaa",
+                "count": 26
               },
               {
-                "value": "alevesque@outlook.example",
-                "count": 1
+                "value": "aaaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "alexander06@gmail.example",
-                "count": 1
+                "value": "aaaaa9999@aaaaaaa.aaaaaaa",
+                "count": 18
               },
               {
-                "value": "alexandre93@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 17
               },
               {
-                "value": "alexisbrown@gmail.example",
-                "count": 1
+                "value": "aaaaa.aaaaa@aaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "ali5882@videotron.example",
-                "count": 1
+                "value": "aaaaaaa99@aaaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "alice_smith@yahoo.example",
-                "count": 1
+                "value": "aaaa.aaaaaa@aaaaa.aaaaaaa",
+                "count": 9
               },
               {
-                "value": "alicecote@outlook.example",
-                "count": 1
+                "value": "aaaaaa9999@aaaaaa.aaaaaaa",
+                "count": 9
               }
             ]
           },
@@ -5970,47 +5728,46 @@
             "count": 261,
             "percent": 8.7,
             "relative_percent": 94.22,
-            "distinct_count": 261,
             "examples": [
               {
-                "value": "alain.lavoie@gmail.example",
-                "count": 1
+                "value": "aaaaaa9999@aaaaaaa.aaaaaaa",
+                "count": 29
               },
               {
-                "value": "alexander482@gmail.example",
-                "count": 1
+                "value": "aaaaaaaa9999@aaaaa.aaaaaaa",
+                "count": 27
               },
               {
-                "value": "alexandre262@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 25
               },
               {
-                "value": "alexandreg@hotmail.example",
-                "count": 1
+                "value": "aaaaaaaaaaa@aaaaaa.aaaaaaa",
+                "count": 17
               },
               {
-                "value": "alexis.lee@outlook.example",
-                "count": 1
+                "value": "aaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "alicerenaud@icloud.example",
-                "count": 1
+                "value": "aaaaaa.aaaaa@aaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "amelia.chen@proton.example",
-                "count": 1
+                "value": "aaaaa.aaaaaa@aaaaa.aaaaaaa",
+                "count": 12
               },
               {
-                "value": "amelia.green@yahoo.example",
-                "count": 1
+                "value": "aaaa.aaaaa@aaaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "amelia.white@yahoo.example",
-                "count": 1
+                "value": "aaaaaaaa99@aaaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "amelia5952@outlook.example",
-                "count": 1
+                "value": "aaaaaaaaa999@aaaaa.aaaaaaa",
+                "count": 9
               }
             ]
           },
@@ -6019,47 +5776,46 @@
             "count": 248,
             "percent": 8.27,
             "relative_percent": 89.53,
-            "distinct_count": 246,
             "examples": [
               {
-                "value": "ezra-taylor@outlook.example",
-                "count": 2
+                "value": "aaaaaa.aaaaaa@aaaaa.aaaaaaa",
+                "count": 21
               },
               {
-                "value": "valerie-caron@gmail.example",
-                "count": 2
+                "value": "aaaaaaaa999@aaaaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "abigail.lopez@yahoo.example",
-                "count": 1
+                "value": "aaaaaaaaa9999@aaaaa.aaaaaaa",
+                "count": 16
               },
               {
-                "value": "alain_parker@icloud.example",
-                "count": 1
+                "value": "aaaaaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 15
               },
               {
-                "value": "alainwilson@outlook.example",
-                "count": 1
+                "value": "aaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 12
               },
               {
-                "value": "alexander7795@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaa99@aaaaaaa.aaaaaaa",
+                "count": 11
               },
               {
-                "value": "alexandre2398@gmail.example",
-                "count": 1
+                "value": "aaaaaaa9999@aaaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "alexandre3042@gmail.example",
-                "count": 1
+                "value": "aaaaaaaaaaaa@aaaaaa.aaaaaaa",
+                "count": 10
               },
               {
-                "value": "alexis.garcia@yahoo.example",
-                "count": 1
+                "value": "aaaaa.aaaaa@aaaaaaa.aaaaaaa",
+                "count": 9
               },
               {
-                "value": "amelia.smith@icloud.example",
-                "count": 1
+                "value": "aaaaa.aaaaaa@aaaaaa.aaaaaaa",
+                "count": 9
               }
             ]
           },
@@ -6068,47 +5824,46 @@
             "count": 229,
             "percent": 7.63,
             "relative_percent": 82.67,
-            "distinct_count": 228,
             "examples": [
               {
-                "value": "lewis.gianna@outlook.example",
+                "value": "aaaaaaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 24
+              },
+              {
+                "value": "aaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 23
+              },
+              {
+                "value": "aaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+                "count": 15
+              },
+              {
+                "value": "aaaaaaaa9999@aaaaaaa.aaaaaaa",
+                "count": 12
+              },
+              {
+                "value": "aaaaa.aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 11
+              },
+              {
+                "value": "aaaaaa.aaaaaaa@aaaaa.aaaaaaa",
+                "count": 9
+              },
+              {
+                "value": "aaaaaaaa.aaaaa@aaaaa.aaaaaaa",
+                "count": 9
+              },
+              {
+                "value": "aaaaaa.aaaaaa@aaaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaa.aaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 2
               },
               {
-                "value": "abigail-taylor@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "alain.fortin@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "alain.lefebvre@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "alaingauthier@icloud.example",
-                "count": 1
-              },
-              {
-                "value": "alaingauthier@rogers.example",
-                "count": 1
-              },
-              {
-                "value": "alice.simard@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "alice_parent@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "amelia.evans@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "amelia.rahman@icloud.example",
-                "count": 1
+                "value": "aaaa_aaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 2
               }
             ]
           },
@@ -6117,46 +5872,45 @@
             "count": 197,
             "percent": 6.57,
             "relative_percent": 71.12,
-            "distinct_count": 194,
             "examples": [
               {
-                "value": "emile.rodriguez@yahoo.example",
-                "count": 2
+                "value": "aaaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+                "count": 17
               },
               {
-                "value": "genevieve2304@hotmail.example",
-                "count": 2
+                "value": "aaaaaaaaaaaaaaa@aaaaa.aaaaaaa",
+                "count": 14
               },
               {
-                "value": "thompson.levi@hotmail.example",
-                "count": 2
+                "value": "aaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 13
               },
               {
-                "value": "abigail_smith@hotmail.example",
+                "value": "aaaaaa.aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 10
+              },
+              {
+                "value": "aaaaaa-aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 5
+              },
+              {
+                "value": "aaaaa_aaaaaaaa@aaaaaa.aaaaaaa",
+                "count": 4
+              },
+              {
+                "value": "aaa.aaaaaaaaa@aaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "abigailgonzalez@gmail.example",
+                "value": "aaaaa-aaaaaaaa@aaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "abigailtaylor@hotmail.example",
+                "value": "aaaaa_aaaaaaaaa@aaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alain-cormier@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "alice_tremblay@icloud.example",
-                "count": 1
-              },
-              {
-                "value": "amelie-phillips@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "anderson.willow@gmail.example",
+                "value": "aaaaaaaa_aaaaaaa@aaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6166,46 +5920,45 @@
             "count": 171,
             "percent": 5.7,
             "relative_percent": 61.73,
-            "distinct_count": 171,
             "examples": [
               {
-                "value": "adams.sebastien@icloud.example",
+                "value": "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 21
+              },
+              {
+                "value": "aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 9
+              },
+              {
+                "value": "aaaaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+                "count": 9
+              },
+              {
+                "value": "aaaaa.aaaaaa@aaaaaaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaaaa_aaaaaaaa@aaaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaaaaaa_aaaaaaa@aaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaaaaaa_aaaaa@aaaaaaa.aaaaaaa",
+                "count": 2
+              },
+              {
+                "value": "aaaaa_aaaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alain.pelletier@proton.example",
+                "value": "aaaaaaa-aaaaaaaaa@aaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alain_desjardins@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "alexandre.wright@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "amelia_stewart@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "amelie.leclerc@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "antoine.lachance@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "aria_chowdhury@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "beatrice.michaud@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "beatrice_poirier@yahoo.example",
+                "value": "aaaaaaa_aaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6215,46 +5968,45 @@
             "count": 129,
             "percent": 4.3,
             "relative_percent": 46.57,
-            "distinct_count": 129,
             "examples": [
               {
-                "value": "alexandre.white@outlook.example",
+                "value": "aaaaaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+                "count": 11
+              },
+              {
+                "value": "aaaaaa.aaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 10
+              },
+              {
+                "value": "aaaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 9
+              },
+              {
+                "value": "aaaaaaaa.aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 5
+              },
+              {
+                "value": "aaaaaaaaa_aaaaaa@aaaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaaa.aaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 2
+              },
+              {
+                "value": "aaaa_aaaaaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alexandrelevesque@gmail.example",
+                "value": "aaaaaa.aaaaaaaaaa@aaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "amelia_bergeron@hotmail.example",
+                "value": "aaaaaaa-aaaaaaaa@aaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "amelie-bergeron@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "annemarie.marquis@yahoo.example",
-                "count": 1
-              },
-              {
-                "value": "audrey-martinez@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "audrey_bouchard@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "audrey_lefebvre@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "benjamin.wright@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "benjaminouellet@hotmail.example",
+                "value": "aaaaaaaa_aaaaaa@aaaaaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6264,46 +6016,29 @@
             "count": 74,
             "percent": 2.47,
             "relative_percent": 26.71,
-            "distinct_count": 74,
             "examples": [
               {
-                "value": "alexandre_beaulieu@yahoo.example",
+                "value": "aaaaaaa.aaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 7
+              },
+              {
+                "value": "aaaaaaa_aaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 5
+              },
+              {
+                "value": "aaaaaaaaa-aaaaaaaa@aaaaa.aaaaaaa",
+                "count": 2
+              },
+              {
+                "value": "aaaaaa.aaaaaaaaaaa@aaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alexis.leclerc@videotron.example",
+                "value": "aaaaaaaaaa9999@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "antoine_lachance@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "audreygauthier@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "bouchard.marcandre@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "boucher.marguerite@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "camila.chowdhury@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "caroline-grenier@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "caroline-pelletier@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "caroline_marquis@outlook.example",
+                "value": "aaaaaaaaaaaaaaaaa@aaaaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6313,46 +6048,33 @@
             "count": 46,
             "percent": 1.53,
             "relative_percent": 16.61,
-            "distinct_count": 46,
             "examples": [
               {
-                "value": "ahmed.louisphilippe@yahoo.example",
+                "value": "aaaaaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 7
+              },
+              {
+                "value": "aaaaaaaa.aaaaaa@aaaaaaaaa.aaaaaaa",
+                "count": 3
+              },
+              {
+                "value": "aaaaaaaaa-aaaaaaa@aaaaaaa.aaaaaaa",
+                "count": 2
+              },
+              {
+                "value": "aaaaaaaa_aaaaaaaa@aaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alexander.singh@videotron.example",
+                "value": "aaaaaaaaa.aaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alexandre.grenier@outlook.example",
+                "value": "aaaaaaaaa_aaaaaaa@aaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "alexandrefournier@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "alexandrefournier@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "alexandrelachance@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "bouchard.sarahmaude@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "catherine-michaud@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "charlotte-leclerc@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "charlottelevesque@outlook.example",
+                "value": "aaaaaaaaaa.aaaaaaa@aaaaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6362,95 +6084,32 @@
             "count": 27,
             "percent": 0.9,
             "relative_percent": 9.75,
-            "distinct_count": 27,
-            "examples": [
-              {
-                "value": "alexander-mitchell@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "alexandre.tremblay@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "annemarie.fournier@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "antoine.desjardins@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "camille.bouchard@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "caroline_poirier@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "catherine.paquette@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "christine_beaulieu@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "christine_gagnon@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "desjardins.genevieve@gmail.example",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 35,
             "count": 20,
             "percent": 0.67,
             "relative_percent": 7.22,
-            "distinct_count": 20,
             "examples": [
               {
-                "value": "bouchard.sarahmaude@hotmail.example",
+                "value": "aaaaaaaaa.aaaaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "charlotte-pelletier@hotmail.example",
+                "value": "aaaaaaaaaaa_aaaaaaa@aaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "christine.hernandez@outlook.example",
+                "value": "aaaaaaaaaaaa.aaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "christinestpierre@videotron.example",
+                "value": "aaaaaaaaaaaa.aaaaaaa@aaaaaa.aaaaaaa",
                 "count": 1
               },
               {
-                "value": "florence.bergeron@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "florence_beaulieu@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "francois_bergeron@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "jeanfrancois-lefebvre@gmail.example",
-                "count": 1
-              },
-              {
-                "value": "jeanfrancois.cote@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "jeanfrancois.landry@hotmail.example",
+                "value": "aaaaaaaaaaaaaaaaa@aaaaaaaaa.aaaaaaa",
                 "count": 1
               }
             ]
@@ -6460,69 +6119,27 @@
             "count": 5,
             "percent": 0.17,
             "relative_percent": 1.81,
-            "distinct_count": 5,
-            "examples": [
-              {
-                "value": "gabrielle.mohammed@videotron.example",
-                "count": 1
-              },
-              {
-                "value": "jeanfrancoisbelanger@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "jeanphilippe.ouellet@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "jeanphilippe_tremblay@proton.example",
-                "count": 1
-              },
-              {
-                "value": "lachance.marcandre@videotron.example",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 37,
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.72,
-            "distinct_count": 2,
-            "examples": [
-              {
-                "value": "jeanphilippe-gauthier@hotmail.example",
-                "count": 1
-              },
-              {
-                "value": "louisphilippe-levesque@proton.example",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 38,
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.72,
-            "distinct_count": 2,
-            "examples": [
-              {
-                "value": "louisphilippe.beaulieu@outlook.example",
-                "count": 1
-              },
-              {
-                "value": "pelletier.sarahmaude@videotron.example",
-                "count": 1
-              }
-            ]
+            "examples": []
           }
         ],
         "representative_examples": [
-          "abaker@proton.example",
-          "ahmed8567@outlook.example",
-          "ala4298@hotmail.example"
+          "aaa9999@aaaaa.aaaaaaa",
+          "aaaaaa999@aaaaaaa.aaaaaaa",
+          "aaa9999@aaaaaaa.aaaaaaa"
         ]
       },
       "numeric": null
@@ -6549,118 +6166,27 @@
       },
       "distinct_count": 1604,
       "examples": [
-        "+1-418-555-0150",
-        "+1-450-555-0149",
-        "+1-418-555-0157"
+        "+9-999-999-9999",
+        "+9 999-999-9999"
       ],
       "value_profile": {
-        "selection": "diverse_sample",
-        "sampled_distinct_count": 100,
+        "selection": "complete",
+        "sampled_distinct_count": 2,
         "values": [
           {
-            "value": "+1-418-555-0150",
-            "count": 9,
+            "value": "+9-999-999-9999",
+            "count": 2958,
             "truncated": false
           },
           {
-            "value": "+1-450-555-0149",
-            "count": 9,
-            "truncated": false
-          },
-          {
-            "value": "+1-418-555-0157",
-            "count": 8,
-            "truncated": false
-          },
-          {
-            "value": "+1-450-555-0127",
-            "count": 3,
-            "truncated": false
-          },
-          {
-            "value": "+1-581-555-0130",
-            "count": 3,
-            "truncated": false
-          },
-          {
-            "value": "+1-753-555-0134",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "+1-905-555-0159",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "+1 514-555-0163",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1 807-555-0171",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1 819-555-0157",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1 873-555-0182",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1 902-555-0103",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-354-555-0171",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-403-555-0165",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-428-555-0180",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-579-555-0143",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-613-555-0197",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-672-555-0164",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-780-555-0182",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "+1-867-555-0129",
-            "count": 1,
+            "value": "+9 999-999-9999",
+            "count": 42,
             "truncated": false
           }
         ]
       },
-      "semantic_type": null,
-      "enum": null,
+      "semantic_type": "phone",
+      "exposure": "mask",
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -6677,53 +6203,20 @@
             "count": 3000,
             "percent": 100.0,
             "relative_percent": 100.0,
-            "distinct_count": 1604,
             "examples": [
               {
-                "value": "+1-418-555-0150",
-                "count": 9
+                "value": "+9-999-999-9999",
+                "count": 2958
               },
               {
-                "value": "+1-450-555-0149",
-                "count": 9
-              },
-              {
-                "value": "+1-418-555-0157",
-                "count": 8
-              },
-              {
-                "value": "+1-438-555-0101",
-                "count": 8
-              },
-              {
-                "value": "+1-514-555-0177",
-                "count": 8
-              },
-              {
-                "value": "+1-450-555-0129",
-                "count": 7
-              },
-              {
-                "value": "+1-450-555-0188",
-                "count": 7
-              },
-              {
-                "value": "+1-514-555-0111",
-                "count": 7
-              },
-              {
-                "value": "+1-514-555-0121",
-                "count": 7
-              },
-              {
-                "value": "+1-514-555-0172",
-                "count": 7
+                "value": "+9 999-999-9999",
+                "count": 42
               }
             ]
           }
         ],
         "representative_examples": [
-          "+1-418-555-0150"
+          "+9-999-999-9999"
         ]
       },
       "numeric": null
@@ -6774,94 +6267,94 @@
             "truncated": false
           },
           {
-            "value": "CTR-1000006042",
+            "value": "CTR-1000004325",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000022810",
+            "value": "CTR-1000028230",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000023509",
+            "value": "CTR-1000029899",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000024667",
+            "value": "CTR-1000036863",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000075321",
+            "value": "CTR-1000101140",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000091530",
+            "value": "CTR-1000116266",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000107852",
+            "value": "CTR-1000118311",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000108738",
+            "value": "CTR-1000157343",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000113895",
+            "value": "CTR-1000170981",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000165987",
+            "value": "CTR-1000181674",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-1000182270",
+            "value": "CTR-1000188457",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-2000010486",
+            "value": "CTR-2000012419",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-3000003257",
+            "value": "CTR-3000017673",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-3000008314",
+            "value": "CTR-3000031071",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-3000014634",
+            "value": "CTR-3000035905",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-3000026185",
+            "value": "CTR-3000046742",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "CTR-3000031998",
+            "value": "CTR-3000049168",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -6878,56 +6371,13 @@
             "count": 22,
             "percent": 0.74,
             "relative_percent": 0.74,
-            "distinct_count": 22,
-            "examples": [
-              {
-                "value": "CTR-100000950",
-                "count": 1
-              },
-              {
-                "value": "CTR-100003714",
-                "count": 1
-              },
-              {
-                "value": "CTR-100005202",
-                "count": 1
-              },
-              {
-                "value": "CTR-100007048",
-                "count": 1
-              },
-              {
-                "value": "CTR-100007641",
-                "count": 1
-              },
-              {
-                "value": "CTR-100007913",
-                "count": 1
-              },
-              {
-                "value": "CTR-100008873",
-                "count": 1
-              },
-              {
-                "value": "CTR-100008938",
-                "count": 1
-              },
-              {
-                "value": "CTR-100011328",
-                "count": 1
-              },
-              {
-                "value": "CTR-100012522",
-                "count": 1
-              }
-            ]
+            "examples": []
           },
           {
             "length": 14,
             "count": 2955,
             "percent": 98.8,
             "relative_percent": 100.0,
-            "distinct_count": 2947,
             "examples": [
               {
                 "value": "CTR-1000002347",
@@ -6976,7 +6426,6 @@
             "count": 14,
             "percent": 0.47,
             "relative_percent": 0.47,
-            "distinct_count": 14,
             "examples": [
               {
                 "value": "CTR--1000004074",
@@ -7023,7 +6472,6 @@
         ],
         "representative_examples": [
           "CTR-1000002347",
-          "CTR-100000950",
           "CTR--1000004074"
         ]
       },
@@ -7091,14 +6539,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 6,
-        "non_missing_count": 2998,
-        "coverage_percent": 99.93,
-        "confidence": 0.9993
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -7115,7 +6557,6 @@
             "count": 349,
             "percent": 11.64,
             "relative_percent": 28.42,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "vie",
@@ -7128,7 +6569,6 @@
             "count": 1228,
             "percent": 40.96,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "auto",
@@ -7141,7 +6581,6 @@
             "count": 505,
             "percent": 16.84,
             "relative_percent": 41.12,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "voyage",
@@ -7154,7 +6593,6 @@
             "count": 1,
             "percent": 0.03,
             "relative_percent": 0.08,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "voyage_X",
@@ -7167,7 +6605,6 @@
             "count": 910,
             "percent": 30.35,
             "relative_percent": 74.1,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "habitation",
@@ -7180,7 +6617,6 @@
             "count": 5,
             "percent": 0.17,
             "relative_percent": 0.41,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "habitation_X",
@@ -7201,14 +6637,14 @@
       "id": "column_23",
       "name": "date_debut",
       "position": 23,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "date": 2658,
-        "text": 342
+        "date": 2993,
+        "text": 7
       },
       "type_confidence": 0.9977,
-      "type_error_count": 342,
-      "type_error_percent": 11.4,
+      "type_error_count": 7,
+      "type_error_percent": 0.23,
       "missing_count": 0,
       "missing_percent": 0.0,
       "with_issues": true,
@@ -7244,82 +6680,82 @@
             "truncated": false
           },
           {
-            "value": "2024-11-18",
-            "count": 2,
+            "value": "2020-10-10",
+            "count": 3,
             "truncated": false
           },
           {
-            "value": "22-03-2025",
-            "count": 2,
+            "value": "2022-02-28",
+            "count": 3,
             "truncated": false
           },
           {
-            "value": "09-04-2022",
+            "value": "04-06-2023",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2018-11-05",
+            "value": "19-08-2022",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2019-01-01",
+            "value": "2017-11-08",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2020-01-04",
+            "value": "2019-02-07",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2020-08-02",
+            "value": "2020-02-14",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2020-08-28",
+            "value": "2020-03-30",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2021-12-09",
+            "value": "2020-04-03",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2023-11-08",
+            "value": "2020-06-30",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-05-18",
+            "value": "2021-12-05",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-07-11",
+            "value": "2022-01-01",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-07-15",
+            "value": "2022-07-08",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2025-02-06",
+            "value": "2024-08-26",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2026-02-16",
+            "value": "2027-06-13",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2026-06-12",
+            "value": "2027-06-17",
             "count": 1,
             "truncated": false
           },
@@ -7331,7 +6767,7 @@
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 3000,
@@ -7345,6 +6781,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 340,
+          "MDY": 142
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -7402,7 +6842,7 @@
             "percent": 11.27
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 335,
             "percent": 11.17
@@ -7437,10 +6877,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 7
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -7449,14 +6886,14 @@
       "id": "column_24",
       "name": "date_fin",
       "position": 24,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "date": 2221,
-        "text": 277
+        "date": 2495,
+        "text": 3
       },
       "type_confidence": 0.9988,
-      "type_error_count": 277,
-      "type_error_percent": 11.09,
+      "type_error_count": 3,
+      "type_error_percent": 0.12,
       "missing_count": 502,
       "missing_percent": 16.73,
       "with_issues": true,
@@ -7492,94 +6929,94 @@
             "truncated": false
           },
           {
-            "value": "2026-11-01",
+            "value": "2027-02-09",
+            "count": 6,
+            "truncated": false
+          },
+          {
+            "value": "2026-10-27",
             "count": 5,
             "truncated": false
           },
           {
-            "value": "2027-04-20",
-            "count": 5,
-            "truncated": false
-          },
-          {
-            "value": "2027-06-06",
-            "count": 5,
-            "truncated": false
-          },
-          {
-            "value": "2027-03-29",
-            "count": 4,
-            "truncated": false
-          },
-          {
-            "value": "12-11-2026",
+            "value": "06-12-2026",
             "count": 3,
             "truncated": false
           },
           {
-            "value": "2027-07-30",
+            "value": "2026-11-29",
             "count": 3,
             "truncated": false
           },
           {
-            "value": "21-07-2027",
+            "value": "2026-12-27",
             "count": 3,
             "truncated": false
           },
           {
-            "value": "09-09-2027",
+            "value": "10-11-2026",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2024-04-02",
+            "value": "15-05-2027",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2025-08-19",
+            "value": "16-12-2026",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "07-11-2024",
+            "value": "07-10-2027",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "07-13-2027",
+            "value": "11-24-2026",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "19-02-2027",
+            "value": "2022-07-16",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2019-10-21",
+            "value": "2022-09-27",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-06-23",
+            "value": "2024-04-05",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2025-12-29",
+            "value": "2024-06-05",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "28-10-2024",
+            "value": "2025-09-16",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "2026-08-21",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "2026-11-11",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 2498,
@@ -7593,6 +7030,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 291,
+          "MDY": 125
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -7658,7 +7099,7 @@
             "percent": 11.57
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 271,
             "percent": 10.85
@@ -7670,7 +7111,7 @@
             "percent": 4.96
           },
           {
-            "label": "Ambiguous: MM/DD/YYYY or DD/MM/YYYY",
+            "label": "Ambiguous: DD/MM/YYYY or MM/DD/YYYY",
             "category": "ambiguous",
             "count": 3,
             "percent": 0.12
@@ -7705,10 +7146,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 3
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -7775,14 +7213,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 6,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -7799,7 +7231,6 @@
             "count": 2279,
             "percent": 75.97,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "actif",
@@ -7812,7 +7243,6 @@
             "count": 373,
             "percent": 12.43,
             "relative_percent": 16.37,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "expiré",
@@ -7825,7 +7255,6 @@
             "count": 157,
             "percent": 5.23,
             "relative_percent": 6.89,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "résilié",
@@ -7842,7 +7271,6 @@
             "count": 191,
             "percent": 6.37,
             "relative_percent": 8.38,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "suspendu",
@@ -7909,94 +7337,94 @@
             "truncated": false
           },
           {
-            "value": "1290.09",
+            "value": "1281.15",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1472.02",
+            "value": "1728.39",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1750.48",
+            "value": "1746.20",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "1845.59",
+            "value": "201.78",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2113.34",
+            "value": "2101.66",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2277.30",
+            "value": "2518.08",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "285.02",
+            "value": "2545.65",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2923.16",
+            "value": "274.27",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "334.50",
+            "value": "2871.97",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "3387.57",
+            "value": "3211.30",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "405.39",
+            "value": "400.24",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "532.54",
+            "value": "496.16",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "598.61",
+            "value": "549.16",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "665.45",
+            "value": "780.67",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "851.92",
+            "value": "842.26",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "894.29",
+            "value": "931.03",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "983.89",
+            "value": "952.12",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": null,
       "numeric": {
@@ -8004,7 +7432,7 @@
         "maximum": 4948.16,
         "range": 8046.12,
         "mean": 1224.0938066666668,
-        "median": 1101.3400000000001
+        "median": 1101.34
       }
     },
     {
@@ -8069,14 +7497,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 6,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -8093,7 +7515,6 @@
             "count": 609,
             "percent": 20.3,
             "relative_percent": 31.09,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "annuelle",
@@ -8106,7 +7527,6 @@
             "count": 1959,
             "percent": 65.3,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "mensuelle",
@@ -8119,7 +7539,6 @@
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.1,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "annuelle_X",
@@ -8132,7 +7551,6 @@
             "count": 1,
             "percent": 0.03,
             "relative_percent": 0.05,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "mensuelle_X",
@@ -8145,7 +7563,6 @@
             "count": 135,
             "percent": 4.5,
             "relative_percent": 6.89,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "semestrielle",
@@ -8158,7 +7575,6 @@
             "count": 294,
             "percent": 9.8,
             "relative_percent": 15.01,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "trimestrielle",
@@ -8252,14 +7668,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 9,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -8276,7 +7686,6 @@
             "count": 741,
             "percent": 24.7,
             "relative_percent": 44.94,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "carte",
@@ -8289,7 +7698,6 @@
             "count": 157,
             "percent": 5.23,
             "relative_percent": 9.52,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "chèque",
@@ -8306,7 +7714,6 @@
             "count": 3,
             "percent": 0.1,
             "relative_percent": 0.18,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "carte_X",
@@ -8319,7 +7726,6 @@
             "count": 445,
             "percent": 14.83,
             "relative_percent": 26.99,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "virement",
@@ -8332,7 +7738,6 @@
             "count": 2,
             "percent": 0.07,
             "relative_percent": 0.12,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "virement_X",
@@ -8345,7 +7750,6 @@
             "count": 1649,
             "percent": 54.97,
             "relative_percent": 100.0,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "prélèvement",
@@ -8362,7 +7766,6 @@
             "count": 3,
             "percent": 0.1,
             "relative_percent": 0.18,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "prélèvement_X",
@@ -8546,14 +7949,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 27,
-        "non_missing_count": 3000,
-        "coverage_percent": 100.0,
-        "confidence": 1.0
-      },
+      "semantic_type": "enumeration",
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -8570,7 +7967,6 @@
             "count": 2984,
             "percent": 99.47,
             "relative_percent": 100.0,
-            "distinct_count": 20,
             "examples": [
               {
                 "value": "AG-PR-001",
@@ -8619,7 +8015,6 @@
             "count": 16,
             "percent": 0.53,
             "relative_percent": 0.54,
-            "distinct_count": 7,
             "examples": [
               {
                 "value": "AG--PR-001",
@@ -8663,14 +8058,14 @@
       "id": "column_30",
       "name": "date_creation",
       "position": 30,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "date": 2695,
-        "text": 305
+        "date": 2994,
+        "text": 6
       },
       "type_confidence": 0.998,
-      "type_error_count": 305,
-      "type_error_percent": 10.17,
+      "type_error_count": 6,
+      "type_error_percent": 0.2,
       "missing_count": 0,
       "missing_percent": 0.0,
       "with_issues": true,
@@ -8706,94 +8101,94 @@
             "truncated": false
           },
           {
-            "value": "2017-12-01",
+            "value": "2020-06-23",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2018-12-12",
+            "value": "2026-04-19",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2022-01-21",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "02-04-2024",
+            "value": "09-12-2020",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "03-07-2018",
+            "value": "13-02-2017",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "08-26-2024",
+            "value": "17-03-2024",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "09-09-2024",
+            "value": "2016-12-10",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "18-07-2024",
+            "value": "2017-06-08",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2016-10-02",
+            "value": "2019-06-03",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2019-03-20",
+            "value": "2019-10-25",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2021-03-10",
+            "value": "2019-10-29",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-02-03",
+            "value": "2020-06-19",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-11-14",
+            "value": "2022-07-21",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2023-01-13",
+            "value": "2024-06-28",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-08-17",
+            "value": "2025-04-14",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-11-18",
+            "value": "2026-08-30",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "24-03-2020",
+            "value": "28-04-2020",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "30-11-2025",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 3000,
@@ -8807,6 +8202,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 359,
+          "MDY": 159
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -8856,7 +8255,7 @@
             "percent": 11.97
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 298,
             "percent": 9.93
@@ -8874,7 +8273,7 @@
             "percent": 0.27
           },
           {
-            "label": "Ambiguous: MM/DD/YYYY or DD/MM/YYYY",
+            "label": "Ambiguous: DD/MM/YYYY or MM/DD/YYYY",
             "category": "ambiguous",
             "count": 1,
             "percent": 0.03
@@ -8891,10 +8290,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 6
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -8903,14 +8299,14 @@
       "id": "column_31",
       "name": "date_modification",
       "position": 31,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "date": 2684,
-        "text": 316
+        "date": 2997,
+        "text": 3
       },
       "type_confidence": 0.999,
-      "type_error_count": 316,
-      "type_error_percent": 10.53,
+      "type_error_count": 3,
+      "type_error_percent": 0.1,
       "missing_count": 0,
       "missing_percent": 0.0,
       "with_issues": true,
@@ -8946,94 +8342,94 @@
             "truncated": false
           },
           {
-            "value": "13-05-2026",
+            "value": "2024-10-02",
+            "count": 3,
+            "truncated": false
+          },
+          {
+            "value": "12-04-2026",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2021-12-11",
+            "value": "2022-05-05",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2022-07-29",
+            "value": "2024-11-04",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "2023-12-11",
+            "value": "2025-01-04",
             "count": 2,
             "truncated": false
           },
           {
-            "value": "05-17-2026",
+            "value": "2025-06-26",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "2025-09-06",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "05-19-2024",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "07-20-2023",
+            "value": "11-15-2025",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "08-09-2023",
+            "value": "2018-12-15",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "12-01-2024",
+            "value": "2019-03-26",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2018-07-30",
+            "value": "2021-11-24",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2019-06-28",
+            "value": "2024-01-14",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-10-01",
+            "value": "2024-03-16",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-12-19",
+            "value": "2024-05-22",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2023-01-24",
+            "value": "2024-09-06",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2023-03-27",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2023-03-31",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2023-06-14",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2024-02-23",
+            "value": "25-04-2021",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 3000,
@@ -9047,6 +8443,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 346,
+          "MDY": 159
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -9104,7 +8504,7 @@
             "percent": 11.5
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 312,
             "percent": 10.4
@@ -9122,7 +8522,7 @@
             "percent": 0.17
           },
           {
-            "label": "Ambiguous: MM/DD/YYYY or DD/MM/YYYY",
+            "label": "Ambiguous: DD/MM/YYYY or MM/DD/YYYY",
             "category": "ambiguous",
             "count": 1,
             "percent": 0.03
@@ -9145,10 +8545,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 3
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -9157,14 +8554,14 @@
       "id": "column_32",
       "name": "date_reclamation",
       "position": 32,
-      "inferred_type": "mixed",
+      "inferred_type": "date",
       "type_counts": {
-        "text": 54,
-        "date": 366
+        "date": 419,
+        "text": 1
       },
       "type_confidence": 0.9976,
-      "type_error_count": 54,
-      "type_error_percent": 12.86,
+      "type_error_count": 1,
+      "type_error_percent": 0.24,
       "missing_count": 2580,
       "missing_percent": 86.0,
       "with_issues": true,
@@ -9200,94 +8597,94 @@
             "truncated": false
           },
           {
+            "value": "2025-05-25",
+            "count": 2,
+            "truncated": false
+          },
+          {
+            "value": "09-04-2025",
+            "count": 1,
+            "truncated": false
+          },
+          {
             "value": "09-28-2024",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "10-12-2024",
+            "value": "14-07-2025",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "18-05-2026",
+            "value": "17-08-2026",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "20-08-2025",
+            "value": "2018-11-20",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2019-08-08",
+            "value": "2020-12-01",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2021-05-21",
+            "value": "2021-08-04",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-05-28",
+            "value": "2021-09-29",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-07-12",
+            "value": "2022-07-24",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2022-10-04",
+            "value": "2024-07-10",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2023-05-03",
+            "value": "2024-07-21",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-07-02",
+            "value": "2024-10-06",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-07-08",
+            "value": "2025-09-12",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2024-07-28",
+            "value": "2026-06-24",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2025-04-03",
+            "value": "26-12-2023",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "2025-06-02",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2026-02-06",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "29-04-2020",
+            "value": "28-01-2026",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": "date",
-      "enum": null,
+      "exposure": null,
       "date_profile": {
         "status": "mixed",
         "present_count": 420,
@@ -9301,6 +8698,10 @@
         "not_date_percent": 0.0,
         "resolved_ambiguous_order": null,
         "ambiguous_order_source": null,
+        "ambiguity_evidence": {
+          "DMY": 46,
+          "MDY": 24
+        },
         "formats": [
           {
             "format": "YYYY-MM-DD",
@@ -9336,7 +8737,7 @@
             "percent": 70.48
           },
           {
-            "label": "Ambiguous: MM-DD-YYYY or DD-MM-YYYY",
+            "label": "Ambiguous: DD-MM-YYYY or MM-DD-YYYY",
             "category": "ambiguous",
             "count": 53,
             "percent": 12.62
@@ -9365,10 +8766,7 @@
             "count": 0,
             "percent": 0.0
           }
-        ],
-        "errors": {
-          "invalid_calendar_date": 1
-        }
+        ]
       },
       "string_profile": null,
       "numeric": null
@@ -9419,27 +8817,22 @@
             "truncated": false
           },
           {
-            "value": "11264.90",
+            "value": "11470.48",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "12397.00",
+            "value": "12639.37",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "12678.53",
+            "value": "129935.17",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "19513.98",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "21554.27",
+            "value": "19006.52",
             "count": 1,
             "truncated": false
           },
@@ -9449,22 +8842,12 @@
             "truncated": false
           },
           {
-            "value": "26585.50",
+            "value": "27656.18",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "26757.57",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "36161.88",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "38873.21",
+            "value": "36080.21",
             "count": 1,
             "truncated": false
           },
@@ -9474,39 +8857,54 @@
             "truncated": false
           },
           {
-            "value": "40331.20",
+            "value": "38995.13",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "41432.19",
+            "value": "4015.68",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "44672.98",
+            "value": "4624.56",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "48009.05",
+            "value": "6160.20",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "6722.10",
+            "value": "81330.68",
             "count": 1,
             "truncated": false
           },
           {
-            "value": "7672.77",
+            "value": "8303.41",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "91386.63",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "9433.94",
+            "count": 1,
+            "truncated": false
+          },
+          {
+            "value": "9471.63",
             "count": 1,
             "truncated": false
           }
         ]
       },
       "semantic_type": null,
-      "enum": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": null,
       "numeric": {
@@ -9569,14 +8967,8 @@
           }
         ]
       },
-      "semantic_type": "enum",
-      "enum": {
-        "status": "candidate",
-        "observed_distinct_count": 4,
-        "non_missing_count": 440,
-        "coverage_percent": 14.67,
-        "confidence": 0.1467
-      },
+      "semantic_type": null,
+      "exposure": null,
       "date_profile": null,
       "string_profile": {
         "status": "short",
@@ -9593,7 +8985,6 @@
             "count": 218,
             "percent": 49.55,
             "relative_percent": 100.0,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "fermé",
@@ -9606,7 +8997,6 @@
             "count": 95,
             "percent": 21.59,
             "relative_percent": 43.58,
-            "distinct_count": 2,
             "examples": [
               {
                 "value": "ouvert",
@@ -9623,7 +9013,6 @@
             "count": 127,
             "percent": 28.86,
             "relative_percent": 58.26,
-            "distinct_count": 1,
             "examples": [
               {
                 "value": "en_cours",
@@ -9716,10 +9105,10 @@
       "row_numbers": []
     },
     {
-      "code": "mixed_types",
+      "code": "ambiguous_dates",
       "severity": "warning",
-      "message": "Columns with mixed value types",
-      "count": 6,
+      "message": "Date values matching more than one day-month order",
+      "count": 1630,
       "column_ids": [
         "column_6",
         "column_23",
@@ -9753,8 +9142,8 @@
         "Québec",
         "H4A 9M3",
         "CA",
-        "lr8985@yahoo.example",
-        "+1-468-555-0110",
+        "aa9999@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000000281",
         "auto",
         "2020-07-16",
@@ -9792,8 +9181,8 @@
         "Québec",
         "G6V 8P2",
         "CA",
-        "suz7058@outlook.example",
-        "+1-468-555-0160",
+        "aaa9999@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000000432",
         "vie",
         "2027-06-02",
@@ -9831,8 +9220,8 @@
         "Québec",
         "J2H 0H3",
         "CA",
-        "jul45@gmail.example",
-        "+1-514-555-0122",
+        "aaa99@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000000538",
         "voyage",
         "2016-09-30",
@@ -9870,8 +9259,8 @@
         "Québec",
         "J5Y 2J3",
         "CA",
-        "landry.olivier@outlook.example",
-        "+1-819-555-0100",
+        "aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000000726",
         "auto",
         "2023-03-29",
@@ -9909,8 +9298,8 @@
         "Québec",
         "G2B 7V8",
         "CA",
-        "nicoletremblay@hotmail.example",
-        "+1-873-555-0180",
+        "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000000892",
         "voyage",
         "2017-05-26",
@@ -9948,8 +9337,8 @@
         "Manitoba",
         "R3C 4S8",
         "CA",
-        "lpham@outlook.example",
-        "+1-584-555-0162",
+        "aaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001006",
         "auto",
         "2025-05-17",
@@ -9987,8 +9376,8 @@
         "Québec",
         "G6V 8A4",
         "CA",
-        "emile.lavoie@hotmail.example",
-        "+1-819-555-0164",
+        "aaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001095",
         "auto",
         "2025-03-16",
@@ -10026,8 +9415,8 @@
         "Québec",
         "G6W 9E4",
         "CA",
-        "cgagne@gmail.example",
-        "+1-514-555-0127",
+        "aaaaaa@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001384",
         "voyage",
         "2018-07-30",
@@ -10065,8 +9454,8 @@
         "Ontario",
         "M6G 7M3",
         "CA",
-        "jack78@outlook.example",
-        "+1-519-555-0176",
+        "aaaa99@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001430",
         "habitation",
         "2022-06-11",
@@ -10104,8 +9493,8 @@
         "Québec",
         "H4A 4S8",
         "CA",
-        "catherinecaron@outlook.example",
-        "+1-354-555-0191",
+        "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001642",
         "voyage",
         "2022-09-27",
@@ -10143,8 +9532,8 @@
         "quebec",
         "J6J 3K7",
         "CA",
-        "sofiabaker@icloud.example",
-        "+1-581-555-0134",
+        "aaaaaaaaaa@aaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001668",
         "vie",
         "2024-09-11",
@@ -10182,8 +9571,8 @@
         "Ontario",
         "K1A 4T0",
         "CA",
-        "thompson35@gmail.example",
-        "+1-613-555-0166",
+        "aaaaaaaa99@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001783",
         "auto",
         "2017-07-01",
@@ -10221,8 +9610,8 @@
         "Québec",
         "H2X 4P4",
         "CA",
-        "jeancote@icloud.example",
-        "+1-450-555-0100",
+        "aaaaaaaa@aaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000001927",
         "habitation",
         "2021-02-26",
@@ -10260,8 +9649,8 @@
         "Québec",
         "G2B 5E5",
         "CA",
-        "maximegagnon@gmail.example",
-        "+1-438-555-0158",
+        "aaaaaaaaaaaa@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000002289",
         "auto",
         "2026-01-07",
@@ -10299,8 +9688,8 @@
         "Québec",
         "G2B 9H7",
         "CA",
-        "emile.rodriguez@yahoo.example",
-        "+1-468-555-0152",
+        "aaaaa.aaaaaaaaa@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000002347",
         "voyage",
         "2023-02-16",
@@ -10338,8 +9727,8 @@
         "Québec",
         "G2B 2E7",
         "CA",
-        "michael_walker@hotmail.example",
-        "+1-468-555-0120",
+        "aaaaaaa_aaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000002991",
         "vie",
         "2025-08-01",
@@ -10377,8 +9766,8 @@
         "Québec",
         "G1V 4H0",
         "CA",
-        "patel3205@yahoo.example",
-        "+1-581-555-0146",
+        "aaaaa9999@aaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000003000",
         "habitation",
         "2020-01-28",
@@ -10416,8 +9805,8 @@
         "Québec",
         "H4A 3C2",
         "CA",
-        "anne53@outlook.example",
-        "+1-450-555-0161",
+        "aaaa99@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000003159",
         "auto",
         "2024-12-20",
@@ -10455,8 +9844,8 @@
         "Ontario",
         "L8S 1B2",
         "CA",
-        "sylvain_silva@hotmail.example",
-        "+1-705-555-0160",
+        "aaaaaaa_aaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000003200",
         "vie",
         "2026-06-14",
@@ -10494,8 +9883,8 @@
         "Nouveau-Brunswick",
         "E3B 3G8",
         "CA",
-        "jeanphilippe.ouellet@hotmail.example",
-        "+1-506-555-0151",
+        "aaaaaaaaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
+        "+9-999-999-9999",
         "CTR-1000003271",
         "vie",
         "2024-02-22",
