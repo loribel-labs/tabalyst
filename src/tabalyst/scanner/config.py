@@ -26,7 +26,6 @@ from pydantic import (
 
 from tabalyst.config import (
     CsvConfig,
-    DateDetectionConfig,
     load_config_layers,
     merge_settings,
     validation_message,
@@ -46,7 +45,10 @@ HARD_CAPS: dict[str, int] = {
     "max_variant_groups": 100_000,
     "max_variants_per_group": 10_000,
     "max_evidence_examples": 1_000,
+    "max_tracked_records": 500_000_000,
+    "max_listed_records": 10_000,
 }
+MAX_PREVIEW_RECORDS = 1_000
 MAX_PATTERNS = 200
 MAX_PATTERN_LENGTH = 1_000
 MAX_PATTERN_INPUT_LENGTH = 10_000
@@ -153,12 +155,19 @@ class LimitSettings(_Settings):
     max_variant_groups: int = _limit(100, "max_variant_groups", 0)
     max_variants_per_group: int = _limit(20, "max_variants_per_group", 0)
     max_evidence_examples: int = _limit(10, "max_evidence_examples", 0)
+    max_tracked_records: int = _limit(2_000_000, "max_tracked_records")
+    max_listed_records: int = _limit(10, "max_listed_records", 0)
 
     @model_validator(mode="after")
     def distinct_within_global_budget(self):
         if self.max_distinct_per_field > self.max_tracked_values:
             raise ValueError("max_distinct_per_field cannot exceed max_tracked_values")
         return self
+
+
+class RecordSettings(_Settings):
+    preview: int = Field(default=10, ge=0, le=MAX_PREVIEW_RECORDS)
+    duplicates: bool = True
 
 
 class TypeSettings(_Settings):
@@ -200,10 +209,27 @@ class NumberSettings(_Settings):
         return self
 
 
-class DateSettings(DateDetectionConfig):
+class DateSettings(_Settings):
+    enabled: bool = True
+    orders: list[Literal["YMD", "MDY", "DMY"]] = Field(
+        default_factory=lambda: ["YMD", "MDY", "DMY"]
+    )
+    separators: list[str] = Field(default_factory=lambda: ["-", "/", "."])
+    ambiguous_order: Literal["MDY", "DMY"] | None = None
     month_languages: list[MonthLanguage] = Field(
         default_factory=lambda: ["en", "fr"]
     )
+
+    @field_validator("separators")
+    @classmethod
+    def valid_separators(cls, values: list[str]) -> list[str]:
+        if not values or any(
+            len(value) != 1 or value.isdigit() or value in "\r\n" for value in values
+        ):
+            raise ValueError("Date separators must be non-digit single characters")
+        if len(set(values)) != len(values):
+            raise ValueError("Date separators must be unique")
+        return values
 
     @field_validator("month_languages")
     @classmethod
@@ -211,6 +237,12 @@ class DateSettings(DateDetectionConfig):
         if len(set(values)) != len(values):
             raise ValueError("Month languages must be unique")
         return values
+
+    @model_validator(mode="after")
+    def ambiguous_order_must_be_enabled(self):
+        if self.ambiguous_order and self.ambiguous_order not in self.orders:
+            raise ValueError("ambiguous_order must also appear in date orders")
+        return self
 
 
 class BooleanSettings(_Settings):
@@ -405,6 +437,7 @@ class ScanConfig(_Settings):
     values: ValueSettings = Field(default_factory=ValueSettings)
     normalization: NormalizationSettings = Field(default_factory=NormalizationSettings)
     limits: LimitSettings = Field(default_factory=LimitSettings)
+    records: RecordSettings = Field(default_factory=RecordSettings)
     types: TypeSettings = Field(default_factory=TypeSettings)
     detection: DetectionSettings = Field(default_factory=DetectionSettings)
     detectors: DetectorSettings = Field(default_factory=DetectorSettings)

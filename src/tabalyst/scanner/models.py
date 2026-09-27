@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 1
+FORMAT_REVISION = 2
 
 
 class ScanModel(BaseModel):
@@ -425,6 +425,34 @@ class Structure(ScanModel):
     max_depth_seen: int
 
 
+class RecordList(ScanModel):
+    count: int
+    # Record indices of the first ones, up to ``limits.max_listed_records``.
+    records: list[int]
+
+
+class DuplicateRecords(ScanModel):
+    # Records equal to an earlier record of the dataset, beyond its first
+    # occurrence; limited with reason ``record_budget``.
+    count: IntMeasure
+    records: list[int]
+
+
+class PreviewRecord(ScanModel):
+    record: int
+    # Values per field id, as canonical text, through the field's exposure.
+    # A JSON null is null; a cell holding a hidden value is null; a field
+    # absent from the record has no key.
+    values: dict[str, list[str | None] | None]
+
+
+class Records(ScanModel):
+    with_missing: RecordList
+    empty: RecordList
+    duplicates: DuplicateRecords
+    preview: list[PreviewRecord]
+
+
 class DatasetResult(ScanModel):
     id: str
     kind: DatasetKind
@@ -432,6 +460,7 @@ class DatasetResult(ScanModel):
     record_count: int
     record_types: dict[NativeType, int]
     structure: Structure
+    records: Records
     fields: list[FieldResult]
 
 

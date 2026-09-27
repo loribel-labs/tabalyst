@@ -32,6 +32,7 @@ changes often: update it before each new test.
 | Several files, automatic names | `tabalyst report *.csv` | Beside each source |
 | Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
 | One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
+| From a scan document | `tabalyst report --scan data.scan.json` | `data.html` beside the scan |
 
 The simplest command keeps the source filename:
 
@@ -200,6 +201,15 @@ quantities, UUIDs and IP addresses. Values of sensitive fields, such as email
 addresses, are masked by default. Results are written atomically: an
 interrupted scan never leaves a partial file.
 
+Build the report from a scan document without reading the source again:
+
+```console
+tabalyst report --scan customers.scan.json
+```
+
+Tabalyst refuses a scan whose source changed since it was written, or whose
+settings differ from the `scan` settings of `--config`.
+
 See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/scan-files.md)
 and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/scan-format.md).
 
@@ -248,12 +258,14 @@ sample = tabalyst.sample_csv(
 
 scan = tabalyst.scan("orders.json")
 scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
+reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
 `analyze()` returns the JSON-serializable profile for one report.
 `generate_reports()` returns the complete batch plan, successes, and failures.
 `scan()` returns a scan result without writing anything; `generate_scans()`
-writes one `.scan.json` document per source.
+writes one `.scan.json` document per source; `from_scan=True` builds reports
+from such documents.
 Expected failures derive from `tabalyst.TabalystError`.
 
 Existing artifacts are never replaced silently. Pass `force=True` when
@@ -289,9 +301,9 @@ Tabalyst performs analysis locally and adds no telemetry or remote processing.
 Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
-Reports, samples, and scans read files as a stream. Report duplicate-row
-detection keeps 16 bytes per distinct row; other state is bounded by
-configurable limits. Reports and scans show the share of the file read;
+Reports, samples, and scans read files as a stream, with memory bounded by
+configurable limits, including duplicate-row detection
+(`scan.limits.max_tracked_records`). Reports and scans show the share of the file read;
 throughput estimates, recursive directory input, and parallel batch execution
 will require later work.
 

@@ -1,6 +1,6 @@
 ---
 title: Known limitations
-description: What Tabalyst does not do yet during its alpha, including JSON report limits, duplicate detection memory and experimental JSON formats.
+description: What Tabalyst does not do yet during its alpha, including JSON report limits, the duplicate detection budget and experimental JSON formats.
 ---
 
 Tabalyst is in alpha. This page lists what it does not do yet, so you can decide
@@ -32,10 +32,13 @@ published release lifts them.
 
 ## Size and performance
 
-- **Duplicate rows use memory.** Reports read the file once as a stream,
-  with memory bounded by the scan limits, except duplicate row detection,
-  which keeps 16 bytes per distinct row. `tabalyst scan` does not detect
-  duplicate rows.
+- **Duplicate rows have a budget.** Reports and scans read the file once as a
+  stream, with memory bounded by the scan limits. Duplicate row detection
+  stores about 80 bytes per distinct row, up to
+  `scan.limits.max_tracked_records` (2,000,000 rows by default). Beyond it,
+  later rows are compared only with the stored ones, so the report shows a
+  lower bound such as `≥ 12`. Raise the limit for an exact count, or set
+  `scan.records.duplicates` to `false` to skip the detection.
 - **No row-level progress.** Report and scan progress show the share of the
   file read, not a number of rows.
 - **Sequential batches.** Several files are processed one after another, not in

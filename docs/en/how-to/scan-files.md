@@ -146,6 +146,44 @@ Progress and messages use standard error. Progress is disabled outside a
 terminal and with `--no-progress` or `--quiet`. `--verbose` adds the detected
 format, encoding, delimiter, status and number of diagnostics.
 
+## Report from a scan
+
+Build the HTML report from a scan document instead of reading the source
+again:
+
+```console
+tabalyst report --scan customers.scan.json
+```
+
+This writes `customers.html` and `customers.json` beside the scan document,
+named after the source it records; a JSON source `orders.json` gives
+`orders.report.html`. The report is the one `tabalyst report customers.csv`
+writes with the same scan settings, since the scan document holds everything
+it needs, including duplicate rows and the preview. `-o`, `-d`, `--force` and
+wildcards work as for sources:
+
+```console
+tabalyst report --scan scans/*.scan.json -d reports/
+```
+
+Tabalyst refuses a scan that no longer describes its source. It looks for the
+source beside the scan document, under the name the scan recorded:
+
+- a source of another size, or whose content changed (compared by SHA-256
+  when its modification time changed), is an error: scan it again;
+- a source that is not beside the scan document is accepted, since the scan
+  stands on its own, with a warning that it was not checked. This is the case
+  for scans written with `-d` to another directory.
+
+The report uses the scan settings recorded in the document. Configuration
+files passed with `--config` give the presentation settings; settings given
+in their `scan` object must have the values recorded in the document,
+otherwise the report stops with exit code `2`. Settings they do not give, such
+as a `--delimiter` passed to `tabalyst scan`, are taken from the document.
+`--delimiter` and `--encoding` cannot be used with `--scan`. A document that
+cannot be read, or was written by another format revision, fails without
+stopping the other reports of the batch; scan its source again.
+
 ## Python API
 
 ```python
@@ -155,9 +193,12 @@ result = tabalyst.scan("orders.json")
 print(result.scope.records_analyzed)
 
 batch = tabalyst.generate_scans(["data/*.csv"], output_dir="scans")
+reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
 `tabalyst.scan()` reads one source and returns the result without writing
 anything; `result.model_dump(mode="json")` gives the document. Pass
 `config=tabalyst.ScanConfig(...)` to change settings. `tabalyst.generate_scans()`
 does what the command does and returns the plan, successes and failures.
+`tabalyst.generate_reports(..., from_scan=True)` builds reports from scan
+documents, as `tabalyst report --scan` does.

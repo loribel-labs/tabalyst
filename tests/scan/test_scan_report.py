@@ -1,9 +1,8 @@
 """Scan contract: the report built on Tabalyst Scan (lot 5a).
 
-Parity with the pandas engine on both public demos, each known difference
-listed explicitly, then the presentation decisions of lot 5a (design 12.6 and
-12.8, O16). The pandas engine is removed in lot 5c with the parity half of
-this file.
+The demo facts pinned below were equal to those of the former pandas engine
+when the parity tests of lot 5a last ran, before lot 5c removed that engine;
+then the presentation decisions of lot 5a (design 12.6 and 12.8, O16).
 """
 
 import json
@@ -13,8 +12,6 @@ import pytest
 from scan_helpers import write_text
 
 from tabalyst import ConfigurationError
-from tabalyst.analysis import analyze_csv_file
-from tabalyst.config import AnalysisConfig
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.reporting import render_report
 from tabalyst.scanner.readers import csv_reader
@@ -24,44 +21,43 @@ pytestmark = pytest.mark.lot("5a")
 
 EXAMPLES = Path(__file__).parents[2] / "examples"
 DEMO_CONFIG = EXAMPLES / "config.json"
-# The pandas engine settings equivalent to examples/config.json.
-LEGACY_DEMO_CONFIG = AnalysisConfig(
-    missing_values=["", "N/A", "NULL"], preview_rows=20
-)
-DATE_COLUMNS = {
-    "date_naissance",
-    "date_debut",
-    "date_fin",
-    "date_creation",
-    "date_modification",
-    "date_reclamation",
+# Dataset facts of the demos shared with the former pandas engine.
+DEMO_FACTS = {
+    "basic": {
+        "row_count": 5,
+        "column_count": 6,
+        "cell_count": 30,
+        "missing_count": 2,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 0,
+        "duplicate_row_count": 1,
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 0,
+        "with_issues_column_count": 2,
+    },
+    "insurance-customers": {
+        "row_count": 3000,
+        "column_count": 34,
+        "cell_count": 102000,
+        "missing_count": 12532,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 129,
+        "duplicate_row_count": 8,
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 0,
+        "with_issues_column_count": 15,
+    },
 }
-SENSITIVE_COLUMNS = {"courriel", "telephone"}
-# Semantic types that differ from the pandas engine (``enum`` and ``date``
-# only), by column name.
-NEW_SEMANTIC_TYPES = {
-    "code_postal": "postal_code",
-    "courriel": "email",
-    "telephone": "phone",
-    # 440 present values: below the 500 values the enumeration detector
-    # needs, where the pandas engine counted 3,000 rows.
-    "reclamation_status": None,
+DUPLICATE_ROWS = {
+    "basic": [4],
+    "insurance-customers": [1521, 1814, 1999, 2064, 2268, 2527, 2543, 2627],
 }
 
 
 def _config(**scan) -> ReportConfig:
     return ReportConfig.model_validate({"scan": scan})
-
-
-def _profiles(demo: str):
-    source = EXAMPLES / "input" / f"{demo}.csv"
-    legacy = analyze_csv_file(source, LEGACY_DEMO_CONFIG)
-    report = analyze_csv(source, resolve_report_config([DEMO_CONFIG]))
-    assert report.format_revision == 4
-    assert report.source.sha256 == legacy.source.sha256
-    assert report.source.size_bytes == legacy.source.size_bytes
-    (current,) = report.datasets
-    return legacy, current
 
 
 def _dataset(source, config=None):
@@ -76,168 +72,20 @@ def _issues(profile) -> dict:
 
 
 @pytest.mark.parametrize("demo", ["basic", "insurance-customers"])
-def test_dataset_facts_match_the_pandas_engine(demo):
-    legacy, current = _profiles(demo)
+def test_demo_facts_are_those_of_the_former_engine(demo):
+    source = EXAMPLES / "input" / f"{demo}.csv"
 
-    for name in (
-        "row_count",
-        "column_count",
-        "cell_count",
-        "missing_count",
-        "missing_percent",
-        "trim_count",
-        "collapse_internal_whitespace_count",
-        "duplicate_row_count",
-        "empty_row_count",
-        "empty_column_count",
-        "constant_column_count",
-        "numeric_column_count",
-        "date_column_count",
-        "string_column_count",
-        "with_issues_column_count",
-    ):
-        assert getattr(current.summary, name) == getattr(legacy.summary, name), name
-    legacy_issues, current_issues = _issues(legacy), _issues(current)
-    for code in (
-        "duplicate_rows",
-        "missing_values",
-        "empty_columns",
-        "trimmed_cells",
-        "collapsed_whitespace",
-        "constant_columns",
-        "ambiguous_headers",
-    ):
-        assert (code in current_issues) == (code in legacy_issues), code
-        if code in legacy_issues:
-            assert (
-                current_issues[code].model_dump() == legacy_issues[code].model_dump()
-            ), code
-    # Date columns are no longer mixed: their ambiguity has its own issue.
-    def mixed(issues):
-        return issues["mixed_types"].column_ids if "mixed_types" in issues else []
+    _report, current = _dataset(source, resolve_report_config([DEMO_CONFIG]))
 
-    date_ids = {column.id for column in legacy.columns if column.name in DATE_COLUMNS}
-    assert mixed(current_issues) == [
-        column_id for column_id in mixed(legacy_issues) if column_id not in date_ids
-    ]
-    ambiguous = [
-        column
-        for column in current.columns
-        if column.date_profile and column.date_profile.ambiguous_count
-    ]
-    if ambiguous:
-        issue = current_issues["ambiguous_dates"]
-        assert issue.column_ids == [column.id for column in ambiguous]
-        assert issue.count == current.date_summary.ambiguous_count
-    else:
-        assert "ambiguous_dates" not in current_issues
-
-
-@pytest.mark.parametrize("demo", ["basic", "insurance-customers"])
-def test_column_facts_match_the_pandas_engine(demo):
-    legacy, current = _profiles(demo)
-
-    for old, new in zip(legacy.columns, current.columns, strict=True):
-        name = old.name
-        assert (new.id, new.name, new.position) == (old.id, old.name, old.position)
-        assert new.missing_count == old.missing_count, name
-        assert new.missing_percent == old.missing_percent, name
-        assert new.normalization.model_dump() == old.normalization.model_dump(), name
-        assert new.distinct_count == old.distinct_count, name
-        assert new.with_issues == old.with_issues, name
-        if name in DATE_COLUMNS:
-            assert (old.inferred_type, new.inferred_type) == ("mixed", "date")
-        else:
-            assert new.inferred_type == old.inferred_type, name
-            assert new.type_counts == old.type_counts, name
-            assert new.type_error_count == old.type_error_count, name
-        expected_semantic = NEW_SEMANTIC_TYPES.get(
-            name, "enumeration" if old.semantic_type == "enum" else old.semantic_type
-        )
-        assert new.semantic_type == expected_semantic, name
-        assert new.exposure == ("mask" if name in SENSITIVE_COLUMNS else None), name
-
-        if old.numeric is None:
-            assert new.numeric is None, name
-        else:
-            for measure in ("minimum", "maximum", "range", "mean", "median"):
-                assert getattr(new.numeric, measure) == pytest.approx(
-                    getattr(old.numeric, measure), rel=1e-12
-                ), (name, measure)
-
-        assert (new.string_profile is None) == (old.string_profile is None), name
-        if old.string_profile is not None:
-            old_strings, new_strings = old.string_profile, new.string_profile
-            for measure in (
-                "status",
-                "present_count",
-                "minimum_length",
-                "maximum_length",
-                "mean_length",
-                "median_length",
-                "distinct_length_count",
-                "fixed_length",
-            ):
-                assert getattr(new_strings, measure) == getattr(
-                    old_strings, measure
-                ), (name, measure)
-            assert [
-                (item.length, item.count, item.percent, item.relative_percent)
-                for item in new_strings.length_distribution
-            ] == [
-                (item.length, item.count, item.percent, item.relative_percent)
-                for item in old_strings.length_distribution
-            ], name
-
-        assert (new.date_profile is None) == (old.date_profile is None), name
-        if old.date_profile is not None:
-            old_dates, new_dates = old.date_profile, new.date_profile
-            for measure in (
-                "status",
-                "present_count",
-                "valid_count",
-                "ambiguous_count",
-                "invalid_date_count",
-                "not_date_count",
-                "format_count",
-            ):
-                assert getattr(new_dates, measure) == getattr(old_dates, measure), (
-                    name,
-                    measure,
-                )
-            assert [item.model_dump() for item in new_dates.formats] == [
-                item.model_dump() for item in old_dates.formats
-            ], name
-            # Neither demo has one-sided evidence, so the pandas engine did not
-            # resolve anything either.
-            assert old_dates.ambiguous_order_source is None
-
-        if old.value_profile.selection == "complete" and name not in SENSITIVE_COLUMNS:
-            assert new.value_profile.model_dump() == old.value_profile.model_dump(), name
-            assert new.examples == old.examples, name
-
-
-@pytest.mark.parametrize("demo", ["basic", "insurance-customers"])
-def test_preview_matches_except_masked_values(demo):
-    legacy, current = _profiles(demo)
-    sensitive = [
-        column.position - 1
-        for column in current.columns
-        if column.exposure == "mask"
-    ]
-
-    assert [row.row_number for row in current.preview] == [
-        row.row_number for row in legacy.preview
-    ]
-    for old, new in zip(legacy.preview, current.preview, strict=True):
-        for index, (old_value, new_value) in enumerate(
-            zip(old.values, new.values, strict=True)
-        ):
-            if index in sensitive and old_value:
-                assert new_value != old_value
-                assert len(new_value) == len(old_value)
-            else:
-                assert new_value == old_value
+    summary = current.summary.model_dump()
+    assert {name: summary[name] for name in DEMO_FACTS[demo]} == DEMO_FACTS[demo]
+    assert current.summary.duplicate_row_status == "complete"
+    issue = _issues(current)["duplicate_rows"]
+    assert (issue.count, issue.row_numbers) == (
+        DEMO_FACTS[demo]["duplicate_row_count"],
+        DUPLICATE_ROWS[demo],
+    )
+    assert len(current.preview) == min(20, DEMO_FACTS[demo]["row_count"])
 
 
 # Decisions of lot 5a -----------------------------------------------------------
@@ -393,11 +241,3 @@ def test_explicit_csv_options_win_over_the_top_level_check(tmp_path):
     config = resolve_report_config([shared], separator=";")
 
     assert config.scan.csv.delimiter == ";"
-
-
-def test_legacy_analysis_config_is_rejected_clearly(tmp_path):
-    source = write_text(tmp_path, "data.csv", "a\n1\n")
-
-    with pytest.raises(TypeError, match="ReportConfig"):
-        analyze_csv(source, AnalysisConfig())
-

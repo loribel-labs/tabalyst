@@ -21,6 +21,7 @@ from tabalyst.scanner.observations import (
     RecordExcluded,
     StreamItem,
 )
+from tabalyst.scanner.records import RecordContext
 from tabalyst.scanner.structure import DatasetState
 from tabalyst.scanner.values import ValueContext
 
@@ -48,6 +49,7 @@ class ScanEngine:
             config.values.null_markers, config.values.null_markers_case_sensitive
         )
         self.values = ValueContext(config, detectors)
+        self.records = RecordContext(config, self.strings)
         self.diagnostics = DiagnosticCollector(config.errors.max_locations)
         self.datasets: dict[str, DatasetState] = {}
         self.records_analyzed = 0
@@ -70,6 +72,7 @@ class ScanEngine:
                     item.fields,
                     max_fields=self.config.limits.max_fields,
                     values=self.values,
+                    records=self.records,
                 )
                 if item.container is not None:
                     holder, path = item.container
@@ -137,6 +140,18 @@ class ScanEngine:
                 "released and their table-based measures are limited with reason "
                 "global_budget. Raise limits.max_tracked_values to keep them.",
                 count=budget.released,
+            )
+        records = self.records.budget
+        if records.untracked:
+            self.diagnostics.add(
+                "record_budget",
+                "warning",
+                f"More than {limits.max_tracked_records} distinct records were "
+                "stored for duplicate detection: later records were compared "
+                "with the stored ones only, so duplicate counts are lower "
+                "bounds with reason record_budget. Raise "
+                "limits.max_tracked_records to count them exactly.",
+                count=records.untracked,
             )
         for result in results:
             limited = [

@@ -39,6 +39,7 @@ from tabalyst.scanner.paths import (
     format_relative,
     path_to_json,
 )
+from tabalyst.scanner.records import RecordContext, RecordFacts
 from tabalyst.scanner.values import ValueContext, no_values
 
 
@@ -66,6 +67,7 @@ class DatasetState:
         "paths_limited",
         "record_count",
         "record_types",
+        "records",
         "untracked_max_depth",
         "untracked_observations",
         "values",
@@ -80,6 +82,7 @@ class DatasetState:
         *,
         max_fields: int,
         values: ValueContext,
+        records: RecordContext,
     ) -> None:
         self.id = dataset_id
         self.kind = kind
@@ -87,6 +90,7 @@ class DatasetState:
         self.max_fields = max_fields
         self.record_count = 0
         self.record_types: Counter[str] = Counter()
+        self.records = RecordFacts(records)
         # Fields whose arrays hold the records of another dataset.
         self.collections: dict[FieldPath, str] = {}
         self.paths_limited = False
@@ -124,6 +128,7 @@ class DatasetState:
                     observation.path, values.discover()
                 )
             state.observe(observation, index, strings, values)
+        self.records.add(record)
         if record.depth_truncated:
             self.depth_truncated += record.depth_truncated
             if self.depth_limit_location is None:
@@ -152,6 +157,10 @@ class DatasetState:
                 ids[path] = f"f{sequence}"
 
         fields = [self._field(state, ids, config, diagnostics) for state in listed]
+        exposures = {
+            state.path: field.exposure
+            for state, field in zip(listed, fields, strict=True)
+        }
         tracked = len(self.fields) - 1
         max_depth_seen = max(
             (len(path) for path, state in self.fields.items() if state.occurrences),
@@ -183,6 +192,7 @@ class DatasetState:
                 depth_truncated_observations=self.depth_truncated,
                 max_depth_seen=max(max_depth_seen, self.untracked_max_depth),
             ),
+            records=self.records.finalize(ids, exposures),
             fields=fields,
         )
 

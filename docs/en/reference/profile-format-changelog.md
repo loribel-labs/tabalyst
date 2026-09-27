@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 4
+  "format_revision": 5
 }
 ```
 
@@ -90,3 +90,20 @@ The report reads JSON files and lists the detectors of each column.
 - In JSON datasets, a column is a field holding scalar values, named by its
   path; absent fields count as missing, and `cell_count` counts the places a
   value could be.
+
+## Revision 5 - 2026-09-28
+
+The report can be built from a scan document, whose records block now holds
+the preview and the duplicate rows.
+
+- New `summary.duplicate_row_status`: `complete`, `limited` when more distinct
+  rows than `scan.limits.max_tracked_records` were read, in which case
+  `duplicate_row_count` is a lower bound, or `disabled` when
+  `scan.records.duplicates` is `false`, in which case `duplicate_row_count` is
+  `null`.
+- The `duplicate_rows` issue message ends with `at least` when the count is a
+  lower bound.
+- The preview size moved from `config.preview_rows` to
+  `config.scan.records.preview`.
+- For a report built from a scan document, `processing_seconds` is the time
+  to read the document and build the profile.

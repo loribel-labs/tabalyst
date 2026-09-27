@@ -12,7 +12,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `4`.
+format `0.1.0a`, revision `5`.
 
 ## Example
 
@@ -21,7 +21,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 4,
+  "format_revision": 5,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -104,9 +104,9 @@ A shortened profile for a five-row `orders.csv`:
 | `format_version` | string | Format family, `"0.1.0a"` during the alpha |
 | `format_revision` | integer | Revision within the family, increased for each structural or semantic change |
 | `generated_at` | string | UTC date and time of the analysis (ISO 8601) |
-| `processing_seconds` | number | Scan and profile time, in seconds |
+| `processing_seconds` | number | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the time to read the document and build the profile, the scan's own duration being in the document |
 | `source` | object | The analyzed file (see below) |
-| `config` | object | The effective settings, after merging defaults, the configuration files and command options: `preview_rows`, `string_analysis`, `value_examples` and `scan`, the complete scan configuration. See the [configuration](configuration.md) |
+| `config` | object | The effective settings, after merging defaults, the configuration files and command options: `string_analysis`, `value_examples` and `scan`, the complete scan configuration; for a report built from a scan document, `scan` is the configuration recorded in it. See the [configuration](configuration.md) |
 | `datasets` | array | One profile per dataset of the file (see below) |
 
 ## `source`
@@ -154,6 +154,10 @@ Counts over the whole dataset:
 - normalization: `trim_count`, `collapse_internal_whitespace_count`;
 - structure: `duplicate_row_count`, `empty_row_count`, `empty_column_count`,
   `constant_column_count`, `with_issues_column_count`;
+- `duplicate_row_status`: `complete`; `limited` when more distinct rows than
+  `scan.limits.max_tracked_records` were read, `duplicate_row_count` then
+  being a lower bound; or `disabled` when `scan.records.duplicates` is
+  `false`, `duplicate_row_count` then being `null`;
 - column families: `numeric_column_count`, `date_column_count`,
   `string_column_count`;
 - type distributions: `inferred_type_counts`, `inferred_type_percents`,
@@ -236,8 +240,8 @@ and `collapsed_whitespace`, which are always listed.
 
 ## `preview`
 
-The first records of the dataset (10 by default, set by `preview_rows` in the
-[configuration](configuration.md)), each with its `row_number` and raw `values`
+The first records of the dataset (10 by default, set by `scan.records.preview`
+in the [configuration](configuration.md)), each with its `row_number` and raw `values`
 in column order. The preview size does not affect the analysis, which always
 reads every record. In sensitive columns, values are masked (`mask`) or `null`
 (`hide`), as given by the column's `exposure`; missing cells stay as read.

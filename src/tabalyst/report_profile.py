@@ -1,16 +1,15 @@
-"""Report profile built from a Tabalyst Scan result (profile revision 3).
+"""Report profile built from a Tabalyst Scan result (profile revision 5).
 
-The scan analyzes the columns. ``RowFacts`` collects, in the same pass, the
-record-level facts a scan does not keep: the preview, duplicate rows, empty
-rows and rows with missing values. ``build_profile`` turns both into the
-profile that ``reporting.py`` renders. No pandas and no file access here.
+``build_profile`` turns a scan result, fresh or read back from a scan
+document, into the profile that ``reporting.py`` renders: the columns come
+from the scan fields, the preview, duplicate, empty and incomplete rows from
+the records block of each dataset. No file access here.
 
 The report presents the scan: it never resolves an ambiguity the scan left
 open (design 12.6). Ambiguous dates stay ambiguous, with the evidence of the
 column shown beside them.
 """
 
-import hashlib
 import math
 import random
 import re
@@ -43,23 +42,17 @@ from tabalyst.models import (
     ValueProfile,
 )
 from tabalyst.report_config import ReportConfig
-from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.engine import has_limited_measure
-from tabalyst.scanner.exposure import mask
-from tabalyst.scanner.field import StringClassifier
-from tabalyst.scanner.measures import canonical_text
 from tabalyst.scanner.models import (
-    ColumnSegment,
     DatasetResult,
     DetectorComplete,
     DetectorFailed,
     FieldResult,
-    KeySegment,
+    Limited,
+    Records,
     ScanResult,
     ValueCount,
 )
-from tabalyst.scanner.observations import Record
-from tabalyst.scanner.paths import ITEMS, Column, FieldPath, Key
 
 # Row numbers listed by an issue.
 LISTED_ROWS = 10
@@ -137,136 +130,6 @@ def select_diverse_values(values: list[str], limit: int) -> list[str]:
         selected.append(next_index)
         remaining.remove(next_index)
     return [values[index] for index in selected]
-
-
-# Record-level facts ---------------------------------------------------------
-
-
-class DatasetRows:
-    """Record-level facts of one dataset, collected while the scan reads it.
-
-    Values are the scalar observations of a record: every cell of a CSV row,
-    every string, number, boolean or null of a JSON record. They are missing
-    under the scan's definition (``scan.values``); a JSON field absent from a
-    record is not a value of that record. Duplicate records compare every
-    observation through a 128-bit BLAKE2b digest of the record, one digest per
-    distinct record; lot 5c bounds this state with a budget.
-    """
-
-    __slots__ = (
-        "_facts",
-        "_seen",
-        "duplicate_count",
-        "duplicate_rows",
-        "empty_row_count",
-        "preview",
-        "rows_with_missing",
-    )
-
-    def __init__(self, facts: "RowFacts") -> None:
-        self._facts = facts
-        self._seen: set[bytes] = set()
-        # Observed scalar values of the first records, per path.
-        self.preview: list[tuple[int, dict[FieldPath, list[tuple[str, str]]]]] = []
-        self.duplicate_count = 0
-        self.duplicate_rows: list[int] = []
-        self.rows_with_missing: list[int] = []
-        self.empty_row_count = 0
-
-    def add(self, record: Record) -> None:
-        facts = self._facts
-        index = record.index
-        values: dict[FieldPath, list[tuple[str, str]]] = {}
-        missing = scalars = 0
-        for observation in record.observations:
-            native = observation.type
-            if native in CONTAINER_TYPES:
-                continue
-            if native == "null":
-                text = "null"
-                missing += facts.null_missing
-            elif native == "string":
-                text = observation.value
-                missing += facts.is_missing(text)
-            else:
-                text = canonical_text(native, observation.value)
-            scalars += 1
-            values.setdefault(observation.path, []).append((native, text))
-        if len(self.preview) < facts.preview_rows:
-            self.preview.append((index, values))
-        if missing:
-            if len(self.rows_with_missing) < LISTED_ROWS:
-                self.rows_with_missing.append(index)
-            if missing == scalars:
-                self.empty_row_count += 1
-        key = [(observation.path, observation.type, observation.value)
-               for observation in record.observations]
-        digest = hashlib.blake2b(
-            repr(key).encode("utf-8", "surrogatepass"), digest_size=16
-        ).digest()
-        if digest in self._seen:
-            self.duplicate_count += 1
-            if len(self.duplicate_rows) < LISTED_ROWS:
-                self.duplicate_rows.append(index)
-        else:
-            self._seen.add(digest)
-
-
-class RowFacts:
-    """Record-level facts of every dataset, collected while the scan reads.
-
-    Pass an instance as the ``on_record`` callback of ``scan()``; the facts of
-    a dataset are ``rows.datasets[dataset_id]``.
-    """
-
-    __slots__ = (
-        "_blank_missing",
-        "_empty_missing",
-        "_marker_missing",
-        "_strings",
-        "datasets",
-        "null_missing",
-        "preview_rows",
-    )
-
-    def __init__(self, config: ScanConfig, preview_rows: int) -> None:
-        values = config.values
-        self._strings = StringClassifier(
-            values.null_markers, values.null_markers_case_sensitive
-        )
-        self._empty_missing = "empty" in values.missing
-        self._blank_missing = "blank" in values.missing
-        self._marker_missing = "marker" in values.missing
-        self.null_missing = "null" in values.missing
-        self.preview_rows = preview_rows
-        self.datasets: dict[str, DatasetRows] = {}
-
-    def category(self, value: str) -> str:
-        """The string category of design section 7."""
-        if not value:
-            return "empty"
-        if value.isspace():
-            return "blank"
-        if self._strings.has_markers and self._strings.is_marker(value):
-            return "marker"
-        return "content"
-
-    def is_missing(self, value: str) -> bool:
-        if not value:
-            return self._empty_missing
-        if value.isspace():
-            return self._blank_missing
-        return (
-            self._marker_missing
-            and self._strings.has_markers
-            and self._strings.is_marker(value)
-        )
-
-    def __call__(self, record: Record) -> None:
-        rows = self.datasets.get(record.dataset)
-        if rows is None:
-            rows = self.datasets[record.dataset] = DatasetRows(self)
-        rows.add(record)
 
 
 # Columns --------------------------------------------------------------------
@@ -694,51 +557,30 @@ def build_column(
     )
 
 
-def _field_path(field: FieldResult) -> FieldPath:
-    """The observation path of a scan field."""
-    path: list = []
-    for segment in field.path:
-        if isinstance(segment, KeySegment):
-            path.append(Key(segment.key))
-        elif isinstance(segment, ColumnSegment):
-            path.append(Column(segment.column))
-        else:
-            path.append(ITEMS)
-    return tuple(path)
-
-
-def _preview(
-    rows: DatasetRows, fields: list[FieldResult], facts: RowFacts
-) -> list[PreviewRow]:
-    """Raw preview rows; values of sensitive columns go through their
-    exposure, as in the scan (design 12.8). A JSON value absent from the
-    record is null; the values of an items path are joined."""
-    paths = [_field_path(field) for field in fields]
-    exposures = [field.exposure for field in fields]
+def _preview(records: Records, fields: list[FieldResult]) -> list[PreviewRow]:
+    """Preview rows of the scan, already exposed (design 12.8). A JSON value
+    absent from the record is null; the values of an items path are joined;
+    a JSON null is the text ``null``."""
     preview = []
-    for row_number, observed in rows.preview:
+    for record in records.preview:
         exposed: list[str | None] = []
         absent = []
-        for position, (path, exposure) in enumerate(zip(paths, exposures, strict=True)):
-            values = observed.get(path)
-            if values is None:
+        for position, field in enumerate(fields):
+            if field.id not in record.values:
                 absent.append(position)
                 exposed.append(None)
                 continue
-            texts = []
-            for native, text in values:
-                if (
-                    exposure in (None, "show")
-                    or native == "null"
-                    or (native == "string" and facts.category(text) != "content")
-                ):
-                    texts.append(text)
-                elif exposure == "mask":
-                    texts.append(mask(text))
-            # A hidden value hides the whole cell.
-            hidden = len(texts) < len(values)
-            exposed.append(None if hidden else PREVIEW_SEPARATOR.join(texts))
-        preview.append(PreviewRow(row_number=row_number, values=exposed, absent=absent))
+            texts = record.values[field.id]
+            exposed.append(
+                None
+                if texts is None
+                else PREVIEW_SEPARATOR.join(
+                    "null" if text is None else text for text in texts
+                )
+            )
+        preview.append(
+            PreviewRow(row_number=record.record, values=exposed, absent=absent)
+        )
     return preview
 
 
@@ -757,11 +599,9 @@ def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResul
     ]
 
 
-def build_profile(
-    result: ScanResult, rows: RowFacts, config: ReportConfig
-) -> ReportProfile:
-    """The report profile of a scan and its record-level facts: one dataset
-    per scan dataset holding at least one column."""
+def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
+    """The report profile of a scan: one dataset per scan dataset holding at
+    least one column. ``config.scan`` must be the configuration of the scan."""
     csv = result.source.csv
     if csv is not None:
         width = len(csv.header)
@@ -786,8 +626,6 @@ def build_profile(
                     result,
                     dataset,
                     fields,
-                    rows.datasets.get(dataset.id) or DatasetRows(rows),
-                    rows,
                     config,
                 )
             )
@@ -812,8 +650,6 @@ def build_dataset(
     result: ScanResult,
     dataset: DatasetResult,
     fields: list[FieldResult],
-    dataset_rows: DatasetRows,
-    facts: RowFacts,
     config: ReportConfig,
 ) -> DatasetProfile:
     csv = result.source.csv
@@ -884,18 +720,30 @@ def build_dataset(
         sum(diagnostic.count for diagnostic in exclusions),
         rows=sorted(excluded_rows),
     )
+    records = dataset.records
+    duplicates = records.duplicates
+    if isinstance(duplicates.count, Limited):
+        duplicate_status = "limited"
+        duplicate_count = duplicates.count.lower_bound or 0
+    elif duplicates.count.status == "complete":
+        duplicate_status = "complete"
+        duplicate_count = duplicates.count.value
+    else:
+        duplicate_status = "disabled"
+        duplicate_count = None
     add_issue(
         "duplicate_rows",
-        "Duplicate rows beyond their first occurrence",
-        dataset_rows.duplicate_count,
-        rows=dataset_rows.duplicate_rows,
+        "Duplicate rows beyond their first occurrence"
+        + (", at least" if duplicate_status == "limited" else ""),
+        duplicate_count,
+        rows=duplicates.records,
     )
     add_issue(
         "missing_values",
         "Missing cells",
         missing_count,
         [column.id for column in columns if column.missing_count],
-        dataset_rows.rows_with_missing,
+        records.with_missing.records,
     )
     add_issue("empty_columns", "Columns without any present values", len(empty), empty)
     add_issue(
@@ -969,8 +817,9 @@ def build_dataset(
             missing_percent=percent(missing_count, cell_count),
             trim_count=trim_count,
             collapse_internal_whitespace_count=collapse_count,
-            duplicate_row_count=dataset_rows.duplicate_count,
-            empty_row_count=dataset_rows.empty_row_count,
+            duplicate_row_count=duplicate_count,
+            duplicate_row_status=duplicate_status,
+            empty_row_count=records.empty.count,
             empty_column_count=len(empty),
             constant_column_count=len(constant),
             with_issues_column_count=sum(column.with_issues for column in columns),
@@ -1018,5 +867,5 @@ def build_dataset(
         ),
         columns=columns,
         issues=issues,
-        preview=_preview(dataset_rows, fields, facts),
+        preview=_preview(records, fields),
     )

@@ -1,5 +1,25 @@
 # Development progress
 
+## 2026-09-28
+
+- Scan reuse, streaming duplicates and pandas removal (Tabalyst Scan lot 5c):
+  every scan dataset has a `records` block (scan format revision 2) with
+  records with missing values, empty records, duplicate records and a
+  preview through the exposure gate. Duplicates are bounded by the new
+  `scan.limits.max_tracked_records` budget (2,000,000 by default); beyond it
+  the count is a proven lower bound with reason `record_budget`, shown as
+  `≥ N` in the report. `tabalyst report --scan data.scan.json` (and
+  `generate_reports(from_scan=True)`, `analyze_scan()`) builds the report
+  from a scan document without reading the source, and refuses a stale scan:
+  a source beside it that changed (size, then SHA-256 when its modification
+  time changed) or `--config` scan settings that differ from the document's;
+  a source not beside the document is reported as not checked.
+  Profile format revision 5 adds `summary.duplicate_row_status`;
+  `preview_rows` moved to `scan.records.preview`. After gate 5, the pandas
+  engine (`analysis.py`, `ingestion.py`, `legacy_models.py`), its settings
+  classes, `analyze_column`, `AnalysisConfig`, the parity tests, the
+  `pandas-engine` benchmark task and the pandas dependency were removed.
+
 ## 2026-09-27
 
 - French documentation for lots 5a and 5b (lot 5a-fr): configuration, glossary

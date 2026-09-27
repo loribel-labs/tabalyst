@@ -1,4 +1,4 @@
-"""Tabalyst Scan: streaming analysis engine, beside the current pandas engine.
+"""Tabalyst Scan: the streaming analysis engine of Tabalyst.
 
 The contract is ``docs/dev/scan/design.md``. The public entry points are
 ``tabalyst.scan()``, ``tabalyst.generate_scans()`` and the ``tabalyst scan``

@@ -10,7 +10,7 @@ fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 1
+  "format_revision": 2
 }
 ```
 
@@ -22,6 +22,19 @@ structural or semantic change. It does not change for performance improvements,
 documentation or corrections that keep the contract.
 
 Alpha revisions may be incompatible. No automatic migration is provided.
+`tabalyst report --scan` reads the current revision only: scan the source
+again to report on an older document.
+
+## Revision 2
+
+- Each dataset gains `records`: records with missing values, empty records,
+  duplicate records and a preview of the first records, sensitive values
+  exposed as in the rest of the document.
+- Duplicate records are counted within the budget of the new
+  `limits.max_tracked_records` setting; beyond it, the count is a lower bound
+  with reason `record_budget`, and a `record_budget` warning is reported.
+- New settings in `config`: `records.preview`, `records.duplicates`,
+  `limits.max_tracked_records` and `limits.max_listed_records`.
 
 ## Revision 1
 

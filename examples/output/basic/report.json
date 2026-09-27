@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 4,
-  "generated_at": "2026-09-27T22:05:51.828156Z",
-  "processing_seconds": 0.0036,
+  "format_revision": 5,
+  "generated_at": "2026-09-27T23:37:38.257176Z",
+  "processing_seconds": 0.005,
   "source": {
     "filename": "basic.csv",
     "format": "csv",
@@ -12,7 +12,6 @@
     "delimiter": ","
   },
   "config": {
-    "preview_rows": 20,
     "string_analysis": {
       "very_short_max_length": 5,
       "short_max_length": 20,
@@ -76,7 +75,13 @@
         "max_samples": 100,
         "max_variant_groups": 100,
         "max_variants_per_group": 20,
-        "max_evidence_examples": 10
+        "max_evidence_examples": 10,
+        "max_tracked_records": 2000000,
+        "max_listed_records": 10
+      },
+      "records": {
+        "preview": 20,
+        "duplicates": true
       },
       "types": {
         "minimum_confidence": 0.95
@@ -229,6 +234,7 @@
         "trim_count": 0,
         "collapse_internal_whitespace_count": 0,
         "duplicate_row_count": 1,
+        "duplicate_row_status": "complete",
         "empty_row_count": 0,
         "empty_column_count": 0,
         "constant_column_count": 0,
