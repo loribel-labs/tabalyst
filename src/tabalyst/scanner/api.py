@@ -10,6 +10,11 @@ from tabalyst._version import __version__
 from tabalyst.errors import InputError
 from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
 from tabalyst.scanner.config import ScanConfig, config_sha256
+from tabalyst.scanner.detectors.registry import (
+    DetectorRegistry,
+    DetectorSet,
+    default_registry,
+)
 from tabalyst.scanner.engine import ScanEngine
 from tabalyst.scanner.models import (
     CollectionScope,
@@ -52,13 +57,13 @@ def scan(
     source: str | Path,
     *,
     config: ScanConfig | None = None,
-    registry=None,
+    registry: DetectorRegistry | None = None,
     on_progress: ProgressCallback | None = None,
 ) -> ScanResult:
     """Read one source completely and return its finalized scan result.
 
     Nothing is written. ``registry`` replaces the default detector registry
-    once detectors exist (lot 3a).
+    (design 12.1).
     """
     path = Path(source)
     # A private copy: the finalized result must not share state with the caller.
@@ -74,7 +79,10 @@ def scan(
 
     emit_progress(on_progress, path, ProgressPhase.READING)
     reader = _open_reader(path, config)
-    engine = ScanEngine(config)
+    detectors = DetectorSet(
+        default_registry() if registry is None else registry, config
+    )
+    engine = ScanEngine(config, detectors)
     engine.consume(reader)
     datasets = engine.finalize()
     summary = reader.summary()
@@ -84,7 +92,7 @@ def scan(
         engine=EngineInfo(
             version=__version__,
             normalization_version=NORMALIZATION_VERSION,
-            detectors={},
+            detectors=detectors.versions(),
         ),
         status="partial" if excluded else "complete",
         started_at=started_at,

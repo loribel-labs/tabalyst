@@ -15,9 +15,9 @@ regenerated, documentation consistent with what is released.
 | 1a | Engine core and CSV reader | Done | Opus 5.5 | High | `scan/phase-1` |
 | 1b | JSON reader, collections and structural limits | Done | Opus 5.5 | High | `scan/phase-1` |
 | 2a | Values, frequencies, limits and statistics | Done | Sonnet 5 | High | `scan/phase-2` |
-| 2b | Normalization version 1 and variant groups | Next | Sonnet 5 | High | `scan/phase-2` |
-| 3a | Detector framework, technical type, ported detectors | Planned | Opus 5.5 | High | `scan/phase-3` |
-| 3b | Priority 1 catalogue, patterns, sensitive values | Planned | Sonnet 5 | Medium | `scan/phase-3` |
+| 2b | Normalization version 1 and variant groups | Done | Sonnet 5 | High | `scan/phase-2` |
+| 3a | Detector framework, technical type, ported detectors | Done | Opus 5.5 | High | `scan/phase-3` |
+| 3b | Priority 1 catalogue, patterns, sensitive values | In progress | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Planned | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Planned | Sonnet 5 | Low | `scan/phase-4` |
 | 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
@@ -150,6 +150,7 @@ benchmarks.md.
 - Stages, change counters that continue after table release, stage
   cardinalities, variant groups.
 - Done when: `tests/scan/test_scan_normalization.py` passes.
+- Done on 2026-09-26; contract changes recorded in design section 17.
 
 ### Lot 3a: detector framework, technical type, ported detectors
 
@@ -163,6 +164,8 @@ benchmarks.md.
   date-times and times, English and French month names), textual booleans,
   enumeration candidates.
 - Done when: `tests/scan/test_scan_detectors.py` passes. Then gate 3.
+- Done on 2026-09-26; contract changes recorded in design section 17. The
+  items to validate at gate 3 are listed in the lot 3a notes.
 
 ### Lot 3b: priority 1 catalogue, patterns, sensitive values
 
@@ -173,6 +176,10 @@ benchmarks.md.
   worktrees: email and URL; phone (CA, US, FR); postal codes (CA, US ZIP);
   currency and percentage; UUID and IP addresses.
 - Each detector adds its own positive, negative, variant and overlap tests.
+- First session done on 2026-09-26: `detectors.md`, pattern detector and
+  exposure gate; `tests/scan/test_scan_patterns.py` passes. Contract changes
+  recorded in design section 17. The catalogue families remain; see the lot
+  3b notes.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -271,6 +278,98 @@ done, and anything the next lot must know.
     counters should be facts too, so they continue after release.
   - `measures_limited` looks at `values.cardinality` and `numeric`; add the
     normalization envelopes when they exist.
+- Lot 2b, for later lots:
+  - Facts now carry the normalization changes and the output of every stage
+    (`measures.Facts`, positions `CHANGES` and `FORMS`; the streaming cache
+    drops the stage outputs). Detectors of lot 3a receive the
+    analytical value; stage outputs are available if a detector needs the
+    comparison key.
+  - Variant groups hold raw values: lot 3b must pass them through the
+    exposure gate of sensitive fields (design 12.8).
+  - `measures_limited` now also looks at `normalization.variant_groups`.
+  - Stage cardinalities of a complete table reuse the previous count when a
+    stage changed nothing, and only build sets from changed strings; variant
+    groups are built from changed strings only.
+- Lot 3a, for gate 3 (the maintainer validates or amends; design 9.7,
+  12 and 12.10):
+  - Numbers: the strict rule wins, so `1.234` is 1.234 and never ambiguous,
+    while `1,234` is ambiguous between `dot` (1234) and `comma` (1.234);
+    `12,5`, `1.234,5` and `1 234` match one reading. Formats use
+    spreadsheet notation (`0`, `0.0`, `0E0`, `#,##0.0`, `0,0`). Risk found
+    in review: European thousands such as `1.500` (1500) are silently read
+    as 1.5, even beside comma evidence such as `12.500,50`. The alternative
+    is to make a strict decimal with exactly three decimals ambiguous when
+    the comma convention is enabled, which changes lot 2a results for such
+    values.
+  - Dates: numeric dates of the current engine, ISO date-times and times,
+    English and French month names; `ambiguity.count` includes values
+    resolved by configuration, `coverage.ambiguous` only unresolved ones.
+  - Technical type: families from the number and date detectors, textual
+    booleans limited to `true`/`false`; a date column with several formats
+    is `date` (the current engine says `mixed`, lot 5a decides);
+    `confidence` is `null` for `empty`, `outside_count` `null` for `mixed`.
+  - Boolean pairs by default `true/false`, `yes/no`, `y/n`, `oui/non`,
+    `vrai/faux`, as an interpretation only.
+  - Enumeration is a field-level detector: all values match or none; it
+    counts eligible values, not rows, and overlaps other interpretations.
+  - Every registered detector is listed per field (`complete`,
+    `not_applicable`, `disabled`, `failed`); failures keep the exception type
+    only; evidence has four keys.
+- Lot 3a, for lot 3b:
+  - Detectors live in `scanner/detectors/`: `base.py` (contract,
+    `AmbiguityAccumulator`), `registry.py` (`DetectorRegistry`,
+    `DetectorSet`, `DetectorTally`), `shape.py`, one module per built-in.
+    `DetectorSet.classify` runs every active detector on each distinct value
+    and returns one entry per detector; facts carry it at position
+    `CLASSIFICATIONS`, the technical family at `FAMILY`.
+  - The pattern detector can declare `max_input_length` (values above it are
+    `not_tested`) and `shapes`. Pattern ids must not collide with the
+    built-in ids `number`, `date`, `boolean`, `enumeration`.
+  - Evidence examples, the `enumeration` accumulator and boolean details hold
+    analytical values: the exposure gate must cover `detectors[].evidence`
+    and any value-bearing `details`.
+- Lot 3a, open points found in review:
+  - Detectors added with `registry.register()` cannot be configured or
+    disabled: `DetectorSettings` rejects unknown ids (O13). To settle with
+    patterns (3b) or plugins (7), for example a `detectors.<id>` mapping
+    validated against the registry.
+  - `DetectorSet` finds the number and date detectors by id, and the
+    `temporal` block through the date accumulator's `temporal()` method: a
+    replacement `date` detector without it gives `temporal: disabled`. A
+    declared capability would remove the special case.
+- Lot 3b, first session, for the catalogue sessions:
+  - Write the family's entries in `detectors.md` first (template at its top),
+    then one module per detector in `scanner/detectors/`, added to
+    `BUILT_INS` in `registry.py` and with a settings class in
+    `DetectorSettings` (`config.py`) when it has parameters. Parallel sessions
+    touch the same two lists: merge conflicts there are expected and trivial.
+  - Tests go to `tests/test_scanner_<family>.py` (positive, negative, variant
+    and overlap values, and exposure for sensitive detectors); there is no
+    catalogue contract test file.
+  - Declare `shapes` and `max_input_length`: the per-value cost of lot 3a is
+    already a concern (lot 3a note for lot 6).
+  - `details(gate)` receives the exposure gate: pass any value it carries
+    through `gate.value`, `gate.counts` or `gate.examples`.
+  - Enabling a detector by default adds an entry to every field and to
+    `engine.detectors`; check the demos still regenerate.
+- Lot 3b, for the maintainer (decided in the first session, design 12.8):
+  a failed sensitive detector makes its field sensitive; under `mask`,
+  listings describe the masked values (equal masks merge before ranking and
+  sampling, `frequencies.distinct` counts masks, variant groups merge by
+  masked key); under `hide`, listings are empty and `first` and `last` are
+  `null`. Found in review: under `mask` and `hide`, `numeric` and `temporal`
+  of a sensitive field are `disabled`, since their minimum, maximum, median
+  or date range are values.
+- Lot 3b, still open: the O13 point of lot 3a (detectors added with
+  `register()` cannot be configured) is not needed by patterns, which have
+  their own `patterns` section; it stays for the catalogue or lot 7.
+- Lot 3a, for lot 5a: the number detector extends the numeric population of
+  string fields (decimal commas, grouped thousands), as in the `amount_fr`
+  column of the benchmark file; the demos have no such column. The date
+  fields of `insurance-customers` hold ambiguous numeric dates, so their date
+  detector share stays below 0.95 and they have no primary interpretation,
+  while their technical type is `date`: the report must decide how to show
+  that ambiguity (design 12.6).
 - Lot 2a, still open with the `max_value_length` question of gate 1: `first`
   and `last` keep whole values, even beyond `max_stored_value_length`.
 - Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows
@@ -282,6 +381,19 @@ done, and anything the next lot must know.
   facts of high-cardinality columns (characteristics, analytical value, number
   parsing). The global budget finds the largest table by scanning the fields,
   O(fields) per release.
+- Lot 2b, for lot 6: indicative measure, not a benchmark row: the 100,000
+  rows of `synthetic-100k.csv` in about 4.3 s, against 4.15 s after lot 2a.
+  Most of the added work is `casefold` and `strip_accents` per distinct value;
+  `strip_accents` calls `unicodedata.category` per character, a candidate for
+  a fast path.
+- Lot 3a, for lot 6: indicative measure, not a benchmark row: the 100,000
+  rows of `synthetic-100k.csv` in about 7.4 s, against 4.6 s before lot 3a on
+  the same machine. About 990,000 distinct values are classified by four
+  detectors; the costs are the per-value loop of `DetectorSet.classify`, the
+  number detector on digit-leading values (phones, IP addresses, amounts),
+  `Decimal` parsing, and one `DetectorTally.add` per detector and distinct
+  value. Candidates: dispatch by first character, skipping detectors a
+  cheap check rules out, and batching tallies.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.
