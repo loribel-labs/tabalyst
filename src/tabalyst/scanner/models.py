@@ -11,7 +11,7 @@ from typing import Annotated, Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
-from tabalyst.scanner.config import MissingCategory, ScanConfig
+from tabalyst.scanner.config import MissingCategory, ScalarType, ScanConfig
 from tabalyst.scanner.observations import DatasetKind, NativeType
 
 T = TypeVar("T")
@@ -131,8 +131,89 @@ class ArrayStats(ScanModel):
     total_items: int
 
 
+class ValueCount(ScanModel):
+    """An analytical value in its canonical text, with its native type."""
+
+    value: str
+    type: ScalarType
+    count: int
+
+
+class ValueAt(ScanModel):
+    value: str
+    type: ScalarType
+    record: int
+
+
+class Frequencies(ScanModel):
+    distinct: int
+    listed: list[ValueCount]
+    truncated: bool
+
+
+class Samples(ScanModel):
+    selection: Literal["all", "uniform_distinct", "first_seen"]
+    listed: list[ValueCount]
+
+
 class FieldValues(ScanModel):
     count: int
+    cardinality: IntMeasure
+    frequencies: measure(Frequencies)
+    samples: Samples
+    first: ValueAt | None
+    last: ValueAt | None
+
+
+class StringCharacteristics(ScanModel):
+    non_ascii: int
+    with_line_breaks: int
+    with_control_characters: int
+    with_surrounding_whitespace: int
+    with_repeated_whitespace: int
+    uppercase: int
+    lowercase: int
+    mixed_case: int
+    no_letters: int
+
+
+class LengthCount(ScanModel):
+    length: int
+    count: int
+
+
+class StringLengths(ScanModel):
+    count: int
+    min_length: int
+    max_length: int
+    mean_length: int | float
+    median_length: int | float
+    length_histogram: list[LengthCount]
+
+
+Number = int | float
+
+
+class NumericStats(ScanModel):
+    count: int
+    native_count: int
+    text_count: int
+    min: Number
+    max: Number
+    sum: Number
+    mean: Number
+    population_variance: Number
+    population_std: Number
+    positive: int
+    negative: int
+    zero: int
+    integral_decimals: int
+    median: measure(Number)
+
+
+class BooleanCounts(ScanModel):
+    true: int
+    false: int
 
 
 class FieldResult(ScanModel):
@@ -150,6 +231,10 @@ class FieldResult(ScanModel):
     missing: Missing
     arrays: ArrayStats | None
     values: FieldValues
+    string_characteristics: StringCharacteristics
+    string_lengths: measure(StringLengths)
+    numeric: measure(NumericStats)
+    booleans: measure(BooleanCounts)
 
 
 # Datasets and scan ----------------------------------------------------------

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import io
 import json
+import re
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
@@ -68,6 +69,27 @@ _EXCLUSIONS = {
 }
 # Parser failures of both backends; other exceptions are bugs, not bad input.
 _PARSE_ERRORS = (ijson.JSONError, json.JSONDecodeError, UnicodeDecodeError)
+_SURROGATE = re.compile(r"[\ud800-\udfff]")
+
+
+def _reject_surrogates(
+    events: Iterable[tuple[str, object]],
+) -> Iterator[tuple[str, object]]:
+    """Reject strings holding a lone surrogate escape, such as ``"\\ud800"``.
+
+    Such a string is not valid Unicode and cannot be written as UTF-8 (I-JSON,
+    RFC 7493). The pure-Python backend keeps the surrogate; the compiled
+    backend already rejects lone low surrogates, but replaces a lone high
+    surrogate with ``?`` before Tabalyst sees it.
+    """
+    for event, value in events:
+        if (
+            (event == "string" or event == "map_key")
+            and not value.isascii()
+            and _SURROGATE.search(value)
+        ):
+            raise ijson.JSONError("a string contains a lone surrogate escape")
+        yield event, value
 
 
 def _native(event: str, value: object) -> tuple[NativeType, object]:
@@ -193,6 +215,8 @@ class JsonReader:
             if bom:
                 buffered.read(len(UTF8_BOM))
             events = BACKEND.basic_parse(buffered, use_float=False)
+            if BACKEND.backend_name != "yajl2_c":
+                events = _reject_surrogates(events)
             try:
                 yield from self._walk(events)
             except InputError:

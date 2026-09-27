@@ -373,8 +373,28 @@ def test_invalid_collection_selections_are_rejected(collections):
 
 @pytest.mark.parametrize(
     "content",
-    [b"", b"  ", b'["\xff"]', b'"\xed\xa0\x80"', b"[NaN]", b"[1] [2]", b'"a\x00b"'],
-    ids=["empty", "blank", "utf8", "surrogate", "nan", "trailing", "control"],
+    [
+        b"",
+        b"  ",
+        b'["\xff"]',
+        b'"\xed\xa0\x80"',
+        b'["a\\udc00b"]',
+        b'{"\\udc00": 1}',
+        b"[NaN]",
+        b"[1] [2]",
+        b'"a\x00b"',
+    ],
+    ids=[
+        "empty",
+        "blank",
+        "utf8",
+        "surrogate",
+        "lone_surrogate_escape",
+        "lone_surrogate_key",
+        "nan",
+        "trailing",
+        "control",
+    ],
 )
 @pytest.mark.parametrize("backend", ["yajl2_c", "python"])
 def test_unreadable_json_is_an_input_error(tmp_path, monkeypatch, content, backend):
@@ -524,3 +544,41 @@ def test_compiled_and_python_backends_give_the_same_result(tmp_path, monkeypatch
     for result in (compiled, python):
         del result["started_at"], result["duration_seconds"]
     assert python == compiled
+
+
+@pytest.mark.lot("2a")
+def test_lone_high_surrogate_is_rejected_by_the_python_backend(tmp_path, monkeypatch):
+    """Strings that are not valid Unicode are rejected, never altered.
+
+    The compiled backend replaces a lone high surrogate with ``?`` before
+    Tabalyst sees it, a documented limitation of that backend.
+    """
+    import ijson
+
+    from tabalyst.scanner.readers import json_reader
+
+    monkeypatch.setattr(json_reader, "BACKEND", ijson.get_backend("python"))
+    source = tmp_path / "bad.json"
+    source.write_bytes(b'[{"name": "a\\ud800"}]')
+
+    with pytest.raises(InputError, match="lone surrogate"):
+        run_scan(source)
+
+
+@pytest.mark.lot("2a")
+def test_valid_surrogate_pairs_give_the_same_value_in_both_backends(
+    tmp_path, monkeypatch
+):
+    import ijson
+
+    from tabalyst.scanner.readers import json_reader
+
+    source = tmp_path / "emoji.json"
+    source.write_bytes(b'[{"name": "\\ud83d\\ude00"}]')
+
+    compiled = field(dataset(run_scan(source), "$[]"), "name")
+    monkeypatch.setattr(json_reader, "BACKEND", ijson.get_backend("python"))
+    python = field(dataset(run_scan(source), "$[]"), "name")
+
+    assert compiled["values"]["first"]["value"] == "\U0001f600"
+    assert python["values"] == compiled["values"]
