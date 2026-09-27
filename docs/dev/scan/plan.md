@@ -186,8 +186,11 @@ benchmarks.md.
   and US, `fr`), enabled by default; `tests/test_scanner_phone.py`.
 - Postal code family done on 2026-09-27: `postal_code` built-in (regions
   `ca` and `us`), enabled by default, not sensitive;
-  `tests/test_scanner_postal.py`. Remaining families: currency and
-  percentage; UUID and IP addresses.
+  `tests/test_scanner_postal.py`.
+- Currency and percentage family done on 2026-09-27, extended to generic
+  quantities (`10 Go`, `1 024 Mo`) at the maintainer's request: `currency`,
+  `percentage` and `quantity` built-ins, enabled by default, not sensitive;
+  `tests/test_scanner_amounts.py`. Remaining family: UUID and IP addresses.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -432,6 +435,36 @@ done, and anything the next lot must know.
     truncated values are `not_matched`. The demo `code_postal` column has 21
     truncated or shortened codes (`T3A 95`, `J1 5M4`), `not_matched`, and its
     double spaces are collapsed by the analytical value.
+- Lot 3b, currency and percentage session, for the other catalogue sessions
+  and the maintainer:
+  - Three detectors share `detectors/amount.py`: the number part is read by
+    a `NumberDetector` built from each detector's own `conventions` and
+    `ambiguous_convention` (independent of `detectors.number`), with the sign
+    outside the number part and no exponent. An amount-shaped part that
+    `number` rejects is `invalid` (`invalid_amount`, `invalid_number`),
+    except digits only (`01 m`, `01A`, `05%`), which are `not_matched` like
+    the digits-only rule of `phone`; a number part needs a digit, so `.com`
+    is not a quantity (both found in review). Inherited risk of gate 3:
+    `1.234 €` is 1.234, never ambiguous.
+  - A marker is required: a bare number is never a currency amount,
+    percentage or quantity, so the three never overlap `number`, nor each
+    other (currency codes and ordinals are not units).
+  - For the maintainer: currency codes are a fixed ISO 4217 list (current
+    codes plus `ANG`, `BGN`, `HRK`, `SLL`, `ZWL`), to update when ISO
+    replaces a currency; a configurable `codes` setting is an option.
+    Accounting negatives in parentheses (`($1,234.56)`) are accepted.
+  - `quantity` is generic, as decided with the maintainer: any one-token unit
+    of letters, `°`, `²`, `³`, `/` and `·`, kept as written (`Mo` and `mo`
+    differ). Formats use the placeholder `[unit]` so they stay bounded;
+    units are a counted names block, through the exposure gate. `12 ans`,
+    `3 pommes` and codes such as `12B` or `2A` are quantities. Known units grouped by dimension (data size,
+    length, mass, time) are left to a later catalogue wave (lot 7).
+  - The field's `numeric` block does not include amounts, percentages or
+    quantities (design 9.4); lot 5a decides whether the report needs them.
+  - Cost: `classify` of the three detectors over the 988,148 distinct values
+    of the 100,000-row benchmark file takes about 0.57 s in total; the whole
+    scan is about 7 to 15% slower (noisy), mostly the per-detector tally work
+    of the lot 3a note for lot 6. No value of the insurance demo matches.
 - Lot 3b, still open: the O13 point of lot 3a (detectors added with
   `register()` cannot be configured) is not needed by patterns, which have
   their own `patterns` section; it stays for the catalogue or lot 7.

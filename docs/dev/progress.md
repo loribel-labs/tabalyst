@@ -2,6 +2,16 @@
 
 ## 2026-09-27
 
+- Added the Tabalyst Scan `currency`, `percentage` and `quantity` detectors
+  (lot 3b, currency and percentage family, extended to generic quantities):
+  amounts with a currency symbol or ISO 4217 code before or after the number
+  (`$1,234.56`, `12,50 €`, `USD 12`, accounting parentheses), percentages
+  (`12,5 %`) and a number followed by any unit (`10 Go`, `1 024 Mo`,
+  `90 km/h`). The number part follows the number detector's conventions and
+  ambiguity; formats such as `$#,##0.0` and `# ##0 [unit]`; currency counts
+  per marker and counted units in `details`. Not sensitive. No value of the
+  insurance demo matches; the 100,000-row benchmark file scans about 7 to
+  15% slower.
 - Added the Tabalyst Scan `postal_code` detector (lot 3b, postal code
   family): Canadian postal codes (`ca`, with or without the space, ignoring
   case) and United States ZIP and ZIP+4 codes (`us`), format templates such
