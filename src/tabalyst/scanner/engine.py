@@ -12,14 +12,26 @@ from collections.abc import Iterable
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.field import StringClassifier
-from tabalyst.scanner.models import DatasetResult
+from tabalyst.scanner.models import DatasetResult, FieldResult
 from tabalyst.scanner.observations import (
     DatasetOpened,
+    Notice,
     Record,
     RecordExcluded,
     StreamItem,
 )
 from tabalyst.scanner.structure import DatasetState
+from tabalyst.scanner.values import ValueContext
+
+# Fields named in the message of a ``measures_limited`` warning.
+LISTED_LIMITED_FIELDS = 10
+
+
+def _has_limited_measure(field: FieldResult) -> bool:
+    return any(
+        measure.status == "limited"
+        for measure in (field.values.cardinality, field.numeric)
+    )
 
 
 class ScanEngine:
@@ -27,6 +39,9 @@ class ScanEngine:
         self.config = config
         self.strings = StringClassifier(
             config.values.null_markers, config.values.null_markers_case_sensitive
+        )
+        self.values = ValueContext(
+            config.limits, config.normalization, config.random_seed
         )
         self.diagnostics = DiagnosticCollector(config.errors.max_locations)
         self.datasets: dict[str, DatasetState] = {}
@@ -44,8 +59,16 @@ class ScanEngine:
                 if item.dataset in datasets:
                     raise RuntimeError(f"Dataset {item.dataset!r} opened twice")
                 datasets[item.dataset] = DatasetState(
-                    item.dataset, item.kind, item.collection_path, item.fields
+                    item.dataset,
+                    item.kind,
+                    item.collection_path,
+                    item.fields,
+                    max_fields=self.config.limits.max_fields,
+                    values=self.values,
                 )
+                if item.container is not None:
+                    holder, path = item.container
+                    datasets[holder].collections[path] = item.dataset
             elif type(item) is RecordExcluded:
                 self.exclusions[item.reason] += 1
                 self.diagnostics.add(
@@ -55,6 +78,14 @@ class ScanEngine:
                     dataset=item.dataset,
                     location=item.location.to_dict(),
                 )
+            elif type(item) is Notice:
+                self.diagnostics.add(
+                    item.code,
+                    item.level,
+                    item.message,
+                    dataset=item.dataset,
+                    location=None if item.location is None else item.location.to_dict(),
+                )
             else:
                 raise TypeError(f"Unknown stream item: {item!r}")
 
@@ -63,4 +94,56 @@ class ScanEngine:
         return self.exclusions.total()
 
     def finalize(self) -> list[DatasetResult]:
-        return [state.finalize(self.config) for state in self.datasets.values()]
+        results = [state.finalize(self.config) for state in self.datasets.values()]
+        limits = self.config.limits
+        for state in self.datasets.values():
+            if state.paths_limited:
+                self.diagnostics.add(
+                    "field_limit",
+                    "warning",
+                    f"More than {limits.max_fields} field paths: later paths are "
+                    "not tracked and their observations are counted in "
+                    "structure.untracked_observations. Raise limits.max_fields "
+                    "to track them.",
+                    dataset=state.id,
+                    location=state.field_limit_location,
+                )
+            if state.depth_truncated:
+                self.diagnostics.add(
+                    "depth_limit",
+                    "warning",
+                    f"Content deeper than {limits.max_depth} levels was not "
+                    "analyzed and is counted in "
+                    "structure.depth_truncated_observations. Raise "
+                    "limits.max_depth to analyze it.",
+                    dataset=state.id,
+                    location=state.depth_limit_location,
+                )
+        budget = self.values.budget
+        if budget.released:
+            self.diagnostics.add(
+                "global_budget",
+                "warning",
+                f"More than {limits.max_tracked_values} distinct values were "
+                "stored for the whole scan: the largest frequency tables were "
+                "released and their table-based measures are limited with reason "
+                "global_budget. Raise limits.max_tracked_values to keep them.",
+                count=budget.released,
+            )
+        for result in results:
+            limited = [
+                field.display for field in result.fields if _has_limited_measure(field)
+            ]
+            if limited:
+                named = ", ".join(limited[:LISTED_LIMITED_FIELDS])
+                if len(limited) > LISTED_LIMITED_FIELDS:
+                    named += f" and {len(limited) - LISTED_LIMITED_FIELDS} more"
+                self.diagnostics.add(
+                    "measures_limited",
+                    "warning",
+                    f"Some measures of {len(limited)} field(s) are limited: "
+                    f"{named}. The status of each measure gives its reason.",
+                    dataset=result.id,
+                    count=len(limited),
+                )
+        return results
