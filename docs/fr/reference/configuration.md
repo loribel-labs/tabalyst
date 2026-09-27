@@ -9,15 +9,16 @@ en charge. Les commandes chargent les fichiers passés avec `--config`, et l’A
 Python ceux passés avec `config_path` ; aucun fichier n’est chargé
 automatiquement. `tabalyst.json` n’est qu’un nom conventionnel.
 
-Un seul fichier peut configurer toutes les commandes. Les paramètres de
-`tabalyst report` et `tabalyst sample` sont au premier niveau ; les paramètres
-de `tabalyst scan` sont dans l’objet `scan`, décrit dans
-[Paramètres d’analyse](#scan-settings) :
+Un seul fichier peut configurer toutes les commandes. L’objet `scan` contient
+les paramètres d’analyse, lus par `tabalyst scan` et `tabalyst report`, décrits
+dans [Paramètres d’analyse](#scan-settings). Le premier niveau contient les
+paramètres de présentation du rapport et les paramètres CSV de
+`tabalyst sample` :
 
 ```json
 {
-  "csv": {"delimiter": ";"},
   "preview_rows": 20,
+  "csv": {"delimiter": ";"},
   "scan": {
     "csv": {"delimiter": ";"},
     "values": {"null_markers": ["N/A"]}
@@ -30,110 +31,14 @@ n’utilise pas : un paramètre mal orthographié ou inconnu est donc toujours u
 erreur. Les valeurs explicites de la ligne de commande, comme `--delimiter` et
 `--encoding`, ont le dernier mot.
 
-## CSV et aperçu
+## Paramètres du rapport
+
+Le rapport repose sur Tabalyst Scan : il lit le CSV et l’analyse avec les
+paramètres `scan`, puis présente le résultat avec les paramètres ci-dessous.
 
 ```json
 {
-  "csv": {
-    "encoding": "utf-8-sig",
-    "delimiter": ","
-  },
-  "missing_values": [""],
-  "preview_rows": 10
-}
-```
-
-- `csv.encoding` : encodage du fichier source. La valeur par défaut accepte
-  l’UTF-8 avec ou sans BOM ; `cp1252` est utile pour certains fichiers produits
-  sous Windows.
-- `csv.delimiter` : séparateur d’un seul caractère, la virgule par défaut.
-- `missing_values` : chaînes traitées comme des valeurs manquantes après
-  suppression des espaces en début et en fin. Les comparaisons restent sensibles
-  à la casse.
-- `preview_rows` : nombre de lignes brutes intégrées au rapport, de 0 à 100. Ce
-  paramètre ne limite jamais l’analyse du CSV complet.
-
-## Normalisation des valeurs
-
-```json
-{
-  "normalization": {
-    "trim": true,
-    "collapse_internal_whitespace": true
-  }
-}
-```
-
-- `trim` : supprime les espaces Unicode en début et en fin avant l’analyse.
-- `collapse_internal_whitespace` : remplace chaque suite interne d’espaces
-  horizontaux, y compris les tabulations et les espaces insécables, par un seul
-  espace ordinaire. Les sauts de ligne sont conservés.
-
-La normalisation influe sur l’inférence de type, les valeurs distinctes, les
-occurrences, les exemples et la détection `enum`. Les valeurs CSV brutes restent
-disponibles dans l’aperçu des données, et les lignes exactement dupliquées sont
-toujours comparées sur les valeurs brutes. Chaque colonne enregistre le nombre
-et le pourcentage de cellules modifiées par chaque opération ; le résumé du jeu
-de données enregistre aussi les deux comptages globaux. Une cellule modifiée par
-les deux opérations compte dans les deux comptages, mais jamais plus d’une fois
-pour la même opération.
-
-## Détection des dates
-
-```json
-{
-  "date_detection": {
-    "enabled": true,
-    "orders": ["YMD", "MDY", "DMY"],
-    "separators": ["-", "/", "."],
-    "ambiguous_order": null
-  }
-}
-```
-
-- `enabled` : active ou désactive le profilage strict des dates.
-- `orders` : ordres des composantes acceptés. Les années doivent avoir quatre
-  chiffres ; les mois et les jours peuvent en avoir un ou deux.
-- `separators` : séparateurs d’un seul caractère acceptés. Chaque valeur doit
-  utiliser le même séparateur entre les deux paires de composantes.
-- `ambiguous_order` : résout éventuellement les valeurs comme `02/03/2025` en
-  `MDY` ou en `DMY`. Avec `null`, Tabalyst ne les résout que lorsque la même
-  colonne contient des preuves non ambiguës pour un ordre et aucune pour
-  l’autre.
-
-Chaque structure reconnue est validée par rapport au calendrier, y compris les
-années bissextiles. Les profils comptent séparément les valeurs valides,
-ambiguës, invalides et non dates, puis regroupent les occurrences valides par
-ordre et par séparateur. `YYYY-MM-DD` est explicitement marqué comme ISO ; les
-autres séparateurs utilisant `YMD` restent valides mais ne sont pas étiquetés
-ISO. Un texte quelconque n’est pas traité comme une erreur de date.
-
-## Inférence de type
-
-```json
-{
-  "type_inference": {
-    "minimum_confidence": 0.95
-  }
-}
-```
-
-`minimum_confidence` est la proportion de valeurs présentes qui doivent
-concorder pour qu’une colonne reçoive un type physique dominant. Les valeurs
-hors de ce type sont conservées comme erreurs, avec un nombre et un
-pourcentage. Une colonne sans famille dominante reste `mixed` et n’a pas de taux
-d’erreur trompeur. Les statistiques numériques n’utilisent que les valeurs
-numériques acceptées.
-
-Une colonne de dates avec un seul format valide a le type physique `date`.
-Plusieurs formats de date valides donnent `mixed` avec le type sémantique
-`date` ; les dates mal formées et les dates ambiguës non résolues contribuent
-au taux d’erreur de type.
-
-## Analyse des textes
-
-```json
-{
+  "preview_rows": 10,
   "string_analysis": {
     "very_short_max_length": 5,
     "short_max_length": 20,
@@ -141,53 +46,55 @@ au taux d’erreur de type.
     "long_max_length": 255,
     "length_distribution_max_length": 50,
     "examples_per_length": 10
-  }
-}
-```
-
-Les valeurs normalisées présentes dans les colonnes de type physique `text` sont
-classées d’après leur longueur maximale en `very_short`, `short`, `medium`,
-`long` ou `very_long`. Une longueur fixe est enregistrée séparément lorsque le
-minimum et le maximum sont égaux. Les valeurs manquantes ne comptent pas dans
-les longueurs. La longueur moyenne et la longueur médiane sont calculées pour
-chaque colonne de texte ; le rapport les laisse vides lorsque la longueur fixe
-donne déjà la même information.
-
-Lorsque le maximum de la colonne ne dépasse pas
-`length_distribution_max_length`, le JSON contient aussi le nombre
-d’occurrences et de valeurs distinctes pour chaque longueur observée. Chaque
-longueur conserve jusqu’à `examples_per_length` valeurs distinctes normalisées,
-triées par nombre d’occurrences décroissant, puis par ordre alphabétique.
-`distinct_length_count` reste disponible pour chaque colonne de texte, y compris
-les colonnes dont la distribution est omise. Le rapport trie les groupes de
-longueurs par occurrences et affiche trois exemples conservés par longueur dans
-l’infobulle de la section String analysis.
-
-## Exemples et profils de valeurs
-
-```json
-{
+  },
   "value_examples": {
     "full_distribution_max_distinct": 50,
-    "candidate_sample_size": 100,
     "short_text_max_length": 20,
     "short_text_percentile": 0.95,
     "short_text_result_size": 20,
     "long_text_result_size": 20,
     "long_text_truncate_at": 30,
     "truncation_suffix": "...",
-    "inline_display_size": 3,
-    "random_seed": 42
+    "inline_display_size": 3
   }
 }
 ```
 
+### Aperçu
+
+`preview_rows` : nombre de lignes brutes intégrées au rapport, de 0 à 100. Ce
+paramètre ne limite jamais l’analyse du CSV complet. Les valeurs des colonnes
+sensibles sont masquées ou cachées dans l’aperçu comme dans le reste du rapport
+(voir
+[Comment le rapport utilise les paramètres d’analyse](#how-the-report-uses-the-scan-settings)).
+
+### Analyse des textes
+
+Les valeurs présentes dans les colonnes `text` sont classées d’après leur
+longueur maximale en `very_short`, `short`, `medium`, `long` ou `very_long`.
+Une longueur fixe est enregistrée séparément lorsque le minimum et le maximum
+sont égaux. Les valeurs manquantes ne comptent pas dans les longueurs. La
+longueur moyenne et la longueur médiane sont calculées pour chaque colonne de
+texte ; le rapport les laisse vides lorsque la longueur fixe donne déjà la même
+information.
+
+Lorsque le maximum de la colonne ne dépasse pas
+`length_distribution_max_length`, le JSON contient aussi le nombre exact
+d’occurrences de chaque longueur observée. Chaque longueur liste jusqu’à
+`examples_per_length` valeurs d’exemple, prises parmi les valeurs les plus
+fréquentes de la colonne, puis parmi ses valeurs échantillonnées.
+`distinct_length_count` reste disponible pour chaque colonne de texte, y compris
+les colonnes dont la distribution est omise. Le rapport trie les groupes de
+longueurs par occurrences et affiche trois exemples par longueur dans
+l’infobulle de la section String analysis.
+
+### Exemples et profils de valeurs
+
 - `full_distribution_max_distinct` : jusqu’à cette limite, chaque valeur
-  distincte non manquante et son nombre d’occurrences sont conservés dans le
-  JSON. À `50`, la distribution est encore complète ; à `51`, Tabalyst
-  échantillonne les valeurs.
-- `candidate_sample_size` : nombre maximal de valeurs distinctes échantillonnées
-  de façon reproductible avant la sélection finale.
+  distincte présente et son nombre d’occurrences sont conservés dans le JSON.
+  À `50`, la distribution est encore complète ; à `51`, Tabalyst choisit les
+  valeurs parmi un échantillon reproductible des valeurs distinctes, dont la
+  taille est `scan.limits.max_samples` et la graine `scan.random_seed`.
 - `short_text_max_length` et `short_text_percentile` : une colonne est
   considérée comme du texte court lorsque ce centile de ses longueurs
   échantillonnées ne dépasse pas la longueur configurée.
@@ -201,47 +108,97 @@ l’infobulle de la section String analysis.
 - `inline_display_size` : nombre de valeurs affichées directement dans la
   cellule `Examples`. Ce sont toujours les valeurs conservées les plus
   fréquentes.
-- `random_seed` : graine d’échantillonnage, qui rend le JSON et les rapports
-  reproductibles pour le même CSV et la même configuration.
 
 La cellule `Examples` affiche `+N` pour une distribution complète. Pour un
 profil échantillonné, elle affiche `++` ; l’infobulle affiche alors par exemple
 `20 / 2,992`, c’est-à-dire valeurs conservées / valeurs distinctes réelles. Les
-valeurs de l’infobulle sont triées par nombre d’occurrences décroissant.
+valeurs de l’infobulle sont triées par nombre d’occurrences décroissant. Pour
+une colonne sensible, la cellule affiche à la place `masked` ou `hidden`, et
+l’infobulle liste les valeurs masquées.
 
-## Candidats enum
+<a id="how-the-report-uses-the-scan-settings"></a>
+
+### Comment le rapport utilise les paramètres d’analyse
+
+| Comportement du rapport | Paramètres d’analyse |
+| --- | --- |
+| Lecture du CSV | `scan.csv`, `--delimiter`, `--encoding` |
+| Cellules manquantes | `scan.values` : `null_markers`, `null_markers_case_sensitive` et `missing` |
+| Comptages de normalisation et valeurs distinctes | `scan.normalization` : `nfc`, `trim`, `collapse_whitespace` |
+| Types inférés | `scan.types.minimum_confidence`, avec les détecteurs `number` et `date` |
+| Analyse des dates | `scan.detectors.date` |
+| Types sémantiques | `scan.detection.minimum_share` et chaque détecteur |
+| Valeurs masquées | `scan.exposure.sensitive_values` |
+
+- **Dates.** Une colonne dont les valeurs présentes sont des dates est `date`,
+  même avec plusieurs formats ou des valeurs ambiguës. Les valeurs ambiguës
+  comme `02/03/2025` ne sont jamais résolues à partir des autres valeurs de la
+  colonne : le rapport les compte comme ambiguës, indique combien de valeurs non
+  ambiguës utilisent chaque ordre et, lorsqu’un seul ordre apparaît, suggère de
+  définir `scan.detectors.date.ambiguous_order`. L’anomalie `ambiguous_dates`
+  les compte.
+- **Types sémantiques.** `date` pour les colonnes de dates, sinon
+  l’interprétation principale de l’analyse : le seul détecteur qui reconnaît au
+  moins `scan.detection.minimum_share` des valeurs présentes, comme
+  `enumeration`, `email`, `phone` ou `postal_code`. `number` et `boolean` ne
+  sont pas répétés comme types sémantiques.
+- **Valeurs sensibles.** Les colonnes où un détecteur sensible est reconnu,
+  comme les adresses e-mail et les numéros de téléphone, sont masquées par
+  défaut dans les exemples, les profils de valeurs et l’aperçu :
+  `jane@example.com` devient `aaaa@aaaaaaa.aaa`. Réglez
+  `scan.exposure.sensitive_values` sur `show` pour conserver les valeurs, ou sur
+  `hide` pour les supprimer.
+- **Limites.** Lorsqu’une limite d’analyse arrête une mesure, comme les valeurs
+  distinctes d’une colonne qui en a plus de
+  `scan.limits.max_distinct_per_field`, le rapport affiche `limited` au lieu
+  d’un nombre et liste la colonne dans l’anomalie `limited_measures`.
+
+Le rapport lit les paramètres `scan.csv`, pas les paramètres `csv` du premier
+niveau. Lorsqu’un fichier définit les deux avec des valeurs différentes, le
+rapport s’arrête avec une erreur, car le fichier serait sinon lu avec des
+paramètres qu’il n’attend pas ; une valeur donnée avec `--delimiter` ou
+`--encoding` l’emporte toujours. Le rapport a aussi besoin de toutes les
+colonnes : un CSV plus large que `scan.limits.max_fields` est une erreur.
+
+### Paramètres déplacés dans `scan`
+
+Ces paramètres du premier niveau sont rejetés avec un message qui indique leur
+nouvel emplacement :
+
+| Ancien paramètre | Nouvel emplacement |
+| --- | --- |
+| `missing_values` | `scan.values.null_markers` pour des marqueurs comme `"N/A"` ; les cellules vides ou ne contenant que des espaces sont manquantes par défaut (`scan.values.missing`) |
+| `normalization.trim` | `scan.normalization.trim` |
+| `normalization.collapse_internal_whitespace` | `scan.normalization.collapse_whitespace` |
+| `date_detection` | `scan.detectors.date` |
+| `type_inference.minimum_confidence` | `scan.types.minimum_confidence` |
+| `enum_detection` | `scan.detectors.enumeration` : `maximum_distinct_values` devient `maximum_distinct`, et `minimum_row_count` devient `minimum_values`, qui compte les valeurs présentes, pas les lignes |
+| `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
+| `value_examples.random_seed` | `scan.random_seed` |
+
+## Paramètres de l’échantillonnage
 
 ```json
 {
-  "enum_detection": {
-    "enabled": true,
-    "minimum_row_count": 500,
-    "maximum_distinct_values": 49,
-    "eligible_types": ["text"],
-    "case_sensitive": true
+  "csv": {
+    "encoding": "utf-8-sig",
+    "delimiter": ","
   }
 }
 ```
 
-- `enabled` : active la classification sémantique facultative.
-- `minimum_row_count` : taille minimale du jeu de données avant qu’un candidat
-  `enum` soit proposé.
-- `maximum_distinct_values` : nombre maximal de valeurs non manquantes
-  observées. La valeur par défaut est `49`.
-- `eligible_types` : types physiques pouvant recevoir le marqueur ; la valeur
-  par défaut limite la détection aux colonnes `text`.
-- `case_sensitive` : décide si `Open` et `open` sont des valeurs distinctes.
-
-`enum` est une indication sémantique : son type physique reste `text`. Le
-rapport présente les types physiques et sémantiques dans des colonnes séparées,
-afin que chacun puisse être filtré directement.
+- `csv.encoding` : encodage du fichier source pour `tabalyst sample`. La valeur
+  par défaut accepte l’UTF-8 avec ou sans BOM ; `cp1252` est utile pour
+  certains fichiers produits sous Windows.
+- `csv.delimiter` : séparateur d’un seul caractère, la virgule par défaut.
 
 <a id="scan-settings"></a>
 
 ## Paramètres d’analyse
 
-`tabalyst scan` et `tabalyst.generate_scans()` lisent l’objet `scan` de chaque
-fichier de configuration. L’objet complet avec ses valeurs par défaut est :
+`tabalyst scan`, `tabalyst report` et leurs fonctions Python lisent l’objet
+`scan` de chaque fichier de configuration. L’objet complet avec ses valeurs par
+défaut est :
 
 ```json
 {
@@ -275,9 +232,9 @@ fichier de configuration. L’objet complet avec ses valeurs par défaut est :
 }
 ```
 
-L’analyse ne lit pas les paramètres `csv` du premier niveau : indiquez le
-séparateur et l’encodage dans `scan.csv`, ou passez `--delimiter` et
-`--encoding`.
+Les analyses et les rapports ne lisent pas les paramètres `csv` du premier
+niveau : indiquez le séparateur et l’encodage dans `scan.csv`, ou passez
+`--delimiter` et `--encoding`.
 
 ### Couches et règles de fusion
 
