@@ -31,8 +31,11 @@ Breaking changes are allowed and migration support is not required yet.
 
 ## Architecture
 
-- `src/tabalyst/analysis.py`: analysis logic without file or presentation concerns.
+- `src/tabalyst/report_profile.py`: report profile built from a Scan result,
+  without file or presentation concerns.
 - `src/tabalyst/models.py`: Pydantic models serialized to the experimental JSON profile.
+- `src/tabalyst/analysis.py`: the pandas engine, kept for the parity tests until
+  Scan lot 5c removes it.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision

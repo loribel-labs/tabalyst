@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from tabalyst.batch import path_key, plan_outputs, validate_outputs
-from tabalyst.config import resolve_config
 from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.execution_log import EXECUTION_LOG_NAME
 from tabalyst.progress import (
@@ -15,6 +14,7 @@ from tabalyst.progress import (
     ProgressPhase,
     emit_progress,
 )
+from tabalyst.report_config import resolve_report_config
 from tabalyst.service import ConfigPath, _analyze_resolved, _config_paths
 
 
@@ -122,7 +122,7 @@ def generate_reports(
         force=force,
     )
     config_paths = _config_paths(config_path)
-    config = resolve_config(
+    config = resolve_report_config(
         config_paths,
         separator=separator,
         encoding=encoding,
@@ -141,6 +141,8 @@ def generate_reports(
                         index=job_index,
                         total=total,
                         detail=event.detail,
+                        bytes_read=event.bytes_read,
+                        bytes_total=event.bytes_total,
                     )
                 )
 

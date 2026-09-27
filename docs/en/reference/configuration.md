@@ -9,14 +9,15 @@ the files passed with `--config`, and the Python API those passed with
 `config_path`; no file is loaded automatically. `tabalyst.json` is only a
 conventional name.
 
-One file can configure every command. The settings of `tabalyst report` and
-`tabalyst sample` are at the top level; the settings of `tabalyst scan` are in
-the `scan` object, described in [Scan settings](#scan-settings):
+One file can configure every command. The `scan` object holds the analysis
+settings, read by `tabalyst scan` and `tabalyst report`, described in
+[Scan settings](#scan-settings). The top level holds the presentation settings
+of the report and the CSV settings of `tabalyst sample`:
 
 ```json
 {
-  "csv": {"delimiter": ";"},
   "preview_rows": 20,
+  "csv": {"delimiter": ";"},
   "scan": {
     "csv": {"delimiter": ";"},
     "values": {"null_markers": ["N/A"]}
@@ -29,102 +30,14 @@ use, so a misspelled or unknown setting is always an error. Explicit
 command-line values, such as `--delimiter` and `--encoding`, are the final
 override.
 
-## CSV and preview
+## Report settings
+
+The report is built on Tabalyst Scan: it reads the CSV and analyzes it with the
+`scan` settings, then presents the result with the settings below.
 
 ```json
 {
-  "csv": {
-    "encoding": "utf-8-sig",
-    "delimiter": ","
-  },
-  "missing_values": [""],
-  "preview_rows": 10
-}
-```
-
-- `csv.encoding`: source-file encoding. The default accepts UTF-8 with or without
-  a BOM; `cp1252` is useful for some Windows-produced files.
-- `csv.delimiter`: single-character separator, a comma by default.
-- `missing_values`: strings treated as missing after surrounding whitespace is
-  stripped. Comparisons remain case-sensitive.
-- `preview_rows`: number of raw rows embedded in the report, from 0 to 100. It
-  never limits analysis of the complete CSV.
-
-## Value normalization
-
-```json
-{
-  "normalization": {
-    "trim": true,
-    "collapse_internal_whitespace": true
-  }
-}
-```
-
-- `trim`: removes leading and trailing Unicode whitespace before analysis.
-- `collapse_internal_whitespace`: replaces each internal run of horizontal
-  whitespace, including tabs and non-breaking spaces, with one ordinary space.
-  Line breaks are preserved.
-
-Normalization affects type inference, distinct values, occurrences, examples and
-`enum` detection. Raw CSV values remain available in the data preview, and exact
-duplicate rows still compare raw values. Each column records the number and
-percentage of cells changed by each operation; the dataset summary also records
-both global counts. A cell changed by both operations contributes to both counts,
-but never more than once to the same operation.
-
-## Date detection
-
-```json
-{
-  "date_detection": {
-    "enabled": true,
-    "orders": ["YMD", "MDY", "DMY"],
-    "separators": ["-", "/", "."],
-    "ambiguous_order": null
-  }
-}
-```
-
-- `enabled`: turns strict date profiling on or off.
-- `orders`: accepted component orders. Years must use four digits; months and days
-  may use one or two digits.
-- `separators`: accepted single-character separators. Each value must use the same
-  separator between both component pairs.
-- `ambiguous_order`: optionally resolves values such as `02/03/2025` as `MDY` or
-  `DMY`. With `null`, Tabalyst resolves them only when the same column contains
-  unambiguous evidence for one order and none for the other.
-
-Every recognized structure is validated against the calendar, including leap
-years. Profiles count valid, ambiguous, invalid and non-date values separately,
-then group valid occurrences by order and separator. `YYYY-MM-DD` is specifically
-marked as ISO; other separators using `YMD` remain valid but are not labeled ISO.
-Arbitrary text is not treated as a date error.
-
-## Type inference
-
-```json
-{
-  "type_inference": {
-    "minimum_confidence": 0.95
-  }
-}
-```
-
-`minimum_confidence` is the proportion of present values that must agree before a
-column receives a dominant physical type. Values outside that type are retained as
-errors with a count and percentage. A column with no dominant family remains
-`mixed` and has no misleading error rate. Numeric statistics use accepted numeric
-values only.
-
-A date column with one valid format has physical type `date`. Multiple valid date
-formats produce `mixed` with semantic type `date`; malformed and unresolved
-ambiguous dates contribute to the type error rate.
-
-## String analysis
-
-```json
-{
+  "preview_rows": 10,
   "string_analysis": {
     "very_short_max_length": 5,
     "short_max_length": 20,
@@ -132,49 +45,51 @@ ambiguous dates contribute to the type error rate.
     "long_max_length": 255,
     "length_distribution_max_length": 50,
     "examples_per_length": 10
-  }
-}
-```
-
-Present normalized values in physical `text` columns are classified from their
-maximum length as `very_short`, `short`, `medium`, `long` or `very_long`. A fixed
-length is recorded separately when minimum and maximum match. Missing values do
-not contribute to lengths. Mean and median length are calculated for every text
-column; the report leaves them blank when the fixed length already conveys the
-same information.
-
-When the column maximum is at most `length_distribution_max_length`, JSON also
-contains occurrence and distinct-value counts for every observed length. Each
-length retains up to `examples_per_length` normalized distinct values, ordered by
-descending occurrence and then alphabetically. `distinct_length_count` remains
-available for every text column, including columns whose distribution is omitted.
-The report orders length groups by occurrence and shows three retained examples
-per length in its String analysis tooltip.
-
-## Examples and value profiles
-
-```json
-{
+  },
   "value_examples": {
     "full_distribution_max_distinct": 50,
-    "candidate_sample_size": 100,
     "short_text_max_length": 20,
     "short_text_percentile": 0.95,
     "short_text_result_size": 20,
     "long_text_result_size": 20,
     "long_text_truncate_at": 30,
     "truncation_suffix": "...",
-    "inline_display_size": 3,
-    "random_seed": 42
+    "inline_display_size": 3
   }
 }
 ```
 
-- `full_distribution_max_distinct`: through this limit, every non-missing
-  distinct value and its occurrence count are retained in JSON. At `50`, the
-  distribution is still complete; at `51`, Tabalyst samples values.
-- `candidate_sample_size`: maximum number of distinct values reproducibly sampled
-  before final selection.
+### Preview
+
+`preview_rows`: number of raw rows embedded in the report, from 0 to 100. It
+never limits analysis of the complete CSV. Values of sensitive columns are
+masked or hidden in the preview as in the rest of the report (see
+[How the report uses the scan settings](#how-the-report-uses-the-scan-settings)).
+
+### String analysis
+
+Present values in `text` columns are classified from their maximum length as
+`very_short`, `short`, `medium`, `long` or `very_long`. A fixed length is
+recorded separately when minimum and maximum match. Missing values do not
+contribute to lengths. Mean and median length are calculated for every text
+column; the report leaves them blank when the fixed length already conveys the
+same information.
+
+When the column maximum is at most `length_distribution_max_length`, JSON also
+contains the exact occurrence count of every observed length. Each length lists
+up to `examples_per_length` example values, taken from the most frequent values
+of the column, then from its sampled values. `distinct_length_count` remains
+available for every text column, including columns whose distribution is
+omitted. The report orders length groups by occurrence and shows three examples
+per length in its String analysis tooltip.
+
+### Examples and value profiles
+
+- `full_distribution_max_distinct`: through this limit, every present distinct
+  value and its occurrence count are retained in JSON. At `50`, the
+  distribution is still complete; at `51`, Tabalyst selects values among a
+  reproducible sample of the distinct values, whose size is
+  `scan.limits.max_samples` and whose seed is `scan.random_seed`.
 - `short_text_max_length` and `short_text_percentile`: a column is considered
   short text when this percentile of its sampled lengths does not exceed the
   configured length.
@@ -186,43 +101,87 @@ per length in its String analysis tooltip.
   long-text values in both JSON and the report.
 - `inline_display_size`: number of values shown directly in the `Examples` cell.
   They are always the most frequent retained values.
-- `random_seed`: sampling seed, which makes JSON and reports reproducible for the
-  same CSV and configuration.
 
 The `Examples` cell shows `+N` for a complete distribution. For a sampled profile,
 it shows `++`; the tooltip then shows, for example, `20 / 2,992`, meaning retained
 values / actual distinct values. Tooltip values are sorted by descending occurrence
-count.
+count. For a sensitive column, the cell shows `masked` or `hidden` instead, and
+the tooltip lists masked values.
 
-## Enum candidates
+### How the report uses the scan settings
+
+| Report behavior | Scan settings |
+| --- | --- |
+| Reading the CSV | `scan.csv`, `--delimiter`, `--encoding` |
+| Missing cells | `scan.values`: `null_markers`, `null_markers_case_sensitive` and `missing` |
+| Normalization counts and distinct values | `scan.normalization`: `nfc`, `trim`, `collapse_whitespace` |
+| Inferred types | `scan.types.minimum_confidence`, with the `number` and `date` detectors |
+| Date analysis | `scan.detectors.date` |
+| Semantic types | `scan.detection.minimum_share` and every detector |
+| Masked values | `scan.exposure.sensitive_values` |
+
+- **Dates.** A column whose present values are dates is `date`, even with
+  several formats or ambiguous values. Ambiguous values such as `02/03/2025`
+  are never resolved from other values of the column: the report counts them
+  as ambiguous, shows how many unambiguous values use each order and, when only
+  one order appears, suggests setting `scan.detectors.date.ambiguous_order`.
+  The `ambiguous_dates` issue counts them.
+- **Semantic types.** `date` for date columns, otherwise the scan's primary
+  interpretation: the only detector matching at least
+  `scan.detection.minimum_share` of the present values, such as `enumeration`,
+  `email`, `phone` or `postal_code`. `number` and `boolean` are not repeated as
+  semantic types.
+- **Sensitive values.** Columns where a sensitive detector matches, such as
+  email addresses and phone numbers, are masked by default in examples, value
+  profiles and the preview: `jane@example.com` becomes `aaaa@aaaaaaa.aaa`. Set
+  `scan.exposure.sensitive_values` to `show` to keep the values, or `hide` to
+  remove them.
+- **Limits.** When a scan limit stops a measure, such as the distinct values
+  of a column with more than `scan.limits.max_distinct_per_field` of them, the
+  report shows `limited` instead of a number and lists the column in the
+  `limited_measures` issue.
+
+The report reads the `scan.csv` settings, not the top-level `csv` settings. When
+a file sets both with different values, the report stops with an error, since
+the file would otherwise be read with settings it does not expect; a value
+given with `--delimiter` or `--encoding` always wins. The report also needs
+every column: a CSV wider than `scan.limits.max_fields` is an error.
+
+### Settings moved to `scan`
+
+These top-level settings are rejected with a message naming their new location:
+
+| Former setting | New location |
+| --- | --- |
+| `missing_values` | `scan.values.null_markers` for markers such as `"N/A"`; empty and whitespace-only cells are missing by default (`scan.values.missing`) |
+| `normalization.trim` | `scan.normalization.trim` |
+| `normalization.collapse_internal_whitespace` | `scan.normalization.collapse_whitespace` |
+| `date_detection` | `scan.detectors.date` |
+| `type_inference.minimum_confidence` | `scan.types.minimum_confidence` |
+| `enum_detection` | `scan.detectors.enumeration`: `maximum_distinct_values` is `maximum_distinct`, and `minimum_row_count` is `minimum_values`, which counts present values, not rows |
+| `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
+| `value_examples.random_seed` | `scan.random_seed` |
+
+## Sample settings
 
 ```json
 {
-  "enum_detection": {
-    "enabled": true,
-    "minimum_row_count": 500,
-    "maximum_distinct_values": 49,
-    "eligible_types": ["text"],
-    "case_sensitive": true
+  "csv": {
+    "encoding": "utf-8-sig",
+    "delimiter": ","
   }
 }
 ```
 
-- `enabled`: turns on optional semantic classification.
-- `minimum_row_count`: minimum dataset size before an `enum` candidate is proposed.
-- `maximum_distinct_values`: maximum observed non-missing value count. The default
-  is `49`.
-- `eligible_types`: physical types that can receive the marker; the default limits
-  detection to `text` columns.
-- `case_sensitive`: decides whether `Open` and `open` are separate values.
-
-`enum` is a semantic hint: its physical type remains `text`. The report exposes
-physical and semantic types in separate columns so each can be filtered directly.
+- `csv.encoding`: source-file encoding for `tabalyst sample`. The default
+  accepts UTF-8 with or without a BOM; `cp1252` is useful for some
+  Windows-produced files.
+- `csv.delimiter`: single-character separator, a comma by default.
 
 ## Scan settings
 
-`tabalyst scan` and `tabalyst.generate_scans()` read the `scan` object of each
-configuration file. The complete object with its defaults is:
+`tabalyst scan`, `tabalyst report` and their Python functions read the `scan`
+object of each configuration file. The complete object with its defaults is:
 
 ```json
 {
@@ -256,8 +215,8 @@ configuration file. The complete object with its defaults is:
 }
 ```
 
-The scan does not read the top-level `csv` settings: set the delimiter and
-encoding in `scan.csv`, or pass `--delimiter` and `--encoding`.
+Scans and reports do not read the top-level `csv` settings: set the delimiter
+and encoding in `scan.csv`, or pass `--delimiter` and `--encoding`.
 
 ### Layers and merge rules
 

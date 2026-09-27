@@ -10,7 +10,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `2`.
+format `0.1.0a`, revision `3`.
 
 ## Example
 
@@ -19,7 +19,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 2,
+  "format_revision": 3,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -29,7 +29,7 @@ A shortened profile for a five-row `orders.csv`:
     "encoding": "utf-8-sig",
     "delimiter": ","
   },
-  "config": { "...": "effective configuration" },
+  "config": { "...": "effective report and scan settings" },
   "summary": {
     "row_count": 5,
     "column_count": 6,
@@ -80,14 +80,14 @@ A shortened profile for a five-row `orders.csv`:
 | `format_version` | string | Format family, `"0.1.0a"` during the alpha |
 | `format_revision` | integer | Revision within the family, increased for each structural or semantic change |
 | `generated_at` | string | UTC date and time of the analysis (ISO 8601) |
-| `processing_seconds` | number | CSV reading and analysis time, in seconds |
+| `processing_seconds` | number | CSV scan and profile time, in seconds |
 | `source` | object | The analyzed file (see below) |
-| `config` | object | The effective configuration, after merging defaults, the configuration file and command options. Same structure as the [configuration file](configuration.md) |
+| `config` | object | The effective settings, after merging defaults, the configuration files and command options: `preview_rows`, `string_analysis`, `value_examples` and `scan`, the complete scan configuration. See the [configuration](configuration.md) |
 | `summary` | object | Dataset-level counts (see below) |
 | `date_summary` | object or `null` | Dataset-level date counts, when at least one column contains date values |
 | `columns` | array | One profile per column, in file order |
 | `issues` | array | Detected problems (see below) |
-| `preview` | array | The first rows, with raw values |
+| `preview` | array | The first rows, with raw values; values of sensitive columns are masked or hidden |
 
 ## `source`
 
@@ -124,26 +124,26 @@ Each column profile always contains:
 | `id` | Stable identifier from the position, such as `column_3`. Use it rather than `name`, which can be blank or repeated |
 | `name` | Header text |
 | `position` | Position in the file, starting at 1 |
-| `inferred_type` | `empty`, `boolean`, `integer`, `number`, `date`, `text` or `mixed` |
+| `inferred_type` | `empty`, `boolean`, `integer`, `number`, `date`, `text` or `mixed`. A column of dates is `date` even with several formats or ambiguous values |
 | `type_counts` | Number of present values of each type |
-| `type_confidence` | Share of present values accepted by the inferred type, from 0 to 1. For `mixed` columns, the share of the largest type family |
+| `type_confidence` | Share of present values accepted by the inferred type, from 0 to 1. For `mixed` columns, the share of the largest type family; `null` for `empty` columns |
 | `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns |
 | `missing_count`, `missing_percent` | Missing cells |
-| `with_issues` | `true` when the column has missing values or its type is `mixed` |
-| `normalization` | Cells changed by whitespace trimming and collapsing |
-| `distinct_count` | Number of distinct values after normalization |
+| `with_issues` | `true` when the column has missing values, its type is `mixed` or it holds ambiguous dates |
+| `normalization` | Values changed by whitespace trimming and collapsing; missing cells are not counted |
+| `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
 | `examples` | A few representative values |
 | `value_profile` | Value occurrences, complete or sampled (see `selection`) |
-| `semantic_type` | `enum`, `date` or `null` |
+| `semantic_type` | `date` for date columns, otherwise the id of the scan's primary interpretation, such as `enumeration`, `email`, `phone` or `postal_code`, or `null` |
+| `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and `preview`; `null` otherwise |
 
 Depending on the column, these objects are also present (otherwise `null`):
 
 | Field | Present for | Content |
 | --- | --- | --- |
-| `numeric` | `integer` and `number` columns with finite values | `minimum`, `maximum`, `range`, `mean`, `median` |
-| `date_profile` | Columns containing date values, even when their type is `mixed` | Valid, ambiguous and invalid counts, detected formats and their breakdown |
+| `numeric` | `integer` and `number` columns with finite values | `minimum`, `maximum`, `range`, `mean`, `median` (`null` when a scan limit stopped it), over every number of the column, including decimal commas such as `12,5` |
+| `date_profile` | Columns containing date values, whatever their type | Valid, ambiguous and invalid counts, detected formats and their breakdown, and `ambiguity_evidence`: the number of unambiguous values per day-month order (`DMY`, `MDY`), shown but never applied. `resolved_ambiguous_order` is set only by `scan.detectors.date.ambiguous_order` |
 | `string_profile` | `text` columns | Length statistics, length distribution and representative examples |
-| `enum` | Enumeration candidates | Observed distinct values, coverage and confidence |
 
 ## `issues`
 
@@ -157,10 +157,12 @@ Row numbers count data records from 1; the header is not counted.
 | `missing_values` | warning | Missing cells |
 | `empty_columns` | warning | Columns without any present value |
 | `mixed_types` | warning | Columns with mixed value types |
+| `ambiguous_dates` | warning | Date values matching more than one day-month order |
 | `ambiguous_headers` | warning | Blank or repeated column names |
 | `constant_columns` | info | Columns with a single distinct present value |
 | `trimmed_cells` | info | Cells changed by trimming surrounding whitespace |
 | `collapsed_whitespace` | info | Cells changed by collapsing repeated internal whitespace |
+| `limited_measures` | info | Columns with measures stopped by a scan limit |
 
 An issue is listed only when its count is above zero, except `trimmed_cells`
 and `collapsed_whitespace`, which are always listed.
@@ -170,7 +172,8 @@ and `collapsed_whitespace`, which are always listed.
 The first rows of the file (10 by default, set by `preview_rows` in the
 [configuration](configuration.md)), each with its `row_number` and raw `values`
 in column order. The preview size does not affect the analysis, which always
-reads every row.
+reads every row. In sensitive columns, values are masked (`mask`) or `null`
+(`hide`), as given by the column's `exposure`; missing cells stay as read.
 
 ## Versioning
 
@@ -182,4 +185,5 @@ reads every row.
   [profile format changelog](profile-format-changelog.md).
 
 The profile contains values from the source file, in `examples`,
-`value_profile` and `preview`. Share it as you would share the data.
+`value_profile` and `preview`; only sensitive columns are masked. Share it as
+you would share the data.

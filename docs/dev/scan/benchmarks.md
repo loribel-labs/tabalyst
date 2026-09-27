@@ -28,7 +28,10 @@ Tasks:
 - `csv-read`: iterate every record with `csv.reader`, the lower bound for any
   Python streaming reader.
 - `report-engine`: `tabalyst.analyze_csv()` with default settings, which reads
-  and analyzes the CSV (no HTML rendering).
+  and analyzes the CSV (no HTML rendering). It measured the pandas engine in the
+  baseline; since lot 5a it measures the report built on Tabalyst Scan.
+- `pandas-engine`: the former pandas engine (`analysis.analyze_csv_file()`),
+  kept for comparison until lot 5c removes it.
 
 Reported memory is the peak resident set (peak working set on Windows) of the
 measuring process; growth subtracts the resident memory after imports. Time is
@@ -61,3 +64,19 @@ Three repeats for the first two files, one for the 1M-row file.
   rows per second). A Python streaming engine therefore has a large budget:
   matching the current throughput with bounded memory is a realistic first
   target for phase 6, to be confirmed by measurements.
+
+## Lot 5a, 2026-09-27
+
+Indicative single runs after the report moved onto Tabalyst Scan (commit
+24730ee plus the lot 5a changes, same machine as the baseline):
+
+| File | Rows | Size (MB) | Task | Best time (s) | Rows/s | Peak memory (MB) | Growth (MB) |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| insurance-customers.csv | 3,000 | 0.8 | pandas-engine | 0.79 | 3,788 | 95 | 15 |
+| insurance-customers.csv | 3,000 | 0.8 | report-engine | 0.85 | 3,549 | 91 | 12 |
+| synthetic-100k.csv | 100,000 | 28.8 | pandas-engine | 9.07 | 11,028 | 529 | 450 |
+| synthetic-100k.csv | 100,000 | 28.8 | report-engine | 13.17 | 7,593 | 269 | 189 |
+
+The report on Scan takes about 45% more time than the pandas engine on
+100,000 rows, with about 40% of its memory growth; the detector work of lot 3
+dominates (plan, lot 3a note for lot 6). Lot 6 sets the targets.

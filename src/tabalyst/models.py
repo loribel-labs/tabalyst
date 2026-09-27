@@ -1,11 +1,14 @@
-"""Serializable analysis results, independent from presentation."""
+"""Serializable report profile (revision 3), independent from presentation.
+
+Built from a Tabalyst Scan result by ``report_profile.py``.
+"""
 
 from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, FiniteFloat
 
-from tabalyst.config import AnalysisConfig
+from tabalyst.report_config import ReportConfig
 
 
 class ResultModel(BaseModel):
@@ -25,7 +28,8 @@ class NumericStats(ResultModel):
     maximum: FiniteFloat
     range: FiniteFloat
     mean: FiniteFloat
-    median: FiniteFloat
+    # Null when the scan limited the median (its frequency table was released).
+    median: FiniteFloat | None
 
 
 class NormalizationStats(ResultModel):
@@ -37,8 +41,9 @@ class NormalizationStats(ResultModel):
 
 class DateFormatCount(ResultModel):
     format: str
-    order: Literal["YMD", "MDY", "DMY"]
-    separator: str
+    # Null for formats that are not numeric dates (month names, times).
+    order: Literal["YMD", "MDY", "DMY"] | None
+    separator: str | None
     count: int
     percent: float
     iso: bool = False
@@ -63,11 +68,12 @@ class DateProfile(ResultModel):
     not_date_count: int
     not_date_percent: float
     resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
-    ambiguous_order_source: Literal["config", "column"] | None = None
+    ambiguous_order_source: Literal["config"] | None = None
+    # Unambiguous values per day-month order, exposed and never applied.
+    ambiguity_evidence: dict[str, int]
     formats: list[DateFormatCount]
     format_count: int
     breakdown: list[DateBreakdownItem]
-    errors: dict[str, int]
 
 
 class StringLengthExample(ResultModel):
@@ -80,7 +86,6 @@ class StringLengthDistribution(ResultModel):
     count: int
     percent: float
     relative_percent: float
-    distinct_count: int
     examples: list[StringLengthExample]
 
 
@@ -109,14 +114,6 @@ class ValueProfile(ResultModel):
     values: list[ValueOccurrence]
 
 
-class EnumCandidate(ResultModel):
-    status: Literal["candidate"] = "candidate"
-    observed_distinct_count: int
-    non_missing_count: int
-    coverage_percent: float
-    confidence: float
-
-
 class ColumnProfile(ResultModel):
     id: str
     name: str
@@ -125,18 +122,20 @@ class ColumnProfile(ResultModel):
         "empty", "boolean", "integer", "number", "date", "text", "mixed"
     ]
     type_counts: dict[str, int]
-    type_confidence: float
+    type_confidence: float | None
     type_error_count: int | None
     type_error_percent: float | None
     missing_count: int
     missing_percent: float
     with_issues: bool
     normalization: NormalizationStats
-    distinct_count: int
+    # Null when a scan limit released the frequency table of the column.
+    distinct_count: int | None
     examples: list[str]
     value_profile: ValueProfile
-    semantic_type: Literal["enum", "date"] | None = None
-    enum: EnumCandidate | None = None
+    semantic_type: str | None = None
+    # How the values of a sensitive column are exposed, null otherwise.
+    exposure: Literal["mask", "hide", "show"] | None = None
     date_profile: DateProfile | None = None
     string_profile: StringProfile | None = None
     numeric: NumericStats | None = None
@@ -194,16 +193,17 @@ class Issue(ResultModel):
 
 class PreviewRow(ResultModel):
     row_number: int
-    values: list[str]
+    # Null for a hidden value of a sensitive column.
+    values: list[str | None]
 
 
 class DatasetProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[2] = 2
+    format_revision: Literal[3] = 3
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo
-    config: AnalysisConfig
+    config: ReportConfig
     summary: DatasetSummary
     date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]

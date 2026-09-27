@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
@@ -25,6 +25,7 @@ from tabalyst.scanner.models import (
     Scope,
     SourceInfo,
 )
+from tabalyst.scanner.observations import Record, StreamItem
 from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
@@ -82,17 +83,30 @@ def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope
     )
 
 
+def _observed(
+    items: Iterable[StreamItem], on_record: Callable[[Record], None]
+) -> Iterator[StreamItem]:
+    for item in items:
+        if type(item) is Record:
+            on_record(item)
+        yield item
+
+
 def scan(
     source: str | Path,
     *,
     config: ScanConfig | None = None,
     registry: DetectorRegistry | None = None,
     on_progress: ProgressCallback | None = None,
+    on_record: Callable[[Record], None] | None = None,
 ) -> ScanResult:
     """Read one source completely and return its finalized scan result.
 
     Nothing is written. ``registry`` replaces the default detector registry
-    (design 12.1).
+    (design 12.1). ``on_record`` receives each analyzed record, in reading
+    order, before the engine: consumers that need record-level facts, such
+    as the report's preview and duplicate rows, get them in the same pass. It
+    must not modify the record.
     """
     path = Path(source)
     # A private copy: the finalized result must not share state with the caller.
@@ -116,7 +130,7 @@ def scan(
         default_registry() if registry is None else registry, config
     )
     engine = ScanEngine(config, detectors)
-    engine.consume(reader)
+    engine.consume(reader if on_record is None else _observed(reader, on_record))
     datasets = engine.finalize()
     summary = reader.summary()
 

@@ -46,7 +46,7 @@ lot, with the reason recorded in section 17.
 | O13 | Configuration merge | Objects merge, lists replace, unknown keys fail. | Accepted 2026-09-26 | 15 |
 | O14 | Detector catalogue | Each detector gets a short specification in [detectors.md](detectors.md) before it is implemented. | Accepted 2026-09-26, file created in lot 3b | 12 |
 | O15 | Empty inputs | Zero counts and `not_applicable` measures; never a division by zero. | Accepted 2026-09-26 | 9.9 |
-| O16 | Report | Settled in phase 5. | Deferred to 5a | - |
+| O16 | Report | The report is a consumer of the scan: it presents technical types, interpretations and evidence, never resolves ambiguity, and masks like the scan. | Accepted 2026-09-27 (lot 5a) | 16.4 |
 | O17 | Output writing | Atomic temporary file plus replace; `--force` for existing outputs. | Accepted 2026-09-26 | 16.3 |
 | O18 | Migration | See A3. | Accepted | - |
 | O19 | Performance targets | Baseline recorded in `benchmarks.md`; targets decided in phase 6. | Deferred to 6 | 13 |
@@ -84,10 +84,13 @@ result: ScanResult = scan("customers.json", config=ScanConfig())
 document = result.model_dump(mode="json")
 ```
 
-`scan(source, *, config=None, registry=None, on_progress=None)` reads one
-source and returns a finalized `ScanResult`. It writes nothing. `registry`
-replaces the default detector registry (section 12.1). Phase 4 adds file output,
-batches and the top-level alias `tabalyst.scan`: since lot 4, `tabalyst.scan`,
+`scan(source, *, config=None, registry=None, on_progress=None,
+on_record=None)` reads one source and returns a finalized `ScanResult`. It
+writes nothing. `registry` replaces the default detector registry (section
+12.1). `on_record` receives each analyzed `Record` (section 6), in reading
+order, before the engine, so a consumer gets record-level facts in the same
+pass; it must not modify the record (lot 5a, section 16.4). Phase 4 adds
+file output, batches and the top-level alias `tabalyst.scan`: since lot 4, `tabalyst.scan`,
 `tabalyst.ScanConfig` and `tabalyst.ScanResult` are exported by the package,
 with `tabalyst.generate_scans()` (section 16.3).
 
@@ -559,8 +562,8 @@ Output: `{type, confidence, counts, outside_count}`.
   `empty`.
 - Families depend on the number and date detectors and their settings, as
   the current date family depended on `date_detection`: a disabled or failed
-  detector contributes no family. Differences with the current engine, for
-  lot 5a: decimal conventions and month names are accepted, ambiguity is
+  detector contributes no family. Differences with the pandas engine, adopted
+  by the report in lot 5a (section 16.4): decimal conventions and month names are accepted, ambiguity is
   never resolved from evidence, and a date column with several formats or
   ambiguous values is `date`, where the current engine says `mixed`.
 
@@ -832,8 +835,7 @@ An ambiguous value, such as `01/02/2026` when both `DD/MM/YYYY` and
 ```
 
 - `evidence` counts unambiguous values per order in the same field. It is
-  exposed, never applied: the current report resolves ambiguity from such
-  evidence, and phase 5 decides how the report presents it.
+  exposed, never applied, by the scan and by the report (section 16.4).
 - Only configuration resolves ambiguity (`detectors.date.ambiguous_order`),
   and then `resolution` is `{"order": "DMY", "source": "config"}` and resolved
   values count as matched.
@@ -986,8 +988,8 @@ never guessed when corruption prevents delimiting them.
 ## 15. Configuration (EF28, EF40-EF42, O13)
 
 `ScanConfig` is a strict Pydantic model. In phase 4 it becomes the `scan`
-section of `tabalyst.json`; in phase 5 the report settings are restructured
-around it.
+section of `tabalyst.json`; since lot 5a the report reads its analysis
+settings from it (section 16.4).
 
 ```json
 {
@@ -1194,6 +1196,51 @@ Lot 4 details:
   once per percent of the file and never more often than every MiB; then
   `writing`, and `complete` once the document is written.
 
+### 16.4 Report built on Scan (lot 5a, O16)
+
+`tabalyst report` scans the CSV with the `scan` configuration and builds the
+report profile (revision 3) from the result (`report_profile.py`). Decided with
+the maintainer in lot 5a:
+
+- **One pass.** Record-level facts the scan does not keep (preview, duplicate
+  rows, empty rows, rows with missing values) are collected through
+  `scan(on_record=...)`. Duplicate rows compare a 128-bit BLAKE2b digest of the
+  raw row, one per distinct row: exact up to a negligible collision
+  probability, and the only record-level state that grows with the file until
+  lot 5c bounds it.
+- **Configuration.** Every analysis setting of the report, CSV reading
+  included, comes from `scan`. The top level keeps the presentation settings
+  (`preview_rows`, `string_analysis`, `value_examples`) and `csv` for
+  `tabalyst sample`. Former report settings are rejected with their new
+  location; a top-level `csv` value that differs from `scan.csv` is an error
+  for the report, since the file would otherwise be read differently than
+  written, unless the command line sets that value explicitly.
+- **Types.** The report type is the technical type (9.7): a date column with
+  several formats or ambiguous values is `date`. Unresolved ambiguous dates
+  make the column `with_issues` and are counted by the `ambiguous_dates` issue.
+- **Ambiguity (12.6).** The report never resolves ambiguity: it shows the
+  ambiguous values, the evidence per order, and, when the evidence is
+  one-sided, suggests `detectors.date.ambiguous_order`.
+- **Semantic types.** `date` when the technical type is `date`, otherwise the
+  primary interpretation (12.4), except `number` and `boolean`, which repeat
+  the technical type.
+- **Exposure (12.8).** The report applies the scan's exposure: masked or hidden
+  values in examples, value profiles and the preview of sensitive columns;
+  distinct counts stay raw. Missing cells of the preview stay as read.
+- **Limits.** A limited distinct count or median is `null`, shown as
+  `limited`, and the column is listed by the `limited_measures` issue. Records
+  excluded under the `tolerant` policy are listed by the `excluded_records`
+  issue. A CSV wider than `limits.max_fields` is a configuration error for
+  the report, whose counts need every column.
+- **Examples.** A complete value distribution comes from the frequency listing
+  when it holds every value; otherwise examples are selected among the scan
+  samples. Length examples come from the listing, then the samples.
+- **Sources.** JSON sources are rejected by the report until lot 5b.
+
+The parity tests (`tests/scan/test_scan_report.py`) compare the report built
+on Scan with the pandas engine on both demos, each known difference listed
+explicitly.
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1216,3 +1263,4 @@ Lot 4 details:
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `currency` (symbols and ISO 4217 codes), `percentage` and `quantity` (a number and any unit) detectors, enabled by default and not sensitive, with their own number conventions and ambiguity blocks, and bounded counted units for `quantity`; their specifications are in `detectors.md`. | Priority 1 catalogue, currency and percentage family, extended to generic quantities at the maintainer's request. |
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `uuid` (hyphenated, braced and URN forms, versions counted, not sensitive) and `ip_address` (versions `ipv4` and `ipv6`, sensitive) detectors, enabled by default, with the `versions` setting of `ip_address`; their specifications are in `detectors.md`. | Priority 1 catalogue, UUID and IP address family, the last of lot 3b. |
 | 2026-09-27 | 4 | Section 15: no automatic `tabalyst.json`; one file for every command with a `scan` object, validated by every command; command-line layer. Section 16.3: output naming, shared planning, temporary file, batch failures, document serialization, byte progress. Section 5.2: integers above `sys.int_max_str_digits` parsed by the pure-Python backend, exponent overflow and long parser messages. Sections 3 and 16.1: top-level exports, format changelog page. | Maintainer decision on configuration files (report behavior unchanged); the compiled `ijson` backend crashed the process on long integers (lot 2a note). |
+| 2026-09-27 | 5a | Section 3: `on_record` hook of `scan()`. Section 12.6: the report never applies ambiguity evidence. New section 16.4 and decision O16: report built on Scan, configuration in `scan`, technical types, primary interpretations as semantic types, scan exposure applied to the preview, limited measures and excluded records as issues. | Report migration; decisions of the maintainer in lot 5a (configuration, masking by default, `date` type with an `ambiguous_dates` issue, primary interpretations). |

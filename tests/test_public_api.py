@@ -36,7 +36,7 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
     configured_source.write_bytes("city;value\nMontréal;1\n".encode("cp1252"))
     config = tmp_path / "config.json"
     config.write_text(
-        json.dumps({"csv": {"delimiter": ";", "encoding": "cp1252"}}),
+        json.dumps({"scan": {"csv": {"delimiter": ";", "encoding": "cp1252"}}}),
         encoding="utf-8",
     )
 

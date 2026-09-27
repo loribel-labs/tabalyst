@@ -443,6 +443,8 @@ td.ex .tip.show{display:block}
 .tip-l > div{display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:12px;padding:5px 12px}
 .tip-l > div + div{border-top:1px solid var(--line)}
 .tip-l span{overflow-wrap:anywhere;color:var(--text)}
+.tip-n{margin:0;padding:8px 12px;border-bottom:1px solid var(--line);font:400 12px/1.45 var(--f-body);color:var(--text-2)}
+.tip-n code{font:400 11.5px/1 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
 .tip-l small{font:inherit;color:var(--text-3);font-variant-numeric:tabular-nums}
 .tip-l .k-ambiguous span,.tip-l .k-invalid span{color:var(--attn-text)}
 .tip-l .k-invalid{margin-top:4px;border-top:2px solid var(--line-strong)!important}

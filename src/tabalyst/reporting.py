@@ -1,5 +1,6 @@
 """Render self-contained analysis results as an interactive HTML report."""
 
+from collections import defaultdict
 from importlib.resources import files
 from pathlib import Path
 
@@ -53,11 +54,11 @@ def render_report(profile: DatasetProfile) -> str:
         "date": "var(--d1)",
         "empty": "var(--line-strong)",
     }
-    semantic_colors = {
-        "enum": "var(--d2)",
-        "date": "var(--d1)",
-        "none": "var(--d3)",
-    }
+    # Other interpretations (email, phone, patterns...) share one color.
+    semantic_colors = defaultdict(
+        lambda: "var(--ok)",
+        {"enumeration": "var(--d2)", "date": "var(--d1)", "none": "var(--d3)"},
+    )
     return template.render(
         report=profile,
         tabalyst_version=get_version(),
