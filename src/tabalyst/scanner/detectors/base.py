@@ -12,7 +12,10 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
+
+if TYPE_CHECKING:
+    from tabalyst.scanner.exposure import ExposureGate
 
 State = Literal["matched", "ambiguous", "invalid"]
 
@@ -75,8 +78,12 @@ class DetectorAccumulator:
     ) -> None:
         """Account for ``count`` occurrences of ``value``."""
 
-    def details(self) -> dict[str, object]:
-        """JSON-compatible ``details`` of the detector result."""
+    def details(self, gate: ExposureGate) -> dict[str, object]:
+        """JSON-compatible ``details`` of the detector result.
+
+        Values of the field that ``details`` carries, such as email domains,
+        must go through ``gate`` (design 12.8): the field may be sensitive.
+        """
         return {}
 
     def field_matches(self) -> bool:
@@ -149,7 +156,7 @@ class AmbiguityAccumulator(DetectorAccumulator):
             if convention in self.evidence:
                 self.evidence[convention] += count
 
-    def details(self) -> dict[str, object]:
+    def details(self, gate: ExposureGate) -> dict[str, object]:
         return {
             "ambiguity": {
                 "count": self.count,

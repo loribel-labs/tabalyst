@@ -305,4 +305,6 @@ class DatasetState:
             technical_type=blocks["technical_type"],
             detectors=blocks["detectors"],
             interpretations=blocks["interpretations"],
+            sensitive=blocks["sensitive"],
+            exposure=blocks["exposure"],
         )

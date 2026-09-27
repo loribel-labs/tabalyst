@@ -17,6 +17,7 @@ from decimal import Decimal
 
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.registry import DetectorSet, FailureReporter
+from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import (
     CHANGES,
     FORMS,
@@ -29,6 +30,7 @@ from tabalyst.scanner.measures import (
 from tabalyst.scanner.models import (
     BooleanCounts,
     Complete,
+    Disabled,
     Frequencies,
     Limited,
     Normalization,
@@ -48,6 +50,7 @@ from tabalyst.scanner.technical import technical_type
 CACHE_SIZE = 4_096
 _TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
 _NO_VALUES = NotApplicable(reason="no_values")
+_WITHHELD = Disabled()
 
 # Table keys: a raw string is its own key; other values are
 # ``(native type, canonical form)`` tuples, which never equal a string.
@@ -251,12 +254,17 @@ class ValueTracker:
 
     # Finalization -----------------------------------------------------------
 
-    def _value_at(self, native_type: str, value: object, record: int) -> ValueAt:
+    def _value_at(
+        self, native_type: str, value: object, record: int, gate: ExposureGate
+    ) -> ValueAt | None:
         if native_type == "string":
             text = self.context.normalizer.analytical(value)
         else:
             text = canonical_text(native_type, value)
-        return ValueAt(value=text, type=native_type, record=record)
+        exposed = gate.value(text)
+        if exposed is None:
+            return None
+        return ValueAt(value=exposed, type=native_type, record=record)
 
     def finalize(self, report_failure: FailureReporter) -> dict:
         context = self.context
@@ -277,28 +285,36 @@ class ValueTracker:
                 if facts[CHANGES]:
                     changes |= facts[CHANGES]
                     changed[key] = facts[FORMS]
+        detectors = context.detectors
+        # Every value is now tallied: the field's sensitivity is known.
+        exposure = detectors.gate(measures.tallies)
+        gate = SHOW if exposure is None else exposure
+        if table is not None:
             cardinality = Complete[int](value=len(table))
             stage_cardinality = _stage_cardinalities(
                 context.normalizer, table, changed, changes
             )
             variant_groups = (
-                _variant_groups(table, changed, context)
+                _variant_groups(table, changed, context, gate)
                 if measures.lengths
                 else _NO_VALUES
             )
+            # Listings describe exposed values: equal masks merge first.
+            exposed = gate.typed_counts(analytical.items())
+            distinct = len(exposed) if gate.mode == "mask" else len(analytical)
             ranked = heapq.nsmallest(
                 context.max_listed,
-                analytical.items(),
+                exposed.items(),
                 key=lambda item: (-item[1], item[0][1], _TYPE_ORDER[item[0][0]]),
             )
             frequencies = Complete[Frequencies](
                 value=Frequencies(
-                    distinct=len(analytical),
+                    distinct=distinct,
                     listed=_listing(ranked),
-                    truncated=len(analytical) > context.max_listed,
+                    truncated=distinct > len(ranked),
                 )
             )
-            samples = _samples(analytical, context.max_samples, context.seed)
+            samples = _samples(analytical, exposed, context.max_samples, context.seed)
         else:
             limited = self.limited
             cardinality = limited
@@ -306,21 +322,28 @@ class ValueTracker:
             unproven = Limited(reason=limited.reason, limit=limited.limit)
             frequencies = unproven
             samples = Samples(
-                selection="first_seen", listed=_listing(self.samples.items())
+                selection="first_seen",
+                listed=_listing(gate.typed_counts(self.samples.items()).items()),
             )
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             variant_groups = unproven if measures.lengths else _NO_VALUES
-        detectors = context.detectors
-        results = detectors.results(measures.tallies, report_failure)
+        results = detectors.results(measures.tallies, report_failure, gate)
+        # Statistics such as a minimum or a date range are values themselves:
+        # a masked or hidden field withholds them (design 12.8).
+        withheld = gate.mode != "show"
         return {
             "cardinality": cardinality,
             "frequencies": frequencies,
             "samples": samples,
-            "first": self._value_at(*self.first),
-            "last": self._value_at(self.last_type, self.last_value, self.last_record),
+            "first": self._value_at(*self.first, gate),
+            "last": self._value_at(
+                self.last_type, self.last_value, self.last_record, gate
+            ),
             "string_characteristics": measures.string_characteristics(),
             "string_lengths": measures.string_lengths(),
-            "numeric": measures.numeric.finalize(self.limited),
+            "numeric": (
+                _WITHHELD if withheld else measures.numeric.finalize(self.limited)
+            ),
             "booleans": (
                 Complete[BooleanCounts](
                     value=BooleanCounts(true=self.true, false=self.false)
@@ -328,7 +351,9 @@ class ValueTracker:
                 if self.true or self.false
                 else _NO_VALUES
             ),
-            "temporal": detectors.temporal(measures.tallies, results),
+            "temporal": (
+                _WITHHELD if withheld else detectors.temporal(measures.tallies, results)
+            ),
             "normalization": _normalization(
                 context.normalizer,
                 cardinality,
@@ -341,6 +366,8 @@ class ValueTracker:
             ),
             "detectors": results,
             "interpretations": detectors.interpretations(results),
+            "sensitive": exposure is not None,
+            "exposure": None if exposure is None else exposure.mode,
         }
 
 
@@ -406,13 +433,18 @@ def _stage_cardinalities(
 
 
 def _variant_groups(
-    table: dict[Key, int], changed: dict[str, tuple[str, ...]], context: ValueContext
+    table: dict[Key, int],
+    changed: dict[str, tuple[str, ...]],
+    context: ValueContext,
+    gate: ExposureGate,
 ):
     """Comparison keys with at least two distinct raw variants, most frequent
     first, then by key; variants by count, then value.
 
     An unchanged string is its own comparison key, so it joins the group of
-    the changed strings with that key.
+    the changed strings with that key. Under ``mask``, groups with equal
+    masked keys merge, and so do equal masked variants of a group; ``hide``
+    keeps the number of groups only.
     """
     variants: dict[str, list[str]] = {}
     for raw, forms in changed.items():
@@ -425,26 +457,37 @@ def _variant_groups(
     for key, raws in variants.items():
         if key in table and key not in changed:
             raws.append(key)
-    groups = [
-        (sum(table[raw] for raw in raws), key, raws)
-        for key, raws in variants.items()
-        if len(raws) > 1
-    ]
+    # Per exposed group key: the count of each exposed variant.
+    grouped: dict[str, dict[str, int]] = {}
+    for key, raws in variants.items():
+        if len(raws) < 2:
+            continue
+        if gate.hides:
+            grouped[key] = {}
+            continue
+        counts = grouped.setdefault(gate.value(key), {})
+        for raw, count in gate.counts((raw, table[raw]) for raw in raws).items():
+            counts[raw] = counts.get(raw, 0) + count
+    if gate.hides:
+        return Complete[VariantGroups](
+            value=VariantGroups(groups=len(grouped), listed=[], truncated=bool(grouped))
+        )
+    groups = [(sum(counts.values()), key, counts) for key, counts in grouped.items()]
     ranked = heapq.nsmallest(
         context.max_variant_groups, groups, key=lambda item: (-item[0], item[1])
     )
     listed = []
-    for count, key, raws in ranked:
+    for count, key, counts in ranked:
         top = heapq.nsmallest(
-            context.max_variants, raws, key=lambda raw: (-table[raw], raw)
+            context.max_variants, counts.items(), key=lambda item: (-item[1], item[0])
         )
         listed.append(
             VariantGroup(
                 key=key,
                 count=count,
-                distinct=len(raws),
-                variants=[Variant(value=raw, count=table[raw]) for raw in top],
-                truncated=len(raws) > len(top),
+                distinct=len(counts),
+                variants=[Variant(value=raw, count=n) for raw, n in top],
+                truncated=len(counts) > len(top),
             )
         )
     return Complete[VariantGroups](
@@ -461,9 +504,18 @@ def _listing(items) -> list[ValueCount]:
     ]
 
 
-def _samples(analytical: dict[tuple[str, str], int], size: int, seed: int) -> Samples:
-    """Every distinct value, or a seeded uniform sample, in first-seen order."""
-    items = list(analytical.items())
+def _samples(
+    analytical: dict[tuple[str, str], int],
+    exposed: dict[tuple[str, str], int],
+    size: int,
+    seed: int,
+) -> Samples:
+    """Every distinct exposed value, or a seeded uniform sample, in first-seen
+    order. Hidden values keep the selection of the analytical values."""
+    if analytical and not exposed:
+        selection = "all" if len(analytical) <= size else "uniform_distinct"
+        return Samples(selection=selection, listed=[])
+    items = list(exposed.items())
     if len(items) <= size:
         return Samples(selection="all", listed=_listing(items))
     chosen = sorted(random.Random(seed).sample(range(len(items)), size))
@@ -497,6 +549,8 @@ def no_values(context: ValueContext) -> dict:
         "technical_type": technical_type({}, context.minimum_confidence),
         "detectors": results,
         "interpretations": detectors.interpretations(results),
+        "sensitive": False,
+        "exposure": None,
     }
 
 

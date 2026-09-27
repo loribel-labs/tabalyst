@@ -410,6 +410,9 @@ class FieldResult(ScanModel):
     technical_type: TechnicalType
     detectors: list[DetectorResult]
     interpretations: Interpretations
+    sensitive: bool
+    # The exposure applied to the values of a sensitive field (design 12.8).
+    exposure: Literal["mask", "hide", "show"] | None
 
 
 # Datasets and scan ----------------------------------------------------------

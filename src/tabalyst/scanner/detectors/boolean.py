@@ -14,6 +14,7 @@ from tabalyst.scanner.detectors.base import (
     Detector,
     DetectorAccumulator,
 )
+from tabalyst.scanner.exposure import ExposureGate
 
 DEFAULT_PAIRS = (
     ("true", "false"),
@@ -64,5 +65,5 @@ class BooleanAccumulator(DetectorAccumulator):
             else:
                 self.false += count
 
-    def details(self) -> dict[str, object]:
+    def details(self, gate: ExposureGate) -> dict[str, object]:
         return {"true": self.true, "false": self.false}

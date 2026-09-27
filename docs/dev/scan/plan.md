@@ -17,7 +17,7 @@ regenerated, documentation consistent with what is released.
 | 2a | Values, frequencies, limits and statistics | Done | Sonnet 5 | High | `scan/phase-2` |
 | 2b | Normalization version 1 and variant groups | Done | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Done | Opus 5.5 | High | `scan/phase-3` |
-| 3b | Priority 1 catalogue, patterns, sensitive values | Next | Sonnet 5 | Medium | `scan/phase-3` |
+| 3b | Priority 1 catalogue, patterns, sensitive values | In progress | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Planned | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Planned | Sonnet 5 | Low | `scan/phase-4` |
 | 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
@@ -176,6 +176,10 @@ benchmarks.md.
   worktrees: email and URL; phone (CA, US, FR); postal codes (CA, US ZIP);
   currency and percentage; UUID and IP addresses.
 - Each detector adds its own positive, negative, variant and overlap tests.
+- First session done on 2026-09-26: `detectors.md`, pattern detector and
+  exposure gate; `tests/scan/test_scan_patterns.py` passes. Contract changes
+  recorded in design section 17. The catalogue families remain; see the lot
+  3b notes.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -333,6 +337,32 @@ done, and anything the next lot must know.
     `temporal` block through the date accumulator's `temporal()` method: a
     replacement `date` detector without it gives `temporal: disabled`. A
     declared capability would remove the special case.
+- Lot 3b, first session, for the catalogue sessions:
+  - Write the family's entries in `detectors.md` first (template at its top),
+    then one module per detector in `scanner/detectors/`, added to
+    `BUILT_INS` in `registry.py` and with a settings class in
+    `DetectorSettings` (`config.py`) when it has parameters. Parallel sessions
+    touch the same two lists: merge conflicts there are expected and trivial.
+  - Tests go to `tests/test_scanner_<family>.py` (positive, negative, variant
+    and overlap values, and exposure for sensitive detectors); there is no
+    catalogue contract test file.
+  - Declare `shapes` and `max_input_length`: the per-value cost of lot 3a is
+    already a concern (lot 3a note for lot 6).
+  - `details(gate)` receives the exposure gate: pass any value it carries
+    through `gate.value`, `gate.counts` or `gate.examples`.
+  - Enabling a detector by default adds an entry to every field and to
+    `engine.detectors`; check the demos still regenerate.
+- Lot 3b, for the maintainer (decided in the first session, design 12.8):
+  a failed sensitive detector makes its field sensitive; under `mask`,
+  listings describe the masked values (equal masks merge before ranking and
+  sampling, `frequencies.distinct` counts masks, variant groups merge by
+  masked key); under `hide`, listings are empty and `first` and `last` are
+  `null`. Found in review: under `mask` and `hide`, `numeric` and `temporal`
+  of a sensitive field are `disabled`, since their minimum, maximum, median
+  or date range are values.
+- Lot 3b, still open: the O13 point of lot 3a (detectors added with
+  `register()` cannot be configured) is not needed by patterns, which have
+  their own `patterns` section; it stays for the catalogue or lot 7.
 - Lot 3a, for lot 5a: the number detector extends the numeric population of
   string fields (decimal commas, grouped thousands), as in the `amount_fr`
   column of the benchmark file; the demos have no such column. The date
