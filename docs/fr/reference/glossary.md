@@ -36,7 +36,7 @@ Conservez-les exactement tels quels dans toutes les langues :
 | raw preview | aperçu brut | Les valeurs sources avant normalisation |
 | missing value | valeur manquante | Une valeur vide ou un marqueur de valeur manquante configuré |
 | issue | anomalie | Un problème de qualité des données détecté |
-| with issues | avec anomalies | Une colonne avec des valeurs manquantes ou de type inféré `mixed` |
+| with issues | avec anomalies | Une colonne avec des valeurs manquantes, des dates ambiguës ou de type inféré `mixed` |
 | value normalization | normalisation des valeurs | Le nettoyage appliqué avant l’analyse, comme la suppression des espaces |
 | type inference | inférence de type | La façon dont Tabalyst décide du type d’une colonne |
 | inferred type | type inféré | Le type déduit des valeurs d’une colonne |
