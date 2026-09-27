@@ -1,0 +1,147 @@
+"""Reuse of a scan document by the report, with its staleness rule (O12).
+
+A scan document written by ``tabalyst scan`` holds everything the report
+needs, record facts included, so the report never reads the source again. It
+must still describe the current source and the requested scan settings:
+
+- The source is looked for beside the scan document, under its recorded
+  name. A source that is not there is accepted, since the document stands on
+  its own, but it is not checked: callers say so.
+- A source whose size differs is stale. A source with the same size and
+  modification time is fresh; with another modification time, its SHA-256
+  decides, so a file that was only touched stays fresh.
+- The document's settings apply. Scan settings given by the configuration
+  files must have the document's values: applied over the document's
+  settings, they must leave its ``config_sha256`` unchanged. Settings the
+  files do not give, such as a delimiter passed to ``tabalyst scan`` on the
+  command line, are not compared.
+"""
+
+import hashlib
+import json
+from datetime import UTC, datetime
+from pathlib import Path
+
+from pydantic import ValidationError
+
+from tabalyst.config import merge_settings, validation_message
+from tabalyst.errors import ConfigurationError, InputError
+from tabalyst.scanner.config import config_sha256, scan_config_from_layer
+from tabalyst.scanner.models import (
+    FORMAT,
+    FORMAT_REVISION,
+    FORMAT_VERSION,
+    ScanResult,
+)
+
+_HASH_CHUNK = 1 << 20
+
+
+def read_scan_document(path: Path) -> dict:
+    """The JSON object of a scan document, with its format checked."""
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise InputError(f"Cannot read scan document {path}: {exc}") from exc
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise InputError(
+            f"Not a scan document: {path} is not valid UTF-8 JSON ({exc})."
+        ) from exc
+    if not isinstance(document, dict) or document.get("format") != FORMAT:
+        raise InputError(
+            f"Not a scan document: {path}. Write one with tabalyst scan."
+        )
+    version = (document.get("format_version"), document.get("format_revision"))
+    if version != (FORMAT_VERSION, FORMAT_REVISION):
+        raise InputError(
+            f"Unsupported scan document {path}: format {version[0]} revision "
+            f"{version[1]}; this version of Tabalyst reads format "
+            f"{FORMAT_VERSION} revision {FORMAT_REVISION}. Run tabalyst scan "
+            "again."
+        )
+    return document
+
+
+def source_name(document: dict) -> str:
+    """The recorded file name of the scanned source."""
+    source = document.get("source")
+    name = source.get("name") if isinstance(source, dict) else None
+    if not isinstance(name, str) or not name or Path(name).name != name:
+        raise InputError("Invalid scan document: source.name is not a file name.")
+    return name
+
+
+def load_scan(path: Path) -> ScanResult:
+    """The scan result of a scan document."""
+    document = read_scan_document(path)
+    try:
+        return ScanResult.model_validate(document)
+    except ValidationError as exc:
+        raise InputError(
+            f"Invalid scan document {path}: {validation_message(exc)}"
+        ) from exc
+
+
+def source_path(scan_path: Path, result: ScanResult) -> Path:
+    """Where the source of a scan document is looked for."""
+    return scan_path.parent / result.source.name
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        while chunk := stream.read(_HASH_CHUNK):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def check_source(scan_path: Path, result: ScanResult) -> bool:
+    """Raise ``InputError`` when the source beside the document changed.
+
+    Returns ``False`` when no source is beside the document, so nothing was
+    checked.
+    """
+    source = source_path(scan_path, result)
+    try:
+        stat = source.stat()
+    except FileNotFoundError:
+        return False
+    except OSError as exc:
+        raise InputError(f"Cannot read source {source}: {exc}") from exc
+    if not source.is_file():
+        return False
+    recorded = result.source
+    rescan = f"Run tabalyst scan {source} again."
+    if stat.st_size != recorded.size_bytes:
+        raise InputError(
+            f"Stale scan {scan_path}: {source.name} has {stat.st_size:,} bytes, "
+            f"the scan read {recorded.size_bytes:,}. {rescan}"
+        )
+    if datetime.fromtimestamp(stat.st_mtime, UTC) == recorded.modified_at:
+        return True
+    try:
+        current = _sha256(source)
+    except OSError as exc:
+        raise InputError(f"Cannot read source {source}: {exc}") from exc
+    if current != recorded.sha256:
+        raise InputError(
+            f"Stale scan {scan_path}: the content of {source.name} changed "
+            f"since the scan (SHA-256 differs). {rescan}"
+        )
+    return True
+
+
+def check_config(scan_path: Path, result: ScanResult, scan_layer: dict) -> None:
+    """Raise ``ConfigurationError`` when the scan settings given by the
+    configuration files differ from those of the document."""
+    if not scan_layer:
+        return
+    recorded = result.config.model_dump(mode="json", by_alias=True)
+    requested = scan_config_from_layer(merge_settings(recorded, scan_layer))
+    if config_sha256(requested) != result.config_sha256:
+        raise ConfigurationError(
+            f"Stale scan {scan_path}: the scan settings of the configuration "
+            "differ from those the document was written with. Run tabalyst "
+            "scan again with this configuration, or remove these settings "
+            "from its scan object to use those of the document."
+        )

@@ -16,11 +16,12 @@ of the report and the CSV settings of `tabalyst sample`:
 
 ```json
 {
-  "preview_rows": 20,
+  "string_analysis": {"examples_per_length": 5},
   "csv": {"delimiter": ";"},
   "scan": {
     "csv": {"delimiter": ";"},
-    "values": {"null_markers": ["N/A"]}
+    "values": {"null_markers": ["N/A"]},
+    "records": {"preview": 20}
   }
 }
 ```
@@ -37,7 +38,6 @@ The report is built on Tabalyst Scan: it reads the CSV and analyzes it with the
 
 ```json
 {
-  "preview_rows": 10,
   "string_analysis": {
     "very_short_max_length": 5,
     "short_max_length": 20,
@@ -61,9 +61,10 @@ The report is built on Tabalyst Scan: it reads the CSV and analyzes it with the
 
 ### Preview
 
-`preview_rows`: number of raw rows embedded in the report, from 0 to 100. It
-never limits analysis of the complete CSV. Values of sensitive columns are
-masked or hidden in the preview as in the rest of the report (see
+The report shows the preview of the scan: its first `scan.records.preview`
+records, 10 by default (see [Records](#records)). It never limits analysis of
+the complete file. Values of sensitive columns are masked or hidden in the
+preview as in the rest of the report (see
 [How the report uses the scan settings](#how-the-report-uses-the-scan-settings)).
 
 ### String analysis
@@ -119,6 +120,8 @@ the tooltip lists masked values.
 | Date analysis | `scan.detectors.date` |
 | Semantic types | `scan.detection.minimum_share` and every detector |
 | Masked values | `scan.exposure.sensitive_values` |
+| Preview | `scan.records.preview` |
+| Duplicate rows | `scan.records.duplicates` and `scan.limits.max_tracked_records` |
 
 - **Dates.** A column whose present values are dates is `date`, even with
   several formats or ambiguous values. Ambiguous values such as `02/03/2025`
@@ -140,12 +143,21 @@ the tooltip lists masked values.
   of a column with more than `scan.limits.max_distinct_per_field` of them, the
   report shows `limited` instead of a number and lists the column in the
   `limited_measures` issue.
+- **Duplicate rows.** With more distinct rows than
+  `scan.limits.max_tracked_records`, the duplicate count is a lower bound,
+  shown as `≥ 12`. With `scan.records.duplicates` set to `false`, duplicates
+  are not checked and the report shows `–`.
 
 The report reads the `scan.csv` settings, not the top-level `csv` settings. When
 a file sets both with different values, the report stops with an error, since
 the file would otherwise be read with settings it does not expect; a value
 given with `--delimiter` or `--encoding` always wins. The report also needs
 every column: a CSV wider than `scan.limits.max_fields` is an error.
+
+A report built from a scan document with `tabalyst report --scan` uses the
+settings recorded in the document. Its configuration files still give the
+presentation settings; settings given in their `scan` object must have the
+values recorded in the document, otherwise the report stops with an error (see [Report from a scan](../how-to/scan-files.md#report-from-a-scan)).
 
 ### Settings moved to `scan`
 
@@ -161,6 +173,7 @@ These top-level settings are rejected with a message naming their new location:
 | `enum_detection` | `scan.detectors.enumeration`: `maximum_distinct_values` is `maximum_distinct`, and `minimum_row_count` is `minimum_values`, which counts present values, not rows |
 | `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
 | `value_examples.random_seed` | `scan.random_seed` |
+| `preview_rows` | `scan.records.preview`, now up to 1,000 |
 
 ## Sample settings
 
@@ -203,8 +216,10 @@ object of each configuration file. The complete object with its defaults is:
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 100, "max_variant_groups": 100,
-      "max_variants_per_group": 20, "max_evidence_examples": 10
+      "max_variants_per_group": 20, "max_evidence_examples": 10,
+      "max_tracked_records": 2000000, "max_listed_records": 10
     },
+    "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
     "detection": {"minimum_share": 0.95},
     "detectors": {"number": {"enabled": true}},
@@ -288,9 +303,19 @@ rejected before the scan starts.
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
 | `max_variants_per_group` | 20 | 10,000 | Variants listed per group. |
 | `max_evidence_examples` | 10 | 1,000 | Example values per detector state. |
+| `max_tracked_records` | 2,000,000 | 500,000,000 | Distinct records stored for the whole scan to find duplicates, about 80 bytes each; later records are still compared with the stored ones, so duplicate counts become lower bounds. |
+| `max_listed_records` | 10 | 10,000 | Record numbers listed per records block. |
 
 `max_distinct_per_field` cannot exceed `max_tracked_values`. Counters,
 statistics and detector coverage stay exact after a limit is reached.
+
+### Records
+
+- `records.preview`: how many of the first records each dataset keeps in its
+  preview, from 0 to 1,000. Sensitive values are exposed as elsewhere.
+- `records.duplicates`: set to `false` to skip duplicate detection, which
+  stores one digest per distinct record, up to `limits.max_tracked_records`.
+  The duplicate count is then `disabled`.
 
 ### Types and interpretations
 

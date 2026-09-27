@@ -14,6 +14,7 @@ def test_defaults_serialize_with_the_documented_section_names():
         "values",
         "normalization",
         "limits",
+        "records",
         "types",
         "detection",
         "detectors",

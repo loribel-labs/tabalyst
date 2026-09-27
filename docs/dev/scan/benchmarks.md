@@ -30,8 +30,8 @@ Tasks:
 - `report-engine`: `tabalyst.analyze_csv()` with default settings, which reads
   and analyzes the CSV (no HTML rendering). It measured the pandas engine in the
   baseline; since lot 5a it measures the report built on Tabalyst Scan.
-- `pandas-engine`: the former pandas engine (`analysis.analyze_csv_file()`),
-  kept for comparison until lot 5c removes it.
+- `pandas-engine`: the former pandas engine, measured in the tables below
+  until lot 5c removed it with the task.
 
 Reported memory is the peak resident set (peak working set on Windows) of the
 measuring process; growth subtracts the resident memory after imports. Time is

@@ -3,8 +3,7 @@
 A configuration file holds report and sample settings at the top level
 (``SettingsFile``) and scan settings in its ``scan`` object. The report is
 built on Tabalyst Scan, so its analysis settings live in ``scan`` too
-(``tabalyst.report_config``). ``AnalysisConfig`` configures the pandas engine
-only, which remains until Scan lot 5c for the parity tests.
+(``tabalyst.report_config``).
 """
 
 import codecs
@@ -12,7 +11,6 @@ import json
 from collections.abc import Iterable
 from itertools import pairwise
 from pathlib import Path
-from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -68,64 +66,6 @@ class ValueExamplesSettings(BaseModel):
     inline_display_size: int = Field(default=3, ge=1)
 
 
-class ValueExamplesConfig(BaseModel):
-    """Value examples of the pandas engine (``AnalysisConfig``)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    full_distribution_max_distinct: int = Field(default=50, ge=1)
-    candidate_sample_size: int = Field(default=100, ge=1)
-    short_text_max_length: int = Field(default=20, ge=1)
-    short_text_percentile: float = Field(default=0.95, gt=0, le=1)
-    short_text_result_size: int = Field(default=20, ge=1)
-    long_text_result_size: int = Field(default=20, ge=1)
-    long_text_truncate_at: int = Field(default=30, ge=1)
-    truncation_suffix: str = "..."
-    inline_display_size: int = Field(default=3, ge=1)
-    random_seed: int = 42
-
-
-class NormalizationConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    trim: bool = True
-    collapse_internal_whitespace: bool = True
-
-
-class DateDetectionConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    enabled: bool = True
-    orders: list[Literal["YMD", "MDY", "DMY"]] = Field(
-        default_factory=lambda: ["YMD", "MDY", "DMY"]
-    )
-    separators: list[str] = Field(default_factory=lambda: ["-", "/", "."])
-    ambiguous_order: Literal["MDY", "DMY"] | None = None
-
-    @field_validator("separators")
-    @classmethod
-    def valid_separators(cls, values: list[str]) -> list[str]:
-        if not values or any(
-            len(value) != 1 or value.isdigit() or value in "\r\n" for value in values
-        ):
-            raise ValueError("Date separators must be non-digit single characters")
-        if len(set(values)) != len(values):
-            raise ValueError("Date separators must be unique")
-        return values
-
-    @model_validator(mode="after")
-    def ambiguous_order_must_be_enabled(self):
-        if self.ambiguous_order and self.ambiguous_order not in self.orders:
-            raise ValueError("ambiguous_order must also appear in date orders")
-        return self
-
-
-class TypeInferenceConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    minimum_confidence: float = Field(default=0.95, gt=0.5, le=1)
-
-
 class StringAnalysisConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -153,39 +93,11 @@ class StringAnalysisConfig(BaseModel):
         return self
 
 
-class EnumDetectionConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    enabled: bool = True
-    minimum_row_count: int = Field(default=500, ge=1)
-    maximum_distinct_values: int = Field(default=49, ge=1)
-    eligible_types: list[str] = Field(default_factory=lambda: ["text"])
-    case_sensitive: bool = True
-
-
-class AnalysisConfig(BaseModel):
-    """Settings of the pandas engine (``analysis.py``), removed in Scan lot
-    5c. Configuration files no longer use them: see ``SettingsFile``."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    csv: CsvConfig = Field(default_factory=CsvConfig)
-    missing_values: list[str] = Field(default_factory=lambda: [""])
-    preview_rows: int = Field(default=10, ge=0, le=100)
-    normalization: NormalizationConfig = Field(default_factory=NormalizationConfig)
-    date_detection: DateDetectionConfig = Field(default_factory=DateDetectionConfig)
-    type_inference: TypeInferenceConfig = Field(default_factory=TypeInferenceConfig)
-    string_analysis: StringAnalysisConfig = Field(default_factory=StringAnalysisConfig)
-    value_examples: ValueExamplesConfig = Field(default_factory=ValueExamplesConfig)
-    enum_detection: EnumDetectionConfig = Field(default_factory=EnumDetectionConfig)
-
-
 class PresentationSettings(BaseModel):
     """Report presentation settings, at the top level of configuration files."""
 
     model_config = ConfigDict(extra="forbid")
 
-    preview_rows: int = Field(default=10, ge=0, le=100)
     string_analysis: StringAnalysisConfig = Field(default_factory=StringAnalysisConfig)
     value_examples: ValueExamplesSettings = Field(
         default_factory=ValueExamplesSettings
@@ -200,7 +112,8 @@ class SettingsFile(PresentationSettings):
 
 
 # Report settings moved to the ``scan`` object when the report moved onto
-# Tabalyst Scan (profile revision 3), with their new location.
+# Tabalyst Scan (profile revision 3; ``preview_rows`` in revision 5, when the
+# preview became part of the scan), with their new location.
 MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("missing_values",): "scan.values.null_markers and scan.values.missing",
     ("normalization",): "scan.normalization",
@@ -209,6 +122,7 @@ MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("enum_detection",): "scan.detectors.enumeration",
     ("value_examples", "candidate_sample_size"): "scan.limits.max_samples",
     ("value_examples", "random_seed"): "scan.random_seed",
+    ("preview_rows",): "scan.records.preview",
 }
 
 

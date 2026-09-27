@@ -1,5 +1,4 @@
 {
-  "preview_rows": 20,
   "string_analysis": {
     "very_short_max_length": 5,
     "short_max_length": 20,
@@ -48,6 +47,10 @@
     },
     "limits": {
       "max_samples": 100
+    },
+    "records": {
+      "preview": 20,
+      "duplicates": true
     },
     "exposure": {
       "sensitive_values": "mask"

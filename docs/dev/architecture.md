@@ -10,26 +10,27 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 
 ## Boundaries
 
-- `report_profile.py`: builds the report profile from a `ScanResult` and the
-  record-level facts (`RowFacts`, per dataset: preview, duplicate, empty and
-  incomplete records) collected in the same pass through the `on_record` hook of `scan()`.
-  No pandas and no file access.
+- `report_profile.py`: builds the report profile from a `ScanResult`, fresh
+  or read back from a scan document; record-level facts (preview, duplicate,
+  empty and incomplete records) come from the `records` block of each scan
+  dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 4: one
+- `models.py`: Pydantic models of the report profile (revision 5: one
   profile per dataset in `datasets`).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
   `load_config_layers()` validates every file completely (top-level settings and
   the `scan` section), rejects the settings moved to `scan` with their new
   location, and merges files in order; each command resolves its own settings
   from the merged layers.
-- `ingestion.py`, `analysis.py`, `legacy_models.py`: the pandas engine and its
-  revision 2 models, kept only for `analyze_column` and the parity tests of
-  Scan lot 5a; removed in lot 5c.
 - `service.py`: public `analyze(...)` orchestration plus the reusable
-  `analyze_csv(path, config)` boundary, which scans the CSV and builds its
-  profile. Output replacement is an explicit
-  service-level choice rather than a CLI-only safeguard.
+  `analyze_csv(path, config)` boundary, which scans the source and builds its
+  profile, and `analyze_scan(path)`, which builds it from a scan document.
+  Output replacement is an explicit service-level choice rather than a
+  CLI-only safeguard.
+- `scan_reuse.py`: reads scan documents for `tabalyst report --scan` and
+  applies the staleness rule (design O12): source size, modification time and
+  SHA-256, and the `config_sha256` of requested scan settings.
 - `batch.py`: shared batch planning: shell-independent input resolution,
   output naming for `-o` and `-d`, collision, input-overwrite and `--force`
   checks, and atomic text writes.
@@ -46,9 +47,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
-- `scanner/`: Tabalyst Scan, the streaming engine being built beside the pandas
-  engine (see below). It imports no pandas; `tabalyst scan` and
-  `tabalyst.scan()` expose it.
+- `scanner/`: Tabalyst Scan, the streaming engine (see below); `tabalyst scan`
+  and `tabalyst.scan()` expose it. Tabalyst has no pandas dependency.
 - `cli/app.py`: root command registration and global options.
 - `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
   error/diagnostic presentation over the services.
@@ -185,10 +185,11 @@ per-column JSON files, an evidence CSV with selected/context rows, configurable
 semantic rules, localization and an HTTP adapter build on these boundaries. No
 compatibility layer or migration system is planned during the current alpha.
 
-Tabalyst Scan will replace the pandas engine with a streaming, bounded-memory
-engine for CSV and JSON. Its contract is [scan/design.md](scan/design.md) and
+Tabalyst Scan replaced the pandas engine with a streaming, bounded-memory
+engine for CSV and JSON (lot 5c removed the pandas engine). Its contract is [scan/design.md](scan/design.md) and
 its lots are in [scan/plan.md](scan/plan.md). `tabalyst.scanner` provides
 `scan()`, `ScanConfig` and `ScanResult`; since lot 4, the `tabalyst scan`
 command and the top-level `tabalyst.scan()` and `tabalyst.generate_scans()`
 expose it, and the `scan` section of configuration files configures it. Since
-lot 5a, `tabalyst report` is built on it.
+lot 5a, `tabalyst report` is built on it; since lot 5c, it can reuse a scan
+document (`--scan`).

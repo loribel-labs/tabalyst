@@ -42,7 +42,7 @@ lot, with the reason recorded in section 17.
 | O09 | Limits | Initial defaults and hard caps of section 11; values revisited after phase 6 benchmarks. | Accepted 2026-09-26 | 11 |
 | O10 | Sensitive values | Sensitive fields expose masked shapes by default, through one exposure gate. | Accepted 2026-09-26 | 12.8 |
 | O11 | Declarative patterns | Validated Python regular expressions with length caps. | Accepted 2026-09-26 | 12.7 |
-| O12 | Reuse and staleness | Identity fields exist from phase 1; the reuse rule is settled in lot 5c. | Deferred to 5c | 16.2 |
+| O12 | Reuse and staleness | The report reuses a scan document; a source beside it with another size, or another content when its modification time changed, and configured scan settings that differ from the document's are stale and fail; a missing source is accepted with a warning. | Accepted 2026-09-28 (lot 5c) | 16.6 |
 | O13 | Configuration merge | Objects merge, lists replace, unknown keys fail. | Accepted 2026-09-26 | 15 |
 | O14 | Detector catalogue | Each detector gets a short specification in [detectors.md](detectors.md) before it is implemented. | Accepted 2026-09-26, file created in lot 3b | 12 |
 | O15 | Empty inputs | Zero counts and `not_applicable` measures; never a division by zero. | Accepted 2026-09-26 | 9.9 |
@@ -89,7 +89,8 @@ on_record=None)` reads one source and returns a finalized `ScanResult`. It
 writes nothing. `registry` replaces the default detector registry (section
 12.1). `on_record` receives each analyzed `Record` (section 6), in reading
 order, before the engine, so a consumer gets record-level facts in the same
-pass; it must not modify the record (lot 5a, section 16.4). Phase 4 adds
+pass; it must not modify the record (lot 5a). Since lot 5c the report reads
+record facts from the `records` block of each dataset (section 9.10) instead. Phase 4 adds
 file output, batches and the top-level alias `tabalyst.scan`: since lot 4, `tabalyst.scan`,
 `tabalyst.ScanConfig` and `tabalyst.ScanResult` are exported by the package,
 with `tabalyst.generate_scans()` (section 16.3).
@@ -584,6 +585,40 @@ See section 10.
 - Percentages are left to consumers; the scan publishes counts and
   denominators, so no division by zero can occur in the scan.
 
+### 9.10 Records (lot 5c)
+
+Each dataset has a `records` block of record-level facts (section 16.2):
+
+```json
+{"with_missing": {"count": 2, "records": [2, 5]},
+ "empty": {"count": 1, "records": [5]},
+ "duplicates": {"count": {"status": "complete", "value": 1}, "records": [3]},
+ "preview": [{"record": 1, "values": {"column_1": ["1"], "column_2": [""]}}]}
+```
+
+- The values of a record are its scalar observations (strings, numbers,
+  booleans, nulls). An absent field is not a value of its record.
+- `with_missing`: records with at least one value missing under
+  `values.missing`; `empty`: records with values, all missing. A record
+  without values is neither.
+- `duplicates`: records equal to an earlier record of the same dataset,
+  beyond the first occurrence. Records compare every observation (path,
+  native type, raw value) through a 128-bit BLAKE2b digest, one per distinct
+  record: exact up to a negligible collision probability. The digests of the
+  whole scan are bounded by `limits.max_tracked_records`: once it is reached,
+  new digests are not stored but records are still compared with the stored
+  ones, so every counted duplicate is proven, and the count of a dataset with
+  an untracked record is `limited` with reason `record_budget` and the count
+  as `lower_bound`. `disabled` when `records.duplicates` is `false`.
+- `records` lists the first record indices, up to
+  `limits.max_listed_records`.
+- `preview`: the first `records.preview` records, values per field id as
+  canonical text (section 9.1), in observation order for items paths; a JSON
+  null is `null`; untracked paths and absent fields have no key. The exposure
+  gate applies at finalization (12.8): `content` strings, numbers and
+  booleans of a sensitive field are masked, or their cell is `null` under
+  `hide`; nulls and non-content strings stay as read.
+
 ## 10. Normalization version 1 (D15, D16, EF33-EF38, O08)
 
 Normalization applies to `content` strings only, never to the source. Stages
@@ -650,6 +685,8 @@ run in this order; each can be disabled:
 | `max_variant_groups` | 100 | 100,000 | Output truncation only. |
 | `max_variants_per_group` | 20 | 10,000 | Output truncation only. |
 | `max_evidence_examples` | 10 | 1,000 | Detector evidence size only. |
+| `max_tracked_records` | 2,000,000 per scan | 500,000,000 | Duplicate digests stop being stored (about 80 bytes each); later records are still compared; duplicate counts of datasets with untracked records become limited with reason `record_budget`; warning `record_budget`. |
+| `max_listed_records` | 10 | 10,000 | Output truncation of the record listings only. |
 
 - Defaults are starting values, not validated budgets. Phase 6 revisits them
   with measurements.
@@ -973,6 +1010,7 @@ never guessed when corruption prevents delimiting them.
 | Structural limit (`max_fields`, `max_depth`) | Warning, scan continues | Same |
 | Measure limit | Envelope status, plus one `measures_limited` warning per dataset: `count` is the number of fields, the message names at most 10 | Same |
 | Global value budget | One `global_budget` warning per scan: `count` is the number of released tables | Same |
+| Duplicate record budget | One `record_budget` warning per scan: `count` is the number of records whose digest was not stored | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
@@ -1011,8 +1049,10 @@ settings from it (section 16.4).
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 100, "max_variant_groups": 100,
-      "max_variants_per_group": 20, "max_evidence_examples": 10
+      "max_variants_per_group": 20, "max_evidence_examples": 10,
+      "max_tracked_records": 2000000, "max_listed_records": 10
     },
+    "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
     "detection": {"minimum_share": 0.95},
     "detectors": {
@@ -1085,7 +1125,7 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 1,
+  "format_revision": 2,
   "engine": {"version": "0.4.0", "normalization_version": 1,
              "detectors": {"number": 1, "date": 1, "boolean": 1,
                            "enumeration": 1, "email": 1, "url": 1,
@@ -1132,6 +1172,11 @@ changelog is `docs/en/reference/scan-format-changelog.md` (lot 4).
   "structure": {"paths": {"status": "complete", "value": 5},
                 "untracked_observations": 0,
                 "depth_truncated_observations": 0, "max_depth_seen": 3},
+  "records": {"with_missing": {"count": 1, "records": [2]},
+              "empty": {"count": 0, "records": []},
+              "duplicates": {"count": {"status": "complete", "value": 0},
+                             "records": []},
+              "preview": []},
   "fields": [
     {
       "id": "f4",
@@ -1168,7 +1213,7 @@ changelog is `docs/en/reference/scan-format-changelog.md` (lot 4).
 
 Fields appear in order of discovery. Blocks introduced by later lots are
 absent until their lot, then always present (with an envelope status when
-they do not apply). For reuse (O12, lot 5c), the source block already carries
+they do not apply). For reuse (O12, section 16.6), the source block carries
 size, modification time and SHA-256, and the result carries `config_sha256`.
 
 ### 16.3 Output files (lot 4, O17)
@@ -1202,15 +1247,14 @@ Lot 4 details:
 report profile (revision 3) from the result (`report_profile.py`). Decided with
 the maintainer in lot 5a:
 
-- **One pass.** Record-level facts the scan does not keep (preview, duplicate
-  rows, empty rows, rows with missing values) are collected through
-  `scan(on_record=...)`. Duplicate rows compare a 128-bit BLAKE2b digest of the
-  raw row, one per distinct row: exact up to a negligible collision
-  probability, and the only record-level state that grows with the file until
-  lot 5c bounds it.
+- **One pass.** Record-level facts (preview, duplicate rows, empty rows,
+  rows with missing values) were collected through `scan(on_record=...)`;
+  since lot 5c they are the `records` block of the scan (section 9.10),
+  bounded by `limits.max_tracked_records`.
 - **Configuration.** Every analysis setting of the report, CSV reading
   included, comes from `scan`. The top level keeps the presentation settings
-  (`preview_rows`, `string_analysis`, `value_examples`) and `csv` for
+  (`string_analysis`, `value_examples`; `preview_rows` until lot 5c moved it
+  to `scan.records.preview`) and `csv` for
   `tabalyst sample`. Former report settings are rejected with their new
   location; a top-level `csv` value that differs from `scan.csv` is an error
   for the report, since the file would otherwise be read differently than
@@ -1280,6 +1324,40 @@ Decided with the maintainer in lot 5b:
   the navigation and element ids prefixed `d<N>-`; a single dataset keeps
   plain ids.
 
+### 16.6 Report from a scan document (lot 5c, O12)
+
+Decided with the maintainer in lot 5c:
+
+- **Command.** `tabalyst report --scan INPUT...`: the inputs are scan
+  documents. The report is built from the document alone (profile revision
+  5): record facts come from its `records` blocks, so it equals the report
+  of the source with the same scan settings, except `generated_at` and
+  `processing_seconds`. Outputs are named after `source.name`
+  (`report_name`), beside the scan document by default; the planning reads
+  each document for that name and protects the source beside it from being
+  replaced. The execution history names the source.
+- **Documents.** `format`, `format_version` and `format_revision` must be
+  those of the running version, otherwise `InputError` asking for a new
+  scan; there is no migration. The document is validated as `ScanResult`.
+- **Staleness.** The source is looked for beside the document under
+  `source.name`. Missing: accepted, the document stands on its own, and
+  the command warns that the source was not checked (scans written with `-d`
+  elsewhere). Another size: stale. Same size and modification time: fresh. Other modification
+  time: its SHA-256 decides, so a touched file stays fresh. Stale is an
+  `InputError` (exit 4) naming the source and asking for a new scan.
+- **Settings.** The document's `config` is the report's `scan`
+  configuration. The `scan` settings of the configuration files, merged over
+  the document's configuration, must leave its `config_sha256` unchanged,
+  otherwise `ConfigurationError` (exit 2): settings the files do not give,
+  such as a delimiter passed to `tabalyst scan`, are not compared.
+  `--delimiter` and `--encoding` are rejected with `--scan`.
+- **Batches.** A document that cannot be read while planning fails its own
+  job only, its report named after the document file.
+- **Timing.** `processing_seconds` of the profile is the time to read the
+  document and build the profile.
+- **Python.** `tabalyst.generate_reports(..., from_scan=True)` and
+  `tabalyst.analyze_scan(path, config_path)`.
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1304,3 +1382,4 @@ Decided with the maintainer in lot 5b:
 | 2026-09-27 | 4 | Section 15: no automatic `tabalyst.json`; one file for every command with a `scan` object, validated by every command; command-line layer. Section 16.3: output naming, shared planning, temporary file, batch failures, document serialization, byte progress. Section 5.2: integers above `sys.int_max_str_digits` parsed by the pure-Python backend, exponent overflow and long parser messages. Sections 3 and 16.1: top-level exports, format changelog page. | Maintainer decision on configuration files (report behavior unchanged); the compiled `ijson` backend crashed the process on long integers (lot 2a note). |
 | 2026-09-27 | 5a | Section 3: `on_record` hook of `scan()`. Section 12.6: the report never applies ambiguity evidence. New section 16.4 and decision O16: report built on Scan, configuration in `scan`, technical types, primary interpretations as semantic types, scan exposure applied to the preview, limited measures and excluded records as issues. | Report migration; decisions of the maintainer in lot 5a (configuration, masking by default, `date` type with an `ambiguous_dates` issue, primary interpretations). |
 | 2026-09-27 | 5b | Section 16.4: JSON sources accepted. New section 16.5: profile revision 4 with `datasets`, JSON columns as scalar fields named by path, value slots, record facts per dataset, preview of JSON records, detectors per column, `.report` output names for JSON sources, one HTML view per dataset. | Lot 5b; maintainer decisions (revision 4 with a dataset list, flattened paths, detectors section only). |
+| 2026-09-28 | 5c | New section 9.10 and `records` block of datasets (format revision 2): records with missing values, empty records, duplicates under the new `limits.max_tracked_records` budget with reason `record_budget`, preview through the exposure gate; `records` settings and `max_listed_records`; section 14 `record_budget` warning. Section 16.4: record facts from the scan, `preview_rows` moved to `scan.records.preview`. New section 16.6 and O12 accepted: report from a scan document and the staleness rule. Pandas engine removed after gate 5. | Maintainer decisions of lot 5c: record facts in the scan so a report needs no source, stale scans fail, pandas removed at gate 5. |

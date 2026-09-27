@@ -285,10 +285,10 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
     config.write_text(
         json.dumps(
             {
-                "preview_rows": 0,
                 "scan": {
                     "csv": {"delimiter": ";", "encoding": "cp1252"},
                     "values": {"null_markers": ["NULL"]},
+                    "records": {"preview": 0},
                 },
             }
         )

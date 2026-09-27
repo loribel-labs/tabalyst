@@ -57,6 +57,14 @@ def _print_batch_result(
                         details.append(f"delimiter {source['delimiter']!r}")
                     typer.echo("  " + " | ".join(details), err=True)
 
+    for success in batch.successes:
+        if success.source_checked is False:
+            typer.echo(
+                f"Warning [{success.job.source}]: source "
+                f"{success.job.scanned.name} not found beside the scan "
+                "document; not checked for changes since the scan.",
+                err=True,
+            )
     for failure in batch.failures:
         typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
 
@@ -72,7 +80,10 @@ def report_command(
         list[str],
         typer.Argument(
             metavar="INPUT...",
-            help="One or more CSV or JSON files, or non-recursive glob patterns.",
+            help=(
+                "One or more CSV or JSON files, or scan documents with --scan, "
+                "or non-recursive glob patterns."
+            ),
         ),
     ],
     output: Annotated[
@@ -103,6 +114,16 @@ def report_command(
         Path | None,
         typer.Option("--config", "-c", help="JSON configuration file."),
     ] = None,
+    from_scan: Annotated[
+        bool,
+        typer.Option(
+            "--scan",
+            help=(
+                "Build the reports from scan documents written by tabalyst "
+                "scan, without reading the sources again."
+            ),
+        ),
+    ] = False,
     force: Annotated[
         bool,
         typer.Option("--force", "-f", help="Replace all existing report artifacts."),
@@ -140,6 +161,7 @@ def report_command(
             config_path=config,
             force=force,
             on_progress=progress,
+            from_scan=from_scan,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

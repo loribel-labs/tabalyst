@@ -1,8 +1,6 @@
 """Public Python interface for Tabalyst."""
 
 from tabalyst._version import __version__
-from tabalyst.analysis import analyze_column as analyze_column
-from tabalyst.config import AnalysisConfig as AnalysisConfig
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
 from tabalyst.report_config import ReportConfig as ReportConfig
 from tabalyst.report_service import generate_reports as generate_reports
@@ -17,6 +15,7 @@ from tabalyst.scanner import ScanResult as ScanResult
 from tabalyst.scanner import scan as scan
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
+from tabalyst.service import analyze_scan as analyze_scan
 
 __all__ = [
     "ConfigurationError",
@@ -33,5 +32,3 @@ __all__ = [
     "sample_csv",
     "scan",
 ]
-
-# Alpha compatibility imports remain available, but are not part of the 0.1.0 API.

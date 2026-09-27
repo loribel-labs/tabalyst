@@ -34,6 +34,16 @@ class StringClassifier:
             stripped = stripped.casefold()
         return stripped in self._markers
 
+    def category(self, value: str) -> str:
+        """``empty``, ``blank``, ``marker`` or ``content`` (design section 7)."""
+        if not value:
+            return "empty"
+        if value.isspace():
+            return "blank"
+        if self.has_markers and self.is_marker(value):
+            return "marker"
+        return "content"
+
 
 class FieldState:
     __slots__ = (

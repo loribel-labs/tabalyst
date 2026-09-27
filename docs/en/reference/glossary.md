@@ -53,6 +53,8 @@ Keep these exactly as written in every language:
 | alpha | alpha | Early stage where interfaces and formats may change |
 | scan | analyse | The complete description of a source written by `tabalyst scan` |
 | scan document | document d'analyse | The `.scan.json` file written by `tabalyst scan` |
+| stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
+| duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
 | record | enregistrement | One CSV row or one element of a JSON collection |
 | collection | collection | A JSON array whose elements are analyzed as records |
 | field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |

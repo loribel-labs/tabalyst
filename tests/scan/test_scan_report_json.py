@@ -49,7 +49,7 @@ def _datasets(profile) -> dict:
 def test_json_profile_lists_one_dataset_per_scan_dataset(tmp_path):
     profile = analyze_csv(_orders(tmp_path))
 
-    assert profile.format_revision == 4
+    assert profile.format_revision == 5
     assert profile.source.format == "json"
     assert profile.source.delimiter is None
     datasets = _datasets(profile)

@@ -23,7 +23,8 @@ regenerated, documentation consistent with what is released.
 | 5a | Report built on Scan, parity on the demos | Done | Opus 5.5 | High | `scan/phase-5` |
 | 5a-fr | French translation of the lot 5a documentation | Done | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 5b | JSON sources and new sections in the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
-| 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
+| 5c | Scan reuse, streaming duplicates, pandas removal | Done | Opus 5.5 | High | `scan/phase-5` |
+| 5c-fr | French translation of the lot 5b and 5c documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
 
@@ -41,7 +42,8 @@ The maintainer validates before the next lot starts:
   items to validate are listed in the lot 1b notes.
 - **Gate 3**, after 3a: detector contract and ambiguity handling.
 - **Gate 4**, before releasing `tabalyst scan`.
-- **Gate 5**, before removing the pandas engine in 5c.
+- **Gate 5**, before removing the pandas engine in 5c. Passed on
+  2026-09-28: removal approved at the start of lot 5c.
 
 ## Why these models
 
@@ -274,6 +276,23 @@ benchmarks.md.
 - Duplicate records in streaming under a budget.
 - Remove `ingestion.py`, the pandas parts of `analysis.py` and the pandas
   dependency after gate 5.
+- Done on 2026-09-28, decisions of the maintainer at the start of the lot:
+  record facts live in the scan (a `records` block per dataset, scan format
+  revision 2), stale scans fail, gate 5 passed. `tabalyst report --scan`,
+  `scan_reuse.py`, the `record_budget` limit, profile revision 5 with
+  `duplicate_row_status`, `preview_rows` moved to `scan.records.preview`;
+  pandas engine and dependency removed. Contract tests
+  `tests/scan/test_scan_records.py` and `tests/scan/test_scan_reuse.py`.
+  Decisions in design sections 9.10 and 16.6. Notes below.
+
+### Lot 5c-fr: French documentation
+
+- Update the French pages from the English ones changed by lots 5b and 5c:
+  `index`, `how-to/scan-files`, new `how-to/report-json-files`,
+  `reference/configuration`, `reference/glossary`,
+  `reference/known-limitations`, `reference/json-profile`,
+  `reference/profile-format-changelog`, `reference/scan-format` and
+  `reference/scan-format-changelog`.
 
 ### Lot 6: measure, set targets, optimize
 
@@ -664,6 +683,39 @@ done, and anything the next lot must know.
     limitations and glossary pages changed.
   - The browser check needs the Playwright Node module; lot 5a installed it
     outside the repository for the session.
+- Lot 5c, for lot 6 and the maintainer:
+  - Indicative measures, not benchmark rows, `synthetic-100k.csv`: the report
+    takes about 13.7 s (13.2 s in lot 5a) with 226 MB peak memory (269 MB in
+    lot 5a, pandas no longer imported); a scan takes about 13.2 s with
+    duplicate detection and 11.8 s without (about 12%). The digest is built
+    from `repr()` of the observations: a cheaper key (CSV rows by position)
+    is a candidate for lot 6. A stored digest costs about 83 bytes, so the
+    default budget of 2,000,000 records is about 165 MB at most.
+  - `tabalyst scan` documents now hold a preview of 10 records by default,
+    raw values of non-sensitive fields included, as samples and first values
+    already did.
+  - Report planning with `--scan` reads each scan document to name its
+    outputs, then reads it again to build the report (found in review; kept,
+    a candidate for lot 6). An unreadable document fails its own job only.
+  - Found in review and fixed: scans written with `-d` elsewhere have no
+    source beside them, so their staleness cannot be checked; the command
+    now warns. Recording the source path relative to the scan document would
+    let the check follow them: a decision for the maintainer (format
+    revision 3).
+  - `on_record` of `scan()` stays in the API but the report no longer uses
+    it.
+  - Still open from lot 5b: normalization variants, limits and JSON structure
+    sections of the report; `executions.json` records sums over datasets.
+  - `tabalyst-studio` follow-up: `report.json` is revision 5 (the site reads
+    `examples/output/insurance-customers/`), `examples/config.json` moved
+    `preview_rows` to `scan.records.preview`, the report can be built from a
+    scan (`--scan`); pages changed: how-to scan files, configuration, JSON
+    profile, profile changelog, scan format and its changelog, known
+    limitations, glossary.
+  - Release notes: breaking changes for users are `preview_rows` moved to
+    `scan.records.preview`, profile revision 5, scan format revision 2, the
+    removal of `tabalyst.analyze_column` and `tabalyst.AnalysisConfig`, and
+    no pandas dependency.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.

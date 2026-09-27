@@ -5,7 +5,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 
 `tabalyst scan data.csv` writes `data.scan.json`, a JSON document that
 describes every field of the source. This page describes format
-`tabalyst.scan`, version `0.1.0a`, revision `1`. The format is
+`tabalyst.scan`, version `0.1.0a`, revision `2`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](scan-format-changelog.md).
@@ -16,7 +16,7 @@ the [scan format changelog](scan-format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 1,
+  "format_revision": 2,
   "engine": {
     "version": "0.4.0",
     "normalization_version": 1,
@@ -84,6 +84,7 @@ array.
     "depth_truncated_observations": 0,
     "max_depth_seen": 3
   },
+  "records": {"...": "record facts, described below"},
   "fields": []
 }
 ```
@@ -92,6 +93,45 @@ array.
 - `record_count`: analyzed records; `record_types`: records per JSON type.
 - `structure`: the number of distinct field paths, and what the `max_fields`
   and `max_depth` limits left out.
+- `records`: facts about whole records, described in the next section.
+
+## Records
+
+Each dataset describes its records as a whole: records with missing values,
+empty records, duplicate records and a preview of the first records.
+
+```json
+{
+  "with_missing": {"count": 2, "records": [2, 5]},
+  "empty": {"count": 1, "records": [5]},
+  "duplicates": {
+    "count": {"status": "complete", "value": 1},
+    "records": [3]
+  },
+  "preview": [
+    {"record": 1, "values": {"column_1": ["1"], "column_2": ["aaa@aaaaaaa.aaa"]}}
+  ]
+}
+```
+
+- The values of a record are its strings, numbers, booleans and nulls: every
+  cell of a CSV row. A JSON field absent from a record is not a value of it.
+- `with_missing`: records with at least one missing value, under the
+  `values.missing` setting. `empty`: records whose values are all missing.
+- `duplicates`: records equal to an earlier record of the same dataset,
+  beyond its first occurrence. Records are equal when every value, its field
+  and its native type are equal, raw values compared, before normalization.
+  `count` is a measure envelope: `limited` with reason `record_budget` when
+  more distinct records than `limits.max_tracked_records` were read, its
+  `lower_bound` being the duplicates found; `disabled` when
+  `records.duplicates` is `false`.
+- `records` lists record numbers, at most `limits.max_listed_records` of
+  them. Record numbers are those of `first_record` and diagnostics.
+- `preview`: the first `records.preview` records, each with its values per
+  field identifier, as text. The values of an items path are listed in order;
+  a JSON null is `null`; a field absent from the record has no key. Sensitive
+  values go through the field's exposure; a cell holding a hidden value is
+  `null`. Empty strings, blanks and null markers are shown as read.
 
 ## Fields
 
@@ -211,7 +251,8 @@ date range is itself a value. Counts are never masked.
 
 Diagnostics describe technical events, not data quality: excluded records,
 reached limits (`field_limit`, `depth_limit`, `measures_limited`,
-`global_budget`), collections not found and detector failures. `level` is
+`global_budget`, `record_budget`), collections not found and detector
+failures. `level` is
 `error` or `warning`. `count` is always complete; `locations` lists at most
 `errors.max_locations` places, with `record` and `line` for CSV, `record` and
 `element` for JSON.

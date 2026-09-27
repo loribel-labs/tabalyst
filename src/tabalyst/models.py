@@ -1,4 +1,4 @@
-"""Serializable report profile (revision 4), independent from presentation.
+"""Serializable report profile (revision 5), independent from presentation.
 
 Built from a Tabalyst Scan result by ``report_profile.py``.
 """
@@ -176,7 +176,10 @@ class DatasetSummary(ResultModel):
     missing_percent: float
     trim_count: int
     collapse_internal_whitespace_count: int
-    duplicate_row_count: int
+    # A lower bound when ``duplicate_row_status`` is ``limited`` (the scan's
+    # ``limits.max_tracked_records``), null when duplicates are not checked.
+    duplicate_row_count: int | None
+    duplicate_row_status: Literal["complete", "limited", "disabled"]
     empty_row_count: int
     empty_column_count: int
     constant_column_count: int
@@ -242,7 +245,7 @@ class DatasetProfile(ResultModel):
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[4] = 4
+    format_revision: Literal[5] = 5
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo
