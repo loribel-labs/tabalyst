@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import math
 import re
-from collections.abc import Callable
 from decimal import (
     Clamped,
     Context,
@@ -24,6 +23,7 @@ from decimal import (
     Underflow,
 )
 from fractions import Fraction
+from typing import TYPE_CHECKING
 
 from tabalyst.scanner.models import (
     Complete,
@@ -34,14 +34,10 @@ from tabalyst.scanner.models import (
     StringCharacteristics,
     StringLengths,
 )
+from tabalyst.scanner.normalization import ANALYTICAL_STAGE, STAGES, Normalizer
 
-# The strict number rule of the current engine, until the number detector of
-# lot 3a: optional sign, digits without leading zeros, optional dot decimal,
-# optional exponent. ``NaN`` and ``inf`` are not numbers.
-INTEGER = re.compile(r"[+-]?(?:0|[1-9][0-9]*)")
-NUMBER = re.compile(
-    r"[+-]?(?:(?:0|[1-9][0-9]*)(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
-)
+if TYPE_CHECKING:  # detectors import this module
+    from tabalyst.scanner.detectors.registry import DetectorSet
 
 # Exact decimal arithmetic: any rounding or exponent outside the range makes
 # the numeric envelope ``limited`` with reason ``precision``.
@@ -85,8 +81,28 @@ _RARE = re.compile("[\x00-\x1f\x7f-\x9f  ]")
 
 # Facts of one value: native type, analytical text, characteristic flags
 # (strings only, else 0), analytical length (strings only, else -1), number
-# (int or Decimal, else None) and whether that number has a decimal form.
-Facts = tuple[str, str, int, int, int | Decimal | None, bool]
+# (int or Decimal, else None), whether that number has a decimal form, the
+# normalization changes (bit ``i`` for stage ``i``, strings only, else 0), the
+# output of each normalization stage (strings only, else None), the
+# classification of each active detector (design section 12) and the
+# technical type family (design 9.7).
+Facts = tuple[
+    str,
+    str,
+    int,
+    int,
+    int | Decimal | None,
+    bool,
+    int,
+    tuple[str, ...] | None,
+    tuple[object, ...],
+    str,
+]
+# Positions of the normalization and detection facts.
+CHANGES = 6
+FORMS = 7
+CLASSIFICATIONS = 8
+FAMILY = 9
 
 
 def characteristic_flags(raw: str) -> int:
@@ -128,35 +144,29 @@ class _Unconvertible:
 UNCONVERTIBLE = _Unconvertible()
 
 
-def _decimal(text: str) -> Decimal | _Unconvertible:
+def decimal_or_unconvertible(text: str) -> Decimal | _Unconvertible:
     try:
         return Decimal(text)
     except InvalidOperation:  # exponent beyond the range of ``decimal``
         return UNCONVERTIBLE
 
 
-def parse_number(text: str) -> tuple[int | Decimal | _Unconvertible, bool] | None:
-    """Number accepted by the strict rule, and whether it has a decimal form."""
-    if INTEGER.fullmatch(text):
-        try:
-            return int(text), False
-        except ValueError:  # beyond the digits Python converts
-            return _decimal(text), False
-    if NUMBER.fullmatch(text):
-        return _decimal(text), True
-    return None
-
-
-def string_facts(raw: str, analytical: Callable[[str], str]) -> Facts:
-    text = analytical(raw)
-    number = parse_number(text)
+def string_facts(raw: str, normalizer: Normalizer, detectors: DetectorSet) -> Facts:
+    """Facts of a content string; detectors see its analytical value."""
+    forms, changes = normalizer.run(raw)
+    text = forms[ANALYTICAL_STAGE]
+    classifications, number, decimal_form, family = detectors.analyze(text)
     return (
         "string",
         text,
         characteristic_flags(raw),
         len(text),
-        None if number is None else number[0],
-        False if number is None else number[1],
+        number,
+        decimal_form,
+        changes,
+        forms,
+        classifications,
+        family,
     )
 
 
@@ -167,11 +177,25 @@ def canonical_text(native_type: str, value: object) -> str:
     return str(value)
 
 
-def scalar_facts(native_type: str, value: object) -> Facts:
-    """Facts of an integer, number (``Decimal``) or boolean."""
+def scalar_facts(native_type: str, value: object, detectors: DetectorSet) -> Facts:
+    """Facts of an integer, number (``Decimal``) or boolean; detectors that
+    accept its native type see its canonical text."""
+    text = canonical_text(native_type, value)
+    classifications = detectors.classify(native_type, text)
     if native_type == "boolean":
-        return (native_type, canonical_text(native_type, value), 0, -1, None, False)
-    return (native_type, str(value), 0, -1, value, native_type == "number")
+        return (native_type, text, 0, -1, None, False, 0, None, classifications, "boolean")
+    return (
+        native_type,
+        text,
+        0,
+        -1,
+        value,
+        native_type == "number",
+        0,
+        None,
+        classifications,
+        native_type,
+    )
 
 
 class Unrepresentable(Exception):
@@ -347,27 +371,60 @@ def _square_root(value: Fraction) -> int | float:
         raise Unrepresentable from exc
 
 
+def _add_bits(counters: list[int], flags: int, count: int) -> None:
+    """Add ``count`` to ``counters[i]`` for each bit ``i`` set in ``flags``."""
+    while flags:
+        bit = flags & -flags
+        counters[bit.bit_length() - 1] += count
+        flags ^= bit
+
+
 class ValueMeasures:
-    """String characteristics, lengths and numeric statistics of one field."""
+    """String characteristics, lengths, normalization changes, numeric
+    statistics, technical type families and detector tallies of one field."""
 
-    __slots__ = ("characteristics", "lengths", "numeric")
+    __slots__ = (
+        "changed",
+        "characteristics",
+        "families",
+        "lengths",
+        "numeric",
+        "tallies",
+    )
 
-    def __init__(self) -> None:
+    def __init__(self, tallies: list | tuple = ()) -> None:
         self.characteristics = [0] * len(CHARACTERISTICS)
         self.lengths: dict[int, int] = {}
+        # Occurrences modified by each normalization stage (design section 10).
+        self.changed = [0] * len(STAGES)
         self.numeric = NumericAccumulator()
+        # Values per technical type family (design 9.7).
+        self.families: dict[str, int] = {}
+        # One tally per active detector, aligned with the classifications.
+        self.tallies = tallies
 
     def add(self, facts: Facts, count: int) -> None:
-        native_type, _, flags, length, number, decimal_form = facts
+        (
+            native_type,
+            text,
+            flags,
+            length,
+            number,
+            decimal_form,
+            changes,
+            _,
+            classifications,
+            family,
+        ) = facts
         if length >= 0:
             self.lengths[length] = self.lengths.get(length, 0) + count
-            characteristics = self.characteristics
-            while flags:
-                bit = flags & -flags
-                characteristics[bit.bit_length() - 1] += count
-                flags ^= bit
+            _add_bits(self.characteristics, flags, count)
+            _add_bits(self.changed, changes, count)
         if number is not None:
             self.numeric.add(number, decimal_form, native_type != "string", count)
+        self.families[family] = self.families.get(family, 0) + count
+        for tally, classification in zip(self.tallies, classifications):
+            tally.add(text, classification, count)
 
     def string_characteristics(self) -> StringCharacteristics:
         return StringCharacteristics(**dict(zip(CHARACTERISTICS, self.characteristics)))

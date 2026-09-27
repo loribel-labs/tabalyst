@@ -45,6 +45,27 @@
   streaming after a table is released, with identical results. JSON strings
   with a lone surrogate escape are now rejected by both `ijson` backends where
   they can be detected. Its contract tests are enabled.
+- Completed Tabalyst Scan lot 2b: normalization version 1 with its five
+  stages, exact change counters that continue after a table is released,
+  distinct counts after each stage and variant groups listed by comparison
+  key with their raw variants. Group and variant limits truncate output only.
+  Its contract tests are enabled; the 100,000-row benchmark file scans about
+  5% slower than after lot 2a.
+- Completed Tabalyst Scan lot 3a: detector framework (registry, coverage,
+  formats, evidence, interpretations, per-field isolation of failures, shape
+  signatures), technical type inference ported from the current engine, and
+  the `number`, `date`, `boolean` and `enumeration` detectors. Numbers accept
+  dot and comma decimal conventions and expose `1,234` as ambiguous; dates
+  add ISO date-times, times and English and French month names, with a
+  `temporal` block per kind. Ambiguity is exposed with its evidence and
+  resolved only by configuration. Its contract tests are enabled; the
+  100,000-row benchmark file scans about 60% slower, recorded for lot 6.
+- Started Tabalyst Scan lot 3b: detector specifications in
+  `docs/dev/scan/detectors.md`, declarative pattern detectors
+  (`pattern:<id>`) built from the `patterns` configuration, and one exposure
+  gate for sensitive fields that masks (default) or hides every value-bearing
+  block, including detector evidence and variant groups. Its contract tests
+  are enabled; the priority 1 catalogue families remain.
 
 ## 2026-09-17
 

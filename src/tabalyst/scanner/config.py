@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from fractions import Fraction
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -152,8 +153,89 @@ class DetectionSettings(_Settings):
     minimum_share: float = Field(default=0.95, gt=0, le=1)
 
 
+NumberConvention = Literal["dot", "comma"]
+MonthLanguage = Literal["en", "fr"]
+
+
+class NumberSettings(_Settings):
+    """``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:
+    decimal comma, thousands grouped by ``.`` or a space (design 12.10)."""
+
+    enabled: bool = True
+    conventions: list[NumberConvention] = Field(
+        default_factory=lambda: ["dot", "comma"], min_length=1
+    )
+    ambiguous_convention: NumberConvention | None = None
+
+    @field_validator("conventions")
+    @classmethod
+    def unique_conventions(cls, values: list[str]) -> list[str]:
+        if len(set(values)) != len(values):
+            raise ValueError("Number conventions must be unique")
+        return values
+
+    @model_validator(mode="after")
+    def ambiguous_convention_must_be_enabled(self):
+        if (
+            self.ambiguous_convention
+            and self.ambiguous_convention not in self.conventions
+        ):
+            raise ValueError("ambiguous_convention must also appear in conventions")
+        return self
+
+
+class DateSettings(DateDetectionConfig):
+    month_languages: list[MonthLanguage] = Field(
+        default_factory=lambda: ["en", "fr"]
+    )
+
+    @field_validator("month_languages")
+    @classmethod
+    def unique_languages(cls, values: list[str]) -> list[str]:
+        if len(set(values)) != len(values):
+            raise ValueError("Month languages must be unique")
+        return values
+
+
+class BooleanSettings(_Settings):
+    enabled: bool = True
+    pairs: list[tuple[str, str]] = Field(
+        default_factory=lambda: [
+            ("true", "false"),
+            ("yes", "no"),
+            ("y", "n"),
+            ("oui", "non"),
+            ("vrai", "faux"),
+        ]
+    )
+
+    @field_validator("pairs")
+    @classmethod
+    def distinct_words(cls, values: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        words = [word for pair in values for word in pair]
+        for word in words:
+            if not word or word.strip() != word:
+                raise ValueError(
+                    "Boolean words must be non-empty, without surrounding "
+                    f"whitespace: {word!r}"
+                )
+        if len({word.casefold() for word in words}) != len(words):
+            raise ValueError("Boolean words must be unique, ignoring case")
+        return values
+
+
+class EnumerationSettings(_Settings):
+    enabled: bool = True
+    minimum_values: int = Field(default=500, ge=1)
+    maximum_distinct: int = Field(default=49, ge=1, le=10_000)
+    case_sensitive: bool = True
+
+
 class DetectorSettings(_Settings):
-    date: DateDetectionConfig = Field(default_factory=DateDetectionConfig)
+    number: NumberSettings = Field(default_factory=NumberSettings)
+    date: DateSettings = Field(default_factory=DateSettings)
+    boolean: BooleanSettings = Field(default_factory=BooleanSettings)
+    enumeration: EnumerationSettings = Field(default_factory=EnumerationSettings)
 
 
 class PatternSettings(_Settings):
@@ -212,6 +294,12 @@ class ScanConfig(_Settings):
         if len(set(ids)) != len(ids):
             raise ValueError("Pattern identifiers must be unique")
         return values
+
+
+def exact_share(threshold: float) -> Fraction:
+    """The decimal value of a share threshold: ``Fraction(0.1)`` is above one
+    tenth in binary, so an exact 10% would miss it."""
+    return Fraction(str(threshold))
 
 
 def config_sha256(config: ScanConfig) -> str:
