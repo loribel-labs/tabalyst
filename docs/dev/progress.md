@@ -2,6 +2,27 @@
 
 ## 2026-09-27
 
+- Added the Tabalyst Scan `uuid` and `ip_address` detectors (lot 3b, UUID
+  and IP address family), which complete lot 3b. `uuid` recognizes the
+  hyphenated, braced and `urn:uuid:` forms, formats such as `hyphenated` and
+  `braced_upper`, and counts versions (`4`, `7`, `nil`, `other`) without
+  validating them; not sensitive. `ip_address` recognizes dotted-decimal
+  IPv4 and the IPv6 text forms (compressed, with an embedded IPv4 address),
+  with `invalid` reasons such as `invalid_octet` and `invalid_compression`,
+  a narrow IPv6 candidate so that times and MAC addresses are never invalid,
+  and a `versions` setting; sensitive, so its fields are masked by default.
+  No value of the demos matches; the 100,000-row benchmark file scans about
+  5 to 8% slower.
+- Added the Tabalyst Scan `currency`, `percentage` and `quantity` detectors
+  (lot 3b, currency and percentage family, extended to generic quantities):
+  amounts with a currency symbol or ISO 4217 code before or after the number
+  (`$1,234.56`, `12,50 €`, `USD 12`, accounting parentheses), percentages
+  (`12,5 %`) and a number followed by any unit (`10 Go`, `1 024 Mo`,
+  `90 km/h`). The number part follows the number detector's conventions and
+  ambiguity; formats such as `$#,##0.0` and `# ##0 [unit]`; currency counts
+  per marker and counted units in `details`. Not sensitive. No value of the
+  insurance demo matches; the 100,000-row benchmark file scans about 7 to
+  15% slower.
 - Added the Tabalyst Scan `postal_code` detector (lot 3b, postal code
   family): Canadian postal codes (`ca`, with or without the space, ignoring
   case) and United States ZIP and ZIP+4 codes (`us`), format templates such

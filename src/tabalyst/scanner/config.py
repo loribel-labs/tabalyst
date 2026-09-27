@@ -296,6 +296,45 @@ class PostalCodeSettings(_Settings):
         return values
 
 
+class CurrencySettings(NumberSettings):
+    """Conventions of the number part of amounts, set independently of
+    ``detectors.number``."""
+
+
+class PercentageSettings(NumberSettings):
+    """Conventions of the number part of percentages, set independently of
+    ``detectors.number``."""
+
+
+class QuantitySettings(NumberSettings):
+    """Conventions of the number part of quantities, set independently of
+    ``detectors.number``, and the counted units of ``details``."""
+
+    max_tracked_units: int = Field(default=10_000, ge=1, le=1_000_000)
+    max_listed_units: int = Field(default=20, ge=0, le=10_000)
+
+
+class UuidSettings(_Settings):
+    enabled: bool = True
+
+
+IpVersion = Literal["ipv4", "ipv6"]
+
+
+class IpAddressSettings(_Settings):
+    enabled: bool = True
+    versions: list[IpVersion] = Field(
+        default_factory=lambda: ["ipv4", "ipv6"], min_length=1
+    )
+
+    @field_validator("versions")
+    @classmethod
+    def unique_versions(cls, values: list[str]) -> list[str]:
+        if len(set(values)) != len(values):
+            raise ValueError("IP address versions must be unique")
+        return values
+
+
 class DetectorSettings(_Settings):
     number: NumberSettings = Field(default_factory=NumberSettings)
     date: DateSettings = Field(default_factory=DateSettings)
@@ -305,6 +344,11 @@ class DetectorSettings(_Settings):
     url: UrlSettings = Field(default_factory=UrlSettings)
     phone: PhoneSettings = Field(default_factory=PhoneSettings)
     postal_code: PostalCodeSettings = Field(default_factory=PostalCodeSettings)
+    currency: CurrencySettings = Field(default_factory=CurrencySettings)
+    percentage: PercentageSettings = Field(default_factory=PercentageSettings)
+    quantity: QuantitySettings = Field(default_factory=QuantitySettings)
+    uuid: UuidSettings = Field(default_factory=UuidSettings)
+    ip_address: IpAddressSettings = Field(default_factory=IpAddressSettings)
 
 
 class PatternSettings(_Settings):

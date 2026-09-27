@@ -17,8 +17,8 @@ regenerated, documentation consistent with what is released.
 | 2a | Values, frequencies, limits and statistics | Done | Sonnet 5 | High | `scan/phase-2` |
 | 2b | Normalization version 1 and variant groups | Done | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Done | Opus 5.5 | High | `scan/phase-3` |
-| 3b | Priority 1 catalogue, patterns, sensitive values | In progress | Sonnet 5 | Medium | `scan/phase-3` |
-| 4 | `tabalyst scan` command, configuration layers, documentation | Planned | Sonnet 5 | Medium | `scan/phase-4` |
+| 3b | Priority 1 catalogue, patterns, sensitive values | Done | Sonnet 5 | Medium | `scan/phase-3` |
+| 4 | `tabalyst scan` command, configuration layers, documentation | Next | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Planned | Sonnet 5 | Low | `scan/phase-4` |
 | 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
 | 5b | JSON sources and new sections in the report | Planned | Opus 5.5 | Medium | `scan/phase-5` |
@@ -186,8 +186,16 @@ benchmarks.md.
   and US, `fr`), enabled by default; `tests/test_scanner_phone.py`.
 - Postal code family done on 2026-09-27: `postal_code` built-in (regions
   `ca` and `us`), enabled by default, not sensitive;
-  `tests/test_scanner_postal.py`. Remaining families: currency and
-  percentage; UUID and IP addresses.
+  `tests/test_scanner_postal.py`.
+- Currency and percentage family done on 2026-09-27, extended to generic
+  quantities (`10 Go`, `1 024 Mo`) at the maintainer's request: `currency`,
+  `percentage` and `quantity` built-ins, enabled by default, not sensitive;
+  `tests/test_scanner_amounts.py`.
+- UUID and IP address family done on 2026-09-27: `uuid` (not sensitive) and
+  `ip_address` (versions `ipv4` and `ipv6`, sensitive) built-ins, enabled by
+  default; `tests/test_scanner_uuid_ip.py`.
+- Done on 2026-09-27: every priority 1 family is implemented; contract
+  changes recorded in design section 17.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -432,6 +440,66 @@ done, and anything the next lot must know.
     truncated values are `not_matched`. The demo `code_postal` column has 21
     truncated or shortened codes (`T3A 95`, `J1 5M4`), `not_matched`, and its
     double spaces are collapsed by the analytical value.
+- Lot 3b, currency and percentage session, for the other catalogue sessions
+  and the maintainer:
+  - Three detectors share `detectors/amount.py`: the number part is read by
+    a `NumberDetector` built from each detector's own `conventions` and
+    `ambiguous_convention` (independent of `detectors.number`), with the sign
+    outside the number part and no exponent. An amount-shaped part that
+    `number` rejects is `invalid` (`invalid_amount`, `invalid_number`),
+    except digits only (`01 m`, `01A`, `05%`), which are `not_matched` like
+    the digits-only rule of `phone`; a number part needs a digit, so `.com`
+    is not a quantity (both found in review). Inherited risk of gate 3:
+    `1.234 €` is 1.234, never ambiguous.
+  - A marker is required: a bare number is never a currency amount,
+    percentage or quantity, so the three never overlap `number`, nor each
+    other (currency codes and ordinals are not units).
+  - For the maintainer: currency codes are a fixed ISO 4217 list (current
+    codes plus `ANG`, `BGN`, `HRK`, `SLL`, `ZWL`), to update when ISO
+    replaces a currency; a configurable `codes` setting is an option.
+    Accounting negatives in parentheses (`($1,234.56)`) are accepted.
+  - `quantity` is generic, as decided with the maintainer: any one-token unit
+    of letters, `°`, `²`, `³`, `/` and `·`, kept as written (`Mo` and `mo`
+    differ). Formats use the placeholder `[unit]` so they stay bounded;
+    units are a counted names block, through the exposure gate. `12 ans`,
+    `3 pommes` and codes such as `12B` or `2A` are quantities. Known units grouped by dimension (data size,
+    length, mass, time) are left to a later catalogue wave (lot 7).
+  - The field's `numeric` block does not include amounts, percentages or
+    quantities (design 9.4); lot 5a decides whether the report needs them.
+  - Cost: `classify` of the three detectors over the 988,148 distinct values
+    of the 100,000-row benchmark file takes about 0.57 s in total; the whole
+    scan is about 7 to 15% slower (noisy), mostly the per-detector tally work
+    of the lot 3a note for lot 6. No value of the insurance demo matches.
+- Lot 3b, UUID and IP address session, for the maintainer and later lots:
+  - `uuid` accepts the hyphenated, braced and `urn:uuid:` forms, with a case
+    suffix in the format (`hyphenated_upper`, `braced_mixed`). A candidate is
+    `invalid` only for a letter beyond `f`; version and variant are counted
+    in `details.versions` (`"4"`, `"7"`, `"nil"`, `"max"`, `"other"`), never
+    validated, so generated test values such as
+    `12345678-1234-1234-1234-123456789012` still match. 32 bare hexadecimal
+    digits are `not_matched`: syntax cannot tell them from an MD5 hash (a
+    hash detector belongs to a later wave).
+  - For the maintainer: `uuid` is not sensitive (a record identifier, like
+    `CLI-00000281`), `ip_address` is (personal data in several
+    jurisdictions, like email and phone). Consequences: columns of
+    four-part version numbers (`1.0.0.12`) are IPv4 syntax and become
+    sensitive; IPv4 addresses whose last three groups have three digits
+    (`192.168.100.200`) are also numbers under the `comma` convention, so
+    such columns have no primary and, under `mask`, no `numeric` block.
+  - The IPv6 candidate is narrow on purpose: `::` or at least eight groups,
+    so times (`22:00:00`) and MAC addresses (`00:1A:2B:3C:4D:5E`) are
+    `not_matched`, never `invalid`; EUI-64 identifiers in eight colon groups
+    are IPv6 syntax. Prefix lengths, ports, brackets, zone indices and IPv4
+    shorthands are not accepted in version 1; network ranges (CIDR) are a
+    candidate for a later wave.
+  - Cost: `classify` over the 988,150 distinct values of the 100,000-row
+    benchmark file takes about 0.25 s for `uuid` and 0.36 s for
+    `ip_address`; the whole scan is about 5 to 8% slower (noisy). The
+    benchmark `customer_uuid` and `ip` columns get `uuid` and `ip_address`
+    as primary interpretations. No value of the demos matches.
+- Lot 3b, for lot 4: the scanner now has thirteen built-in detectors besides
+  patterns; the configuration reference of lot 4 documents each
+  `detectors.<id>` section from design section 15 and `detectors.md`.
 - Lot 3b, still open: the O13 point of lot 3a (detectors added with
   `register()` cannot be configured) is not needed by patterns, which have
   their own `patterns` section; it stays for the catalogue or lot 7.
