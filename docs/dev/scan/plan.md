@@ -180,6 +180,10 @@ benchmarks.md.
   exposure gate; `tests/scan/test_scan_patterns.py` passes. Contract changes
   recorded in design section 17. The catalogue families remain; see the lot
   3b notes.
+- Email and URL family done on 2026-09-26: `email` and `url` built-ins,
+  enabled by default; `tests/test_scanner_email_url.py`. Remaining families:
+  phone (CA, US, FR); postal codes (CA, US ZIP); currency and percentage;
+  UUID and IP addresses.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -360,6 +364,27 @@ done, and anything the next lot must know.
   `null`. Found in review: under `mask` and `hide`, `numeric` and `temporal`
   of a sensitive field are `disabled`, since their minimum, maximum, median
   or date range are values.
+- Lot 3b, email and URL session, for the other catalogue sessions and the
+  maintainer:
+  - Prefer an exact cheap check (a required character, the first character)
+    to `shapes`: on the 100,000-row benchmark file, shapes on both detectors
+    cost about 30% more time, a `"@" in value` and first-character check
+    about 8%, because the signature is computed for nearly every value. The
+    note of the first session ("declare `shapes`") is amended in
+    `detectors.md`.
+  - `detectors/names.py` holds the domain name rule and `NameCounts`, the
+    counted names block of `details` (`email` domains, `url` hosts), with its
+    own `max_tracked_*` and `max_listed_*` settings. Reuse it for any
+    detector that counts parts of values.
+  - The demo `courriel` column has 12 deliberately mistyped addresses (a space
+    inside); the candidate rule excludes only characters that mark URLs,
+    display names and address literals, so they are `invalid`, not
+    `not_matched`.
+  - For the maintainer: every field where `email` matches is sensitive, so by
+    default its domains are listed as masks (`aaaaaaa.aaa`), which makes them
+    useless; exempting them would amend design 12.8. `url` is not sensitive
+    although query strings may carry tokens. URLs with `{`, `|` or spaces are
+    `invalid` (strict RFC 3986).
 - Lot 3b, still open: the O13 point of lot 3a (detectors added with
   `register()` cannot be configured) is not needed by patterns, which have
   their own `patterns` section; it stays for the catalogue or lot 7.
