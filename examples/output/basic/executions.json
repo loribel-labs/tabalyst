@@ -476,6 +476,23 @@
         "dirty": true,
         "state": "6bb43a03+working"
       }
+    },
+    {
+      "timestamp": "2026-09-27T04:07:44.597582Z",
+      "tabalyst_version": "0.3.0",
+      "source_file": "basic.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 5,
+      "columns": 6,
+      "analysis_seconds": 0.0081,
+      "total_seconds": 0.0494,
+      "git": {
+        "available": true,
+        "commit": "56398fe7c06bbf3202386922fe2432e02efb6773",
+        "dirty": true,
+        "state": "56398fe7+working"
+      }
     }
   ]
 }

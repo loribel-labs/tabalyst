@@ -1,5 +1,16 @@
 # Development progress
 
+## 2026-09-27
+
+- Added the Tabalyst Scan `postal_code` detector (lot 3b, postal code
+  family): Canadian postal codes (`ca`, with or without the space, ignoring
+  case) and United States ZIP and ZIP+4 codes (`us`), format templates such
+  as `A9A 9A9` and `99999-9999`, `invalid` reasons for letters Canada Post
+  does not use, region counts in `details`. Not sensitive: a postal code is a
+  quasi-identifier, and five-digit integer columns would otherwise be masked.
+  Every complete postal code of the insurance demo matches. The 100,000-row
+  benchmark file scans about 7% slower.
+
 ## 2026-09-26
 
 - Added `tabalyst sample` with streaming first, last, random and proportional
