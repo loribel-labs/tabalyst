@@ -164,7 +164,7 @@ session (plan.md, lot 3b):
 - email and URL;
 - phone numbers (CA, US, FR);
 - postal codes (CA) and ZIP codes (US);
-- currency amounts and percentages;
+- currency amounts and percentages, extended to quantities with a unit;
 - UUID and IP addresses.
 
 Catalogue detectors are costlier than the built-ins: they should declare a
@@ -419,3 +419,277 @@ regions, not every postal code.
   `H2X 1U4` (letter); not matched `H2X-1Y4`, `H2X 1Y`, `T3A 95`, `2134`,
   `123456`, `123456789`, `12345 6789`, `12345-678` (Brazilian CEP),
   `SW1A 1AA`, `75008 Paris`, `É2X 1Y4`, `٩٠٢١٠`.
+
+### Amounts (shared by `currency`, `percentage` and `quantity`)
+
+The number part of an amount, a percentage or a quantity is read by the rules of
+`number`, with the detector's own `conventions` and `ambiguous_convention`
+(same defaults and validation as `detectors.number`, set independently), with
+three restrictions: the sign is written outside the number part (below), no
+exponent is accepted, and the number part is *amount-shaped*: it starts with
+an ASCII digit, or `.` followed by a digit, ends with a digit or `.`, and
+holds only digits, `.`, `,`, U+0020, U+00A0 and U+202F. An amount-shaped part
+that `number` does not read (`12.5.0`, `1,2345.00`, `01.50`) makes the value
+`invalid`, except a part made of digits only (`01`, `0012`): it carries no
+number syntax, so it is `not_matched`, as the digits-only rule of `phone`,
+and codes such as `01A` are never reported as invalid. A part that is not
+amount-shaped (`.com`, `$.`) makes the value `not_matched`. A part that `number` finds
+ambiguous (`1,234`) makes the value `ambiguous` with the candidates of
+`number` (`#,##0` and `0,0`), unless `ambiguous_convention` resolves it.
+Inherited from `number`: `1.234` is 1.234 by the strict rule, never
+ambiguous (lot 3a note for gate 3).
+
+The format is the format of the number part with the marker (currency symbol
+or code, `%`, or the placeholder `[unit]` for quantities) and the space
+between them as written, without the sign: `$#,##0.0`, `# ##0,0 €`,
+`USD 0.0`, `0.0%`, `0,0 %`, `# ##0 [unit]`.
+
+### `currency` (family `monetary`, version 1)
+
+Amounts written with a currency marker. A number without marker is
+`not_matched`: it is a `number`, not evidence of money.
+
+- Accepts: strings; no input cap and no shapes: a value whose first character
+  is not a sign, `(`, a currency symbol or an ASCII uppercase letter, and
+  whose last character is not `)`, a currency symbol or an ASCII uppercase
+  letter, is rejected first. The rejection is exact, so it is `not_matched`.
+- Markers: the symbols `$`, `€`, `£`, `¥`, `CA$`, `C$`, `US$`, and the ISO
+  4217 alphabetic codes of current currencies (list one on 2026-01-01, plus
+  `ANG`, `BGN`, `HRK`, `SLL` and `ZWL`, replaced since 2023 but still found in
+  data), in uppercase. Funds, precious metals, `XXX` and `XTS` are not
+  markers. Three uppercase letters that are not such a code (`ABC 123`, an
+  identifier) are `not_matched`.
+- Formats: the marker before the number part (`$12.50`, `USD 12.50`) or after
+  it (`12,50 $`, `1 234,56 €`, `12.50EUR`), with at most one space (U+0020,
+  U+00A0 or U+202F) between them; format as in Amounts (`$0.0`, `0,0 $`,
+  `# ##0,0 €`, `0.0EUR`). A negative amount has a `-` before the value
+  (`-$12.50`, `-12,50 €`) or before the number part (`$-12.50`), or the whole
+  value between parentheses without a sign (`($1,234.56)`, accounting); `+`
+  is accepted where `-` is. One sign at most.
+- Normalization: the analytical value (so a no-break space before `€` is
+  already U+0020 when `collapse_whitespace` is enabled). Codes do not ignore
+  case: `usd 12` is `not_matched`.
+- Validation: a value with a marker at one end and an amount-shaped number
+  part is a candidate; other values are `not_matched`, including values with
+  two markers (`$12 USD`, `12 $ CA`). A candidate is `invalid` with reason
+  `invalid_amount` when `number` does not read the number part. Ambiguity as
+  in Amounts.
+- Details: the `ambiguity` block of design 12.6 (evidence `comma` and `dot`
+  when both conventions are enabled), and `currencies`, the count of matched
+  and ambiguous values per marker as written, ordered by marker, such as
+  `{"$": 10, "EUR": 2}`. Markers come from a fixed list: they carry no value
+  of the field.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`).
+- Overlaps: `number` never matches (marker); `percentage`, `quantity`,
+  `date`, `phone`, `postal_code`, `email` and `url` never match;
+  `enumeration` and patterns may. The field's `numeric` block does not include currency amounts (design
+  9.4): lot 5a decides whether the report needs them.
+- Sensitive: no. An amount is not an identifier.
+- Test values: `$12.50`, `$1,234.56`, `$.99`, `-$12.50`, `$-12.50`,
+  `($1,234.56)`, `12,50 $`, `1 234,56 €`, `12€`, `£0.99`, `¥1000`,
+  `CA$ 20`, `US$20`, `USD 12.50`, `12.50 EUR`; ambiguous `$1,234`,
+  `1,234 €`; invalid `$12.5.0`, `$1,2345.00`, `€01.50`; not matched
+  `12.50`, `$`, `$.`, `€012`, `USD`, `$abc`, `ABC 123`, `usd 12`, `$12 USD`, `12 $ CA`,
+  `$1e3`, `-$-12`, `(-$12)`, `12%`, `CLI-00000281`.
+
+### `percentage` (family `ratio`, version 1)
+
+- Accepts: strings; no input cap and no shapes: a value whose last character
+  is not `%` is rejected first. The rejection is exact, so it is
+  `not_matched`.
+- Formats: an optional sign (`-`, `+`), the number part, at most one space
+  (U+0020, U+00A0 or U+202F), then `%`; format as in Amounts (`0%`, `0.0%`,
+  `0,0 %`, `# ##0 %`).
+- Normalization: the analytical value.
+- Validation: a value ending with `%` whose remainder, without the space and
+  the sign, is amount-shaped is a candidate; other values are `not_matched`.
+  A candidate is `invalid` with reason `invalid_number` when `number` does
+  not read the number part. Ambiguity as in Amounts. Values outside 0 to 100
+  are percentages: a range is a judgment for consumers. The parsed value is
+  the number as written (12 for `12%`).
+- Details: the `ambiguity` block of design 12.6.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`).
+- Overlaps: `number` never matches (`%`); `currency`, `quantity`, `date`,
+  `phone`, `postal_code`, `email` and `url` never match; `enumeration` and
+  patterns may.
+- Sensitive: no.
+- Test values: `12%`, `12 %`, `12.5%`, `12,5 %`, `-3.5%`, `+2%`, `0%`,
+  `150%`, `.5%`; ambiguous `1,234%`; invalid `12.5.0%`, `1,2,3 %`;
+  not matched `05%`, `.%`, `12`, `%`, `12 %%`, `%12`, `12 pct`, `abc%`, `50% off`,
+  `12% ` (with `trim` disabled).
+
+### `quantity` (family `measurement`, version 1)
+
+A number followed by a unit, whatever the unit: `10m`, `10 Go`,
+`1 024 Mo`, `12,5 kg`, `90 km/h`, `20 °C`, `3 m²`. The detector checks the
+syntax of a quantity; it does not know units, so it does not convert them or
+check that they exist (EF32).
+
+- Accepts: strings; no input cap and no shapes: a value whose first character
+  is not a sign, `.` or an ASCII digit, or whose last character is not a
+  letter (`str.isalpha`), `°`, `²` or `³`, is rejected first. The rejection
+  is exact, so it is `not_matched`.
+- Formats: an optional sign (`-`, `+`), the number part, at most one space
+  (U+0020, U+00A0 or U+202F), then the unit; format as in Amounts with the
+  placeholder `[unit]` (`0[unit]`, `0 [unit]`, `# ##0 [unit]`,
+  `0,0 [unit]`), so formats stay bounded whatever the units. Units are listed
+  in `details`.
+- Unit: 1 to 12 characters, starting with a letter or `°`, made of letters
+  (`str.isalpha`, any script: `µ`, `Ω` included), `°`, `²`, `³`, `/` and
+  `·`, not ending with `/` or `·` (`km/h`, `kWh`, `mg/L`, `°C`, `m²`,
+  `kg·m`). One token: `10 fl oz` and `3 rue des Lilas` are `not_matched`.
+  Not units, so the value is `not_matched`:
+  - currency markers of `currency` (`12 USD`, `12 €`), which belong to that
+    detector;
+  - ordinal suffixes, ignoring case: `er`, `re`, `e`, `ème`, `eme`, `nd`,
+    `nde`, `st`, `rd`, `th` (`1er`, `2nd`, `21st`, `3e`).
+- Normalization: the analytical value. Units keep their case: `Mo`
+  (megaoctet) and `mo` (month) are different units.
+- Validation: a value made of an amount-shaped number part, the optional
+  space and a unit is a candidate; other values are `not_matched`. A
+  candidate is `invalid` with reason `invalid_number` when `number` does not
+  read the number part (`1,2,3 kg`, `01.5 m`); a number part of digits only
+  is `not_matched` instead (`01 m`, `01A`). Ambiguity as in Amounts
+  (`1,234 km`).
+- Details: the `ambiguity` block of design 12.6, and `units`, the counted
+  names block (above) of matched and ambiguous values' units as written (no
+  lowercasing). Units are text of the field, so they go through the exposure
+  gate.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`), `max_tracked_units` (10,000, at most
+  1,000,000), `max_listed_units` (20, at most 10,000).
+- Overlaps: `number`, `currency` and `percentage` never match (unit, markers
+  excluded, `%` is not a unit character); `date` never matches a single
+  quantity token but `26 sept` is a quantity, not a date (no year);
+  `postal_code` never matches (`H2X 1Y4` starts with a letter, `90210`
+  ends with a digit); `email`, `url` and `phone` never match; `enumeration`
+  and patterns may. A column of short counted words (`3 pommes`, `12 ans`)
+  matches: they are quantities, as are codes such as `12B` or `2A`
+  (apartments, Corsican departments) whose letters syntax cannot tell from
+  a unit.
+- Sensitive: no.
+- Test values: `10m`, `10 m`, `10Go`, `10 Go`, `1 024 Mo`, `1,5 To`,
+  `12.5 kg`, `-3 °C`, `20°C`, `90 km/h`, `3 m²`, `220 V`, `5 kWh`, `2 µs`,
+  `12 ans`, `12B`; ambiguous `1,234 km`; invalid `1,2,3 kg`, `01.5 m`,
+  `12.5.0 Go`; not matched `01 m`, `01A`, `.com`, `.NET`, `10`, `m`, `10 fl oz`, `3 rue des Lilas`, `12 USD`, `12 €`,
+  `12%`, `1er`, `21st`, `10 km/`, `1e3m`, `10m2`, `H2X 1Y4`, `a 10 m`, a
+  13-letter unit.
+
+### `uuid` (family `identifier`, version 1)
+
+Universally unique identifiers (RFC 9562, formerly RFC 4122), also called
+GUIDs: 128 bits written as 32 hexadecimal digits.
+
+- Accepts: strings; no input cap and no shapes: a value whose length is not
+  36, 38 or 45 characters (the lengths of the accepted forms) is rejected
+  first. The rejection is exact, so it is `not_matched`, not `not_tested`.
+- Formats: 32 hexadecimal digits in groups of 8, 4, 4, 4 and 12 separated by
+  `-`, as `hyphenated` (`123e4567-e89b-12d3-a456-426614174000`), between
+  braces as `braced` (`{123e4567-e89b-12d3-a456-426614174000}`), or after
+  the prefix `urn:uuid:`, ignoring its case, as `urn`. The format gets the
+  suffix `_upper` when the hexadecimal letters are uppercase and `_mixed`
+  when both cases appear (`hyphenated_upper`); digits alone count as
+  lowercase. Not accepted in version 1, so `not_matched`: 32 bare digits
+  (`123e4567e89b12d3a456426614174000`), which syntax cannot tell from an MD5
+  hash, other groupings, other separators, a single brace.
+- Normalization: the analytical value; hexadecimal digits ignore case.
+- Validation: a value with the layout of a form above, its groups made of
+  ASCII letters and digits, is a candidate; other values are `not_matched`.
+  A candidate with a letter beyond `f` is `invalid` with reason
+  `invalid_hex_digit`. The version and variant are not validated: NCS,
+  Microsoft and reserved variants are UUIDs too, and generated test values
+  (`12345678-1234-1234-1234-123456789012`) must not fail; `details` counts
+  them. No value is ambiguous.
+- Details: `versions`, the matched count per version, keys with a non-zero
+  count only, ordered by key: `"1"` to `"8"` for the RFC 9562 variant (the
+  first digit of the fourth group is `8`, `9`, `a` or `b`), `"nil"` (all
+  zeros), `"max"` (all `f`), and `"other"` for other variants and undefined
+  versions. Such as `{"4": 10, "other": 1}`. Keys carry no value.
+- Settings: none besides `enabled`.
+- Overlaps: none of `number`, `date`, `phone`, `postal_code`, `currency`,
+  `percentage`, `quantity`, `email`, `url` and `ip_address` matches (length,
+  hyphens, digits and letters mixed in groups); `enumeration` and patterns
+  may.
+- Sensitive: no. A UUID identifies a record, as a customer number does; it
+  does not identify a person without other data. A sensitive pattern can
+  flag identifiers where needed.
+- Test values: `123e4567-e89b-12d3-a456-426614174000`,
+  `123E4567-E89B-12D3-A456-426614174000`, `123E4567-e89b-12d3-a456-426614174000`,
+  `{123e4567-e89b-12d3-a456-426614174000}`,
+  `urn:uuid:123e4567-e89b-12d3-a456-426614174000`,
+  `URN:UUID:123e4567-e89b-12d3-a456-426614174000`,
+  `00000000-0000-0000-0000-000000000000` (nil),
+  `ffffffff-ffff-ffff-ffff-ffffffffffff` (max),
+  `12345678-1234-1234-1234-123456789012` (other); invalid
+  `123e4567-e89b-12d3-a456-42661417400g`; not matched
+  `123e4567e89b12d3a456426614174000`, `123e4567-e89b-12d3-a456-4266141740`,
+  `123e4567_e89b_12d3_a456_426614174000`, `{123e4567-e89b-12d3-a456-426614174000`,
+  `123e4567-e89b-12d3-a456-426614174000 `, `12345678-1234-1234-1234-12345678901é`,
+  `CTR-1000000281`, `2026-09-26`.
+
+### `ip_address` (family `network`, version 1)
+
+IPv4 addresses in dotted-decimal notation and IPv6 addresses in the text
+forms of RFC 4291, as written in logs and network inventories.
+
+- Accepts: strings; no input cap and no shapes: a value shorter than 2 or
+  longer than 45 characters (the shortest and longest accepted forms, `::`
+  and `ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255`), or whose first or
+  last character is neither an ASCII hexadecimal digit nor `:`, is rejected
+  first. The rejection is exact, so it is `not_matched`.
+- Formats: `ipv4` (`192.0.2.1`); `ipv6` for eight groups
+  (`2001:db8:0:0:0:0:0:1`), `ipv6_compressed` for a value with `::`
+  (`2001:db8::1`, `::1`, `::`), and `ipv6_ipv4` when the last 32 bits are
+  written as an IPv4 address, compressed or not (`::ffff:192.0.2.1`). Not
+  accepted in version 1, so `not_matched`: prefix lengths (`192.0.2.0/24`),
+  ports (`192.0.2.1:80`), brackets (`[2001:db8::1]`), zone indices
+  (`fe80::1%eth0`), and IPv4 shorthands (`127.1`, hexadecimal or octal
+  groups). `url` covers addresses inside URLs.
+- Normalization: the analytical value; hexadecimal digits ignore case.
+- Validation: a value that is a candidate of one version is checked; other
+  values are `not_matched`. Reasons are those of the first failed check, in
+  the order below, groups from left to right.
+  - IPv4 candidate: four groups of 1 to 3 ASCII digits separated by `.`.
+    `invalid_leading_zero` when a group of two or three digits starts with
+    `0` (`192.168.01.1`, read as octal by some tools); `invalid_octet` when
+    a group is above 255.
+  - IPv6 candidate: made only of ASCII hexadecimal digits, `:` and `.`, with
+    at least two `:`, and either containing `::` or having at least eight
+    groups separated by `:`, a last group with `.` counting as two. So times
+    (`22:00:00`) and MAC addresses (`00:1A:2B:3C:4D:5E`) are `not_matched`.
+    `invalid_compression` when `::` appears twice or `:::` appears;
+    `invalid_group` when a group is empty (a single leading or trailing
+    `:`), has more than four digits, or holds `.` without being the last
+    group of four decimal groups; `invalid_group_count` when there are more
+    than eight groups, or eight or more with `::`; then the embedded IPv4
+    address is checked as above.
+
+  No value is ambiguous: the two versions never share a candidate.
+- Details: `versions`, the matched count per enabled version, such as
+  `{"ipv4": 10, "ipv6": 2}`, ordered by version. Counts carry no value.
+- Settings: `versions` (default `["ipv4", "ipv6"]`, unique, at least one).
+- Overlaps: `number` matches an IPv4 address whose last three groups have
+  three digits (`192.168.100.200`), read as 192168100200 by the `comma`
+  convention, so such columns list both interpretations and have no primary;
+  other addresses (`192.168.1.1`) are not numbers. Version numbers of four
+  numeric parts (`1.0.0.12`) are IPv4 syntax and EUI-64 identifiers written
+  in eight colon groups are IPv6 syntax: syntax cannot tell them apart.
+  `date`, `phone`, `postal_code`, `currency`, `percentage`, `quantity`,
+  `email`, `url` and `uuid` never match; `enumeration` and patterns may.
+- Sensitive: yes. An IP address can identify a subscriber or a device and is
+  personal data in several jurisdictions, as email addresses and phone
+  numbers are: its fields are masked by default (`999.999.9.9`), and a
+  column where `number` also matches has its `numeric` block disabled under
+  `mask` and `hide`.
+- Test values: `192.0.2.1`, `0.0.0.0`, `255.255.255.255`, `10.0.0.1`,
+  `2001:db8:0:0:0:0:0:1`, `2001:DB8::1`, `::1`, `::`, `fe80::`,
+  `1:2:3:4:5:6:7::`, `::ffff:192.0.2.1`, `64:ff9b::192.0.2.1`,
+  `0:0:0:0:0:ffff:192.0.2.1`; invalid `192.168.01.1`, `256.1.1.1`,
+  `2001:db8::1::2`, `2001:::1`, `2001:db8:0:0:0:0:0:12345`,
+  `:1:2:3:4:5:6:7`, `1:2:3:4:5:6:7:8:9`, `1:2:3:4::5:6:7:8`,
+  `::ffff:192.168.1.300`, `::ffff:1.2.3`, `1.2.3.4::`; not matched
+  `1.2.3`, `1.2.3.4.5`, `1234.1.1.1`, `192.0.2.0/24`, `192.0.2.1:80`,
+  `[2001:db8::1]`, `fe80::1%eth0`, `22:00:00`, `00:1A:2B:3C:4D:5E`,
+  `2001:db8:0:0:0:0:1`, `2001:dg8::1`, `127.1`, `514.555.0100`, `12:30`.

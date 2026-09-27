@@ -20,15 +20,20 @@ from tabalyst.scanner.detectors.base import (
     DetectorFailure,
 )
 from tabalyst.scanner.detectors.boolean import BooleanDetector
+from tabalyst.scanner.detectors.currency import CurrencyDetector
 from tabalyst.scanner.detectors.email import EmailDetector
 from tabalyst.scanner.detectors.enumeration import EnumerationDetector
+from tabalyst.scanner.detectors.ip import IpAddressDetector
 from tabalyst.scanner.detectors.number import NumberDetector, is_integer_format
 from tabalyst.scanner.detectors.pattern import pattern_detector
+from tabalyst.scanner.detectors.percentage import PercentageDetector
 from tabalyst.scanner.detectors.phone import PhoneDetector
 from tabalyst.scanner.detectors.postal import PostalCodeDetector
+from tabalyst.scanner.detectors.quantity import QuantityDetector
 from tabalyst.scanner.detectors.shape import shape
 from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.detectors.url import UrlDetector
+from tabalyst.scanner.detectors.uuid import UuidDetector
 from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import UNCONVERTIBLE
 from tabalyst.scanner.models import (
@@ -56,6 +61,11 @@ BUILT_INS: tuple[type[Detector], ...] = (
     UrlDetector,
     PhoneDetector,
     PostalCodeDetector,
+    CurrencyDetector,
+    PercentageDetector,
+    QuantityDetector,
+    UuidDetector,
+    IpAddressDetector,
 )
 _NATIVE_SCALARS = ("string", "integer", "number", "boolean")
 _NO_VALUES = NotApplicable(reason="no_values")
