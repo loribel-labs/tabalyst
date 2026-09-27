@@ -35,8 +35,10 @@ Breaking changes are allowed and migration support is not required yet.
 - `src/tabalyst/models.py`: Pydantic models serialized to the experimental JSON profile.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
-- `src/tabalyst/report_service.py`: report planning, glob resolution, batch
-  execution and collision protection.
+- `src/tabalyst/batch.py`: glob resolution, output planning, collision
+  protection and atomic writes shared by the commands.
+- `src/tabalyst/report_service.py`, `sampling_service.py`, `scan_service.py`:
+  batch planning and execution of each command.
 - `src/tabalyst/progress.py`: presentation-neutral engine progress events.
 - `src/tabalyst/reporting.py`: JSON-to-HTML rendering without CSV access.
 - `src/tabalyst/cli/`: thin command adapters, error presentation and terminal

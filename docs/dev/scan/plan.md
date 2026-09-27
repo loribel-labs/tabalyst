@@ -18,8 +18,8 @@ regenerated, documentation consistent with what is released.
 | 2b | Normalization version 1 and variant groups | Done | Sonnet 5 | High | `scan/phase-2` |
 | 3a | Detector framework, technical type, ported detectors | Done | Opus 5.5 | High | `scan/phase-3` |
 | 3b | Priority 1 catalogue, patterns, sensitive values | Done | Sonnet 5 | Medium | `scan/phase-3` |
-| 4 | `tabalyst scan` command, configuration layers, documentation | Next | Sonnet 5 | Medium | `scan/phase-4` |
-| 4-fr | French translation of the lot 4 documentation | Planned | Sonnet 5 | Low | `scan/phase-4` |
+| 4 | `tabalyst scan` command, configuration layers, documentation | Done | Sonnet 5 | Medium | `scan/phase-4` |
+| 4-fr | French translation of the lot 4 documentation | Next | Sonnet 5 | Low | `scan/phase-4` |
 | 5a | Report built on Scan, parity on the demos | Planned | Opus 5.5 | High | `scan/phase-5` |
 | 5b | JSON sources and new sections in the report | Planned | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
@@ -207,6 +207,11 @@ benchmarks.md.
 - Documentation in `docs/en/`: how-to, scan format reference and changelog,
   configuration, glossary, known limitations; README. Note the follow-up needed
   in `tabalyst-studio`. Then gate 4 and release preparation.
+- Done on 2026-09-27: `tabalyst scan`, `tabalyst.scan()`,
+  `tabalyst.generate_scans()`, shared planning in `batch.py`, configuration
+  layers, byte progress, the `ijson` long-integer crash fixed, English
+  documentation. Contract changes recorded in design section 17. The items to
+  validate at gate 4 are listed in the lot 4 notes.
 
 ### Lot 4-fr: French documentation
 
@@ -279,12 +284,13 @@ done, and anything the next lot must know.
   text `"\ud800"`) makes the source invalid. The pure-Python backend is
   checked by the reader; the compiled backend rejects lone low surrogates and
   replaces lone high ones with `"?"`, a documented limitation (design 5.2).
-- Found in lot 2a, to fix before `tabalyst scan` is released (lot 4 at the
-  latest): the compiled `ijson` backend crashes the Python process
-  (segmentation fault) on a JSON integer of more than 4,300 digits, Python's
-  `sys.int_max_str_digits` limit; the pure-Python backend raises a parse
-  error, which becomes an `InputError`. Options: report upstream, and reject
-  such integers before parsing or fall back to the pure-Python backend.
+- Found in lot 2a, fixed in lot 4: the compiled `ijson` backend crashes the
+  Python process (access violation on Windows) on a JSON integer of more than
+  4,300 digits, Python's `sys.int_max_str_digits` limit, when it is a scalar
+  document or crosses a read buffer; elsewhere it raised a bare `ValueError`.
+  The reader now finds such digit runs before parsing (about 800 MB/s) and
+  parses those files with the pure-Python backend (design 5.2). Reporting the
+  crash upstream is still worth doing.
 - Lot 2a, for lot 2b:
   - `normalization.py` already computes the analytical value (`nfc`, `trim`,
     `collapse_whitespace`); lot 2b adds the stage counters, stage
@@ -510,6 +516,32 @@ done, and anything the next lot must know.
   detector share stays below 0.95 and they have no primary interpretation,
   while their technical type is `date`: the report must decide how to show
   that ambiguity (design 12.6).
+- Lot 4, for gate 4 (the maintainer validates or amends before release):
+  - Decided with the maintainer: no automatic `tabalyst.json`; one
+    configuration file for every command, with scan settings in a `scan`
+    object that every command validates; the scan does not inherit the
+    top-level `csv` settings. In phase 5 the report settings are restructured
+    around `ScanConfig` (design 15); the top-level `csv` duplication disappears
+    then.
+  - Lot 4 choices: `--config` is repeatable for `scan` only (the other commands
+    keep one file); `scan` has `--delimiter` and `--encoding` like the other
+    commands although the plan listed only `--collection`; a partial scan exits
+    0 with a warning even under `--quiet`; a scan output can never replace a
+    configuration file; `-d` defaults to `<stem>.scan.json`, so `data.csv` and
+    `data.json` in one batch collide and the batch is rejected.
+  - `report` and `sample` now share `batch.py` (same messages); report
+    artifacts still use plain writes, not the atomic helper.
+  - The JSON pre-pass reads each JSON file twice when the compiled backend is
+    installed (design 5.2 allows two passes); about 0.05 s for 44 MB.
+  - Release preparation, not done in lot 4: version bump, release notes in
+    `docs/dev/releases/`, the `engine.version` example of the scan format page
+    (`0.4.0`) to align with the released version, the French pages (lot
+    4-fr), and in `tabalyst-studio` a mention of `tabalyst scan` on the site
+    and the new documentation pages (`how-to/scan-files`,
+    `reference/scan-format`, `reference/scan-format-changelog`).
+  - Still open for gate 4: the `max_value_length` question of gate 1 (a CSV
+    cell above 131,072 characters is a fatal quoting error; JSON strings are
+    unbounded while reading) and O13 for detectors added with `register()`.
 - Lot 2a, still open with the `max_value_length` question of gate 1: `first`
   and `last` keep whole values, even beyond `max_stored_value_length`.
 - Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows

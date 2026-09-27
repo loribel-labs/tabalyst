@@ -15,25 +15,35 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 - `analysis.py`: computes dataset and column statistics without writing files.
 - `models.py`: Pydantic models for JSON serialization and validation.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
+  `load_config_layers()` validates every file completely (report keys and the
+  `scan` section) and merges files in order; each command resolves its own
+  settings from the merged layers.
 - `service.py`: public `analyze(...)` orchestration plus the reusable
   `analyze_csv(path, config)` engine boundary. Output replacement is an explicit
   service-level choice rather than a CLI-only safeguard.
-- `report_service.py`: shell-independent input resolution, complete batch
-  planning, collision checks and sequential multi-report execution.
+- `batch.py`: shared batch planning: shell-independent input resolution,
+  output naming for `-o` and `-d`, collision, input-overwrite and `--force`
+  checks, and atomic text writes.
+- `report_service.py`: report batch planning on `batch.py` and sequential
+  multi-report execution.
 - `sampling.py`: streaming, reusable single-file CSV sampling strategies and
   atomic output writing.
-- `sampling_service.py`: wildcard resolution, batch planning, collision checks
-  and sequential multi-sample execution.
+- `sampling_service.py`: sample batch planning on `batch.py` and sequential
+  multi-sample execution.
+- `scan_service.py`: scan batch planning on `batch.py`, configuration layers,
+  sequential scans and atomic `.scan.json` writes (`generate_scans()`).
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
 - `scanner/`: Tabalyst Scan, the streaming engine being built beside the pandas
-  engine (see below). It imports no pandas and is not wired to the CLI yet.
+  engine (see below). It imports no pandas; `tabalyst scan` and
+  `tabalyst.scan()` expose it.
 - `cli/app.py`: root command registration and global options.
-- `cli/report.py`: thin `report` command adapter and error/diagnostic
-  presentation over `analyze()`.
+- `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
+  error/diagnostic presentation over the services.
+- `cli/terminal.py`: progress line, exit codes shared by the adapters.
 - `templates/` and `static/`: self-contained report presentation. The Signature
   design system, embedded font subsets, table controls and interaction script are
   included directly in every report; no CDN is required.
@@ -99,6 +109,9 @@ positions such as `[2/8]`.
 
 Accurate row counts, throughput and estimates require the future chunked reader;
 a blocking `pandas.read_csv()` call cannot provide a truthful per-file percentage.
+Scans report reading progress by bytes: the readers' hashing stream counts every
+byte, and `scan()` emits `reading` events with `bytes_read` and `bytes_total` at
+most once per percent of the file and never more often than every MiB.
 
 Interactive progress must use standard error, remain silent under `--quiet`, and
 disable terminal animation when output is redirected. `--no-progress` disables it
@@ -168,7 +181,7 @@ compatibility layer or migration system is planned during the current alpha.
 
 Tabalyst Scan will replace the pandas engine with a streaming, bounded-memory
 engine for CSV and JSON. Its contract is [scan/design.md](scan/design.md) and
-its lots are in [scan/plan.md](scan/plan.md). Since lot 1b, `tabalyst.scanner`
-provides `scan()`, `ScanConfig` and `ScanResult`, streaming CSV and JSON
-readers, JSON collections, paths, presence, string categories and structural
-limits.
+its lots are in [scan/plan.md](scan/plan.md). `tabalyst.scanner` provides
+`scan()`, `ScanConfig` and `ScanResult`; since lot 4, the `tabalyst scan`
+command and the top-level `tabalyst.scan()` and `tabalyst.generate_scans()`
+expose it, and the `scan` section of configuration files configures it.

@@ -10,7 +10,8 @@ source language; every French page uses the French terms below.
 
 Keep these exactly as written in every language:
 
-- the product names `Tabalyst`, `Tabalyst Report` and `Tabalyst CSV Report`;
+- the product names `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report` and
+  `Tabalyst Scan`;
 - commands and options, such as `tabalyst report`, `-o`, `--output-dir` or
   `--config`;
 - JSON keys and values, such as `format_version`, `with_issues` or `mixed`;
@@ -50,3 +51,15 @@ Keep these exactly as written in every language:
 | batch | lot | Several source files processed by one command |
 | output directory | dossier de sortie | The folder given with `-d` / `--output-dir` |
 | alpha | alpha | Early stage where interfaces and formats may change |
+| scan | analyse | The complete description of a source written by `tabalyst scan` |
+| scan document | document d'analyse | The `.scan.json` file written by `tabalyst scan` |
+| record | enregistrement | One CSV row or one element of a JSON collection |
+| collection | collection | A JSON array whose elements are analyzed as records |
+| field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |
+| detector | détecteur | A rule that recognizes a kind of value, such as email addresses or dates |
+| interpretation | interprétation | A meaning proposed for a field by the detectors that match its values |
+| sensitive value | valeur sensible | A value identifying a person, such as an email address, masked by default |
+| mask | masque | A value with letters replaced by `A` or `a` and digits by `9` |
+| measure envelope | enveloppe de mesure | The `status` wrapper saying whether a measure is complete or limited |
+| diagnostic | diagnostic | A technical event of a scan, such as an excluded record or a reached limit |
+| configuration layer | couche de configuration | One level of settings: defaults, each configuration file, then options |

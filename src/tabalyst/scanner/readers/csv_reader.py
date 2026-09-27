@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import csv
 import io
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 
 from tabalyst.errors import InputError
@@ -29,8 +29,14 @@ DATASET = "rows"
 
 
 class CsvReader:
-    def __init__(self, path: Path, config: ScanConfig) -> None:
+    def __init__(
+        self,
+        path: Path,
+        config: ScanConfig,
+        on_bytes: Callable[[int], None] | None = None,
+    ) -> None:
         self.path = path
+        self.on_bytes = on_bytes
         self.encoding = config.csv.encoding
         self.delimiter = config.csv.delimiter
         self.tolerant = config.errors.policy == "tolerant"
@@ -47,7 +53,7 @@ class CsvReader:
             raw = self.path.open("rb")
         except OSError as exc:
             raise InputError(f"Cannot read CSV file {self.path}: {exc}") from exc
-        stream = HashingStream(raw)
+        stream = HashingStream(raw, self.on_bytes)
         text = io.TextIOWrapper(
             io.BufferedReader(stream), encoding=self.encoding, newline=""
         )
