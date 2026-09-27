@@ -296,6 +296,24 @@ class PostalCodeSettings(_Settings):
         return values
 
 
+class CurrencySettings(NumberSettings):
+    """Conventions of the number part of amounts, set independently of
+    ``detectors.number``."""
+
+
+class PercentageSettings(NumberSettings):
+    """Conventions of the number part of percentages, set independently of
+    ``detectors.number``."""
+
+
+class QuantitySettings(NumberSettings):
+    """Conventions of the number part of quantities, set independently of
+    ``detectors.number``, and the counted units of ``details``."""
+
+    max_tracked_units: int = Field(default=10_000, ge=1, le=1_000_000)
+    max_listed_units: int = Field(default=20, ge=0, le=10_000)
+
+
 class DetectorSettings(_Settings):
     number: NumberSettings = Field(default_factory=NumberSettings)
     date: DateSettings = Field(default_factory=DateSettings)
@@ -305,6 +323,9 @@ class DetectorSettings(_Settings):
     url: UrlSettings = Field(default_factory=UrlSettings)
     phone: PhoneSettings = Field(default_factory=PhoneSettings)
     postal_code: PostalCodeSettings = Field(default_factory=PostalCodeSettings)
+    currency: CurrencySettings = Field(default_factory=CurrencySettings)
+    percentage: PercentageSettings = Field(default_factory=PercentageSettings)
+    quantity: QuantitySettings = Field(default_factory=QuantitySettings)
 
 
 class PatternSettings(_Settings):

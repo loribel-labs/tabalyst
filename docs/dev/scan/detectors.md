@@ -164,7 +164,7 @@ session (plan.md, lot 3b):
 - email and URL;
 - phone numbers (CA, US, FR);
 - postal codes (CA) and ZIP codes (US);
-- currency amounts and percentages;
+- currency amounts and percentages, extended to quantities with a unit;
 - UUID and IP addresses.
 
 Catalogue detectors are costlier than the built-ins: they should declare a
@@ -419,3 +419,160 @@ regions, not every postal code.
   `H2X 1U4` (letter); not matched `H2X-1Y4`, `H2X 1Y`, `T3A 95`, `2134`,
   `123456`, `123456789`, `12345 6789`, `12345-678` (Brazilian CEP),
   `SW1A 1AA`, `75008 Paris`, `É2X 1Y4`, `٩٠٢١٠`.
+
+### Amounts (shared by `currency`, `percentage` and `quantity`)
+
+The number part of an amount, a percentage or a quantity is read by the rules of
+`number`, with the detector's own `conventions` and `ambiguous_convention`
+(same defaults and validation as `detectors.number`, set independently), with
+three restrictions: the sign is written outside the number part (below), no
+exponent is accepted, and the number part is *amount-shaped*: it starts with
+an ASCII digit, or `.` followed by a digit, ends with a digit or `.`, and
+holds only digits, `.`, `,`, U+0020, U+00A0 and U+202F. An amount-shaped part
+that `number` does not read (`12.5.0`, `1,2345.00`, `01.50`) makes the value
+`invalid`, except a part made of digits only (`01`, `0012`): it carries no
+number syntax, so it is `not_matched`, as the digits-only rule of `phone`,
+and codes such as `01A` are never reported as invalid. A part that is not
+amount-shaped (`.com`, `$.`) makes the value `not_matched`. A part that `number` finds
+ambiguous (`1,234`) makes the value `ambiguous` with the candidates of
+`number` (`#,##0` and `0,0`), unless `ambiguous_convention` resolves it.
+Inherited from `number`: `1.234` is 1.234 by the strict rule, never
+ambiguous (lot 3a note for gate 3).
+
+The format is the format of the number part with the marker (currency symbol
+or code, `%`, or the placeholder `[unit]` for quantities) and the space
+between them as written, without the sign: `$#,##0.0`, `# ##0,0 €`,
+`USD 0.0`, `0.0%`, `0,0 %`, `# ##0 [unit]`.
+
+### `currency` (family `monetary`, version 1)
+
+Amounts written with a currency marker. A number without marker is
+`not_matched`: it is a `number`, not evidence of money.
+
+- Accepts: strings; no input cap and no shapes: a value whose first character
+  is not a sign, `(`, a currency symbol or an ASCII uppercase letter, and
+  whose last character is not `)`, a currency symbol or an ASCII uppercase
+  letter, is rejected first. The rejection is exact, so it is `not_matched`.
+- Markers: the symbols `$`, `€`, `£`, `¥`, `CA$`, `C$`, `US$`, and the ISO
+  4217 alphabetic codes of current currencies (list one on 2026-01-01, plus
+  `ANG`, `BGN`, `HRK`, `SLL` and `ZWL`, replaced since 2023 but still found in
+  data), in uppercase. Funds, precious metals, `XXX` and `XTS` are not
+  markers. Three uppercase letters that are not such a code (`ABC 123`, an
+  identifier) are `not_matched`.
+- Formats: the marker before the number part (`$12.50`, `USD 12.50`) or after
+  it (`12,50 $`, `1 234,56 €`, `12.50EUR`), with at most one space (U+0020,
+  U+00A0 or U+202F) between them; format as in Amounts (`$0.0`, `0,0 $`,
+  `# ##0,0 €`, `0.0EUR`). A negative amount has a `-` before the value
+  (`-$12.50`, `-12,50 €`) or before the number part (`$-12.50`), or the whole
+  value between parentheses without a sign (`($1,234.56)`, accounting); `+`
+  is accepted where `-` is. One sign at most.
+- Normalization: the analytical value (so a no-break space before `€` is
+  already U+0020 when `collapse_whitespace` is enabled). Codes do not ignore
+  case: `usd 12` is `not_matched`.
+- Validation: a value with a marker at one end and an amount-shaped number
+  part is a candidate; other values are `not_matched`, including values with
+  two markers (`$12 USD`, `12 $ CA`). A candidate is `invalid` with reason
+  `invalid_amount` when `number` does not read the number part. Ambiguity as
+  in Amounts.
+- Details: the `ambiguity` block of design 12.6 (evidence `comma` and `dot`
+  when both conventions are enabled), and `currencies`, the count of matched
+  and ambiguous values per marker as written, ordered by marker, such as
+  `{"$": 10, "EUR": 2}`. Markers come from a fixed list: they carry no value
+  of the field.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`).
+- Overlaps: `number` never matches (marker); `percentage`, `quantity`,
+  `date`, `phone`, `postal_code`, `email` and `url` never match;
+  `enumeration` and patterns may. The field's `numeric` block does not include currency amounts (design
+  9.4): lot 5a decides whether the report needs them.
+- Sensitive: no. An amount is not an identifier.
+- Test values: `$12.50`, `$1,234.56`, `$.99`, `-$12.50`, `$-12.50`,
+  `($1,234.56)`, `12,50 $`, `1 234,56 €`, `12€`, `£0.99`, `¥1000`,
+  `CA$ 20`, `US$20`, `USD 12.50`, `12.50 EUR`; ambiguous `$1,234`,
+  `1,234 €`; invalid `$12.5.0`, `$1,2345.00`, `€01.50`; not matched
+  `12.50`, `$`, `$.`, `€012`, `USD`, `$abc`, `ABC 123`, `usd 12`, `$12 USD`, `12 $ CA`,
+  `$1e3`, `-$-12`, `(-$12)`, `12%`, `CLI-00000281`.
+
+### `percentage` (family `ratio`, version 1)
+
+- Accepts: strings; no input cap and no shapes: a value whose last character
+  is not `%` is rejected first. The rejection is exact, so it is
+  `not_matched`.
+- Formats: an optional sign (`-`, `+`), the number part, at most one space
+  (U+0020, U+00A0 or U+202F), then `%`; format as in Amounts (`0%`, `0.0%`,
+  `0,0 %`, `# ##0 %`).
+- Normalization: the analytical value.
+- Validation: a value ending with `%` whose remainder, without the space and
+  the sign, is amount-shaped is a candidate; other values are `not_matched`.
+  A candidate is `invalid` with reason `invalid_number` when `number` does
+  not read the number part. Ambiguity as in Amounts. Values outside 0 to 100
+  are percentages: a range is a judgment for consumers. The parsed value is
+  the number as written (12 for `12%`).
+- Details: the `ambiguity` block of design 12.6.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`).
+- Overlaps: `number` never matches (`%`); `currency`, `quantity`, `date`,
+  `phone`, `postal_code`, `email` and `url` never match; `enumeration` and
+  patterns may.
+- Sensitive: no.
+- Test values: `12%`, `12 %`, `12.5%`, `12,5 %`, `-3.5%`, `+2%`, `0%`,
+  `150%`, `.5%`; ambiguous `1,234%`; invalid `12.5.0%`, `1,2,3 %`;
+  not matched `05%`, `.%`, `12`, `%`, `12 %%`, `%12`, `12 pct`, `abc%`, `50% off`,
+  `12% ` (with `trim` disabled).
+
+### `quantity` (family `measurement`, version 1)
+
+A number followed by a unit, whatever the unit: `10m`, `10 Go`,
+`1 024 Mo`, `12,5 kg`, `90 km/h`, `20 °C`, `3 m²`. The detector checks the
+syntax of a quantity; it does not know units, so it does not convert them or
+check that they exist (EF32).
+
+- Accepts: strings; no input cap and no shapes: a value whose first character
+  is not a sign, `.` or an ASCII digit, or whose last character is not a
+  letter (`str.isalpha`), `°`, `²` or `³`, is rejected first. The rejection
+  is exact, so it is `not_matched`.
+- Formats: an optional sign (`-`, `+`), the number part, at most one space
+  (U+0020, U+00A0 or U+202F), then the unit; format as in Amounts with the
+  placeholder `[unit]` (`0[unit]`, `0 [unit]`, `# ##0 [unit]`,
+  `0,0 [unit]`), so formats stay bounded whatever the units. Units are listed
+  in `details`.
+- Unit: 1 to 12 characters, starting with a letter or `°`, made of letters
+  (`str.isalpha`, any script: `µ`, `Ω` included), `°`, `²`, `³`, `/` and
+  `·`, not ending with `/` or `·` (`km/h`, `kWh`, `mg/L`, `°C`, `m²`,
+  `kg·m`). One token: `10 fl oz` and `3 rue des Lilas` are `not_matched`.
+  Not units, so the value is `not_matched`:
+  - currency markers of `currency` (`12 USD`, `12 €`), which belong to that
+    detector;
+  - ordinal suffixes, ignoring case: `er`, `re`, `e`, `ème`, `eme`, `nd`,
+    `nde`, `st`, `rd`, `th` (`1er`, `2nd`, `21st`, `3e`).
+- Normalization: the analytical value. Units keep their case: `Mo`
+  (megaoctet) and `mo` (month) are different units.
+- Validation: a value made of an amount-shaped number part, the optional
+  space and a unit is a candidate; other values are `not_matched`. A
+  candidate is `invalid` with reason `invalid_number` when `number` does not
+  read the number part (`1,2,3 kg`, `01.5 m`); a number part of digits only
+  is `not_matched` instead (`01 m`, `01A`). Ambiguity as in Amounts
+  (`1,234 km`).
+- Details: the `ambiguity` block of design 12.6, and `units`, the counted
+  names block (above) of matched and ambiguous values' units as written (no
+  lowercasing). Units are text of the field, so they go through the exposure
+  gate.
+- Settings: `conventions` (default `["dot", "comma"]`),
+  `ambiguous_convention` (`null`), `max_tracked_units` (10,000, at most
+  1,000,000), `max_listed_units` (20, at most 10,000).
+- Overlaps: `number`, `currency` and `percentage` never match (unit, markers
+  excluded, `%` is not a unit character); `date` never matches a single
+  quantity token but `26 sept` is a quantity, not a date (no year);
+  `postal_code` never matches (`H2X 1Y4` starts with a letter, `90210`
+  ends with a digit); `email`, `url` and `phone` never match; `enumeration`
+  and patterns may. A column of short counted words (`3 pommes`, `12 ans`)
+  matches: they are quantities, as are codes such as `12B` or `2A`
+  (apartments, Corsican departments) whose letters syntax cannot tell from
+  a unit.
+- Sensitive: no.
+- Test values: `10m`, `10 m`, `10Go`, `10 Go`, `1 024 Mo`, `1,5 To`,
+  `12.5 kg`, `-3 °C`, `20°C`, `90 km/h`, `3 m²`, `220 V`, `5 kWh`, `2 µs`,
+  `12 ans`, `12B`; ambiguous `1,234 km`; invalid `1,2,3 kg`, `01.5 m`,
+  `12.5.0 Go`; not matched `01 m`, `01A`, `.com`, `.NET`, `10`, `m`, `10 fl oz`, `3 rue des Lilas`, `12 USD`, `12 €`,
+  `12%`, `1er`, `21st`, `10 km/`, `1e3m`, `10m2`, `H2X 1Y4`, `a 10 m`, a
+  13-letter unit.
