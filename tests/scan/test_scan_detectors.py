@@ -164,3 +164,128 @@ def test_execution_modes_give_identical_results(tmp_path):
     assert [
         (item["id"], item["coverage"], item["formats"]) for item in streaming["detectors"]
     ] == [(item["id"], item["coverage"], item["formats"]) for item in default["detectors"]]
+
+
+def test_number_conventions_expose_ambiguity(tmp_path):
+    """Design 12.6 and 12.10: the strict rule first, then decimal conventions."""
+    values = ["1.5", "12,5", "1,234", "1.234,5", "1 234", "abc"]
+    source = write_json(tmp_path, "amounts.json", [{"amount": v} for v in values])
+
+    implicit = field(dataset(run_scan(source), "$[]"), "amount")
+    resolved = field(
+        dataset(
+            run_scan(source, detectors={"number": {"ambiguous_convention": "comma"}}),
+            "$[]",
+        ),
+        "amount",
+    )
+
+    number = detector(implicit, "number")
+    assert (number["coverage"]["matched"], number["coverage"]["ambiguous"]) == (4, 1)
+    assert number["details"]["ambiguity"] == {
+        "count": 1,
+        "candidates": [{"formats": ["#,##0", "0,0"], "count": 1}],
+        "evidence": {"comma": 2, "dot": 1},
+        "resolution": None,
+    }
+    assert implicit["numeric"]["value"]["count"] == 4
+    assert implicit["numeric"]["value"]["sum"] == pytest.approx(
+        1.5 + 12.5 + 1234.5 + 1234
+    )
+    assert resolved["numeric"]["value"]["sum"] == pytest.approx(
+        1.5 + 12.5 + 1.234 + 1234.5 + 1234
+    )
+    assert detector(resolved, "number")["details"]["ambiguity"]["resolution"] == {
+        "convention": "comma",
+        "source": "config",
+    }
+
+
+def test_temporal_block_counts_kinds_and_ambiguous_values(tmp_path):
+    """Design 9.6: kinds are never compared; ambiguous values are excluded."""
+    values = [
+        "2026-09-26",
+        "26 septembre 2025",
+        "01/02/2026",
+        "2026-09-26T10:00:00",
+        "2026-09-26T10:00:00+02:00",
+        "10:30",
+        "2026-02-30",
+    ]
+    source = write_json(tmp_path, "when.json", [{"when": value} for value in values])
+
+    when = field(dataset(run_scan(source), "$[]"), "when")
+
+    temporal = when["temporal"]["value"]
+    assert (temporal["count"], temporal["ambiguous"]) == (5, 1)
+    kinds = {item["kind"]: item for item in temporal["kinds"]}
+    assert list(kinds) == ["date", "datetime_naive", "datetime_aware", "time"]
+    assert (kinds["date"]["min"], kinds["date"]["max"]) == ("2025-09-26", "2026-09-26")
+    assert kinds["date"]["years"] == [
+        {"year": 2025, "count": 1},
+        {"year": 2026, "count": 1},
+    ]
+    assert kinds["time"]["years"] is None
+    assert detector(when, "date")["coverage"]["invalid"] == 1
+    assert when["technical_type"]["counts"] == {"date": 3, "text": 4}
+
+
+def test_enumeration_is_a_field_level_detector(tmp_path):
+    """Design 12.10: every value matches together, or none does."""
+    statuses = ["open", "closed"] * 3
+    source = write_text(tmp_path, "status.csv", "status\n" + "\n".join(statuses) + "\n")
+
+    small = field(dataset(run_scan(source), "rows"), "status")
+    qualifying = field(
+        dataset(
+            run_scan(source, detectors={"enumeration": {"minimum_values": 6}}), "rows"
+        ),
+        "status",
+    )
+
+    assert detector(small, "enumeration")["coverage"]["matched"] == 0
+    enumeration = detector(qualifying, "enumeration")
+    assert enumeration["coverage"]["matched"] == 6
+    assert enumeration["details"] == {"distinct": {"status": "complete", "value": 2}}
+    assert qualifying["interpretations"]["primary"] == "enumeration"
+
+
+def test_disabled_and_inapplicable_detectors_are_listed(tmp_path):
+    """Design 8: disabled is distinct from not_applicable."""
+    source = write_json(tmp_path, "values.json", [{"n": 1, "s": "x"}])
+
+    result = run_scan(source, detectors={"boolean": {"enabled": False}})
+
+    assert "boolean" not in result["engine"]["detectors"]
+    n = field(dataset(result, "$[]"), "n")
+    assert detector(n, "boolean") == {"id": "boolean", "version": 1, "status": "disabled"}
+    assert detector(n, "number")["status"] == "not_applicable"
+    assert n["technical_type"]["type"] == "integer"
+
+
+def test_shape_rejection_is_an_exact_not_matched(tmp_path):
+    """Design 12.5: values outside the declared shapes are never classified."""
+    import re
+
+    from tabalyst.scanner.detectors import Classification, Detector, default_registry
+
+    seen = []
+
+    class CodeDetector(Detector):
+        id = "test_code"
+        family = "test"
+        shapes = re.compile(r"A-9")
+
+        def classify(self, value):
+            seen.append(value)
+            return Classification("matched", format="A-9999")
+
+    registry = default_registry()
+    registry.register(CodeDetector)
+    source = write_text(tmp_path, "codes.csv", "code\nC-0001\nc-0002\nC0003\n")
+
+    code = field(dataset(run_scan(source, registry=registry), "rows"), "code")
+
+    coverage = detector(code, "test_code")["coverage"]
+    assert (coverage["matched"], coverage["not_matched"]) == (1, 2)
+    assert seen == ["C-0001"]

@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import Counter
 
 from tabalyst.scanner.config import ScanConfig
+from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.field import FieldState, StringClassifier
 from tabalyst.scanner.models import (
     ArrayStats,
@@ -135,7 +136,9 @@ class DatasetState:
         if self.field_limit_location is None:
             self.field_limit_location = record.location.to_dict()
 
-    def finalize(self, config: ScanConfig) -> DatasetResult:
+    def finalize(
+        self, config: ScanConfig, diagnostics: DiagnosticCollector
+    ) -> DatasetResult:
         list_root = any(name != "object" for name in self.record_types)
         listed = [state for path, state in self.fields.items() if path or list_root]
         ids: dict[FieldPath, str] = {}
@@ -148,7 +151,7 @@ class DatasetState:
                 sequence += 1
                 ids[path] = f"f{sequence}"
 
-        fields = [self._field(state, ids, config) for state in listed]
+        fields = [self._field(state, ids, config, diagnostics) for state in listed]
         tracked = len(self.fields) - 1
         max_depth_seen = max(
             (len(path) for path, state in self.fields.items() if state.occurrences),
@@ -212,12 +215,37 @@ class DatasetState:
         )
 
     def _field(
-        self, state: FieldState, ids: dict[FieldPath, str], config: ScanConfig
+        self,
+        state: FieldState,
+        ids: dict[FieldPath, str],
+        config: ScanConfig,
+        diagnostics: DiagnosticCollector,
     ) -> FieldResult:
         path = state.path
         presence = self._presence(state)
+        if state.declared is not None:
+            name, display = state.declared.name, state.declared.display
+        else:
+            display = format_relative(path)
+            last = path[-1] if path else None
+            name = last.name if isinstance(last, Key) else ("[]" if last else "$")
+
+        def report_failure(detector: str, error: str) -> int:
+            # Only the exception type: its message could quote a value.
+            return diagnostics.add(
+                "detector_failed",
+                "error",
+                f"Detector {detector} failed on field {display} ({error}): its "
+                "results for this field are omitted; other analyses continue.",
+                dataset=self.id,
+                field=ids[path],
+                detector=detector,
+            )
+
         blocks = (
-            no_values(self.values) if state.values is None else state.values.finalize()
+            no_values(self.values)
+            if state.values is None
+            else state.values.finalize(report_failure)
         )
         components = MissingComponents(
             absent=presence.absent,
@@ -228,12 +256,6 @@ class DatasetState:
         )
         definition = list(config.values.missing)
         missing_count = sum(getattr(components, name) or 0 for name in definition)
-        if state.declared is not None:
-            name, display = state.declared.name, state.declared.display
-        else:
-            display = format_relative(path)
-            last = path[-1] if path else None
-            name = last.name if isinstance(last, Key) else ("[]" if last else "$")
         return FieldResult(
             id=ids[path],
             path=path_to_json(path),
@@ -278,5 +300,9 @@ class DatasetState:
             string_lengths=blocks["string_lengths"],
             numeric=blocks["numeric"],
             booleans=blocks["booleans"],
+            temporal=blocks["temporal"],
             normalization=blocks["normalization"],
+            technical_type=blocks["technical_type"],
+            detectors=blocks["detectors"],
+            interpretations=blocks["interpretations"],
         )

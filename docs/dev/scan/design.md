@@ -107,6 +107,7 @@ src/tabalyst/scanner/
 |-- normalization.py   normalization version 1
 |-- diagnostics.py     diagnostic collector
 |-- exposure.py        sensitive value gate
+|-- technical.py       technical type inference
 |-- detectors/         base, registry, shape classifier, built-ins, patterns
 `-- models.py          Pydantic result models
 ```
@@ -473,10 +474,10 @@ limited.
 ### 9.4 Numbers (lot 2a, extended in 3a) (EF15, O05)
 
 Population: native `integer` and `number` values, plus strings whose
-analytical value the number interpretation accepts without ambiguity. Until
-lot 3a that interpretation is the current strict rule (optional sign, digits,
-optional dot decimal, optional exponent, no leading zeros for integers); from
-lot 3a it is the number detector with its configured conventions.
+analytical value the number detector (12.10) matches, including ambiguous
+values resolved by configuration. Its strict rule (optional sign, digits,
+optional dot decimal, optional exponent, no leading zeros for integers) is
+the rule of lot 2a; its decimal conventions extend it.
 
 Envelope value: `count`, `native_count`, `text_count`, `min`, `max`, `sum`,
 `mean`, `population_variance`, `population_std`, `positive`, `negative`, `zero`,
@@ -502,14 +503,25 @@ Envelope value: `count`, `native_count`, `text_count`, `min`, `max`, `sum`,
 ### 9.5 Booleans (lot 2a)
 
 Envelope of native booleans: `{"true": n, "false": m}`, `not_applicable`
-without native booleans. Textual booleans become an interpretation in lot 3a.
+without native booleans. Textual booleans are the `boolean` detector
+(12.10), which counts them in its `details`.
 
 ### 9.6 Temporal values (lot 3a) (EF16)
 
-Produced by the date and time detector: per kind (`date`, `datetime_naive`,
-`datetime_aware`, `time`), `count`, `min` and `max` as ISO strings, plus the
-distribution by year when bounded. Naive and aware values are never compared.
-Ambiguous values are excluded and counted (section 12.6).
+Produced by the date detector (12.10) from its matched values, including
+ambiguous values resolved by configuration. Envelope value: `count`,
+`ambiguous` (unresolved ambiguous values, excluded) and `kinds`, one entry per
+kind seen, in order `date`, `datetime_naive`, `datetime_aware`, `time`:
+`{kind, count, min, max, years}`. `min` and `max` are ISO strings (Python
+`isoformat()`); aware values compare as instants, ties broken by their text,
+and naive and aware values are never compared. `years` lists `{year, count}`
+by year for dates and date-times, which is always bounded (years 1 to 9999),
+and is `null` for times.
+
+- `not_applicable` (`no_values`) without temporal or ambiguous values, or
+  when the date detector has no eligible value; `disabled` when the date
+  detector is disabled or absent from the registry; `failed` with the
+  diagnostic of the date detector when it failed on the field.
 
 ### 9.7 Technical type (lot 3a)
 
@@ -518,6 +530,29 @@ families are tried in order `integer`, `number`, `date`, `boolean`, `text`, and
 the first whose accepted share reaches `types.minimum_confidence` wins;
 otherwise `mixed`; `empty` without values. Native JSON types count directly.
 Output: `{type, confidence, counts, outside_count}`.
+
+- Each value of the `values` population belongs to one family, a pure
+  function of the value. Native integers, numbers and booleans are their own
+  family. A string is, in this order: `date` when the date detector matches
+  it as a calendar date (not a date-time or a time) or finds it ambiguous;
+  `boolean` when it is `true` or `false` ignoring case (the current rule;
+  other boolean words are only the `boolean` detector's); `integer` when the
+  number detector matches it with an integer format, `number` when it
+  matches another format or is ambiguous; otherwise `text`.
+- Accepted counts: `integer` counts integers, `number` integers and numbers,
+  the others their own family. Shares compare exactly with the decimal value
+  of the threshold.
+- `counts` lists the families seen, in family order. `confidence` is the
+  accepted share of the winning family, or the largest share for `mixed`,
+  rounded to four decimals, and `null` for `empty`. `outside_count` is the
+  number of values outside the winning family, `null` for `mixed` and 0 for
+  `empty`.
+- Families depend on the number and date detectors and their settings, as
+  the current date family depended on `date_detection`: a disabled or failed
+  detector contributes no family. Differences with the current engine, for
+  lot 5a: decimal conventions and month names are accepted, ambiguity is
+  never resolved from evidence, and a date column with several formats or
+  ambiguous values is `date`, where the current engine says `mixed`.
 
 ### 9.8 Normalization
 
@@ -647,10 +682,18 @@ class Detector:
     family: ClassVar[str]                 # "number", "temporal", "contact", ...
     accepts: ClassVar[frozenset[str]] = frozenset({"string"})   # native types
     sensitive: ClassVar[bool] = False
+    max_input_length: ClassVar[int | None] = None   # longer values: not_tested
+    scope: ClassVar[Literal["value", "field"]] = "value"
+    shapes: re.Pattern[str] | None = None            # section 12.5
 
     def __init__(self, settings: Mapping[str, object]) -> None: ...
     def classify(self, value: str) -> Classification | None: ...
     def accumulator(self) -> DetectorAccumulator: ...
+
+class DetectorAccumulator:
+    def add(self, value: str, classification: Classification | None, count: int) -> None: ...
+    def details(self) -> dict[str, object]: ...
+    def field_matches(self) -> bool: ...          # field-level detectors only
 ```
 
 - `classify` is pure and deterministic: the same value always gives the same
@@ -660,15 +703,39 @@ class Detector:
   optional `format`, `candidates` for ambiguous values, an optional `reason`
   for invalid values and an optional parsed value for statistics. `invalid`
   means the value has the detector's shape but fails validation, such as
-  `2026-02-30`.
-- The accumulator receives `(value, classification, count)` and produces the
-  detector result: formats, evidence and detector-specific statistics such as
-  email domains.
-- `DetectorRegistry` holds detector classes by `id`. `default_registry()`
-  returns a fresh registry with the built-ins; `register(cls)` adds one.
-  External plugin loading is deferred (O21).
+  `2026-02-30`. A `matched` value with `candidates` was ambiguous and was
+  resolved by configuration. `convention` names the reading of an
+  unambiguous value when several readings exist (date order, decimal
+  convention); it feeds the ambiguity evidence (12.6).
+- `classify` receives the analytical value of strings and the canonical text
+  (9.1) of other accepted native types. Built-in detectors accept strings
+  only: native values are already typed.
+- The engine keeps coverage, formats (the `format` of matched values) and
+  evidence for every detector. The accumulator receives
+  `(value, classification, count)` for every tested value, `None` meaning not
+  matched, and produces the detector-specific `details`, such as email
+  domains. In both execution modes it sees the same distinct values, first
+  seen first, with the same total counts.
+- A detector with `scope = "field"` decides at the end, through
+  `field_matches()`, whether all its values match or none does; when none
+  does, matched values count as `not_matched` and it has no formats.
+- Any exception raised by a detector's code (`classify`, `accumulator`,
+  `add`, `details`, `field_matches`) or a `classify` result that is not a
+  `Classification` fails the detector on that field only (section 14). The
+  `detector_failed` diagnostic names the detector, the field and the
+  exception type, never its message, which could quote a value.
+- `DetectorRegistry` holds detector classes by `id`, in registration order.
+  `default_registry()` returns a fresh registry with the built-ins `number`,
+  `date`, `boolean` and `enumeration`; `register(cls)` adds one and rejects
+  a duplicate id. External plugin loading is deferred (O21).
 - Configuration: `detectors.<id>` holds `enabled` and detector parameters
-  (D14). Complex logic stays in code.
+  (D14). Complex logic stays in code. Detectors registered without a
+  configuration section receive empty settings and are enabled.
+- Every field lists every registered detector, in registry order. The
+  result of an enabled detector is `complete`, `not_applicable` (reason
+  `no_values`, when the field has no eligible value) or `failed`; a disabled
+  detector is `{"id", "version", "status": "disabled"}`.
+  `engine.detectors` gives the version of each enabled detector.
 
 ### 12.2 Coverage (EF26, CA11)
 
@@ -700,17 +767,28 @@ strategies, which must then publish the reason.
 }
 ```
 
-A failed detector has `status: "failed"`, a `diagnostic` index and no
-`coverage`: a failure is never reported as values that did not match (CA19).
+A failed detector has `status: "failed"`, `reason: "detector_error"`, a
+`diagnostic` index and no `coverage`: a failure is never reported as values
+that did not match (CA19).
+
+- `share_tested` and `share_eligible` are rounded to four decimals;
+  `share_tested` is `null` when no value was tested.
+- `formats` are ordered by count (descending), then format.
+- `evidence` has the keys `matched`, `ambiguous`, `invalid` and
+  `not_matched`: the first distinct analytical values of each state, at most
+  `limits.max_evidence_examples` each, without values longer than
+  `limits.max_stored_value_length`. Lot 3b passes them through the exposure
+  gate.
 
 ### 12.4 Interpretations (EF24, EF27, CA12)
 
 The technical type (9.7) and semantic interpretations are separate axes.
 `interpretations.candidates` lists every detector whose `share_eligible`
 reaches `detection.minimum_share` (default 0.95), ordered by matched count
-then detector id. `interpretations.primary` is set only when exactly one
-candidate qualifies. Overlaps are kept: `12345` may be an integer and a ZIP
-code; both are listed (CA10).
+then detector id, as `{detector, matched, share_eligible}`; a detector
+without matched values never qualifies. `interpretations.primary` is the id
+of the only candidate when exactly one qualifies, else `null`. Overlaps are
+kept: `12345` may be an integer and a ZIP code; both are listed (CA10).
 
 ### 12.5 Shape classifier (EF30)
 
@@ -718,6 +796,15 @@ Each value gets a cheap shape signature (digits as `9`, letters as `A` or `a`,
 other characters kept, runs compressed). Detectors may declare the shapes they
 can match so others are rejected without running their full logic. Rejection
 by shape is an exact `not_matched`, not `not_tested`.
+
+- ASCII digits become `9`, uppercase letters `A`, other letters (including
+  uncased ones) `a`: `2026-09-26` is `9-9-9`, `Québec` is `Aa`.
+- `Detector.shapes` is a pattern the signature must fully match; it must
+  accept the signature of every value `classify` can match. The signature is
+  computed at most once per value, only when a detector declares shapes.
+- Built-in detectors declare none: their exact first-character or
+  character-set checks are cheaper than a signature. Shapes serve costlier
+  detectors (catalogue, patterns).
 
 ### 12.6 Ambiguity (O06, specification 12.1)
 
@@ -736,10 +823,21 @@ An ambiguous value, such as `01/02/2026` when both `DD/MM/YYYY` and
 - Only configuration resolves ambiguity (`detectors.date.ambiguous_order`),
   and then `resolution` is `{"order": "DMY", "source": "config"}` and resolved
   values count as matched.
+- `count` and `candidates` cover every value ambiguous under the enabled
+  readings, resolved or not, so a configured resolution shows what it
+  decided; `coverage.ambiguous` counts unresolved values only. Candidates
+  list their formats sorted, and are ordered by count (descending), then
+  formats.
+- `evidence` lists `DMY` and `MDY` when both orders are enabled, and is
+  empty otherwise.
 - Ambiguous values never enter statistics that need one interpretation.
 
 The same rule applies to numbers such as `1,234`, ambiguous between a US
-thousands separator and a French decimal comma.
+thousands separator and a French decimal comma: the number detector
+publishes the same `ambiguity` block, with `evidence` for `comma` and `dot`
+when both conventions are enabled (empty otherwise) and `resolution`
+`{"convention": "comma", "source": "config"}` from
+`detectors.number.ambiguous_convention`.
 
 ### 12.7 Declarative patterns (EF29, O11)
 
@@ -780,6 +878,70 @@ the priority 1 catalogue. Each detector gets a short entry in `detectors.md`
 before implementation: accepted formats, normalization, validation level,
 overlaps, sensitivity and test values (O14). Detectors check syntax, never
 real-world existence (EF32).
+
+### 12.10 Built-in detectors (lot 3a)
+
+Accepted characters are ASCII digits. Lot 3b moves these descriptions to
+`detectors.md`.
+
+**`number`** (family `number`). The strict rule applies first: a strict
+integer (`0`, `-12`) matches under any convention with format `0`; strict
+decimals and exponents (`1.5`, `.5`, `1.`, `1e3`) match with formats `0.0`
+and `0E0` when the `dot` convention is enabled. Values the strict rule
+rejects are read under each enabled convention, with digits on both sides of
+the decimal separator, no leading zeros and thousands grouped by three with
+one separator used throughout:
+
+| Convention | Decimal | Thousands |
+| --- | --- | --- |
+| `dot` | `.` | `,`, U+0020, U+00A0, U+202F |
+| `comma` | `,` | `.`, U+0020, U+00A0, U+202F |
+
+Formats follow spreadsheet notation with the separators seen: `#,##0`,
+`#,##0.0`, `0,0`, `#.##0,0`, `# ##0`. Two readings with the same value
+(`1 234`) match; different values (`1,234`) are ambiguous. The strict rule
+decides `1.234` (1.234, not 1234) so that lot 2a results are unchanged; it
+is not ambiguity evidence. A decimal point or comma read by one convention
+only is evidence for it. No value is `invalid`. Settings: `conventions`
+(default `["dot", "comma"]`), `ambiguous_convention` (`null`).
+
+**`date`** (family `temporal`). Accepted forms:
+
+- numeric dates of the current engine: a four-digit year first (`YMD`) or
+  last (`MDY`, `DMY`), one- or two-digit month and day, one configured
+  separator used twice; formats such as `YYYY-MM-DD`, `D/M/YYYY`;
+- ISO 8601 date-times: `YYYY-MM-DD`, `T` or a space, `HH:MM`, optional
+  seconds and fraction of one to six digits, optional `Z` or offset (`+HH`,
+  `+HHMM`, `+HH:MM`); formats such as `YYYY-MM-DDTHH:MM:SS.fff±HH:MM`;
+- times: `H:MM` or `HH:MM`, optional seconds and fraction;
+- dates with month names, ignoring case: day first in English and French
+  (`26 September 2026`, `1er janvier 2026`, `26 sept. 2026`), month first in
+  English (`September 26, 2026`); full names format as `MMMM`,
+  abbreviations as `MMM` or `MMM.`; French names are also accepted without
+  accents.
+
+Invalid values have an accepted form but fail validation, with reasons
+`invalid_calendar_date`, `invalid_time`, `invalid_offset`,
+`invalid_component_width`, `mixed_separators` and `unsupported_order`, as in
+the current engine. ISO date-times do not depend on `orders` and
+`separators`. Settings: `orders`, `separators`, `ambiguous_order` (as the
+current engine) and `month_languages` (default `["en", "fr"]`).
+
+**`boolean`** (family `boolean`). The analytical value, ignoring case, is a
+word of a configured pair; the format is the pair (`yes/no`). `details` is
+`{"true": n, "false": m}`. Setting: `pairs`, default `true/false`,
+`yes/no`, `y/n`, `oui/non`, `vrai/faux`; words are unique ignoring case.
+
+**`enumeration`** (family `categorical`, field-level). Ported from the
+current enumeration candidates: every value matches when the field has at
+least `minimum_values` (default 500) eligible values and at most
+`maximum_distinct` (default 49) distinct analytical values, compared ignoring
+case when `case_sensitive` is false; otherwise none matches. It keeps at most
+`maximum_distinct + 1` values, so it stays exact when frequency tables are
+released. `details.distinct` is `complete` with the count, or `limited` with
+reason `maximum_distinct` and lower bound `maximum_distinct + 1`. It counts
+eligible values rather than rows, and does not depend on the technical type:
+an integer code column may be both a number and an enumeration (CA10).
 
 ## 13. Execution strategy and performance (EF30, EF31, ET12)
 
@@ -873,8 +1035,16 @@ around it.
     "types": {"minimum_confidence": 0.95},
     "detection": {"minimum_share": 0.95},
     "detectors": {
+      "number": {"enabled": true, "conventions": ["dot", "comma"],
+                 "ambiguous_convention": null},
       "date": {"enabled": true, "orders": ["YMD", "MDY", "DMY"],
-               "separators": ["-", "/", "."], "ambiguous_order": null}
+               "separators": ["-", "/", "."], "ambiguous_order": null,
+               "month_languages": ["en", "fr"]},
+      "boolean": {"enabled": true,
+                  "pairs": [["true", "false"], ["yes", "no"], ["y", "n"],
+                            ["oui", "non"], ["vrai", "faux"]]},
+      "enumeration": {"enabled": true, "minimum_values": 500,
+                      "maximum_distinct": 49, "case_sensitive": true}
     },
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -909,7 +1079,8 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
   "format_version": "0.1.0a",
   "format_revision": 1,
   "engine": {"version": "0.4.0", "normalization_version": 1,
-             "detectors": {"date": 1}},
+             "detectors": {"number": 1, "date": 1, "boolean": 1,
+                           "enumeration": 1}},
   "status": "complete",
   "started_at": "2026-09-26T22:00:00Z",
   "duration_seconds": 0.012,
@@ -1010,3 +1181,4 @@ input.
 | 2026-09-26 | 2a | Sections 9.1 to 9.5: canonical text is `str()` of the parsed value; values output as canonical text; `frequencies.distinct` counts analytical values, limited frequencies have no bound; samples are a plain object in first-seen order; first and last values keep whole values; characteristic definitions; exact context of 200 digits and exponents within 1,000, integral output below 10^200; median limited with the table's reason and limit; booleans envelope. | `ijson` does not keep the source text; listings are analytical; a `limited` envelope needs a limit, and section 11 already named the table's reason. |
 | 2026-09-26 | 2a | Section 11: the first value too long releases the table; proven lower bounds per reason. Section 14: `measures_limited` per dataset, `global_budget` per scan, lone surrogate escapes fatal. Section 9.9: `no_values` reason. Section 5.2: lone surrogates. | Details the contract did not settle; lone surrogates cannot be written as UTF-8 and the two `ijson` backends disagreed (lot 1b note). Maintainer decision. |
 | 2026-09-26 | 2b | Section 10: `changed` counts content strings after the previous enabled stage; stage cardinalities cover the `values` population, are limited without bound after release and `not_applicable` without values; `variant_groups` value is `{groups, listed, truncated}`, groups carry `distinct` and `truncated`, orderings defined. Section 11: `max_variant_groups` and `max_variants_per_group` truncate output only. | Details the contract did not settle; a `limited` envelope has no value, so the literal rule would lose every group of a field with more than 100 of them. Maintainer decision. |
+| 2026-09-26 | 3a | Sections 9.4 to 9.7: numeric population from the number detector; `temporal` layout; technical type families, `null` confidence for `empty`, `null` outside count for `mixed`. Section 12: the engine keeps coverage, formats and evidence, the accumulator produces `details`; `convention`, `scope`, `max_input_length` and `shapes`; failures keep the exception type only; every registered detector listed with its status; four evidence keys; candidate layout; shapes optional; ambiguity counts include resolved values; new 12.10 with the built-in detectors. Section 15: `detectors` settings. | Details the contract did not settle. The strict number rule keeps precedence so lot 2a results are unchanged; exception messages could leak sensitive values; the shape signature cost more than it saved for the built-ins. To validate at gate 3. |

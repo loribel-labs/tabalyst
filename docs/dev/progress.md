@@ -51,6 +51,15 @@
   key with their raw variants. Group and variant limits truncate output only.
   Its contract tests are enabled; the 100,000-row benchmark file scans about
   5% slower than after lot 2a.
+- Completed Tabalyst Scan lot 3a: detector framework (registry, coverage,
+  formats, evidence, interpretations, per-field isolation of failures, shape
+  signatures), technical type inference ported from the current engine, and
+  the `number`, `date`, `boolean` and `enumeration` detectors. Numbers accept
+  dot and comma decimal conventions and expose `1,234` as ambiguous; dates
+  add ISO date-times, times and English and French month names, with a
+  `temporal` block per kind. Ambiguity is exposed with its evidence and
+  resolved only by configuration. Its contract tests are enabled; the
+  100,000-row benchmark file scans about 60% slower, recorded for lot 6.
 
 ## 2026-09-17
 
