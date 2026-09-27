@@ -231,11 +231,39 @@ class EnumerationSettings(_Settings):
     case_sensitive: bool = True
 
 
+class EmailSettings(_Settings):
+    enabled: bool = True
+    max_tracked_domains: int = Field(default=10_000, ge=1, le=1_000_000)
+    max_listed_domains: int = Field(default=20, ge=0, le=10_000)
+
+
+class UrlSettings(_Settings):
+    enabled: bool = True
+    schemes: list[str] = Field(default_factory=lambda: ["http", "https", "ftp"])
+    www: bool = True
+    max_tracked_hosts: int = Field(default=10_000, ge=1, le=1_000_000)
+    max_listed_hosts: int = Field(default=20, ge=0, le=10_000)
+
+    @field_validator("schemes")
+    @classmethod
+    def letter_schemes(cls, values: list[str]) -> list[str]:
+        for value in values:
+            if re.fullmatch(r"[a-z]+", value) is None:
+                raise ValueError(
+                    f"URL schemes must be lowercase ASCII letters: {value!r}"
+                )
+        if len(set(values)) != len(values):
+            raise ValueError("URL schemes must be unique")
+        return values
+
+
 class DetectorSettings(_Settings):
     number: NumberSettings = Field(default_factory=NumberSettings)
     date: DateSettings = Field(default_factory=DateSettings)
     boolean: BooleanSettings = Field(default_factory=BooleanSettings)
     enumeration: EnumerationSettings = Field(default_factory=EnumerationSettings)
+    email: EmailSettings = Field(default_factory=EmailSettings)
+    url: UrlSettings = Field(default_factory=UrlSettings)
 
 
 class PatternSettings(_Settings):

@@ -66,6 +66,12 @@
   gate for sensitive fields that masks (default) or hides every value-bearing
   block, including detector evidence and variant groups. Its contract tests
   are enabled; the priority 1 catalogue families remain.
+- Added the Tabalyst Scan `email` and `url` detectors (lot 3b, first
+  catalogue family): syntax validation with `invalid` reasons, casefolded
+  domain and host counts in `details` through the exposure gate, email
+  fields sensitive and masked by default. The 12 mistyped addresses of the
+  insurance demo are reported as invalid. The 100,000-row benchmark file
+  scans about 8% slower.
 
 ## 2026-09-17
 
