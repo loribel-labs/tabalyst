@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import math
 import re
-from collections.abc import Callable
 from decimal import (
     Clamped,
     Context,
@@ -34,6 +33,7 @@ from tabalyst.scanner.models import (
     StringCharacteristics,
     StringLengths,
 )
+from tabalyst.scanner.normalization import ANALYTICAL_STAGE, STAGES, Normalizer
 
 # The strict number rule of the current engine, until the number detector of
 # lot 3a: optional sign, digits without leading zeros, optional dot decimal,
@@ -85,8 +85,15 @@ _RARE = re.compile("[\x00-\x1f\x7f-\x9f  ]")
 
 # Facts of one value: native type, analytical text, characteristic flags
 # (strings only, else 0), analytical length (strings only, else -1), number
-# (int or Decimal, else None) and whether that number has a decimal form.
-Facts = tuple[str, str, int, int, int | Decimal | None, bool]
+# (int or Decimal, else None), whether that number has a decimal form, the
+# normalization changes (bit ``i`` for stage ``i``, strings only, else 0) and
+# the output of each normalization stage (strings only, else None).
+Facts = tuple[
+    str, str, int, int, int | Decimal | None, bool, int, tuple[str, ...] | None
+]
+# Positions of the normalization facts.
+CHANGES = 6
+FORMS = 7
 
 
 def characteristic_flags(raw: str) -> int:
@@ -147,8 +154,9 @@ def parse_number(text: str) -> tuple[int | Decimal | _Unconvertible, bool] | Non
     return None
 
 
-def string_facts(raw: str, analytical: Callable[[str], str]) -> Facts:
-    text = analytical(raw)
+def string_facts(raw: str, normalizer: Normalizer) -> Facts:
+    forms, changes = normalizer.run(raw)
+    text = forms[ANALYTICAL_STAGE]
     number = parse_number(text)
     return (
         "string",
@@ -157,6 +165,8 @@ def string_facts(raw: str, analytical: Callable[[str], str]) -> Facts:
         len(text),
         None if number is None else number[0],
         False if number is None else number[1],
+        changes,
+        forms,
     )
 
 
@@ -170,8 +180,9 @@ def canonical_text(native_type: str, value: object) -> str:
 def scalar_facts(native_type: str, value: object) -> Facts:
     """Facts of an integer, number (``Decimal``) or boolean."""
     if native_type == "boolean":
-        return (native_type, canonical_text(native_type, value), 0, -1, None, False)
-    return (native_type, str(value), 0, -1, value, native_type == "number")
+        text = canonical_text(native_type, value)
+        return (native_type, text, 0, -1, None, False, 0, None)
+    return (native_type, str(value), 0, -1, value, native_type == "number", 0, None)
 
 
 class Unrepresentable(Exception):
@@ -347,25 +358,33 @@ def _square_root(value: Fraction) -> int | float:
         raise Unrepresentable from exc
 
 
-class ValueMeasures:
-    """String characteristics, lengths and numeric statistics of one field."""
+def _add_bits(counters: list[int], flags: int, count: int) -> None:
+    """Add ``count`` to ``counters[i]`` for each bit ``i`` set in ``flags``."""
+    while flags:
+        bit = flags & -flags
+        counters[bit.bit_length() - 1] += count
+        flags ^= bit
 
-    __slots__ = ("characteristics", "lengths", "numeric")
+
+class ValueMeasures:
+    """String characteristics, lengths, normalization changes and numeric
+    statistics of one field."""
+
+    __slots__ = ("changed", "characteristics", "lengths", "numeric")
 
     def __init__(self) -> None:
         self.characteristics = [0] * len(CHARACTERISTICS)
         self.lengths: dict[int, int] = {}
+        # Occurrences modified by each normalization stage (design section 10).
+        self.changed = [0] * len(STAGES)
         self.numeric = NumericAccumulator()
 
     def add(self, facts: Facts, count: int) -> None:
-        native_type, _, flags, length, number, decimal_form = facts
+        native_type, _, flags, length, number, decimal_form, changes, _ = facts
         if length >= 0:
             self.lengths[length] = self.lengths.get(length, 0) + count
-            characteristics = self.characteristics
-            while flags:
-                bit = flags & -flags
-                characteristics[bit.bit_length() - 1] += count
-                flags ^= bit
+            _add_bits(self.characteristics, flags, count)
+            _add_bits(self.changed, changes, count)
         if number is not None:
             self.numeric.add(number, decimal_form, native_type != "string", count)
 

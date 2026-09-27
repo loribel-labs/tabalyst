@@ -28,9 +28,15 @@ LISTED_LIMITED_FIELDS = 10
 
 
 def _has_limited_measure(field: FieldResult) -> bool:
+    # Variant groups are limited only with the raw table today; listed so a
+    # later limit of their own cannot be missed.
     return any(
         measure.status == "limited"
-        for measure in (field.values.cardinality, field.numeric)
+        for measure in (
+            field.values.cardinality,
+            field.numeric,
+            field.normalization.variant_groups,
+        )
     )
 
 

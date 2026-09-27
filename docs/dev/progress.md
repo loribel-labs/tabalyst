@@ -45,6 +45,12 @@
   streaming after a table is released, with identical results. JSON strings
   with a lone surrogate escape are now rejected by both `ijson` backends where
   they can be detected. Its contract tests are enabled.
+- Completed Tabalyst Scan lot 2b: normalization version 1 with its five
+  stages, exact change counters that continue after a table is released,
+  distinct counts after each stage and variant groups listed by comparison
+  key with their raw variants. Group and variant limits truncate output only.
+  Its contract tests are enabled; the 100,000-row benchmark file scans about
+  5% slower than after lot 2a.
 
 ## 2026-09-17
 

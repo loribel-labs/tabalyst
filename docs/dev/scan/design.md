@@ -555,16 +555,34 @@ run in this order; each can be disabled:
 - The **comparison key** is the output of every enabled stage. It groups
   variants.
 - Per stage, the result lists `{stage, enabled, changed, cardinality}`:
-  `changed` counts occurrences modified by that stage given the previous
-  stage's output; `cardinality` is the distinct count after the stage. A
-  disabled stage has `changed` and `cardinality` set to `null` and influences
-  nothing (CA16). The first entry is `raw`, with `changed` set to `null` and
-  the raw cardinality.
+  `changed` counts occurrences modified by that stage given the output of the
+  previous enabled stage; `cardinality` is the distinct count after the stage.
+  A disabled stage passes its input through, has `changed` and `cardinality`
+  set to `null` and influences nothing (CA16). The first entry is `raw`, with
+  `changed` set to `null` and the raw cardinality, the same envelope as
+  `values.cardinality`.
+- `changed` counts `content` strings only. `cardinality` covers the whole
+  `values` population by `(native type, text)`: integers, numbers and booleans
+  pass through every stage unchanged, so the `raw` entry equals the raw
+  cardinality.
 - `changed` counters are exact streaming counters: they continue when tables
-  are limited (ET09, CA17).
-- `variant_groups`: envelope listing comparison keys with at least two distinct
-  raw variants, as `{key, count, variants: [{value, count}]}`, bounded by
-  `limits.max_variant_groups` and `limits.max_variants_per_group`.
+  are limited (ET09, CA17). Stage cardinalities are envelopes derived from the
+  raw table: when it is released they become `limited` with the table's reason
+  and limit and no `lower_bound`, since raw distinct values do not prove
+  normalized ones. Without values they are `not_applicable` (`no_values`) and
+  `changed` is 0.
+- `variant_groups`: envelope over `content` strings whose value is
+  `{groups, listed, truncated}`. `groups` counts the comparison keys with at
+  least two distinct raw variants; `listed` holds the
+  `limits.max_variant_groups` largest as `{key, count, distinct, variants,
+  truncated}`, ordered by `count` (occurrences of every variant, descending)
+  then key. `variants` holds the `limits.max_variants_per_group` most frequent
+  raw strings of the group as `{value, count}`, ordered by count (descending)
+  then value; `distinct` counts every raw variant and `truncated` says the
+  listing is shorter. Both limits truncate output only, like
+  `max_listed_frequencies`. The envelope is `limited` like stage
+  cardinalities when the table is released, and `not_applicable`
+  (`no_values`) without `content` strings.
 - A group is an analytical equivalence under these rules, not proof of business
   identity.
 - `normalization.version` is `1`. Any change to these definitions increments it.
@@ -576,13 +594,13 @@ run in this order; each can be disabled:
 | `max_fields` | 10,000 per dataset | 1,000,000 | New paths are not tracked; `structure.paths` becomes limited; observations counted in `structure.untracked_observations`; warning `field_limit`. |
 | `max_depth` | 64 | 1,000 | Deeper content is not traversed; counted in `structure.depth_truncated_observations`; warning `depth_limit`. |
 | `max_record_observations` | 100,000 | 100,000,000 | Record excluded (tolerant) or fatal (strict); `record_too_large`. |
-| `max_distinct_per_field` | 100,000 | 50,000,000 | The raw table is released; cardinality, frequencies, variant groups and derived medians become limited with reason `distinct_limit`. |
+| `max_distinct_per_field` | 100,000 | 50,000,000 | The raw table is released; cardinality, frequencies, stage cardinalities, variant groups and derived medians become limited with reason `distinct_limit`. |
 | `max_tracked_values` | 2,000,000 per scan | 500,000,000 | Global budget: the largest table is released first (ties: most recently discovered field); reason `global_budget`; warning `global_budget`. |
 | `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. |
 | `max_listed_frequencies` | 100 | 100,000 | Output truncation only. |
 | `max_samples` | 100 | 10,000 | Output size only. |
-| `max_variant_groups` | 100 | 100,000 | Variant groups limited. |
-| `max_variants_per_group` | 20 | 10,000 | Variants of a group limited. |
+| `max_variant_groups` | 100 | 100,000 | Output truncation only. |
+| `max_variants_per_group` | 20 | 10,000 | Output truncation only. |
 | `max_evidence_examples` | 10 | 1,000 | Detector evidence size only. |
 
 - Defaults are starting values, not validated budgets. Phase 6 revisits them
@@ -991,3 +1009,4 @@ input.
 | 2026-09-26 | 1b | Section 11: `max_fields` lower bound is `max_fields + 1`; `max_fields` covers declared CSV columns; `max_depth` and `max_depth_seen` defined; CSV header above `max_record_observations` fatal. Section 14 rows added. | Counting every distinct untracked path would break bounded state (specification scenario 5). |
 | 2026-09-26 | 2a | Sections 9.1 to 9.5: canonical text is `str()` of the parsed value; values output as canonical text; `frequencies.distinct` counts analytical values, limited frequencies have no bound; samples are a plain object in first-seen order; first and last values keep whole values; characteristic definitions; exact context of 200 digits and exponents within 1,000, integral output below 10^200; median limited with the table's reason and limit; booleans envelope. | `ijson` does not keep the source text; listings are analytical; a `limited` envelope needs a limit, and section 11 already named the table's reason. |
 | 2026-09-26 | 2a | Section 11: the first value too long releases the table; proven lower bounds per reason. Section 14: `measures_limited` per dataset, `global_budget` per scan, lone surrogate escapes fatal. Section 9.9: `no_values` reason. Section 5.2: lone surrogates. | Details the contract did not settle; lone surrogates cannot be written as UTF-8 and the two `ijson` backends disagreed (lot 1b note). Maintainer decision. |
+| 2026-09-26 | 2b | Section 10: `changed` counts content strings after the previous enabled stage; stage cardinalities cover the `values` population, are limited without bound after release and `not_applicable` without values; `variant_groups` value is `{groups, listed, truncated}`, groups carry `distinct` and `truncated`, orderings defined. Section 11: `max_variant_groups` and `max_variants_per_group` truncate output only. | Details the contract did not settle; a `limited` envelope has no value, so the literal rule would lose every group of a field with more than 100 of them. Maintainer decision. |

@@ -17,6 +17,8 @@ from decimal import Decimal
 
 from tabalyst.scanner.config import LimitSettings, NormalizationSettings
 from tabalyst.scanner.measures import (
+    CHANGES,
+    FORMS,
     Facts,
     ValueMeasures,
     canonical_text,
@@ -28,12 +30,17 @@ from tabalyst.scanner.models import (
     Complete,
     Frequencies,
     Limited,
+    Normalization,
+    NormalizationStage,
     NotApplicable,
     Samples,
     ValueAt,
     ValueCount,
+    Variant,
+    VariantGroup,
+    VariantGroups,
 )
-from tabalyst.scanner.normalization import Analytical
+from tabalyst.scanner.normalization import KEY_STAGE, STAGES, VERSION, Normalizer
 
 # Streaming memoization: cleared when full, so memory stays bounded.
 CACHE_SIZE = 4_096
@@ -52,24 +59,28 @@ class ValueContext:
     """
 
     __slots__ = (
-        "analytical",
         "budget",
         "discovered",
         "max_distinct",
         "max_listed",
         "max_samples",
         "max_stored_length",
+        "max_variant_groups",
+        "max_variants",
+        "normalizer",
         "seed",
     )
 
     def __init__(
         self, limits: LimitSettings, normalization: NormalizationSettings, seed: int
     ) -> None:
-        self.analytical = Analytical(normalization)
+        self.normalizer = Normalizer(normalization)
         self.max_distinct = limits.max_distinct_per_field
         self.max_stored_length = limits.max_stored_value_length
         self.max_listed = limits.max_listed_frequencies
         self.max_samples = limits.max_samples
+        self.max_variant_groups = limits.max_variant_groups
+        self.max_variants = limits.max_variants_per_group
         self.seed = seed
         self.budget = ValueBudget(limits.max_tracked_values)
         self.discovered = 0
@@ -197,7 +208,7 @@ class ValueTracker:
 
     def _facts(self, key: Key) -> Facts:
         if type(key) is str:
-            return string_facts(key, self.context.analytical)
+            return string_facts(key, self.context.normalizer)
         native_type, form = key
         if native_type == "number":
             form = Decimal(form)
@@ -224,14 +235,18 @@ class ValueTracker:
         if facts is None:
             if len(cache) >= CACHE_SIZE:
                 cache.clear()
-            facts = cache[key] = self._facts(key)
+            facts = self._facts(key)
+            if facts[FORMS] is not None:
+                # Stage outputs serve complete tables only: do not cache them.
+                facts = (*facts[:FORMS], None)
+            cache[key] = facts
         self._process(facts, 1)
 
     # Finalization -----------------------------------------------------------
 
     def _value_at(self, native_type: str, value: object, record: int) -> ValueAt:
         if native_type == "string":
-            text = self.context.analytical(value)
+            text = self.context.normalizer.analytical(value)
         else:
             text = canonical_text(native_type, value)
         return ValueAt(value=text, type=native_type, record=record)
@@ -239,15 +254,31 @@ class ValueTracker:
     def finalize(self) -> dict:
         context = self.context
         table = self.table
+        measures = self.measures
         if table is not None:
             # Complete table: per-value work once per distinct value.
             analytical: dict[tuple[str, str], int] = {}
+            # Stage outputs of the strings that a stage changed; every other
+            # value is its own output at every stage.
+            changed: dict[str, tuple[str, ...]] = {}
+            changes = 0
             for key, count in table.items():
                 facts = self._facts(key)
-                self.measures.add(facts, count)
+                measures.add(facts, count)
                 value = (facts[0], facts[1])
                 analytical[value] = analytical.get(value, 0) + count
+                if facts[CHANGES]:
+                    changes |= facts[CHANGES]
+                    changed[key] = facts[FORMS]
             cardinality = Complete[int](value=len(table))
+            stage_cardinality = _stage_cardinalities(
+                context.normalizer, table, changed, changes
+            )
+            variant_groups = (
+                _variant_groups(table, changed, context)
+                if measures.lengths
+                else _NO_VALUES
+            )
             ranked = heapq.nsmallest(
                 context.max_listed,
                 analytical.items(),
@@ -264,11 +295,14 @@ class ValueTracker:
         else:
             limited = self.limited
             cardinality = limited
-            frequencies = Limited(reason=limited.reason, limit=limited.limit)
+            # Raw distinct values do not prove normalized ones: no bound.
+            unproven = Limited(reason=limited.reason, limit=limited.limit)
+            frequencies = unproven
             samples = Samples(
                 selection="first_seen", listed=_listing(self.samples.items())
             )
-        measures = self.measures
+            stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
+            variant_groups = unproven if measures.lengths else _NO_VALUES
         return {
             "cardinality": cardinality,
             "frequencies": frequencies,
@@ -285,6 +319,13 @@ class ValueTracker:
                 if self.true or self.false
                 else _NO_VALUES
             ),
+            "normalization": _normalization(
+                context.normalizer,
+                cardinality,
+                measures.changed,
+                stage_cardinality,
+                variant_groups,
+            ),
         }
 
 
@@ -294,6 +335,108 @@ def _stored_length(key: Key) -> int:
         return len(key)
     native_type, form = key
     return len(form) if native_type == "number" else len(canonical_text(*key))
+
+
+def _normalization(
+    normalizer: Normalizer,
+    raw_cardinality,
+    changed: list[int],
+    cardinality: dict[int, object],
+    variant_groups,
+) -> Normalization:
+    """Stages in order, ``raw`` first; disabled stages have no counts."""
+    stages = [
+        NormalizationStage(
+            stage="raw", enabled=True, changed=None, cardinality=raw_cardinality
+        )
+    ]
+    for i, (stage, enabled) in enumerate(zip(STAGES, normalizer.enabled)):
+        stages.append(
+            NormalizationStage(
+                stage=stage,
+                enabled=enabled,
+                changed=changed[i] if enabled else None,
+                cardinality=cardinality[i] if enabled else None,
+            )
+        )
+    return Normalization(version=VERSION, stages=stages, variant_groups=variant_groups)
+
+
+def _stage_cardinalities(
+    normalizer: Normalizer,
+    table: dict[Key, int],
+    changed: dict[str, tuple[str, ...]],
+    changes: int,
+) -> dict[int, Complete[int]]:
+    """Distinct values after each enabled stage of a complete table.
+
+    A stage that changed no value keeps the count of the previous one.
+    Otherwise its outputs are the outputs of the changed strings plus the
+    unchanged values, each its own output: a string key of the table that is
+    not in ``changed`` is an unchanged string, so it merges with an equal
+    output.
+    """
+    result = {}
+    previous = len(table)
+    unchanged = len(table) - len(changed)
+    for i, enabled in enumerate(normalizer.enabled):
+        if not enabled:
+            continue
+        if changes >> i & 1:
+            outputs = {forms[i] for forms in changed.values()}
+            merged = sum(1 for form in outputs if form in table and form not in changed)
+            previous = unchanged + len(outputs) - merged
+        result[i] = Complete[int](value=previous)
+    return result
+
+
+def _variant_groups(
+    table: dict[Key, int], changed: dict[str, tuple[str, ...]], context: ValueContext
+):
+    """Comparison keys with at least two distinct raw variants, most frequent
+    first, then by key; variants by count, then value.
+
+    An unchanged string is its own comparison key, so it joins the group of
+    the changed strings with that key.
+    """
+    variants: dict[str, list[str]] = {}
+    for raw, forms in changed.items():
+        key = forms[KEY_STAGE]
+        raws = variants.get(key)
+        if raws is None:
+            variants[key] = [raw]
+        else:
+            raws.append(raw)
+    for key, raws in variants.items():
+        if key in table and key not in changed:
+            raws.append(key)
+    groups = [
+        (sum(table[raw] for raw in raws), key, raws)
+        for key, raws in variants.items()
+        if len(raws) > 1
+    ]
+    ranked = heapq.nsmallest(
+        context.max_variant_groups, groups, key=lambda item: (-item[0], item[1])
+    )
+    listed = []
+    for count, key, raws in ranked:
+        top = heapq.nsmallest(
+            context.max_variants, raws, key=lambda raw: (-table[raw], raw)
+        )
+        listed.append(
+            VariantGroup(
+                key=key,
+                count=count,
+                distinct=len(raws),
+                variants=[Variant(value=raw, count=table[raw]) for raw in top],
+                truncated=len(raws) > len(top),
+            )
+        )
+    return Complete[VariantGroups](
+        value=VariantGroups(
+            groups=len(groups), listed=listed, truncated=len(groups) > len(listed)
+        )
+    )
 
 
 def _listing(items) -> list[ValueCount]:
@@ -314,7 +457,7 @@ def _samples(analytical: dict[tuple[str, str], int], size: int, seed: int) -> Sa
     )
 
 
-def no_values() -> dict:
+def no_values(context: ValueContext) -> dict:
     """Value blocks of a field without analyzable values (design 9.9)."""
     return {
         "cardinality": _NO_VALUES,
@@ -326,4 +469,11 @@ def no_values() -> dict:
         "string_lengths": _NO_VALUES,
         "numeric": _NO_VALUES,
         "booleans": _NO_VALUES,
+        "normalization": _normalization(
+            context.normalizer,
+            _NO_VALUES,
+            [0] * len(STAGES),
+            dict.fromkeys(range(len(STAGES)), _NO_VALUES),
+            _NO_VALUES,
+        ),
     }

@@ -216,6 +216,51 @@ class BooleanCounts(ScanModel):
     false: int
 
 
+StageName = Literal[
+    "raw", "nfc", "trim", "collapse_whitespace", "casefold", "strip_accents"
+]
+
+
+class NormalizationStage(ScanModel):
+    """``changed`` and ``cardinality`` are ``null`` for a disabled stage and
+    ``changed`` for ``raw``."""
+
+    stage: StageName
+    enabled: bool
+    changed: int | None
+    cardinality: IntMeasure | None
+
+
+class Variant(ScanModel):
+    """A raw string variant of a comparison key."""
+
+    value: str
+    count: int
+
+
+class VariantGroup(ScanModel):
+    """A comparison key with at least two distinct raw variants; ``count`` and
+    ``distinct`` cover every variant, ``variants`` the most frequent ones."""
+
+    key: str
+    count: int
+    distinct: int
+    variants: list[Variant]
+    truncated: bool
+
+
+class VariantGroups(ScanModel):
+    groups: int
+    listed: list[VariantGroup]
+    truncated: bool
+
+
+class Normalization(ScanModel):
+    version: int
+    stages: list[NormalizationStage]
+    variant_groups: measure(VariantGroups)
+
+
 class FieldResult(ScanModel):
     id: str
     path: list[PathSegment]
@@ -235,6 +280,7 @@ class FieldResult(ScanModel):
     string_lengths: measure(StringLengths)
     numeric: measure(NumericStats)
     booleans: measure(BooleanCounts)
+    normalization: Normalization
 
 
 # Datasets and scan ----------------------------------------------------------

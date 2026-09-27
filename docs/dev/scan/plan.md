@@ -15,8 +15,8 @@ regenerated, documentation consistent with what is released.
 | 1a | Engine core and CSV reader | Done | Opus 5.5 | High | `scan/phase-1` |
 | 1b | JSON reader, collections and structural limits | Done | Opus 5.5 | High | `scan/phase-1` |
 | 2a | Values, frequencies, limits and statistics | Done | Sonnet 5 | High | `scan/phase-2` |
-| 2b | Normalization version 1 and variant groups | Next | Sonnet 5 | High | `scan/phase-2` |
-| 3a | Detector framework, technical type, ported detectors | Planned | Opus 5.5 | High | `scan/phase-3` |
+| 2b | Normalization version 1 and variant groups | Done | Sonnet 5 | High | `scan/phase-2` |
+| 3a | Detector framework, technical type, ported detectors | Next | Opus 5.5 | High | `scan/phase-3` |
 | 3b | Priority 1 catalogue, patterns, sensitive values | Planned | Sonnet 5 | Medium | `scan/phase-3` |
 | 4 | `tabalyst scan` command, configuration layers, documentation | Planned | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Planned | Sonnet 5 | Low | `scan/phase-4` |
@@ -150,6 +150,7 @@ benchmarks.md.
 - Stages, change counters that continue after table release, stage
   cardinalities, variant groups.
 - Done when: `tests/scan/test_scan_normalization.py` passes.
+- Done on 2026-09-26; contract changes recorded in design section 17.
 
 ### Lot 3a: detector framework, technical type, ported detectors
 
@@ -271,6 +272,18 @@ done, and anything the next lot must know.
     counters should be facts too, so they continue after release.
   - `measures_limited` looks at `values.cardinality` and `numeric`; add the
     normalization envelopes when they exist.
+- Lot 2b, for later lots:
+  - Facts now carry the normalization changes and the output of every stage
+    (`measures.Facts`, positions `CHANGES` and `FORMS`; the streaming cache
+    drops the stage outputs). Detectors of lot 3a receive the
+    analytical value; stage outputs are available if a detector needs the
+    comparison key.
+  - Variant groups hold raw values: lot 3b must pass them through the
+    exposure gate of sensitive fields (design 12.8).
+  - `measures_limited` now also looks at `normalization.variant_groups`.
+  - Stage cardinalities of a complete table reuse the previous count when a
+    stage changed nothing, and only build sets from changed strings; variant
+    groups are built from changed strings only.
 - Lot 2a, still open with the `max_value_length` question of gate 1: `first`
   and `last` keep whole values, even beyond `max_stored_value_length`.
 - Lot 1a, for lot 6: indicative measure, not a benchmark row: 1 million rows
@@ -282,6 +295,11 @@ done, and anything the next lot must know.
   facts of high-cardinality columns (characteristics, analytical value, number
   parsing). The global budget finds the largest table by scanning the fields,
   O(fields) per release.
+- Lot 2b, for lot 6: indicative measure, not a benchmark row: the 100,000
+  rows of `synthetic-100k.csv` in about 4.3 s, against 4.15 s after lot 2a.
+  Most of the added work is `casefold` and `strip_accents` per distinct value;
+  `strip_accents` calls `unicodedata.category` per character, a candidate for
+  a fast path.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.
