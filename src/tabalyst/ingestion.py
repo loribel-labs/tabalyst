@@ -10,7 +10,7 @@ import pandas as pd
 
 from tabalyst.config import CsvConfig
 from tabalyst.errors import InputError
-from tabalyst.models import SourceInfo
+from tabalyst.legacy_models import SourceInfo
 
 
 class CsvInputError(InputError):

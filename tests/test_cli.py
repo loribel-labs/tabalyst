@@ -37,7 +37,7 @@ def test_report_generates_html_json_and_history(tmp_path):
     assert "2 rows and 2 columns" in result.stderr
     profile_json = html.with_suffix(".json")
     data = json.loads(profile_json.read_text(encoding="utf-8"))
-    assert data["preview"][0]["values"][0] == "001"
+    assert data["datasets"][0]["preview"][0]["values"][0] == "001"
     generated_html = html.read_text(encoding="utf-8")
     assert "Tabalyst Design Model · Signature v1.0" in generated_html
     assert "cdn." not in generated_html
@@ -285,9 +285,11 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
     config.write_text(
         json.dumps(
             {
-                "csv": {"delimiter": ";", "encoding": "cp1252"},
-                "missing_values": ["", "NULL"],
                 "preview_rows": 0,
+                "scan": {
+                    "csv": {"delimiter": ";", "encoding": "cp1252"},
+                    "values": {"null_markers": ["NULL"]},
+                },
             }
         )
     )
@@ -313,8 +315,8 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
 
     assert result.exit_code == 0, result.output
     data = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
-    assert data["summary"]["missing_count"] == 1
-    assert data["preview"] == []
+    assert data["datasets"][0]["summary"]["missing_count"] == 1
+    assert data["datasets"][0]["preview"] == []
     assert data["source"]["delimiter"] == ","
     assert data["source"]["encoding"] == "utf-8"
 
@@ -398,17 +400,19 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         json.dumps(
             {
                 "value_examples": {
-                    "candidate_sample_size": 25,
+                    "full_distribution_max_distinct": 25,
                     "short_text_result_size": 8,
                 }
             }
         )
     )
-    second.write_text(json.dumps({"value_examples": {"candidate_sample_size": 40}}))
+    second.write_text(
+        json.dumps({"value_examples": {"full_distribution_max_distinct": 40}})
+    )
 
     config = load_config([first, second])
 
-    assert config.value_examples.candidate_sample_size == 40
+    assert config.value_examples.full_distribution_max_distinct == 40
     assert config.value_examples.short_text_result_size == 8
     assert config.value_examples.long_text_result_size == 20
 
@@ -419,8 +423,8 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         '{"unexpected": true}',
         "[1, 2]",
         '{"csv": {"delimiter": "||"}}',
-        '{"date_detection": {"separators": ["--"]}}',
-        '{"date_detection": {"orders": ["YMD"], "ambiguous_order": "DMY"}}',
+        '{"string_analysis": {"short_max_length": 3}}',
+        '{"value_examples": {"inline_display_size": 0}}',
     ],
 )
 def test_invalid_config_is_rejected(tmp_path, content):

@@ -3,7 +3,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from tabalyst import AnalysisConfig, analyze_column, analyze_csv
+from tabalyst import AnalysisConfig, analyze_column
+from tabalyst.analysis import analyze_csv_file as analyze_csv
 from tabalyst.config import (
     CsvConfig,
     DateDetectionConfig,
@@ -14,7 +15,7 @@ from tabalyst.config import (
     ValueExamplesConfig,
 )
 from tabalyst.ingestion import CsvInputError
-from tabalyst.models import DatasetProfile
+from tabalyst.legacy_models import DatasetProfile
 
 
 def test_basic_csv_statistics_and_json_roundtrip():

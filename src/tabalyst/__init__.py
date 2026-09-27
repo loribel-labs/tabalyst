@@ -4,6 +4,7 @@ from tabalyst._version import __version__
 from tabalyst.analysis import analyze_column as analyze_column
 from tabalyst.config import AnalysisConfig as AnalysisConfig
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
+from tabalyst.report_config import ReportConfig as ReportConfig
 from tabalyst.report_service import generate_reports as generate_reports
 from tabalyst.reporting import render_report as render_report
 from tabalyst.sampling import SampleMethod as SampleMethod

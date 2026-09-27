@@ -6,35 +6,52 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any
 
-from tabalyst.analysis import analyze_dataset
-from tabalyst.config import AnalysisConfig, resolve_config
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.execution_log import (
     EXECUTION_LOG_NAME,
     append_execution,
     build_execution_entry,
 )
-from tabalyst.ingestion import read_csv
-from tabalyst.models import DatasetProfile
-from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
+from tabalyst.models import ReportProfile
+from tabalyst.progress import (
+    ProgressCallback,
+    ProgressEvent,
+    ProgressPhase,
+    emit_progress,
+)
+from tabalyst.report_config import ReportConfig, resolve_report_config
+from tabalyst.report_profile import RowFacts, build_profile
 from tabalyst.reporting import render_report
+from tabalyst.scanner import scan
 
 ConfigPath = str | Path | Sequence[str | Path]
 
 
 def analyze_csv(
     path: str | Path,
-    config: AnalysisConfig | None = None,
+    config: ReportConfig | None = None,
     on_progress: ProgressCallback | None = None,
-) -> DatasetProfile:
-    """Read and analyze one CSV without coupling callers to the CLI."""
-    config = config or AnalysisConfig()
+) -> ReportProfile:
+    """Scan one CSV or JSON file and build its report profile, without
+    coupling callers to the CLI. The file is read once."""
+    config = config or ReportConfig()
+    if not isinstance(config, ReportConfig):
+        raise TypeError(
+            "analyze_csv() expects a ReportConfig; the analysis settings of "
+            "reports moved to ReportConfig.scan (a ScanConfig)."
+        )
     source = Path(path)
     started = perf_counter()
-    emit_progress(on_progress, source, ProgressPhase.READING)
-    dataset = read_csv(source, config.csv)
+
+    def forward(event: ProgressEvent) -> None:
+        # The profile is not complete when the scan is.
+        if on_progress is not None and event.phase != ProgressPhase.COMPLETE:
+            on_progress(event)
+
+    rows = RowFacts(config.scan, config.preview_rows)
+    result = scan(source, config=config.scan, on_progress=forward, on_record=rows)
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
-    profile = analyze_dataset(dataset, config)
+    profile = build_profile(result, rows, config)
     profile.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
@@ -62,9 +79,9 @@ def _validate_paths(
     force: bool,
 ) -> tuple[Path, Path]:
     if not source.exists():
-        raise InputError(f"CSV file does not exist: {source}")
+        raise InputError(f"Source file does not exist: {source}")
     if not source.is_file():
-        raise InputError(f"CSV path is not a file: {source}")
+        raise InputError(f"Source path is not a file: {source}")
     if report.suffix.lower() != ".html":
         raise InputError("report_path must be a complete filename ending in .html")
     if report.exists() and report.is_dir():
@@ -100,7 +117,7 @@ def _write_text(path: Path, content: str) -> None:
 def _analyze_resolved(
     source: Path,
     report: Path,
-    config: AnalysisConfig,
+    config: ReportConfig,
     config_paths: list[Path],
     *,
     force: bool,
@@ -119,7 +136,7 @@ def _analyze_resolved(
     except InputError:
         raise
     except OSError as exc:
-        raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
+        raise InputError(f"Cannot read source file {source}: {exc}") from exc
 
     result = profile.model_dump(mode="json")
     json_text = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
@@ -160,14 +177,15 @@ def analyze(
 ) -> dict[str, Any]:
     """Analyze one CSV, write sibling JSON/HTML reports and return the result.
 
-    Explicit ``separator`` and ``encoding`` values override configuration-file
-    values, which in turn override Tabalyst's built-in defaults.
+    The analysis settings come from the ``scan`` object of the configuration
+    files. Explicit ``separator`` and ``encoding`` values override their
+    ``scan.csv`` values, which in turn override Tabalyst's built-in defaults.
     Existing report artifacts require ``force=True`` before replacement.
     """
     source = Path(csv_path)
     report = Path(report_path)
     config_paths = _config_paths(config_path)
-    config = resolve_config(
+    config = resolve_report_config(
         config_paths,
         separator=separator,
         encoding=encoding,

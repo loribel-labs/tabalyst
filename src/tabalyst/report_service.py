@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from tabalyst.batch import path_key, plan_outputs, validate_outputs
-from tabalyst.config import resolve_config
 from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.execution_log import EXECUTION_LOG_NAME
 from tabalyst.progress import (
@@ -15,6 +14,7 @@ from tabalyst.progress import (
     ProgressPhase,
     emit_progress,
 )
+from tabalyst.report_config import resolve_report_config
 from tabalyst.service import ConfigPath, _analyze_resolved, _config_paths
 
 
@@ -60,6 +60,14 @@ class BatchReportResult:
         return not self.failures
 
 
+def report_name(source: Path) -> str:
+    """``data.html`` for ``data.csv``; ``data.report.html`` for ``data.json``,
+    whose profile ``data.report.json`` must not replace the source."""
+    if source.suffix.lower() == ".json":
+        return f"{source.stem}.report.html"
+    return f"{source.stem}.html"
+
+
 def build_report_plan(
     input_specs: Sequence[str | Path],
     *,
@@ -74,7 +82,7 @@ def build_report_plan(
             input_specs,
             output=output,
             output_dir=output_dir,
-            output_name=lambda source: f"{source.stem}.html",
+            output_name=report_name,
         )
     )
     _validate_report_plan(jobs, force=force)
@@ -122,7 +130,7 @@ def generate_reports(
         force=force,
     )
     config_paths = _config_paths(config_path)
-    config = resolve_config(
+    config = resolve_report_config(
         config_paths,
         separator=separator,
         encoding=encoding,
@@ -141,6 +149,8 @@ def generate_reports(
                         index=job_index,
                         total=total,
                         detail=event.detail,
+                        bytes_read=event.bytes_read,
+                        bytes_total=event.bytes_total,
                     )
                 )
 

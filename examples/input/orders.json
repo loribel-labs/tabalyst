@@ -1,0 +1,2644 @@
+{
+  "export": {
+    "source": "Synthetic shop",
+    "generated": "2026-09-01",
+    "version": 2
+  },
+  "customers": [
+    {
+      "id": "C0001",
+      "name": "Tania Robert",
+      "email": "tania.robert1@shop.example",
+      "phone": "+33 6 93 77 13 69",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-03-04",
+      "newsletter": true,
+      "tags": [
+        "returning"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0002",
+      "name": "Samir Thomas",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-07-06",
+      "newsletter": false,
+      "tags": [
+        "returning",
+        "newsletter"
+      ],
+      "orders": [
+        {
+          "order_id": "O0002-1",
+          "ordered_at": "2026-01-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0003",
+      "name": "Farid Dubois",
+      "email": "farid.dubois3@shop.example",
+      "phone": "+33 6 79 96 90 36",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-12-07",
+      "newsletter": true,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0003-1",
+          "ordered_at": "2026-03-09",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0003-2",
+          "ordered_at": "2026-01-20",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0004",
+      "name": "Chloé Robert",
+      "email": "chloe.robert4@shop.example",
+      "phone": "+33 6 99 50 33 71",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-01-09",
+      "newsletter": false,
+      "tags": [
+        "student",
+        "newsletter"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0005",
+      "name": "Rose Petit",
+      "email": "rose.petit5@shop.example",
+      "phone": "+33 6 11 67 15 33",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-04-04",
+      "newsletter": true,
+      "tags": [
+        "student"
+      ],
+      "orders": [
+        {
+          "order_id": "O0005-1",
+          "ordered_at": "2026-05-25",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 3,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 162.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0005-2",
+          "ordered_at": "2026-06-28",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0005-3",
+          "ordered_at": "2026-02-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0005-4",
+          "ordered_at": "2026-06-05",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0006",
+      "name": "Inès Laurent",
+      "email": "ines.laurent6@shop.example",
+      "phone": "+33 6 50 49 32 20",
+      "address": {
+        "city": "Toulouse"
+      },
+      "signup_date": "2025-12-10",
+      "newsletter": false,
+      "orders": [
+        {
+          "order_id": "O0006-1",
+          "ordered_at": "2026-01-08",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 2,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 16.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0006-2",
+          "ordered_at": "2026-07-05",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0006-3",
+          "ordered_at": "2026-06-27",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0006-4",
+          "ordered_at": "2026-03-21",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0007",
+      "name": "David Dubois",
+      "email": "david.dubois7@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-08-20",
+      "newsletter": true,
+      "tags": [
+        "newsletter"
+      ],
+      "orders": [
+        {
+          "order_id": "O0007-1",
+          "ordered_at": "2026-05-16",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0007-2",
+          "ordered_at": "2026-07-27",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0008",
+      "name": "Ugo Durand",
+      "email": "ugo.durand8@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-09-28",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0009",
+      "name": "Jules Richard",
+      "email": "jules.richard9@shop.example",
+      "phone": "+33 6 72 43 98 47",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-10-28",
+      "newsletter": null,
+      "tags": [
+        "student",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0009-1",
+          "ordered_at": "2026-06-12",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0009-2",
+          "ordered_at": "2026-07-12",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 3,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 162.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0010",
+      "name": "William Durand",
+      "email": "william.durand10@shop.example",
+      "phone": "+33 6 76 28 77 31",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-08-10",
+      "newsletter": true,
+      "tags": [
+        "newsletter",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0010-1",
+          "ordered_at": "2026-07-10",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0010-2",
+          "ordered_at": "2026-01-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 3,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 162.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0010-3",
+          "ordered_at": "2026-03-08",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 2,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 16.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0010-4",
+          "ordered_at": "2026-04-06",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0011",
+      "name": "Emma Bernard",
+      "email": "emma.bernard11@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-07-15",
+      "newsletter": true,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0011-1",
+          "ordered_at": "2026-06-13",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0012",
+      "name": "Nadia Bernard",
+      "email": "nadia.bernard12@shop.example",
+      "phone": "+33 6 14 80 88 48",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-09-11",
+      "newsletter": false,
+      "tags": [
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0012-1",
+          "ordered_at": "2026-06-15",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 267.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0012-2",
+          "ordered_at": "2026-07-19",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0012-3",
+          "ordered_at": "2026-02-12",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0013",
+      "name": "Marc Bernard",
+      "email": "marc.bernard13@shop.example",
+      "phone": "+33 6 79 28 51 90",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-07-08",
+      "newsletter": false,
+      "tags": [
+        "newsletter",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0013-1",
+          "ordered_at": "2026-05-24",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0014",
+      "name": "Pauline Robert",
+      "email": "pauline.robert14@shop.example",
+      "phone": "+33 6 49 72 46 28",
+      "address": {
+        "city": "Lille"
+      },
+      "signup_date": "2025-11-20",
+      "newsletter": false,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0014-1",
+          "ordered_at": "2026-05-08",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0014-2",
+          "ordered_at": "2026-08-09",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0014-3",
+          "ordered_at": "2026-08-20",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0015",
+      "name": "Quentin Simon",
+      "email": "quentin.simon15@shop.example",
+      "phone": "+33 6 25 12 26 48",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-06-20",
+      "newsletter": true,
+      "tags": [
+        "student"
+      ],
+      "orders": [
+        {
+          "order_id": "O0015-1",
+          "ordered_at": "2026-01-01",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0015-2",
+          "ordered_at": "2026-02-22",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 2,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 16.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0016",
+      "name": "Nadia Petit",
+      "email": "nadia.petit16@shop.example",
+      "phone": "+33 6 90 93 71 59",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-12-07",
+      "newsletter": false,
+      "orders": []
+    },
+    {
+      "id": "C0017",
+      "name": "William Petit",
+      "email": "william.petit17@shop.example",
+      "phone": "+33 6 70 49 28 31",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-08-11",
+      "newsletter": false,
+      "tags": [
+        "vip",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0017-1",
+          "ordered_at": "2026-02-22",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0018",
+      "name": "Karim Laurent",
+      "email": "karim.laurent18@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-01-04",
+      "newsletter": false,
+      "tags": [
+        "vip",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0018-1",
+          "ordered_at": "2026-03-20",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0018-2",
+          "ordered_at": "2026-02-20",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0019",
+      "name": "Bruno Leroy",
+      "email": "bruno.leroy19@shop.example",
+      "phone": "+33 6 19 45 17 83",
+      "address": {
+        "city": "Bordeaux"
+      },
+      "signup_date": "2025-07-20",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0019-1",
+          "ordered_at": "2026-06-02",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0019-2",
+          "ordered_at": "2026-05-18",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0019-3",
+          "ordered_at": "2026-04-09",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0020",
+      "name": "Quentin Dubois",
+      "email": "quentin.dubois20@shop.example",
+      "phone": "+33 6 68 59 32 26",
+      "address": {
+        "city": "Toulouse"
+      },
+      "signup_date": "2025-06-03",
+      "newsletter": false,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0020-1",
+          "ordered_at": "2026-08-16",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 2,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 59.8,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0020-2",
+          "ordered_at": "2026-01-18",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0020-3",
+          "ordered_at": "2026-07-22",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0021",
+      "name": "Yasmine Bernard",
+      "phone": "+33 6 72 37 27 99",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-04-10",
+      "newsletter": true,
+      "tags": [
+        "newsletter"
+      ],
+      "orders": [
+        {
+          "order_id": "O0021-1",
+          "ordered_at": "2026-06-21",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0021-2",
+          "ordered_at": "2026-01-19",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0021-3",
+          "ordered_at": "2026-02-04",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 2,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 59.8,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0022",
+      "name": "Bruno Dubois",
+      "email": "bruno.dubois22@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-06-01",
+      "newsletter": false,
+      "tags": [
+        "newsletter",
+        "student"
+      ],
+      "orders": [
+        {
+          "order_id": "O0022-1",
+          "ordered_at": "2026-04-05",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0022-2",
+          "ordered_at": "2026-07-28",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0022-3",
+          "ordered_at": "2026-05-04",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0023",
+      "name": "Farid Robert",
+      "email": "farid.robert23@shop.example",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-06-11",
+      "newsletter": true,
+      "tags": [
+        "newsletter",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0023-1",
+          "ordered_at": "2026-06-10",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0024",
+      "name": "Valérie Thomas",
+      "email": "valerie.thomas24@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-10-08",
+      "newsletter": true,
+      "tags": [
+        "student",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0024-1",
+          "ordered_at": "2026-05-03",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0025",
+      "name": "Farid Thomas",
+      "email": "farid.thomas25@shop.example",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-07-24",
+      "newsletter": false,
+      "orders": [
+        {
+          "order_id": "O0025-1",
+          "ordered_at": "2026-01-18",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0025-2",
+          "ordered_at": "2026-02-08",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0025-3",
+          "ordered_at": "2026-01-22",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0026",
+      "name": "Ugo Martin",
+      "email": "ugo.martin26@shop.example",
+      "phone": "+33 6 16 42 62 67",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-01-07",
+      "newsletter": true,
+      "tags": [
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0026-1",
+          "ordered_at": "2026-06-26",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0026-2",
+          "ordered_at": "2026-03-20",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0026-3",
+          "ordered_at": "2026-01-15",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0026-4",
+          "ordered_at": "2026-07-17",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 267.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0027",
+      "name": "Yasmine Martin",
+      "email": "yasmine.martin27@shop.example",
+      "phone": "+33 6 67 38 80 24",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-02-25",
+      "newsletter": true,
+      "tags": [
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0027-1",
+          "ordered_at": "2026-08-08",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0028",
+      "name": "Nadia Moreau",
+      "email": "nadia.moreau28@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-01-23",
+      "newsletter": false,
+      "tags": [
+        "vip"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0029",
+      "name": "Nadia Richard",
+      "email": "nadia.richard29@shop.example",
+      "phone": "+33 6 10 46 93 26",
+      "address": {
+        "city": "Bordeaux"
+      },
+      "signup_date": "2025-03-27",
+      "newsletter": true,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0029-1",
+          "ordered_at": "2026-07-18",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0029-2",
+          "ordered_at": "2026-05-06",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0029-3",
+          "ordered_at": "2026-06-10",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0030",
+      "name": "Chloé Leroy",
+      "email": "chloe.leroy30@shop.example",
+      "phone": "+33 6 13 25 16 26",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-05-20",
+      "newsletter": null,
+      "tags": [
+        "newsletter",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0030-1",
+          "ordered_at": "2026-06-01",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 2,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 59.8,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0030-2",
+          "ordered_at": "2026-03-24",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0031",
+      "name": "Inès Leroy",
+      "email": "ines.leroy31@shop.example",
+      "phone": "+33 6 28 67 65 64",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-08-08",
+      "newsletter": false,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0031-1",
+          "ordered_at": "2026-08-20",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 2,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 16.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0032",
+      "name": "David Dubois",
+      "email": "david.dubois32@shop.example",
+      "phone": "+33 6 16 36 10 14",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-12-12",
+      "newsletter": false,
+      "tags": [
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0032-1",
+          "ordered_at": "2026-06-25",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0032-2",
+          "ordered_at": "2026-04-27",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0033",
+      "name": "Tania Durand",
+      "email": "tania.durand33@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-01-04",
+      "newsletter": false,
+      "tags": [
+        "student",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0033-1",
+          "ordered_at": "2026-08-28",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0033-2",
+          "ordered_at": "2026-01-04",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 2,
+              "unit_price": 29.9
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0034",
+      "name": "Tania Dubois",
+      "email": "tania.dubois34@shop.example",
+      "address": {
+        "city": "Toulouse"
+      },
+      "signup_date": "2025-05-17",
+      "newsletter": false,
+      "tags": [
+        "newsletter",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0034-1",
+          "ordered_at": "2026-01-18",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0034-2",
+          "ordered_at": "2026-01-22",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0034-3",
+          "ordered_at": "2026-01-03",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0034-4",
+          "ordered_at": "2026-07-10",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0035",
+      "name": "Inès Laurent",
+      "email": "ines.laurent35@shop.example",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-05-12",
+      "newsletter": true,
+      "tags": [
+        "returning",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0035-1",
+          "ordered_at": "2026-02-08",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0035-2",
+          "ordered_at": "2026-07-01",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 2,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 16.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0035-3",
+          "ordered_at": "2026-04-22",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0036",
+      "name": "Karim Bernard",
+      "email": "karim.bernard36@shop.example",
+      "phone": "+33 6 98 57 41 22",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-05-26",
+      "newsletter": true,
+      "orders": [
+        {
+          "order_id": "O0036-1",
+          "ordered_at": "2026-02-19",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0036-2",
+          "ordered_at": "2026-07-14",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0036-3",
+          "ordered_at": "2026-04-10",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0037",
+      "name": "Inès Bernard",
+      "email": "ines.bernard37@shop.example",
+      "phone": "+33 6 33 63 13 29",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-09-20",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0038",
+      "name": "Ugo Laurent",
+      "email": "ugo.laurent38@shop.example",
+      "address": {
+        "city": "Lille"
+      },
+      "signup_date": "2025-09-03",
+      "newsletter": true,
+      "tags": [
+        "newsletter",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0038-1",
+          "ordered_at": "2026-01-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0038-2",
+          "ordered_at": "2026-06-05",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0038-3",
+          "ordered_at": "2026-08-24",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0038-4",
+          "ordered_at": "2026-02-12",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0039",
+      "name": "Chloé Thomas",
+      "email": "chloe.thomas39@shop.example",
+      "phone": "+33 6 68 97 20 41",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-08-13",
+      "newsletter": null,
+      "tags": [
+        "student",
+        "b2b"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0040",
+      "name": "Pauline Petit",
+      "email": "pauline.petit40@shop.example",
+      "phone": "+33 6 19 72 47 12",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-06-25",
+      "newsletter": true,
+      "tags": [
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0040-1",
+          "ordered_at": "2026-02-19",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 267.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0040-2",
+          "ordered_at": "2026-06-28",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0041",
+      "name": "Quentin Petit",
+      "phone": "+33 6 40 44 95 19",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-02-18",
+      "newsletter": true,
+      "tags": [
+        "newsletter",
+        "b2b"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0042",
+      "name": "Olivier Richard",
+      "email": "olivier.richard42@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-01-01",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": []
+    },
+    {
+      "id": "C0043",
+      "name": "Bruno Thomas",
+      "email": "bruno.thomas43@shop.example",
+      "phone": "+33 6 11 70 76 20",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-11-16",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0043-1",
+          "ordered_at": "2026-01-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0043-2",
+          "ordered_at": "2026-07-26",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 267.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0043-3",
+          "ordered_at": "2026-03-11",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0044",
+      "name": "Jules Thomas",
+      "email": "jules.thomas44@shop.example",
+      "phone": "+33 6 57 37 60 63",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-08-12",
+      "newsletter": true,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0044-1",
+          "ordered_at": "2026-07-02",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0044-2",
+          "ordered_at": "2026-01-24",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0044-3",
+          "ordered_at": "2026-08-05",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 3,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 162.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0045",
+      "name": "Hugo Bernard",
+      "email": "hugo.bernard45@shop.example",
+      "phone": "+33 6 13 11 33 64",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-11-12",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0045-1",
+          "ordered_at": "2026-02-04",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0045-2",
+          "ordered_at": "2026-06-16",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0045-3",
+          "ordered_at": "2026-03-09",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0045-4",
+          "ordered_at": "2026-07-05",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0046",
+      "name": "Pauline Simon",
+      "email": "pauline.simon46@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-09-23",
+      "newsletter": true,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0046-1",
+          "ordered_at": "2026-07-12",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0047",
+      "name": "Rose Robert",
+      "email": "rose.robert47@shop.example",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-06-19",
+      "newsletter": true,
+      "tags": [
+        "newsletter",
+        "returning"
+      ],
+      "orders": [
+        {
+          "order_id": "O0047-1",
+          "ordered_at": "2026-02-21",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0047-2",
+          "ordered_at": "2026-04-17",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0048",
+      "name": "Quentin Robert",
+      "email": "quentin.robert48@shop.example",
+      "phone": "+33 6 62 27 68 54",
+      "address": {
+        "city": "Paris",
+        "postal_code": "75011"
+      },
+      "signup_date": "2025-10-19",
+      "newsletter": false,
+      "tags": [],
+      "orders": []
+    },
+    {
+      "id": "C0049",
+      "name": "Karim Dubois",
+      "email": "karim.dubois49@shop.example",
+      "phone": "+33 6 45 71 28 25",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-01-21",
+      "newsletter": false,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0049-1",
+          "ordered_at": "2026-03-19",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0049-2",
+          "ordered_at": "2026-02-01",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 3,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 162.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0049-3",
+          "ordered_at": "2026-08-22",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0049-4",
+          "ordered_at": "2026-07-04",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0050",
+      "name": "Yasmine Leroy",
+      "email": "yasmine.leroy50@shop.example",
+      "phone": "+33 6 38 78 99 24",
+      "address": {
+        "city": "Toulouse"
+      },
+      "signup_date": "2025-11-19",
+      "newsletter": null,
+      "tags": [],
+      "orders": [
+        {
+          "order_id": "O0050-1",
+          "ordered_at": "2026-02-21",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 3,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 24.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0050-2",
+          "ordered_at": "2026-05-09",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0051",
+      "name": "Jules Robert",
+      "phone": "+33 6 76 94 73 69",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-04-09",
+      "newsletter": true,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0051-1",
+          "ordered_at": "2026-07-15",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0052",
+      "name": "Marc Dubois",
+      "email": "marc.dubois52@shop.example",
+      "phone": "+33 6 31 97 74 67",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-01-05",
+      "newsletter": true,
+      "tags": [
+        "returning",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0052-1",
+          "ordered_at": "2026-03-14",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0052-2",
+          "ordered_at": "2026-02-07",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 2,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 108.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0052-3",
+          "ordered_at": "2026-05-16",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0052-4",
+          "ordered_at": "2026-02-11",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 3,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 13.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0053",
+      "name": "David Simon",
+      "email": "david.simon53@shop.example",
+      "phone": "+33 6 32 16 79 59",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-12-25",
+      "newsletter": false,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0053-1",
+          "ordered_at": "2026-06-14",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0053-2",
+          "ordered_at": "2026-05-03",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0054",
+      "name": "Bruno Bernard",
+      "email": "bruno.bernard54@shop.example",
+      "phone": "+33 6 74 62 23 69",
+      "address": {
+        "city": "Lille"
+      },
+      "signup_date": "2025-07-01",
+      "newsletter": true,
+      "tags": [
+        "vip",
+        "student"
+      ],
+      "orders": [
+        {
+          "order_id": "O0054-1",
+          "ordered_at": "2026-07-04",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 2,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 9.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0054-2",
+          "ordered_at": "2026-02-03",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0055",
+      "name": "David Robert",
+      "email": "david.robert55@shop.example",
+      "phone": "+33 6 64 15 36 75",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-11-06",
+      "newsletter": false,
+      "tags": [
+        "returning",
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0055-1",
+          "ordered_at": "2026-08-10",
+          "status": "shipped",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0056",
+      "name": "Rose Moreau",
+      "email": "rose.moreau56@shop.example",
+      "address": {
+        "city": "Lyon",
+        "postal_code": "69003"
+      },
+      "signup_date": "2025-05-15",
+      "newsletter": true,
+      "tags": [
+        "vip",
+        "b2b"
+      ],
+      "orders": [
+        {
+          "order_id": "O0056-1",
+          "ordered_at": "2026-02-15",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 2,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 59.8,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0056-2",
+          "ordered_at": "2026-03-21",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 1,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 29.9,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0056-3",
+          "ordered_at": "2026-08-28",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0056-4",
+          "ordered_at": "2026-05-19",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 1,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 89.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0057",
+      "name": "Ugo Richard",
+      "email": "ugo.richard57@shop.example",
+      "phone": "+33 6 81 25 36 13",
+      "address": {
+        "city": "Nantes",
+        "postal_code": "44000"
+      },
+      "signup_date": "2025-08-21",
+      "newsletter": true,
+      "tags": [
+        "returning",
+        "student"
+      ],
+      "orders": [
+        {
+          "order_id": "O0057-1",
+          "ordered_at": "2026-05-05",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Backpack",
+              "quantity": 1,
+              "unit_price": 54.0
+            }
+          ],
+          "total": 54.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0057-2",
+          "ordered_at": "2026-03-10",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 2,
+              "unit_price": 89.0
+            }
+          ],
+          "total": 178.0,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0057-3",
+          "ordered_at": "2026-08-06",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Notebook",
+              "quantity": 1,
+              "unit_price": 4.5
+            }
+          ],
+          "total": 4.5,
+          "currency": "EUR"
+        },
+        {
+          "order_id": "O0057-4",
+          "ordered_at": "2026-05-14",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Headphones",
+              "quantity": 3,
+              "unit_price": 89.0
+            }
+          ],
+          "total": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0058",
+      "name": "Karim Laurent",
+      "email": "karim.laurent58@shop.example",
+      "phone": "+33 6 98 88 11 30",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-01-18",
+      "newsletter": true,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0058-1",
+          "ordered_at": "2026-08-04",
+          "status": "delivered",
+          "items": [
+            {
+              "product": "Mug",
+              "quantity": 1,
+              "unit_price": 8.0
+            }
+          ],
+          "total": 8.0,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0059",
+      "name": "Farid Dubois",
+      "email": "farid.dubois59@shop.example",
+      "address": {
+        "city": "Lille",
+        "postal_code": "59000"
+      },
+      "signup_date": "2025-07-14",
+      "newsletter": false,
+      "tags": [
+        "vip"
+      ],
+      "orders": [
+        {
+          "order_id": "O0059-1",
+          "ordered_at": "2026-02-24",
+          "status": "cancelled",
+          "items": [
+            {
+              "product": "Desk lamp",
+              "quantity": 3,
+              "unit_price": 29.9
+            }
+          ],
+          "total": 89.7,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "id": "C0060",
+      "name": "Samir Robert",
+      "email": "samir.robert60@shop.example",
+      "address": {
+        "city": "Bordeaux",
+        "postal_code": "33000"
+      },
+      "signup_date": "2025-08-26",
+      "newsletter": false,
+      "tags": [
+        "returning"
+      ],
+      "orders": []
+    }
+  ]
+}

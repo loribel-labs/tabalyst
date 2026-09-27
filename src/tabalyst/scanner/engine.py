@@ -28,7 +28,7 @@ from tabalyst.scanner.values import ValueContext
 LISTED_LIMITED_FIELDS = 10
 
 
-def _has_limited_measure(field: FieldResult) -> bool:
+def has_limited_measure(field: FieldResult) -> bool:
     # Variant groups are limited only with the raw table today; listed so a
     # later limit of their own cannot be missed.
     return any(
@@ -140,7 +140,7 @@ class ScanEngine:
             )
         for result in results:
             limited = [
-                field.display for field in result.fields if _has_limited_measure(field)
+                field.display for field in result.fields if has_limited_measure(field)
             ]
             if limited:
                 named = ", ".join(limited[:LISTED_LIMITED_FIELDS])

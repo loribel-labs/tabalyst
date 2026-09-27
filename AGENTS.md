@@ -31,8 +31,11 @@ Breaking changes are allowed and migration support is not required yet.
 
 ## Architecture
 
-- `src/tabalyst/analysis.py`: analysis logic without file or presentation concerns.
+- `src/tabalyst/report_profile.py`: report profile built from a Scan result,
+  without file or presentation concerns.
 - `src/tabalyst/models.py`: Pydantic models serialized to the experimental JSON profile.
+- `src/tabalyst/analysis.py`: the pandas engine, kept for the parity tests until
+  Scan lot 5c removes it.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision
@@ -68,7 +71,7 @@ After Python changes:
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
 regression check described in `docs/dev/architecture.md` at desktop and mobile sizes.
-After every project modification, regenerate both public demos using the commands
+After every project modification, regenerate the public demos using the commands
 in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
 Update `docs/dev/progress.md` for meaningful work. Update
