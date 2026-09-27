@@ -11,6 +11,7 @@ from collections.abc import Callable, Iterable, Iterator
 from decimal import Decimal
 from fractions import Fraction
 
+from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.base import (
     NOT_TESTED,
@@ -21,8 +22,10 @@ from tabalyst.scanner.detectors.base import (
 from tabalyst.scanner.detectors.boolean import BooleanDetector
 from tabalyst.scanner.detectors.enumeration import EnumerationDetector
 from tabalyst.scanner.detectors.number import NumberDetector, is_integer_format
+from tabalyst.scanner.detectors.pattern import pattern_detector
 from tabalyst.scanner.detectors.shape import shape
 from tabalyst.scanner.detectors.temporal import DateDetector
+from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import UNCONVERTIBLE
 from tabalyst.scanner.models import (
     Coverage,
@@ -176,12 +179,17 @@ class DetectorTally:
         except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
             self.error = type(exc).__name__
 
-    def result(self, report_failure: FailureReporter):
+    def exposes_sensitive_values(self) -> bool:
+        """A sensitive detector matched a value of the field, or failed on it,
+        which cannot prove that nothing matched (design 12.8)."""
+        return self.detector.sensitive and (self.matched > 0 or self.error is not None)
+
+    def result(self, report_failure: FailureReporter, gate: ExposureGate = SHOW):
         detector = self.detector
         identity = {"id": detector.id, "version": detector.version}
         if self.error is None and self.eligible:
             try:
-                details = self.accumulator.details()
+                details = self.accumulator.details(gate)
                 matches = detector.scope != "field" or self.accumulator.field_matches()
             except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
                 self.error = type(exc).__name__
@@ -222,7 +230,9 @@ class DetectorTally:
                     formats.items(), key=lambda item: (-item[1], item[0])
                 )
             ],
-            evidence=Evidence(**examples),
+            evidence=Evidence(
+                **{state: gate.examples(values) for state, values in examples.items()}
+            ),
             details=details,
         )
 
@@ -236,6 +246,7 @@ class DetectorSet:
 
     __slots__ = (
         "_date",
+        "_exposure",
         "_idle",
         "_number",
         "_plans",
@@ -249,7 +260,14 @@ class DetectorSet:
     def __init__(self, registry: DetectorRegistry, config: ScanConfig) -> None:
         self.entries: list[tuple[type[Detector], Detector | None]] = []
         active: list[Detector] = []
-        for detector_class in registry:
+        # Declarative patterns follow the registry, in configuration order.
+        patterns = [pattern_detector(settings) for settings in config.patterns]
+        for pattern in patterns:
+            if pattern.id in registry:
+                raise ConfigurationError(
+                    f"Pattern {pattern.id!r} collides with a registered detector"
+                )
+        for detector_class in (*registry, *patterns):
             section = getattr(config.detectors, detector_class.id, None)
             settings = {} if section is None else section.model_dump()
             detector = None
@@ -264,6 +282,7 @@ class DetectorSet:
         self.max_examples = config.limits.max_evidence_examples
         self.max_length = config.limits.max_stored_value_length
         self.minimum_share = exact_share(config.detection.minimum_share)
+        self._exposure = ExposureGate(config.exposure.sensitive_values)
         # Native types that no active detector accepts need no work.
         self._idle = {
             native_type: (NOT_ELIGIBLE,) * len(active)
@@ -335,6 +354,12 @@ class DetectorSet:
         family = string_family(text, classifications, self._date, self._number)
         return classifications, number, decimal_form, family
 
+    def gate(self, tallies: list[DetectorTally]) -> ExposureGate | None:
+        """The exposure gate of a sensitive field, ``None`` otherwise."""
+        if any(tally.exposes_sensitive_values() for tally in tallies):
+            return self._exposure
+        return None
+
     def tallies(self) -> list[DetectorTally]:
         return [
             DetectorTally(detector, self.max_examples, self.max_length)
@@ -342,7 +367,10 @@ class DetectorSet:
         ]
 
     def results(
-        self, tallies: list[DetectorTally] | None, report_failure: FailureReporter
+        self,
+        tallies: list[DetectorTally] | None,
+        report_failure: FailureReporter,
+        gate: ExposureGate = SHOW,
     ) -> list:
         """Every registered detector in order; ``tallies`` is ``None`` for a
         field without analyzable values."""
@@ -363,7 +391,7 @@ class DetectorSet:
                     )
                 )
             else:
-                results.append(tallies[position].result(report_failure))
+                results.append(tallies[position].result(report_failure, gate))
             position += 1
         return results
 

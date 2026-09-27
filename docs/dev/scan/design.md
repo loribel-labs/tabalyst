@@ -44,7 +44,7 @@ lot, with the reason recorded in section 17.
 | O11 | Declarative patterns | Validated Python regular expressions with length caps. | Accepted 2026-09-26 | 12.7 |
 | O12 | Reuse and staleness | Identity fields exist from phase 1; the reuse rule is settled in lot 5c. | Deferred to 5c | 16.2 |
 | O13 | Configuration merge | Objects merge, lists replace, unknown keys fail. | Accepted 2026-09-26 | 15 |
-| O14 | Detector catalogue | Each detector gets a short specification in `detectors.md` before it is implemented. | Deferred to 3b | 12 |
+| O14 | Detector catalogue | Each detector gets a short specification in [detectors.md](detectors.md) before it is implemented. | Accepted 2026-09-26, file created in lot 3b | 12 |
 | O15 | Empty inputs | Zero counts and `not_applicable` measures; never a division by zero. | Accepted 2026-09-26 | 9.9 |
 | O16 | Report | Settled in phase 5. | Deferred to 5a | - |
 | O17 | Output writing | Atomic temporary file plus replace; `--force` for existing outputs. | Accepted 2026-09-26 | 16.3 |
@@ -692,7 +692,7 @@ class Detector:
 
 class DetectorAccumulator:
     def add(self, value: str, classification: Classification | None, count: int) -> None: ...
-    def details(self) -> dict[str, object]: ...
+    def details(self, gate: ExposureGate) -> dict[str, object]: ...
     def field_matches(self) -> bool: ...          # field-level detectors only
 ```
 
@@ -715,7 +715,8 @@ class DetectorAccumulator:
   `(value, classification, count)` for every tested value, `None` meaning not
   matched, and produces the detector-specific `details`, such as email
   domains. In both execution modes it sees the same distinct values, first
-  seen first, with the same total counts.
+  seen first, with the same total counts. `details` receives the exposure
+  gate of the field (12.8): any value it carries must go through it.
 - A detector with `scope = "field"` decides at the end, through
   `field_matches()`, whether all its values match or none does; when none
   does, matched values count as `not_matched` and it has no formats.
@@ -727,7 +728,8 @@ class DetectorAccumulator:
 - `DetectorRegistry` holds detector classes by `id`, in registration order.
   `default_registry()` returns a fresh registry with the built-ins `number`,
   `date`, `boolean` and `enumeration`; `register(cls)` adds one and rejects
-  a duplicate id. External plugin loading is deferred (O21).
+  a duplicate id. External plugin loading is deferred (O21). Declarative
+  patterns (12.7) follow the registry's detectors, in configuration order.
 - Configuration: `detectors.<id>` holds `enabled` and detector parameters
   (D14). Complex logic stays in code. Detectors registered without a
   configuration section receive empty settings and are enabled.
@@ -777,8 +779,8 @@ that did not match (CA19).
 - `evidence` has the keys `matched`, `ambiguous`, `invalid` and
   `not_matched`: the first distinct analytical values of each state, at most
   `limits.max_evidence_examples` each, without values longer than
-  `limits.max_stored_value_length`. Lot 3b passes them through the exposure
-  gate.
+  `limits.max_stored_value_length`. They go through the exposure gate
+  (12.8).
 
 ### 12.4 Interpretations (EF24, EF27, CA12)
 
@@ -855,20 +857,44 @@ when both conventions are enabled (empty otherwise) and `resolution`
 - Python `re` has no timeout. Catastrophic backtracking remains possible with
   hostile expressions; the documentation must say that patterns are trusted
   configuration. A safer engine is a later option.
-- Pattern identifiers must be unique and cannot collide with built-in ids.
+- Pattern identifiers must be unique. The `pattern:` prefix keeps them apart
+  from built-in ids; a registered detector whose id equals a pattern's
+  detector id is a `ConfigurationError` when the scan starts.
+- Pattern detectors have family `pattern`, no formats and no `details`; they
+  follow the registry's detectors in configuration order. Values of other
+  accepted native types are matched on their canonical text (9.1). Their
+  specification is in [detectors.md](detectors.md).
 
 ### 12.8 Sensitive values and exposure (ET17, O10, CA20)
 
 - A field is sensitive when a sensitive detector matched at least one of its
-  values. This is deliberately conservative.
+  values, or failed on one of them: a failure cannot prove that nothing
+  matched. This is deliberately conservative.
 - `exposure.sensitive_values` is `mask` (default), `hide` or `show`.
 - Every value-bearing block of a sensitive field (frequencies, samples, first
-  and last values, variant groups, detector evidence) passes through one
-  exposure gate at finalization. `mask` replaces each uppercase letter with
-  `A`, lowercase letter with `a` and digit with `9`, keeps other characters and
-  does not compress runs, then merges equal masks; `hide` removes the values
-  and keeps counts. The effective configuration is not a value-bearing block.
-- The field records `"sensitive": true` and the exposure applied.
+  and last values, variant groups, detector evidence and value-bearing
+  `details`) passes through one exposure gate at finalization, once every
+  value has been tallied, in both execution modes.
+- `mask` replaces each uppercase letter (`str.isupper`) with `A`, every other
+  letter with `a` and each digit (`str.isdigit`) with `9`, keeps other
+  characters and does not compress runs, then merges equal masks before
+  listings are selected: frequencies, samples and variant groups describe the
+  masked values. `frequencies.distinct` counts distinct masks; ranking and
+  sampling apply to masks. Variant groups with equal masked keys merge, as do
+  equal masked variants of a group; `groups` and `distinct` count masked
+  entries. Evidence lists distinct masks in first-seen order.
+  `values.cardinality` and stage cardinalities stay raw counts.
+- `hide` removes the values and keeps counts: listings of frequencies,
+  samples, variant groups and evidence are empty (`truncated` is `true` when
+  something was hidden), `first` and `last` are `null`.
+- `show` exposes values unchanged.
+- Statistics that are values themselves, such as a minimum or a date range,
+  cannot be masked: under `mask` and `hide`, the `numeric` and `temporal`
+  blocks of a sensitive field are `disabled`. Counts, lengths,
+  characteristics and coverage stay.
+- The effective configuration is not a value-bearing block.
+- The field records `sensitive` and `exposure`, the mode applied (`null` when
+  the field is not sensitive).
 
 ### 12.9 Catalogue
 
@@ -881,67 +907,8 @@ real-world existence (EF32).
 
 ### 12.10 Built-in detectors (lot 3a)
 
-Accepted characters are ASCII digits. Lot 3b moves these descriptions to
-`detectors.md`.
-
-**`number`** (family `number`). The strict rule applies first: a strict
-integer (`0`, `-12`) matches under any convention with format `0`; strict
-decimals and exponents (`1.5`, `.5`, `1.`, `1e3`) match with formats `0.0`
-and `0E0` when the `dot` convention is enabled. Values the strict rule
-rejects are read under each enabled convention, with digits on both sides of
-the decimal separator, no leading zeros and thousands grouped by three with
-one separator used throughout:
-
-| Convention | Decimal | Thousands |
-| --- | --- | --- |
-| `dot` | `.` | `,`, U+0020, U+00A0, U+202F |
-| `comma` | `,` | `.`, U+0020, U+00A0, U+202F |
-
-Formats follow spreadsheet notation with the separators seen: `#,##0`,
-`#,##0.0`, `0,0`, `#.##0,0`, `# ##0`. Two readings with the same value
-(`1 234`) match; different values (`1,234`) are ambiguous. The strict rule
-decides `1.234` (1.234, not 1234) so that lot 2a results are unchanged; it
-is not ambiguity evidence. A decimal point or comma read by one convention
-only is evidence for it. No value is `invalid`. Settings: `conventions`
-(default `["dot", "comma"]`), `ambiguous_convention` (`null`).
-
-**`date`** (family `temporal`). Accepted forms:
-
-- numeric dates of the current engine: a four-digit year first (`YMD`) or
-  last (`MDY`, `DMY`), one- or two-digit month and day, one configured
-  separator used twice; formats such as `YYYY-MM-DD`, `D/M/YYYY`;
-- ISO 8601 date-times: `YYYY-MM-DD`, `T` or a space, `HH:MM`, optional
-  seconds and fraction of one to six digits, optional `Z` or offset (`+HH`,
-  `+HHMM`, `+HH:MM`); formats such as `YYYY-MM-DDTHH:MM:SS.fff±HH:MM`;
-- times: `H:MM` or `HH:MM`, optional seconds and fraction;
-- dates with month names, ignoring case: day first in English and French
-  (`26 September 2026`, `1er janvier 2026`, `26 sept. 2026`), month first in
-  English (`September 26, 2026`); full names format as `MMMM`,
-  abbreviations as `MMM` or `MMM.`; French names are also accepted without
-  accents.
-
-Invalid values have an accepted form but fail validation, with reasons
-`invalid_calendar_date`, `invalid_time`, `invalid_offset`,
-`invalid_component_width`, `mixed_separators` and `unsupported_order`, as in
-the current engine. ISO date-times do not depend on `orders` and
-`separators`. Settings: `orders`, `separators`, `ambiguous_order` (as the
-current engine) and `month_languages` (default `["en", "fr"]`).
-
-**`boolean`** (family `boolean`). The analytical value, ignoring case, is a
-word of a configured pair; the format is the pair (`yes/no`). `details` is
-`{"true": n, "false": m}`. Setting: `pairs`, default `true/false`,
-`yes/no`, `y/n`, `oui/non`, `vrai/faux`; words are unique ignoring case.
-
-**`enumeration`** (family `categorical`, field-level). Ported from the
-current enumeration candidates: every value matches when the field has at
-least `minimum_values` (default 500) eligible values and at most
-`maximum_distinct` (default 49) distinct analytical values, compared ignoring
-case when `case_sensitive` is false; otherwise none matches. It keeps at most
-`maximum_distinct + 1` values, so it stays exact when frequency tables are
-released. `details.distinct` is `complete` with the count, or `limited` with
-reason `maximum_distinct` and lower bound `maximum_distinct + 1`. It counts
-eligible values rather than rows, and does not depend on the technical type:
-an integer code column may be both a number and an enumeration (CA10).
+The specifications of `number`, `date`, `boolean` and `enumeration` moved to
+[detectors.md](detectors.md) in lot 3b, unchanged.
 
 ## 13. Execution strategy and performance (EF30, EF31, ET12)
 
@@ -1148,7 +1115,8 @@ gets its own changelog page when `tabalyst scan` is released.
       "technical_type": {},
       "detectors": [],
       "interpretations": {"primary": null, "candidates": []},
-      "sensitive": false
+      "sensitive": false,
+      "exposure": null
     }
   ]
 }
@@ -1182,3 +1150,4 @@ input.
 | 2026-09-26 | 2a | Section 11: the first value too long releases the table; proven lower bounds per reason. Section 14: `measures_limited` per dataset, `global_budget` per scan, lone surrogate escapes fatal. Section 9.9: `no_values` reason. Section 5.2: lone surrogates. | Details the contract did not settle; lone surrogates cannot be written as UTF-8 and the two `ijson` backends disagreed (lot 1b note). Maintainer decision. |
 | 2026-09-26 | 2b | Section 10: `changed` counts content strings after the previous enabled stage; stage cardinalities cover the `values` population, are limited without bound after release and `not_applicable` without values; `variant_groups` value is `{groups, listed, truncated}`, groups carry `distinct` and `truncated`, orderings defined. Section 11: `max_variant_groups` and `max_variants_per_group` truncate output only. | Details the contract did not settle; a `limited` envelope has no value, so the literal rule would lose every group of a field with more than 100 of them. Maintainer decision. |
 | 2026-09-26 | 3a | Sections 9.4 to 9.7: numeric population from the number detector; `temporal` layout; technical type families, `null` confidence for `empty`, `null` outside count for `mixed`. Section 12: the engine keeps coverage, formats and evidence, the accumulator produces `details`; `convention`, `scope`, `max_input_length` and `shapes`; failures keep the exception type only; every registered detector listed with its status; four evidence keys; candidate layout; shapes optional; ambiguity counts include resolved values; new 12.10 with the built-in detectors. Section 15: `detectors` settings. | Details the contract did not settle. The strict number rule keeps precedence so lot 2a results are unchanged; exception messages could leak sensitive values; the shape signature cost more than it saved for the built-ins. To validate at gate 3. |
+| 2026-09-26 | 3b | Section 12.1: `details` receives the exposure gate; patterns follow the registry. Section 12.7: `pattern:` ids, collision with a registered detector, family, formats and details. Section 12.8: a failed sensitive detector makes the field sensitive; masks merge before listings are selected; `hide` empties listings and nulls `first` and `last`; `numeric` and `temporal` disabled under `mask` and `hide`; `exposure` field. Section 12.10 moved to `detectors.md`. | Details the contract did not settle: merging only the listed values would give wrong counts, a detector that failed cannot prove the field holds no sensitive value, and a minimum or a date range is a value (found in review). Maintainer decision. |

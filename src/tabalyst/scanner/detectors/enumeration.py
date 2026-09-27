@@ -17,6 +17,7 @@ from tabalyst.scanner.detectors.base import (
     Detector,
     DetectorAccumulator,
 )
+from tabalyst.scanner.exposure import ExposureGate
 
 _MEMBER = Classification("matched")
 
@@ -61,7 +62,7 @@ class EnumerationAccumulator(DetectorAccumulator):
     def field_matches(self) -> bool:
         return self.values >= self.minimum and len(self.keys) <= self.maximum
 
-    def details(self) -> dict[str, object]:
+    def details(self, gate: ExposureGate) -> dict[str, object]:
         distinct = len(self.keys)
         if distinct <= self.maximum:
             return {"distinct": {"status": "complete", "value": distinct}}
