@@ -366,3 +366,56 @@ apart) and of France (region `fr`). Numbers of other countries are
   `+33 06 12 34 56 78` (trunk prefix), `00 12 34 56 78` (leading digit); not
   matched `1234567890`, `555-0100`, `+44 20 7946 0958`, `06 12 34 56 7`,
   `06-12 34-56-78`, `514-555-0100 x12`, `192.168.100.200`, `2026-09-26`.
+
+### `postal_code` (family `address`, version 1)
+
+Canadian postal codes (region `ca`) and United States ZIP codes (region
+`us`). Codes of other countries are `not_matched`: the detector covers its
+regions, not every postal code.
+
+- Accepts: strings; no input cap and no shapes: a value whose length is not 5,
+  6, 7 or 10 characters (the lengths of the accepted forms) is rejected
+  first, then a value whose first character is neither an ASCII digit (`us`)
+  nor an ASCII letter (`ca`) of an enabled region. The rejection is exact, so
+  it is `not_matched`, not `not_tested`.
+- Formats: the value with each uppercase letter as `A`, each lowercase letter
+  as `a` and each digit as `9`, other characters kept.
+  - `ca`: letter, digit, letter, an optional space, digit, letter, digit,
+    ignoring case (`H2X 1Y4`, `h2x1y4`); formats `A9A 9A9`, `A9A9A9`,
+    `a9a 9a9`. A hyphen or any other separator is not accepted.
+  - `us`: five digits (ZIP, format `99999`), optionally followed by `-` and
+    four digits (ZIP+4, format `99999-9999`). A space or no separator before
+    the four digits is not accepted: nine bare digits carry no ZIP syntax.
+- Normalization: the analytical value (so `H2X  1Y4` is `H2X 1Y4`); letters
+  ignore case for validation.
+- Validation: a value that has one of the forms above is a candidate; other
+  values are `not_matched`. A `ca` candidate is `invalid` with the reason of
+  the first failed check, as published by Canada Post:
+  - `invalid_first_letter`: the first letter is not one of
+    `ABCEGHJKLMNPRSTVXY` (it is `D`, `F`, `I`, `O`, `Q`, `U`, `W` or `Z`);
+  - `invalid_letter`: the second or third letter is `D`, `F`, `I`, `O`, `Q`
+    or `U`.
+
+  `us` candidates are never `invalid`: any five digits are ZIP syntax, and
+  unassigned codes such as `00000` are a real-world check (EF32). Truncated
+  or partial values (`T3A 95`, `2134` for a ZIP code whose leading zero was
+  lost) are `not_matched`. The regions' forms never overlap, so no value is
+  ambiguous.
+- Details: `regions`, the matched count per enabled region, such as
+  `{"ca": 10, "us": 2}`, ordered by region. Counts carry no value.
+- Settings: `regions` (default `["ca", "us"]`, unique, at least one).
+- Overlaps: `number` matches every ZIP code without a leading zero (`90210`)
+  as an integer, so a column of five-digit integers, identifiers included,
+  lists both interpretations and has no primary (CA10); a ZIP code with a
+  leading zero (`02134`) is not a number. ZIP+4 codes and Canadian codes are
+  not numbers. `phone` never matches (at most 9 digits), nor do `date`,
+  `email` and `url`; `enumeration` and patterns may.
+- Sensitive: no. A postal code is a quasi-identifier, not an identifier: it
+  designates an area shared by many households, and a sensitive ZIP code
+  would mask every column of five-digit integers and disable its statistics.
+  A sensitive pattern can flag postal codes where the context requires it.
+- Test values: `H2X 1Y4`, `h2x1y4`, `K1A 0B1`, `90210`, `02134`,
+  `12345-6789`; invalid `D2X 1Y4`, `W1A 1A1` (first letter), `H2O 1Y4`,
+  `H2X 1U4` (letter); not matched `H2X-1Y4`, `H2X 1Y`, `T3A 95`, `2134`,
+  `123456`, `123456789`, `12345 6789`, `12345-678` (Brazilian CEP),
+  `SW1A 1AA`, `75008 Paris`, `É2X 1Y4`, `٩٠٢١٠`.

@@ -184,8 +184,10 @@ benchmarks.md.
   enabled by default; `tests/test_scanner_email_url.py`.
 - Phone family done on 2026-09-26: `phone` built-in (regions `nanp` for CA
   and US, `fr`), enabled by default; `tests/test_scanner_phone.py`.
-  Remaining families: postal codes (CA, US ZIP); currency and percentage;
-  UUID and IP addresses.
+- Postal code family done on 2026-09-27: `postal_code` built-in (regions
+  `ca` and `us`), enabled by default, not sensitive;
+  `tests/test_scanner_postal.py`. Remaining families: currency and
+  percentage; UUID and IP addresses.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
 
@@ -409,6 +411,27 @@ done, and anything the next lot must know.
   - Bare NANP numbers (`5145550100`) are also integers for `number`, so such
     columns have no primary interpretation; under `mask` their `numeric`
     block is `disabled` since the field is sensitive.
+- Lot 3b, postal code session, for the other catalogue sessions and the
+  maintainer:
+  - One detector, `postal_code`, with regions `ca` and `us`, as `phone`
+    does; the forms never overlap. Rejection by length (5, 6, 7 or 10
+    characters) then first character is exact and cheap: `classify` over the
+    925,550 distinct values of the 100,000-row benchmark file takes about
+    0.4 s, the whole scan about 7% more (noisy measure).
+  - Not sensitive, a decision for the maintainer: a postal code is a
+    quasi-identifier (a Canadian code covers a few dozen households), but
+    since every five-digit integer is ZIP syntax, a sensitive detector would
+    mask identifier columns and disable their `numeric` block. A sensitive
+    pattern can flag postal codes where needed.
+  - ZIP codes are never `invalid` (any five digits are syntax; `00000` is a
+    real-world check), consistent with the digits-only rule of `phone`. A
+    column of five-digit integers lists `number` and `postal_code` and has
+    no primary (CA10); ZIP codes with a leading zero are not numbers.
+  - Canadian codes are `invalid` only for letters Canada Post excludes
+    (`invalid_first_letter`, `invalid_letter`); hyphenated (`H2X-1Y4`) and
+    truncated values are `not_matched`. The demo `code_postal` column has 21
+    truncated or shortened codes (`T3A 95`, `J1 5M4`), `not_matched`, and its
+    double spaces are collapsed by the analytical value.
 - Lot 3b, still open: the O13 point of lot 3a (detectors added with
   `register()` cannot be configured) is not needed by patterns, which have
   their own `patterns` section; it stays for the catalogue or lot 7.
