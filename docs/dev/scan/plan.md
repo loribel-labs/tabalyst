@@ -252,8 +252,8 @@ benchmarks.md.
   `reference/glossary` and `reference/known-limitations` synchronized with the
   current English pages, which also include the lot 5b changes (JSON reports).
   `configuration.md` keeps explicit anchors `scan-settings` and
-  `how-the-report-uses-the-scan-settings`. `json-profile` and
-  `profile-format-changelog` are not translated yet.
+  `how-the-report-uses-the-scan-settings`. `json-profile` (revision 4) and
+  `profile-format-changelog` translated in full.
 
 ### Lot 5b: JSON sources and new report sections
 
