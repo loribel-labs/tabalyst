@@ -31,6 +31,7 @@ changes often: update it before each new test.
 | One file, custom name | `tabalyst report data.csv -o report.html` | The file `report.html` |
 | Several files, automatic names | `tabalyst report *.csv` | Beside each source |
 | Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
+| One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 
 The simplest command keeps the source filename:
 
@@ -51,6 +52,18 @@ Use `-o` to choose a different HTML filename for one source:
 
 ```console
 tabalyst report customers.csv -o customer-analysis.html
+```
+
+### JSON files
+
+A JSON file gets a report too, named `<stem>.report.html` so its profile
+`<stem>.report.json` never replaces the source. Each collection of records,
+such as the `customers` array of `{"customers": [...]}`, is a dataset of the
+report, and nested fields are columns named by their path, such as
+`address.city`:
+
+```console
+tabalyst report orders.json
 ```
 
 ### Multiple files

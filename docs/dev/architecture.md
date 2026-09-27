@@ -11,12 +11,13 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 ## Boundaries
 
 - `report_profile.py`: builds the report profile from a `ScanResult` and the
-  record-level facts (`RowFacts`: preview, duplicate, empty and incomplete
-  rows) collected in the same pass through the `on_record` hook of `scan()`.
+  record-level facts (`RowFacts`, per dataset: preview, duplicate, empty and
+  incomplete records) collected in the same pass through the `on_record` hook of `scan()`.
   No pandas and no file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 3).
+- `models.py`: Pydantic models of the report profile (revision 4: one
+  profile per dataset in `datasets`).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
   `load_config_layers()` validates every file completely (top-level settings and
   the `scan` section), rejects the settings moved to `scan` with their new

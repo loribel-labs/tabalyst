@@ -8,13 +8,18 @@ examples/
 |-- config.json
 |-- input/
 |   |-- basic.csv
-|   `-- insurance-customers.csv
+|   |-- insurance-customers.csv
+|   `-- orders.json
 `-- output/
     |-- basic/
     |   |-- report.html
     |   |-- report.json
     |   `-- executions.json
-    `-- insurance-customers/
+    |-- insurance-customers/
+    |   |-- report.html
+    |   |-- report.json
+    |   `-- executions.json
+    `-- orders/
         |-- report.html
         |-- report.json
         `-- executions.json
@@ -23,13 +28,16 @@ examples/
 `basic.csv` is a five-row smoke example. `insurance-customers.csv` contains 3,000
 synthetic customer and contract records across 34 columns. Its people, contact
 details, and contracts are fictional; email addresses use reserved `.example`
-domains.
+domains. `orders.json` is a synthetic shop export: 60 customers with nested
+addresses, tags and orders, whose report has two datasets, `$` and
+`$.customers[]`.
 
-From the repository root, regenerate both outputs with:
+From the repository root, regenerate the outputs with:
 
 ```console
 tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
 tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --force
+tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
 ```
 
 Every output folder is independent and contains its own HTML report, canonical

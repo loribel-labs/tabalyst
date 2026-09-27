@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "executions": [
     {
-      "timestamp": "2026-09-27T22:05:51.878413Z",
+      "timestamp": "2026-09-27T22:05:54.006330Z",
       "tabalyst_version": "0.3.0",
-      "source_file": "basic.csv",
+      "source_file": "orders.json",
       "html_file": "report.html",
       "json_file": "report.json",
-      "rows": 5,
-      "columns": 6,
-      "analysis_seconds": 0.0036,
-      "total_seconds": 0.0545,
+      "rows": 61,
+      "columns": 20,
+      "analysis_seconds": 0.0883,
+      "total_seconds": 0.1417,
       "git": {
         "available": true,
         "commit": "6af27b365b7e26e3626c6aaf0c78a8e830444969",

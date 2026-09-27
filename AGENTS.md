@@ -71,7 +71,7 @@ After Python changes:
 
 After report JavaScript or CSS changes, regenerate a report and run the browser
 regression check described in `docs/dev/architecture.md` at desktop and mobile sizes.
-After every project modification, regenerate both public demos using the commands
+After every project modification, regenerate the public demos using the commands
 in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
 Update `docs/dev/progress.md` for meaningful work. Update

@@ -32,7 +32,7 @@ def test_csv_content_cannot_inject_markup(tmp_path):
     assert payload not in html
     assert "<img src=x" not in html
     assert "&lt;script&gt;" in html
-    assert profile.preview[0].values[0] == payload
+    assert profile.datasets[0].preview[0].values[0] == payload
 
 
 def test_header_only_report_is_renderable(tmp_path):
@@ -73,8 +73,8 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert '<section class="panel" id="columns"' in html
     assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
-    assert html.count('class="rep-tab"') == 8
-    for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "sample", "settings"):
+    assert html.count('class="rep-tab"') == 9
+    for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
         assert f'href="#{section}"' in html
 
     assert 'data-label="Median"' in html
@@ -111,7 +111,7 @@ def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
 
     parser = Cells()
     parser.feed(render_report(profile))
-    expected = str(profile.columns[0].numeric.minimum)
+    expected = str(profile.datasets[0].columns[0].numeric.minimum)
     assert any(cell["data-v"] == expected for cell in parser.values)
     assert any(
         cell["data-v"] == "33.33"

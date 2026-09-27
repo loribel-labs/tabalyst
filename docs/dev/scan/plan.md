@@ -22,7 +22,7 @@ regenerated, documentation consistent with what is released.
 | 4-fr | French translation of the lot 4 documentation | Done | Sonnet 5 | Low | `scan/phase-4-fr` |
 | 5a | Report built on Scan, parity on the demos | Done | Opus 5.5 | High | `scan/phase-5` |
 | 5a-fr | French translation of the lot 5a documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
-| 5b | JSON sources and new sections in the report | Planned | Opus 5.5 | Medium | `scan/phase-5` |
+| 5b | JSON sources and new sections in the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
 | 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
@@ -88,7 +88,7 @@ At the end:
 1. `.\.venv\Scripts\python.exe -m pytest` and
    `.\.venv\Scripts\python.exe -m ruff check .` pass, with the lot's contract
    tests enabled.
-2. Regenerate both public demos with the commands in `examples/README.md`.
+2. Regenerate the public demos with the commands in `examples/README.md`.
 3. Update this plan (status, notes), design.md section 17 if the contract
    changed, and `docs/dev/progress.md`.
 4. Run `/code-review` on the lot's changes and address the findings.
@@ -254,6 +254,13 @@ benchmarks.md.
 - `tabalyst report data.json`, sections for detectors and formats,
   normalization variants, limits and structure; browser checks at desktop and
   mobile sizes; a public JSON demo in `examples/`.
+- Done on 2026-09-27: profile revision 4 (`datasets`), JSON sources with
+  flattened scalar fields, record facts per dataset, the "Detectors and
+  formats" section, `.report` output names for JSON sources, a dataset
+  selector, the `orders.json` demo and `tests/scan/test_scan_report_json.py`.
+  The maintainer kept only the detectors section: normalization variants,
+  limits and structure sections are deferred (notes below). Decisions in
+  design section 16.5.
 
 ### Lot 5c: reuse, duplicates, pandas removal
 
@@ -603,6 +610,28 @@ done, and anything the next lot must know.
     `+N`: a dedicated presentation of masked values may be better.
   - `executions.json` still records `rows` and `columns` only; scan status and
     `config_sha256` could join it.
+- Lot 5b, for later lots:
+  - Deferred by the maintainer: report sections for normalization variants
+    (stages including NFC, variant groups), limits (limited or not tested
+    measures, dataset envelopes, scan diagnostics) and JSON structure
+    (collections, record types, depth, presence per parent, array lengths).
+    They need a lot of their own (Opus 5.5 or Sonnet 5, medium).
+  - `tabalyst report` has no `--collection` option; collections come from
+    `scan.json.collections` in a configuration file.
+  - JSON record facts ignore absent fields: `rows_with_missing` and empty
+    records count nulls and missing strings only, while column missing counts
+    include absent members.
+  - Overview labels still say rows and columns for JSON datasets.
+  - `executions.json` records the sums of rows and columns over datasets.
+  - `tests/browser/report.cjs` checks the first dataset of a profile; the
+    multi-dataset view was checked with an ad hoc script (selector, prefixed
+    ids, no horizontal overflow at desktop and mobile sizes).
+  - `tabalyst-studio` follow-up: `report.json` is revision 4 (the site reads
+    `examples/output/insurance-customers/`), the new detectors section, the
+    new `orders` demo and the new how-to page `how-to/report-json-files`.
+  - French documentation: the pages changed by lot 5b (`index`,
+    `reference/known-limitations`, `reference/json-profile`,
+    `reference/profile-format-changelog`, new `how-to/report-json-files`).
 - Lot 5a, for lot 5c and gate 5:
   - The pandas engine remains only for `analyze_column`, `tabalyst.AnalysisConfig`
     (alpha compatibility exports), `tests/test_analysis.py`, the parity half of

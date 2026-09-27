@@ -1,0 +1,3695 @@
+{
+  "format_version": "0.1.0a",
+  "format_revision": 4,
+  "generated_at": "2026-09-27T22:05:53.954255Z",
+  "processing_seconds": 0.0883,
+  "source": {
+    "filename": "orders.json",
+    "format": "json",
+    "size_bytes": 60720,
+    "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
+    "encoding": "utf-8",
+    "delimiter": null
+  },
+  "config": {
+    "preview_rows": 20,
+    "string_analysis": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255,
+      "length_distribution_max_length": 50,
+      "examples_per_length": 10
+    },
+    "value_examples": {
+      "full_distribution_max_distinct": 50,
+      "short_text_max_length": 20,
+      "short_text_percentile": 0.95,
+      "short_text_result_size": 20,
+      "long_text_result_size": 20,
+      "long_text_truncate_at": 30,
+      "truncation_suffix": "...",
+      "inline_display_size": 3
+    },
+    "scan": {
+      "csv": {
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      },
+      "json": {
+        "collections": null,
+        "discovery_max_depth": 3
+      },
+      "errors": {
+        "policy": "strict",
+        "max_locations": 10
+      },
+      "values": {
+        "null_markers": [
+          "N/A",
+          "NULL"
+        ],
+        "null_markers_case_sensitive": true,
+        "missing": [
+          "absent",
+          "null",
+          "empty",
+          "blank",
+          "marker"
+        ]
+      },
+      "normalization": {
+        "nfc": true,
+        "trim": true,
+        "collapse_whitespace": true,
+        "casefold": true,
+        "strip_accents": true
+      },
+      "limits": {
+        "max_fields": 10000,
+        "max_depth": 64,
+        "max_record_observations": 100000,
+        "max_distinct_per_field": 100000,
+        "max_tracked_values": 2000000,
+        "max_stored_value_length": 1000,
+        "max_listed_frequencies": 100,
+        "max_samples": 100,
+        "max_variant_groups": 100,
+        "max_variants_per_group": 20,
+        "max_evidence_examples": 10
+      },
+      "types": {
+        "minimum_confidence": 0.95
+      },
+      "detection": {
+        "minimum_share": 0.95
+      },
+      "detectors": {
+        "number": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "date": {
+          "enabled": true,
+          "orders": [
+            "YMD",
+            "MDY",
+            "DMY"
+          ],
+          "separators": [
+            "-",
+            "/",
+            "."
+          ],
+          "ambiguous_order": null,
+          "month_languages": [
+            "en",
+            "fr"
+          ]
+        },
+        "boolean": {
+          "enabled": true,
+          "pairs": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ],
+            [
+              "y",
+              "n"
+            ],
+            [
+              "oui",
+              "non"
+            ],
+            [
+              "vrai",
+              "faux"
+            ]
+          ]
+        },
+        "enumeration": {
+          "enabled": true,
+          "minimum_values": 500,
+          "maximum_distinct": 49,
+          "case_sensitive": true
+        },
+        "email": {
+          "enabled": true,
+          "max_tracked_domains": 10000,
+          "max_listed_domains": 20
+        },
+        "url": {
+          "enabled": true,
+          "schemes": [
+            "http",
+            "https",
+            "ftp"
+          ],
+          "www": true,
+          "max_tracked_hosts": 10000,
+          "max_listed_hosts": 20
+        },
+        "phone": {
+          "enabled": true,
+          "regions": [
+            "nanp",
+            "fr"
+          ]
+        },
+        "postal_code": {
+          "enabled": true,
+          "regions": [
+            "ca",
+            "us"
+          ]
+        },
+        "currency": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "percentage": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "quantity": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null,
+          "max_tracked_units": 10000,
+          "max_listed_units": 20
+        },
+        "uuid": {
+          "enabled": true
+        },
+        "ip_address": {
+          "enabled": true,
+          "versions": [
+            "ipv4",
+            "ipv6"
+          ]
+        }
+      },
+      "patterns": [],
+      "exposure": {
+        "sensitive_values": "mask"
+      },
+      "random_seed": 42
+    }
+  },
+  "datasets": [
+    {
+      "id": "$",
+      "kind": "document",
+      "summary": {
+        "row_count": 1,
+        "column_count": 3,
+        "cell_count": 3,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 0,
+        "duplicate_row_count": 0,
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 3,
+        "with_issues_column_count": 0,
+        "numeric_column_count": 1,
+        "date_column_count": 1,
+        "string_column_count": 1,
+        "inferred_type_counts": {
+          "text": 1,
+          "date": 1,
+          "integer": 1
+        },
+        "inferred_type_percents": {
+          "text": 33.33,
+          "date": 33.33,
+          "integer": 33.33
+        },
+        "semantic_type_counts": {
+          "none": 2,
+          "date": 1
+        },
+        "semantic_type_percents": {
+          "none": 66.67,
+          "date": 33.33
+        }
+      },
+      "date_summary": {
+        "present_count": 1,
+        "valid_count": 1,
+        "ambiguous_count": 0,
+        "ambiguous_percent": 0.0,
+        "invalid_date_count": 0,
+        "not_date_count": 0,
+        "maximum_column_ambiguous_count": 0,
+        "columns": []
+      },
+      "columns": [
+        {
+          "id": "f2",
+          "name": "export.source",
+          "path": "export.source",
+          "position": 1,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 1
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 1,
+          "examples": [
+            "Synthetic shop"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "Synthetic shop",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 1,
+            "minimum_length": 14,
+            "maximum_length": 14,
+            "mean_length": 14.0,
+            "median_length": 14.0,
+            "distinct_length_count": 1,
+            "fixed_length": 14,
+            "length_distribution": [
+              {
+                "length": 14,
+                "count": 1,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Synthetic shop",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Synthetic shop"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f3",
+          "name": "export.generated",
+          "path": "export.generated",
+          "position": 2,
+          "inferred_type": "date",
+          "type_counts": {
+            "date": 1
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 1,
+          "examples": [
+            "2026-09-01"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "2026-09-01",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 1,
+            "valid_count": 1,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DD",
+                "order": "YMD",
+                "separator": "-",
+                "count": 1,
+                "percent": 100.0,
+                "iso": true
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DD",
+                "category": "valid",
+                "count": 1,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 1,
+              "matched_count": 1,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 1,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f4",
+          "name": "export.version",
+          "path": "export.version",
+          "position": 3,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 1
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 1,
+          "examples": [
+            "2"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "2",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 2.0,
+            "maximum": 2.0,
+            "range": 0.0,
+            "mean": 2.0,
+            "median": 2.0
+          },
+          "detectors": []
+        }
+      ],
+      "issues": [
+        {
+          "code": "trimmed_cells",
+          "severity": "info",
+          "message": "Cells changed by trimming surrounding whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "collapsed_whitespace",
+          "severity": "info",
+          "message": "Cells changed by collapsing repeated internal whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "constant_columns",
+          "severity": "info",
+          "message": "Columns with one distinct present value",
+          "count": 3,
+          "column_ids": [
+            "f2",
+            "f3",
+            "f4"
+          ],
+          "row_numbers": []
+        }
+      ],
+      "preview": [
+        {
+          "row_number": 1,
+          "values": [
+            "Synthetic shop",
+            "2026-09-01",
+            "2"
+          ],
+          "absent": []
+        }
+      ]
+    },
+    {
+      "id": "$.customers[]",
+      "kind": "collection",
+      "summary": {
+        "row_count": 60,
+        "column_count": 17,
+        "cell_count": 1502,
+        "missing_count": 48,
+        "missing_percent": 3.2,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 0,
+        "duplicate_row_count": 0,
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 1,
+        "with_issues_column_count": 5,
+        "numeric_column_count": 4,
+        "date_column_count": 2,
+        "string_column_count": 10,
+        "inferred_type_counts": {
+          "text": 10,
+          "integer": 2,
+          "date": 2,
+          "boolean": 1,
+          "number": 2
+        },
+        "inferred_type_percents": {
+          "text": 58.82,
+          "integer": 11.76,
+          "date": 11.76,
+          "boolean": 5.88,
+          "number": 11.76
+        },
+        "semantic_type_counts": {
+          "none": 13,
+          "email": 1,
+          "phone": 1,
+          "date": 2
+        },
+        "semantic_type_percents": {
+          "none": 76.47,
+          "email": 5.88,
+          "phone": 5.88,
+          "date": 11.76
+        }
+      },
+      "date_summary": {
+        "present_count": 179,
+        "valid_count": 179,
+        "ambiguous_count": 0,
+        "ambiguous_percent": 0.0,
+        "invalid_date_count": 0,
+        "not_date_count": 0,
+        "maximum_column_ambiguous_count": 0,
+        "columns": []
+      },
+      "columns": [
+        {
+          "id": "f1",
+          "name": "id",
+          "path": "id",
+          "position": 1,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 60
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 60,
+          "examples": [
+            "C0001",
+            "C0002",
+            "C0003"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 60,
+            "values": [
+              {
+                "value": "C0001",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0002",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0003",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0007",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0010",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0019",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0024",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0028",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0030",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0032",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0033",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0037",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0039",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0043",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0045",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0048",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0049",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0051",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0055",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "C0058",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 60,
+            "minimum_length": 5,
+            "maximum_length": 5,
+            "mean_length": 5.0,
+            "median_length": 5.0,
+            "distinct_length_count": 1,
+            "fixed_length": 5,
+            "length_distribution": [
+              {
+                "length": 5,
+                "count": 60,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "C0001",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0002",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0003",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0004",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0005",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0006",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0007",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0008",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0009",
+                    "count": 1
+                  },
+                  {
+                    "value": "C0010",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "C0001"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f2",
+          "name": "name",
+          "path": "name",
+          "position": 2,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 60
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 56,
+          "examples": [
+            "David Dubois",
+            "Farid Dubois",
+            "Inès Laurent"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 56,
+            "values": [
+              {
+                "value": "David Dubois",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Farid Dubois",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Inès Laurent",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Dubois",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloé Leroy",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloé Thomas",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Jules Robert",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Nadia Bernard",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Olivier Richard",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Pauline Simon",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Quentin Robert",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Quentin Simon",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Rose Moreau",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Rose Petit",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Ugo Durand",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Ugo Martin",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Ugo Richard",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "William Durand",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "William Petit",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Yasmine Leroy",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 60,
+            "minimum_length": 10,
+            "maximum_length": 15,
+            "mean_length": 12.23,
+            "median_length": 12.0,
+            "distinct_length_count": 6,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 10,
+                "count": 4,
+                "percent": 6.67,
+                "relative_percent": 15.38,
+                "examples": [
+                  {
+                    "value": "Inès Leroy",
+                    "count": 1
+                  },
+                  {
+                    "value": "Rose Petit",
+                    "count": 1
+                  },
+                  {
+                    "value": "Ugo Durand",
+                    "count": 1
+                  },
+                  {
+                    "value": "Ugo Martin",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 11,
+                "count": 9,
+                "percent": 15.0,
+                "relative_percent": 34.62,
+                "examples": [
+                  {
+                    "value": "Bruno Leroy",
+                    "count": 1
+                  },
+                  {
+                    "value": "Chloé Leroy",
+                    "count": 1
+                  },
+                  {
+                    "value": "David Simon",
+                    "count": 1
+                  },
+                  {
+                    "value": "Marc Dubois",
+                    "count": 1
+                  },
+                  {
+                    "value": "Nadia Petit",
+                    "count": 1
+                  },
+                  {
+                    "value": "Rose Moreau",
+                    "count": 1
+                  },
+                  {
+                    "value": "Rose Robert",
+                    "count": 1
+                  },
+                  {
+                    "value": "Ugo Laurent",
+                    "count": 1
+                  },
+                  {
+                    "value": "Ugo Richard",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 12,
+                "count": 26,
+                "percent": 43.33,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "David Dubois",
+                    "count": 2
+                  },
+                  {
+                    "value": "Farid Dubois",
+                    "count": 2
+                  },
+                  {
+                    "value": "Inès Laurent",
+                    "count": 2
+                  },
+                  {
+                    "value": "Bruno Dubois",
+                    "count": 1
+                  },
+                  {
+                    "value": "Bruno Thomas",
+                    "count": 1
+                  },
+                  {
+                    "value": "Chloé Robert",
+                    "count": 1
+                  },
+                  {
+                    "value": "Chloé Thomas",
+                    "count": 1
+                  },
+                  {
+                    "value": "David Robert",
+                    "count": 1
+                  },
+                  {
+                    "value": "Emma Bernard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Farid Robert",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 13,
+                "count": 13,
+                "percent": 21.67,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "Karim Laurent",
+                    "count": 2
+                  },
+                  {
+                    "value": "Bruno Bernard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Jules Richard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Karim Bernard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Nadia Bernard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Nadia Richard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Pauline Petit",
+                    "count": 1
+                  },
+                  {
+                    "value": "Pauline Simon",
+                    "count": 1
+                  },
+                  {
+                    "value": "Quentin Petit",
+                    "count": 1
+                  },
+                  {
+                    "value": "Quentin Simon",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 14,
+                "count": 6,
+                "percent": 10.0,
+                "relative_percent": 23.08,
+                "examples": [
+                  {
+                    "value": "Pauline Robert",
+                    "count": 1
+                  },
+                  {
+                    "value": "Quentin Dubois",
+                    "count": 1
+                  },
+                  {
+                    "value": "Quentin Robert",
+                    "count": 1
+                  },
+                  {
+                    "value": "Valérie Thomas",
+                    "count": 1
+                  },
+                  {
+                    "value": "William Durand",
+                    "count": 1
+                  },
+                  {
+                    "value": "Yasmine Martin",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 15,
+                "count": 2,
+                "percent": 3.33,
+                "relative_percent": 7.69,
+                "examples": [
+                  {
+                    "value": "Olivier Richard",
+                    "count": 1
+                  },
+                  {
+                    "value": "Yasmine Bernard",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "David Dubois",
+              "Karim Laurent",
+              "Bruno Leroy"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f3",
+          "name": "email",
+          "path": "email",
+          "position": 3,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 56
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 4,
+          "missing_percent": 6.67,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 56,
+          "examples": [
+            "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "aaaaaaa.aaaaaa99@aaaa.aaaaaaa"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 16,
+            "values": [
+              {
+                "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 14,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "email",
+          "exposure": "mask",
+          "date_profile": null,
+          "string_profile": {
+            "status": "medium",
+            "present_count": 56,
+            "minimum_length": 24,
+            "maximum_length": 30,
+            "mean_length": 27.04,
+            "median_length": 27.0,
+            "distinct_length_count": 7,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 24,
+                "count": 2,
+                "percent": 3.57,
+                "relative_percent": 10.0,
+                "examples": [
+                  {
+                    "value": "aaa.aaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  },
+                  {
+                    "value": "aaaa.aaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 25,
+                "count": 2,
+                "percent": 3.57,
+                "relative_percent": 10.0,
+                "examples": [
+                  {
+                    "value": "aaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 1
+                  },
+                  {
+                    "value": "aaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 26,
+                "count": 14,
+                "percent": 25.0,
+                "relative_percent": 70.0,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 4
+                  },
+                  {
+                    "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                    "count": 4
+                  },
+                  {
+                    "value": "aaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 3
+                  },
+                  {
+                    "value": "aaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 2
+                  },
+                  {
+                    "value": "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 27,
+                "count": 20,
+                "percent": 35.71,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 14
+                  },
+                  {
+                    "value": "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 5
+                  },
+                  {
+                    "value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 28,
+                "count": 11,
+                "percent": 19.64,
+                "relative_percent": 55.0,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 6
+                  },
+                  {
+                    "value": "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 5
+                  }
+                ]
+              },
+              {
+                "length": 29,
+                "count": 6,
+                "percent": 10.71,
+                "relative_percent": 30.0,
+                "examples": [
+                  {
+                    "value": "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 6
+                  }
+                ]
+              },
+              {
+                "length": 30,
+                "count": 1,
+                "percent": 1.79,
+                "relative_percent": 5.0,
+                "examples": [
+                  {
+                    "value": "aaaaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+              "aaaaa.aaaaa99@aaaa.aaaaaaa",
+              "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
+            ]
+          },
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "email",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 56,
+              "matched_count": 56,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": []
+            }
+          ]
+        },
+        {
+          "id": "f4",
+          "name": "phone",
+          "path": "phone",
+          "position": 4,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 40
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 20,
+          "missing_percent": 33.33,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 40,
+          "examples": [
+            "+99 9 99 99 99 99"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "+99 9 99 99 99 99",
+                "count": 40,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "phone",
+          "exposure": "mask",
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 40,
+            "minimum_length": 17,
+            "maximum_length": 17,
+            "mean_length": 17.0,
+            "median_length": 17.0,
+            "distinct_length_count": 1,
+            "fixed_length": 17,
+            "length_distribution": [
+              {
+                "length": 17,
+                "count": 40,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "+99 9 99 99 99 99",
+                    "count": 40
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "+99 9 99 99 99 99"
+            ]
+          },
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "phone",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 40,
+              "matched_count": 40,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "+33 9 99 99 99 99",
+                  "count": 40,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f6",
+          "name": "address.city",
+          "path": "address.city",
+          "position": 5,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 60
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 6,
+          "examples": [
+            "Lyon",
+            "Lille",
+            "Paris"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 6,
+            "values": [
+              {
+                "value": "Lyon",
+                "count": 15,
+                "truncated": false
+              },
+              {
+                "value": "Lille",
+                "count": 14,
+                "truncated": false
+              },
+              {
+                "value": "Paris",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "Bordeaux",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "Nantes",
+                "count": 8,
+                "truncated": false
+              },
+              {
+                "value": "Toulouse",
+                "count": 4,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 60,
+            "minimum_length": 4,
+            "maximum_length": 8,
+            "mean_length": 5.53,
+            "median_length": 5.0,
+            "distinct_length_count": 4,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 4,
+                "count": 15,
+                "percent": 25.0,
+                "relative_percent": 62.5,
+                "examples": [
+                  {
+                    "value": "Lyon",
+                    "count": 15
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 24,
+                "percent": 40.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Lille",
+                    "count": 14
+                  },
+                  {
+                    "value": "Paris",
+                    "count": 10
+                  }
+                ]
+              },
+              {
+                "length": 6,
+                "count": 8,
+                "percent": 13.33,
+                "relative_percent": 33.33,
+                "examples": [
+                  {
+                    "value": "Nantes",
+                    "count": 8
+                  }
+                ]
+              },
+              {
+                "length": 8,
+                "count": 13,
+                "percent": 21.67,
+                "relative_percent": 54.17,
+                "examples": [
+                  {
+                    "value": "Bordeaux",
+                    "count": 9
+                  },
+                  {
+                    "value": "Toulouse",
+                    "count": 4
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Lille",
+              "Lyon",
+              "Bordeaux"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f7",
+          "name": "address.postal_code",
+          "path": "address.postal_code",
+          "position": 6,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 51
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 9,
+          "missing_percent": 15.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 5,
+          "examples": [
+            "69003",
+            "59000",
+            "75011"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "69003",
+                "count": 15,
+                "truncated": false
+              },
+              {
+                "value": "59000",
+                "count": 11,
+                "truncated": false
+              },
+              {
+                "value": "75011",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "44000",
+                "count": 8,
+                "truncated": false
+              },
+              {
+                "value": "33000",
+                "count": 7,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 33000.0,
+            "maximum": 75011.0,
+            "range": 42011.0,
+            "mean": 59159.901960784315,
+            "median": 59000.0
+          },
+          "detectors": [
+            {
+              "id": "number",
+              "status": "complete",
+              "primary": false,
+              "eligible_count": 51,
+              "matched_count": 51,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "0",
+                  "count": 51,
+                  "percent": 100.0
+                }
+              ]
+            },
+            {
+              "id": "postal_code",
+              "status": "complete",
+              "primary": false,
+              "eligible_count": 51,
+              "matched_count": 51,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "99999",
+                  "count": 51,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f8",
+          "name": "signup_date",
+          "path": "signup_date",
+          "position": 7,
+          "inferred_type": "date",
+          "type_counts": {
+            "date": 60
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 58,
+          "examples": [
+            "2025-01-04",
+            "2025-12-07",
+            "2025-01-01"
+          ],
+          "value_profile": {
+            "selection": "random_sample",
+            "sampled_distinct_count": 58,
+            "values": [
+              {
+                "value": "2025-01-04",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2025-12-07",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2025-01-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-01-05",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-01-07",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-01-09",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-01-23",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-02-25",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-05-17",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-06-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-06-11",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-07-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-07-14",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-07-24",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-08-10",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-08-11",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-08-26",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-09-20",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-10-19",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2025-10-28",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 60,
+            "valid_count": 60,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DD",
+                "order": "YMD",
+                "separator": "-",
+                "count": 60,
+                "percent": 100.0,
+                "iso": true
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DD",
+                "category": "valid",
+                "count": 60,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 60,
+              "matched_count": 60,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 60,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f9",
+          "name": "newsletter",
+          "path": "newsletter",
+          "position": 8,
+          "inferred_type": "boolean",
+          "type_counts": {
+            "boolean": 56
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 4,
+          "missing_percent": 6.67,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 2,
+          "examples": [
+            "false",
+            "true"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 2,
+            "values": [
+              {
+                "value": "false",
+                "count": 29,
+                "truncated": false
+              },
+              {
+                "value": "true",
+                "count": 27,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f11",
+          "name": "tags[]",
+          "path": "tags[]",
+          "position": 9,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 70
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 5,
+          "examples": [
+            "returning",
+            "b2b",
+            "newsletter"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "returning",
+                "count": 20,
+                "truncated": false
+              },
+              {
+                "value": "b2b",
+                "count": 15,
+                "truncated": false
+              },
+              {
+                "value": "newsletter",
+                "count": 13,
+                "truncated": false
+              },
+              {
+                "value": "vip",
+                "count": 12,
+                "truncated": false
+              },
+              {
+                "value": "student",
+                "count": 10,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 70,
+            "minimum_length": 3,
+            "maximum_length": 10,
+            "mean_length": 6.59,
+            "median_length": 7.0,
+            "distinct_length_count": 4,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 27,
+                "percent": 38.57,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "b2b",
+                    "count": 15
+                  },
+                  {
+                    "value": "vip",
+                    "count": 12
+                  }
+                ]
+              },
+              {
+                "length": 7,
+                "count": 10,
+                "percent": 14.29,
+                "relative_percent": 37.04,
+                "examples": [
+                  {
+                    "value": "student",
+                    "count": 10
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 20,
+                "percent": 28.57,
+                "relative_percent": 74.07,
+                "examples": [
+                  {
+                    "value": "returning",
+                    "count": 20
+                  }
+                ]
+              },
+              {
+                "length": 10,
+                "count": 13,
+                "percent": 18.57,
+                "relative_percent": 48.15,
+                "examples": [
+                  {
+                    "value": "newsletter",
+                    "count": 13
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "b2b",
+              "returning",
+              "newsletter"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f14",
+          "name": "orders[].order_id",
+          "path": "orders[].order_id",
+          "position": 10,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 119,
+          "examples": [
+            "O0002-1",
+            "O0003-1",
+            "O0003-2"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 100,
+            "values": [
+              {
+                "value": "O0002-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0003-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0003-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0005-4",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0007-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0011-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0012-3",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0014-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0021-3",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0027-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0029-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0030-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0033-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0036-3",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0038-4",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0043-3",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0046-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0055-1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0056-2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "O0057-3",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 119,
+            "minimum_length": 7,
+            "maximum_length": 7,
+            "mean_length": 7.0,
+            "median_length": 7.0,
+            "distinct_length_count": 1,
+            "fixed_length": 7,
+            "length_distribution": [
+              {
+                "length": 7,
+                "count": 119,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "O0002-1",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0003-1",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0003-2",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0005-1",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0005-2",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0005-3",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0005-4",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0006-1",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0006-2",
+                    "count": 1
+                  },
+                  {
+                    "value": "O0006-3",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "O0002-1"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f15",
+          "name": "orders[].ordered_at",
+          "path": "orders[].ordered_at",
+          "position": 11,
+          "inferred_type": "date",
+          "type_counts": {
+            "date": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 92,
+          "examples": [
+            "2026-01-07",
+            "2026-01-18",
+            "2026-01-22"
+          ],
+          "value_profile": {
+            "selection": "random_sample",
+            "sampled_distinct_count": 92,
+            "values": [
+              {
+                "value": "2026-01-07",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-18",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-22",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-21",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-08",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-19",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-11",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-11",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-19",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-05",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-08",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-14",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-06-14",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-06-21",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-06-27",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-07-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-07-26",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-08-04",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-08-09",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-08-22",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 119,
+            "valid_count": 119,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DD",
+                "order": "YMD",
+                "separator": "-",
+                "count": 119,
+                "percent": 100.0,
+                "iso": true
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DD",
+                "category": "valid",
+                "count": 119,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 119,
+              "matched_count": 119,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 119,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "f16",
+          "name": "orders[].status",
+          "path": "orders[].status",
+          "position": 12,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 3,
+          "examples": [
+            "delivered",
+            "shipped",
+            "cancelled"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "delivered",
+                "count": 74,
+                "truncated": false
+              },
+              {
+                "value": "shipped",
+                "count": 24,
+                "truncated": false
+              },
+              {
+                "value": "cancelled",
+                "count": 21,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 119,
+            "minimum_length": 7,
+            "maximum_length": 9,
+            "mean_length": 8.6,
+            "median_length": 9.0,
+            "distinct_length_count": 2,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 7,
+                "count": 24,
+                "percent": 20.17,
+                "relative_percent": 25.26,
+                "examples": [
+                  {
+                    "value": "shipped",
+                    "count": 24
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 95,
+                "percent": 79.83,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "delivered",
+                    "count": 74
+                  },
+                  {
+                    "value": "cancelled",
+                    "count": 21
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "delivered",
+              "shipped"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f19",
+          "name": "orders[].items[].product",
+          "path": "orders[].items[].product",
+          "position": 13,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 5,
+          "examples": [
+            "Notebook",
+            "Headphones",
+            "Desk lamp"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "Notebook",
+                "count": 26,
+                "truncated": false
+              },
+              {
+                "value": "Headphones",
+                "count": 25,
+                "truncated": false
+              },
+              {
+                "value": "Desk lamp",
+                "count": 24,
+                "truncated": false
+              },
+              {
+                "value": "Backpack",
+                "count": 23,
+                "truncated": false
+              },
+              {
+                "value": "Mug",
+                "count": 21,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 119,
+            "minimum_length": 3,
+            "maximum_length": 10,
+            "mean_length": 7.74,
+            "median_length": 8.0,
+            "distinct_length_count": 4,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 21,
+                "percent": 17.65,
+                "relative_percent": 42.86,
+                "examples": [
+                  {
+                    "value": "Mug",
+                    "count": 21
+                  }
+                ]
+              },
+              {
+                "length": 8,
+                "count": 49,
+                "percent": 41.18,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Notebook",
+                    "count": 26
+                  },
+                  {
+                    "value": "Backpack",
+                    "count": 23
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 24,
+                "percent": 20.17,
+                "relative_percent": 48.98,
+                "examples": [
+                  {
+                    "value": "Desk lamp",
+                    "count": 24
+                  }
+                ]
+              },
+              {
+                "length": 10,
+                "count": 25,
+                "percent": 21.01,
+                "relative_percent": 51.02,
+                "examples": [
+                  {
+                    "value": "Headphones",
+                    "count": 25
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Notebook",
+              "Headphones",
+              "Desk lamp"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "f20",
+          "name": "orders[].items[].quantity",
+          "path": "orders[].items[].quantity",
+          "position": 14,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 3,
+          "examples": [
+            "3",
+            "1",
+            "2"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "3",
+                "count": 41,
+                "truncated": false
+              },
+              {
+                "value": "1",
+                "count": 40,
+                "truncated": false
+              },
+              {
+                "value": "2",
+                "count": 38,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 1.0,
+            "maximum": 3.0,
+            "range": 2.0,
+            "mean": 2.008403361344538,
+            "median": 2.0
+          },
+          "detectors": []
+        },
+        {
+          "id": "f21",
+          "name": "orders[].items[].unit_price",
+          "path": "orders[].items[].unit_price",
+          "position": 15,
+          "inferred_type": "number",
+          "type_counts": {
+            "number": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 5,
+          "examples": [
+            "4.5",
+            "89.0",
+            "29.9"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "4.5",
+                "count": 26,
+                "truncated": false
+              },
+              {
+                "value": "89.0",
+                "count": 25,
+                "truncated": false
+              },
+              {
+                "value": "29.9",
+                "count": 24,
+                "truncated": false
+              },
+              {
+                "value": "54.0",
+                "count": 23,
+                "truncated": false
+              },
+              {
+                "value": "8.0",
+                "count": 21,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 4.5,
+            "maximum": 89.0,
+            "range": 84.5,
+            "mean": 37.55966386554622,
+            "median": 29.9
+          },
+          "detectors": []
+        },
+        {
+          "id": "f22",
+          "name": "orders[].total",
+          "path": "orders[].total",
+          "position": 16,
+          "inferred_type": "number",
+          "type_counts": {
+            "number": 108
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 11,
+          "missing_percent": 9.24,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 15,
+          "examples": [
+            "13.5",
+            "178.0",
+            "9.0"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 15,
+            "values": [
+              {
+                "value": "13.5",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "178.0",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "9.0",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "24.0",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "89.0",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "89.7",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "54.0",
+                "count": 8,
+                "truncated": false
+              },
+              {
+                "value": "108.0",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "29.9",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "4.5",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "8.0",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "16.0",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "162.0",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "267.0",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "59.8",
+                "count": 4,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 4.5,
+            "maximum": 267.0,
+            "range": 262.5,
+            "mean": 69.15648148148148,
+            "median": 54.0
+          },
+          "detectors": []
+        },
+        {
+          "id": "f23",
+          "name": "orders[].currency",
+          "path": "orders[].currency",
+          "position": 17,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 119
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 1,
+          "examples": [
+            "EUR"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "EUR",
+                "count": 119,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 119,
+            "minimum_length": 3,
+            "maximum_length": 3,
+            "mean_length": 3.0,
+            "median_length": 3.0,
+            "distinct_length_count": 1,
+            "fixed_length": 3,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 119,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "EUR",
+                    "count": 119
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "EUR"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        }
+      ],
+      "issues": [
+        {
+          "code": "missing_values",
+          "severity": "warning",
+          "message": "Missing cells",
+          "count": 48,
+          "column_ids": [
+            "f3",
+            "f4",
+            "f7",
+            "f9",
+            "f22"
+          ],
+          "row_numbers": [
+            7,
+            9,
+            10,
+            19,
+            25,
+            30,
+            33,
+            36,
+            39,
+            45
+          ]
+        },
+        {
+          "code": "trimmed_cells",
+          "severity": "info",
+          "message": "Cells changed by trimming surrounding whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "collapsed_whitespace",
+          "severity": "info",
+          "message": "Cells changed by collapsing repeated internal whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "constant_columns",
+          "severity": "info",
+          "message": "Columns with one distinct present value",
+          "count": 1,
+          "column_ids": [
+            "f23"
+          ],
+          "row_numbers": []
+        }
+      ],
+      "preview": [
+        {
+          "row_number": 1,
+          "values": [
+            "C0001",
+            "Tania Robert",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lyon",
+            "69003",
+            "2025-03-04",
+            "true",
+            "returning",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ]
+        },
+        {
+          "row_number": 2,
+          "values": [
+            "C0002",
+            "Samir Thomas",
+            null,
+            null,
+            "Nantes",
+            "44000",
+            "2025-07-06",
+            "false",
+            "returning, newsletter",
+            "O0002-1",
+            "2026-01-07",
+            "delivered",
+            "Desk lamp",
+            "1",
+            "29.9",
+            "29.9",
+            "EUR"
+          ],
+          "absent": [
+            2,
+            3
+          ]
+        },
+        {
+          "row_number": 3,
+          "values": [
+            "C0003",
+            "Farid Dubois",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lyon",
+            "69003",
+            "2025-12-07",
+            "true",
+            "vip",
+            "O0003-1, O0003-2",
+            "2026-03-09, 2026-01-20",
+            "delivered, delivered",
+            "Headphones, Backpack",
+            "1, 2",
+            "89.0, 54.0",
+            "89.0, 108.0",
+            "EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 4,
+          "values": [
+            "C0004",
+            "Chloé Robert",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lille",
+            "59000",
+            "2025-01-09",
+            "false",
+            "student, newsletter",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ]
+        },
+        {
+          "row_number": 5,
+          "values": [
+            "C0005",
+            "Rose Petit",
+            "aaaa.aaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Bordeaux",
+            "33000",
+            "2025-04-04",
+            "true",
+            "student",
+            "O0005-1, O0005-2, O0005-3, O0005-4",
+            "2026-05-25, 2026-06-28, 2026-02-07, 2026-06-05",
+            "shipped, delivered, delivered, delivered",
+            "Backpack, Notebook, Notebook, Mug",
+            "3, 3, 2, 3",
+            "54.0, 4.5, 4.5, 8.0",
+            "162.0, 13.5, 9.0, 24.0",
+            "EUR, EUR, EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 6,
+          "values": [
+            "C0006",
+            "Inès Laurent",
+            "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Toulouse",
+            null,
+            "2025-12-10",
+            "false",
+            null,
+            "O0006-1, O0006-2, O0006-3, O0006-4",
+            "2026-01-08, 2026-07-05, 2026-06-27, 2026-03-21",
+            "cancelled, delivered, delivered, shipped",
+            "Mug, Backpack, Notebook, Desk lamp",
+            "2, 2, 2, 3",
+            "8.0, 54.0, 4.5, 29.9",
+            "16.0, 108.0, 9.0, 89.7",
+            "EUR, EUR, EUR, EUR"
+          ],
+          "absent": [
+            5,
+            8
+          ]
+        },
+        {
+          "row_number": 7,
+          "values": [
+            "C0007",
+            "David Dubois",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            null,
+            "Lille",
+            "59000",
+            "2025-08-20",
+            "true",
+            "newsletter",
+            "O0007-1, O0007-2",
+            "2026-05-16, 2026-07-27",
+            "shipped, cancelled",
+            "Headphones, Desk lamp",
+            "2, 1",
+            "89.0, 29.9",
+            "178.0, null",
+            "EUR, EUR"
+          ],
+          "absent": [
+            3
+          ]
+        },
+        {
+          "row_number": 8,
+          "values": [
+            "C0008",
+            "Ugo Durand",
+            "aaa.aaaaaa9@aaaa.aaaaaaa",
+            null,
+            "Lille",
+            "59000",
+            "2025-09-28",
+            "false",
+            "returning",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            3,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ]
+        },
+        {
+          "row_number": 9,
+          "values": [
+            "C0009",
+            "Jules Richard",
+            "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Nantes",
+            "44000",
+            "2025-10-28",
+            "null",
+            "student, returning",
+            "O0009-1, O0009-2",
+            "2026-06-12, 2026-07-12",
+            "delivered, delivered",
+            "Headphones, Backpack",
+            "2, 3",
+            "89.0, 54.0",
+            "178.0, 162.0",
+            "EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 10,
+          "values": [
+            "C0010",
+            "William Durand",
+            "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lyon",
+            "69003",
+            "2025-08-10",
+            "true",
+            "newsletter, b2b",
+            "O0010-1, O0010-2, O0010-3, O0010-4",
+            "2026-07-10, 2026-01-07, 2026-03-08, 2026-04-06",
+            "cancelled, delivered, delivered, delivered",
+            "Mug, Backpack, Mug, Notebook",
+            "3, 3, 2, 2",
+            "8.0, 54.0, 8.0, 4.5",
+            "null, 162.0, 16.0, 9.0",
+            "EUR, EUR, EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 11,
+          "values": [
+            "C0011",
+            "Emma Bernard",
+            "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+            null,
+            "Lyon",
+            "69003",
+            "2025-07-15",
+            "true",
+            null,
+            "O0011-1",
+            "2026-06-13",
+            "delivered",
+            "Backpack",
+            "1",
+            "54.0",
+            "54.0",
+            "EUR"
+          ],
+          "absent": [
+            3,
+            8
+          ]
+        },
+        {
+          "row_number": 12,
+          "values": [
+            "C0012",
+            "Nadia Bernard",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Paris",
+            "75011",
+            "2025-09-11",
+            "false",
+            "b2b",
+            "O0012-1, O0012-2, O0012-3",
+            "2026-06-15, 2026-07-19, 2026-02-12",
+            "delivered, shipped, delivered",
+            "Headphones, Desk lamp, Desk lamp",
+            "3, 3, 1",
+            "89.0, 29.9, 29.9",
+            "267.0, 89.7, 29.9",
+            "EUR, EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 13,
+          "values": [
+            "C0013",
+            "Marc Bernard",
+            "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Bordeaux",
+            "33000",
+            "2025-07-08",
+            "false",
+            "newsletter, returning",
+            "O0013-1",
+            "2026-05-24",
+            "delivered",
+            "Mug",
+            "3",
+            "8.0",
+            "24.0",
+            "EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 14,
+          "values": [
+            "C0014",
+            "Pauline Robert",
+            "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lille",
+            null,
+            "2025-11-20",
+            "false",
+            null,
+            "O0014-1, O0014-2, O0014-3",
+            "2026-05-08, 2026-08-09, 2026-08-20",
+            "shipped, delivered, shipped",
+            "Notebook, Notebook, Backpack",
+            "2, 1, 2",
+            "4.5, 4.5, 54.0",
+            "9.0, 4.5, 108.0",
+            "EUR, EUR, EUR"
+          ],
+          "absent": [
+            5,
+            8
+          ]
+        },
+        {
+          "row_number": 15,
+          "values": [
+            "C0015",
+            "Quentin Simon",
+            "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Nantes",
+            "44000",
+            "2025-06-20",
+            "true",
+            "student",
+            "O0015-1, O0015-2",
+            "2026-01-01, 2026-02-22",
+            "delivered, cancelled",
+            "Mug, Mug",
+            "1, 2",
+            "8.0, 8.0",
+            "8.0, 16.0",
+            "EUR, EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 16,
+          "values": [
+            "C0016",
+            "Nadia Petit",
+            "aaaaa.aaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lille",
+            "59000",
+            "2025-12-07",
+            "false",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ]
+        },
+        {
+          "row_number": 17,
+          "values": [
+            "C0017",
+            "William Petit",
+            "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Lille",
+            "59000",
+            "2025-08-11",
+            "false",
+            "vip, returning",
+            "O0017-1",
+            "2026-02-22",
+            "delivered",
+            "Backpack",
+            "1",
+            "54.0",
+            "54.0",
+            "EUR"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 18,
+          "values": [
+            "C0018",
+            "Karim Laurent",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            null,
+            "Lille",
+            "59000",
+            "2025-01-04",
+            "false",
+            "vip, b2b",
+            "O0018-1, O0018-2",
+            "2026-03-20, 2026-02-20",
+            "delivered, delivered",
+            "Headphones, Headphones",
+            "1, 1",
+            "89.0, 89.0",
+            "89.0, 89.0",
+            "EUR, EUR"
+          ],
+          "absent": [
+            3
+          ]
+        },
+        {
+          "row_number": 19,
+          "values": [
+            "C0019",
+            "Bruno Leroy",
+            "aaaaa.aaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Bordeaux",
+            null,
+            "2025-07-20",
+            "false",
+            "returning",
+            "O0019-1, O0019-2, O0019-3",
+            "2026-06-02, 2026-05-18, 2026-04-09",
+            "delivered, cancelled, delivered",
+            "Headphones, Backpack, Backpack",
+            "2, 1, 1",
+            "89.0, 54.0, 54.0",
+            "178.0, null, 54.0",
+            "EUR, EUR, EUR"
+          ],
+          "absent": [
+            5
+          ]
+        },
+        {
+          "row_number": 20,
+          "values": [
+            "C0020",
+            "Quentin Dubois",
+            "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "+99 9 99 99 99 99",
+            "Toulouse",
+            null,
+            "2025-06-03",
+            "false",
+            null,
+            "O0020-1, O0020-2, O0020-3",
+            "2026-08-16, 2026-01-18, 2026-07-22",
+            "delivered, shipped, delivered",
+            "Desk lamp, Notebook, Notebook",
+            "2, 3, 1",
+            "29.9, 4.5, 4.5",
+            "59.8, 13.5, 4.5",
+            "EUR, EUR, EUR"
+          ],
+          "absent": [
+            5,
+            8
+          ]
+        }
+      ]
+    }
+  ]
+}

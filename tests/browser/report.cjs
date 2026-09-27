@@ -24,7 +24,8 @@ async function openFilter(page, table, index) {
 }
 
 (async () => {
-  const profile = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
+  const report = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
+  const profile = report.datasets[0];
   const browser = await chromium.launch({
     headless: true,
     channel: process.env.TABALYST_BROWSER || 'msedge',
@@ -51,7 +52,7 @@ async function openFilter(page, table, index) {
       assert.equal(await page.locator('.side').evaluate(el => getComputedStyle(el).position), 'sticky');
       assert.equal(await page.locator('.foot').count(), 1);
       assert.ok((await page.locator('.foot').innerText()).includes('Gregory Borelli'));
-      assert.equal(await page.locator('.rep-tab').count(), 8);
+      assert.equal(await page.locator('.rep-tab').count(), 9);
       assert.equal(await page.locator('#columns-table tbody tr').count(), profile.columns.length);
       assert.equal(await page.locator('a.brand[href="https://tabalyst.com/"]').count(), 2);
       const firstColumnRow = page.locator('#columns-table tbody tr').first();
