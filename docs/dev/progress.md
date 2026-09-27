@@ -2,6 +2,9 @@
 
 ## 2026-09-27
 
+- Translated the lot 4 documentation to French (Tabalyst Scan lot 4-fr):
+  `docs/fr/` now holds the index, how-to scan, configuration, glossary,
+  known limitations, scan format and scan format changelog pages.
 - Added `tabalyst scan` (Tabalyst Scan lot 4): CSV and JSON sources, default
   `<stem>.scan.json` output, `-o`, `-d`, repeatable `--config` and
   `--collection`, `--delimiter`, `--encoding`, `--force`, atomic writes,
