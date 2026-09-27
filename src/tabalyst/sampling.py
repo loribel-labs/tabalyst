@@ -14,6 +14,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import TextIO
 
+from tabalyst.batch import apply_default_file_mode
 from tabalyst.config import CsvConfig
 from tabalyst.errors import InputError, ReportError
 
@@ -318,6 +319,7 @@ def sample_csv(
             delete=False,
         ) as stream:
             temporary = Path(stream.name)
+            apply_default_file_mode(temporary)
             writer = csv.writer(stream, delimiter=config.delimiter)
             writer.writerow(scan.headers)
             writer.writerows(selected)

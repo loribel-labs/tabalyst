@@ -124,6 +124,17 @@ def validate_outputs(
         )
 
 
+def apply_default_file_mode(path: Path) -> None:
+    """Give ``path`` the permissions of a plain write under the current umask.
+
+    Temporary files are created for their owner only, and ``os.replace`` keeps
+    that mode on the final file.
+    """
+    umask = os.umask(0)
+    os.umask(umask)
+    os.chmod(path, 0o666 & ~umask)
+
+
 def write_text_atomic(path: Path, content: str) -> None:
     """Write through a temporary file in the target directory, then replace.
 
@@ -135,11 +146,7 @@ def write_text_atomic(path: Path, content: str) -> None:
     )
     temporary = Path(name)
     try:
-        # mkstemp creates the file for its owner only; give the result the
-        # permissions of a plain write under the current umask.
-        umask = os.umask(0)
-        os.umask(umask)
-        os.chmod(temporary, 0o666 & ~umask)
+        apply_default_file_mode(temporary)
         with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(content)
             handle.flush()

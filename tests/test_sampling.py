@@ -1,5 +1,8 @@
 import csv
 import json
+import os
+import stat
+import sys
 from collections import Counter
 
 import pytest
@@ -344,3 +347,16 @@ def test_cli_uses_config_with_explicit_csv_overrides(tmp_path):
             ["id", "name"],
             ["1", "Québec"],
         ]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX file modes only")
+@pytest.mark.parametrize("umask", [0o022, 0o077])
+def test_sample_output_mode_follows_umask(source, tmp_path, umask):
+    output = tmp_path / "sample.csv"
+    previous = os.umask(umask)
+    try:
+        tabalyst.sample_csv(source, method="first", rows=3, output=output)
+    finally:
+        os.umask(previous)
+
+    assert stat.S_IMODE(output.stat().st_mode) == 0o666 & ~umask
