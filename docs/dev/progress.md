@@ -2,6 +2,18 @@
 
 ## 2026-09-27
 
+- Added `tabalyst scan` (Tabalyst Scan lot 4): CSV and JSON sources, default
+  `<stem>.scan.json` output, `-o`, `-d`, repeatable `--config` and
+  `--collection`, `--delimiter`, `--encoding`, `--force`, atomic writes,
+  batches that continue after a failed source, partial-scan warnings and
+  reading progress as a share of the file. Added `tabalyst.scan()`,
+  `tabalyst.generate_scans()`, `ScanConfig` and `ScanResult` to the package.
+  Configuration files accept a `scan` section, validated by every command and
+  merged in order (objects merge, lists replace). Batch planning moved to
+  `batch.py`, shared by `report`, `sample` and `scan`. Fixed a process crash
+  of the compiled `ijson` backend on integers above 4,300 digits. New English
+  pages: how-to scan, scan format and its changelog; configuration, glossary,
+  known limitations and README updated.
 - Added the Tabalyst Scan `uuid` and `ip_address` detectors (lot 3b, UUID
   and IP address family), which complete lot 3b. `uuid` recognizes the
   hyphenated, braced and `urn:uuid:` forms, formats such as `hyphenated` and

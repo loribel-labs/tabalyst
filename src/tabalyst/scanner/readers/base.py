@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from typing import BinaryIO, Literal, Protocol
 
@@ -37,11 +37,17 @@ class Reader(Protocol):
 
 
 class HashingStream(io.RawIOBase):
-    """Binary stream that counts and hashes every byte read through it."""
+    """Binary stream that counts and hashes every byte read through it.
 
-    def __init__(self, raw: BinaryIO) -> None:
+    ``on_read`` receives the running byte count after each read, for progress.
+    """
+
+    def __init__(
+        self, raw: BinaryIO, on_read: Callable[[int], None] | None = None
+    ) -> None:
         self._raw = raw
         self._hash = hashlib.sha256()
+        self._on_read = on_read
         self.bytes_read = 0
 
     def readable(self) -> bool:
@@ -52,6 +58,8 @@ class HashingStream(io.RawIOBase):
         if count:
             self._hash.update(memoryview(buffer)[:count])
             self.bytes_read += count
+            if self._on_read is not None:
+                self._on_read(self.bytes_read)
         return count
 
     def drain(self, chunk_size: int = 1 << 20) -> None:
@@ -59,6 +67,8 @@ class HashingStream(io.RawIOBase):
         while chunk := self._raw.read(chunk_size):
             self._hash.update(chunk)
             self.bytes_read += len(chunk)
+            if self._on_read is not None:
+                self._on_read(self.bytes_read)
 
     def hexdigest(self) -> str:
         return self._hash.hexdigest()

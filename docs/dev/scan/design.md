@@ -87,7 +87,9 @@ document = result.model_dump(mode="json")
 `scan(source, *, config=None, registry=None, on_progress=None)` reads one
 source and returns a finalized `ScanResult`. It writes nothing. `registry`
 replaces the default detector registry (section 12.1). Phase 4 adds file output,
-batches and the top-level alias `tabalyst.scan`.
+batches and the top-level alias `tabalyst.scan`: since lot 4, `tabalyst.scan`,
+`tabalyst.ScanConfig` and `tabalyst.ScanResult` are exported by the package,
+with `tabalyst.generate_scans()` (section 16.3).
 
 Proposed layout, free to adapt as long as the boundaries hold:
 
@@ -229,6 +231,14 @@ surrogate escape, such as `"\ud800"`, is not valid Unicode (I-JSON, RFC
 surrogates, and Tabalyst rejects them; the compiled backend rejects lone low
 surrogates itself but replaces a lone high surrogate with `?` before
 Tabalyst sees it, a known limitation of that backend.
+
+The compiled backend of `ijson` crashes the process (access violation) on an
+integer longer than `sys.int_max_str_digits` (4,300 digits by default) in some
+parser states. Before parsing, the reader looks for a run of more digits than
+that limit, at memory speed; when one exists, even inside a string, the file
+is parsed by the pure-Python backend, which reports an `InputError`. A number
+whose exponent `Decimal` cannot represent is an `InputError` too. Parser
+messages quoted in errors are cut at 200 characters.
 
 The JSON reader tracks its own path stack. It must not use `ijson` prefix
 strings as identities, because they join keys with dots and would merge `a.b`
@@ -1039,7 +1049,19 @@ around it.
 
 Layers, from lowest to highest priority: hard caps (never overridden, only
 enforced), built-in defaults, optional profile (phase 7), configuration files
-(`tabalyst.json` then `--config` files in order), command-line options.
+(`--config` files in order), command-line options (`--delimiter`,
+`--encoding`, `--collection`).
+
+Configuration files (lot 4, maintainer decision):
+
+- No file is discovered automatically: `tabalyst.json` is a conventional name
+  passed with `--config`, so `report` and `sample` keep their behavior.
+- One file serves every command: report and sample settings at the top level,
+  scan settings in the `scan` object. The scan does not inherit the top-level
+  `csv` settings.
+- Every command validates each whole file, the `scan` object included, so a
+  mistake in another command's section never passes silently. Errors name the
+  file and the dotted key, such as `scan.limits.max_fields`.
 
 Merge rules:
 
@@ -1093,8 +1115,8 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
   CSV, `{record, element}` for JSON.
 
 The format follows the repository convention: `format_version` names the
-alpha family and `format_revision` increases for each meaningful change. It
-gets its own changelog page when `tabalyst scan` is released.
+alpha family and `format_revision` increases for each meaningful change. Its
+changelog is `docs/en/reference/scan-format-changelog.md` (lot 4).
 
 ### 16.2 Datasets and fields
 
@@ -1155,6 +1177,23 @@ directory and an atomic replace, so an interrupted scan never leaves a partial
 result. Existing outputs require `--force`; an output can never replace an
 input.
 
+Lot 4 details:
+
+- `-o` must end in `.json`; `-d` names outputs `<stem>.scan.json`. Planning
+  is shared with `report` and `sample` (`tabalyst/batch.py`): the whole batch
+  is rejected before any scan on a name collision (`a.csv` and `a.json`), an
+  output that would replace an input or a configuration file, or an existing
+  output without `--force`.
+- The temporary file is `.<name>.<random>.tmp` in the target directory,
+  flushed and synchronized before `os.replace`, and removed on failure.
+- A failed source does not stop the batch; exit codes are those of section
+  14, the most general failure winning.
+- The document is `model_dump(mode="json", by_alias=True)`, indented by two
+  spaces, UTF-8 without escaping, with a final newline.
+- Progress: `reading` events carry `bytes_read` and `bytes_total`, at most
+  once per percent of the file and never more often than every MiB; then
+  `writing`, and `complete` once the document is written.
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1176,3 +1215,4 @@ input.
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `postal_code` detector (regions `ca` for Canadian postal codes and `us` for ZIP codes), enabled by default and not sensitive, with its `regions` setting; its specification is in `detectors.md`. | Priority 1 catalogue, postal code family. |
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `currency` (symbols and ISO 4217 codes), `percentage` and `quantity` (a number and any unit) detectors, enabled by default and not sensitive, with their own number conventions and ambiguity blocks, and bounded counted units for `quantity`; their specifications are in `detectors.md`. | Priority 1 catalogue, currency and percentage family, extended to generic quantities at the maintainer's request. |
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `uuid` (hyphenated, braced and URN forms, versions counted, not sensitive) and `ip_address` (versions `ipv4` and `ipv6`, sensitive) detectors, enabled by default, with the `versions` setting of `ip_address`; their specifications are in `detectors.md`. | Priority 1 catalogue, UUID and IP address family, the last of lot 3b. |
+| 2026-09-27 | 4 | Section 15: no automatic `tabalyst.json`; one file for every command with a `scan` object, validated by every command; command-line layer. Section 16.3: output naming, shared planning, temporary file, batch failures, document serialization, byte progress. Section 5.2: integers above `sys.int_max_str_digits` parsed by the pure-Python backend, exponent overflow and long parser messages. Sections 3 and 16.1: top-level exports, format changelog page. | Maintainer decision on configuration files (report behavior unchanged); the compiled `ijson` backend crashed the process on long integers (lot 2a note). |

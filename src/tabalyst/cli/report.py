@@ -2,46 +2,13 @@
 
 import sys
 from pathlib import Path
-from typing import Annotated, ClassVar
+from typing import Annotated
 
 import typer
 
-from tabalyst.errors import ConfigurationError, InputError, TabalystError
-from tabalyst.progress import ProgressEvent, ProgressPhase
+from tabalyst.cli.terminal import ProgressPrinter, batch_exit_code, error_exit_code
+from tabalyst.errors import TabalystError
 from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_reports
-
-
-def _error_exit_code(error: TabalystError) -> int:
-    if isinstance(error, ConfigurationError):
-        return 2
-    if isinstance(error, InputError):
-        return 4
-    return 1
-
-
-class _ProgressPrinter:
-    _labels: ClassVar[dict[ProgressPhase, str]] = {
-        ProgressPhase.READING: "Reading",
-        ProgressPhase.ANALYZING: "Analyzing",
-        ProgressPhase.RENDERING: "Rendering",
-        ProgressPhase.WRITING: "Writing",
-        ProgressPhase.COMPLETE: "Complete",
-        ProgressPhase.FAILED: "Failed",
-    }
-
-    def __init__(self, enabled: bool) -> None:
-        self.enabled = enabled
-        self._width = 0
-
-    def __call__(self, event: ProgressEvent) -> None:
-        if not self.enabled or event.index is None or event.total is None:
-            return
-        label = self._labels[event.phase]
-        message = f"[{event.index}/{event.total}] {event.source.name} - {label}"
-        padded = message.ljust(self._width)
-        finished = event.phase in {ProgressPhase.COMPLETE, ProgressPhase.FAILED}
-        typer.echo(f"\r{padded}", nl=finished, err=True)
-        self._width = 0 if finished else max(self._width, len(message))
 
 
 def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
@@ -95,15 +62,6 @@ def _print_batch_result(
             f"{len(batch.successes)} succeeded, {len(batch.failures)} failed",
             err=True,
         )
-
-
-def _batch_exit_code(batch: BatchReportResult) -> int:
-    codes = {_error_exit_code(failure.error) for failure in batch.failures}
-    if 1 in codes:
-        return 1
-    if 2 in codes:
-        return 2
-    return 4
 
 
 def report_command(
@@ -166,7 +124,7 @@ def report_command(
     if quiet and verbose:
         raise typer.BadParameter("--quiet and --verbose cannot be used together.")
 
-    progress = _ProgressPrinter(
+    progress = ProgressPrinter(
         enabled=not quiet and not no_progress and sys.stderr.isatty()
     )
     try:
@@ -182,8 +140,10 @@ def report_command(
         )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(_error_exit_code(exc)) from exc
+        raise typer.Exit(error_exit_code(exc)) from exc
 
     _print_batch_result(batch, quiet=quiet, verbose=verbose)
     if batch.failures:
-        raise typer.Exit(_batch_exit_code(batch))
+        raise typer.Exit(
+            batch_exit_code(failure.error for failure in batch.failures)
+        )
