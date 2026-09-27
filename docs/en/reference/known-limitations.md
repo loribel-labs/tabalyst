@@ -1,6 +1,6 @@
 ---
 title: Known limitations
-description: What Tabalyst does not do yet during its alpha, including CSV-only reports, duplicate detection memory and experimental JSON formats.
+description: What Tabalyst does not do yet during its alpha, including JSON report limits, duplicate detection memory and experimental JSON formats.
 ---
 
 Tabalyst is in alpha. This page lists what it does not do yet, so you can decide
@@ -9,12 +9,15 @@ published release lifts them.
 
 ## Input
 
-- **CSV and JSON only.** `tabalyst report` and `tabalyst sample` read
-  delimited text files; `tabalyst scan` also reads JSON files. Excel
+- **CSV and JSON only.** `tabalyst report` and `tabalyst scan` read CSV and
+  JSON files; `tabalyst sample` reads CSV files only. Excel
   workbooks, JSON Lines, XML, Parquet and databases are not supported; export
   them to CSV first.
-- **Reports from CSV only.** A JSON file can be scanned, but not turned into an
-  HTML report yet.
+- **JSON reports show scalar fields.** A JSON report lists the fields holding
+  strings, numbers, booleans or nulls; the structure of objects and arrays
+  (nesting, array lengths) appears only in `tabalyst scan` results. A record
+  with a missing value is counted in `missing_values` only for nulls and empty
+  values, not for absent fields.
 - **JSON integers.** Integers of more than 4,300 digits, the Python limit, make
   a JSON file invalid.
 - **One header row.** The first record is always the header.

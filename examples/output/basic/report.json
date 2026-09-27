@@ -1,10 +1,11 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 3,
-  "generated_at": "2026-09-27T20:12:31.745575Z",
+  "format_revision": 4,
+  "generated_at": "2026-09-27T22:05:51.828156Z",
   "processing_seconds": 0.0036,
   "source": {
     "filename": "basic.csv",
+    "format": "csv",
     "size_bytes": 280,
     "sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
     "encoding": "utf-8-sig",
@@ -215,690 +216,767 @@
       "random_seed": 42
     }
   },
-  "summary": {
-    "row_count": 5,
-    "column_count": 6,
-    "cell_count": 30,
-    "missing_count": 2,
-    "missing_percent": 6.67,
-    "trim_count": 0,
-    "collapse_internal_whitespace_count": 0,
-    "duplicate_row_count": 1,
-    "empty_row_count": 0,
-    "empty_column_count": 0,
-    "constant_column_count": 0,
-    "with_issues_column_count": 2,
-    "numeric_column_count": 0,
-    "date_column_count": 1,
-    "string_column_count": 3,
-    "inferred_type_counts": {
-      "text": 3,
-      "mixed": 1,
-      "date": 1,
-      "boolean": 1
-    },
-    "inferred_type_percents": {
-      "text": 50.0,
-      "mixed": 16.67,
-      "date": 16.67,
-      "boolean": 16.67
-    },
-    "semantic_type_counts": {
-      "none": 5,
-      "date": 1
-    },
-    "semantic_type_percents": {
-      "none": 83.33,
-      "date": 16.67
-    }
-  },
-  "date_summary": {
-    "present_count": 5,
-    "valid_count": 5,
-    "ambiguous_count": 0,
-    "ambiguous_percent": 0.0,
-    "invalid_date_count": 0,
-    "not_date_count": 0,
-    "maximum_column_ambiguous_count": 0,
-    "columns": []
-  },
-  "columns": [
+  "datasets": [
     {
-      "id": "column_1",
-      "name": "id",
-      "position": 1,
-      "inferred_type": "text",
-      "type_counts": {
-        "text": 5
-      },
-      "type_confidence": 1.0,
-      "type_error_count": 0,
-      "type_error_percent": 0.0,
-      "missing_count": 0,
-      "missing_percent": 0.0,
-      "with_issues": false,
-      "normalization": {
+      "id": "rows",
+      "kind": "table",
+      "summary": {
+        "row_count": 5,
+        "column_count": 6,
+        "cell_count": 30,
+        "missing_count": 2,
+        "missing_percent": 6.67,
         "trim_count": 0,
-        "trim_percent": 0.0,
         "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
+        "duplicate_row_count": 1,
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 0,
+        "with_issues_column_count": 2,
+        "numeric_column_count": 0,
+        "date_column_count": 1,
+        "string_column_count": 3,
+        "inferred_type_counts": {
+          "text": 3,
+          "mixed": 1,
+          "date": 1,
+          "boolean": 1
+        },
+        "inferred_type_percents": {
+          "text": 50.0,
+          "mixed": 16.67,
+          "date": 16.67,
+          "boolean": 16.67
+        },
+        "semantic_type_counts": {
+          "none": 5,
+          "date": 1
+        },
+        "semantic_type_percents": {
+          "none": 83.33,
+          "date": 16.67
+        }
       },
-      "distinct_count": 4,
-      "examples": [
-        "003",
-        "001",
-        "002"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 4,
-        "values": [
-          {
-            "value": "003",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "001",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "002",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "004",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": null,
-      "exposure": null,
-      "date_profile": null,
-      "string_profile": {
-        "status": "very_short",
-        "present_count": 5,
-        "minimum_length": 3,
-        "maximum_length": 3,
-        "mean_length": 3.0,
-        "median_length": 3.0,
-        "distinct_length_count": 1,
-        "fixed_length": 3,
-        "length_distribution": [
-          {
-            "length": 3,
-            "count": 5,
-            "percent": 100.0,
-            "relative_percent": 100.0,
-            "examples": [
-              {
-                "value": "003",
-                "count": 2
-              },
-              {
-                "value": "001",
-                "count": 1
-              },
-              {
-                "value": "002",
-                "count": 1
-              },
-              {
-                "value": "004",
-                "count": 1
-              }
-            ]
-          }
-        ],
-        "representative_examples": [
-          "003"
-        ]
-      },
-      "numeric": null
-    },
-    {
-      "id": "column_2",
-      "name": "name",
-      "position": 2,
-      "inferred_type": "text",
-      "type_counts": {
-        "text": 5
-      },
-      "type_confidence": 1.0,
-      "type_error_count": 0,
-      "type_error_percent": 0.0,
-      "missing_count": 0,
-      "missing_percent": 0.0,
-      "with_issues": false,
-      "normalization": {
-        "trim_count": 0,
-        "trim_percent": 0.0,
-        "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
-      },
-      "distinct_count": 4,
-      "examples": [
-        "Charlie",
-        "Alice",
-        "Bob"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 4,
-        "values": [
-          {
-            "value": "Charlie",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "Alice",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "Bob",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "Dana",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": null,
-      "exposure": null,
-      "date_profile": null,
-      "string_profile": {
-        "status": "short",
-        "present_count": 5,
-        "minimum_length": 3,
-        "maximum_length": 7,
-        "mean_length": 5.2,
-        "median_length": 5.0,
-        "distinct_length_count": 4,
-        "fixed_length": null,
-        "length_distribution": [
-          {
-            "length": 3,
-            "count": 1,
-            "percent": 20.0,
-            "relative_percent": 50.0,
-            "examples": [
-              {
-                "value": "Bob",
-                "count": 1
-              }
-            ]
-          },
-          {
-            "length": 4,
-            "count": 1,
-            "percent": 20.0,
-            "relative_percent": 50.0,
-            "examples": [
-              {
-                "value": "Dana",
-                "count": 1
-              }
-            ]
-          },
-          {
-            "length": 5,
-            "count": 1,
-            "percent": 20.0,
-            "relative_percent": 50.0,
-            "examples": [
-              {
-                "value": "Alice",
-                "count": 1
-              }
-            ]
-          },
-          {
-            "length": 7,
-            "count": 2,
-            "percent": 40.0,
-            "relative_percent": 100.0,
-            "examples": [
-              {
-                "value": "Charlie",
-                "count": 2
-              }
-            ]
-          }
-        ],
-        "representative_examples": [
-          "Charlie",
-          "Bob",
-          "Dana"
-        ]
-      },
-      "numeric": null
-    },
-    {
-      "id": "column_3",
-      "name": "amount",
-      "position": 3,
-      "inferred_type": "mixed",
-      "type_counts": {
-        "number": 3,
-        "text": 1
-      },
-      "type_confidence": 0.75,
-      "type_error_count": null,
-      "type_error_percent": null,
-      "missing_count": 1,
-      "missing_percent": 20.0,
-      "with_issues": true,
-      "normalization": {
-        "trim_count": 0,
-        "trim_percent": 0.0,
-        "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
-      },
-      "distinct_count": 3,
-      "examples": [
-        "25.00",
-        "12.50",
-        "not available"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 3,
-        "values": [
-          {
-            "value": "25.00",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "12.50",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "not available",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": null,
-      "exposure": null,
-      "date_profile": null,
-      "string_profile": null,
-      "numeric": null
-    },
-    {
-      "id": "column_4",
-      "name": "joined",
-      "position": 4,
-      "inferred_type": "date",
-      "type_counts": {
-        "date": 5
-      },
-      "type_confidence": 1.0,
-      "type_error_count": 0,
-      "type_error_percent": 0.0,
-      "missing_count": 0,
-      "missing_percent": 0.0,
-      "with_issues": false,
-      "normalization": {
-        "trim_count": 0,
-        "trim_percent": 0.0,
-        "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
-      },
-      "distinct_count": 4,
-      "examples": [
-        "2026-03-01",
-        "2026-01-01",
-        "2026-02-01"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 4,
-        "values": [
-          {
-            "value": "2026-03-01",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "2026-01-01",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2026-02-01",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "2026-04-01",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": "date",
-      "exposure": null,
-      "date_profile": {
-        "status": "valid",
+      "date_summary": {
         "present_count": 5,
         "valid_count": 5,
-        "valid_percent": 100.0,
         "ambiguous_count": 0,
         "ambiguous_percent": 0.0,
         "invalid_date_count": 0,
-        "invalid_date_percent": 0.0,
         "not_date_count": 0,
-        "not_date_percent": 0.0,
-        "resolved_ambiguous_order": null,
-        "ambiguous_order_source": null,
-        "ambiguity_evidence": {
-          "DMY": 0,
-          "MDY": 0
+        "maximum_column_ambiguous_count": 0,
+        "columns": []
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "name": "id",
+          "path": "id",
+          "position": 1,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 5
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 4,
+          "examples": [
+            "003",
+            "001",
+            "002"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 4,
+            "values": [
+              {
+                "value": "003",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "001",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "002",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "004",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 5,
+            "minimum_length": 3,
+            "maximum_length": 3,
+            "mean_length": 3.0,
+            "median_length": 3.0,
+            "distinct_length_count": 1,
+            "fixed_length": 3,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 5,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "003",
+                    "count": 2
+                  },
+                  {
+                    "value": "001",
+                    "count": 1
+                  },
+                  {
+                    "value": "002",
+                    "count": 1
+                  },
+                  {
+                    "value": "004",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "003"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
         },
-        "formats": [
-          {
-            "format": "YYYY-MM-DD",
-            "order": "YMD",
-            "separator": "-",
-            "count": 5,
-            "percent": 100.0,
-            "iso": true
-          }
-        ],
-        "format_count": 1,
-        "breakdown": [
-          {
-            "label": "YYYY-MM-DD",
-            "category": "valid",
-            "count": 5,
-            "percent": 100.0
+        {
+          "id": "column_2",
+          "name": "name",
+          "path": "name",
+          "position": 2,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 5
           },
-          {
-            "label": "Invalid date",
-            "category": "invalid",
-            "count": 0,
-            "percent": 0.0
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
           },
-          {
-            "label": "Not a date",
-            "category": "not_date",
-            "count": 0,
-            "percent": 0.0
-          }
-        ]
-      },
-      "string_profile": null,
-      "numeric": null
-    },
-    {
-      "id": "column_5",
-      "name": "active",
-      "position": 5,
-      "inferred_type": "boolean",
-      "type_counts": {
-        "boolean": 5
-      },
-      "type_confidence": 1.0,
-      "type_error_count": 0,
-      "type_error_percent": 0.0,
-      "missing_count": 0,
-      "missing_percent": 0.0,
-      "with_issues": false,
-      "normalization": {
-        "trim_count": 0,
-        "trim_percent": 0.0,
-        "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
-      },
-      "distinct_count": 2,
-      "examples": [
-        "true",
-        "false"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 2,
-        "values": [
-          {
-            "value": "true",
-            "count": 4,
-            "truncated": false
-          },
-          {
-            "value": "false",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": null,
-      "exposure": null,
-      "date_profile": null,
-      "string_profile": null,
-      "numeric": null
-    },
-    {
-      "id": "column_6",
-      "name": "notes",
-      "position": 6,
-      "inferred_type": "text",
-      "type_counts": {
-        "text": 4
-      },
-      "type_confidence": 1.0,
-      "type_error_count": 0,
-      "type_error_percent": 0.0,
-      "missing_count": 1,
-      "missing_percent": 20.0,
-      "with_issues": true,
-      "normalization": {
-        "trim_count": 0,
-        "trim_percent": 0.0,
-        "collapse_internal_whitespace_count": 0,
-        "collapse_internal_whitespace_percent": 0.0
-      },
-      "distinct_count": 3,
-      "examples": [
-        "Two items, one order",
-        "First order",
-        "Pending review"
-      ],
-      "value_profile": {
-        "selection": "complete",
-        "sampled_distinct_count": 3,
-        "values": [
-          {
-            "value": "Two items, one order",
-            "count": 2,
-            "truncated": false
-          },
-          {
-            "value": "First order",
-            "count": 1,
-            "truncated": false
-          },
-          {
-            "value": "Pending review",
-            "count": 1,
-            "truncated": false
-          }
-        ]
-      },
-      "semantic_type": null,
-      "exposure": null,
-      "date_profile": null,
-      "string_profile": {
-        "status": "short",
-        "present_count": 4,
-        "minimum_length": 11,
-        "maximum_length": 20,
-        "mean_length": 16.25,
-        "median_length": 17.0,
-        "distinct_length_count": 3,
-        "fixed_length": null,
-        "length_distribution": [
-          {
-            "length": 11,
-            "count": 1,
-            "percent": 25.0,
-            "relative_percent": 50.0,
-            "examples": [
+          "distinct_count": 4,
+          "examples": [
+            "Charlie",
+            "Alice",
+            "Bob"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 4,
+            "values": [
               {
-                "value": "First order",
-                "count": 1
+                "value": "Charlie",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Alice",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Bob",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Dana",
+                "count": 1,
+                "truncated": false
               }
             ]
           },
-          {
-            "length": 14,
-            "count": 1,
-            "percent": 25.0,
-            "relative_percent": 50.0,
-            "examples": [
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 5,
+            "minimum_length": 3,
+            "maximum_length": 7,
+            "mean_length": 5.2,
+            "median_length": 5.0,
+            "distinct_length_count": 4,
+            "fixed_length": null,
+            "length_distribution": [
               {
-                "value": "Pending review",
-                "count": 1
+                "length": 3,
+                "count": 1,
+                "percent": 20.0,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "Bob",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 4,
+                "count": 1,
+                "percent": 20.0,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "Dana",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 1,
+                "percent": 20.0,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "Alice",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 7,
+                "count": 2,
+                "percent": 40.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Charlie",
+                    "count": 2
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Charlie",
+              "Bob",
+              "Dana"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        },
+        {
+          "id": "column_3",
+          "name": "amount",
+          "path": "amount",
+          "position": 3,
+          "inferred_type": "mixed",
+          "type_counts": {
+            "number": 3,
+            "text": 1
+          },
+          "type_confidence": 0.75,
+          "type_error_count": null,
+          "type_error_percent": null,
+          "missing_count": 1,
+          "missing_percent": 20.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 3,
+          "examples": [
+            "25.00",
+            "12.50",
+            "not available"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "25.00",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "12.50",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "not available",
+                "count": 1,
+                "truncated": false
               }
             ]
           },
-          {
-            "length": 20,
-            "count": 2,
-            "percent": 50.0,
-            "relative_percent": 100.0,
-            "examples": [
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "number",
+              "status": "complete",
+              "primary": false,
+              "eligible_count": 4,
+              "matched_count": 3,
+              "matched_percent": 75.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "0.0",
+                  "count": 3,
+                  "percent": 75.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "column_4",
+          "name": "joined",
+          "path": "joined",
+          "position": 4,
+          "inferred_type": "date",
+          "type_counts": {
+            "date": 5
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 4,
+          "examples": [
+            "2026-03-01",
+            "2026-01-01",
+            "2026-02-01"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 4,
+            "values": [
+              {
+                "value": "2026-03-01",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-01",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-01",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 5,
+            "valid_count": 5,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DD",
+                "order": "YMD",
+                "separator": "-",
+                "count": 5,
+                "percent": 100.0,
+                "iso": true
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DD",
+                "category": "valid",
+                "count": 5,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 5,
+              "matched_count": 5,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 5,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "column_5",
+          "name": "active",
+          "path": "active",
+          "position": 5,
+          "inferred_type": "boolean",
+          "type_counts": {
+            "boolean": 5
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 2,
+          "examples": [
+            "true",
+            "false"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 2,
+            "values": [
+              {
+                "value": "true",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "false",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "boolean",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 5,
+              "matched_count": 5,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "true/false",
+                  "count": 5,
+                  "percent": 100.0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "column_6",
+          "name": "notes",
+          "path": "notes",
+          "position": 6,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 4
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 1,
+          "missing_percent": 20.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0
+          },
+          "distinct_count": 3,
+          "examples": [
+            "Two items, one order",
+            "First order",
+            "Pending review"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
               {
                 "value": "Two items, one order",
-                "count": 2
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "First order",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Pending review",
+                "count": 1,
+                "truncated": false
               }
             ]
-          }
-        ],
-        "representative_examples": [
-          "Two items, one order",
-          "First order",
-          "Pending review"
-        ]
-      },
-      "numeric": null
-    }
-  ],
-  "issues": [
-    {
-      "code": "duplicate_rows",
-      "severity": "warning",
-      "message": "Duplicate rows beyond their first occurrence",
-      "count": 1,
-      "column_ids": [],
-      "row_numbers": [
-        4
-      ]
-    },
-    {
-      "code": "missing_values",
-      "severity": "warning",
-      "message": "Missing cells",
-      "count": 2,
-      "column_ids": [
-        "column_3",
-        "column_6"
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 4,
+            "minimum_length": 11,
+            "maximum_length": 20,
+            "mean_length": 16.25,
+            "median_length": 17.0,
+            "distinct_length_count": 3,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 11,
+                "count": 1,
+                "percent": 25.0,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "First order",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 14,
+                "count": 1,
+                "percent": 25.0,
+                "relative_percent": 50.0,
+                "examples": [
+                  {
+                    "value": "Pending review",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 20,
+                "count": 2,
+                "percent": 50.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Two items, one order",
+                    "count": 2
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Two items, one order",
+              "First order",
+              "Pending review"
+            ]
+          },
+          "numeric": null,
+          "detectors": []
+        }
       ],
-      "row_numbers": [
-        2
-      ]
-    },
-    {
-      "code": "trimmed_cells",
-      "severity": "info",
-      "message": "Cells changed by trimming surrounding whitespace",
-      "count": 0,
-      "column_ids": [],
-      "row_numbers": []
-    },
-    {
-      "code": "collapsed_whitespace",
-      "severity": "info",
-      "message": "Cells changed by collapsing repeated internal whitespace",
-      "count": 0,
-      "column_ids": [],
-      "row_numbers": []
-    },
-    {
-      "code": "mixed_types",
-      "severity": "warning",
-      "message": "Columns with mixed value types",
-      "count": 1,
-      "column_ids": [
-        "column_3"
+      "issues": [
+        {
+          "code": "duplicate_rows",
+          "severity": "warning",
+          "message": "Duplicate rows beyond their first occurrence",
+          "count": 1,
+          "column_ids": [],
+          "row_numbers": [
+            4
+          ]
+        },
+        {
+          "code": "missing_values",
+          "severity": "warning",
+          "message": "Missing cells",
+          "count": 2,
+          "column_ids": [
+            "column_3",
+            "column_6"
+          ],
+          "row_numbers": [
+            2
+          ]
+        },
+        {
+          "code": "trimmed_cells",
+          "severity": "info",
+          "message": "Cells changed by trimming surrounding whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "collapsed_whitespace",
+          "severity": "info",
+          "message": "Cells changed by collapsing repeated internal whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "mixed_types",
+          "severity": "warning",
+          "message": "Columns with mixed value types",
+          "count": 1,
+          "column_ids": [
+            "column_3"
+          ],
+          "row_numbers": []
+        }
       ],
-      "row_numbers": []
-    }
-  ],
-  "preview": [
-    {
-      "row_number": 1,
-      "values": [
-        "001",
-        "Alice",
-        "12.50",
-        "2026-01-01",
-        "true",
-        "First order"
-      ]
-    },
-    {
-      "row_number": 2,
-      "values": [
-        "002",
-        "Bob",
-        "",
-        "2026-02-01",
-        "false",
-        ""
-      ]
-    },
-    {
-      "row_number": 3,
-      "values": [
-        "003",
-        "Charlie",
-        "25.00",
-        "2026-03-01",
-        "true",
-        "Two items, one order"
-      ]
-    },
-    {
-      "row_number": 4,
-      "values": [
-        "003",
-        "Charlie",
-        "25.00",
-        "2026-03-01",
-        "true",
-        "Two items, one order"
-      ]
-    },
-    {
-      "row_number": 5,
-      "values": [
-        "004",
-        "Dana",
-        "not available",
-        "2026-04-01",
-        "true",
-        "Pending review"
+      "preview": [
+        {
+          "row_number": 1,
+          "values": [
+            "001",
+            "Alice",
+            "12.50",
+            "2026-01-01",
+            "true",
+            "First order"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 2,
+          "values": [
+            "002",
+            "Bob",
+            "",
+            "2026-02-01",
+            "false",
+            ""
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 3,
+          "values": [
+            "003",
+            "Charlie",
+            "25.00",
+            "2026-03-01",
+            "true",
+            "Two items, one order"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 4,
+          "values": [
+            "003",
+            "Charlie",
+            "25.00",
+            "2026-03-01",
+            "true",
+            "Two items, one order"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 5,
+          "values": [
+            "004",
+            "Dana",
+            "not available",
+            "2026-04-01",
+            "true",
+            "Pending review"
+          ],
+          "absent": []
+        }
       ]
     }
   ]

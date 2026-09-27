@@ -60,6 +60,14 @@ class BatchReportResult:
         return not self.failures
 
 
+def report_name(source: Path) -> str:
+    """``data.html`` for ``data.csv``; ``data.report.html`` for ``data.json``,
+    whose profile ``data.report.json`` must not replace the source."""
+    if source.suffix.lower() == ".json":
+        return f"{source.stem}.report.html"
+    return f"{source.stem}.html"
+
+
 def build_report_plan(
     input_specs: Sequence[str | Path],
     *,
@@ -74,7 +82,7 @@ def build_report_plan(
             input_specs,
             output=output,
             output_dir=output_dir,
-            output_name=lambda source: f"{source.stem}.html",
+            output_name=report_name,
         )
     )
     _validate_report_plan(jobs, force=force)

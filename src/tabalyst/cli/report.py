@@ -11,13 +11,18 @@ from tabalyst.errors import TabalystError
 from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_reports
 
 
+def _describe(result: dict) -> str:
+    datasets = result["datasets"]
+    rows = sum(dataset["summary"]["row_count"] for dataset in datasets)
+    columns = sum(dataset["summary"]["column_count"] for dataset in datasets)
+    if result["source"]["format"] == "csv":
+        return f"{rows:,} rows and {columns} columns"
+    noun = "dataset" if len(datasets) == 1 else "datasets"
+    return f"{rows:,} records and {columns} fields in {len(datasets)} {noun}"
+
+
 def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
-    summary = success.result["summary"]
-    typer.echo(
-        f"Analyzed {summary['row_count']:,} rows and "
-        f"{summary['column_count']} columns.",
-        err=True,
-    )
+    typer.echo(f"Analyzed {_describe(success.result)}.", err=True)
     typer.echo(f"Report: {success.job.output.resolve()}", err=True)
     if verbose:
         typer.echo(f"Profile: {success.job.profile_output.resolve()}", err=True)
@@ -25,7 +30,8 @@ def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
         typer.echo(f"Execution history: {history}", err=True)
         source = success.result["source"]
         typer.echo(f"Encoding: {source['encoding']}", err=True)
-        typer.echo(f"Delimiter: {source['delimiter']!r}", err=True)
+        if source["delimiter"] is not None:
+            typer.echo(f"Delimiter: {source['delimiter']!r}", err=True)
 
 
 def _print_batch_result(
@@ -45,14 +51,11 @@ def _print_batch_result(
                     err=True,
                 )
                 if verbose:
-                    summary = success.result["summary"]
-                    typer.echo(
-                        f"  {summary['row_count']:,} rows | "
-                        f"{summary['column_count']} columns | "
-                        f"{success.result['source']['encoding']} | "
-                        f"delimiter {success.result['source']['delimiter']!r}",
-                        err=True,
-                    )
+                    source = success.result["source"]
+                    details = [_describe(success.result), source["encoding"]]
+                    if source["delimiter"] is not None:
+                        details.append(f"delimiter {source['delimiter']!r}")
+                    typer.echo("  " + " | ".join(details), err=True)
 
     for failure in batch.failures:
         typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
@@ -69,7 +72,7 @@ def report_command(
         list[str],
         typer.Argument(
             metavar="INPUT...",
-            help="One or more CSV files or non-recursive glob patterns.",
+            help="One or more CSV or JSON files, or non-recursive glob patterns.",
         ),
     ],
     output: Annotated[

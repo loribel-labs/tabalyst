@@ -12,7 +12,7 @@ from tabalyst.execution_log import (
     append_execution,
     build_execution_entry,
 )
-from tabalyst.models import DatasetProfile
+from tabalyst.models import ReportProfile
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
@@ -31,9 +31,9 @@ def analyze_csv(
     path: str | Path,
     config: ReportConfig | None = None,
     on_progress: ProgressCallback | None = None,
-) -> DatasetProfile:
-    """Scan one CSV and build its report profile, without coupling callers to
-    the CLI. The CSV is read once."""
+) -> ReportProfile:
+    """Scan one CSV or JSON file and build its report profile, without
+    coupling callers to the CLI. The file is read once."""
     config = config or ReportConfig()
     if not isinstance(config, ReportConfig):
         raise TypeError(
@@ -41,11 +41,6 @@ def analyze_csv(
             "reports moved to ReportConfig.scan (a ScanConfig)."
         )
     source = Path(path)
-    if source.suffix.lower() == ".json":
-        raise InputError(
-            f"Reports of JSON sources are not supported yet: {source}. "
-            "Use tabalyst scan to analyze JSON files."
-        )
     started = perf_counter()
 
     def forward(event: ProgressEvent) -> None:
@@ -84,9 +79,9 @@ def _validate_paths(
     force: bool,
 ) -> tuple[Path, Path]:
     if not source.exists():
-        raise InputError(f"CSV file does not exist: {source}")
+        raise InputError(f"Source file does not exist: {source}")
     if not source.is_file():
-        raise InputError(f"CSV path is not a file: {source}")
+        raise InputError(f"Source path is not a file: {source}")
     if report.suffix.lower() != ".html":
         raise InputError("report_path must be a complete filename ending in .html")
     if report.exists() and report.is_dir():
@@ -141,7 +136,7 @@ def _analyze_resolved(
     except InputError:
         raise
     except OSError as exc:
-        raise InputError(f"Cannot read CSV file {source}: {exc}") from exc
+        raise InputError(f"Cannot read source file {source}: {exc}") from exc
 
     result = profile.model_dump(mode="json")
     json_text = json.dumps(result, indent=2, ensure_ascii=False) + "\n"

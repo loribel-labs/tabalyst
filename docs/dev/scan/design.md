@@ -1235,11 +1235,50 @@ the maintainer in lot 5a:
 - **Examples.** A complete value distribution comes from the frequency listing
   when it holds every value; otherwise examples are selected among the scan
   samples. Length examples come from the listing, then the samples.
-- **Sources.** JSON sources are rejected by the report until lot 5b.
+- **Sources.** CSV and JSON sources since lot 5b (section 16.5).
 
 The parity tests (`tests/scan/test_scan_report.py`) compare the report built
 on Scan with the pandas engine on both demos, each known difference listed
 explicitly.
+
+### 16.5 JSON sources and detectors in the report (lot 5b)
+
+Decided with the maintainer in lot 5b:
+
+- **Datasets.** Profile revision 4 moves `summary`, `date_summary`,
+  `columns`, `issues` and `preview` into `datasets`, one item per scan dataset
+  (`id`, `kind`). A CSV source has its one dataset; a JSON dataset is listed
+  when it has at least one column, so `$` disappears when every value lies in
+  collections. `source` gains `format`; `delimiter` is `null` for JSON.
+- **Columns.** Every CSV column. For JSON, the fields whose native types
+  include a scalar or `null`, in discovery order, named by `display`
+  (`orders[].amount`) with `position` their 1-based rank. Containers are
+  structure, not columns; the structure section is not part of lot 5b.
+  Missing counts and percentages use the value slots of the field,
+  `occurrences + presence.absent`, the row count for CSV columns;
+  `cell_count` sums them.
+- **Record facts.** `RowFacts` dispatches records by dataset. A record's
+  values are its scalar observations; it has missing values when one is null
+  (under `values.missing`) or a missing string, and is empty when all are.
+  An absent field is not a value of its record. Duplicate records compare a
+  digest of every observation (path, type, value). The preview keeps the
+  scalar values per path: an absent field is `null` with its position in
+  `absent`, the values of an items path are joined with `, `, a JSON null is
+  the text `null`, and a cell with any hidden value is `null`.
+- **Excluded records.** Counted per dataset from the exclusion diagnostics
+  (`csv_width_mismatch`, `record_too_large`, `json_duplicate_key`).
+- **Detectors.** Each column lists the detectors that are `complete` with a
+  match, an ambiguous or an invalid value, and the `failed` ones:
+  `eligible_count`, `matched_count`, `matched_percent`, `ambiguous_count`,
+  `invalid_count`, `formats` with percentages of the eligible values, and
+  `primary` for the primary interpretation. The report shows them in a
+  "Detectors and formats" section, one row per column and detector.
+- **Outputs.** `tabalyst report data.json` writes `data.report.html` and
+  `data.report.json`, so the profile never replaces the source; CSV names are
+  unchanged.
+- **HTML.** Several datasets render one view each, with a dataset selector in
+  the navigation and element ids prefixed `d<N>-`; a single dataset keeps
+  plain ids.
 
 ## 17. Changes to this document
 
@@ -1264,3 +1303,4 @@ explicitly.
 | 2026-09-27 | 3b | Sections 12.1, 15 and 16.1: built-in `uuid` (hyphenated, braced and URN forms, versions counted, not sensitive) and `ip_address` (versions `ipv4` and `ipv6`, sensitive) detectors, enabled by default, with the `versions` setting of `ip_address`; their specifications are in `detectors.md`. | Priority 1 catalogue, UUID and IP address family, the last of lot 3b. |
 | 2026-09-27 | 4 | Section 15: no automatic `tabalyst.json`; one file for every command with a `scan` object, validated by every command; command-line layer. Section 16.3: output naming, shared planning, temporary file, batch failures, document serialization, byte progress. Section 5.2: integers above `sys.int_max_str_digits` parsed by the pure-Python backend, exponent overflow and long parser messages. Sections 3 and 16.1: top-level exports, format changelog page. | Maintainer decision on configuration files (report behavior unchanged); the compiled `ijson` backend crashed the process on long integers (lot 2a note). |
 | 2026-09-27 | 5a | Section 3: `on_record` hook of `scan()`. Section 12.6: the report never applies ambiguity evidence. New section 16.4 and decision O16: report built on Scan, configuration in `scan`, technical types, primary interpretations as semantic types, scan exposure applied to the preview, limited measures and excluded records as issues. | Report migration; decisions of the maintainer in lot 5a (configuration, masking by default, `date` type with an `ambiguous_dates` issue, primary interpretations). |
+| 2026-09-27 | 5b | Section 16.4: JSON sources accepted. New section 16.5: profile revision 4 with `datasets`, JSON columns as scalar fields named by path, value slots, record facts per dataset, preview of JSON records, detectors per column, `.report` output names for JSON sources, one HTML view per dataset. | Lot 5b; maintainer decisions (revision 4 with a dataset list, flattened paths, detectors section only). |

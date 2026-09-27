@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from scan_helpers import write_text
 
-from tabalyst import ConfigurationError, InputError
+from tabalyst import ConfigurationError
 from tabalyst.analysis import analyze_csv_file
 from tabalyst.config import AnalysisConfig
 from tabalyst.report_config import ReportConfig, resolve_report_config
@@ -56,8 +56,19 @@ def _config(**scan) -> ReportConfig:
 def _profiles(demo: str):
     source = EXAMPLES / "input" / f"{demo}.csv"
     legacy = analyze_csv_file(source, LEGACY_DEMO_CONFIG)
-    current = analyze_csv(source, resolve_report_config([DEMO_CONFIG]))
+    report = analyze_csv(source, resolve_report_config([DEMO_CONFIG]))
+    assert report.format_revision == 4
+    assert report.source.sha256 == legacy.source.sha256
+    assert report.source.size_bytes == legacy.source.size_bytes
+    (current,) = report.datasets
     return legacy, current
+
+
+def _dataset(source, config=None):
+    """The report of a CSV source and its only dataset."""
+    report = analyze_csv(source, config)
+    (dataset,) = report.datasets
+    return report, dataset
 
 
 def _issues(profile) -> dict:
@@ -68,7 +79,6 @@ def _issues(profile) -> dict:
 def test_dataset_facts_match_the_pandas_engine(demo):
     legacy, current = _profiles(demo)
 
-    assert current.format_revision == 3
     for name in (
         "row_count",
         "column_count",
@@ -87,8 +97,6 @@ def test_dataset_facts_match_the_pandas_engine(demo):
         "with_issues_column_count",
     ):
         assert getattr(current.summary, name) == getattr(legacy.summary, name), name
-    assert current.source.sha256 == legacy.source.sha256
-    assert current.source.size_bytes == legacy.source.size_bytes
     legacy_issues, current_issues = _issues(legacy), _issues(current)
     for code in (
         "duplicate_rows",
@@ -240,7 +248,7 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
         tmp_path, "dates.csv", "day\n01/02/2026\n13/02/2026\n25/12/2026\n"
     )
 
-    profile = analyze_csv(source)
+    profile_report, profile = _dataset(source)
 
     dates = profile.columns[0].date_profile
     assert dates.ambiguous_count == 1
@@ -250,7 +258,7 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
     assert profile.columns[0].inferred_type == "date"
     assert profile.columns[0].with_issues is True
     assert _issues(profile)["ambiguous_dates"].count == 1
-    html = render_report(profile)
+    html = render_report(profile_report)
     assert "Only DMY is attested" in html
     assert "scan.detectors.date.ambiguous_order" in html
 
@@ -258,7 +266,7 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
 def test_configured_order_resolves_ambiguous_dates(tmp_path):
     source = write_text(tmp_path, "dates.csv", "day\n01/02/2026\n13/02/2026\n")
 
-    profile = analyze_csv(
+    _profile_report, profile = _dataset(
         source, _config(detectors={"date": {"ambiguous_order": "DMY"}})
     )
 
@@ -278,7 +286,7 @@ def _contacts(tmp_path) -> Path:
 
 
 def test_sensitive_values_are_masked_by_default(tmp_path):
-    profile = analyze_csv(_contacts(tmp_path))
+    profile_report, profile = _dataset(_contacts(tmp_path))
 
     email = profile.columns[0]
     assert email.semantic_type == "email"
@@ -288,18 +296,18 @@ def test_sensitive_values_are_masked_by_default(tmp_path):
     assert profile.preview[0].values == ["aaaa9@aaaaaaa.aaa", "0"]
     # Missing cells are not values: they stay as read.
     assert profile.preview[3].values == ["", "3"]
-    assert "Masked values" in render_report(profile)
+    assert "Masked values" in render_report(profile_report)
 
 
 def test_sensitive_values_can_be_hidden_or_shown(tmp_path):
     source = _contacts(tmp_path)
 
-    hidden = analyze_csv(source, _config(exposure={"sensitive_values": "hide"}))
-    shown = analyze_csv(source, _config(exposure={"sensitive_values": "show"}))
+    hidden_report, hidden = _dataset(source, _config(exposure={"sensitive_values": "hide"}))
+    _shown_report, shown = _dataset(source, _config(exposure={"sensitive_values": "show"}))
 
     assert hidden.columns[0].examples == []
     assert hidden.preview[0].values == [None, "0"]
-    assert ">hidden<" in render_report(hidden)
+    assert ">hidden<" in render_report(hidden_report)
     assert shown.columns[0].exposure == "show"
     assert shown.preview[0].values == ["user0@example.com", "0"]
     assert "user0@example.com" in shown.columns[0].examples
@@ -309,20 +317,20 @@ def test_limited_measures_are_reported_not_invented(tmp_path):
     rows = "".join(f"{index},v{index}\n" for index in range(5))
     source = write_text(tmp_path, "wide.csv", "n,label\n" + rows)
 
-    profile = analyze_csv(source, _config(limits={"max_distinct_per_field": 2}))
+    profile_report, profile = _dataset(source, _config(limits={"max_distinct_per_field": 2}))
 
     for column in profile.columns:
         assert column.distinct_count is None
     assert profile.columns[0].numeric.minimum == 0
     assert profile.columns[0].numeric.median is None
     assert _issues(profile)["limited_measures"].column_ids == ["column_1", "column_2"]
-    assert "limited" in render_report(profile)
+    assert "limited" in render_report(profile_report)
 
 
 def test_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
     source = write_text(tmp_path, "rows.csv", "a,b\n1,2\n3\n4,5\n6,7,8\n")
 
-    profile = analyze_csv(source, _config(errors={"policy": "tolerant"}))
+    _profile_report, profile = _dataset(source, _config(errors={"policy": "tolerant"}))
 
     assert profile.summary.row_count == 2
     issue = _issues(profile)["excluded_records"]
@@ -340,7 +348,7 @@ def test_report_reads_the_csv_once(tmp_path, monkeypatch):
         return original(self)
 
     monkeypatch.setattr(csv_reader.CsvReader, "__iter__", counting)
-    profile = analyze_csv(source)
+    _profile_report, profile = _dataset(source)
 
     assert opened == [source]
     assert profile.summary.duplicate_row_count == 1
@@ -393,9 +401,3 @@ def test_legacy_analysis_config_is_rejected_clearly(tmp_path):
     with pytest.raises(TypeError, match="ReportConfig"):
         analyze_csv(source, AnalysisConfig())
 
-
-def test_json_sources_are_not_reported_yet(tmp_path):
-    source = write_text(tmp_path, "data.json", "[1, 2]")
-
-    with pytest.raises(InputError, match="tabalyst scan"):
-        analyze_csv(source)

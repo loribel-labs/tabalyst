@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 3
+  "format_revision": 4
 }
 ```
 
@@ -74,3 +74,19 @@ The report is built on Tabalyst Scan instead of the pandas engine.
   their examples come from the most frequent and the sampled values.
 - Value samples are drawn by the scan (`scan.limits.max_samples`,
   `scan.random_seed`), so sampled examples differ from revision 2.
+
+## Revision 4 - 2026-09-27
+
+The report reads JSON files and lists the detectors of each column.
+
+- The dataset-level fields `summary`, `date_summary`, `columns`, `issues` and
+  `preview` moved into the new `datasets` array, one item per dataset with its
+  `id` and `kind`. A CSV file has one dataset, `rows`.
+- `source` has a new `format` field; `delimiter` is `null` for JSON files.
+- Columns have a new `path` and a new `detectors` array: the detectors that
+  recognized values, with their counts and formats.
+- Preview rows have a new `absent` array: the positions of the JSON fields
+  absent from the record.
+- In JSON datasets, a column is a field holding scalar values, named by its
+  path; absent fields count as missing, and `cell_count` counts the places a
+  value could be.

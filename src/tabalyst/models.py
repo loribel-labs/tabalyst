@@ -1,4 +1,4 @@
-"""Serializable report profile (revision 3), independent from presentation.
+"""Serializable report profile (revision 4), independent from presentation.
 
 Built from a Tabalyst Scan result by ``report_profile.py``.
 """
@@ -17,10 +17,12 @@ class ResultModel(BaseModel):
 
 class SourceInfo(ResultModel):
     filename: str
+    format: Literal["csv", "json"]
     size_bytes: int
     sha256: str
     encoding: str
-    delimiter: str
+    # Null for JSON sources.
+    delimiter: str | None
 
 
 class NumericStats(ResultModel):
@@ -114,9 +116,32 @@ class ValueProfile(ResultModel):
     values: list[ValueOccurrence]
 
 
+class DetectorFormat(ResultModel):
+    format: str
+    count: int
+    percent: float
+
+
+class DetectorProfile(ResultModel):
+    """What one detector recognized in a column (design 12.3)."""
+
+    id: str
+    status: Literal["complete", "failed"]
+    primary: bool
+    eligible_count: int
+    matched_count: int
+    matched_percent: float
+    ambiguous_count: int
+    invalid_count: int
+    formats: list[DetectorFormat]
+
+
 class ColumnProfile(ResultModel):
     id: str
     name: str
+    # Display path of the scan field: the column label for CSV sources,
+    # ``orders[].amount`` for JSON sources.
+    path: str
     position: int
     inferred_type: Literal[
         "empty", "boolean", "integer", "number", "date", "text", "mixed"
@@ -139,6 +164,8 @@ class ColumnProfile(ResultModel):
     date_profile: DateProfile | None = None
     string_profile: StringProfile | None = None
     numeric: NumericStats | None = None
+    # Detectors that recognized values, in scan order; failed ones included.
+    detectors: list[DetectorProfile] = []
 
 
 class DatasetSummary(ResultModel):
@@ -193,19 +220,31 @@ class Issue(ResultModel):
 
 class PreviewRow(ResultModel):
     row_number: int
-    # Null for a hidden value of a sensitive column.
+    # Null for a hidden value of a sensitive column, or a JSON value absent
+    # from the record; the values of an items path are joined with ", ".
     values: list[str | None]
+    # Positions (0-based) of the values absent from a JSON record.
+    absent: list[int] = []
 
 
 class DatasetProfile(ResultModel):
-    format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[3] = 3
-    generated_at: datetime
-    processing_seconds: FiniteFloat
-    source: SourceInfo
-    config: ReportConfig
+    """One scan dataset: the rows of a CSV, or the records of a JSON document
+    or collection (design 5)."""
+
+    id: str
+    kind: Literal["table", "document", "collection"]
     summary: DatasetSummary
     date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]
     issues: list[Issue]
     preview: list[PreviewRow]
+
+
+class ReportProfile(ResultModel):
+    format_version: Literal["0.1.0a"] = "0.1.0a"
+    format_revision: Literal[4] = 4
+    generated_at: datetime
+    processing_seconds: FiniteFloat
+    source: SourceInfo
+    config: ReportConfig
+    datasets: list[DatasetProfile]
