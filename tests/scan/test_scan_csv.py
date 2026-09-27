@@ -224,3 +224,38 @@ def test_scanner_package_does_not_import_pandas():
         content = path.read_text(encoding="utf-8")
         assert "import pandas" not in content, path
         assert "from pandas" not in content, path
+
+
+@pytest.mark.lot("1b")
+def test_columns_beyond_the_field_limit_are_counted_not_tracked(tmp_path):
+    source = write_text(tmp_path, "wide.csv", "a,b,c\n1,2,3\n4,5,6\n")
+
+    result = run_scan(source, limits={"max_fields": 2})
+
+    rows = dataset(result, "rows")
+    assert [item["display"] for item in rows["fields"]] == ["a", "b"]
+    assert rows["structure"]["paths"] == {
+        "status": "limited",
+        "reason": "field_limit",
+        "limit": 2,
+        "lower_bound": 3,
+    }
+    assert rows["structure"]["untracked_observations"] == 2
+    [diagnostic] = result["diagnostics"]
+    assert (diagnostic["code"], diagnostic["level"]) == ("field_limit", "warning")
+    assert diagnostic["locations"] == [{"record": 1, "line": 2}]
+    assert result["source"]["csv"]["header"] == ["a", "b", "c"]
+
+
+@pytest.mark.lot("1b")
+@pytest.mark.parametrize("policy", ["strict", "tolerant"])
+def test_header_wider_than_the_record_observation_limit_is_fatal(tmp_path, policy):
+    """Every record would be too large: excluding them all would hide the cause."""
+    source = write_text(tmp_path, "wide.csv", "a,b,c\n1,2,3\n")
+
+    with pytest.raises(InputError, match="max_record_observations"):
+        run_scan(
+            source,
+            errors={"policy": policy},
+            limits={"max_record_observations": 3},
+        )

@@ -54,10 +54,18 @@ class DeclaredField:
 
 @dataclass(frozen=True, slots=True)
 class DatasetOpened:
+    """A dataset starts; its records follow, possibly interleaved with others.
+
+    ``container`` names the dataset and field path whose arrays hold the
+    records of this collection, when that field is itself analyzed (an array
+    promoted from a JSON document).
+    """
+
     dataset: str
     kind: DatasetKind
     collection_path: FieldPath | None
     fields: tuple[DeclaredField, ...] = ()
+    container: tuple[str, FieldPath] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,10 +77,14 @@ class Observation:
 
 @dataclass(slots=True)
 class Record:
+    """One analyzed record. ``depth_truncated`` counts the observations below
+    ``limits.max_depth`` that the reader did not emit."""
+
     dataset: str
     index: int
     location: Location
     observations: list[Observation]
+    depth_truncated: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,4 +103,15 @@ class RecordExcluded:
     message: str
 
 
-StreamItem = DatasetOpened | Record | RecordExcluded
+@dataclass(frozen=True, slots=True)
+class Notice:
+    """A technical event described by the reader, forwarded as a diagnostic."""
+
+    code: str
+    level: Literal["error", "warning"]
+    message: str
+    dataset: str | None = None
+    location: Location | None = None
+
+
+StreamItem = DatasetOpened | Record | RecordExcluded | Notice

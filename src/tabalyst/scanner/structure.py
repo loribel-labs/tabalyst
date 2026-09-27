@@ -16,6 +16,7 @@ from tabalyst.scanner.models import (
     DatasetResult,
     FieldResult,
     FieldValues,
+    Limited,
     Missing,
     MissingComponents,
     Presence,
@@ -37,6 +38,7 @@ from tabalyst.scanner.paths import (
     format_relative,
     path_to_json,
 )
+from tabalyst.scanner.values import ValueContext, no_values
 
 
 def _ordered_types(counts: dict[str, int]) -> dict[str, int]:
@@ -44,13 +46,28 @@ def _ordered_types(counts: dict[str, int]) -> dict[str, int]:
 
 
 class DatasetState:
+    """Fields of one dataset, bounded by ``limits.max_fields``.
+
+    Once the limit is reached, observations at new paths are counted but not
+    tracked; untracked paths are not remembered, so state stays bounded.
+    """
+
     __slots__ = (
         "collection_path",
+        "collections",
+        "depth_limit_location",
+        "depth_truncated",
+        "field_limit_location",
         "fields",
         "id",
         "kind",
+        "max_fields",
+        "paths_limited",
         "record_count",
         "record_types",
+        "untracked_max_depth",
+        "untracked_observations",
+        "values",
     )
 
     def __init__(
@@ -59,28 +76,64 @@ class DatasetState:
         kind: DatasetKind,
         collection_path: FieldPath | None,
         declared: tuple[DeclaredField, ...] = (),
+        *,
+        max_fields: int,
+        values: ValueContext,
     ) -> None:
         self.id = dataset_id
         self.kind = kind
         self.collection_path = collection_path
+        self.max_fields = max_fields
         self.record_count = 0
         self.record_types: Counter[str] = Counter()
+        # Fields whose arrays hold the records of another dataset.
+        self.collections: dict[FieldPath, str] = {}
+        self.paths_limited = False
+        self.untracked_observations = 0
+        self.untracked_max_depth = 0
+        self.depth_truncated = 0
+        self.field_limit_location: dict[str, int] | None = None
+        self.depth_limit_location: dict[str, int] | None = None
         # The record root is always tracked: its containers are parent counts.
-        self.fields: dict[FieldPath, FieldState] = {ROOT: FieldState(ROOT)}
+        self.values = values
+        self.fields: dict[FieldPath, FieldState] = {
+            ROOT: FieldState(ROOT, values.discover())
+        }
         for item in declared:
-            self.fields[item.path] = FieldState(item.path, item)
+            if len(self.fields) > max_fields:
+                self.paths_limited = True
+                break
+            self.fields[item.path] = FieldState(item.path, values.discover(), item)
 
     def add_record(self, record: Record, strings: StringClassifier) -> None:
         self.record_count += 1
         observations = record.observations
         self.record_types[observations[0].type] += 1
         fields = self.fields
+        values = self.values
         index = record.index
         for observation in observations:
             state = fields.get(observation.path)
             if state is None:
-                state = fields[observation.path] = FieldState(observation.path)
-            state.observe(observation, index, strings)
+                # ``fields`` holds the record root, which the limit excludes.
+                if len(fields) > self.max_fields:
+                    self._untracked(observation.path, record)
+                    continue
+                state = fields[observation.path] = FieldState(
+                    observation.path, values.discover()
+                )
+            state.observe(observation, index, strings, values)
+        if record.depth_truncated:
+            self.depth_truncated += record.depth_truncated
+            if self.depth_limit_location is None:
+                self.depth_limit_location = record.location.to_dict()
+
+    def _untracked(self, path: FieldPath, record: Record) -> None:
+        self.paths_limited = True
+        self.untracked_observations += 1
+        self.untracked_max_depth = max(self.untracked_max_depth, len(path))
+        if self.field_limit_location is None:
+            self.field_limit_location = record.location.to_dict()
 
     def finalize(self, config: ScanConfig) -> DatasetResult:
         list_root = any(name != "object" for name in self.record_types)
@@ -97,6 +150,10 @@ class DatasetState:
 
         fields = [self._field(state, ids, config) for state in listed]
         tracked = len(self.fields) - 1
+        max_depth_seen = max(
+            (len(path) for path, state in self.fields.items() if state.occurrences),
+            default=0,
+        )
         return DatasetResult(
             id=self.id,
             kind=self.kind,
@@ -108,17 +165,20 @@ class DatasetState:
             record_count=self.record_count,
             record_types=_ordered_types(self.record_types),
             structure=Structure(
-                paths=Complete[int](value=tracked),
-                untracked_observations=0,
-                depth_truncated_observations=0,
-                max_depth_seen=max(
-                    (
-                        len(path)
-                        for path, state in self.fields.items()
-                        if state.occurrences
-                    ),
-                    default=0,
+                paths=(
+                    Limited(
+                        reason="field_limit",
+                        limit=self.max_fields,
+                        # Untracked paths are not remembered: only one more
+                        # distinct path than the limit is proven.
+                        lower_bound=self.max_fields + 1,
+                    )
+                    if self.paths_limited
+                    else Complete[int](value=tracked)
                 ),
+                untracked_observations=self.untracked_observations,
+                depth_truncated_observations=self.depth_truncated,
+                max_depth_seen=max(max_depth_seen, self.untracked_max_depth),
             ),
             fields=fields,
         )
@@ -156,6 +216,7 @@ class DatasetState:
     ) -> FieldResult:
         path = state.path
         presence = self._presence(state)
+        blocks = no_values() if state.values is None else state.values.finalize()
         components = MissingComponents(
             absent=presence.absent,
             null=state.count("null"),
@@ -177,7 +238,7 @@ class DatasetState:
             display=display,
             name=name,
             parent=ids.get(path[:-1]) if path else None,
-            collection=None,
+            collection=self.collections.get(path),
             first_record=state.first_record,
             occurrences=state.occurrences,
             presence=presence,
@@ -203,5 +264,16 @@ class DatasetState:
                     total_items=state.array_items,
                 )
             ),
-            values=FieldValues(count=state.value_count),
+            values=FieldValues(
+                count=state.value_count,
+                cardinality=blocks["cardinality"],
+                frequencies=blocks["frequencies"],
+                samples=blocks["samples"],
+                first=blocks["first"],
+                last=blocks["last"],
+            ),
+            string_characteristics=blocks["string_characteristics"],
+            string_lengths=blocks["string_lengths"],
+            numeric=blocks["numeric"],
+            booleans=blocks["booleans"],
         )

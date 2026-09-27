@@ -21,6 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: python -m pip install -e ".[dev]"
+      - name: Require the compiled ijson backend
+        run: python -c "import ijson; assert ijson.backend == 'yajl2_c', ijson.backend"
       - run: python -m pytest
       - run: python -m ruff check .
 
