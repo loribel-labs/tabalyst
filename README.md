@@ -31,6 +31,7 @@ changes often: update it before each new test.
 | One file, custom name | `tabalyst report data.csv -o report.html` | The file `report.html` |
 | Several files, automatic names | `tabalyst report *.csv` | Beside each source |
 | Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
+| One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 
 The simplest command keeps the source filename:
 
@@ -51,6 +52,18 @@ Use `-o` to choose a different HTML filename for one source:
 
 ```console
 tabalyst report customers.csv -o customer-analysis.html
+```
+
+### JSON files
+
+A JSON file gets a report too, named `<stem>.report.html` so its profile
+`<stem>.report.json` never replaces the source. Each collection of records,
+such as the `customers` array of `{"customers": [...]}`, is a dataset of the
+report, and nested fields are columns named by their path, such as
+`address.city`:
+
+```console
+tabalyst report orders.json
 ```
 
 ### Multiple files
@@ -195,11 +208,16 @@ and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en
 - Dataset dimensions, missing cells, duplicates, and quality observations.
 - Physical and semantic types with confidence and error rates.
 - Numeric, date, string-length, normalization, and value distributions.
-- Distinct values, representative examples, enum candidates, and date formats.
+- Distinct values, representative examples, date formats, and semantic types
+  such as enumerations, email addresses, phone numbers, and postal codes.
 - CSV record widths, quoting, encoding, and delimiter configuration.
 - A bounded raw-data preview while every record is analyzed.
 
-The HTML report is self-contained and works without a CDN or network connection.
+The report is built on Tabalyst Scan: it reads the CSV once as a stream and
+masks values of sensitive columns, such as email addresses, by default.
+Ambiguous dates stay ambiguous; the report shows the evidence of the column
+without applying it. The HTML report is self-contained and works without a CDN
+or network connection.
 The JSON profile contains the same canonical analysis result for scripts and
 future Tabalyst tools.
 
@@ -247,14 +265,19 @@ Configuration files are strict JSON. A minimal file is:
 
 ```json
 {
-  "csv": {
-    "delimiter": ";",
-    "encoding": "cp1252"
+  "scan": {
+    "csv": {
+      "delimiter": ";",
+      "encoding": "cp1252"
+    },
+    "values": {"null_markers": ["N/A"]}
   }
 }
 ```
 
-Scan settings go in a `scan` object of the same file. Explicit CLI or Python
+Analysis settings, CSV reading included, go in the `scan` object, shared by
+`tabalyst report` and `tabalyst scan`. Top-level settings shape the report
+presentation, and `csv` configures `tabalyst sample`. Explicit CLI or Python
 arguments override the configuration file, which overrides Tabalyst defaults.
 No configuration file is loaded unless it is passed with `--config`. See the
 [configuration reference](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
@@ -266,10 +289,11 @@ Tabalyst performs analysis locally and adds no telemetry or remote processing.
 Generated JSON and HTML may contain source values and should be shared
 accordingly.
 
-Report analysis currently loads the complete CSV into memory. Sampling and
-scanning use streaming readers with bounded memory. Reports show file and phase
-progress, scans the share of the file read; throughput estimates, recursive
-directory input, and parallel batch execution will require later work.
+Reports, samples, and scans read files as a stream. Report duplicate-row
+detection keeps 16 bytes per distinct row; other state is bounded by
+configurable limits. Reports and scans show the share of the file read;
+throughput estimates, recursive directory input, and parallel batch execution
+will require later work.
 
 ## Examples and development
 

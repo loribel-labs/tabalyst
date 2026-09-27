@@ -68,6 +68,12 @@ code,pre{font-family:var(--f-mono)}
 .side-group{font:500 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--d3);margin:16px 10px 6px}
 :root[data-theme="light"] .side-group{color:var(--text-3)}
 .rep-nav{display:flex;flex-direction:column;gap:2px}
+.rep-nav[hidden]{display:none}
+.ds{display:contents}
+.ds[hidden]{display:none}
+.ds-select{display:block;width:calc(100% - 20px);max-width:100%;margin:0 10px 14px;min-height:34px;padding:0 8px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--s1);color:var(--text);font:400 12px/1 var(--f-mono)}
+.fmts{display:flex;flex-wrap:wrap;gap:4px}
+.dprim{font:500 11px/1 var(--f-mono);color:var(--text-3);text-transform:uppercase;letter-spacing:.08em}
 .rep-tab{display:flex;align-items:center;gap:10px;width:100%;border-radius:var(--r-sm);color:var(--text-2);padding:9px 10px;font-size:13.5px;position:relative;transition:background .2s,color .2s}
 .rep-tab small{font:400 11px/1 var(--f-mono);color:var(--text-3);width:18px;flex:none}
 .rep-tab .ct{margin-left:auto;font:400 11px/1 var(--f-mono);color:var(--text-3)}
@@ -310,6 +316,7 @@ tr.dx[hidden]{display:none}
   .brand .word{display:none}
   .side-label,.side-group{display:none}
   .rep-nav{flex-direction:row;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+  .ds-select{width:auto;max-width:40vw;margin:0;flex:none}
   .rep-nav::-webkit-scrollbar{display:none}
   .rep-tab{width:auto;white-space:nowrap;min-height:44px;padding:10px}
   .rep-tab .ct{display:none}
@@ -443,6 +450,8 @@ td.ex .tip.show{display:block}
 .tip-l > div{display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:12px;padding:5px 12px}
 .tip-l > div + div{border-top:1px solid var(--line)}
 .tip-l span{overflow-wrap:anywhere;color:var(--text)}
+.tip-n{margin:0;padding:8px 12px;border-bottom:1px solid var(--line);font:400 12px/1.45 var(--f-body);color:var(--text-2)}
+.tip-n code{font:400 11.5px/1 var(--f-mono);color:var(--text);overflow-wrap:anywhere}
 .tip-l small{font:inherit;color:var(--text-3);font-variant-numeric:tabular-nums}
 .tip-l .k-ambiguous span,.tip-l .k-invalid span{color:var(--attn-text)}
 .tip-l .k-invalid{margin-top:4px;border-top:2px solid var(--line-strong)!important}

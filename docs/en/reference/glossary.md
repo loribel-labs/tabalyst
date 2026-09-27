@@ -33,7 +33,7 @@ Keep these exactly as written in every language:
 | raw preview | aperçu brut | Source values before normalization |
 | missing value | valeur manquante | An empty value or a configured missing marker |
 | issue | anomalie | A detected data quality problem |
-| with issues | avec anomalies | A column with missing values or of inferred type `mixed` |
+| with issues | avec anomalies | A column with missing values, ambiguous dates or of inferred type `mixed` |
 | value normalization | normalisation des valeurs | Cleaning applied before analysis, such as whitespace trimming |
 | type inference | inférence de type | How Tabalyst decides the type of a column |
 | inferred type | type inféré | The type deduced from the values of a column |

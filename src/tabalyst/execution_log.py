@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from tabalyst._version import get_version
-from tabalyst.models import DatasetProfile
+from tabalyst.models import ReportProfile
 
 EXECUTION_LOG_NAME = "executions.json"
 EXECUTION_SCHEMA_VERSION = "1.0"
@@ -55,7 +55,7 @@ def build_execution_entry(
     source: Path,
     html_output: Path,
     json_output: Path,
-    profile: DatasetProfile,
+    profile: ReportProfile,
     total_seconds: float,
     git_directory: Path,
 ) -> dict[str, Any]:
@@ -66,8 +66,10 @@ def build_execution_entry(
         "source_file": source.name,
         "html_file": html_output.name,
         "json_file": json_output.name,
-        "rows": profile.summary.row_count,
-        "columns": profile.summary.column_count,
+        "rows": sum(dataset.summary.row_count for dataset in profile.datasets),
+        "columns": sum(
+            dataset.summary.column_count for dataset in profile.datasets
+        ),
         "analysis_seconds": profile.processing_seconds,
         "total_seconds": round(total_seconds, 4),
         "git": git_state(git_directory),

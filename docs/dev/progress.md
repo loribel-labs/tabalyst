@@ -2,6 +2,25 @@
 
 ## 2026-09-27
 
+- Reports of JSON files and a detectors section (Tabalyst Scan lot 5b):
+  `tabalyst report data.json` writes `data.report.html` and
+  `data.report.json`, one view per dataset with a dataset selector, JSON
+  columns named by their path and absent fields counted as missing. Profile
+  format revision 4 lists datasets in `datasets` and adds `source.format`,
+  column `path` and `detectors`, and preview `absent`. The new "Detectors and
+  formats" section shows what each detector recognized per column. Added the
+  `orders.json` demo and the how-to page "Report JSON files".
+- Built `tabalyst report` on Tabalyst Scan (lot 5a): one streaming pass through
+  `scan(on_record=...)`, the profile built by `report_profile.py`, profile
+  format revision 3. The analysis settings of the report moved to the `scan`
+  object of configuration files; former keys are rejected with their new
+  location, and a top-level `csv` that differs from `scan.csv` is an error.
+  Date columns are `date` with a new `ambiguous_dates` issue, ambiguity is
+  never resolved from column evidence (the report shows it), semantic types
+  are the scan's primary interpretations, sensitive values are masked in
+  examples and the preview, and limited measures and excluded records have
+  their own issues. Parity tests compare both demos with the pandas engine,
+  kept until lot 5c. Fixed the overview link of the `trimmed_cells` issue.
 - Fixed `*.sample.csv` permissions on Linux and macOS: samples written through a
   temporary file were readable by their owner only; they now follow the umask
   like scan outputs, through a shared `apply_default_file_mode` helper.

@@ -1,10 +1,10 @@
 ---
 title: Tabalyst documentation
-description: Tabalyst is an open-source, local-first toolkit that turns a CSV file into an interactive HTML report and a JSON profile.
+description: Tabalyst is an open-source, local-first toolkit that turns a CSV or JSON file into an interactive HTML report and a JSON profile.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
-data. Its first tool, **Tabalyst Report**, analyzes a CSV file and produces an
+data. Its first tool, **Tabalyst Report**, analyzes a CSV or JSON file and produces an
 interactive HTML report and a structured JSON profile.
 
 ```console
@@ -28,6 +28,8 @@ documentation describes the latest release published on PyPI.
 - [Create your first report](tutorials/first-report.md) from a small CSV file.
 - [Sample CSV files](how-to/sample-csv.md) with first, last, random or
   stratified selection.
+- [Report JSON files](how-to/report-json-files.md), one view per collection
+  of records.
 - [Scan CSV and JSON files](how-to/scan-files.md) into a complete JSON
   description of every field.
 

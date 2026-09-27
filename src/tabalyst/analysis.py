@@ -1,4 +1,9 @@
-"""Pure column and dataset analysis. Raw cells are never rewritten."""
+"""Pandas engine: column and dataset analysis, removed in Scan lot 5c.
+
+The report is built on Tabalyst Scan (``report_profile.py``); this engine
+remains for ``analyze_column`` and the parity tests of lot 5a. Raw cells are
+never rewritten.
+"""
 
 import math
 import random
@@ -6,13 +11,14 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from itertools import combinations, islice
+from itertools import islice
+from pathlib import Path
 
 import pandas as pd
 
 from tabalyst.config import AnalysisConfig
-from tabalyst.ingestion import CsvDataset
-from tabalyst.models import (
+from tabalyst.ingestion import CsvDataset, read_csv
+from tabalyst.legacy_models import (
     ColumnProfile,
     DatasetDateColumnSummary,
     DatasetDateSummary,
@@ -32,16 +38,13 @@ from tabalyst.models import (
     ValueOccurrence,
     ValueProfile,
 )
+from tabalyst.report_profile import percent, select_diverse_values
 
 INTEGER = re.compile(r"[+-]?(?:0|[1-9][0-9]*)")
 NUMBER = re.compile(
     r"[+-]?(?:(?:0|[1-9][0-9]*)(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
 )
 INTERNAL_HORIZONTAL_WHITESPACE = re.compile(r"[^\S\r\n]+")
-
-
-def percent(count: int, total: int) -> float:
-    return round(100 * count / total, 2) if total else 0.0
 
 
 def value_type(value: str) -> str:
@@ -451,61 +454,6 @@ def build_string_profile(
     )
 
 
-def normalized_edit_distance(left: str, right: str) -> float:
-    """Return Levenshtein distance normalized to the longer string."""
-    if left == right:
-        return 0.0
-    if not left or not right:
-        return 1.0
-    if len(left) < len(right):
-        left, right = right, left
-    previous = list(range(len(right) + 1))
-    for row, left_char in enumerate(left, start=1):
-        current = [row]
-        for column, right_char in enumerate(right, start=1):
-            current.append(
-                min(
-                    current[-1] + 1,
-                    previous[column] + 1,
-                    previous[column - 1] + (left_char != right_char),
-                )
-            )
-        previous = current
-    return previous[-1] / max(len(left), len(right))
-
-
-def select_diverse_values(values: list[str], limit: int) -> list[str]:
-    """Select a deterministic farthest-first subset from sampled short strings."""
-    if len(values) <= limit:
-        return values
-    if limit == 1:
-        return values[:1]
-    distances: dict[tuple[int, int], float] = {}
-
-    def distance(left: int, right: int) -> float:
-        pair = (min(left, right), max(left, right))
-        if pair not in distances:
-            distances[pair] = normalized_edit_distance(values[left], values[right])
-        return distances[pair]
-
-    first, second = max(
-        combinations(range(len(values)), 2), key=lambda pair: distance(*pair)
-    )
-    selected = [first, second]
-    remaining = set(range(len(values))) - set(selected)
-    while len(selected) < limit and remaining:
-        next_index = max(
-            remaining,
-            key=lambda candidate: (
-                min(distance(candidate, chosen) for chosen in selected),
-                -candidate,
-            ),
-        )
-        selected.append(next_index)
-        remaining.remove(next_index)
-    return [values[index] for index in selected]
-
-
 def build_value_profile(
     frequencies: list[tuple[str, int]],
     *,
@@ -881,3 +829,11 @@ def analyze_dataset(dataset: CsvDataset, config: AnalysisConfig) -> DatasetProfi
             )
         ],
     )
+
+
+def analyze_csv_file(
+    path: str | Path, config: AnalysisConfig | None = None
+) -> DatasetProfile:
+    """Read and analyze one CSV with the pandas engine (profile revision 2)."""
+    config = config or AnalysisConfig()
+    return analyze_dataset(read_csv(Path(path), config.csv), config)

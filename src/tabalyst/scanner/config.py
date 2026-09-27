@@ -457,6 +457,20 @@ def resolve_scan_config(
     replace.
     """
     _, settings = load_config_layers(paths)
+    return scan_config_from_layer(
+        settings, delimiter=delimiter, encoding=encoding, collections=collections
+    )
+
+
+def scan_config_from_layer(
+    settings: dict,
+    *,
+    delimiter: str | None = None,
+    encoding: str | None = None,
+    collections: Sequence[str] | None = None,
+) -> ScanConfig:
+    """The scan configuration of merged ``scan`` settings plus explicit
+    options (``resolve_scan_config`` without reading files)."""
     options: dict = {}
     if delimiter is not None:
         options.setdefault("csv", {})["delimiter"] = delimiter

@@ -40,11 +40,24 @@
   };
   $$('a[href^="#"]').forEach((a) => a.addEventListener('click', () => openSection(a.getAttribute('href').slice(1))));
 
+  /* datasets: one view each, the selector shows one at a time */
+  let links = [];
+  let byId = {};
+  let panels = [];
+  const showDataset = (n) => {
+    $$('.ds, .rep-nav').forEach((el) => { el.hidden = el.dataset.ds !== String(n); });
+    const nav = $('.rep-nav[data-ds="' + n + '"]');
+    const view = $('.ds[data-ds="' + n + '"]');
+    links = nav ? $$('.rep-tab', nav) : [];
+    byId = Object.fromEntries(links.map((a) => [a.getAttribute('href').slice(1), a]));
+    panels = view ? $$('.panel', view) : [];
+  };
+  const dsSelect = $('#ds-select');
+  dsSelect && dsSelect.addEventListener('change', () => { showDataset(dsSelect.value); window.scrollTo(0, 0); spy(); });
+
   /* scroll spy */
-  const links = $$('.rep-tab');
-  const byId = Object.fromEntries(links.map((a) => [a.getAttribute('href').slice(1), a]));
-  const panels = $$('.panel');
   const spy = () => {
+    if (!panels.length) return;
     const y = window.innerHeight * 0.3;
     let cur = panels[0];
     for (const p of panels) if (p.getBoundingClientRect().top <= y) cur = p;
@@ -63,6 +76,7 @@
   let ticking = false;
   window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { spy(); ticking = false; }); } }, { passive: true });
   window.addEventListener('resize', spy);
+  showDataset(dsSelect ? dsSelect.value : 0);
   spy();
 
   /* ===== interactive tables: sort + filter per column, hover popups ===== */
