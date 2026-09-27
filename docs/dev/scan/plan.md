@@ -21,7 +21,7 @@ regenerated, documentation consistent with what is released.
 | 4 | `tabalyst scan` command, configuration layers, documentation | Done | Sonnet 5 | Medium | `scan/phase-4` |
 | 4-fr | French translation of the lot 4 documentation | Done | Sonnet 5 | Low | `scan/phase-4-fr` |
 | 5a | Report built on Scan, parity on the demos | Done | Opus 5.5 | High | `scan/phase-5` |
-| 5a-fr | French translation of the lot 5a documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
+| 5a-fr | French translation of the lot 5a documentation | Done | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 5b | JSON sources and new sections in the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Planned | Sonnet 5 | High | `scan/phase-5` |
 | 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
@@ -248,6 +248,12 @@ benchmarks.md.
   `reference/known-limitations`, and translate `reference/json-profile` and
   `reference/profile-format-changelog` if the maintainer wants them. Can run
   in parallel with lot 5b.
+- Done on 2026-09-27, branch `scan/phase-5-fr`: `reference/configuration`,
+  `reference/glossary` and `reference/known-limitations` synchronized with the
+  current English pages, which also include the lot 5b changes (JSON reports).
+  `configuration.md` keeps explicit anchors `scan-settings` and
+  `how-the-report-uses-the-scan-settings`. `json-profile` (revision 4) and
+  `profile-format-changelog` translated in full.
 
 ### Lot 5b: JSON sources and new report sections
 

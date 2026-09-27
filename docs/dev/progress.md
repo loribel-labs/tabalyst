@@ -2,6 +2,9 @@
 
 ## 2026-09-27
 
+- French documentation for lots 5a and 5b (lot 5a-fr): configuration, glossary
+  and known limitations follow the report built on Tabalyst Scan; the JSON
+  profile and the profile format changelog are translated.
 - Reports of JSON files and a detectors section (Tabalyst Scan lot 5b):
   `tabalyst report data.json` writes `data.report.html` and
   `data.report.json`, one view per dataset with a dataset selector, JSON
