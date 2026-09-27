@@ -2,6 +2,9 @@
 
 ## 2026-09-27
 
+- Fixed `*.sample.csv` permissions on Linux and macOS: samples written through a
+  temporary file were readable by their owner only; they now follow the umask
+  like scan outputs, through a shared `apply_default_file_mode` helper.
 - Translated the lot 4 documentation to French (Tabalyst Scan lot 4-fr):
   `docs/fr/` now holds the index, how-to scan, configuration, glossary,
   known limitations, scan format and scan format changelog pages.
