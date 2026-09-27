@@ -2,6 +2,17 @@
 
 ## 2026-09-27
 
+- Added the Tabalyst Scan `uuid` and `ip_address` detectors (lot 3b, UUID
+  and IP address family), which complete lot 3b. `uuid` recognizes the
+  hyphenated, braced and `urn:uuid:` forms, formats such as `hyphenated` and
+  `braced_upper`, and counts versions (`4`, `7`, `nil`, `other`) without
+  validating them; not sensitive. `ip_address` recognizes dotted-decimal
+  IPv4 and the IPv6 text forms (compressed, with an embedded IPv4 address),
+  with `invalid` reasons such as `invalid_octet` and `invalid_compression`,
+  a narrow IPv6 candidate so that times and MAC addresses are never invalid,
+  and a `versions` setting; sensitive, so its fields are masked by default.
+  No value of the demos matches; the 100,000-row benchmark file scans about
+  5 to 8% slower.
 - Added the Tabalyst Scan `currency`, `percentage` and `quantity` detectors
   (lot 3b, currency and percentage family, extended to generic quantities):
   amounts with a currency symbol or ISO 4217 code before or after the number
