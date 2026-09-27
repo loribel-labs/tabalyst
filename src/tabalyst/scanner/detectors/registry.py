@@ -24,6 +24,7 @@ from tabalyst.scanner.detectors.email import EmailDetector
 from tabalyst.scanner.detectors.enumeration import EnumerationDetector
 from tabalyst.scanner.detectors.number import NumberDetector, is_integer_format
 from tabalyst.scanner.detectors.pattern import pattern_detector
+from tabalyst.scanner.detectors.phone import PhoneDetector
 from tabalyst.scanner.detectors.shape import shape
 from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.detectors.url import UrlDetector
@@ -52,6 +53,7 @@ BUILT_INS: tuple[type[Detector], ...] = (
     EnumerationDetector,
     EmailDetector,
     UrlDetector,
+    PhoneDetector,
 )
 _NATIVE_SCALARS = ("string", "integer", "number", "boolean")
 _NO_VALUES = NotApplicable(reason="no_values")

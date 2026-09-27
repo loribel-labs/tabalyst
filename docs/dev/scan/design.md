@@ -727,7 +727,7 @@ class DetectorAccumulator:
   exception type, never its message, which could quote a value.
 - `DetectorRegistry` holds detector classes by `id`, in registration order.
   `default_registry()` returns a fresh registry with the built-ins `number`,
-  `date`, `boolean`, `enumeration`, `email` and `url`; `register(cls)` adds one and rejects
+  `date`, `boolean`, `enumeration`, `email`, `url` and `phone`; `register(cls)` adds one and rejects
   a duplicate id. External plugin loading is deferred (O21). Declarative
   patterns (12.7) follow the registry's detectors, in configuration order.
 - Configuration: `detectors.<id>` holds `enabled` and detector parameters
@@ -1015,7 +1015,8 @@ around it.
       "email": {"enabled": true, "max_tracked_domains": 10000,
                 "max_listed_domains": 20},
       "url": {"enabled": true, "schemes": ["http", "https", "ftp"],
-              "www": true, "max_tracked_hosts": 10000, "max_listed_hosts": 20}
+              "www": true, "max_tracked_hosts": 10000, "max_listed_hosts": 20},
+      "phone": {"enabled": true, "regions": ["nanp", "fr"]}
     },
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -1051,7 +1052,8 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
   "format_revision": 1,
   "engine": {"version": "0.4.0", "normalization_version": 1,
              "detectors": {"number": 1, "date": 1, "boolean": 1,
-                           "enumeration": 1, "email": 1, "url": 1}},
+                           "enumeration": 1, "email": 1, "url": 1,
+                           "phone": 1}},
   "status": "complete",
   "started_at": "2026-09-26T22:00:00Z",
   "duration_seconds": 0.012,
@@ -1156,3 +1158,4 @@ input.
 | 2026-09-26 | 3a | Sections 9.4 to 9.7: numeric population from the number detector; `temporal` layout; technical type families, `null` confidence for `empty`, `null` outside count for `mixed`. Section 12: the engine keeps coverage, formats and evidence, the accumulator produces `details`; `convention`, `scope`, `max_input_length` and `shapes`; failures keep the exception type only; every registered detector listed with its status; four evidence keys; candidate layout; shapes optional; ambiguity counts include resolved values; new 12.10 with the built-in detectors. Section 15: `detectors` settings. | Details the contract did not settle. The strict number rule keeps precedence so lot 2a results are unchanged; exception messages could leak sensitive values; the shape signature cost more than it saved for the built-ins. To validate at gate 3. |
 | 2026-09-26 | 3b | Section 12.1: `details` receives the exposure gate; patterns follow the registry. Section 12.7: `pattern:` ids, collision with a registered detector, family, formats and details. Section 12.8: a failed sensitive detector makes the field sensitive; masks merge before listings are selected; `hide` empties listings and nulls `first` and `last`; `numeric` and `temporal` disabled under `mask` and `hide`; `exposure` field. Section 12.10 moved to `detectors.md`. | Details the contract did not settle: merging only the listed values would give wrong counts, a detector that failed cannot prove the field holds no sensitive value, and a minimum or a date range is a value (found in review). Maintainer decision. |
 | 2026-09-26 | 3b | Sections 12.1, 15 and 16.1: built-in `email` and `url` detectors, enabled by default, with their settings; their specifications and the shared counted names block of `details` are in `detectors.md`. | Priority 1 catalogue, email and URL family. |
+| 2026-09-26 | 3b | Sections 12.1, 15 and 16.1: built-in `phone` detector (regions `nanp` and `fr`), enabled by default, with its `regions` setting; its specification is in `detectors.md`. | Priority 1 catalogue, phone family. |

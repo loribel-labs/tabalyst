@@ -72,6 +72,13 @@
   fields sensitive and masked by default. The 12 mistyped addresses of the
   insurance demo are reported as invalid. The 100,000-row benchmark file
   scans about 8% slower.
+- Added the Tabalyst Scan `phone` detector (lot 3b, phone family): North
+  American (`nanp`, Canada and the United States) and French (`fr`) numbers in
+  national and international forms, format templates such as
+  `(999) 999-9999`, `invalid` reasons for area, exchange, trunk and leading
+  digits, digit-only values never invalid, region counts in `details`, phone
+  fields sensitive and masked by default. Every phone of the insurance demo
+  matches. The 100,000-row benchmark file scans about 8% slower.
 
 ## 2026-09-17
 
