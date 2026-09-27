@@ -298,3 +298,71 @@ block. Only `matched` values count.
   `http://example.com/%zz`, `http://-example.com`, `http://999.1.1.1`,
   `http://example.com/{id}`; not matched `example.com`, `mailto:x@y.z`,
   `file:///tmp/x`, `javascript:alert(1)`, `www.jane@example.com`, `wwwexample`.
+
+### `phone` (family `contact`, version 1)
+
+Phone numbers of the North American Numbering Plan (region `nanp`: Canada,
+the United States and the other NANP countries, which syntax cannot tell
+apart) and of France (region `fr`). Numbers of other countries are
+`not_matched`: the detector covers its regions, not every phone number.
+
+- Accepts: strings; no input cap and no shapes: a value shorter than 10 or
+  longer than 22 characters (the shortest and longest accepted forms,
+  `0612345678` and `0033 (0) 6 12 34 56 78`), or
+  whose first character is not `+`, `(` or a digit, or whose last character
+  is not a digit, or that does not have 10 to 14 ASCII digits once spaces,
+  `.`, `-`, `(`, `)` and `+` are removed, is rejected first. The rejection is
+  exact, so it is `not_matched`, not `not_tested`.
+- Formats: the value with every digit of the number replaced by `9`, keeping
+  the country code, the international prefix and the trunk prefix as written
+  (`(999) 999-9999`, `+1-999-999-9999`, `1 999 999 9999`, `9999999999`,
+  `09 99 99 99 99`, `+33 9 99 99 99 99`, `+33 (0)9 99 99 99 99`,
+  `0033999999999`). Separators are U+0020, `-` and `.`; line breaks and other
+  characters are not accepted.
+  - `nanp`: an optional `+1` or trunk prefix `1`, optionally followed by one
+    separator; a three-digit area code, either between parentheses followed by
+    an optional space, or followed by an optional separator; a three-digit
+    exchange code, an optional separator and four digits. Separators may
+    differ (`(514) 555-0100`).
+  - `fr`, national: `0` and nine digits, either bare or as five pairs with one
+    separator used throughout (`06 12 34 56 78`, `06.12.34.56.78`).
+  - `fr`, international: `+33` or `0033`, an optional separator, an optional
+    `(0)` with an optional space, then nine digits, either bare or as one digit and four pairs with
+    one separator used throughout (`+33 6 12 34 56 78`).
+- Normalization: the analytical value (runs of whitespace are already one
+  space).
+- Validation: a value that has one of the forms above is a candidate; other
+  values are `not_matched`. A candidate is `invalid` with the reason of the
+  first failed check:
+  - `invalid_area_code` (`nanp`): the area code starts with `0` or `1`;
+  - `invalid_exchange_code` (`nanp`): the exchange code starts with `0` or
+    `1`;
+  - `invalid_trunk_prefix` (`fr`): the international form is followed by a
+    national number with its trunk `0` outside parentheses
+    (`+33 06 12 34 56 78`);
+  - `invalid_leading_digit` (`fr`): the digit after the trunk `0` or the
+    country code is `0`.
+
+  A value made of digits only carries no phone syntax: it is `matched` when
+  valid and `not_matched` otherwise, never `invalid`, so that columns of
+  numeric identifiers are not reported as invalid phones. N11 service codes,
+  unassigned area codes and extensions (`x123`) are not checked or accepted
+  in version 1. The regions' forms never overlap, so no value is ambiguous.
+- Details: `regions`, the matched count per enabled region, such as
+  `{"fr": 2, "nanp": 10}`, ordered by region. Counts carry no value.
+- Settings: `regions` (default `["nanp", "fr"]`, unique, at least one).
+- Overlaps: `number` matches bare NANP numbers (`5145550100`,
+  `15145550100`, `+15145550100`) as integers, so such columns list both
+  interpretations and have no primary; French bare numbers start with `0`,
+  which `number` rejects. `date` never matches (`2026-09-26` has 8 digits);
+  `email` and `url` never match (first character); `enumeration` and patterns
+  may.
+- Sensitive: yes, a phone number identifies a person.
+- Test values: `(514) 555-0100`, `514-555-0100`, `514.555.0100`,
+  `+1 514 555 0100`, `+1-468-555-0110`, `1-800-555-0199`, `5145550100`,
+  `06 12 34 56 78`, `01.23.45.67.89`, `0612345678`, `+33 6 12 34 56 78`,
+  `+33 (0)6 12 34 56 78`, `+33612345678`, `0033 1 23 45 67 89`; invalid
+  `123-456-7890` (area code), `514-055-0100` (exchange code),
+  `+33 06 12 34 56 78` (trunk prefix), `00 12 34 56 78` (leading digit); not
+  matched `1234567890`, `555-0100`, `+44 20 7946 0958`, `06 12 34 56 7`,
+  `06-12 34-56-78`, `514-555-0100 x12`, `192.168.100.200`, `2026-09-26`.

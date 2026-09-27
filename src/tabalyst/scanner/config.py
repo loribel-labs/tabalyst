@@ -257,6 +257,26 @@ class UrlSettings(_Settings):
         return values
 
 
+PhoneRegion = Literal["nanp", "fr"]
+
+
+class PhoneSettings(_Settings):
+    """``nanp``: Canada, the United States and the other NANP countries;
+    ``fr``: France."""
+
+    enabled: bool = True
+    regions: list[PhoneRegion] = Field(
+        default_factory=lambda: ["nanp", "fr"], min_length=1
+    )
+
+    @field_validator("regions")
+    @classmethod
+    def unique_regions(cls, values: list[str]) -> list[str]:
+        if len(set(values)) != len(values):
+            raise ValueError("Phone regions must be unique")
+        return values
+
+
 class DetectorSettings(_Settings):
     number: NumberSettings = Field(default_factory=NumberSettings)
     date: DateSettings = Field(default_factory=DateSettings)
@@ -264,6 +284,7 @@ class DetectorSettings(_Settings):
     enumeration: EnumerationSettings = Field(default_factory=EnumerationSettings)
     email: EmailSettings = Field(default_factory=EmailSettings)
     url: UrlSettings = Field(default_factory=UrlSettings)
+    phone: PhoneSettings = Field(default_factory=PhoneSettings)
 
 
 class PatternSettings(_Settings):
