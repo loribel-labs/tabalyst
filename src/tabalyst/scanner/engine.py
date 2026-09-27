@@ -10,6 +10,7 @@ from collections import Counter
 from collections.abc import Iterable
 
 from tabalyst.scanner.config import ScanConfig
+from tabalyst.scanner.detectors.registry import DetectorSet
 from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.field import StringClassifier
 from tabalyst.scanner.models import DatasetResult, FieldResult
@@ -41,14 +42,12 @@ def _has_limited_measure(field: FieldResult) -> bool:
 
 
 class ScanEngine:
-    def __init__(self, config: ScanConfig) -> None:
+    def __init__(self, config: ScanConfig, detectors: DetectorSet) -> None:
         self.config = config
         self.strings = StringClassifier(
             config.values.null_markers, config.values.null_markers_case_sensitive
         )
-        self.values = ValueContext(
-            config.limits, config.normalization, config.random_seed
-        )
+        self.values = ValueContext(config, detectors)
         self.diagnostics = DiagnosticCollector(config.errors.max_locations)
         self.datasets: dict[str, DatasetState] = {}
         self.records_analyzed = 0
@@ -100,7 +99,10 @@ class ScanEngine:
         return self.exclusions.total()
 
     def finalize(self) -> list[DatasetResult]:
-        results = [state.finalize(self.config) for state in self.datasets.values()]
+        results = [
+            state.finalize(self.config, self.diagnostics)
+            for state in self.datasets.values()
+        ]
         limits = self.config.limits
         for state in self.datasets.values():
             if state.paths_limited:

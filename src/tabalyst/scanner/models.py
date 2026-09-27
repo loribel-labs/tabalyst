@@ -261,6 +261,131 @@ class Normalization(ScanModel):
     variant_groups: measure(VariantGroups)
 
 
+TemporalKindName = Literal["date", "datetime_naive", "datetime_aware", "time"]
+
+
+class YearCount(ScanModel):
+    year: int
+    count: int
+
+
+class TemporalKind(ScanModel):
+    """Values of one kind; ``min`` and ``max`` are ISO strings. Aware values
+    compare as instants; naive and aware values are never compared."""
+
+    kind: TemporalKindName
+    count: int
+    min: str
+    max: str
+    years: list[YearCount] | None
+
+
+class TemporalStats(ScanModel):
+    """Temporal values of the date detector; ``ambiguous`` values are counted
+    and excluded (design 9.6)."""
+
+    count: int
+    ambiguous: int
+    kinds: list[TemporalKind]
+
+
+TechnicalTypeName = Literal[
+    "integer", "number", "date", "boolean", "text", "mixed", "empty"
+]
+
+
+class TechnicalType(ScanModel):
+    """Port of the current type inference (design 9.7): ``confidence`` is the
+    accepted share, ``null`` without values; ``outside_count`` is ``null`` for
+    ``mixed``."""
+
+    type: TechnicalTypeName
+    confidence: float | None
+    counts: dict[str, int]
+    outside_count: int | None
+
+
+class Coverage(ScanModel):
+    """Design 12.2: ``tested = eligible - not_tested`` and ``tested = matched +
+    ambiguous + invalid + not_matched``. ``share_tested`` is ``null`` when no
+    value was tested."""
+
+    eligible: int
+    tested: int
+    matched: int
+    ambiguous: int
+    invalid: int
+    not_matched: int
+    not_tested: int
+    share_tested: float | None
+    share_eligible: float
+
+
+class FormatCount(ScanModel):
+    format: str
+    count: int
+
+
+class Evidence(ScanModel):
+    """First distinct analytical values of each state, bounded by
+    ``limits.max_evidence_examples``."""
+
+    matched: list[str]
+    ambiguous: list[str]
+    invalid: list[str]
+    not_matched: list[str]
+
+
+class _Detector(ScanModel):
+    id: str
+    version: int
+
+
+class DetectorComplete(_Detector):
+    status: Literal["complete"] = "complete"
+    coverage: Coverage
+    formats: list[FormatCount]
+    evidence: Evidence
+    details: dict[str, Any]
+
+
+class DetectorNotApplicable(_Detector):
+    status: Literal["not_applicable"] = "not_applicable"
+    reason: str
+
+
+class DetectorDisabled(_Detector):
+    status: Literal["disabled"] = "disabled"
+
+
+class DetectorFailed(_Detector):
+    """A failure is never reported as values that did not match (CA19)."""
+
+    status: Literal["failed"] = "failed"
+    reason: str
+    diagnostic: int
+
+
+DetectorResult = Annotated[
+    DetectorComplete | DetectorNotApplicable | DetectorDisabled | DetectorFailed,
+    Field(discriminator="status"),
+]
+
+
+class InterpretationCandidate(ScanModel):
+    detector: str
+    matched: int
+    share_eligible: float
+
+
+class Interpretations(ScanModel):
+    """Detectors whose ``share_eligible`` reaches ``detection.minimum_share``;
+    ``primary`` only when exactly one qualifies (design 12.4)."""
+
+    primary: str | None
+    candidates: list[InterpretationCandidate]
+
+
 class FieldResult(ScanModel):
     id: str
     path: list[PathSegment]
@@ -280,7 +405,11 @@ class FieldResult(ScanModel):
     string_lengths: measure(StringLengths)
     numeric: measure(NumericStats)
     booleans: measure(BooleanCounts)
+    temporal: measure(TemporalStats)
     normalization: Normalization
+    technical_type: TechnicalType
+    detectors: list[DetectorResult]
+    interpretations: Interpretations
 
 
 # Datasets and scan ----------------------------------------------------------

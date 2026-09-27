@@ -15,7 +15,8 @@ import heapq
 import random
 from decimal import Decimal
 
-from tabalyst.scanner.config import LimitSettings, NormalizationSettings
+from tabalyst.scanner.config import ScanConfig, exact_share
+from tabalyst.scanner.detectors.registry import DetectorSet, FailureReporter
 from tabalyst.scanner.measures import (
     CHANGES,
     FORMS,
@@ -41,6 +42,7 @@ from tabalyst.scanner.models import (
     VariantGroups,
 )
 from tabalyst.scanner.normalization import KEY_STAGE, STAGES, VERSION, Normalizer
+from tabalyst.scanner.technical import technical_type
 
 # Streaming memoization: cleared when full, so memory stays bounded.
 CACHE_SIZE = 4_096
@@ -53,13 +55,15 @@ Key = str | tuple[str, object]
 
 
 class ValueContext:
-    """Settings and the global budget shared by every field of a scan.
+    """Settings, detectors and the global budget shared by every field of a
+    scan.
 
     ``discovered`` numbers fields in order of discovery across datasets.
     """
 
     __slots__ = (
         "budget",
+        "detectors",
         "discovered",
         "max_distinct",
         "max_listed",
@@ -67,21 +71,23 @@ class ValueContext:
         "max_stored_length",
         "max_variant_groups",
         "max_variants",
+        "minimum_confidence",
         "normalizer",
         "seed",
     )
 
-    def __init__(
-        self, limits: LimitSettings, normalization: NormalizationSettings, seed: int
-    ) -> None:
-        self.normalizer = Normalizer(normalization)
+    def __init__(self, config: ScanConfig, detectors: DetectorSet) -> None:
+        limits = config.limits
+        self.normalizer = Normalizer(config.normalization)
+        self.detectors = detectors
+        self.minimum_confidence = exact_share(config.types.minimum_confidence)
         self.max_distinct = limits.max_distinct_per_field
         self.max_stored_length = limits.max_stored_value_length
         self.max_listed = limits.max_listed_frequencies
         self.max_samples = limits.max_samples
         self.max_variant_groups = limits.max_variant_groups
         self.max_variants = limits.max_variants_per_group
-        self.seed = seed
+        self.seed = config.random_seed
         self.budget = ValueBudget(limits.max_tracked_values)
         self.discovered = 0
 
@@ -140,7 +146,7 @@ class ValueTracker:
         self.table: dict[Key, int] | None = {}
         self.distinct = 0
         self.limited: Limited | None = None
-        self.measures = ValueMeasures()
+        self.measures = ValueMeasures(context.detectors.tallies())
         # First distinct analytical values with their counts, once released.
         self.samples: dict[tuple[str, str], int] | None = None
         self.cache: dict[Key, Facts] = {}
@@ -207,12 +213,13 @@ class ValueTracker:
             self._process(self._facts(key), count)
 
     def _facts(self, key: Key) -> Facts:
+        context = self.context
         if type(key) is str:
-            return string_facts(key, self.context.normalizer)
+            return string_facts(key, context.normalizer, context.detectors)
         native_type, form = key
         if native_type == "number":
             form = Decimal(form)
-        return scalar_facts(native_type, form)
+        return scalar_facts(native_type, form, context.detectors)
 
     def _process(self, facts: Facts, count: int) -> None:
         """Account for ``count`` occurrences once the table is released."""
@@ -238,7 +245,7 @@ class ValueTracker:
             facts = self._facts(key)
             if facts[FORMS] is not None:
                 # Stage outputs serve complete tables only: do not cache them.
-                facts = (*facts[:FORMS], None)
+                facts = (*facts[:FORMS], None, *facts[FORMS + 1 :])
             cache[key] = facts
         self._process(facts, 1)
 
@@ -251,7 +258,7 @@ class ValueTracker:
             text = canonical_text(native_type, value)
         return ValueAt(value=text, type=native_type, record=record)
 
-    def finalize(self) -> dict:
+    def finalize(self, report_failure: FailureReporter) -> dict:
         context = self.context
         table = self.table
         measures = self.measures
@@ -303,6 +310,8 @@ class ValueTracker:
             )
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             variant_groups = unproven if measures.lengths else _NO_VALUES
+        detectors = context.detectors
+        results = detectors.results(measures.tallies, report_failure)
         return {
             "cardinality": cardinality,
             "frequencies": frequencies,
@@ -319,6 +328,7 @@ class ValueTracker:
                 if self.true or self.false
                 else _NO_VALUES
             ),
+            "temporal": detectors.temporal(measures.tallies, results),
             "normalization": _normalization(
                 context.normalizer,
                 cardinality,
@@ -326,6 +336,11 @@ class ValueTracker:
                 stage_cardinality,
                 variant_groups,
             ),
+            "technical_type": technical_type(
+                measures.families, context.minimum_confidence
+            ),
+            "detectors": results,
+            "interpretations": detectors.interpretations(results),
         }
 
 
@@ -459,6 +474,8 @@ def _samples(analytical: dict[tuple[str, str], int], size: int, seed: int) -> Sa
 
 def no_values(context: ValueContext) -> dict:
     """Value blocks of a field without analyzable values (design 9.9)."""
+    detectors = context.detectors
+    results = detectors.results(None, _no_failure)
     return {
         "cardinality": _NO_VALUES,
         "frequencies": _NO_VALUES,
@@ -469,6 +486,7 @@ def no_values(context: ValueContext) -> dict:
         "string_lengths": _NO_VALUES,
         "numeric": _NO_VALUES,
         "booleans": _NO_VALUES,
+        "temporal": detectors.temporal(None, results),
         "normalization": _normalization(
             context.normalizer,
             _NO_VALUES,
@@ -476,4 +494,11 @@ def no_values(context: ValueContext) -> dict:
             dict.fromkeys(range(len(STAGES)), _NO_VALUES),
             _NO_VALUES,
         ),
+        "technical_type": technical_type({}, context.minimum_confidence),
+        "detectors": results,
+        "interpretations": detectors.interpretations(results),
     }
+
+
+def _no_failure(detector: str, error: str) -> int:
+    raise AssertionError("A detector without values cannot fail")
