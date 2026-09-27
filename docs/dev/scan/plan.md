@@ -181,8 +181,10 @@ benchmarks.md.
   recorded in design section 17. The catalogue families remain; see the lot
   3b notes.
 - Email and URL family done on 2026-09-26: `email` and `url` built-ins,
-  enabled by default; `tests/test_scanner_email_url.py`. Remaining families:
-  phone (CA, US, FR); postal codes (CA, US ZIP); currency and percentage;
+  enabled by default; `tests/test_scanner_email_url.py`.
+- Phone family done on 2026-09-26: `phone` built-in (regions `nanp` for CA
+  and US, `fr`), enabled by default; `tests/test_scanner_phone.py`.
+  Remaining families: postal codes (CA, US ZIP); currency and percentage;
   UUID and IP addresses.
 
 ### Lot 4: `tabalyst scan` command, configuration layers, documentation
@@ -385,6 +387,28 @@ done, and anything the next lot must know.
     useless; exempting them would amend design 12.8. `url` is not sensitive
     although query strings may carry tokens. URLs with `{`, `|` or spaces are
     `invalid` (strict RFC 3986).
+- Lot 3b, phone session, for the other catalogue sessions and the
+  maintainer:
+  - Canada and the United States share one numbering plan that syntax cannot
+    tell apart, so they form one region, `nanp`; numbers of other countries
+    are `not_matched`, not `invalid`.
+  - A value made of digits only is `matched` when valid and `not_matched`
+    otherwise, never `invalid`, so that numeric identifier columns are not
+    reported as invalid phones. Postal and ZIP codes face the same question
+    (`12345` in an identifier column).
+  - The detector has no `max_input_length`: values outside the length and
+    digit-count bounds of the accepted forms are rejected exactly as
+    `not_matched`, since `not_tested` would claim that long text values might
+    be phones. A detector whose accepted forms have a short maximum length
+    should do the same.
+  - Cost: `classify` over the 925,549 distinct values of the 100,000-row
+    benchmark file takes about 0.45 s; the whole scan is about 8% slower
+    with values shown, a little more under `mask` since the benchmark
+    `phone` column becomes sensitive. A no-op detector alone costs about 3%
+    (per-detector tally work, lot 3a note for lot 6).
+  - Bare NANP numbers (`5145550100`) are also integers for `number`, so such
+    columns have no primary interpretation; under `mask` their `numeric`
+    block is `disabled` since the field is sensitive.
 - Lot 3b, still open: the O13 point of lot 3a (detectors added with
   `register()` cannot be configured) is not needed by patterns, which have
   their own `patterns` section; it stays for the catalogue or lot 7.
