@@ -29,6 +29,8 @@ regenerated, documentation consistent with what is released.
 | 5d-fr | French translation of the lot 5d documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 6 | Measure, set targets, optimize | In progress | Opus 5.5 | High | `scan/phase-6` |
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
+| 7.storage | Project storage design: identity, `project.json`, cache boundary | Done | Sonnet 5 | High | `scan/phase-7-storage` |
+| 7.storage-a | Project identity, storage root, `project.json`, `projects/index.json` | Done | Sonnet 5 | High | `scan/phase-7-storage` |
 
 Status values: Planned, Next, In progress, Done, Blocked. The session that
 works on a lot updates this table.
@@ -350,6 +352,47 @@ One conversation per topic, each starting with a short design addition:
 catalogue waves 2 to 5 and profiles (Sonnet 5, medium); Excel, XML, database
 and API readers, exact quantiles, parallel execution and plugins (Opus 5.5,
 high, for their design).
+
+### Lot 7.storage: project storage design
+
+- Design only, no code: [project-storage.md](project-storage.md) settles how
+  a future Explore and Transform will persist project state instead of
+  re-scanning a source, requested ahead of any implementation lot.
+- Done on 2026-09-28: storage layout shared between local and SaaS mode
+  (`workspaces/<workspace_id>/projects/<project_id>/`), `project_id`
+  generation (ULID, never derived from the source path), `workspace_id`
+  fixed to `local` in CLI mode, the `project.json` schema, the boundary
+  between project storage (`project.json`, `scan.json`, `project.duckdb`)
+  and `cache/`, and how `project.duckdb` is populated by a layer above
+  `tabalyst.scanner`, which stays untouched. Relation to the existing
+  staleness rule (O12, `scan_reuse.py`) clarified: same comparison logic,
+  reused rather than duplicated, resolved from `project.json`'s stored path
+  instead of "beside the document". Decisions in project-storage.md section
+  1 (S01 to S09).
+- Explicitly deferred (project-storage.md section 1, D01 to D05): the exact
+  `project.duckdb` table layout and how large listings beyond `scan.json`'s
+  limits are produced; storage of future Transform history; cache TTL, size
+  quotas and the `tabalyst cache` command surface; the default behavior when
+  a project's source has changed (PROJ-04); a `dataset_id` distinct from
+  `project_id`, should a project ever hold more than one source. Notes
+  below.
+
+### Lot 7.storage-a: project identity and `project.json`
+
+- First implementation lot of project-storage.md: the `tabalyst.projects`
+  package, with no CLI command and nothing exported by `tabalyst`. It does not
+  touch `tabalyst.scanner` and does not start `project.duckdb` (D01).
+- Done on 2026-09-28, the maintainer accepting `platformdirs` at the start of
+  the lot: `identity.py` (`new_project_id()`, a ULID written by hand, and
+  `is_project_id()`), `location.py` (`StorageLocation`, `local_storage_root()`
+  with `platformdirs` and the `TABALYST_HOME` override), `models.py`
+  (`ProjectDocument`, `project.json` format revision 1), `store.py` (atomic
+  writer, validated reader, listing), `index.py` (`projects/index.json`, its
+  rebuild and validated lookup) and `catalog.py` (`create_project`,
+  `open_or_create_project`, `record_scan`). Tests in
+  `tests/test_project_identity.py`, `test_project_location.py`,
+  `test_project_store.py` and `test_project_index.py` (no `lot` marker: they
+  are not scan contract tests). Notes below.
 
 ## Notes
 
@@ -822,3 +865,60 @@ done, and anything the next lot must know.
     mention rare detectors, the report uses up to 1,760 px of width,
     `--workers` is a new option of `scan` and `report`.
   - Released as 0.4.2 (`docs/dev/releases/0.4.2.md`).
+- Lot 7.storage, for its implementation lot:
+  - `platformdirs` was accepted by the maintainer in lot 7.storage-a and is
+    now a runtime dependency (`platformdirs>=4`).
+  - `scan_reuse.check_source` assumes the scan document sits beside the
+    source (`scan_path.parent / result.source.name`); the implementation lot
+    should extract its size/modification-time/SHA-256 comparison from that
+    beside-the-document lookup so project storage can reuse it with a path
+    resolved from `project.json` instead (project-storage.md section 6).
+  - The `project.duckdb` table layout, its own schema version, and how
+    SCAN-04's large listings are produced are open (D01): the first
+    implementation session should start with that detailed design rather
+    than guessing a schema while writing the loader.
+  - No default behavior is chosen yet for reopening a project whose source
+    changed (D04, PROJ-04): unlike `tabalyst report --scan`'s hard failure,
+    this is likely a per-session UX choice for Explore, not a scan-engine
+    concern.
+- Lot 7.storage-a, for the next implementation lot and the maintainer:
+  - The example `project_id` of project-storage.md section 5 was not a valid
+    ULID (it contained `U`, which Crockford base32 excludes); corrected.
+    `is_project_id()` checks the exact form and `StorageLocation.project_dir()`
+    refuses anything else, so a directory name never selects a path.
+  - Storage root: `TABALYST_HOME` overrides the platform directory (tests,
+    servers); it is added to project-storage.md section 3. `platformdirs`
+    keeps the case of the application name, so Linux uses `tabalyst` (as the
+    design says) and Windows and macOS `Tabalyst`, chosen in `location.py`.
+    The `platformdirs` handling of the Microsoft Store Python redirection of
+    `%LOCALAPPDATA%` is relied upon, not tested here.
+  - `projects/index.json` has its own format (`tabalyst.project-index`,
+    revision 1) and keys are `batch.path_key` (resolved, `normcase`d: lower
+    case with backslashes on Windows, so keys are not portable between
+    machines, which is fine for a reconstructible local file).
+    `find_project()` trusts an entry only when its `project.json` confirms the
+    path; otherwise (missing, corrupt or stale entry, missing index) it
+    rebuilds the index once from `projects/*/project.json`, so an unknown path
+    costs one listing of the workspace and writes nothing (stored paths are
+    already resolved, so keys of stored paths need no file access). Several
+    projects for one path keep the most recently created on rebuild (`created_at`,
+    then id, since ULIDs of one millisecond are not ordered); `create_project()` always
+    creates and makes its project the entry of its path. No lock (section 4).
+  - `create_project()` writes `project.json` before the index, so an
+    interrupted creation leaves at worst an unindexed project that the next
+    lookup finds; a failed first write removes its empty directory.
+    `list_projects()` skips directories whose `project.json` is missing or
+    invalid without reporting them: a `tabalyst project` diagnostic command
+    would need a reporting variant.
+  - The workspace check is duplicated on purpose: `read_project()` refuses a
+    document whose `project_id` differs from its directory name or whose
+    `workspace_id` differs from the location's (a copied file must not pass
+    for another project); `write_project()` refuses another workspace.
+  - Left for the next lots: extracting the comparison of
+    `scan_reuse.check_source` from its beside-the-document lookup (S09), the
+    layer that runs `scan()` and writes `scan.json` into the project directory
+    (`create_project()` then `record_scan()` on success), `project.duckdb` (D01,
+    which starts with its detailed design), and any CLI surface.
+  - `tabalyst-studio` follow-up: none, nothing public changed; the new runtime
+    dependency `platformdirs` matters for packaging and the release notes only
+    when a feature uses the storage.
