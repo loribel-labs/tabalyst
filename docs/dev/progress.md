@@ -2,6 +2,35 @@
 
 ## 2026-09-28
 
+- Project identity and `project.json` (Tabalyst Scan lot 7.storage-a), first
+  implementation of [project-storage.md](scan/project-storage.md): the new
+  internal package `tabalyst.projects` generates `project_id` (ULID, never
+  derived from the source path), resolves the local storage root with the new
+  dependency `platformdirs` (override `TABALYST_HOME`), defines and atomically
+  writes `project.json` (format revision 1) and keeps the reconstructible
+  `projects/index.json` lookup, which repairs itself from the project files.
+  No CLI command, `tabalyst.scanner` untouched, `project.duckdb` not started.
+  The example `project_id` of the design was not a valid ULID and is
+  corrected. Tests in `tests/test_project_*.py`.
+- Project storage design (Tabalyst Scan lot 7.storage), design only, no code:
+  [docs/dev/scan/project-storage.md](scan/project-storage.md) settles how a
+  future Explore and Transform will persist project state instead of
+  re-scanning a source, ahead of any implementation. Storage layout shared
+  between local and SaaS mode, `project_id` generation independent of the
+  source path, `workspace_id` fixed to `local` in CLI mode, the
+  `project.json` schema, the boundary between project storage (`project.json`,
+  `scan.json`, `project.duckdb`) and `cache/`, and how `project.duckdb` is
+  populated by a layer above `tabalyst.scanner`, which stays untouched.
+  DuckDB table layout, cache policy, Transform history storage and the
+  default behavior on a stale project are left explicitly open.
+- Report table filters: the name search and segmented buttons of the Columns
+  table are now generic (`data-search` / `data-seg` toolbar controls, rows
+  carry `data-name` / `data-flags`) and added to Transformations (All / With
+  transform), Variant groups (search, and the subsection can be collapsed),
+  Date analysis (All / Mixed), String analysis (All / Fixed / Not fixed, and
+  All / Enum) and Detectors and formats (search). Detector format chips keep
+  their display and gain a hover tooltip listing every format with count and
+  percentage. Demos regenerated; the filters were checked in the browser.
 - Prepared Tabalyst `0.4.2` with faster scans of large files, worker
   processes, rare detectors, less horizontal scrolling in wide reports, scan
   format revision 4 and profile format revision 8.

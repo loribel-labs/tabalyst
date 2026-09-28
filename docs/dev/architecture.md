@@ -43,6 +43,12 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   multi-sample execution.
 - `scan_service.py`: scan batch planning on `batch.py`, configuration layers,
   sequential scans and atomic `.scan.json` writes (`generate_scans()`).
+- `projects/`: project storage, not yet used by any command (design in
+  `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`
+  (storage root and layout), `models.py` and `store.py` (`project.json`),
+  `index.py` (`projects/index.json` lookup, rebuilt from the project files) and
+  `catalog.py` (create, find and update a project). It never imports
+  `tabalyst.scanner`.
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
