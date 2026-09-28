@@ -7,7 +7,7 @@ booleans stay in the ``booleans`` block.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -44,6 +44,14 @@ class BooleanDetector(Detector):
         if len(value) > self._longest:
             return None
         return self._words.get(value.casefold())
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        words = self._words
+        longest = self._longest
+        return [
+            words.get(value.casefold()) if len(value) <= longest else None
+            for value in values
+        ]
 
     def accumulator(self) -> BooleanAccumulator:
         return BooleanAccumulator()

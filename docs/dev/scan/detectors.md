@@ -178,6 +178,16 @@ identify people (email addresses, phone numbers) is `sensitive`, so its
 fields are masked by default; any value it carries in `details` goes through
 the exposure gate.
 
+Since lot 6, the engine classifies batches of distinct values through
+`classify_many` (design 12.1). Every built-in detector overrides it with its
+cheap exact check written as a list comprehension, calling `classify` only
+for the values the check keeps: `"@" in value` for `email`, the length for
+`postal_code` and `uuid`, first and last characters for `number`, `date`,
+`phone`, `currency`, `percentage`, `quantity` and `ip_address`, the pair
+words for `boolean`. A new detector should do the same: the check must keep
+every value that `classify` does not reject, which
+`tests/test_scanner_batches.py` verifies on a shared list of values.
+
 ### Domain names (shared by `email` and `url`)
 
 A domain name is one or more labels separated by dots. A label has 1 to 63

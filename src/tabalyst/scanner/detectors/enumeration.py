@@ -5,12 +5,14 @@ A field-level detector: its values match together when the field has at least
 ``minimum_values`` eligible values and at most ``maximum_distinct`` distinct
 analytical values (ignoring case when ``case_sensitive`` is false); otherwise
 none matches. It keeps at most ``maximum_distinct + 1`` values, so its state is
-bounded and its result does not depend on frequency tables.
+bounded and its result does not depend on frequency tables. Once it holds
+``maximum_distinct + 1`` values, the field is rejected and later values are
+only counted (``rejects_field``).
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -35,6 +37,9 @@ class EnumerationDetector(Detector):
 
     def classify(self, value: str) -> Classification:
         return _MEMBER
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification]:
+        return [_MEMBER] * len(values)
 
     def accumulator(self) -> EnumerationAccumulator:
         return EnumerationAccumulator(
@@ -61,6 +66,11 @@ class EnumerationAccumulator(DetectorAccumulator):
 
     def field_matches(self) -> bool:
         return self.values >= self.minimum and len(self.keys) <= self.maximum
+
+    def rejects_field(self) -> bool:
+        # Keys stop growing past the maximum: the field can no longer match,
+        # and ``details`` no longer changes.
+        return len(self.keys) > self.maximum
 
     def details(self, gate: ExposureGate) -> dict[str, object]:
         distinct = len(self.keys)

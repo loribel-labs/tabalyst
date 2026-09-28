@@ -8,7 +8,7 @@ written, 12 for ``12%``.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.amount import (
     NUMBER_PART,
@@ -38,6 +38,10 @@ class PercentageDetector(Detector):
         if match is None:
             return None
         return self.reader.read(match["sign"], match["body"], "", match["space"] + "%")
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [classify(value) if value[-1:] == "%" else None for value in values]
 
     def accumulator(self) -> AmountAccumulator:
         return self.reader.accumulator()

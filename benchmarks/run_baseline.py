@@ -4,7 +4,9 @@
 
 Each measurement runs in a fresh interpreter so peak memory is not inherited
 from a previous run. Results are printed as a Markdown table followed by the
-environment needed to reproduce them.
+environment needed to reproduce them. Scans may use worker processes: their
+peak memory is added to the peak of the measuring process, an upper bound of
+the memory used at once.
 """
 
 import argparse
@@ -14,13 +16,18 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from time import perf_counter
 
 TASKS = {
     "csv-read": "Stream every record with csv.reader (lower bound for a Python reader)",
     "report-engine": "Report engine: tabalyst.analyze_csv() with defaults (Scan since lot 5a)",
+    "scan": "Tabalyst Scan: tabalyst.scan() with defaults, workers for large files",
+    "scan-single": "Tabalyst Scan in one process: tabalyst.scan(workers=1)",
 }
+# Directory where scan workers record their peak memory, set by ``_child``.
+_PEAKS = "TABALYST_BENCHMARK_PEAKS"
 
 
 def _memory_bytes() -> tuple[int, int]:
@@ -62,10 +69,33 @@ def _memory_bytes() -> tuple[int, int]:
     return peak, peak
 
 
+def _record_peak() -> None:
+    """At the exit of a scan worker, record its peak memory."""
+    directory = os.environ.get(_PEAKS)
+    if directory:
+        peak = _memory_bytes()[1]
+        Path(directory, f"{os.getpid()}.peak").write_text(str(peak), encoding="ascii")
+
+
+def _count_worker_peaks() -> None:
+    """Make scan workers record their peak memory when they exit."""
+    from tabalyst.scanner import workers
+
+    workers._BOOTSTRAP = workers._BOOTSTRAP.replace(
+        "main()",
+        "import atexit, run_baseline; atexit.register(run_baseline._record_peak); main()",
+    )
+
+
 def _run_task(task: str, path: Path) -> int:
     if task == "csv-read":
         with path.open("r", encoding="utf-8-sig", newline="") as stream:
             return sum(1 for _ in csv.reader(stream, strict=True)) - 1
+    if task in ("scan", "scan-single"):
+        from tabalyst import scan
+
+        result = scan(path, workers=1 if task == "scan-single" else None)
+        return result.scope.records_analyzed
     if task == "report-engine":
         from tabalyst import analyze_csv
 
@@ -76,13 +106,18 @@ def _run_task(task: str, path: Path) -> int:
 
 
 def _child(task: str, path: Path) -> None:
-    if task == "report-engine":
+    if task != "csv-read":
         import tabalyst.service  # noqa: F401  Import cost is excluded from the timing.
+
+        _count_worker_peaks()
+    peaks = tempfile.mkdtemp()
+    os.environ[_PEAKS] = peaks
     start_memory, _ = _memory_bytes()
     started = perf_counter()
     rows = _run_task(task, path)
     seconds = perf_counter() - started
     _, peak_memory = _memory_bytes()
+    peak_memory += sum(int(item.read_text()) for item in Path(peaks).glob("*.peak"))
     print(
         json.dumps(
             {

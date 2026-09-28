@@ -18,7 +18,7 @@ spreadsheet number formats: ``0``, ``0.0``, ``0E0``, ``#,##0.0``, ``0,0``.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from decimal import Decimal
 
 from tabalyst.scanner.detectors.base import (
@@ -37,6 +37,8 @@ _CONVENTIONS = {"dot": (".", "," + _SPACES), "comma": (",", "." + _SPACES)}
 
 # Characters of every accepted value: an exact, cheap rejection.
 _CHARACTERS = re.compile("[-+.]?[0-9.][0-9.,eE+   -]*")
+# The first character of every value that ``_CHARACTERS`` accepts.
+_FIRST = frozenset("+-.0123456789")
 
 INTEGER_FORMATS = frozenset(
     {"0"} | {f"#{separator}##0" for separator in ",." + _SPACES}
@@ -149,6 +151,26 @@ class NumberDetector(Detector):
                 "matched", format=label, value=number, candidates=candidates
             )
         return Classification("ambiguous", candidates=candidates)
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        """``classify`` of each value: values that cannot start a number are
+        rejected, and strict integers of ASCII digits read, without a call."""
+        classify = self.classify
+        first = _FIRST
+        results: list[Classification | None] = []
+        append = results.append
+        for value in values:
+            if value[:1] not in first:
+                append(None)
+            elif (
+                value.isdigit()
+                and value.isascii()
+                and (value[0] != "0" or len(value) == 1)
+            ):
+                append(Classification("matched", "0", (), None, _integer(value)))
+            else:
+                append(classify(value))
+        return results
 
     def accumulator(self) -> AmbiguityAccumulator:
         resolution = (

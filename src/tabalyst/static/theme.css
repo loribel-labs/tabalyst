@@ -109,7 +109,7 @@ p.sub{font-size:12.5px;margin:0 0 10px}
 
 /* ---- main ---- */
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
-.wrap{width:min(calc(100% - 64px),1440px);margin-inline:auto}
+.wrap{width:min(calc(100% - 64px),1760px);margin-inline:auto}
 .rhead{padding:36px 0 28px;border-bottom:1px solid var(--line)}
 .rhead-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
 .eyebrow{--mk:var(--text-3);display:inline-flex;align-items:flex-end;gap:12px;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin:0 0 16px}
@@ -298,6 +298,7 @@ tr.dx[hidden]{display:none}
 .raw td.e{background:repeating-linear-gradient(135deg,transparent 0 5px,var(--line) 5px 6px)}
 .raw tbody tr:hover td{background-color:var(--s2)}
 .raw th.mixcol{box-shadow:inset 0 -2px 0 var(--orange)}
+.raw td.lst{white-space:normal;line-height:1.35;padding-block:6px}
 
 /* settings */
 .schema{display:grid;grid-template-columns:minmax(160px,220px) minmax(0,1fr);gap:0;margin:0;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
@@ -343,7 +344,7 @@ tr.dx[hidden]{display:none}
   .panel{scroll-margin-top:72px}
 }
 @media (max-width:720px){
-  .wrap{width:min(calc(100% - 32px),1440px)}
+  .wrap{width:min(calc(100% - 32px),1760px)}
   .panel{padding:18px 16px 18px;border-radius:var(--r-md)}
   .gen{align-items:flex-start}
   .limits{grid-template-columns:1fr;gap:6px}
@@ -387,7 +388,7 @@ tr.dx[hidden]{display:none}
 /* ==== v2 · header controls (sort + filter) ==== */
 .dtable thead th .hc{display:flex;align-items:center;gap:4px;padding:8px 8px 8px 12px;min-height:38px}
 .dtable thead th.r .hc{justify-content:flex-end}
-.dtable thead th .ht{white-space:nowrap}
+.dtable thead th .ht{white-space:normal;line-height:1.25}
 .raw thead th .ht{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .hb{display:grid;place-items:center;width:22px;height:22px;padding:0;border:1px solid transparent;border-radius:var(--r-xs);background:none;color:var(--text-3);opacity:0;transition:opacity .15s,background .2s,color .2s,border-color .2s;flex:none}
 .hb svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}

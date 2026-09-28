@@ -175,17 +175,24 @@ def generate_reports(
     force: bool = False,
     on_progress: ProgressCallback | None = None,
     from_scan: bool = False,
+    workers: int | None = None,
 ) -> BatchReportResult:
     """Plan and execute one or more reports without depending on the CLI.
 
     With ``from_scan``, the inputs are scan documents written by
     ``tabalyst scan``: each report is built from its document without reading
     the source again, after the staleness checks of ``tabalyst.scan_reuse``.
+    Otherwise ``workers`` is passed to ``tabalyst.scan()``.
     """
     if from_scan and (separator is not None or encoding is not None):
         raise ConfigurationError(
             "--delimiter and --encoding cannot be used with --scan: the scan "
             "document records how its source was read."
+        )
+    if from_scan and workers is not None:
+        raise ConfigurationError(
+            "--workers cannot be used with --scan: the report reads the scan "
+            "document, not its source."
         )
     plan = build_report_plan(
         input_specs,
@@ -245,6 +252,7 @@ def generate_reports(
                     config_paths,
                     force=force,
                     on_progress=forward,
+                    workers=workers,
                 )
         except TabalystError as exc:
             failures.append(ReportFailure(job=job, error=exc))

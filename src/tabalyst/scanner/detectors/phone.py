@@ -9,7 +9,7 @@ detector is sensitive: its fields are masked by default (design 12.8).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -119,6 +119,17 @@ class PhoneDetector(Detector):
         if invalid is not None and len(digits) == len(value):
             return None  # digits only carry no phone syntax
         return invalid
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [
+            classify(value)
+            if MIN_LENGTH <= len(value) <= MAX_LENGTH
+            and value[0] in _FIRST
+            and "0" <= value[-1] <= "9"
+            else None
+            for value in values
+        ]
 
     def accumulator(self) -> PhoneAccumulator:
         return PhoneAccumulator(self.regions)

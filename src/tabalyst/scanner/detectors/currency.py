@@ -8,7 +8,7 @@ of money. The number part follows the number detector (``amount.py``).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.amount import (
     NUMBER_PART,
@@ -106,6 +106,15 @@ class CurrencyDetector(Detector):
             return None
         sign, _, body, prefix, suffix = parts
         return self.reader.read(sign, body, prefix, suffix)
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [
+            classify(value)
+            if value[:1] in _FIRST or value[-1:] in _LAST
+            else None
+            for value in values
+        ]
 
     def accumulator(self) -> CurrencyAccumulator:
         return CurrencyAccumulator(self.reader)

@@ -38,11 +38,28 @@ def _symbol(char: str) -> str:
     return char
 
 
+# Characters of ``_MASK``; a larger table is cleared, so it stays small.
+_MAX_SYMBOLS = 65_536
+
+
+class _Symbols(dict):
+    """``str.translate`` table of ``_symbol``, filled as characters are met."""
+
+    def __missing__(self, ordinal: int) -> str:
+        if len(self) >= _MAX_SYMBOLS:
+            self.clear()
+        symbol = self[ordinal] = _symbol(chr(ordinal))
+        return symbol
+
+
+_MASK = _Symbols()
+
+
 def mask(value: str) -> str:
     """The masked form of ``value``: ``SECRET-1111`` becomes ``AAAAAA-9999``."""
     if value.isascii():
         return value.translate(_ASCII_MASK)
-    return "".join(map(_symbol, value))
+    return value.translate(_MASK)
 
 
 class ExposureGate:

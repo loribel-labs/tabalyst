@@ -6,6 +6,7 @@ immutable models at finalization (design section 3).
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Sequence
 
 from tabalyst.scanner.observations import DeclaredField, Observation
@@ -94,23 +95,15 @@ class FieldState:
         strings: StringClassifier,
         values: ValueContext,
     ) -> None:
+        native_type = observation.type
+        if native_type == "string":
+            self.add_string(observation.value, record, strings, values)
+            return
         self.occurrences += 1
         if self.first_record is None:
             self.first_record = record
-        native_type = observation.type
         self.native_types[native_type] = self.native_types.get(native_type, 0) + 1
-        if native_type == "string":
-            value = observation.value
-            if not value:
-                self.empty += 1
-            elif value.isspace():
-                self.blank += 1
-            elif strings.has_markers and strings.is_marker(value):
-                self.marker += 1
-            else:
-                self.content += 1
-                self._value(native_type, value, record, values)
-        elif native_type in _SCALARS:
+        if native_type in _SCALARS:
             self._value(native_type, observation.value, record, values)
         elif native_type == "array":
             length = observation.value
@@ -121,6 +114,53 @@ class FieldState:
             self.array_items += length
             if length == 0:
                 self.arrays_empty += 1
+
+    def add_string(
+        self, value: str, record: int, strings: StringClassifier, values: ValueContext
+    ) -> None:
+        """One string occurrence (design section 7)."""
+        self.occurrences += 1
+        if self.first_record is None:
+            self.first_record = record
+        self.native_types["string"] = self.native_types.get("string", 0) + 1
+        if not value:
+            self.empty += 1
+        elif value.isspace():
+            self.blank += 1
+        elif strings.has_markers and strings.is_marker(value):
+            self.marker += 1
+        else:
+            self.content += 1
+            self._value("string", value, record, values)
+
+    def add_column(
+        self,
+        column: Sequence[str],
+        start: int,
+        strings: StringClassifier,
+        values: ValueContext,
+    ) -> None:
+        """String occurrences of consecutive records, the first being
+        ``start``: the same counts as ``add_string`` for each of them."""
+        size = len(column)
+        self.occurrences += size
+        if self.first_record is None:
+            self.first_record = start
+        self.native_types["string"] = self.native_types.get("string", 0) + size
+        tracker = self.values
+        if tracker is None:
+            counts = Counter(column)
+            categories = {value: strings.category(value) for value in counts}
+            if "content" not in categories.values():
+                for value, category in categories.items():
+                    setattr(self, category, getattr(self, category) + counts[value])
+                return
+            tracker = self.values = ValueTracker(values, self.discovery)
+        empty, blank, marker = tracker.add_column(column, start, strings)
+        self.empty += empty
+        self.blank += blank
+        self.marker += marker
+        self.content += size - empty - blank - marker
 
     def _value(
         self, native_type: str, value: object, record: int, context: ValueContext

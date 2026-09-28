@@ -19,7 +19,7 @@ is exposed, never applied (O06).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, time, timedelta, timezone
 
 from tabalyst.scanner.detectors.base import (
@@ -37,6 +37,8 @@ from tabalyst.scanner.models import (
 
 # Longer than every accepted form, so longer values are not matched.
 _MAX_LENGTH = 40
+# The last character of every accepted form: a digit, or ``Z`` for UTC.
+_LAST = frozenset("0123456789Z")
 _ISO_DATETIME = re.compile(
     r"([0-9]{4})-([0-9]{2})-([0-9]{2})([T ])([0-9]{2}):([0-9]{2})"
     r"(?::([0-9]{2})(?:\.([0-9]{1,6}))?)?(Z|[+-][0-9]{2}(?::?[0-9]{2})?)?"
@@ -183,6 +185,21 @@ class DateDetector(Detector):
                 value=time(*clock),
             )
         return self._day_first_date(value) if self._day_first else None
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        """``classify`` of each value, without a call for the values whose
+        length or last character no accepted form has, or made of digits
+        only: every form has a separator."""
+        classify = self.classify
+        last = _LAST
+        return [
+            classify(value)
+            if len(value) <= _MAX_LENGTH
+            and value[-1:] in last
+            and not value.isdigit()
+            else None
+            for value in values
+        ]
 
     def _numeric_date(
         self, first: str, separator: str, second: str, other: str, third: str

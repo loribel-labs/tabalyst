@@ -29,6 +29,7 @@ from tabalyst.scanner.observations import (
     DatasetKind,
     DeclaredField,
     Record,
+    RecordBatch,
 )
 from tabalyst.scanner.paths import (
     ROOT,
@@ -56,6 +57,7 @@ class DatasetState:
 
     __slots__ = (
         "_by_id",
+        "_columns",
         "collection_path",
         "collections",
         "depth_limit_location",
@@ -113,6 +115,9 @@ class DatasetState:
         # Tracked fields by path identity: readers reuse their path objects,
         # and hashing a path hashes each of its segments.
         self._by_id: dict[int, FieldState] = {}
+        # The state of each declared field, ``None`` when it is not tracked,
+        # for batches of records.
+        self._columns = [self.fields.get(item.path) for item in declared]
 
     def add_record(self, record: Record, strings: StringClassifier) -> None:
         self.record_count += 1
@@ -142,6 +147,58 @@ class DatasetState:
             self.depth_truncated += record.depth_truncated
             if self.depth_limit_location is None:
                 self.depth_limit_location = record.location.to_dict()
+
+    def add_batch(self, batch: RecordBatch, strings: StringClassifier) -> None:
+        """Records of declared fields, column by column: the same counts as
+        ``add_record`` for each of them (design section 6)."""
+        rows = batch.rows
+        size = len(rows)
+        if not size:
+            return
+        start = batch.start
+        self.record_count += size
+        self.record_types["object"] += size
+        root = self.fields[ROOT]
+        root.occurrences += size
+        root.native_types["object"] = root.native_types.get("object", 0) + size
+        if root.first_record is None:
+            root.first_record = start
+        columns = self._columns
+        values = self.values
+        budget = values.budget
+        # Columns whose values may still enter the global budget.
+        growing = sum(
+            1
+            for state in columns
+            if state is not None
+            and (state.values is None or state.values.table is not None)
+        )
+        irregular = sum(state.blank + state.marker for state in columns if state)
+        if budget.tracked + size * growing <= budget.limit:
+            # The budget cannot be exceeded: each column at once.
+            for state, column in zip(columns, zip(*rows), strict=True):
+                if state is not None:
+                    state.add_column(column, start, strings, values)
+        else:
+            # A release of the global budget depends on the order of the
+            # values: record by record.
+            for offset, row in enumerate(rows):
+                index = start + offset
+                for state, value in zip(columns, row, strict=True):
+                    if state is not None:
+                        state.add_string(value, index, strings, values)
+        untracked = columns.count(None)
+        if untracked:
+            self.paths_limited = True
+            self.untracked_observations += size * untracked
+            self.untracked_max_depth = max(self.untracked_max_depth, 1)
+            if self.field_limit_location is None:
+                self.field_limit_location = {"record": start, "line": batch.lines[0]}
+        # Untracked columns are values of their records too.
+        irregular = untracked > 0 or (
+            sum(state.blank + state.marker for state in columns if state) != irregular
+        )
+        self.records.add_batch(batch, irregular)
 
     def _untracked(self, path: FieldPath, record: Record) -> None:
         self.paths_limited = True
@@ -261,15 +318,29 @@ class DatasetState:
                 detector=detector,
             )
 
-        def report_probe(detector: str, count: int) -> int:
+        def report_probe(detector: str, count: int, warmup_reactions: int) -> int:
+            warmup = config.detection.warmup_values
+            if warmup_reactions:
+                message = (
+                    f"Detector {detector} reacted to only {warmup_reactions} of "
+                    f"the first {warmup} distinct values of field {display}, "
+                    "none in the second half, and was then skipped, but probed "
+                    "values reacted more often: its counts for this field are "
+                    "incomplete. Set detection.rare_share or "
+                    "detection.warmup_values to 0 to test every value."
+                )
+            else:
+                message = (
+                    f"Detector {detector} matched none of the first {warmup} "
+                    f"distinct values of field {display} and was then skipped, "
+                    "but probed values reacted: its counts for this field are "
+                    "incomplete. Set detection.warmup_values to 0 for "
+                    "exhaustive detection."
+                )
             return diagnostics.add(
                 "detector_skipped_reacted",
                 "warning",
-                f"Detector {detector} matched none of the first "
-                f"{config.detection.warmup_values} distinct values of field "
-                f"{display} and was then skipped, but probed values reacted: its "
-                "counts for this field are incomplete. Set "
-                "detection.warmup_values to 0 for exhaustive detection.",
+                message,
                 dataset=self.id,
                 field=ids[path],
                 detector=detector,

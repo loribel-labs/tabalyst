@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 7
+  "format_revision": 8
 }
 ```
 
@@ -144,3 +144,16 @@ first ones stop testing the others.
 - For a report built from a scan document, `processing_seconds` now adds the
   scan duration recorded in the document to the time to read it and build
   the profile, so it is comparable with a report built from the source.
+
+## Revision 8 - 2026-09-28
+
+The scan behind the report also stops testing rare detectors: those that
+recognized at most 0.1% of the first 10,000 distinct values of a column, and
+none of the last 5,000.
+
+- `config.scan.detection` gains `rare_share` (default 0.001; `0` keeps the
+  behavior of revision 7).
+- Semantic types and inferred types are unchanged; only counts of detectors
+  with rare matches may be lower. A `detector_skipped_reacted` warning in the
+  dataset `limits.diagnostics` says when such a detector recognized probed
+  values more often than its warm-up.

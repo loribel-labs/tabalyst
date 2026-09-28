@@ -222,7 +222,10 @@ object of each configuration file. The complete object with its defaults is:
     },
     "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
-    "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100},
+    "detection": {
+      "minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
+      "rare_share": 0.001
+    },
     "detectors": {"number": {"enabled": true}},
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -331,12 +334,22 @@ statistics and detector coverage stay exact after a limit is reached.
   coverage. `number` and `date` are never skipped. A field with fewer
   distinct values is always analyzed by every detector. Set it to `0` to test
   every value with every detector, as before this setting existed.
+- `detection.rare_share`: default 0.001, from 0 to 1. A detector that
+  recognized at most this share of the warm-up values, and none of those in
+  the second half of the warm-up, is skipped too: its reactions were rare and
+  have stopped. The default allows 10 values of a 10,000-value warm-up. A
+  detector still recognizing values at the end of the warm-up stays, as in a
+  sorted column where matches become frequent, and so does a sensitive
+  detector that found only invalid values. `0` skips only the detectors that
+  recognized nothing.
 - `detection.probe_interval`: default 100, up to 1,000,000. After the
   warm-up, about one distinct value in this number, chosen by a hash of the
-  value, still goes through every detector. When a skipped detector
-  recognizes one of these probes, the scan reports a
-  `detector_skipped_reacted` warning: its counts for the field are
-  incomplete. `0` disables probes.
+  value, still goes through every detector. The scan reports a
+  `detector_skipped_reacted` warning, meaning that the counts of a skipped
+  detector for the field are incomplete, when it recognizes one of these
+  probes after recognizing nothing in the warm-up, or, for a rare detector,
+  when it recognizes at least 10 probed values, more often than
+  `detection.rare_share` allows. `0` disables probes.
 
 A detector skipped after the warm-up may miss rare values that appear later
 in the file, including sensitive ones such as an email address in a comment

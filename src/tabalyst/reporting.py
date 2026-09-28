@@ -1,10 +1,12 @@
 """Render self-contained analysis results as an interactive HTML report."""
 
+import re
 from collections import defaultdict
 from importlib.resources import files
 from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined
+from markupsafe import Markup, escape
 
 from tabalyst._version import get_version
 from tabalyst.models import ReportProfile
@@ -55,6 +57,17 @@ def format_size(size_bytes: int) -> str:
     return f"{size_bytes / 1024:.1f} KB"
 
 
+# Separators after which a long name may break: snake case, paths and dates.
+_BREAKS = re.compile(r"(?<=[_./-])")
+
+
+def breakable(name: str) -> Markup:
+    """``name`` escaped, with a line break opportunity after each separator,
+    so that a table squeezed for room narrows its column instead of
+    scrolling."""
+    return Markup("<wbr>").join(escape(part) for part in _BREAKS.split(name))
+
+
 def load_profile(path: str | Path) -> ReportProfile:
     """Validate and load the experimental JSON profile format."""
     return ReportProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
@@ -68,6 +81,7 @@ def render_report(profile: ReportProfile) -> str:
     environment.filters["number"] = format_number
     environment.filters["seconds"] = format_seconds
     environment.filters["size"] = format_size
+    environment.filters["breakable"] = breakable
     template = environment.from_string(
         resources.joinpath("templates/report.html").read_text(encoding="utf-8")
     )

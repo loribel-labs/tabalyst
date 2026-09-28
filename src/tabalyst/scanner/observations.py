@@ -1,15 +1,18 @@
 """Items that readers stream to the engine (design section 6).
 
 A reader yields ``DatasetOpened`` before the records of a dataset, then one
-``Record`` or ``RecordExcluded`` per record, materialized one at a time.
+``Record`` or ``RecordExcluded`` per record, materialized one at a time. A
+table with declared fields may instead stream its records as ``RecordBatch``
+rows of strings, which the engine reads column by column.
 """
 
 from __future__ import annotations
 
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, NamedTuple
 
-from tabalyst.scanner.paths import FieldPath
+from tabalyst.scanner.paths import ROOT, FieldPath
 
 NativeType = Literal[
     "null", "boolean", "integer", "number", "string", "object", "array"
@@ -68,8 +71,10 @@ class DatasetOpened:
     container: tuple[str, FieldPath] | None = None
 
 
-@dataclass(frozen=True, slots=True)
-class Observation:
+class Observation(NamedTuple):
+    """One occurrence at a path of a record; an immutable named tuple, since
+    readers build one per value."""
+
     path: FieldPath
     type: NativeType
     value: object
@@ -85,6 +90,36 @@ class Record:
     location: Location
     observations: list[Observation]
     depth_truncated: int = 0
+
+
+@dataclass(slots=True)
+class RecordBatch:
+    """Consecutive records of a dataset with declared fields, each one string
+    per declared field, in declaration order: a record that observes its root
+    as an object, then each declared field once, as a string (design 6).
+
+    Records are numbered ``start``, ``start + 1``, and so on; ``lines`` holds
+    the first physical line of each.
+    """
+
+    dataset: str
+    start: int
+    rows: list[list[str]]
+    lines: list[int]
+
+    def records(self, paths: Sequence[FieldPath]) -> Iterator[Record]:
+        """The same records as ``Record`` items, given the declared paths."""
+        root = Observation(ROOT, "object", None)
+        for offset, (row, line) in enumerate(zip(self.rows, self.lines, strict=True)):
+            observations = [root]
+            observations.extend(
+                Observation(path, "string", value)
+                for path, value in zip(paths, row, strict=True)
+            )
+            index = self.start + offset
+            yield Record(
+                self.dataset, index, Location(record=index, line=line), observations
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,4 +149,4 @@ class Notice:
     location: Location | None = None
 
 
-StreamItem = DatasetOpened | Record | RecordExcluded | Notice
+StreamItem = DatasetOpened | Record | RecordBatch | RecordExcluded | Notice

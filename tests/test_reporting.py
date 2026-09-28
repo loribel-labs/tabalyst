@@ -3,7 +3,7 @@ from html.parser import HTMLParser
 
 from tabalyst import analyze_csv, render_report
 from tabalyst.execution_log import tabalyst_version
-from tabalyst.reporting import format_number, format_seconds, format_size
+from tabalyst.reporting import breakable, format_number, format_seconds, format_size
 
 
 def test_report_numbers_use_scientific_notation_only_above_threshold():
@@ -18,6 +18,24 @@ def test_report_metadata_formats_duration_and_source_size_compactly():
     assert format_seconds(1.0) == "1"
     assert format_size(805 * 1024 + 307) == "805.3 KB"
     assert format_size(1024**2) == "1.0 MB"
+
+
+def test_long_names_may_break_after_separators_and_stay_escaped():
+    assert breakable("frequence_paiement") == "frequence_<wbr>paiement"
+    assert breakable("orders[].items[].unit_price") == (
+        "orders[].<wbr>items[].<wbr>unit_<wbr>price"
+    )
+    assert breakable("<b>_x") == "&lt;b&gt;_<wbr>x"
+    assert breakable("plain") == "plain"
+
+
+def test_sample_headers_let_long_names_break(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("date_of_birth,city\n2001-02-03,Laval\n", encoding="utf-8")
+
+    html = render_report(analyze_csv(source))
+
+    assert "date_<wbr>of_<wbr>birth" in html
 
 
 def test_csv_content_cannot_inject_markup(tmp_path):

@@ -143,6 +143,17 @@ def report_command(
             help="Disable interactive file and phase progress.",
         ),
     ] = False,
+    workers: Annotated[
+        int | None,
+        typer.Option(
+            "--workers",
+            min=1,
+            help=(
+                "Processes that analyze values: 1 for one process. By default, "
+                "files of 16 MiB or more use one per spare processor."
+            ),
+        ),
+    ] = None,
 ) -> None:
     """Analyze and profile datasets with Tabalyst Report."""
     if quiet and verbose:
@@ -162,6 +173,7 @@ def report_command(
             force=force,
             on_progress=progress,
             from_scan=from_scan,
+            workers=workers,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

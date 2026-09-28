@@ -37,9 +37,11 @@ def analyze_csv(
     path: str | Path,
     config: ReportConfig | None = None,
     on_progress: ProgressCallback | None = None,
+    workers: int | None = None,
 ) -> ReportProfile:
     """Scan one CSV or JSON file and build its report profile, without
-    coupling callers to the CLI. The file is read once."""
+    coupling callers to the CLI. The file is read once; ``workers`` is passed
+    to ``tabalyst.scan()``."""
     config = config or ReportConfig()
     if not isinstance(config, ReportConfig):
         raise TypeError(
@@ -54,7 +56,7 @@ def analyze_csv(
         if on_progress is not None and event.phase != ProgressPhase.COMPLETE:
             on_progress(event)
 
-    result = scan(source, config=config.scan, on_progress=forward)
+    result = scan(source, config=config.scan, on_progress=forward, workers=workers)
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
     profile = build_profile(result, config)
     profile.processing_seconds = round(perf_counter() - started, 4)
@@ -182,6 +184,7 @@ def _analyze_resolved(
     *,
     force: bool,
     on_progress: ProgressCallback | None,
+    workers: int | None = None,
 ) -> dict[str, Any]:
     started = perf_counter()
     json_report, execution_report = _validate_paths(
@@ -192,7 +195,7 @@ def _analyze_resolved(
     )
 
     try:
-        profile = analyze_csv(source, config, on_progress=on_progress)
+        profile = analyze_csv(source, config, on_progress=on_progress, workers=workers)
     except InputError:
         raise
     except OSError as exc:

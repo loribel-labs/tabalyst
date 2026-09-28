@@ -147,6 +147,7 @@ tabalyst report data.csv --delimiter ";"
 tabalyst report data.csv --encoding cp1252
 tabalyst report data.csv --config tabalyst.json
 tabalyst report data.csv --verbose
+tabalyst report data.csv --workers 4
 tabalyst report --help
 tabalyst --version
 ```
@@ -199,7 +200,9 @@ detector: numbers with decimal commas, dates, booleans, enumerations, email
 addresses, URLs, phone numbers, postal codes, currency amounts, percentages,
 quantities, UUIDs and IP addresses. Values of sensitive fields, such as email
 addresses, are masked by default. Results are written atomically: an
-interrupted scan never leaves a partial file.
+interrupted scan never leaves a partial file. Files of 16 MiB or more are
+analyzed by several worker processes, with the same result; `--workers`
+chooses their number, `--workers 1` keeps one process.
 
 Build the report from a scan document without reading the source again:
 

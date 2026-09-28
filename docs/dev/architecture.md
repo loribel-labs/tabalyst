@@ -193,4 +193,7 @@ its lots are in [scan/plan.md](scan/plan.md). `tabalyst.scanner` provides
 command and the top-level `tabalyst.scan()` and `tabalyst.generate_scans()`
 expose it, and the `scan` section of configuration files configures it. Since
 lot 5a, `tabalyst report` is built on it; since lot 5c, it can reuse a scan
-document (`--scan`).
+document (`--scan`). Since lot 6, it processes distinct values in batches
+and hands the values of large sources to worker processes
+(`scanner/workers.py`), plain subprocesses of the running interpreter, with
+the same results (design section 13).

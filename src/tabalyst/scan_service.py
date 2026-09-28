@@ -106,6 +106,7 @@ def generate_scans(
     collections: Sequence[str] | None = None,
     force: bool = False,
     on_progress: ProgressCallback | None = None,
+    workers: int | None = None,
 ) -> BatchScanResult:
     """Scan one or more CSV or JSON files and write one scan document each.
 
@@ -113,7 +114,8 @@ def generate_scans(
     the ``scan`` section of each ``config_path`` file in order, then
     ``delimiter``, ``encoding`` and ``collections``. The whole batch is
     rejected before any scan when an output is unsafe; afterwards, a failed
-    source does not stop the others.
+    source does not stop the others. ``workers`` is passed to
+    ``tabalyst.scan()``.
     """
     config_paths = _config_paths(config_path)
     config = resolve_scan_config(
@@ -151,7 +153,9 @@ def generate_scans(
                 )
 
         try:
-            result = scan(job.source, config=config, on_progress=forward)
+            result = scan(
+                job.source, config=config, on_progress=forward, workers=workers
+            )
             emit_progress(
                 on_progress, job.source, ProgressPhase.WRITING, index=index, total=total
             )

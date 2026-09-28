@@ -9,7 +9,7 @@ so the detector is sensitive: its fields are masked by default (design 12.8).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -107,6 +107,17 @@ class IpAddressDetector(Detector):
         if ":" in value:
             return _ipv6(value) if self._ipv6 else None
         return _ipv4(value) if self._ipv4 else None
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [
+            classify(value)
+            if MIN_LENGTH <= len(value) <= MAX_LENGTH
+            and value[0] in _EDGE
+            and value[-1] in _EDGE
+            else None
+            for value in values
+        ]
 
     def accumulator(self) -> IpAddressAccumulator:
         return IpAddressAccumulator(self.versions)

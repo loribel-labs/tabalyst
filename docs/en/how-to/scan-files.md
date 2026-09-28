@@ -134,6 +134,21 @@ and formats stay exact. Set `exposure.sensitive_values` to `hide` to remove
 these values, or to `show` to keep them. Values of other fields are always
 shown: share a scan as you would share the data.
 
+## Large files
+
+Files of 16 MiB or more are analyzed by several processes: Tabalyst reads the
+file once and hands the values of each field to a worker process, one per
+spare processor, at most 8. The scan document is the same whatever the
+number of workers. Choose the number with `--workers`, or keep the scan in
+one process with `--workers 1`, for example on a shared machine:
+
+```console
+tabalyst scan big.csv --workers 4
+```
+
+Memory stays bounded by the scan limits in each process. `tabalyst report`
+accepts `--workers` too, except with `--scan`, which does not read the source.
+
 ## Progress and messages
 
 Interactive terminals show the file and the share of it already read:
@@ -198,7 +213,8 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 
 `tabalyst.scan()` reads one source and returns the result without writing
 anything; `result.model_dump(mode="json")` gives the document. Pass
-`config=tabalyst.ScanConfig(...)` to change settings. `tabalyst.generate_scans()`
+`config=tabalyst.ScanConfig(...)` to change settings, and `workers=` to choose
+the number of worker processes as `--workers` does. `tabalyst.generate_scans()`
 does what the command does and returns the plan, successes and failures.
 `tabalyst.generate_reports(..., from_scan=True)` builds reports from scan
 documents, as `tabalyst report --scan` does.

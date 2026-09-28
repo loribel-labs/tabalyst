@@ -7,14 +7,14 @@ A detector that raises on a field fails for that field only (CA19).
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from datetime import date
 from decimal import Decimal
 from fractions import Fraction
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.base import (
-    NOT_TESTED,
     Classification,
     Detector,
     DetectorFailure,
@@ -51,7 +51,7 @@ from tabalyst.scanner.models import (
     Interpretations,
     NotApplicable,
 )
-from tabalyst.scanner.technical import string_family
+from tabalyst.scanner.technical import BOOLEAN_WORDS
 
 BUILT_INS: tuple[type[Detector], ...] = (
     NumberDetector,
@@ -77,37 +77,13 @@ SHAPE_CACHE_SIZE = 4_096
 # ``report_failure(detector_id, error)`` records a ``detector_failed``
 # diagnostic and returns its index.
 FailureReporter = Callable[[str, str], int]
-# ``report_probe(detector_id, count)`` records a ``detector_skipped_reacted``
-# warning for ``count`` probed occurrences and returns its index.
-ProbeReporter = Callable[[str, int], int]
-
-
-class _NotEligible:
-    """The value's native type is not accepted by the detector."""
-
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return "NOT_ELIGIBLE"
-
-
-NOT_ELIGIBLE = _NotEligible()
-
-
-class _Skipped:
-    """Adaptive detection did not test the value (design 13)."""
-
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return "SKIPPED"
-
-
-SKIPPED = _Skipped()
-# The plan of a skipped detector, for the native types it accepts.
-_SKIP = ("skip",)
-# Per native type, one plan per active detector (``DetectorSet._plans``).
-Plans = dict[str, tuple[object, ...]]
+# ``report_probe(detector_id, count, warmup_reactions)`` records a
+# ``detector_skipped_reacted`` warning for ``count`` probed occurrences of a
+# detector skipped after ``warmup_reactions`` reactions, and returns its index.
+ProbeReporter = Callable[[str, int, int], int]
+# Probed occurrences that must react before a rare detector is reported as
+# reacting more than its warm-up promised.
+PROBE_REACTIONS = 10
 
 
 class DetectorRegistry:
@@ -169,10 +145,15 @@ class DetectorTally:
         "max_length",
         "not_matched",
         "not_tested",
+        "probe_reactions",
+        "probe_tested",
+        "recent_reactions",
+        "rejected",
         "skipped",
         "skipped_after",
         "unmatched_examples",
         "unmatched_to_accumulator",
+        "warmup_reactions",
     )
 
     def __init__(self, detector: Detector, max_examples: int, max_length: int) -> None:
@@ -189,9 +170,19 @@ class DetectorTally:
         # the detector is skipped for the field.
         self.skipped = 0
         self.skipped_after: int | None = None
+        # Distinct values of the warm-up that the detector reacted to, in all
+        # and in its second half; probed occurrences once it is skipped, and
+        # those that reacted.
+        self.warmup_reactions = 0
+        self.recent_reactions = 0
+        self.probe_tested = 0
+        self.probe_reactions = 0
         self.formats: dict[str, int] = {}
         self.examples: dict[str, list[str]] = {state: [] for state in _STATES}
         self.error: str | None = None
+        # A field-level detector whose accumulator rejects the field: later
+        # values are counted as not matched without being classified.
+        self.rejected = False
         self.unmatched_examples = self.examples["not_matched"]
         self.unmatched_to_accumulator = True
         try:
@@ -202,10 +193,12 @@ class DetectorTally:
             self.unmatched_to_accumulator = not _ignores_unmatched(self.accumulator)
 
     def add(self, value: str, classification: object, count: int) -> None:
+        """Account for ``count`` occurrences of a tested value; ``None`` means
+        not matched, a ``DetectorFailure`` fails the detector."""
+        if self.error is not None:
+            return
+        self.eligible += count
         if classification is None:  # the most frequent case
-            if self.error is not None:
-                return
-            self.eligible += count
             self.not_matched += count
             examples = self.unmatched_examples
             if (
@@ -220,33 +213,31 @@ class DetectorTally:
                 except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
                     self.error = type(exc).__name__
             return
-        if classification is NOT_ELIGIBLE or self.error is not None:
-            return
-        self.eligible += count
-        if classification is SKIPPED:
-            self.not_tested += count
-            self.skipped += count
-            return
-        if classification is NOT_TESTED:
-            self.not_tested += count
-            return
-        elif type(classification) is DetectorFailure:
-            self.error = classification.error
-            return
+        self._hit(value, classification, count)
+
+    def _hit(self, value: str, classification: object, count: int) -> bool:
+        """A matched, ambiguous or invalid value, or a failure; ``False`` once
+        the detector failed."""
+        if not isinstance(classification, Classification):
+            self.error = (
+                classification.error
+                if type(classification) is DetectorFailure
+                else "TypeError"
+            )
+            return False
+        state = classification.state
+        if state == "matched":
+            self.matched += count
+            name = classification.format
+            if name is not None:
+                self.formats[name] = self.formats.get(name, 0) + count
+        elif state == "ambiguous":
+            self.ambiguous += count
+        elif state == "invalid":
+            self.invalid += count
         else:
-            state = classification.state
-            if state == "matched":
-                self.matched += count
-                name = classification.format
-                if name is not None:
-                    self.formats[name] = self.formats.get(name, 0) + count
-            elif state == "ambiguous":
-                self.ambiguous += count
-            elif state == "invalid":
-                self.invalid += count
-            else:
-                self.error = "InvalidState"
-                return
+            self.error = "InvalidState"
+            return False
         examples = self.examples[state]
         if (
             len(examples) < self.max_examples
@@ -258,12 +249,73 @@ class DetectorTally:
             self.accumulator.add(value, classification, count)
         except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
             self.error = type(exc).__name__
+            return False
+        return True
 
-    def reacted(self) -> bool:
-        """A value matched, was ambiguous or invalid, or the detector failed."""
-        return bool(
-            self.matched or self.ambiguous or self.invalid or self.error is not None
-        )
+    def add_many(
+        self, values: Sequence[str], counts: Sequence[int], results: Sequence[object]
+    ) -> None:
+        """``add`` for each tested value, in order: unmatched values are
+        counted together when the accumulator ignores them."""
+        if self.error is not None:
+            return
+        hits = [i for i, found in enumerate(results) if found is not None]
+        if self.unmatched_to_accumulator and len(hits) < len(results):
+            # The accumulator sees unmatched values too, in order.
+            for value, found, count in zip(values, results, counts, strict=True):
+                self.add(value, found, count)
+            return
+        total = sum(counts)
+        reacted = 0
+        for i in hits:
+            count = counts[i]
+            if not self._hit(values[i], results[i], count):
+                return
+            reacted += count
+        self.eligible += total
+        self.not_matched += total - reacted
+        examples = self.unmatched_examples
+        if len(examples) < self.max_examples and len(hits) < len(results):
+            limit = self.max_length
+            for value, found in zip(values, results, strict=True):
+                if found is None and len(value) <= limit and value not in examples:
+                    examples.append(value)
+                    if len(examples) >= self.max_examples:
+                        break
+
+    def untested(self, count: int) -> None:
+        """``count`` occurrences above the input cap of the detector."""
+        if self.error is None:
+            self.eligible += count
+            self.not_tested += count
+
+    def skip(self, count: int) -> None:
+        """``count`` occurrences that adaptive detection did not test."""
+        if self.error is None:
+            self.eligible += count
+            self.not_tested += count
+            self.skipped += count
+
+    def reject(self, values: Sequence[str], counts: Sequence[int]) -> None:
+        """Values of a field that a field-level detector already rejects: not
+        matched, as they would be once the field is rejected (``result``)."""
+        if self.error is not None:
+            return
+        total = sum(counts)
+        self.eligible += total
+        self.not_matched += total
+        # Rejected fields list the first matched and unmatched examples
+        # together (``result``): keep filling the same listing.
+        matched = self.examples["matched"]
+        examples = self.unmatched_examples
+        room = self.max_examples - len(matched) - len(examples)
+        limit = self.max_length
+        for value in values:
+            if room <= 0:
+                break
+            if len(value) <= limit and value not in matched and value not in examples:
+                examples.append(value)
+                room -= 1
 
     def exposes_sensitive_values(self) -> bool:
         """A sensitive detector matched a value of the field, or failed on it,
@@ -275,6 +327,7 @@ class DetectorTally:
         report_failure: FailureReporter,
         gate: ExposureGate = SHOW,
         report_probe: ProbeReporter | None = None,
+        rare_share: Fraction = Fraction(0),
     ):
         detector = self.detector
         identity = {"id": detector.id, "version": detector.version}
@@ -304,14 +357,25 @@ class DetectorTally:
         tested = self.eligible - self.not_tested
         adaptive = None
         if self.skipped_after is not None:
-            # The warm-up saw no reaction: every reaction comes from a probe.
-            reactions = matched + self.ambiguous + self.invalid
+            if self.warmup_reactions:
+                # A rare detector is expected to react now and then: only
+                # probes that react more often than its warm-up are reported.
+                reactions = self.probe_reactions
+                warn = reactions >= PROBE_REACTIONS and reactions > (
+                    rare_share * self.probe_tested
+                )
+            else:
+                # Without any reaction in the warm-up, every reaction comes
+                # from a probe.
+                reactions = matched + self.ambiguous + self.invalid
+                warn = reactions > 0
             adaptive = Adaptive(
                 skipped_after=self.skipped_after,
+                warmup_reactions=self.warmup_reactions,
                 not_tested=self.skipped,
                 diagnostic=(
-                    report_probe(detector.id, reactions)
-                    if reactions and report_probe is not None
+                    report_probe(detector.id, reactions, self.warmup_reactions)
+                    if warn and report_probe is not None
                     else None
                 ),
             )
@@ -346,6 +410,51 @@ def _is_number(value: object) -> bool:
     return type(value) is int or isinstance(value, Decimal) or value is UNCONVERTIBLE
 
 
+def _one_by_one(classify: Callable[[str], object], values: Sequence[str]) -> list:
+    """``classify`` of each value; an exception becomes a ``DetectorFailure``
+    at its position (CA19)."""
+    results: list[object] = []
+    for value in values:
+        try:
+            results.append(classify(value))
+        except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
+            results.append(DetectorFailure(type(exc).__name__))
+    return results
+
+
+def _count_warmup(
+    tally: DetectorTally, results: list, positions: list[int] | None, warmup: tuple
+) -> None:
+    """Reactions of a tally to the values first met in the warm-up, once per
+    distinct value, in all and in its second half."""
+    fresh, recent = warmup
+    for j, found in enumerate(results):
+        if found is not None:
+            position = j if positions is None else positions[j]
+            if position in fresh:
+                tally.warmup_reactions += 1
+                if position in recent:
+                    tally.recent_reactions += 1
+
+
+def _count_probes(
+    tally: DetectorTally,
+    results: list,
+    counts: Sequence[int],
+    positions: list[int],
+    rewarm: set[int] | None,
+) -> None:
+    """Probed occurrences of a skipped detector and those that reacted;
+    warm-up values of a streamed field are not probes."""
+    for j, found in enumerate(results):
+        if rewarm is not None and positions[j] in rewarm:
+            continue
+        count = counts[j]
+        tally.probe_tested += count
+        if found is not None:
+            tally.probe_reactions += count
+
+
 class DetectorSet:
     """The detectors of one scan, in registry order."""
 
@@ -353,7 +462,7 @@ class DetectorSet:
         "_adaptive",
         "_date",
         "_exposure",
-        "_idle",
+        "_field_scope",
         "_number",
         "_plans",
         "_shape_cache",
@@ -363,6 +472,8 @@ class DetectorSet:
         "max_length",
         "minimum_share",
         "probe_interval",
+        "rare_reactions",
+        "rare_share",
         "warmup_values",
     )
 
@@ -393,26 +504,23 @@ class DetectorSet:
         self.minimum_share = exact_share(config.detection.minimum_share)
         self.warmup_values = config.detection.warmup_values
         self.probe_interval = config.detection.probe_interval
+        # The most warm-up values a rare detector reacts to.
+        self.rare_share = exact_share(config.detection.rare_share)
+        self.rare_reactions = int(self.rare_share * self.warmup_values)
         # The number and date detectors give every value its technical type
         # family (design 9.7): adaptive detection never skips them.
         self._adaptive = tuple(
             i not in (self._number, self._date) for i in range(len(active))
         )
+        self._field_scope = tuple(detector.scope == "field" for detector in active)
         self._exposure = ExposureGate(config.exposure.sensitive_values)
-        # Native types that no active detector accepts need no work.
-        self._idle = {
-            native_type: (NOT_ELIGIBLE,) * len(active)
-            for native_type in _NATIVE_SCALARS
-            if not any(native_type in detector.accepts for detector in active)
-        }
-        # Per native type and detector: ``classify``, input cap and shapes,
-        # or ``None`` when the type is not accepted.
+        # Per native type, the detectors that accept it, with their position,
+        # input cap and shapes.
         self._plans = {
             native_type: tuple(
-                (detector.classify, detector.max_input_length, detector.shapes)
+                (i, detector, detector.max_input_length, detector.shapes)
+                for i, detector in enumerate(active)
                 if native_type in detector.accepts
-                else None
-                for detector in active
             )
             for native_type in _NATIVE_SCALARS
         }
@@ -421,43 +529,127 @@ class DetectorSet:
     def versions(self) -> dict[str, int]:
         return {detector.id: detector.version for detector in self.active}
 
-    def classify(
-        self, native_type: str, text: str, plans: Plans | None = None
-    ) -> tuple[object, ...]:
-        """One entry per active detector: a classification, ``None`` (not
-        matched), ``NOT_TESTED``, ``SKIPPED``, ``NOT_ELIGIBLE`` or a
-        ``DetectorFailure``. ``plans`` skips detectors (``skipping``)."""
-        idle = self._idle.get(native_type)
-        if idle is not None:
-            return idle
-        results: list[object] = []
-        fits = None
-        for i, plan in enumerate((plans or self._plans)[native_type]):
-            if plan is None:
-                results.append(NOT_ELIGIBLE)
+    def accepts(self, native_type: str) -> bool:
+        """Whether an active detector accepts values of ``native_type``."""
+        return bool(self._plans[native_type])
+
+    def spans(self, native_types: set[str]) -> bool:
+        """Whether an active detector accepts several of ``native_types``."""
+        return any(len(detector.accepts & native_types) > 1 for detector in self.active)
+
+    def run(
+        self,
+        tallies: list[DetectorTally],
+        native_type: str,
+        values: Sequence[str],
+        counts: Sequence[int],
+        lengths: Sequence[int] | None = None,
+        skipped: tuple[bool, ...] | None = None,
+        tested: Sequence[int] = (),
+        warmup: tuple | None = None,
+        rewarm: set[int] | None = None,
+    ) -> tuple[list | None, list | None]:
+        """Classify a batch of distinct values of one native type, in
+        first-seen order, and add them to the tallies (design 12 and 13).
+
+        ``values`` are analytical texts for strings, canonical texts for other
+        types, with their ``lengths`` when known. The detectors flagged in
+        ``skipped`` test only the values at the positions ``tested`` (warm-up
+        values of a streamed field, at ``rewarm``, and probes) and count the
+        others as not tested. During the warm-up, ``warmup`` holds the
+        positions of the values met for the first time and, among them, those
+        of its second half, whose reactions each tally counts once. Returns
+        the results of the number and date detectors for strings, aligned
+        with ``values`` (``None`` where a value was not tested), or ``None``.
+        """
+        numbers = dates = None
+        total = None
+        for i, detector, cap, pattern in self._plans[native_type]:
+            tally = tallies[i]
+            keeps = native_type == "string" and (i == self._number or i == self._date)
+            if tally.error is not None and not keeps:
                 continue
-            if plan is _SKIP:
-                results.append(SKIPPED)
-                continue
-            classify, cap, pattern = plan
-            if cap is not None and len(text) > cap:
-                results.append(NOT_TESTED)
-                continue
-            if pattern is not None:
-                if fits is None:
-                    fits = self._fits(shape(text))
-                if not fits[i]:
-                    results.append(None)
+            batch, batch_counts, batch_lengths = values, counts, lengths
+            positions = None
+            if skipped is not None and skipped[i]:
+                if total is None:
+                    total = sum(counts)
+                tally.skip(total - sum(counts[j] for j in tested))
+                if not tested:
                     continue
-            try:
-                found = classify(text)
-            except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
-                found = DetectorFailure(type(exc).__name__)
-            else:
-                if found is not None and not isinstance(found, Classification):
-                    found = DetectorFailure("TypeError")
-            results.append(found)
-        return tuple(results)
+                positions = tested
+                batch = [values[j] for j in tested]
+                batch_counts = [counts[j] for j in tested]
+                batch_lengths = None if lengths is None else [lengths[j] for j in tested]
+            if tally.rejected:
+                tally.reject(batch, batch_counts)
+                continue
+            if cap is not None:
+                longest = (
+                    max(batch_lengths, default=0)
+                    if batch_lengths is not None
+                    else max(map(len, batch), default=0)
+                )
+                if longest > cap:
+                    # Values above the input cap are not tested (design 12.2).
+                    kept = [j for j, value in enumerate(batch) if len(value) <= cap]
+                    tally.untested(
+                        sum(batch_counts) - sum(batch_counts[j] for j in kept)
+                    )
+                    positions = (
+                        kept if positions is None else [positions[j] for j in kept]
+                    )
+                    batch = [batch[j] for j in kept]
+                    batch_counts = [batch_counts[j] for j in kept]
+            results = self._classify(i, detector, pattern, batch)
+            tally.add_many(batch, batch_counts, results)
+            if tally.error is None:
+                if warmup is not None:
+                    _count_warmup(tally, results, positions, warmup)
+                elif skipped is not None and skipped[i]:
+                    _count_probes(tally, results, batch_counts, positions, rewarm)
+            if self._field_scope[i] and not tally.rejected and tally.error is None:
+                try:
+                    tally.rejected = bool(tally.accumulator.rejects_field())
+                except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
+                    tally.error = type(exc).__name__
+            if keeps:
+                if positions is not None:
+                    aligned: list[object] = [None] * len(values)
+                    for position, found in zip(positions, results, strict=True):
+                        aligned[position] = found
+                    results = aligned
+                if i == self._number:
+                    numbers = results
+                else:
+                    dates = results
+        return numbers, dates
+
+    def _classify(
+        self, index: int, detector: Detector, pattern, values: Sequence[str]
+    ) -> list:
+        """Results of one detector on ``values``, in order. Values whose shape
+        the detector rules out are not matched without being classified."""
+        if pattern is not None:
+            fits = self._fits
+            candidates = [
+                j for j, value in enumerate(values) if fits(shape(value))[index]
+            ]
+            results: list[object] = [None] * len(values)
+            found = self._classify(
+                index, detector, None, [values[j] for j in candidates]
+            )
+            for j, result in zip(candidates, found, strict=True):
+                results[j] = result
+            return results
+        try:
+            results = detector.classify_many(values)
+            if len(results) != len(values):
+                raise ValueError("classify_many returned a wrong number of results")
+        except Exception:  # noqa: BLE001 - detector code is isolated (CA19)
+            # Locate the failure: each value alone, in order.
+            results = _one_by_one(detector.classify, values)
+        return results
 
     def _fits(self, value_shape: str) -> tuple[bool, ...]:
         """Whether ``value_shape`` fits the shapes of each active detector.
@@ -477,46 +669,90 @@ class DetectorSet:
             )
         return fits
 
-    def skipping(self, tallies: list[DetectorTally]) -> Plans | None:
-        """Plans that skip, for the rest of a field, the adaptive detectors
-        that reacted to none of its warm-up values; ``None`` when every
-        detector reacted (design 13). Skipped tallies record the warm-up."""
-        skip = [
-            adaptive and not tally.reacted()
-            for adaptive, tally in zip(self._adaptive, tallies)
-        ]
+    def skipping(self, tallies: list[DetectorTally]) -> tuple[bool, ...] | None:
+        """The adaptive detectors skipped for the rest of a field once its
+        warm-up is over, ``None`` when there are none (design 13): those that
+        reacted to none of the warm-up values, and the rare ones, which
+        reacted to at most ``detection.rare_share`` of them and to none in
+        its second half. A detector that failed or rejected the field is
+        never skipped, nor is a rare sensitive detector that has not matched:
+        the field might have values to mask. Skipped tallies record the
+        warm-up."""
+        skip = tuple(
+            adaptive and self._skippable(tally)
+            for adaptive, tally in zip(self._adaptive, tallies, strict=True)
+        )
         if not any(skip):
             return None
-        for tally, skipped in zip(tallies, skip):
+        for tally, skipped in zip(tallies, skip, strict=True):
             if skipped:
                 tally.skipped_after = self.warmup_values
-        return {
-            native_type: tuple(
-                _SKIP if skipped and plan is not None else plan
-                for plan, skipped in zip(plans, skip)
-            )
-            for native_type, plans in self._plans.items()
-        }
+        return skip
 
-    def analyze(
-        self, text: str, plans: Plans | None = None
-    ) -> tuple[tuple[object, ...], object, bool, str]:
-        """Classifications of an analytical string, the number the number
-        detector reads without ambiguity, whether it has a decimal form, and
-        the technical type family."""
-        classifications = self.classify("string", text, plans)
-        number, decimal_form = None, False
-        if self._number is not None:
-            found = classifications[self._number]
-            if (
-                isinstance(found, Classification)
-                and found.state == "matched"
-                and _is_number(found.value)
+    def _skippable(self, tally: DetectorTally) -> bool:
+        if tally.error is not None or tally.rejected:
+            return False
+        reactions = tally.warmup_reactions
+        if not reactions:
+            return True
+        # A rare detector still reacting in the second half of the warm-up
+        # may be becoming frequent, as in a sorted file: it stays.
+        if reactions > self.rare_reactions or tally.recent_reactions:
+            return False
+        return not tally.detector.sensitive or tally.matched > 0
+
+    def add_string_measures(
+        self,
+        measures,
+        values: Sequence[str],
+        counts: Sequence[int],
+        lengths: Sequence[int],
+        numbers: list | None,
+        dates: list | None,
+    ) -> None:
+        """Technical type families and numbers of analytical strings, from the
+        results of the number and date detectors (design 9.4 and 9.7): the
+        rules of ``technical.string_family``."""
+        families = measures.families
+        numeric = measures.numeric
+        other = 0
+        # Longer values that neither detector recognized are text.
+        candidates = [
+            j
+            for j, length in enumerate(lengths)
+            if length <= 5
+            or (numbers is not None and numbers[j] is not None)
+            or (dates is not None and dates[j] is not None)
+        ]
+        for j in candidates:
+            count = counts[j]
+            found = None if dates is None else dates[j]
+            if isinstance(found, Classification) and (
+                found.state == "ambiguous"
+                or (found.state == "matched" and type(found.value) is date)
             ):
-                number = found.value
-                decimal_form = not is_integer_format(found.format)
-        family = string_family(text, classifications, self._date, self._number)
-        return classifications, number, decimal_form, family
+                family = "date"
+            elif lengths[j] <= 5 and values[j].casefold() in BOOLEAN_WORDS:
+                family = "boolean"
+            else:
+                family = "text"
+            found = None if numbers is None else numbers[j]
+            if isinstance(found, Classification):
+                state = found.state
+                if state == "matched":
+                    integer = is_integer_format(found.format)
+                    if family == "text":
+                        family = "integer" if integer else "number"
+                    if _is_number(found.value):
+                        numeric.add(found.value, not integer, False, count)
+                elif state == "ambiguous" and family == "text":
+                    family = "number"
+            if family != "text":
+                families[family] = families.get(family, 0) + count
+                other += count
+        text = sum(counts) - other
+        if text:
+            families["text"] = families.get("text", 0) + text
 
     def gate(self, tallies: list[DetectorTally]) -> ExposureGate | None:
         """The exposure gate of a sensitive field, ``None`` otherwise."""
@@ -557,7 +793,9 @@ class DetectorSet:
                 )
             else:
                 results.append(
-                    tallies[position].result(report_failure, gate, report_probe)
+                    tallies[position].result(
+                        report_failure, gate, report_probe, self.rare_share
+                    )
                 )
             position += 1
         return results
