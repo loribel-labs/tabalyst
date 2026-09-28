@@ -8,7 +8,7 @@ masked by default (design 12.8).
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -65,6 +65,10 @@ class EmailDetector(Detector):
         if not is_domain(domain):
             return _BAD_DOMAIN
         return Classification("matched", value=domain.lower())
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [classify(value) if "@" in value else None for value in values]
 
     def accumulator(self) -> EmailAccumulator:
         return EmailAccumulator(NameCounts(self.max_tracked, self.max_listed))

@@ -27,7 +27,7 @@ regenerated, documentation consistent with what is released.
 | 5c-fr | French translation of the lot 5b and 5c documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 5d | Normalization, limits and structure sections of the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
 | 5d-fr | French translation of the lot 5d documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
-| 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
+| 6 | Measure, set targets, optimize | In progress | Opus 5.5 | High | `scan/phase-6` |
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
 
 Status values: Planned, Next, In progress, Done, Blocked. The session that
@@ -324,8 +324,25 @@ benchmarks.md.
   as preparation for parallelism.
 - Done so far (2026-09-28): adaptive detection (design 13 item 4, O23,
   scan format revision 3, profile revision 7), CSV duplicate digests without
-  `repr`. Open: sensitive detectors are skipped like the others (design 13);
-  benchmarks and targets (O19).
+  `repr`.
+- Done in a second session (2026-09-28), at the maintainer's request (the most
+  speed on large files, progressive learning that drops what became unlikely,
+  reading that uses the machine): batches of distinct values processed
+  detector by detector, with `classify_many` prefilters and `rejects_field`
+  (design 12.1, 13 item 5); CSV records read as column batches (design 6, 13
+  item 6); streaming batches instead of the memoization cache; worker
+  processes for sources of 16 MiB or more, `scan(workers=...)` and
+  `--workers` (13 item 7); rare detectors, `detection.rare_share` (O24, scan
+  format revision 4, profile revision 8); shared JSON path objects; faster
+  table digests. Results are identical to the first session's engine, with
+  `rare_share` 0, on a corpus of 24 scans (demos, edge cases, 100,000 and
+  300,000 rows, JSON, streaming and budget limits), and identical between one
+  process and workers. Benchmarks in benchmarks.md (lot 6).
+- Open: targets (O19); benchmarks of 10 million rows, wide files, long
+  strings and deep JSON; the sensitive detectors open point (design 13 item
+  4); validation of O24 and O25 by the maintainer; reading one source with
+  several processes (lot 7, needs mergeable states); batching JSON records in
+  the engine like CSV rows.
 
 ### Lot 7: extensions
 
@@ -766,3 +783,42 @@ done, and anything the next lot must know.
 - Lot 1b, for lot 6: indicative measure, not a benchmark row: 200,000
   records of 25 MB of JSON (about 11 observations each) in about 2.5 s with
   about 1.3 MB of traced peak memory, compiled `ijson` backend, counters only.
+- Lot 6, second session, for the maintainer and later lots:
+  - Where the time went: the rules were cheap, the calls were not. Per
+    distinct value, 13 `classify` calls and 13 tally updates cost about 10
+    microseconds; skipped detectors still cost their bookkeeping. Batches
+    make a skipped detector free and an unmatched value a C-level test in a
+    list comprehension.
+  - The rare rule was first written without the second-half condition: on
+    the benchmark, the sorted `id` column crosses from 4 to 5 digits at
+    10,000, so `postal_code` reacted once in the warm-up and then matched 90%
+    of the column, all skipped. Keeping detectors that react in the second
+    half fixed it; the corpus shows no difference with `rare_share` 0. The
+    rule saves little time once detectors are batched: it mostly drops
+    patterns and detectors whose early matches were noise.
+  - Workers: the scan process reads, counts columns, and computes record
+    digests, about 10 microseconds per row of 20 columns; beyond 4 to 8
+    workers it is the bottleneck (1M rows: 11.5 s with 4 workers, 11.3 s
+    with 16). The automatic count is capped at 8: each worker costs about 60
+    to 80 MB. Reading one source with several processes needs mergeable
+    tables, samples, first-seen orders and duplicate digests: a lot 7 design.
+  - Each worker is a `python -c` subprocess importing Tabalyst through the
+    scan process's `sys.path` (`TABALYST_WORKER_PATH`), not `multiprocessing`,
+    so an unguarded caller script is never imported again. Frozen
+    applications and custom registries stay in one process.
+  - The JSON reader now shares one path object per logical path: the engine
+    looked paths up by identity, which always missed, and hashed each
+    dataclass segment in Python. JSON consume time halved; the rest is the
+    event loop and the per-observation engine, which could batch records by
+    field like CSV columns.
+  - French pages to update, with lots 5c-fr and 5d-fr: `how-to/scan-files`
+    (large files, `--workers`), `reference/configuration`
+    (`detection.rare_share`), `reference/known-limitations`,
+    `reference/scan-format`, `reference/scan-format-changelog` (revision 4),
+    `reference/json-profile` and `reference/profile-format-changelog`
+    (revision 8).
+  - `tabalyst-studio` follow-up: `report.json` is revision 8 (the site reads
+    `examples/output/insurance-customers/`), the report's analysis settings
+    mention rare detectors, the report uses up to 1,760 px of width,
+    `--workers` is a new option of `scan` and `report`.
+  - Released as 0.4.2 (`docs/dev/releases/0.4.2.md`).

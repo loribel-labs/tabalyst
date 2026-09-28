@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 7,
-  "generated_at": "2026-09-28T05:21:36.360526Z",
-  "processing_seconds": 0.8635,
+  "format_revision": 8,
+  "generated_at": "2026-09-28T11:36:05.293988Z",
+  "processing_seconds": 0.6582,
   "source": {
     "filename": "insurance-customers.csv",
     "format": "csv",
@@ -89,7 +89,8 @@
       "detection": {
         "minimum_share": 0.95,
         "warmup_values": 10000,
-        "probe_interval": 100
+        "probe_interval": 100,
+        "rare_share": 0.001
       },
       "detectors": {
         "number": {

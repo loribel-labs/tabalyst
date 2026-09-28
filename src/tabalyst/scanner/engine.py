@@ -18,6 +18,7 @@ from tabalyst.scanner.observations import (
     DatasetOpened,
     Notice,
     Record,
+    RecordBatch,
     RecordExcluded,
     StreamItem,
 )
@@ -59,7 +60,10 @@ class ScanEngine:
         datasets = self.datasets
         strings = self.strings
         for item in items:
-            if type(item) is Record:
+            if type(item) is RecordBatch:
+                datasets[item.dataset].add_batch(item, strings)
+                self.records_analyzed += len(item.rows)
+            elif type(item) is Record:
                 datasets[item.dataset].add_record(item, strings)
                 self.records_analyzed += 1
             elif type(item) is DatasetOpened:
@@ -102,6 +106,23 @@ class ScanEngine:
         return self.exclusions.total()
 
     def finalize(self) -> list[DatasetResult]:
+        pool = self.values.pool
+        if pool is not None:
+            # Workers finalize every field at once, the largest tables first
+            # for balance; results are then taken in field order.
+            trackers = [
+                field.values
+                for state in self.datasets.values()
+                for field in state.fields.values()
+                if field.values is not None
+            ]
+            trackers.sort(
+                key=lambda tracker: -len(tracker.table)
+                if tracker.table is not None
+                else 0
+            )
+            for tracker in trackers:
+                tracker.submit()
         results = [
             state.finalize(self.config, self.diagnostics)
             for state in self.datasets.values()

@@ -286,6 +286,61 @@ def test_configuration_file_must_hold_a_json_object(tmp_path):
         load_config([array])
 
 
+# Workers --------------------------------------------------------------------
+
+
+def _scan_document(path: Path) -> dict:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document.pop("started_at")
+    document.pop("duration_seconds")
+    return document
+
+
+def test_scan_workers_do_not_change_the_document(tmp_path):
+    rows = "".join(f"{i},name{i % 7},{i % 3 == 0}\n" for i in range(200))
+    source = _write(tmp_path / "data.csv", "id,name,flag\n" + rows)
+
+    single = runner.invoke(app, ["scan", str(source), "-o", str(tmp_path / "a.json")])
+    parallel = runner.invoke(
+        app, ["scan", str(source), "-o", str(tmp_path / "b.json"), "--workers", "2"]
+    )
+
+    assert single.exit_code == 0, single.output
+    assert parallel.exit_code == 0, parallel.output
+    assert _scan_document(tmp_path / "b.json") == _scan_document(tmp_path / "a.json")
+
+
+def test_scan_workers_must_be_positive(tmp_path):
+    source = _write(tmp_path / "data.csv", "x\n1\n")
+
+    result = runner.invoke(app, ["scan", str(source), "--workers", "0"])
+
+    assert result.exit_code == 2
+    with pytest.raises(ConfigurationError, match="workers"):
+        tabalyst.scan(source, workers=0)
+
+
+def test_report_workers_cannot_be_used_with_scan_documents(tmp_path):
+    source = _write(tmp_path / "data.csv", "x\n1\n")
+    assert runner.invoke(app, ["scan", str(source)]).exit_code == 0
+
+    result = runner.invoke(
+        app, ["report", "--scan", str(tmp_path / "data.scan.json"), "--workers", "2"]
+    )
+
+    assert result.exit_code == 2
+    assert "--workers cannot be used with --scan" in result.stderr
+
+
+def test_report_accepts_workers(tmp_path):
+    source = _write(tmp_path / "data.csv", "x,y\n1,a\n2,b\n")
+
+    result = runner.invoke(app, ["report", str(source), "--workers", "2"])
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "data.html").exists()
+
+
 # Python API and progress --------------------------------------------------
 
 

@@ -2,6 +2,43 @@
 
 ## 2026-09-28
 
+- Prepared Tabalyst `0.4.2` with faster scans of large files, worker
+  processes, rare detectors, less horizontal scrolling in wide reports, scan
+  format revision 4 and profile format revision 8.
+- Less horizontal scrolling in reports, checked at 1,920 px: the content
+  width cap rises from 1,440 to 1,760 px, table header labels may wrap so a
+  table narrows before it scrolls, and in data samples column names break
+  after `_`, `.`, `-` and `/` (`breakable` filter of `reporting.py`) and
+  lists of JSON values wrap. At 1,920 px, the analysis tables of the three
+  demos no longer scroll; the insurance data sample overflows by 3,091 px
+  instead of 4,056 and the JSON sample by 897 px instead of 2,331. The
+  browser regression check passes at desktop and mobile sizes.
+- Faster scans of large files (Tabalyst Scan lot 6, second session): 1
+  million rows of 20 columns in about 11 s instead of 177 s with 0.4.1 (and
+  109 s with the former pandas engine), 100,000 JSON records in about 8 s
+  instead of 22 s. Distinct values are processed in batches, detector by
+  detector: built-in detectors reject most values with a check inside a list
+  comprehension (`classify_many`), a skipped detector costs nothing per
+  value, and an enumeration that can no longer match stops (`rejects_field`).
+  Printable strings are normalized inline, masks use a translation table,
+  and classifications and observations are named tuples. CSV records reach
+  the engine as batches of rows, counted column by column at C speed, with
+  the global budget checked in record order when a batch could exceed it.
+  Sources of 16 MiB or more are analyzed by worker processes, one field per
+  worker, at most 8 by default: `scan(workers=...)`, `--workers` for `scan`
+  and `report`; a worker failing to start leaves the scan in one process.
+  The JSON reader shares one path object per path, and table duplicate
+  digests hash values joined by NUL characters. Results are identical to the
+  previous engine on a corpus of 24 scans, and between one process and
+  workers.
+- Rare detectors (decision O24, proposed): after the warm-up, a detector that
+  recognized at most `detection.rare_share` (default 0.001) of its distinct
+  values, and none in its second half, is skipped too; a sensitive detector
+  without a match is not. Probes that react more often than the warm-up
+  raise `detector_skipped_reacted`. Scan format revision 4
+  (`adaptive.warmup_reactions`), profile revision 8, the report's analysis
+  settings describe the rule. French pages and `tabalyst-studio` follow-ups
+  are listed in the lot 6 notes of the scan plan.
 - Prepared Tabalyst `0.4.1` with adaptive detection, faster streaming, the
   total time of reports built from scan documents, scan format revision 3
   and profile format revision 7.

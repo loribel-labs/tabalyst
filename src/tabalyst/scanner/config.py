@@ -182,6 +182,9 @@ class DetectionSettings(_Settings):
     # Adaptive detection (design 13): 0 keeps detection exhaustive.
     warmup_values: int = Field(default=10_000, ge=0, le=MAX_WARMUP_VALUES)
     probe_interval: int = Field(default=100, ge=0, le=MAX_PROBE_INTERVAL)
+    # Detectors that reacted to at most this share of the warm-up values are
+    # skipped too; 0 skips only those that reacted to none.
+    rare_share: float = Field(default=0.001, ge=0, le=1)
 
 
 NumberConvention = Literal["dot", "comma"]

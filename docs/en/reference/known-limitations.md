@@ -41,8 +41,10 @@ published release lifts them.
   `scan.records.duplicates` to `false` to skip the detection.
 - **No row-level progress.** Report and scan progress show the share of the
   file read, not a number of rows.
-- **Sequential batches.** Several files are processed one after another, not in
-  parallel.
+- **One reader per file.** Files of 16 MiB or more are analyzed by worker
+  processes, but each file is read by a single process, which bounds the
+  speed on very large files. Several files are processed one after another,
+  not in parallel.
 
 ## Analysis
 
@@ -59,10 +61,11 @@ published release lifts them.
   address, number or code exists.
 - **Rare late values on large columns.** On a column with more than
   `scan.detection.warmup_values` distinct values (10,000 by default), a
-  detector that recognized none of the first ones stops testing the others,
-  except about one value in 100. A rare email address, phone number or code
-  that appears only later can go unnoticed, and a sensitive one is then not
-  masked. Set `scan.detection.warmup_values` to `0` to test every value.
+  detector that recognized none of the first ones, or only a few early ones
+  (`scan.detection.rare_share`), stops testing the others, except about one
+  value in 100. A rare email address, phone number or code that appears only
+  later can go unnoticed, and a sensitive one is then not masked. Set
+  `scan.detection.warmup_values` to `0` to test every value.
 - **Missing values.** By default only empty and whitespace-only cells are
   missing. `NA`, `NULL` or `NaN` stay text unless you declare them in
   `scan.values.null_markers` in a [configuration file](configuration.md).

@@ -1,9 +1,10 @@
 """Per-value facts and the accumulators of string, length and numeric measures
 (design sections 9.2 to 9.4).
 
-Facts are a pure function of one raw value. The value tracker feeds them once
-per distinct value, weighted by its count, or once per occurrence after its
-table is released: both give the same results (design section 13).
+Facts are a pure function of one raw value. The value tracker adds them in
+batches of distinct values, each weighted by its count: once per distinct
+value while the frequency table is complete, once per batch of a streamed
+field after it is released. Both give the same results (design section 13).
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from decimal import (
     Underflow,
 )
 from fractions import Fraction
-from typing import TYPE_CHECKING
+from unicodedata import is_normalized
 
 from tabalyst.scanner.models import (
     Complete,
@@ -34,10 +35,13 @@ from tabalyst.scanner.models import (
     StringCharacteristics,
     StringLengths,
 )
-from tabalyst.scanner.normalization import ANALYTICAL_STAGE, STAGES, Normalizer
-
-if TYPE_CHECKING:  # detectors import this module
-    from tabalyst.scanner.detectors.registry import DetectorSet, Plans
+from tabalyst.scanner.normalization import (
+    ANALYTICAL_STAGE,
+    STAGES,
+    Normalizer,
+    collapse,
+    strip_accents,
+)
 
 # Exact decimal arithmetic: any rounding or exponent outside the range makes
 # the numeric envelope ``limited`` with reason ``precision``.
@@ -78,32 +82,6 @@ _CONTROL = re.compile("[\x00-\x08\x0e-\x1b\x1f\x7f-\x84\x86-\x9f]")
 _REPEATED_WHITESPACE = re.compile(r"\s\s")
 # Any character that the two patterns above can match: most values have none.
 _RARE = re.compile("[\x00-\x1f\x7f-\x9f  ]")
-
-# Facts of one value: native type, analytical text, characteristic flags
-# (strings only, else 0), analytical length (strings only, else -1), number
-# (int or Decimal, else None), whether that number has a decimal form, the
-# normalization changes (bit ``i`` for stage ``i``, strings only, else 0), the
-# output of each normalization stage (strings only, else None), the
-# classification of each active detector (design section 12) and the
-# technical type family (design 9.7).
-Facts = tuple[
-    str,
-    str,
-    int,
-    int,
-    int | Decimal | None,
-    bool,
-    int,
-    tuple[str, ...] | None,
-    tuple[object, ...],
-    str,
-]
-# Positions of the normalization and detection facts.
-CHANGES = 6
-FORMS = 7
-CLASSIFICATIONS = 8
-FAMILY = 9
-
 
 def characteristic_flags(raw: str) -> int:
     """Bit ``i`` is set when the raw string has ``CHARACTERISTICS[i]``."""
@@ -151,56 +129,11 @@ def decimal_or_unconvertible(text: str) -> Decimal | _Unconvertible:
         return UNCONVERTIBLE
 
 
-def string_facts(
-    raw: str, normalizer: Normalizer, detectors: DetectorSet, plans: Plans | None = None
-) -> Facts:
-    """Facts of a content string; detectors see its analytical value, and
-    ``plans`` may skip some of them (design 13)."""
-    forms, changes = normalizer.run(raw)
-    text = forms[ANALYTICAL_STAGE]
-    classifications, number, decimal_form, family = detectors.analyze(text, plans)
-    return (
-        "string",
-        text,
-        characteristic_flags(raw),
-        len(text),
-        number,
-        decimal_form,
-        changes,
-        forms,
-        classifications,
-        family,
-    )
-
-
 def canonical_text(native_type: str, value: object) -> str:
     """Canonical text of a non-string value: ``str()`` of the parsed value."""
     if native_type == "boolean":
         return "true" if value else "false"
     return str(value)
-
-
-def scalar_facts(
-    native_type: str, value: object, detectors: DetectorSet, plans: Plans | None = None
-) -> Facts:
-    """Facts of an integer, number (``Decimal``) or boolean; detectors that
-    accept its native type see its canonical text."""
-    text = canonical_text(native_type, value)
-    classifications = detectors.classify(native_type, text, plans)
-    if native_type == "boolean":
-        return (native_type, text, 0, -1, None, False, 0, None, classifications, "boolean")
-    return (
-        native_type,
-        text,
-        0,
-        -1,
-        value,
-        native_type == "number",
-        0,
-        None,
-        classifications,
-        native_type,
-    )
 
 
 class Unrepresentable(Exception):
@@ -384,55 +317,152 @@ def _add_bits(counters: list[int], flags: int, count: int) -> None:
         flags ^= bit
 
 
+def _expand(counts: dict[int, int], size: int) -> list[int]:
+    """Counters per bit from occurrences per combination of bits."""
+    counters = [0] * size
+    for flags, count in counts.items():
+        _add_bits(counters, flags, count)
+    return counters
+
+
 class ValueMeasures:
     """String characteristics, lengths, normalization changes, numeric
-    statistics, technical type families and detector tallies of one field."""
+    statistics, technical type families and detector tallies of one field.
+
+    Characteristics and normalization changes are counted per combination of
+    flags, which few values share, and expanded per flag at the end.
+    """
 
     __slots__ = (
-        "changed",
-        "characteristics",
+        "changes",
         "families",
+        "flags",
         "lengths",
         "numeric",
         "tallies",
     )
 
     def __init__(self, tallies: list | tuple = ()) -> None:
-        self.characteristics = [0] * len(CHARACTERISTICS)
+        # Occurrences per combination of characteristic flags (design 9.2).
+        self.flags: dict[int, int] = {}
         self.lengths: dict[int, int] = {}
-        # Occurrences modified by each normalization stage (design section 10).
-        self.changed = [0] * len(STAGES)
+        # Occurrences per combination of normalization stages that changed
+        # them (design section 10).
+        self.changes: dict[int, int] = {}
         self.numeric = NumericAccumulator()
         # Values per technical type family (design 9.7).
         self.families: dict[str, int] = {}
-        # One tally per active detector, aligned with the classifications.
+        # One tally per active detector, aligned with the active detectors.
         self.tallies = tallies
 
-    def add(self, facts: Facts, count: int) -> None:
-        (
-            native_type,
-            text,
-            flags,
-            length,
-            number,
-            decimal_form,
-            changes,
-            _,
-            classifications,
-            family,
-        ) = facts
-        if length >= 0:
-            self.lengths[length] = self.lengths.get(length, 0) + count
-            _add_bits(self.characteristics, flags, count)
-            _add_bits(self.changed, changes, count)
-        if number is not None:
-            self.numeric.add(number, decimal_form, native_type != "string", count)
-        self.families[family] = self.families.get(family, 0) + count
-        for tally, classification in zip(self.tallies, classifications):
-            tally.add(text, classification, count)
+    @property
+    def changed(self) -> list[int]:
+        """Occurrences modified by each normalization stage."""
+        return _expand(self.changes, len(STAGES))
+
+    def add_strings(
+        self,
+        raws: list[str],
+        counts: list[int],
+        normalizer: Normalizer,
+        forms: dict[str, tuple[str, ...]] | None = None,
+    ) -> tuple[list[str], list[int]]:
+        """Normalize distinct content strings (design 10) and count their
+        characteristics, analytical lengths and normalization changes, each
+        weighted by its count. Returns the analytical texts and their lengths.
+        ``forms`` receives the output of every stage for the strings that a
+        stage changed.
+
+        Printable strings in NFC take a fast path with the same results as
+        ``Normalizer.run`` and ``characteristic_flags``: their only whitespace
+        is the space, and they have no line break or control character.
+        """
+        texts: list[str] = []
+        lengths: list[int] = []
+        histogram = self.lengths
+        flag_counts = self.flags
+        change_counts = self.changes
+        run = normalizer.run
+        fast = normalizer.fast
+        nfc = normalizer.nfc
+        casefold = normalizer.casefold
+        accents = normalizer.accents
+        for raw, count in zip(raws, counts, strict=True):
+            ascii_ = raw.isascii()
+            if (
+                fast
+                and raw.isprintable()
+                and (ascii_ or not nfc or is_normalized("NFC", raw))
+            ):
+                stripped = raw.strip()
+                if len(stripped) != len(raw):
+                    flags, changes = 8, 2
+                else:
+                    flags = changes = 0
+                if "  " in stripped:
+                    flags |= 16
+                    changes |= 4
+                    text = collapse(stripped)
+                else:
+                    text = stripped
+                if ascii_:
+                    # ASCII letters are cased, and case folding is lowering.
+                    folded = text.lower()
+                    if text.isupper():
+                        flags |= 32
+                    elif text.islower():
+                        flags |= 64
+                    elif folded != text:
+                        flags |= 128
+                    else:
+                        flags |= 256
+                    if not casefold:
+                        folded = text
+                    elif folded != text:
+                        changes |= 8
+                    final = folded
+                else:
+                    flags |= 1
+                    if raw.upper() != raw.lower():  # has cased characters
+                        if raw.isupper():
+                            flags |= 32
+                        elif raw.islower():
+                            flags |= 64
+                        else:
+                            flags |= 128
+                        if not any(map(str.isalpha, raw)):
+                            flags |= 256
+                    elif not any(map(str.isalpha, raw)):
+                        flags |= 256
+                    folded = text.casefold() if casefold else text
+                    if folded != text:
+                        changes |= 8
+                    final = folded
+                    if accents and not folded.isascii():
+                        final = strip_accents(folded)
+                        if final != folded:
+                            changes |= 16
+                if changes and forms is not None:
+                    forms[raw] = (raw, stripped, text, folded, final)
+            else:
+                stages, changes = run(raw)
+                text = stages[ANALYTICAL_STAGE]
+                flags = characteristic_flags(raw)
+                if changes and forms is not None:
+                    forms[raw] = stages
+            length = len(text)
+            texts.append(text)
+            lengths.append(length)
+            histogram[length] = histogram.get(length, 0) + count
+            flag_counts[flags] = flag_counts.get(flags, 0) + count
+            if changes:
+                change_counts[changes] = change_counts.get(changes, 0) + count
+        return texts, lengths
 
     def string_characteristics(self) -> StringCharacteristics:
-        return StringCharacteristics(**dict(zip(CHARACTERISTICS, self.characteristics)))
+        return StringCharacteristics(
+            **dict(zip(CHARACTERISTICS, _expand(self.flags, len(CHARACTERISTICS))))
+        )
 
     def string_lengths(self):
         lengths = self.lengths

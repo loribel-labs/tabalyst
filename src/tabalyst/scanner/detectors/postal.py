@@ -9,7 +9,7 @@ sensitive.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -78,6 +78,10 @@ class PostalCodeDetector(Detector):
         if first in _LETTERS:
             return _ca(value) if self._ca else None
         return None
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [classify(value) if len(value) in LENGTHS else None for value in values]
 
     def accumulator(self) -> PostalCodeAccumulator:
         return PostalCodeAccumulator(self.regions)

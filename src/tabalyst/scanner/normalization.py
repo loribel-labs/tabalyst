@@ -25,17 +25,34 @@ KEY_STAGE = len(STAGES) - 1
 _COLLAPSIBLE = re.compile("[^\\S\r\n\v\f\x1c-\x1e\x85  ]+")
 
 
-def _collapse(value: str) -> str:
+def collapse(value: str) -> str:
+    """Every run of whitespace other than line breaks as one space."""
     return _COLLAPSIBLE.sub(" ", value)
 
 
-def _strip_accents(value: str) -> str:
+# Characters kept by ``_MARKS``; a larger table is cleared, so it stays small.
+_MAX_MARKS = 65_536
+
+
+class _CombiningMarks(dict):
+    """``str.translate`` table deleting combining marks (category ``Mn``) and
+    keeping every other character, filled as characters are met."""
+
+    def __missing__(self, ordinal: int) -> int | None:
+        if len(self) >= _MAX_MARKS:
+            self.clear()
+        kept = None if unicodedata.category(chr(ordinal)) == "Mn" else ordinal
+        self[ordinal] = kept
+        return kept
+
+
+_MARKS = _CombiningMarks()
+
+
+def strip_accents(value: str) -> str:
     """NFD, removal of combining marks (category ``Mn``), then NFC."""
     decomposed = unicodedata.normalize("NFD", value)
-    return unicodedata.normalize(
-        "NFC",
-        "".join(char for char in decomposed if unicodedata.category(char) != "Mn"),
-    )
+    return unicodedata.normalize("NFC", decomposed.translate(_MARKS))
 
 
 class Normalizer:
@@ -45,7 +62,18 @@ class Normalizer:
     change, so it influences nothing (CA16).
     """
 
-    __slots__ = ("_casefold", "_collapse", "_nfc", "_strip_accents", "_trim", "enabled")
+    __slots__ = (
+        "_casefold",
+        "_collapse",
+        "_nfc",
+        "_strip_accents",
+        "_trim",
+        "accents",
+        "casefold",
+        "enabled",
+        "fast",
+        "nfc",
+    )
 
     def __init__(self, settings: NormalizationSettings) -> None:
         self.enabled = tuple(getattr(settings, stage) for stage in STAGES)
@@ -56,6 +84,12 @@ class Normalizer:
             self._casefold,
             self._strip_accents,
         ) = self.enabled
+        self.nfc = self._nfc
+        self.casefold = self._casefold
+        self.accents = self._strip_accents
+        # Batches normalize printable strings inline when both whitespace
+        # stages run (``ValueMeasures.add_strings``).
+        self.fast = self._trim and self._collapse
 
     def analytical(self, value: str) -> str:
         """Output of the enabled ``nfc``, ``trim`` and ``collapse_whitespace``."""
@@ -80,7 +114,7 @@ class Normalizer:
                 changes |= 2
         trimmed = value
         if self._collapse:
-            collapsed = _collapse(value)
+            collapsed = collapse(value)
             if collapsed != value:
                 value = collapsed
                 changes |= 4
@@ -92,7 +126,7 @@ class Normalizer:
                 changes |= 8
         folded = value
         if self._strip_accents and not value.isascii():
-            stripped = _strip_accents(value)
+            stripped = strip_accents(value)
             if stripped != value:
                 value = stripped
                 changes |= 16

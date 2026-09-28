@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 3
+FORMAT_REVISION = 4
 
 
 class ScanModel(BaseModel):
@@ -342,11 +342,14 @@ class _Detector(ScanModel):
 
 
 class Adaptive(ScanModel):
-    """Design 13: the detector reacted to none of the first ``skipped_after``
-    distinct values of the field, so later values other than probes were not
-    tested. ``diagnostic`` points to the warning raised when a probe reacted."""
+    """Design 13: the detector reacted to ``warmup_reactions`` of the first
+    ``skipped_after`` distinct values of the field, none or at most
+    ``detection.rare_share`` of them, so later values other than probes were
+    not tested. ``diagnostic`` points to the warning raised when a probe
+    reacted after a warm-up without any reaction."""
 
     skipped_after: int
+    warmup_reactions: int
     not_tested: int
     diagnostic: int | None
 

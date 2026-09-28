@@ -14,8 +14,10 @@ the count becomes a proven lower bound (reason ``record_budget``).
 
 A record of a dataset with declared fields (a CSV table) that observes the
 root, then each declared path once, in order, as a string, is its values
-alone: its digest hashes the value lengths and the joined values, with its
-own personalization so it never equals the digest of another record.
+alone. Its digest hashes the values joined by NUL characters, which CSV
+values never hold; values that hold one are hashed with their lengths
+instead. Each form has its own personalization, so it never equals the
+digest of another record.
 """
 
 from __future__ import annotations
@@ -37,13 +39,15 @@ from tabalyst.scanner.models import (
     RecordList,
     Records,
 )
-from tabalyst.scanner.observations import Record
+from tabalyst.scanner.observations import Record, RecordBatch
 from tabalyst.scanner.paths import ROOT, FieldPath
 
 CONTAINER_TYPES = frozenset({"object", "array"})
 # Paths numbered for the digests; later paths use their ``repr``.
 MAX_PATH_TOKENS = 65_536
 _TABLE_PERSON = b"tabalyst.table"
+# Table values joined by NUL characters, hashed from a copy of this state.
+_ROWS = hashlib.blake2b(digest_size=16, person=b"tabalyst.rows")
 _path = operator.attrgetter("path")
 _type = operator.attrgetter("type")
 _value = operator.attrgetter("value")
@@ -82,7 +86,14 @@ class TableLayout:
 
 
 def _table_digest(values: list[str]) -> bytes:
-    """Digest of table values: the lengths make the joined text unambiguous."""
+    """Digest of table values: joined by NUL characters when no value holds
+    one, otherwise with their lengths, which make the joined text
+    unambiguous."""
+    joined = "\0".join(values)
+    if joined.count("\0") == len(values) - 1:
+        digest = _ROWS.copy()
+        digest.update(joined.encode("utf-8", "surrogatepass"))
+        return digest.digest()
     digest = hashlib.blake2b(
         array("q", map(len, values)).tobytes(), digest_size=16, person=_TABLE_PERSON
     )
@@ -235,7 +246,55 @@ class RecordFacts:
                 if len(self.empty_records) < listed:
                     self.empty_records.append(index)
         if context.duplicates:
-            self._compare(record)
+            self._compare(self._digest(record), index)
+
+    def add_batch(self, batch: RecordBatch, irregular: bool) -> None:
+        """Facts of records whose values are the strings of their row, one per
+        declared field: the same as ``add`` for each of them. Without
+        ``irregular`` values (blank strings or markers), only empty strings
+        can be missing."""
+        context = self._context
+        rows = batch.rows
+        start = batch.start
+        paths = self._table.paths[1:]
+        room = context.preview - len(self.preview)
+        if room > 0:
+            for offset, row in enumerate(rows[:room]):
+                self.preview.append(
+                    (
+                        start + offset,
+                        {
+                            path: [("string", value)]
+                            for path, value in zip(paths, row, strict=True)
+                        },
+                    )
+                )
+        missing = context.missing
+        if irregular:
+            category = context.strings.category
+            counts = [sum(category(value) in missing for value in row) for row in rows]
+        elif "empty" in missing:
+            counts = [row.count("") if "" in row else 0 for row in rows]
+        else:
+            counts = None
+        if counts is not None:
+            listed = context.listed
+            width = len(paths)
+            for offset, count in enumerate(counts):
+                if not count:
+                    continue
+                index = start + offset
+                self.missing_count += 1
+                if len(self.missing_records) < listed:
+                    self.missing_records.append(index)
+                if count == width:
+                    self.empty_count += 1
+                    if len(self.empty_records) < listed:
+                        self.empty_records.append(index)
+        if context.duplicates:
+            compare = self._compare
+            for offset, digest in enumerate(map(_table_digest, rows)):
+                compare(digest, start + offset)
 
     def _digest(self, record: Record) -> bytes:
         table = self._table
@@ -252,12 +311,11 @@ class RecordFacts:
             repr(key).encode("utf-8", "surrogatepass"), digest_size=16
         ).digest()
 
-    def _compare(self, record: Record) -> None:
-        digest = self._digest(record)
+    def _compare(self, digest: bytes, index: int) -> None:
         if digest in self._seen:
             self.duplicate_count += 1
             if len(self.duplicate_records) < self._context.listed:
-                self.duplicate_records.append(record.index)
+                self.duplicate_records.append(index)
             return
         budget = self._context.budget
         if budget.stored < budget.limit:

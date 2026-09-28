@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -76,6 +77,10 @@ class UuidDetector(Detector):
         else:
             case = "_mixed"
         return Classification("matched", format=form + case, value=_version(lower))
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [classify(value) if len(value) in LENGTHS else None for value in values]
 
     def accumulator(self) -> UuidAccumulator:
         return UuidAccumulator()

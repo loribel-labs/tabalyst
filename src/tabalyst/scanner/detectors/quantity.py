@@ -9,7 +9,7 @@ only; it does not know units (EF32). Formats replace the unit with
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.amount import (
     NUMBER_PART,
@@ -74,6 +74,10 @@ class QuantityDetector(Detector):
         return self.reader.read(
             match["sign"], match["body"], "", match["space"] + "[unit]"
         )
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        return [classify(value) if value[:1] in _FIRST else None for value in values]
 
     def accumulator(self) -> QuantityAccumulator:
         return QuantityAccumulator(

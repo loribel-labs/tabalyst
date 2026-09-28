@@ -5,7 +5,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 
 `tabalyst scan data.csv` writes `data.scan.json`, a JSON document that
 describes every field of the source. This page describes format
-`tabalyst.scan`, version `0.1.0a`, revision `2`. The format is
+`tabalyst.scan`, version `0.1.0a`, revision `4`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](scan-format-changelog.md).
@@ -16,9 +16,9 @@ the [scan format changelog](scan-format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 3,
+  "format_revision": 4,
   "engine": {
-    "version": "0.4.1",
+    "version": "0.4.2",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },
@@ -217,12 +217,15 @@ Every detector is listed for every field, with status `complete`,
   evidence.
 - `adaptive`: `null` when the detector tested every value of the field.
   When it recognized none of the first `detection.warmup_values` distinct
-  values, it is skipped for the other values except probes, and `adaptive` is
-  `{"skipped_after": 10000, "not_tested": 1200, "diagnostic": null}`: the
-  warm-up size, the values it did not test (included in
-  `coverage.not_tested`), and the index of a `detector_skipped_reacted`
-  warning when a probe was recognized, meaning its counts are incomplete.
-  `number` and `date` are never skipped.
+  values, or at most `detection.rare_share` of them and none in the second
+  half of that warm-up, it is skipped for the other values except probes, and
+  `adaptive` is
+  `{"skipped_after": 10000, "warmup_reactions": 0, "not_tested": 1200, "diagnostic": null}`:
+  the warm-up size, the warm-up values it recognized, the values it did not
+  test (included in `coverage.not_tested`), and the index of a
+  `detector_skipped_reacted` warning when probes were recognized more often
+  than the warm-up allowed, meaning its counts are incomplete. `number` and
+  `date` are never skipped.
 
 The built-in detectors are `number`, `date`, `boolean`, `enumeration`,
 `email`, `url`, `phone`, `postal_code`, `currency`, `percentage`, `quantity`,

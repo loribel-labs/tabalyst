@@ -8,7 +8,7 @@ from pathlib import Path
 from time import perf_counter
 
 from tabalyst._version import __version__
-from tabalyst.errors import InputError
+from tabalyst.errors import ConfigurationError, InputError
 from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
 from tabalyst.scanner.config import ScanConfig, config_sha256
 from tabalyst.scanner.detectors.registry import (
@@ -25,11 +25,17 @@ from tabalyst.scanner.models import (
     Scope,
     SourceInfo,
 )
-from tabalyst.scanner.observations import Record, StreamItem
+from tabalyst.scanner.observations import (
+    DatasetOpened,
+    Record,
+    RecordBatch,
+    StreamItem,
+)
 from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
 from tabalyst.scanner.readers.json_reader import JsonReader
+from tabalyst.scanner.workers import WorkerPool, worker_count
 
 NORMALIZATION_VERSION = 1
 # Reading progress is reported at most once per percent of the source, and
@@ -86,9 +92,17 @@ def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope
 def _observed(
     items: Iterable[StreamItem], on_record: Callable[[Record], None]
 ) -> Iterator[StreamItem]:
+    """Items as read, after passing each analyzed record to ``on_record``;
+    records of a batch are passed one by one, as ``Record`` items."""
+    declared = {}
     for item in items:
         if type(item) is Record:
             on_record(item)
+        elif type(item) is RecordBatch:
+            for record in item.records(declared[item.dataset]):
+                on_record(record)
+        elif type(item) is DatasetOpened:
+            declared[item.dataset] = [field.path for field in item.fields]
         yield item
 
 
@@ -99,6 +113,7 @@ def scan(
     registry: DetectorRegistry | None = None,
     on_progress: ProgressCallback | None = None,
     on_record: Callable[[Record], None] | None = None,
+    workers: int | None = None,
 ) -> ScanResult:
     """Read one source completely and return its finalized scan result.
 
@@ -107,7 +122,14 @@ def scan(
     order, before the engine: consumers that need record-level facts, such
     as the report's preview and duplicate rows, get them in the same pass. It
     must not modify the record.
+
+    ``workers`` is the number of processes that analyze values: ``1`` scans
+    in this process; by default, large sources use one worker per spare
+    processor (``workers.worker_count``). The result does not depend on it.
+    A custom ``registry`` always scans in this process.
     """
+    if workers is not None and workers < 1:
+        raise ConfigurationError("workers must be at least 1")
     path = Path(source)
     # A private copy: the finalized result must not share state with the caller.
     config = ScanConfig() if config is None else config.model_copy(deep=True)
@@ -130,8 +152,17 @@ def scan(
         default_registry() if registry is None else registry, config
     )
     engine = ScanEngine(config, detectors)
-    engine.consume(reader if on_record is None else _observed(reader, on_record))
-    datasets = engine.finalize()
+    count = 1 if registry is not None else worker_count(workers, stat.st_size)
+    if count > 1:
+        pool = WorkerPool(config.model_dump_json(by_alias=True), count)
+        if pool.start():
+            engine.values.pool = pool
+    try:
+        engine.consume(reader if on_record is None else _observed(reader, on_record))
+        datasets = engine.finalize()
+    finally:
+        if engine.values.pool is not None:
+            engine.values.pool.close()
     summary = reader.summary()
 
     excluded = engine.records_excluded

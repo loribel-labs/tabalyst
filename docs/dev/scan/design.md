@@ -54,6 +54,8 @@ lot, with the reason recorded in section 17.
 | O21 | Dynamic plugins | Internal registry only; no external loading. | Deferred to 7 | 12.1 |
 | O22 | Approximations | Outside the contract. Any approximation requires a new explicit decision. | Accepted (specification) | 8 |
 | O23 | Adaptive detection | Adaptive detectors that react to none of the first `detection.warmup_values` distinct values of a field (default 10,000) skip its later values, except probes; skipped values are `not_tested`, never guessed. `number` and `date` are never skipped. Sensitive detectors are skipped like the others for now (open point in section 13). | Accepted 2026-09-28 (lot 6) | 12.2, 13 |
+| O24 | Rare detectors | Adaptive detectors that react to at most `detection.rare_share` of the warm-up values (default 0.001) and to none of its second half are skipped too; a rare sensitive detector without a match never is. Probes that react more often than the warm-up allowed raise `detector_skipped_reacted`. | Proposed 2026-09-28 (lot 6) | 12.3, 13 |
+| O25 | Batch and parallel execution | Distinct values are processed in batches, detector by detector; CSV records arrive as batches of rows read column by column; large sources hand the values of each field to one worker process. Results never depend on batches or workers (principle 6). | Proposed 2026-09-28 (lot 6) | 6, 13 |
 
 ## 2. Principles
 
@@ -115,6 +117,7 @@ src/tabalyst/scanner/
 |-- diagnostics.py     diagnostic collector
 |-- exposure.py        sensitive value gate
 |-- technical.py       technical type inference
+|-- workers.py         worker processes of parallel scans (lot 6)
 |-- detectors/         base, registry, shape classifier, built-ins, patterns
 `-- models.py          Pydantic result models
 ```
@@ -298,12 +301,27 @@ class RecordExcluded:
 ```
 
 ```python
-@dataclass(frozen=True, slots=True)
-class Observation:
+class Observation(NamedTuple):   # immutable; a named tuple is cheap to build (lot 6)
     path: FieldPath              # relative to the record root
     type: NativeType             # null, boolean, integer, number, string, object, array
     value: object                # str, int, Decimal, bool or None; array length for arrays
+
+@dataclass(slots=True)
+class RecordBatch:               # lot 6: records of a table with declared fields
+    dataset: str
+    start: int                   # index of the first record; the others follow
+    rows: list[list[str]]        # one string per declared field, in order
+    lines: list[int]             # first physical line of each record
 ```
+
+A reader of a dataset with declared fields may stream its records as
+`RecordBatch` items instead of `Record` items: each row stands for a record
+that observes its root as an object, then each declared field once, as a
+string, so the engine reads the batch column by column with the same results.
+The CSV reader does (lot 6). `scan(on_record=...)` still receives one
+`Record` per record, built from the batch. A reader that builds paths should
+reuse one path object per logical path (the JSON reader does): the engine and
+record digests look paths up by identity first.
 
 - Every record starts with an observation at the empty path describing the
   record itself. CSV records use type `object`.
@@ -605,7 +623,10 @@ Each dataset has a `records` block of record-level facts (section 16.2):
 - `duplicates`: records equal to an earlier record of the same dataset,
   beyond the first occurrence. Records compare every observation (path,
   native type, raw value) through a 128-bit BLAKE2b digest, one per distinct
-  record: exact up to a negligible collision probability. The digests of the
+  record: exact up to a negligible collision probability. A record of a
+  table is its values alone, hashed joined by NUL characters when none holds
+  one (CSV values never do), otherwise with their lengths, each form with its
+  own personalization (lot 6). The digests of the
   whole scan are bounded by `limits.max_tracked_records`: once it is reached,
   new digests are not stored but records are still compared with the stored
   ones, so every counted duplicate is proven, and the count of a dataset with
@@ -739,13 +760,29 @@ class Detector:
 
     def __init__(self, settings: Mapping[str, object]) -> None: ...
     def classify(self, value: str) -> Classification | None: ...
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]: ...
     def accumulator(self) -> DetectorAccumulator: ...
 
 class DetectorAccumulator:
     def add(self, value: str, classification: Classification | None, count: int) -> None: ...
     def details(self, gate: ExposureGate) -> dict[str, object]: ...
     def field_matches(self) -> bool: ...          # field-level detectors only
+    def rejects_field(self) -> bool: ...          # field-level detectors only
 ```
+
+- `classify_many` (lot 6) classifies a batch of distinct values and must
+  return exactly `classify` of each value, in order; the default maps
+  `classify`. Built-in detectors override it to reject most values by an
+  exact cheap check, without a call per value. If it raises, the engine
+  classifies each value alone to locate the failure.
+- `rejects_field` (lot 6) lets a field-level detector say that the field can
+  no longer match whatever values follow, and that `add` no longer changes
+  `details`: later values count as not matched without being classified.
+  Only for detectors whose `classify` never returns `ambiguous` or
+  `invalid`; `enumeration` rejects a field once it holds
+  `maximum_distinct + 1` values.
+- `Classification` is an immutable named tuple since lot 6, built about twice
+  as fast as a frozen dataclass.
 
 - `classify` is pure and deterministic: the same value always gives the same
   result. `None` means not matched. This makes memoization and per-distinct
@@ -826,10 +863,12 @@ detection is exhaustive.
 
 `adaptive` is `null` unless adaptive detection skipped the detector on the
 field (section 13); it is then
-`{"skipped_after": 10000, "not_tested": 1200, "diagnostic": null}`:
-the warm-up size, the occurrences skipped (included in `coverage.not_tested`)
-and the index of the `detector_skipped_reacted` warning when a probe reacted,
-else `null`.
+`{"skipped_after": 10000, "warmup_reactions": 0, "not_tested": 1200, "diagnostic": null}`:
+the warm-up size, the distinct warm-up values the detector reacted to (0, or
+at most `detection.rare_share` of them for a rare detector, scan format
+revision 4), the occurrences skipped (included in `coverage.not_tested`) and
+the index of the `detector_skipped_reacted` warning when probes reacted more
+often than the warm-up allowed, else `null`.
 
 A failed detector has `status: "failed"`, `reason: "detector_error"`, a
 `diagnostic` index and no `coverage`: a failure is never reported as values
@@ -980,8 +1019,11 @@ this without changing results:
 1. While a field's raw frequency table is complete, per-value work runs once
    per distinct value, weighted by its count, at finalization.
 2. When the table is released, the engine first processes the stored distinct
-   values with their counts, then switches the field to streaming mode: each
-   new occurrence is processed immediately through a bounded memoization cache.
+   values with their counts, then switches the field to streaming mode: new
+   occurrences are gathered in a batch of distinct values with their counts
+   (at most `values.BATCH_SIZE`, 4,096), processed whenever it is full and at
+   the end. The batch is the memoization of lot 6; it replaced a cache that
+   unique values emptied constantly.
 3. Both modes produce identical results. A contract test compares a scan with
    `max_distinct_per_field=1` and a scan with the default for every
    non-table measure.
@@ -1016,15 +1058,72 @@ this without changing results:
    need 95%, so they never change. Sorted files remain the risk the probes
    cover.
 
-   Open point: sensitive detectors (`email`, `phone`, `ip_address`) are
-   skipped like the others. A sensitive value first met after the warm-up,
-   outside a probe, is therefore not detected and the field is not masked
-   (12.8). To be revisited before a release that relies on masking.
+   Rare detectors (lot 6, O24): a detector is also skipped when it reacted to
+   at most `detection.rare_share` of the warm-up values (default 0.001, so 10
+   values of 10,000) and to none of the second half of the warm-up, whose
+   values are those after the first `warmup_values // 2`: its reactions were
+   rare and have stopped. A detector still reacting in the second half stays,
+   as in a sorted column where matches become frequent (identifiers crossing
+   from four to five digits make ZIP codes frequent right after 10,000). A
+   rare sensitive detector that has not matched stays: the field might have
+   values to mask. Reactions are counted once per distinct warm-up value,
+   which a streamed field recognizes through its warm-up values, so both
+   modes decide alike. After a rare skip, probes that react on at least
+   `PROBE_REACTIONS` (10) occurrences, more than `rare_share` of the probed
+   occurrences, raise `detector_skipped_reacted`; warm-up values met again by
+   a streamed field are not probes. `rare_share` 0 gives the rule of the
+   first version.
 
-The current engine is vectorized with pandas; a pure Python streaming engine
-has a higher cost per cell. The per-distinct strategy is the main mitigation.
-The baseline of the current engine is recorded in
-[benchmarks.md](benchmarks.md); phase 6 sets targets (O19).
+   Open point: sensitive detectors (`email`, `phone`, `ip_address`) are
+   skipped like the others when they reacted to nothing. A sensitive value
+   first met after the warm-up, outside a probe, is therefore not detected
+   and the field is not masked (12.8). With the batches of item 5, keeping
+   them would cost little: to be decided before a release that relies on
+   masking.
+5. Batches (lot 6, O25). Per-value work runs on batches of distinct values in
+   first-seen order: strings are normalized in one pass (printable strings in
+   NFC inline, with the same results as `Normalizer.run` and
+   `characteristic_flags`), then each detector classifies the whole batch
+   through `classify_many`, and its tally counts the unmatched values
+   together. A skipped detector counts its values as not tested in one
+   addition, and a field-level detector that rejects the field
+   (`rejects_field`) counts them as not matched. Order-dependent outputs
+   (evidence, samples, first-seen listings) follow the first-seen order of
+   the batch.
+6. Column batches (lot 6, O25). A `RecordBatch` (section 6) is read column by
+   column: each column is counted into its table at C speed, and the strings
+   that are not content are taken out again. A field's own limits
+   (`max_distinct_per_field`, `max_stored_value_length`) apply to its new
+   values in first-seen order, as if they were added one by one; a table
+   released inside a batch already holds the later values of the batch,
+   processed with their counts, which gives the same results as streaming
+   them. The global budget depends on the order of values across fields: a
+   batch is read column by column only when it cannot exceed the budget
+   (stored values plus rows times growing columns), otherwise record by
+   record, in reading order.
+7. Workers (lot 6, O25). Sources of at least 16 MiB are analyzed with worker
+   processes (`scan(workers=...)`, `--workers`), one per spare processor, at
+   most 8: the scan process reads, keeps tables, budgets and record facts,
+   and hands the per-value work of each field to one worker: its released
+   table, then its streaming batches in reading order, or its complete table
+   at finalization, the largest first. A worker processes the values exactly
+   as the scan process would, so results are identical. Workers return value
+   blocks as plain data (generic models cannot be pickled), validated again,
+   with placeholder diagnostic indices that the scan process replaces by
+   reporting the diagnostics in field order. Workers are subprocesses of the
+   running interpreter talking pickled messages over their standard streams,
+   so starting them never imports the caller's main module; when they cannot
+   start, the scan stays in one process. A custom `registry` always stays in
+   one process. The number of workers is not part of the configuration and
+   never appears in the result.
+
+The pandas engine of the first releases was vectorized; a pure Python
+streaming engine has a higher cost per cell. The per-distinct strategy,
+batches and workers are the mitigation: since lot 6, the scan is faster than
+the pandas baseline with bounded memory. Measurements are in
+[benchmarks.md](benchmarks.md); targets remain to be decided (O19). The next
+step is reading one source with several processes, which needs mergeable
+states (lot 7).
 
 ## 14. Diagnostics and error policy (O07, specification 8)
 
@@ -1057,7 +1156,7 @@ never guessed when corruption prevents delimiting them.
 | Global value budget | One `global_budget` warning per scan: `count` is the number of released tables | Same |
 | Duplicate record budget | One `record_budget` warning per scan: `count` is the number of records whose digest was not stored | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
-| Skipped detector reacting on a probe (section 13) | `detector_skipped_reacted` warning per field and detector: `count` is the number of occurrences that reacted | Same |
+| Skipped detector reacting on a probe (section 13) | `detector_skipped_reacted` warning per field and detector: `count` is the number of occurrences that reacted; for a rare detector, only when probes reacted more often than its warm-up | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
   analyzed, `partial` when records were excluded. Fatal problems raise and
@@ -1100,7 +1199,8 @@ settings from it (section 16.4).
     },
     "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
-    "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100},
+    "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
+                  "rare_share": 0.001},
     "detectors": {
       "number": {"enabled": true, "conventions": ["dot", "comma"],
                  "ambiguous_convention": null},
@@ -1171,7 +1271,7 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 2,
+  "format_revision": 4,
   "engine": {"version": "0.4.0", "normalization_version": 1,
              "detectors": {"number": 1, "date": 1, "boolean": 1,
                            "enumeration": 1, "email": 1, "url": 1,
@@ -1461,3 +1561,4 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-28 | 5c | New section 9.10 and `records` block of datasets (format revision 2): records with missing values, empty records, duplicates under the new `limits.max_tracked_records` budget with reason `record_budget`, preview through the exposure gate; `records` settings and `max_listed_records`; section 14 `record_budget` warning. Section 16.4: record facts from the scan, `preview_rows` moved to `scan.records.preview`. New section 16.6 and O12 accepted: report from a scan document and the staleness rule. Pandas engine removed after gate 5. | Maintainer decisions of lot 5c: record facts in the scan so a report needs no source, stale scans fail, pandas removed at gate 5. |
 | 2026-09-28 | 5d | New section 16.7: profile revision 6 with every normalization stage and the variant groups per column, limits and diagnostics per dataset, structure of JSON datasets; "Transformations" extended, "Limits and diagnostics" shown only when needed, "JSON structure" for JSON sources only. | Sections deferred by lot 5b; maintainer decisions of lot 5d. |
 | 2026-09-28 | 6 | Decision O23 and section 13 item 4: adaptive detection after a warm-up of `detection.warmup_values` distinct values per field, with probes every `detection.probe_interval`; section 12.2: `not_tested` of skipped values; section 12.3: `adaptive` in detector results (scan format revision 3); section 14: `detector_skipped_reacted` warning; section 15: new `detection` settings. | Detection of high-cardinality fields dominated the scan time; exact `not_tested` counts keep the contract. Re-enabling a detector after a probe was dropped: it would break principle 6. |
+| 2026-09-28 | 6 | Decisions O24 and O25 (Proposed). Section 13 items 2 and 4 to 7: streaming batches instead of the memoization cache, rare detectors, batches of distinct values, column batches, worker processes. Section 6: `RecordBatch`, `Observation` as a named tuple, shared path objects. Section 12.1: `classify_many`, `rejects_field`, `Classification` as a named tuple. Section 12.3: `adaptive.warmup_reactions` (scan format revision 4). Section 9.10: table digests joined by NUL. Section 14: warning of rare detectors. Section 15: `detection.rare_share`. | The maintainer asked for the most speed on large files, progressive learning that drops what became unlikely, and reading that uses the machine: per-call overhead dominated, not the rules. The rare rule keeps detectors reacting at the end of the warm-up, found on the sorted `id` column of the benchmark. |

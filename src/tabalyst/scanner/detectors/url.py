@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import ipaddress
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from tabalyst.scanner.detectors.base import (
     Classification,
@@ -123,6 +123,13 @@ class UrlDetector(Detector):
         if has_port and not _valid_port(port):
             return _BAD_PORT
         return Classification("matched", format=name or "www", value=host.lower())
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        classify = self.classify
+        initials = self._initials
+        return [
+            classify(value) if value[:1] in initials else None for value in values
+        ]
 
     def accumulator(self) -> UrlAccumulator:
         return UrlAccumulator(NameCounts(self.max_tracked, self.max_listed))

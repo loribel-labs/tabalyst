@@ -20,31 +20,24 @@ from tabalyst.scanner.detectors.number import is_integer_format
 from tabalyst.scanner.models import TechnicalType
 
 FAMILIES = ("integer", "number", "date", "boolean", "text")
-_BOOLEAN_WORDS = frozenset({"true", "false"})
+BOOLEAN_WORDS = frozenset({"true", "false"})
 
 
-def string_family(
-    text: str,
-    classifications: tuple[object, ...],
-    date_index: int | None,
-    number_index: int | None,
-) -> str:
-    if date_index is not None:
-        found = classifications[date_index]
-        if isinstance(found, Classification) and (
-            found.state == "ambiguous"
-            or (found.state == "matched" and type(found.value) is date)
-        ):
-            return "date"
-    if len(text) <= 5 and text.casefold() in _BOOLEAN_WORDS:
+def string_family(text: str, date_found: object, number_found: object) -> str:
+    """Family of an analytical string, from the results of the date and number
+    detectors on it (``None`` when not matched or not run)."""
+    if isinstance(date_found, Classification) and (
+        date_found.state == "ambiguous"
+        or (date_found.state == "matched" and type(date_found.value) is date)
+    ):
+        return "date"
+    if len(text) <= 5 and text.casefold() in BOOLEAN_WORDS:
         return "boolean"
-    if number_index is not None:
-        found = classifications[number_index]
-        if isinstance(found, Classification):
-            if found.state == "matched":
-                return "integer" if is_integer_format(found.format) else "number"
-            if found.state == "ambiguous":
-                return "number"
+    if isinstance(number_found, Classification):
+        if number_found.state == "matched":
+            return "integer" if is_integer_format(number_found.format) else "number"
+        if number_found.state == "ambiguous":
+            return "number"
     return "text"
 
 

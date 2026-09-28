@@ -10,9 +10,9 @@ accumulator adds its own ``details``.
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal, NamedTuple
 
 if TYPE_CHECKING:
     from tabalyst.scanner.exposure import ExposureGate
@@ -20,8 +20,7 @@ if TYPE_CHECKING:
 State = Literal["matched", "ambiguous", "invalid"]
 
 
-@dataclass(frozen=True, slots=True)
-class Classification:
+class Classification(NamedTuple):
     """Result of a detector for one value; ``None`` stands for not matched.
 
     - ``matched`` values may carry a ``format`` and a parsed ``value`` for
@@ -34,6 +33,9 @@ class Classification:
     - ``convention`` names the reading of an unambiguous value when several
       readings exist (date order, decimal convention); it feeds the ambiguity
       evidence of the field (design 12.6).
+
+    An immutable named tuple: detectors build one per matched value, and a
+    tuple is built about twice as fast as a frozen dataclass.
     """
 
     state: State
@@ -96,6 +98,14 @@ class DetectorAccumulator:
         """Field-level detectors decide at the end whether their values match."""
         return True
 
+    def rejects_field(self) -> bool:
+        """Whether a field-level detector already knows that the field cannot
+        match, whatever values follow, and that ``add`` no longer changes
+        ``details``. The engine then counts later values as not matched
+        without classifying them, which is exact only for detectors whose
+        ``classify`` never returns ``ambiguous`` or ``invalid``."""
+        return False
+
 
 class Detector:
     """Base class of detectors; subclasses set the class attributes and
@@ -110,6 +120,11 @@ class Detector:
     - ``max_input_length``: longer values are ``not_tested``.
     - ``scope``: ``field`` detectors, such as enumeration candidates, decide
       at the end whether every value of the field matches or none does.
+
+    The engine classifies distinct values in batches through
+    ``classify_many``, which maps ``classify`` by default. A detector may
+    override it to reject most values without a call per value, provided it
+    returns exactly what ``classify`` returns for each value.
     """
 
     id: ClassVar[str]
@@ -126,6 +141,10 @@ class Detector:
 
     def classify(self, value: str) -> Classification | None:
         raise NotImplementedError
+
+    def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
+        """``classify`` of each value, in order."""
+        return list(map(self.classify, values))
 
     def accumulator(self) -> DetectorAccumulator:
         return DetectorAccumulator()

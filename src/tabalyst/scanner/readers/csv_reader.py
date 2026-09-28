@@ -1,7 +1,9 @@
 """Streaming CSV reader with SHA-256 computed while reading (design sections 5.1, 6, 14).
 
 The first record is the header. Each data record becomes an object whose
-members are column segments, so presence rules are shared with JSON.
+members are column segments, so presence rules are shared with JSON. Records
+are streamed in batches of rows (``RecordBatch``), which the engine reads
+column by column.
 """
 
 from __future__ import annotations
@@ -17,15 +19,18 @@ from tabalyst.scanner.observations import (
     DatasetOpened,
     DeclaredField,
     Location,
-    Observation,
-    Record,
+    RecordBatch,
     RecordExcluded,
     StreamItem,
 )
-from tabalyst.scanner.paths import ROOT, Column, column_labels
+from tabalyst.scanner.paths import Column, column_labels
 from tabalyst.scanner.readers.base import CsvSummary, HashingStream, SourceSummary
 
 DATASET = "rows"
+# Cells per batch of rows, and the bounds on its number of rows.
+BATCH_CELLS = 65_536
+MIN_BATCH_ROWS = 64
+MAX_BATCH_ROWS = 4_096
 
 
 class CsvReader:
@@ -110,19 +115,20 @@ class CsvReader:
                 )
             ),
         )
-        record_observation = Observation(ROOT, "object", None)
         excluded_message = (
             f"Records with a number of fields other than {width} were excluded. "
             "Verify the delimiter and quoting."
         )
+        size = min(MAX_BATCH_ROWS, max(MIN_BATCH_ROWS, BATCH_CELLS // max(width, 1)))
+        rows: list[list[str]] = []
+        lines: list[int] = []
         index = 0
         while True:
             line = reader.line_num + 1
             row = next(reader, None)
             if row is None:
-                return
+                break
             index += 1
-            location = Location(record=index, line=line)
             if len(row) != width:
                 if not self.tolerant:
                     raise InputError(
@@ -131,21 +137,25 @@ class CsvReader:
                         "Verify the delimiter and quoting, or use the tolerant "
                         "error policy to exclude such records."
                     )
+                if rows:
+                    yield RecordBatch(DATASET, index - len(rows), rows, lines)
+                    rows, lines = [], []
                 yield RecordExcluded(
                     dataset=DATASET,
                     index=index,
-                    location=location,
+                    location=Location(record=index, line=line),
                     reason="width_mismatch",
                     code="csv_width_mismatch",
                     message=excluded_message,
                 )
                 continue
-            observations = [record_observation]
-            observations.extend(
-                Observation(path, "string", value)
-                for path, value in zip(paths, row, strict=True)
-            )
-            yield Record(DATASET, index, location, observations)
+            rows.append(row)
+            lines.append(line)
+            if len(rows) >= size:
+                yield RecordBatch(DATASET, index - len(rows) + 1, rows, lines)
+                rows, lines = [], []
+        if rows:
+            yield RecordBatch(DATASET, index - len(rows) + 1, rows, lines)
 
 
 def _lines(text: Iterable[str]) -> Iterator[str]:

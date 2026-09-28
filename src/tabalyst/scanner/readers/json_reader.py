@@ -78,6 +78,8 @@ _PARSE_ERRORS = (
     decimal.InvalidOperation,
 )
 _SURROGATE = re.compile(r"[\ud800-\udfff]")
+# Child paths kept by ``_Paths``; a larger cache is cleared, so it stays small.
+MAX_PATHS = 65_536
 _MAX_DETAIL = 200
 # Every digit becomes "0" and every other byte "x": a digit run is then a run
 # of "0", found by a substring search at memory speed.
@@ -141,6 +143,31 @@ def _native(event: str, value: object) -> tuple[NativeType, object]:
     if event == "start_map":
         return "object", None
     return "array", 0
+
+
+class _Paths:
+    """Child paths already built, by parent path and key, so that every
+    occurrence of one path shares one path object: the engine and record
+    digests look paths up by identity first, and a new path would hash each
+    of its segments."""
+
+    __slots__ = ("_children",)
+
+    def __init__(self) -> None:
+        self._children: dict[tuple[int, str | None], tuple] = {}
+
+    def child(self, parent: FieldPath, key: str | None) -> FieldPath:
+        """``parent`` followed by the key ``key``, or by items when ``None``."""
+        children = self._children
+        entry = children.get((id(parent), key))
+        # The entry keeps its parent alive, so the identity cannot be reused.
+        if entry is not None and entry[0] is parent:
+            return entry[1]
+        if len(children) >= MAX_PATHS:
+            children.clear()
+        path = parent + (ITEMS if key is None else Key(key),)
+        children[(id(parent), key)] = (parent, path)
+        return path
 
 
 class _RecordBuilder:
@@ -389,6 +416,7 @@ class JsonReader:
                 yield self._open(dataset, "collection", path)
         max_depth = self.max_depth
         discovery_depth = self.discovery_depth
+        child = _Paths().child
         stack: list[_Frame] = []
         skip = 0  # depth inside a subtree outside every collection
         truncating = 0  # depth inside a subtree below max_depth
@@ -453,15 +481,15 @@ class JsonReader:
                     rel = ROOT
                 else:
                     if parent.is_map:
-                        segment = Key(parent.key)
+                        key = parent.key
                     else:
-                        segment = ITEMS
+                        key = None
                         parent.length += 1
                     if parent.abs is not None:
-                        abs_path = parent.abs + (segment,)
+                        abs_path = child(parent.abs, key)
                     record = parent.record
                     if record is not None:
-                        rel = parent.rel + (segment,)
+                        rel = child(parent.rel, key)
                         if len(rel) > max_depth:
                             record.depth_truncated += 1
                             if is_container:

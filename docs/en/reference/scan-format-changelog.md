@@ -10,7 +10,7 @@ fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 3
+  "format_revision": 4
 }
 ```
 
@@ -24,6 +24,20 @@ documentation or corrections that keep the contract.
 Alpha revisions may be incompatible. No automatic migration is provided.
 `tabalyst report --scan` reads the current revision only: scan the source
 again to report on an older document.
+
+## Revision 4
+
+- Rare detectors: after the warm-up, a detector that recognized at most
+  `detection.rare_share` of its distinct values (default 0.001, 10 values of
+  a 10,000-value warm-up), and none of those in its second half, is skipped
+  too, like a detector that recognized nothing. A sensitive detector that
+  found only invalid values is never skipped this way. Set
+  `detection.rare_share` to `0` for the behavior of revision 3.
+- `adaptive` gains `warmup_reactions`: the warm-up values the detector
+  recognized, `0` for a detector that recognized nothing.
+- A skipped rare detector reports `detector_skipped_reacted` when at least 10
+  probed occurrences were recognized, more often than `rare_share` allows.
+- New setting in `config`: `detection.rare_share`.
 
 ## Revision 3
 
