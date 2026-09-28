@@ -1,9 +1,11 @@
-"""Report profile built from a Tabalyst Scan result (profile revision 5).
+"""Report profile built from a Tabalyst Scan result (profile revision 6).
 
 ``build_profile`` turns a scan result, fresh or read back from a scan
 document, into the profile that ``reporting.py`` renders: the columns come
 from the scan fields, the preview, duplicate, empty and incomplete rows from
-the records block of each dataset. No file access here.
+the records block of each dataset. Normalization stages and variant groups,
+limited measures, diagnostics and the structure of JSON datasets are carried
+over for their report sections. No file access here.
 
 The report presents the scan: it never resolves an ambiguity the scan left
 open (design 12.6). Ambiguous dates stay ambiguous, with the evidence of the
@@ -17,19 +19,28 @@ from collections import Counter
 from datetime import UTC, datetime
 from itertools import combinations, islice
 
+from pydantic import BaseModel
+
 from tabalyst.errors import ConfigurationError
 from tabalyst.models import (
+    ArrayProfile,
     ColumnProfile,
     DatasetDateColumnSummary,
     DatasetDateSummary,
+    DatasetLimits,
     DatasetProfile,
+    DatasetStructure,
     DatasetSummary,
     DateBreakdownItem,
     DateFormatCount,
     DateProfile,
     DetectorFormat,
     DetectorProfile,
+    DiagnosticLocation,
+    DiagnosticProfile,
     Issue,
+    MeasureLimit,
+    NormalizationStage,
     NormalizationStats,
     NumericStats,
     PreviewRow,
@@ -38,12 +49,16 @@ from tabalyst.models import (
     StringLengthDistribution,
     StringLengthExample,
     StringProfile,
+    StructureField,
     ValueOccurrence,
     ValueProfile,
+    Variant,
+    VariantGroup,
 )
 from tabalyst.report_config import ReportConfig
 from tabalyst.scanner.engine import has_limited_measure
 from tabalyst.scanner.models import (
+    Complete,
     DatasetResult,
     DetectorComplete,
     DetectorFailed,
@@ -449,6 +464,57 @@ def _stage_changes(field: FieldResult, name: str) -> int:
     return 0
 
 
+def build_normalization(field: FieldResult, row_count: int) -> NormalizationStats:
+    """Every normalization stage of the scan, then its variant groups, already
+    exposed (design 10 and 12.8)."""
+    stages = []
+    for stage in field.normalization.stages:
+        cardinality = stage.cardinality
+        stages.append(
+            NormalizationStage(
+                stage=stage.stage,
+                enabled=stage.enabled,
+                changed_count=stage.changed,
+                changed_percent=(
+                    None if stage.changed is None else percent(stage.changed, row_count)
+                ),
+                distinct_count=(
+                    cardinality.value if isinstance(cardinality, Complete) else None
+                ),
+                distinct_status=(
+                    "disabled" if cardinality is None else cardinality.status
+                ),
+            )
+        )
+    groups = field.normalization.variant_groups
+    complete = isinstance(groups, Complete)
+    trim = _stage_changes(field, "trim")
+    collapse = _stage_changes(field, "collapse_whitespace")
+    return NormalizationStats(
+        trim_count=trim,
+        trim_percent=percent(trim, row_count),
+        collapse_internal_whitespace_count=collapse,
+        collapse_internal_whitespace_percent=percent(collapse, row_count),
+        stages=stages,
+        variant_group_count=groups.value.groups if complete else None,
+        variant_group_status=groups.status,
+        variant_groups=[
+            VariantGroup(
+                key=group.key,
+                count=group.count,
+                distinct_count=group.distinct,
+                variants=[
+                    Variant(value=item.value, count=item.count)
+                    for item in group.variants
+                ],
+                truncated=group.truncated,
+            )
+            for group in (groups.value.listed if complete else [])
+        ],
+        variant_groups_truncated=complete and groups.value.truncated,
+    )
+
+
 def build_detectors(field: FieldResult) -> list[DetectorProfile]:
     """Detectors that recognized values of the field, and failed ones."""
     detectors = []
@@ -513,8 +579,6 @@ def build_column(
     value_profile = build_value_profile(
         field, inferred_type=inferred, position=position, config=config
     )
-    trim = _stage_changes(field, "trim")
-    collapse = _stage_changes(field, "collapse_whitespace")
     missing = field.missing.count
     outside = technical.outside_count
     return ColumnProfile(
@@ -536,12 +600,7 @@ def build_column(
             or inferred == "mixed"
             or bool(date_profile and date_profile.ambiguous_count)
         ),
-        normalization=NormalizationStats(
-            trim_count=trim,
-            trim_percent=percent(trim, row_count),
-            collapse_internal_whitespace_count=collapse,
-            collapse_internal_whitespace_percent=percent(collapse, row_count),
-        ),
+        normalization=build_normalization(field, row_count),
         distinct_count=_distinct_count(field),
         examples=[
             item.value
@@ -582,6 +641,140 @@ def _preview(records: Records, fields: list[FieldResult]) -> list[PreviewRow]:
             PreviewRow(row_number=record.record, values=exposed, absent=absent)
         )
     return preview
+
+
+# Limits and structure -------------------------------------------------------
+
+
+def _limited_measures(model: object, location: str):
+    """Every ``limited`` envelope under a scan model, with its location. The
+    ``value`` of a complete envelope is left out of locations; list items are
+    named by their stage or id."""
+    if isinstance(model, Limited):
+        yield location, model
+    elif isinstance(model, BaseModel):
+        for name in type(model).model_fields:
+            if isinstance(model, Complete):
+                inner = location
+            else:
+                inner = f"{location}.{name}" if location else name
+            yield from _limited_measures(getattr(model, name), inner)
+    elif isinstance(model, list):
+        for index, item in enumerate(model):
+            label = getattr(item, "stage", None) or getattr(item, "id", None)
+            yield from _limited_measures(item, f"{location}.{label or index}")
+
+
+def build_limits(
+    result: ScanResult, dataset: DatasetResult, columns: dict[str, str]
+) -> DatasetLimits:
+    """Limited measures of the dataset and of each field, structural
+    truncation, and the diagnostics of the dataset and of the whole scan.
+    ``columns`` maps the field ids shown as columns to their column ids."""
+    displays = {field.id: field.display for field in dataset.fields}
+    measures = [
+        MeasureLimit(
+            column_id=None,
+            path=None,
+            measure=location,
+            reason=measure.reason,
+            limit=measure.limit,
+            lower_bound=measure.lower_bound,
+        )
+        for part in ("structure", "records")
+        for location, measure in _limited_measures(getattr(dataset, part), part)
+    ]
+    measures += [
+        MeasureLimit(
+            column_id=columns.get(field.id),
+            path=field.display,
+            measure=location,
+            reason=measure.reason,
+            limit=measure.limit,
+            lower_bound=measure.lower_bound,
+        )
+        for field in dataset.fields
+        for location, measure in _limited_measures(field, "")
+    ]
+    diagnostics = [
+        DiagnosticProfile(
+            code=diagnostic.code,
+            level=diagnostic.level,
+            message=diagnostic.message,
+            count=diagnostic.count,
+            dataset=diagnostic.dataset,
+            path=displays.get(diagnostic.field, diagnostic.field),
+            detector=diagnostic.detector,
+            locations=[
+                DiagnosticLocation.model_validate(location)
+                for location in diagnostic.locations
+            ],
+        )
+        for diagnostic in result.diagnostics
+        if diagnostic.dataset in (None, dataset.id)
+    ]
+    return DatasetLimits(
+        measures=measures,
+        untracked_observations=dataset.structure.untracked_observations,
+        depth_truncated_observations=dataset.structure.depth_truncated_observations,
+        diagnostics=diagnostics,
+    )
+
+
+def build_structure(dataset: DatasetResult, columns: set[str]) -> DatasetStructure:
+    """Every path of a JSON dataset, containers included, with presence per
+    parent and array lengths (design 16.2)."""
+    displays = {field.id: field.display for field in dataset.fields}
+    paths = dataset.structure.paths
+    fields = []
+    for field in dataset.fields:
+        presence = field.presence
+        arrays = field.arrays
+        fields.append(
+            StructureField(
+                id=field.id,
+                path=field.display,
+                depth=len(field.path),
+                parent=displays.get(field.parent) if field.parent else None,
+                native_types=dict(field.native_types),
+                occurrences=field.occurrences,
+                parent_type=presence.parent_type,
+                parent_count=presence.parent_count,
+                present_count=presence.present,
+                absent_count=presence.absent,
+                present_percent=(
+                    None
+                    if presence.parent_type == "array"
+                    else percent(presence.present, presence.parent_count)
+                ),
+                collection=field.collection,
+                arrays=(
+                    None
+                    if arrays is None
+                    else ArrayProfile(
+                        count=arrays.count,
+                        empty_count=arrays.empty,
+                        minimum_length=arrays.min_length,
+                        maximum_length=arrays.max_length,
+                        mean_length=(
+                            round(arrays.total_items / arrays.count, 2)
+                            if arrays.count
+                            else 0.0
+                        ),
+                        item_count=arrays.total_items,
+                    )
+                ),
+                column=field.id in columns,
+            )
+        )
+    complete = isinstance(paths, Complete)
+    return DatasetStructure(
+        record_types=dict(dataset.record_types),
+        path_count=paths.value if complete else None,
+        path_status="complete" if complete else "limited",
+        max_depth_seen=dataset.structure.max_depth_seen,
+        fields=fields,
+    )
 
 
 # Dataset --------------------------------------------------------------------
@@ -766,6 +959,16 @@ def build_dataset(
         severity="info",
         always=True,
     )
+    variant_columns = [
+        column for column in columns if column.normalization.variant_group_count
+    ]
+    add_issue(
+        "variant_groups",
+        "Values written in several ways that normalization compares as equal",
+        sum(column.normalization.variant_group_count for column in variant_columns),
+        [column.id for column in variant_columns],
+        severity="info",
+    )
     add_issue(
         "constant_columns",
         "Columns with one distinct present value",
@@ -868,4 +1071,14 @@ def build_dataset(
         columns=columns,
         issues=issues,
         preview=_preview(records, fields),
+        limits=build_limits(
+            result,
+            dataset,
+            {field.id: column.id for field, column in zip(fields, columns, strict=True)},
+        ),
+        structure=(
+            None
+            if csv is not None
+            else build_structure(dataset, {field.id for field in fields})
+        ),
     )

@@ -122,6 +122,21 @@ async function openFilter(page, table, index) {
         await formatCell.locator('.tip').waitFor({ state: 'visible' });
       }
 
+      const variantGroups = profile.columns.reduce(
+        (total, column) => total + column.normalization.variant_groups.length, 0,
+      );
+      assert.equal(await page.locator('#variant-table tbody tr').count(), variantGroups);
+      assert.equal(
+        await page.locator('#structure-table tbody tr').count(),
+        profile.structure ? profile.structure.fields.length : 0,
+      );
+      const limits = profile.limits;
+      assert.equal(
+        await page.locator('#limits').count(),
+        limits.measures.length || limits.diagnostics.length || limits.untracked_observations
+          || limits.depth_truncated_observations ? 1 : 0,
+      );
+
       const firstPanel = page.locator('#overview');
       const collapse = firstPanel.locator('.collapse');
       await collapse.click();

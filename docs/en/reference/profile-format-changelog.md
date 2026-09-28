@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 5
+  "format_revision": 6
 }
 ```
 
@@ -107,3 +107,24 @@ the preview and the duplicate rows.
   `config.scan.records.preview`.
 - For a report built from a scan document, `processing_seconds` is the time
   to read the document and build the profile.
+
+## Revision 6 - 2026-09-28
+
+The report shows every normalization stage with its variant groups, what the
+scan could not measure completely, and the structure of JSON datasets.
+
+- Column `normalization` gains `stages` (`raw`, then `nfc`, `trim`,
+  `collapse_whitespace`, `casefold` and `strip_accents`, each with
+  `enabled`, `changed_count`, `changed_percent`, `distinct_count` and
+  `distinct_status`), `variant_group_count`, `variant_group_status`,
+  `variant_groups` and `variant_groups_truncated`.
+- New info issue `variant_groups`: values written in several ways that
+  normalization compares as equal.
+- Each dataset has a new `limits` object: `measures` stopped by a scan limit,
+  with their field, reason, limit and proven lower bound;
+  `untracked_observations`, `depth_truncated_observations`; and the scan
+  `diagnostics` of the dataset and of the whole scan.
+- JSON datasets have a new `structure` object: `record_types`, `path_count`,
+  `path_status`, `max_depth_seen` and one item per path, containers
+  included, with presence per parent and array lengths. It is `null` for CSV
+  files.

@@ -115,13 +115,14 @@ the tooltip lists masked values.
 | --- | --- |
 | Reading the CSV | `scan.csv`, `--delimiter`, `--encoding` |
 | Missing cells | `scan.values`: `null_markers`, `null_markers_case_sensitive` and `missing` |
-| Normalization counts and distinct values | `scan.normalization`: `nfc`, `trim`, `collapse_whitespace` |
+| Normalization counts, distinct values and variant groups | `scan.normalization`: `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` |
 | Inferred types | `scan.types.minimum_confidence`, with the `number` and `date` detectors |
 | Date analysis | `scan.detectors.date` |
 | Semantic types | `scan.detection.minimum_share` and every detector |
 | Masked values | `scan.exposure.sensitive_values` |
 | Preview | `scan.records.preview` |
 | Duplicate rows | `scan.records.duplicates` and `scan.limits.max_tracked_records` |
+| Limits and diagnostics | `scan.limits` and `scan.errors` |
 
 - **Dates.** A column whose present values are dates is `date`, even with
   several formats or ambiguous values. Ambiguous values such as `02/03/2025`

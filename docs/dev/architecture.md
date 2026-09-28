@@ -16,8 +16,9 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 5: one
-  profile per dataset in `datasets`).
+- `models.py`: Pydantic models of the report profile (revision 6: one
+  profile per dataset in `datasets`, with its limits and, for JSON, its
+  structure).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
   `load_config_layers()` validates every file completely (top-level settings and
   the `scan` section), rejects the settings moved to `scan` with their new

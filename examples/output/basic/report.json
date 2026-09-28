@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 5,
-  "generated_at": "2026-09-27T23:37:38.257176Z",
-  "processing_seconds": 0.005,
+  "format_revision": 6,
+  "generated_at": "2026-09-28T02:45:54.574960Z",
+  "processing_seconds": 0.0056,
   "source": {
     "filename": "basic.csv",
     "format": "csv",
@@ -293,7 +293,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 4,
           "examples": [
@@ -391,7 +445,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 5,
+                "changed_percent": 100.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 4,
           "examples": [
@@ -516,7 +624,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 3,
           "examples": [
@@ -589,7 +751,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 4,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 4,
           "examples": [
@@ -715,7 +931,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 2,
           "examples": [
@@ -782,7 +1052,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 4,
+                "changed_percent": 80.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 3,
           "examples": [
@@ -983,7 +1307,14 @@
           ],
           "absent": []
         }
-      ]
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": null
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 5,
-  "generated_at": "2026-09-27T23:37:40.009258Z",
-  "processing_seconds": 0.0901,
+  "format_revision": 6,
+  "generated_at": "2026-09-28T02:45:56.629451Z",
+  "processing_seconds": 0.1052,
   "source": {
     "filename": "orders.json",
     "format": "json",
@@ -291,7 +291,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 1,
+                "changed_percent": 100.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 1,
           "examples": [
@@ -360,7 +414,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 1,
           "examples": [
@@ -469,7 +577,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 1,
           "examples": [
@@ -540,7 +702,120 @@
           ],
           "absent": []
         }
-      ]
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": {
+        "record_types": {
+          "object": 1
+        },
+        "path_count": 5,
+        "path_status": "complete",
+        "max_depth_seen": 2,
+        "fields": [
+          {
+            "id": "f1",
+            "path": "export",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "object": 1
+            },
+            "occurrences": 1,
+            "parent_type": "object",
+            "parent_count": 1,
+            "present_count": 1,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f2",
+            "path": "export.source",
+            "depth": 2,
+            "parent": "export",
+            "native_types": {
+              "string": 1
+            },
+            "occurrences": 1,
+            "parent_type": "object",
+            "parent_count": 1,
+            "present_count": 1,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f3",
+            "path": "export.generated",
+            "depth": 2,
+            "parent": "export",
+            "native_types": {
+              "string": 1
+            },
+            "occurrences": 1,
+            "parent_type": "object",
+            "parent_count": 1,
+            "present_count": 1,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f4",
+            "path": "export.version",
+            "depth": 2,
+            "parent": "export",
+            "native_types": {
+              "integer": 1
+            },
+            "occurrences": 1,
+            "parent_type": "object",
+            "parent_count": 1,
+            "present_count": 1,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f5",
+            "path": "customers",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "array": 1
+            },
+            "occurrences": 1,
+            "parent_type": "object",
+            "parent_count": 1,
+            "present_count": 1,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": "$.customers[]",
+            "arrays": {
+              "count": 1,
+              "empty_count": 0,
+              "minimum_length": 60,
+              "maximum_length": 60,
+              "mean_length": 60.0,
+              "item_count": 60
+            },
+            "column": false
+          }
+        ]
+      }
     },
     {
       "id": "$.customers[]",
@@ -619,7 +894,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 60,
+                "changed_percent": 100.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 60,
           "examples": [
@@ -821,7 +1150,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 60,
+                "changed_percent": 100.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 8,
+                "changed_percent": 13.33,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 56,
           "examples": [
@@ -1189,7 +1572,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 56,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 56,
           "examples": [
@@ -1457,7 +1894,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 40,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 40,
           "examples": [
@@ -1544,7 +2035,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 60,
+                "changed_percent": 100.0,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 6,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 6,
           "examples": [
@@ -1686,7 +2231,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 5,
           "examples": [
@@ -1792,7 +2391,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 58,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 58,
           "examples": [
@@ -1998,7 +2651,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 2,
           "examples": [
@@ -2047,7 +2754,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 5,
           "examples": [
@@ -2180,7 +2941,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 119,
+                "changed_percent": 100.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 119,
           "examples": [
@@ -2382,7 +3197,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 92,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 92,
           "examples": [
@@ -2588,7 +3457,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 3,
           "examples": [
@@ -2686,7 +3609,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 119,
+                "changed_percent": 100.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 5,
           "examples": [
@@ -2819,7 +3796,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 3,
           "examples": [
@@ -2880,7 +3911,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 5,
           "examples": [
@@ -2951,7 +4036,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 15,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 15,
           "examples": [
@@ -3072,7 +4211,61 @@
             "trim_count": 0,
             "trim_percent": 0.0,
             "collapse_internal_whitespace_count": 0,
-            "collapse_internal_whitespace_percent": 0.0
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 119,
+                "changed_percent": 100.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
           },
           "distinct_count": 1,
           "examples": [
@@ -3696,7 +4889,460 @@
             8
           ]
         }
-      ]
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": {
+        "record_types": {
+          "object": 60
+        },
+        "path_count": 23,
+        "path_status": "complete",
+        "max_depth_seen": 5,
+        "fields": [
+          {
+            "id": "f1",
+            "path": "id",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f2",
+            "path": "name",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f3",
+            "path": "email",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 56
+            },
+            "occurrences": 56,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 56,
+            "absent_count": 4,
+            "present_percent": 93.33,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f4",
+            "path": "phone",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 40
+            },
+            "occurrences": 40,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 40,
+            "absent_count": 20,
+            "present_percent": 66.67,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f5",
+            "path": "address",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "object": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f6",
+            "path": "address.city",
+            "depth": 2,
+            "parent": "address",
+            "native_types": {
+              "string": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f7",
+            "path": "address.postal_code",
+            "depth": 2,
+            "parent": "address",
+            "native_types": {
+              "string": 51
+            },
+            "occurrences": 51,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 51,
+            "absent_count": 9,
+            "present_percent": 85.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f8",
+            "path": "signup_date",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f9",
+            "path": "newsletter",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "null": 4,
+              "boolean": 56
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f10",
+            "path": "tags",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "array": 56
+            },
+            "occurrences": 56,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 56,
+            "absent_count": 4,
+            "present_percent": 93.33,
+            "collection": null,
+            "arrays": {
+              "count": 56,
+              "empty_count": 9,
+              "minimum_length": 0,
+              "maximum_length": 2,
+              "mean_length": 1.25,
+              "item_count": 70
+            },
+            "column": false
+          },
+          {
+            "id": "f11",
+            "path": "tags[]",
+            "depth": 2,
+            "parent": "tags",
+            "native_types": {
+              "string": 70
+            },
+            "occurrences": 70,
+            "parent_type": "array",
+            "parent_count": 56,
+            "present_count": 70,
+            "absent_count": null,
+            "present_percent": null,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f12",
+            "path": "orders",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "array": 60
+            },
+            "occurrences": 60,
+            "parent_type": "object",
+            "parent_count": 60,
+            "present_count": 60,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": {
+              "count": 60,
+              "empty_count": 11,
+              "minimum_length": 0,
+              "maximum_length": 4,
+              "mean_length": 1.98,
+              "item_count": 119
+            },
+            "column": false
+          },
+          {
+            "id": "f13",
+            "path": "orders[]",
+            "depth": 2,
+            "parent": "orders",
+            "native_types": {
+              "object": 119
+            },
+            "occurrences": 119,
+            "parent_type": "array",
+            "parent_count": 60,
+            "present_count": 119,
+            "absent_count": null,
+            "present_percent": null,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f14",
+            "path": "orders[].order_id",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "string": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f15",
+            "path": "orders[].ordered_at",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "string": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f16",
+            "path": "orders[].status",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "string": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f17",
+            "path": "orders[].items",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "array": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": {
+              "count": 119,
+              "empty_count": 0,
+              "minimum_length": 1,
+              "maximum_length": 1,
+              "mean_length": 1.0,
+              "item_count": 119
+            },
+            "column": false
+          },
+          {
+            "id": "f18",
+            "path": "orders[].items[]",
+            "depth": 4,
+            "parent": "orders[].items",
+            "native_types": {
+              "object": 119
+            },
+            "occurrences": 119,
+            "parent_type": "array",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": null,
+            "present_percent": null,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f19",
+            "path": "orders[].items[].product",
+            "depth": 5,
+            "parent": "orders[].items[]",
+            "native_types": {
+              "string": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f20",
+            "path": "orders[].items[].quantity",
+            "depth": 5,
+            "parent": "orders[].items[]",
+            "native_types": {
+              "integer": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f21",
+            "path": "orders[].items[].unit_price",
+            "depth": 5,
+            "parent": "orders[].items[]",
+            "native_types": {
+              "number": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f22",
+            "path": "orders[].total",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "null": 11,
+              "number": 108
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f23",
+            "path": "orders[].currency",
+            "depth": 3,
+            "parent": "orders[]",
+            "native_types": {
+              "string": 119
+            },
+            "occurrences": 119,
+            "parent_type": "object",
+            "parent_count": 119,
+            "present_count": 119,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          }
+        ]
+      }
     }
   ]
 }

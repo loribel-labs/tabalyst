@@ -1358,6 +1358,36 @@ Decided with the maintainer in lot 5c:
 - **Python.** `tabalyst.generate_reports(..., from_scan=True)` and
   `tabalyst.analyze_scan(path, config_path)`.
 
+### 16.7 Normalization, limits and structure in the report (lot 5d)
+
+Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
+
+- **Profile.** Revision 6. The report carries the scan blocks without
+  recomputing them.
+- **Normalization.** Column `normalization` lists every stage of section 10,
+  `raw` first, with `changed_count` (percent of the value slots, like the
+  former trim and collapse counts) and `distinct_count` with its status, and
+  the variant groups as the scan lists them, so already exposed (12.8). The
+  "Transformations" section is extended rather than doubled: one column per
+  stage, the analytical and compared distinct counts, the group count, then a
+  table of the listed groups, whitespace shown as written. New info issue
+  `variant_groups`.
+- **Limits.** Each dataset has `limits`: every `limited` envelope of the
+  dataset (`structure.paths`, `records.duplicates.count`) and of each field,
+  containers included, found by walking the scan models and named by its
+  location in the scan result (`values.cardinality`, `numeric.median`,
+  `normalization.stages.casefold.cardinality`); the structural counters; and
+  the diagnostics of the dataset and of the whole scan. A scan-wide diagnostic
+  therefore appears in every dataset view. The "Limits and diagnostics"
+  section is shown only when one of them is non-empty; the
+  `limited_measures` and `excluded_records` issues link to it.
+- **Structure.** JSON datasets only (a CSV is flat). `structure` lists every
+  field, containers included, with depth (number of segments), parent,
+  native types, presence per parent and array statistics; a promoted array
+  names its collection. Presence of array items counts elements, so it has no
+  percentage. Datasets without columns are still omitted (16.5): their
+  structure is not shown.
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1383,3 +1413,4 @@ Decided with the maintainer in lot 5c:
 | 2026-09-27 | 5a | Section 3: `on_record` hook of `scan()`. Section 12.6: the report never applies ambiguity evidence. New section 16.4 and decision O16: report built on Scan, configuration in `scan`, technical types, primary interpretations as semantic types, scan exposure applied to the preview, limited measures and excluded records as issues. | Report migration; decisions of the maintainer in lot 5a (configuration, masking by default, `date` type with an `ambiguous_dates` issue, primary interpretations). |
 | 2026-09-27 | 5b | Section 16.4: JSON sources accepted. New section 16.5: profile revision 4 with `datasets`, JSON columns as scalar fields named by path, value slots, record facts per dataset, preview of JSON records, detectors per column, `.report` output names for JSON sources, one HTML view per dataset. | Lot 5b; maintainer decisions (revision 4 with a dataset list, flattened paths, detectors section only). |
 | 2026-09-28 | 5c | New section 9.10 and `records` block of datasets (format revision 2): records with missing values, empty records, duplicates under the new `limits.max_tracked_records` budget with reason `record_budget`, preview through the exposure gate; `records` settings and `max_listed_records`; section 14 `record_budget` warning. Section 16.4: record facts from the scan, `preview_rows` moved to `scan.records.preview`. New section 16.6 and O12 accepted: report from a scan document and the staleness rule. Pandas engine removed after gate 5. | Maintainer decisions of lot 5c: record facts in the scan so a report needs no source, stale scans fail, pandas removed at gate 5. |
+| 2026-09-28 | 5d | New section 16.7: profile revision 6 with every normalization stage and the variant groups per column, limits and diagnostics per dataset, structure of JSON datasets; "Transformations" extended, "Limits and diagnostics" shown only when needed, "JSON structure" for JSON sources only. | Sections deferred by lot 5b; maintainer decisions of lot 5d. |
