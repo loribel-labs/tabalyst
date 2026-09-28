@@ -1,6 +1,6 @@
 ---
 title: Limites connues
-description: Ce que Tabalyst ne fait pas encore pendant sa phase alpha, notamment les limites des rapports JSON, la mémoire de la détection des doublons et les formats JSON expérimentaux.
+description: Ce que Tabalyst ne fait pas encore pendant sa phase alpha, notamment les limites des rapports JSON, le budget de la détection des doublons et les formats JSON expérimentaux.
 ---
 
 Tabalyst est en alpha. Cette page liste ce qu’il ne fait pas encore, pour vous
@@ -35,10 +35,14 @@ page lorsqu’une version publiée la lève.
 
 ## Taille et performance
 
-- **Les lignes en double utilisent de la mémoire.** Les rapports lisent le
-  fichier une seule fois en flux, avec une mémoire bornée par les limites
-  d’analyse, sauf pour la détection des lignes en double, qui conserve 16 octets
-  par ligne distincte. `tabalyst scan` ne détecte pas les lignes en double.
+- **Les lignes en double ont un budget.** Les rapports et les analyses lisent
+  le fichier une seule fois en flux, avec une mémoire bornée par les limites
+  d’analyse. La détection des lignes en double stocke environ 80 octets par
+  ligne distincte, jusqu’à `scan.limits.max_tracked_records` (2 000 000 lignes
+  par défaut). Au-delà, les lignes suivantes ne sont comparées qu’à celles
+  stockées, et le rapport affiche une borne inférieure comme `≥ 12`. Augmentez
+  la limite pour un nombre exact, ou réglez `scan.records.duplicates` sur
+  `false` pour ne pas rechercher les doublons.
 - **Pas de progression par ligne.** La progression d’un rapport ou d’une
   analyse affiche la part du fichier déjà lue, pas un nombre de lignes.
 - **Lots séquentiels.** Plusieurs fichiers sont traités l’un après l’autre, pas

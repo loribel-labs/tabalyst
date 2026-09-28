@@ -157,6 +157,49 @@ progression est désactivée hors d’un terminal et avec `--no-progress` ou
 `--quiet`. `--verbose` ajoute le format détecté, l’encodage, le séparateur, le
 statut et le nombre de diagnostics.
 
+<a id="report-from-a-scan"></a>
+
+## Rapport à partir d’une analyse
+
+Générez le rapport HTML à partir d’un document d’analyse au lieu de relire la
+source :
+
+```console
+tabalyst report --scan customers.scan.json
+```
+
+Cette commande écrit `customers.html` et `customers.json` à côté du document
+d’analyse, nommés d’après la source qu’il enregistre ; une source JSON
+`orders.json` donne `orders.report.html`. Le rapport est celui qu’écrit
+`tabalyst report customers.csv` avec les mêmes paramètres d’analyse, car le
+document d’analyse contient tout ce dont il a besoin, y compris les lignes en
+double et l’aperçu. `-o`, `-d`, `--force` et les caractères génériques
+fonctionnent comme pour les sources :
+
+```console
+tabalyst report --scan scans/*.scan.json -d reports/
+```
+
+Tabalyst refuse une analyse qui ne décrit plus sa source. Il cherche la source
+à côté du document d’analyse, sous le nom enregistré par l’analyse :
+
+- une source d’une autre taille, ou dont le contenu a changé (comparé par
+  SHA-256 quand sa date de modification a changé), est une erreur : analysez-la
+  de nouveau ;
+- une source absente à côté du document d’analyse est acceptée, car l’analyse
+  se suffit à elle-même, avec un avertissement indiquant qu’elle n’a pas été
+  vérifiée. C’est le cas des analyses écrites avec `-d` dans un autre dossier.
+
+Le rapport utilise les paramètres d’analyse enregistrés dans le document. Les
+fichiers de configuration passés avec `--config` donnent les paramètres de
+présentation ; les paramètres donnés dans leur objet `scan` doivent avoir les
+valeurs enregistrées dans le document, sinon le rapport s’arrête avec le code
+de sortie `2`. Les paramètres qu’ils ne donnent pas, comme un `--delimiter`
+passé à `tabalyst scan`, sont repris du document. `--delimiter` et `--encoding`
+ne peuvent pas être utilisés avec `--scan`. Un document illisible, ou écrit
+par une autre révision du format, échoue sans arrêter les autres rapports du
+lot ; analysez de nouveau sa source.
+
 ## API Python
 
 ```python
@@ -166,6 +209,7 @@ result = tabalyst.scan("orders.json")
 print(result.scope.records_analyzed)
 
 batch = tabalyst.generate_scans(["data/*.csv"], output_dir="scans")
+reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
 `tabalyst.scan()` lit une source et renvoie le résultat sans rien écrire ;
@@ -173,3 +217,5 @@ batch = tabalyst.generate_scans(["data/*.csv"], output_dir="scans")
 `config=tabalyst.ScanConfig(...)` pour modifier les paramètres.
 `tabalyst.generate_scans()` fait la même chose que la commande et renvoie le
 plan, les succès et les échecs.
+`tabalyst.generate_reports(..., from_scan=True)` génère des rapports à partir
+de documents d’analyse, comme `tabalyst report --scan`.

@@ -10,7 +10,7 @@ champs :
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 1
+  "format_revision": 2
 }
 ```
 
@@ -23,7 +23,22 @@ change pas pour les améliorations de performance, la documentation ou les
 corrections qui conservent le contrat.
 
 Les révisions alpha peuvent être incompatibles. Aucune migration automatique
-n’est fournie.
+n’est fournie. `tabalyst report --scan` ne lit que la révision actuelle :
+analysez de nouveau la source pour générer le rapport d’un document plus
+ancien.
+
+## Révision 2
+
+- Chaque jeu de données reçoit `records` : les enregistrements avec des
+  valeurs manquantes, les enregistrements vides, les enregistrements en double
+  et un aperçu des premiers enregistrements, les valeurs sensibles étant
+  exposées comme dans le reste du document.
+- Les enregistrements en double sont comptés dans le budget du nouveau
+  paramètre `limits.max_tracked_records` ; au-delà, le comptage est une borne
+  inférieure de raison `record_budget`, et un avertissement `record_budget`
+  est signalé.
+- Nouveaux paramètres dans `config` : `records.preview`, `records.duplicates`,
+  `limits.max_tracked_records` et `limits.max_listed_records`.
 
 ## Révision 1
 

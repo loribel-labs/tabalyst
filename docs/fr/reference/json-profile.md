@@ -13,7 +13,7 @@ scripts ou d’autres outils.
 
 Le format est **expérimental** : il peut changer de manière incompatible d’une
 version à l’autre. Vérifiez toujours d’abord `format_version` et
-`format_revision`. Cette page décrit le format `0.1.0a`, révision `4`.
+`format_revision`. Cette page décrit le format `0.1.0a`, révision `5`.
 
 ## Exemple
 
@@ -22,7 +22,7 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 4,
+  "format_revision": 5,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -105,9 +105,9 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 | `format_version` | chaîne | Famille du format, `"0.1.0a"` pendant l’alpha |
 | `format_revision` | entier | Révision dans la famille, augmentée à chaque changement de structure ou de sens |
 | `generated_at` | chaîne | Date et heure UTC de l’analyse (ISO 8601) |
-| `processing_seconds` | nombre | Durée de l’analyse et du profil, en secondes |
+| `processing_seconds` | nombre | Durée de l’analyse et du profil, en secondes ; pour un rapport généré à partir d’un document d’analyse avec `--scan`, le temps de lire le document et de construire le profil, la durée de l’analyse elle-même figurant dans le document |
 | `source` | objet | Le fichier analysé (voir ci-dessous) |
-| `config` | objet | Les paramètres effectifs, après fusion des valeurs par défaut, des fichiers de configuration et des options de la commande : `preview_rows`, `string_analysis`, `value_examples` et `scan`, la configuration d’analyse complète. Voir la [configuration](configuration.md) |
+| `config` | objet | Les paramètres effectifs, après fusion des valeurs par défaut, des fichiers de configuration et des options de la commande : `string_analysis`, `value_examples` et `scan`, la configuration d’analyse complète ; pour un rapport généré à partir d’un document d’analyse, `scan` est la configuration qui y est enregistrée. Voir la [configuration](configuration.md) |
 | `datasets` | tableau | Un profil par jeu de données du fichier (voir ci-dessous) |
 
 ## `source`
@@ -157,6 +157,11 @@ Comptages sur l’ensemble du jeu de données :
 - normalisation : `trim_count`, `collapse_internal_whitespace_count` ;
 - structure : `duplicate_row_count`, `empty_row_count`, `empty_column_count`,
   `constant_column_count`, `with_issues_column_count` ;
+- `duplicate_row_status` : `complete` ; `limited` lorsque plus de lignes
+  distinctes que `scan.limits.max_tracked_records` ont été lues,
+  `duplicate_row_count` étant alors une borne inférieure ; ou `disabled`
+  lorsque `scan.records.duplicates` vaut `false`, `duplicate_row_count` étant
+  alors `null` ;
 - familles de colonnes : `numeric_column_count`, `date_column_count`,
   `string_column_count` ;
 - répartitions des types : `inferred_type_counts`, `inferred_type_percents`,
@@ -240,7 +245,7 @@ Une anomalie n’est listée que lorsque son comptage est supérieur à zéro, s
 ## `preview`
 
 Les premiers enregistrements du jeu de données (10 par défaut, défini par
-`preview_rows` dans la [configuration](configuration.md)), chacun avec son
+`scan.records.preview` dans la [configuration](configuration.md)), chacun avec son
 `row_number` et ses `values` brutes dans l’ordre des colonnes. La taille de
 l’aperçu n’influe pas sur l’analyse, qui lit toujours tous les
 enregistrements. Dans les colonnes sensibles, les valeurs sont masquées
