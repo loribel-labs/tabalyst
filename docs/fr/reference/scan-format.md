@@ -5,7 +5,7 @@ description: Structure du document JSON écrit par tabalyst scan, avec son nivea
 
 `tabalyst scan data.csv` écrit `data.scan.json`, un document JSON qui décrit
 chaque champ de la source. Cette page décrit le format `tabalyst.scan`, version
-`0.1.0a`, révision `1`. Le format est **expérimental** : il peut changer de
+`0.1.0a`, révision `2`. Le format est **expérimental** : il peut changer de
 manière incompatible d’une version à l’autre. Vérifiez toujours d’abord
 `format`, `format_version` et `format_revision` ; les changements sont listés
 dans le [journal des modifications du format d’analyse](scan-format-changelog.md).
@@ -16,7 +16,7 @@ dans le [journal des modifications du format d’analyse](scan-format-changelog.
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 1,
+  "format_revision": 2,
   "engine": {
     "version": "0.4.0",
     "normalization_version": 1,
@@ -86,6 +86,7 @@ lorsque sa racine n’est pas un tableau.
     "depth_truncated_observations": 0,
     "max_depth_seen": 3
   },
+  "records": {"...": "record facts, described below"},
   "fields": []
 }
 ```
@@ -95,6 +96,53 @@ lorsque sa racine n’est pas un tableau.
   enregistrements par type JSON.
 - `structure` : le nombre de chemins de champ distincts, et ce que les limites
   `max_fields` et `max_depth` ont laissé de côté.
+- `records` : des faits sur les enregistrements entiers, décrits dans la
+  section suivante.
+
+## Enregistrements
+
+Chaque jeu de données décrit ses enregistrements dans leur ensemble : les
+enregistrements avec des valeurs manquantes, les enregistrements vides, les
+enregistrements en double et un aperçu des premiers enregistrements.
+
+```json
+{
+  "with_missing": {"count": 2, "records": [2, 5]},
+  "empty": {"count": 1, "records": [5]},
+  "duplicates": {
+    "count": {"status": "complete", "value": 1},
+    "records": [3]
+  },
+  "preview": [
+    {"record": 1, "values": {"column_1": ["1"], "column_2": ["aaa@aaaaaaa.aaa"]}}
+  ]
+}
+```
+
+- Les valeurs d’un enregistrement sont ses chaînes, nombres, booléens et nulls :
+  chaque cellule d’une ligne CSV. Un champ JSON absent d’un enregistrement n’en
+  est pas une valeur.
+- `with_missing` : les enregistrements ayant au moins une valeur manquante,
+  selon le paramètre `values.missing`. `empty` : les enregistrements dont toutes
+  les valeurs sont manquantes.
+- `duplicates` : les enregistrements égaux à un enregistrement précédent du
+  même jeu de données, au-delà de sa première occurrence. Deux enregistrements
+  sont égaux lorsque chaque valeur, son champ et son type natif sont égaux, les
+  valeurs brutes étant comparées avant normalisation. `count` est une enveloppe
+  de mesure : `limited` avec la raison `record_budget` lorsque plus
+  d’enregistrements distincts que `limits.max_tracked_records` ont été lus, son
+  `lower_bound` étant les doublons trouvés ; `disabled` lorsque
+  `records.duplicates` vaut `false`.
+- `records` liste des numéros d’enregistrement, au plus
+  `limits.max_listed_records`. Ce sont les numéros de `first_record` et des
+  diagnostics.
+- `preview` : les `records.preview` premiers enregistrements, chacun avec ses
+  valeurs par identifiant de champ, sous forme de texte. Les valeurs d’un
+  chemin d’éléments sont listées dans l’ordre ; un null JSON vaut `null` ; un
+  champ absent de l’enregistrement n’a pas de clé. Les valeurs sensibles passent
+  par l’exposition du champ ; une cellule contenant une valeur cachée vaut
+  `null`. Les chaînes vides, les blancs et les marqueurs de null sont affichés
+  tels que lus.
 
 ## Champs
 
@@ -223,7 +271,7 @@ comptages ne sont jamais masqués.
 
 Les diagnostics décrivent des événements techniques, pas la qualité des
 données : enregistrements exclus, limites atteintes (`field_limit`,
-`depth_limit`, `measures_limited`, `global_budget`), collections introuvables et
-échecs de détecteurs. `level` vaut `error` ou `warning`. `count` est toujours
+`depth_limit`, `measures_limited`, `global_budget`, `record_budget`),
+collections introuvables et échecs de détecteurs. `level` vaut `error` ou `warning`. `count` est toujours
 complet ; `locations` liste au plus `errors.max_locations` emplacements, avec
 `record` et `line` pour le CSV, `record` et `element` pour le JSON.

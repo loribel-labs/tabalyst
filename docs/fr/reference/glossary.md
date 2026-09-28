@@ -56,6 +56,8 @@ Conservez-les exactement tels quels dans toutes les langues :
 | alpha | alpha | Stade précoce où les interfaces et les formats peuvent changer |
 | scan | analyse | La description complète d’une source écrite par `tabalyst scan` |
 | scan document | document d'analyse | Le fichier `.scan.json` écrit par `tabalyst scan` |
+| stale scan | analyse périmée | Un document d’analyse dont la source ou les paramètres ont changé depuis son écriture |
+| duplicate record | enregistrement en double | Un enregistrement égal à un enregistrement précédent de son jeu de données |
 | record | enregistrement | Une ligne CSV ou un élément d’une collection JSON |
 | collection | collection | Un tableau JSON dont les éléments sont analysés comme des enregistrements |
 | field | champ | Une colonne CSV ou un chemin dans des enregistrements JSON, comme `orders[].amount` |

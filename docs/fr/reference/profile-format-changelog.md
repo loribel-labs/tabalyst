@@ -9,7 +9,7 @@ indépendants :
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 4
+  "format_revision": 5
 }
 ```
 
@@ -107,3 +107,21 @@ Le rapport lit les fichiers JSON et liste les détecteurs de chaque colonne.
   scalaires, nommé par son chemin ; les champs absents comptent comme
   manquants, et `cell_count` compte les emplacements où une valeur peut se
   trouver.
+
+## Révision 5 - 2026-09-28
+
+Le rapport peut être généré à partir d’un document d’analyse, dont le bloc des
+enregistrements contient désormais l’aperçu et les lignes en double.
+
+- Nouveau `summary.duplicate_row_status` : `complete` ; `limited` lorsque plus
+  de lignes distinctes que `scan.limits.max_tracked_records` ont été lues,
+  auquel cas `duplicate_row_count` est une borne inférieure ; ou `disabled`
+  lorsque `scan.records.duplicates` vaut `false`, auquel cas
+  `duplicate_row_count` vaut `null`.
+- Le message de l’anomalie `duplicate_rows` se termine par `at least` lorsque
+  le comptage est une borne inférieure.
+- La taille de l’aperçu passe de `config.preview_rows` à
+  `config.scan.records.preview`.
+- Pour un rapport généré à partir d’un document d’analyse,
+  `processing_seconds` est le temps de lire le document et de construire le
+  profil.

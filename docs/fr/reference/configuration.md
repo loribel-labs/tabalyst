@@ -17,11 +17,12 @@ paramètres de présentation du rapport et les paramètres CSV de
 
 ```json
 {
-  "preview_rows": 20,
+  "string_analysis": {"examples_per_length": 5},
   "csv": {"delimiter": ";"},
   "scan": {
     "csv": {"delimiter": ";"},
-    "values": {"null_markers": ["N/A"]}
+    "values": {"null_markers": ["N/A"]},
+    "records": {"preview": 20}
   }
 }
 ```
@@ -38,7 +39,6 @@ paramètres `scan`, puis présente le résultat avec les paramètres ci-dessous.
 
 ```json
 {
-  "preview_rows": 10,
   "string_analysis": {
     "very_short_max_length": 5,
     "short_max_length": 20,
@@ -62,10 +62,10 @@ paramètres `scan`, puis présente le résultat avec les paramètres ci-dessous.
 
 ### Aperçu
 
-`preview_rows` : nombre de lignes brutes intégrées au rapport, de 0 à 100. Ce
-paramètre ne limite jamais l’analyse du CSV complet. Les valeurs des colonnes
-sensibles sont masquées ou cachées dans l’aperçu comme dans le reste du rapport
-(voir
+Le rapport affiche l’aperçu de l’analyse : ses `scan.records.preview` premiers
+enregistrements, 10 par défaut (voir [Enregistrements](#records)). Il ne limite
+jamais l’analyse du fichier complet. Les valeurs des colonnes sensibles sont
+masquées ou cachées dans l’aperçu comme dans le reste du rapport (voir
 [Comment le rapport utilise les paramètres d’analyse](#how-the-report-uses-the-scan-settings)).
 
 ### Analyse des textes
@@ -129,6 +129,8 @@ l’infobulle liste les valeurs masquées.
 | Analyse des dates | `scan.detectors.date` |
 | Types sémantiques | `scan.detection.minimum_share` et chaque détecteur |
 | Valeurs masquées | `scan.exposure.sensitive_values` |
+| Aperçu | `scan.records.preview` |
+| Lignes en double | `scan.records.duplicates` et `scan.limits.max_tracked_records` |
 
 - **Dates.** Une colonne dont les valeurs présentes sont des dates est `date`,
   même avec plusieurs formats ou des valeurs ambiguës. Les valeurs ambiguës
@@ -152,6 +154,10 @@ l’infobulle liste les valeurs masquées.
   distinctes d’une colonne qui en a plus de
   `scan.limits.max_distinct_per_field`, le rapport affiche `limited` au lieu
   d’un nombre et liste la colonne dans l’anomalie `limited_measures`.
+- **Lignes en double.** Avec plus de lignes distinctes que
+  `scan.limits.max_tracked_records`, le nombre de doublons est une borne
+  inférieure, affichée `≥ 12`. Avec `scan.records.duplicates` réglé sur
+  `false`, les doublons ne sont pas recherchés et le rapport affiche `–`.
 
 Le rapport lit les paramètres `scan.csv`, pas les paramètres `csv` du premier
 niveau. Lorsqu’un fichier définit les deux avec des valeurs différentes, le
@@ -159,6 +165,13 @@ rapport s’arrête avec une erreur, car le fichier serait sinon lu avec des
 paramètres qu’il n’attend pas ; une valeur donnée avec `--delimiter` ou
 `--encoding` l’emporte toujours. Le rapport a aussi besoin de toutes les
 colonnes : un CSV plus large que `scan.limits.max_fields` est une erreur.
+
+Un rapport généré à partir d’un document d’analyse avec `tabalyst report --scan`
+utilise les paramètres enregistrés dans le document. Ses fichiers de
+configuration donnent toujours les paramètres de présentation ; les paramètres
+donnés dans leur objet `scan` doivent avoir les valeurs enregistrées dans le
+document, sinon le rapport s’arrête avec une erreur (voir
+[Rapport à partir d’une analyse](../how-to/scan-files.md#report-from-a-scan)).
 
 ### Paramètres déplacés dans `scan`
 
@@ -175,6 +188,7 @@ nouvel emplacement :
 | `enum_detection` | `scan.detectors.enumeration` : `maximum_distinct_values` devient `maximum_distinct`, et `minimum_row_count` devient `minimum_values`, qui compte les valeurs présentes, pas les lignes |
 | `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
 | `value_examples.random_seed` | `scan.random_seed` |
+| `preview_rows` | `scan.records.preview`, désormais jusqu’à 1 000 |
 
 ## Paramètres de l’échantillonnage
 
@@ -220,8 +234,10 @@ défaut est :
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 100, "max_variant_groups": 100,
-      "max_variants_per_group": 20, "max_evidence_examples": 10
+      "max_variants_per_group": 20, "max_evidence_examples": 10,
+      "max_tracked_records": 2000000, "max_listed_records": 10
     },
+    "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
     "detection": {"minimum_share": 0.95},
     "detectors": {"number": {"enabled": true}},
@@ -311,10 +327,23 @@ supérieures au maximum sont rejetées avant le début de l’analyse.
 | `max_variant_groups` | 100 | 100 000 | Groupes de variantes de normalisation listés par champ. |
 | `max_variants_per_group` | 20 | 10 000 | Variantes listées par groupe. |
 | `max_evidence_examples` | 10 | 1 000 | Valeurs d’exemple par état de détecteur. |
+| `max_tracked_records` | 2 000 000 | 500 000 000 | Enregistrements distincts stockés pour toute l’analyse afin de trouver les doublons, environ 80 octets chacun ; les enregistrements suivants sont encore comparés à ceux stockés, et les nombres de doublons deviennent des bornes inférieures. |
+| `max_listed_records` | 10 | 10 000 | Numéros d’enregistrement listés par bloc d’enregistrements. |
 
 `max_distinct_per_field` ne peut pas dépasser `max_tracked_values`. Les
 compteurs, les statistiques et la couverture des détecteurs restent exacts une
 fois une limite atteinte.
+
+<a id="records"></a>
+
+### Enregistrements
+
+- `records.preview` : combien des premiers enregistrements chaque jeu de
+  données conserve dans son aperçu, de 0 à 1 000. Les valeurs sensibles sont
+  exposées comme ailleurs.
+- `records.duplicates` : réglez-le sur `false` pour ne pas rechercher les
+  doublons, ce qui stocke une empreinte par enregistrement distinct, jusqu’à
+  `limits.max_tracked_records`. Le nombre de doublons est alors `disabled`.
 
 ### Types et interprétations
 

@@ -1,11 +1,11 @@
 ---
 title: Documentation de Tabalyst
-description: Tabalyst est une boîte à outils open source et locale qui transforme un fichier CSV en rapport HTML interactif et en profil JSON.
+description: Tabalyst est une boîte à outils open source et locale qui transforme un fichier CSV ou JSON en rapport HTML interactif et en profil JSON.
 ---
 
 Tabalyst est une boîte à outils open source et locale pour comprendre des
 données inconnues. Son premier outil, **Tabalyst Report**, analyse un fichier CSV
-et produit un rapport HTML interactif et un profil JSON structuré.
+ou JSON et produit un rapport HTML interactif et un profil JSON structuré.
 
 ```console
 pip install --upgrade tabalyst
@@ -30,6 +30,8 @@ PyPI.
   fichier CSV.
 - [Échantillonner des fichiers CSV](how-to/sample-csv.md) avec une sélection
   first, last, random ou stratified.
+- [Générer le rapport de fichiers JSON](how-to/report-json-files.md), avec une
+  vue par collection d’enregistrements.
 - [Analyser des fichiers CSV et JSON](how-to/scan-files.md) pour obtenir une
   description JSON complète de chaque champ.
 
