@@ -55,6 +55,7 @@ class DatasetState:
     """
 
     __slots__ = (
+        "_by_id",
         "collection_path",
         "collections",
         "depth_limit_location",
@@ -90,7 +91,7 @@ class DatasetState:
         self.max_fields = max_fields
         self.record_count = 0
         self.record_types: Counter[str] = Counter()
-        self.records = RecordFacts(records)
+        self.records = RecordFacts(records, tuple(item.path for item in declared))
         # Fields whose arrays hold the records of another dataset.
         self.collections: dict[FieldPath, str] = {}
         self.paths_limited = False
@@ -109,6 +110,9 @@ class DatasetState:
                 self.paths_limited = True
                 break
             self.fields[item.path] = FieldState(item.path, values.discover(), item)
+        # Tracked fields by path identity: readers reuse their path objects,
+        # and hashing a path hashes each of its segments.
+        self._by_id: dict[int, FieldState] = {}
 
     def add_record(self, record: Record, strings: StringClassifier) -> None:
         self.record_count += 1
@@ -117,16 +121,21 @@ class DatasetState:
         fields = self.fields
         values = self.values
         index = record.index
+        by_id = self._by_id
         for observation in observations:
-            state = fields.get(observation.path)
-            if state is None:
-                # ``fields`` holds the record root, which the limit excludes.
-                if len(fields) > self.max_fields:
-                    self._untracked(observation.path, record)
-                    continue
-                state = fields[observation.path] = FieldState(
-                    observation.path, values.discover()
-                )
+            path = observation.path
+            state = by_id.get(id(path))
+            if state is None or state.path is not path:
+                state = fields.get(path)
+                if state is None:
+                    # ``fields`` holds the record root, which the limit excludes.
+                    if len(fields) > self.max_fields:
+                        self._untracked(path, record)
+                        continue
+                    state = fields[path] = FieldState(path, values.discover())
+                if len(by_id) >= 4 * len(fields):
+                    by_id.clear()
+                by_id[id(path)] = state
             state.observe(observation, index, strings, values)
         self.records.add(record)
         if record.depth_truncated:
@@ -252,10 +261,25 @@ class DatasetState:
                 detector=detector,
             )
 
+        def report_probe(detector: str, count: int) -> int:
+            return diagnostics.add(
+                "detector_skipped_reacted",
+                "warning",
+                f"Detector {detector} matched none of the first "
+                f"{config.detection.warmup_values} distinct values of field "
+                f"{display} and was then skipped, but probed values reacted: its "
+                "counts for this field are incomplete. Set "
+                "detection.warmup_values to 0 for exhaustive detection.",
+                dataset=self.id,
+                field=ids[path],
+                detector=detector,
+                count=count,
+            )
+
         blocks = (
             no_values(self.values)
             if state.values is None
-            else state.values.finalize(report_failure)
+            else state.values.finalize(report_failure, report_probe)
         )
         components = MissingComponents(
             absent=presence.absent,

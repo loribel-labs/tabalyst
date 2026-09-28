@@ -2,6 +2,40 @@
 
 ## 2026-09-28
 
+- Prepared Tabalyst `0.4.1` with adaptive detection, faster streaming, the
+  total time of reports built from scan documents, scan format revision 3
+  and profile format revision 7.
+- Adaptive detection (lot 6, design 13 item 4, decision O23): the first
+  `detection.warmup_values` distinct values of a field (default 10,000) go
+  through every detector; detectors that reacted to none of them then skip
+  the other values, counted `not_tested`, except probes (CRC-32 of the value,
+  about one in `detection.probe_interval`, default 100). A reacting probe
+  raises a `detector_skipped_reacted` warning; a skipped detector is never
+  re-enabled, which would break identical results between execution modes.
+  `number` and `date` are never skipped; sensitive detectors are skipped like
+  the others for now (open point in design 13). Scan format revision 3
+  (`adaptive` in detector results), profile revision 7 (`detection`
+  settings), a line in the report's analysis settings. On a 120,000-row
+  benchmark, about 14% faster with identical types, interpretations and
+  sensitivity. French pages to update with lot 5d-fr: `configuration`,
+  `json-profile`, `known-limitations`, `profile-format-changelog`,
+  `scan-format`, `scan-format-changelog`.
+- A report built with `--scan` shows the total time: `processing_seconds`
+  (and `analysis_seconds`, `total_seconds` of the execution history) add the
+  scan duration recorded in the document. French page to update with them:
+  `json-profile`.
+- Scan speed after the `0.4.0` regression report (550,000-row, 35-column
+  CSV: 73 s in `0.3.0`, 160 s in `0.4.0`, about 110 s now; profiles and
+  reports unchanged). Field states and duplicate digests look paths up by
+  identity first (a path hashes and prints each segment dataclass), and
+  duplicate digests number paths instead of printing them. Detector shape
+  checks are memoized per shape (`SHAPE_CACHE_SIZE`). Accumulators whose
+  `add` ignores unmatched values declare `ignores_unmatched` in their own
+  class body, and the tally skips those calls. Duplicate digests of CSV
+  rows hash the value lengths and the joined values instead of the `repr`
+  of every observation (about half the cost of duplicate detection; other
+  records keep the full key). The remaining time is mostly
+  the classification of distinct values in high-cardinality columns (phase 6).
 - Prepared Tabalyst `0.4.0` with Tabalyst Scan, `tabalyst scan`, reports
   of JSON files built on the streaming engine and profile format revision 6.
 - Normalization, limits and structure sections of the report (Tabalyst Scan

@@ -52,6 +52,9 @@ MAX_PREVIEW_RECORDS = 1_000
 MAX_PATTERNS = 200
 MAX_PATTERN_LENGTH = 1_000
 MAX_PATTERN_INPUT_LENGTH = 10_000
+# A streamed field keeps its warm-up values: the warm-up is bounded.
+MAX_WARMUP_VALUES = 1_000_000
+MAX_PROBE_INTERVAL = 1_000_000
 
 MissingCategory = Literal["absent", "null", "empty", "blank", "marker"]
 ScalarType = Literal["string", "integer", "number", "boolean"]
@@ -176,6 +179,9 @@ class TypeSettings(_Settings):
 
 class DetectionSettings(_Settings):
     minimum_share: float = Field(default=0.95, gt=0, le=1)
+    # Adaptive detection (design 13): 0 keeps detection exhaustive.
+    warmup_values: int = Field(default=10_000, ge=0, le=MAX_WARMUP_VALUES)
+    probe_interval: int = Field(default=100, ge=0, le=MAX_PROBE_INTERVAL)
 
 
 NumberConvention = Literal["dot", "comma"]

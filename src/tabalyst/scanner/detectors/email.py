@@ -72,6 +72,7 @@ class EmailDetector(Detector):
 
 class EmailAccumulator(DetectorAccumulator):
     __slots__ = ("domains",)
+    ignores_unmatched = True
 
     def __init__(self, domains: NameCounts) -> None:
         self.domains = domains

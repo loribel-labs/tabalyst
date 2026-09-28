@@ -130,6 +130,7 @@ class UrlDetector(Detector):
 
 class UrlAccumulator(DetectorAccumulator):
     __slots__ = ("hosts",)
+    ignores_unmatched = True
 
     def __init__(self, hosts: NameCounts) -> None:
         self.hosts = hosts

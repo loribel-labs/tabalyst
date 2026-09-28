@@ -70,6 +70,22 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     assert history["executions"][0]["source_file"] == "data.csv"
 
 
+def test_report_from_a_scan_includes_the_scan_duration(tmp_path):
+    source = write_text(tmp_path, "data.csv", ROWS)
+    scan_document = _scan(source)
+    document = json.loads(scan_document.read_text(encoding="utf-8"))
+    document["duration_seconds"] = 12.5
+    scan_document.write_text(json.dumps(document), encoding="utf-8")
+
+    profile = analyze_scan(scan_document)
+
+    assert 12.5 < profile.processing_seconds < 17.5
+    assert _report("--scan", scan_document).exit_code == 0
+    history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))
+    entry = history["executions"][0]
+    assert 12.5 < entry["analysis_seconds"] <= entry["total_seconds"] < 17.5
+
+
 def test_report_from_a_scan_never_reads_the_source(tmp_path, monkeypatch):
     source = write_text(tmp_path, "data.csv", ROWS)
     scan_document = _scan(source)

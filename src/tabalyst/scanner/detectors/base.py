@@ -69,9 +69,15 @@ class DetectorAccumulator:
     ``add`` receives every tested value with its classification (``None`` when
     not matched) and its count. In both execution modes it sees the same
     distinct values, first seen first, with the same total counts.
+
+    A class whose ``add`` does nothing for unmatched values (``None``) sets
+    ``ignores_unmatched`` in its own body: the engine then skips those calls.
+    The flag applies only to the class that defines ``add``, so a subclass
+    that overrides ``add`` receives every value unless it sets it again.
     """
 
     __slots__ = ()
+    ignores_unmatched: ClassVar[bool] = True
 
     def add(
         self, value: str, classification: Classification | None, count: int
@@ -135,6 +141,7 @@ class AmbiguityAccumulator(DetectorAccumulator):
     """
 
     __slots__ = ("candidates", "count", "evidence", "resolution")
+    ignores_unmatched = True
 
     def __init__(self, readings: list[str], resolution: dict[str, str] | None) -> None:
         self.count = 0

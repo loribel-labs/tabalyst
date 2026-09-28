@@ -126,6 +126,7 @@ class PhoneDetector(Detector):
 
 class PhoneAccumulator(DetectorAccumulator):
     __slots__ = ("regions",)
+    ignores_unmatched = True
 
     def __init__(self, regions: tuple[str, ...]) -> None:
         self.regions = dict.fromkeys(sorted(regions), 0)

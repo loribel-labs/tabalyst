@@ -222,7 +222,7 @@ object of each configuration file. The complete object with its defaults is:
     },
     "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
-    "detection": {"minimum_share": 0.95},
+    "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100},
     "detectors": {"number": {"enabled": true}},
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -324,6 +324,24 @@ statistics and detector coverage stay exact after a limit is reached.
   get a technical type such as `integer` or `date`, otherwise `mixed`.
 - `detection.minimum_share`: share of the values that a detector must match to
   become a candidate interpretation of the field.
+- `detection.warmup_values`: default 10,000, up to 1,000,000. The first
+  distinct values of each field go through every detector. A detector that
+  recognized none of them, not even as invalid or ambiguous, is then skipped
+  for the other values of the field, which count as `not_tested` in its
+  coverage. `number` and `date` are never skipped. A field with fewer
+  distinct values is always analyzed by every detector. Set it to `0` to test
+  every value with every detector, as before this setting existed.
+- `detection.probe_interval`: default 100, up to 1,000,000. After the
+  warm-up, about one distinct value in this number, chosen by a hash of the
+  value, still goes through every detector. When a skipped detector
+  recognizes one of these probes, the scan reports a
+  `detector_skipped_reacted` warning: its counts for the field are
+  incomplete. `0` disables probes.
+
+A detector skipped after the warm-up may miss rare values that appear later
+in the file, including sensitive ones such as an email address in a comment
+column: such a value would not be masked. Set `detection.warmup_values` to
+`0` when every sensitive value must be found.
 
 ### Detectors
 

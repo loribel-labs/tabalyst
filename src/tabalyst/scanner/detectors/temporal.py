@@ -347,6 +347,7 @@ class DateAccumulator(AmbiguityAccumulator):
     9.6): ambiguous values are counted, never compared."""
 
     __slots__ = ("kinds", "unresolved")
+    ignores_unmatched = True
 
     def __init__(self, readings: list[str], resolution: dict[str, str] | None) -> None:
         super().__init__(readings, resolution)

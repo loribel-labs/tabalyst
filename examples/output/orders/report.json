@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 6,
-  "generated_at": "2026-09-28T03:03:42.552048Z",
-  "processing_seconds": 0.0982,
+  "format_revision": 7,
+  "generated_at": "2026-09-28T05:21:36.908330Z",
+  "processing_seconds": 0.1118,
   "source": {
     "filename": "orders.json",
     "format": "json",
@@ -87,7 +87,9 @@
         "minimum_confidence": 0.95
       },
       "detection": {
-        "minimum_share": 0.95
+        "minimum_share": 0.95,
+        "warmup_values": 10000,
+        "probe_interval": 100
       },
       "detectors": {
         "number": {

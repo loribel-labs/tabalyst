@@ -13,10 +13,17 @@ from __future__ import annotations
 
 import heapq
 import random
+import zlib
 from decimal import Decimal
+from itertools import islice
 
 from tabalyst.scanner.config import ScanConfig, exact_share
-from tabalyst.scanner.detectors.registry import DetectorSet, FailureReporter
+from tabalyst.scanner.detectors.registry import (
+    DetectorSet,
+    FailureReporter,
+    Plans,
+    ProbeReporter,
+)
 from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import (
     CHANGES,
@@ -125,11 +132,19 @@ class ValueBudget:
 
 
 class ValueTracker:
-    """Values of one field: raw table or streaming, first and last values."""
+    """Values of one field: raw table or streaming, first and last values.
+
+    Adaptive detection (design 13): the first ``warmup_values`` distinct
+    values, in first-seen order, go through every detector. The next one
+    decides which detectors stay; the others skip every later value except
+    probes. A streamed field keeps its warm-up values, so their later
+    occurrences are still classified by every detector, as in a table.
+    """
 
     __slots__ = (
         "cache",
         "context",
+        "decided",
         "distinct",
         "false",
         "first",
@@ -139,9 +154,12 @@ class ValueTracker:
         "limited",
         "measures",
         "samples",
+        "seen",
         "sequence",
+        "skipping",
         "table",
         "true",
+        "warm",
     )
 
     def __init__(self, context: ValueContext, sequence: int) -> None:
@@ -160,6 +178,13 @@ class ValueTracker:
         self.true = 0
         self.false = 0
         self.sequence = sequence
+        # Adaptive detection: distinct values of the warm-up so far, whether
+        # the warm-up is over, the plans that skip detectors after it, and
+        # the warm-up values of a streamed field.
+        self.seen = 0
+        self.decided = not context.detectors.warmup_values
+        self.skipping: Plans | None = None
+        self.warm: set[Key] | None = None
         context.budget.live[sequence] = self
 
     def add(self, native_type: str, value: object, record: int) -> None:
@@ -213,16 +238,58 @@ class ValueTracker:
         self.measures.numeric.median_values = None
         self.samples = {}
         for key, count in table.items():
-            self._process(self._facts(key), count)
+            self._process(self._facts(key, self._first(key)), count)
+        self.warm = set(islice(table, self.context.detectors.warmup_values))
 
-    def _facts(self, key: Key) -> Facts:
+    def _facts(self, key: Key, plans: Plans | None = None) -> Facts:
         context = self.context
         if type(key) is str:
-            return string_facts(key, context.normalizer, context.detectors)
+            return string_facts(key, context.normalizer, context.detectors, plans)
         native_type, form = key
         if native_type == "number":
             form = Decimal(form)
-        return scalar_facts(native_type, form, context.detectors)
+        return scalar_facts(native_type, form, context.detectors, plans)
+
+    # Adaptive detection ------------------------------------------------------
+
+    def _first(self, key: Key) -> Plans | None:
+        """Plans of a new distinct value, in first-seen order: ``None`` (every
+        detector) during the warm-up; the first value after it decides."""
+        if not self.decided:
+            if self.seen < self.context.detectors.warmup_values:
+                self.seen += 1
+                return None
+            self.decided = True
+            self.skipping = self.context.detectors.skipping(self.measures.tallies)
+        return self._after_warmup(key)
+
+    def _after_warmup(self, key: Key) -> Plans | None:
+        skipping = self.skipping
+        if skipping is None or self._probe(key):
+            return None
+        return skipping
+
+    def _probe(self, key: Key) -> bool:
+        """About one distinct value in ``probe_interval``, chosen by a stable
+        hash of the value, goes through every detector after the warm-up."""
+        interval = self.context.detectors.probe_interval
+        if not interval:
+            return False
+        text = key if type(key) is str else f"{key[0]}:{key[1]}"
+        return zlib.crc32(text.encode("utf-8", "surrogatepass")) % interval == 0
+
+    def _streamed(self, key: Key) -> Plans | None:
+        """Plans of a streamed value that the cache does not hold."""
+        warm = self.warm
+        if key in warm:
+            return None
+        if self.decided:
+            return self._after_warmup(key)
+        # Every value met during the warm-up is in ``warm``: this one is new.
+        plans = self._first(key)
+        if not self.decided:
+            warm.add(key)
+        return plans
 
     def _process(self, facts: Facts, count: int) -> None:
         """Account for ``count`` occurrences once the table is released."""
@@ -245,7 +312,7 @@ class ValueTracker:
         if facts is None:
             if len(cache) >= CACHE_SIZE:
                 cache.clear()
-            facts = self._facts(key)
+            facts = self._facts(key, self._streamed(key))
             if facts[FORMS] is not None:
                 # Stage outputs serve complete tables only: do not cache them.
                 facts = (*facts[:FORMS], None, *facts[FORMS + 1 :])
@@ -266,7 +333,9 @@ class ValueTracker:
             return None
         return ValueAt(value=exposed, type=native_type, record=record)
 
-    def finalize(self, report_failure: FailureReporter) -> dict:
+    def finalize(
+        self, report_failure: FailureReporter, report_probe: ProbeReporter | None = None
+    ) -> dict:
         context = self.context
         table = self.table
         measures = self.measures
@@ -278,7 +347,7 @@ class ValueTracker:
             changed: dict[str, tuple[str, ...]] = {}
             changes = 0
             for key, count in table.items():
-                facts = self._facts(key)
+                facts = self._facts(key, self._first(key))
                 measures.add(facts, count)
                 value = (facts[0], facts[1])
                 analytical[value] = analytical.get(value, 0) + count
@@ -327,7 +396,7 @@ class ValueTracker:
             )
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             variant_groups = unproven if measures.lengths else _NO_VALUES
-        results = detectors.results(measures.tallies, report_failure, gate)
+        results = detectors.results(measures.tallies, report_failure, gate, report_probe)
         # Statistics such as a minimum or a date range are values themselves:
         # a masked or hidden field withholds them (design 12.8).
         withheld = gate.mode != "show"

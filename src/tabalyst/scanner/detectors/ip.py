@@ -114,6 +114,7 @@ class IpAddressDetector(Detector):
 
 class IpAddressAccumulator(DetectorAccumulator):
     __slots__ = ("versions",)
+    ignores_unmatched = True
 
     def __init__(self, versions: tuple[str, ...]) -> None:
         self.versions = dict.fromkeys(sorted(versions), 0)

@@ -16,9 +16,9 @@ the [scan format changelog](scan-format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
-    "version": "0.4.0",
+    "version": "0.4.1",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },
@@ -199,7 +199,8 @@ status is about records, the envelope about one measure.
   },
   "formats": [{"format": "0", "count": 1}, {"format": "0.0", "count": 1}],
   "evidence": {"matched": ["12.50", "7"], "ambiguous": [], "invalid": [], "not_matched": []},
-  "details": {}
+  "details": {},
+  "adaptive": null
 }
 ```
 
@@ -214,6 +215,14 @@ Every detector is listed for every field, with status `complete`,
 - `evidence`: the first distinct values in each state.
 - `details`: detector-specific counts, such as email domains or ambiguity
   evidence.
+- `adaptive`: `null` when the detector tested every value of the field.
+  When it recognized none of the first `detection.warmup_values` distinct
+  values, it is skipped for the other values except probes, and `adaptive` is
+  `{"skipped_after": 10000, "not_tested": 1200, "diagnostic": null}`: the
+  warm-up size, the values it did not test (included in
+  `coverage.not_tested`), and the index of a `detector_skipped_reacted`
+  warning when a probe was recognized, meaning its counts are incomplete.
+  `number` and `date` are never skipped.
 
 The built-in detectors are `number`, `date`, `boolean`, `enumeration`,
 `email`, `url`, `phone`, `postal_code`, `currency`, `percentage`, `quantity`,

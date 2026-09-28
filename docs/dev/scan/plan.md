@@ -322,6 +322,10 @@ benchmarks.md.
   long strings and deep JSON; targets decided with the maintainer (O19).
 - Fast paths, adaptive detection with explicit `not_tested`, mergeable states
   as preparation for parallelism.
+- Done so far (2026-09-28): adaptive detection (design 13 item 4, O23,
+  scan format revision 3, profile revision 7), CSV duplicate digests without
+  `repr`. Open: sensitive detectors are skipped like the others (design 13);
+  benchmarks and targets (O19).
 
 ### Lot 7: extensions
 

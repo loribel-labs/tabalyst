@@ -41,6 +41,19 @@ def test_csv_records_block(tmp_path):
     assert records["preview"][4]["values"] == {"column_1": [" "], "column_2": [" "]}
 
 
+def test_csv_duplicates_keep_cell_boundaries(tmp_path):
+    """Table digests join the values: moving a boundary is another record."""
+    source = write_text(
+        tmp_path,
+        "rows.csv",
+        'a,b,c\nab,c,\na,bc,\n"a,b",c,\na,"b,c",\n,abc,\nabc,,\nab,c,\n',
+    )
+
+    duplicates = _records(run_scan(source))["duplicates"]
+
+    assert duplicates == {"count": {"status": "complete", "value": 1}, "records": [7]}
+
+
 def test_missing_follows_the_missing_definition(tmp_path):
     source = write_text(tmp_path, "rows.csv", "a,b\nNA,1\n,2\n")
 

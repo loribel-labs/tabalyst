@@ -378,7 +378,7 @@ class DatasetProfile(ResultModel):
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[6] = 6
+    format_revision: Literal[7] = 7
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

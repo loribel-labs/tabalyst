@@ -289,3 +289,44 @@ def test_shape_rejection_is_an_exact_not_matched(tmp_path):
     coverage = detector(code, "test_code")["coverage"]
     assert (coverage["matched"], coverage["not_matched"]) == (1, 2)
     assert seen == ["C-0001"]
+
+
+def test_accumulators_receive_unmatched_values_unless_they_opt_out(tmp_path):
+    """DetectorAccumulator: a subclass that overrides ``add`` receives the
+    unmatched values even when its parent ignores them."""
+    from tabalyst.scanner.detectors import Classification, Detector, default_registry
+    from tabalyst.scanner.detectors.base import DetectorAccumulator
+
+    received = []
+
+    class Quiet(DetectorAccumulator):
+        ignores_unmatched = True
+
+        def add(self, value, classification, count):
+            pass
+
+    class Listening(Quiet):
+        def add(self, value, classification, count):
+            received.append((value, classification, count))
+
+    class OddDetector(Detector):
+        id = "test_odd"
+        family = "test"
+
+        def classify(self, value):
+            return Classification("matched") if int(value) % 2 else None
+
+        def accumulator(self):
+            return Listening()
+
+    registry = default_registry()
+    registry.register(OddDetector)
+    source = write_text(tmp_path, "numbers.csv", "n\n1\n2\n2\n")
+
+    run_scan(source, registry=registry)
+
+    assert [(value, classification) for value, classification, _ in received] == [
+        ("1", Classification("matched")),
+        ("2", None),
+    ]
+    assert sum(count for *_, count in received) == 3

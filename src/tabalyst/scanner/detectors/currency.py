@@ -113,6 +113,7 @@ class CurrencyDetector(Detector):
 
 class CurrencyAccumulator(AmountAccumulator):
     __slots__ = ("currencies",)
+    ignores_unmatched = True
 
     def __init__(self, reader: AmountReader) -> None:
         super().__init__(reader)

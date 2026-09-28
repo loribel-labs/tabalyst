@@ -11,11 +11,18 @@ through a 128-bit BLAKE2b digest, one per distinct record, within a dataset.
 ``limits.max_tracked_records`` bounds the digests stored for the whole scan:
 once it is reached, later records are still compared with the stored ones, so
 the count becomes a proven lower bound (reason ``record_budget``).
+
+A record of a dataset with declared fields (a CSV table) that observes the
+root, then each declared path once, in order, as a string, is its values
+alone: its digest hashes the value lengths and the joined values, with its
+own personalization so it never equals the digest of another record.
 """
 
 from __future__ import annotations
 
 import hashlib
+import operator
+from array import array
 
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.exposure import mask
@@ -31,9 +38,88 @@ from tabalyst.scanner.models import (
     Records,
 )
 from tabalyst.scanner.observations import Record
-from tabalyst.scanner.paths import FieldPath
+from tabalyst.scanner.paths import ROOT, FieldPath
 
 CONTAINER_TYPES = frozenset({"object", "array"})
+# Paths numbered for the digests; later paths use their ``repr``.
+MAX_PATH_TOKENS = 65_536
+_TABLE_PERSON = b"tabalyst.table"
+_path = operator.attrgetter("path")
+_type = operator.attrgetter("type")
+_value = operator.attrgetter("value")
+
+
+class TableLayout:
+    """The observations of a record of a declared table: the root, then each
+    declared path once, in order, as a string."""
+
+    __slots__ = ("paths", "size", "types")
+
+    def __init__(self, declared: tuple[FieldPath, ...]) -> None:
+        self.paths = (ROOT, *declared)
+        self.types = ("object", *("string",) * len(declared))
+        self.size = len(self.paths)
+
+    def values(self, record: Record) -> list[str] | None:
+        """The values of ``record`` when it has the layout, else ``None``.
+
+        Readers reuse the declared path objects: identity is checked first.
+        """
+        observations = record.observations
+        if (
+            len(observations) != self.size
+            or tuple(map(_type, observations)) != self.types
+            or observations[0].value is not None
+        ):
+            return None
+        paths = self.paths
+        if (
+            not all(map(operator.is_, map(_path, observations), paths))
+            and tuple(map(_path, observations)) != paths
+        ):
+            return None
+        return list(map(_value, observations[1:]))
+
+
+def _table_digest(values: list[str]) -> bytes:
+    """Digest of table values: the lengths make the joined text unambiguous."""
+    digest = hashlib.blake2b(
+        array("q", map(len, values)).tobytes(), digest_size=16, person=_TABLE_PERSON
+    )
+    digest.update("".join(values).encode("utf-8", "surrogatepass"))
+    return digest.digest()
+
+
+class PathTokens:
+    """A short, stable digest token per path.
+
+    Readers reuse the same path objects from record to record, so tokens are
+    looked up by identity first: hashing a path hashes each of its segments.
+    """
+
+    __slots__ = ("_by_id", "_tokens")
+
+    def __init__(self) -> None:
+        self._tokens: dict[FieldPath, int | str] = {}
+        self._by_id: dict[int, tuple[FieldPath, int | str]] = {}
+
+    def token(self, path: FieldPath) -> int | str:
+        entry = self._by_id.get(id(path))
+        if entry is not None and entry[0] is path:
+            return entry[1]
+        tokens = self._tokens
+        token = tokens.get(path)
+        if token is None:
+            if len(tokens) < MAX_PATH_TOKENS:
+                token = tokens[path] = len(tokens)
+            else:
+                # A ``repr`` is quoted: it never equals the ``repr`` of a number.
+                token = repr(path)
+        by_id = self._by_id
+        if len(by_id) >= MAX_PATH_TOKENS:
+            by_id.clear()
+        by_id[id(path)] = (path, token)
+        return token
 
 
 class DuplicateBudget:
@@ -83,7 +169,9 @@ class RecordFacts:
 
     __slots__ = (
         "_context",
+        "_paths",
         "_seen",
+        "_table",
         "duplicate_count",
         "duplicate_records",
         "empty_count",
@@ -94,9 +182,13 @@ class RecordFacts:
         "untracked",
     )
 
-    def __init__(self, context: RecordContext) -> None:
+    def __init__(
+        self, context: RecordContext, declared: tuple[FieldPath, ...] = ()
+    ) -> None:
         self._context = context
         self._seen: set[bytes] = set()
+        self._paths = PathTokens()
+        self._table = TableLayout(declared) if declared else None
         # Observed scalar values of the first records, per path.
         self.preview: list[tuple[int, dict[FieldPath, list[tuple[str, str | None]]]]] = []
         self.missing_count = 0
@@ -145,14 +237,23 @@ class RecordFacts:
         if context.duplicates:
             self._compare(record)
 
-    def _compare(self, record: Record) -> None:
+    def _digest(self, record: Record) -> bytes:
+        table = self._table
+        if table is not None:
+            values = table.values(record)
+            if values is not None:
+                return _table_digest(values)
+        token = self._paths.token
         key = [
-            (observation.path, observation.type, observation.value)
+            (token(observation.path), observation.type, observation.value)
             for observation in record.observations
         ]
-        digest = hashlib.blake2b(
+        return hashlib.blake2b(
             repr(key).encode("utf-8", "surrogatepass"), digest_size=16
         ).digest()
+
+    def _compare(self, record: Record) -> None:
+        digest = self._digest(record)
         if digest in self._seen:
             self.duplicate_count += 1
             if len(self.duplicate_records) < self._context.listed:

@@ -51,6 +51,7 @@ class BooleanDetector(Detector):
 
 class BooleanAccumulator(DetectorAccumulator):
     __slots__ = ("false", "true")
+    ignores_unmatched = True
 
     def __init__(self) -> None:
         self.true = 0
