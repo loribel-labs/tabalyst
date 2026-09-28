@@ -12,7 +12,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `5`.
+format `0.1.0a`, revision `6`.
 
 ## Example
 
@@ -21,7 +21,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 5,
+  "format_revision": 6,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -91,7 +91,14 @@ A shortened profile for a five-row `orders.csv`:
           "values": ["001", "Alice", "12.50", "2026-01-01", "true", "First order"],
           "absent": []
         }
-      ]
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": null
     }
   ]
 }
@@ -137,6 +144,8 @@ when it holds values outside the collections. See the
 | `columns` | array | One profile per column, in file order for CSV and in order of discovery for JSON |
 | `issues` | array | Detected problems (see below) |
 | `preview` | array | The first records, with raw values; values of sensitive columns are masked or hidden |
+| `limits` | object | Measures stopped by a scan limit, structural truncation and scan diagnostics (see below) |
+| `structure` | object or `null` | Paths of a JSON dataset, containers included (see below); `null` for CSV files |
 
 In a JSON dataset, a column is a field that holds strings, numbers, booleans
 or nulls, named by its path: `email`, `address.city`, `orders[].total`.
@@ -181,7 +190,7 @@ Each column profile always contains:
 | `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns |
 | `missing_count`, `missing_percent` | Missing cells; for JSON, also the objects where the field is absent |
 | `with_issues` | `true` when the column has missing values, its type is `mixed` or it holds ambiguous dates |
-| `normalization` | Values changed by whitespace trimming and collapsing; missing cells are not counted |
+| `normalization` | Values changed by each normalization stage and the variant groups (see below); missing cells are not counted |
 | `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
 | `examples` | A few representative values |
 | `value_profile` | Value occurrences, complete or sampled (see `selection`) |
@@ -196,6 +205,34 @@ Depending on the column, these objects are also present (otherwise `null`):
 | `numeric` | `integer` and `number` columns with finite values | `minimum`, `maximum`, `range`, `mean`, `median` (`null` when a scan limit stopped it), over every number of the column, including decimal commas such as `12,5` |
 | `date_profile` | Columns containing date values, whatever their type | Valid, ambiguous and invalid counts, detected formats and their breakdown, and `ambiguity_evidence`: the number of unambiguous values per day-month order (`DMY`, `MDY`), shown but never applied. `resolved_ambiguous_order` is set only by `scan.detectors.date.ambiguous_order` |
 | `string_profile` | `text` columns | Length statistics, length distribution and representative examples |
+
+## `normalization`
+
+What the scan's normalization did to the present values of the column. Raw
+values are never changed.
+
+| Field | Content |
+| --- | --- |
+| `trim_count`, `trim_percent` | Values changed by trimming surrounding whitespace |
+| `collapse_internal_whitespace_count`, `collapse_internal_whitespace_percent` | Values changed by collapsing repeated internal whitespace |
+| `stages` | One item per stage, in order: `raw`, `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` (see below) |
+| `variant_group_count` | Normalized values written in at least two raw ways; `null` unless `variant_group_status` is `complete` |
+| `variant_group_status` | `complete`, `limited` when a scan limit stopped the count, or `not_applicable` without text values |
+| `variant_groups` | The largest groups (`scan.limits.max_variant_groups`), each with its comparison `key`, its occurrence `count`, `distinct_count` (raw spellings), `variants` (`value` and `count`, at most `scan.limits.max_variants_per_group`) and `truncated`; masked for a sensitive column, empty when hidden |
+| `variant_groups_truncated` | `true` when more groups exist than are listed |
+
+Each item of `stages` has:
+
+| Field | Content |
+| --- | --- |
+| `stage` | Stage name; `raw` describes the values as read |
+| `enabled` | `false` when the stage is turned off in `scan.normalization` |
+| `changed_count`, `changed_percent` | Values the stage changed, given the previous enabled stage; `null` for `raw` and disabled stages |
+| `distinct_count` | Distinct values after the stage; `null` unless `distinct_status` is `complete` |
+| `distinct_status` | `complete`, `limited`, `not_applicable` (no values) or `disabled` |
+
+A variant group is an analytical equivalence, such as `Montréal`,
+`montreal` and `MONTREAL`, not proof that the values mean the same thing.
 
 ## `detectors`
 
@@ -234,6 +271,7 @@ counted.
 | `collapsed_whitespace` | info | Cells changed by collapsing repeated internal whitespace |
 | `limited_measures` | info | Columns with measures stopped by a scan limit |
 | `excluded_records` | warning | Records excluded by the `tolerant` error policy, not analyzed |
+| `variant_groups` | info | Values written in several ways that normalization compares as equal |
 
 An issue is listed only when its count is above zero, except `trimmed_cells`
 and `collapsed_whitespace`, which are always listed.
@@ -249,6 +287,47 @@ reads every record. In sensitive columns, values are masked (`mask`) or `null`
 For JSON, a field absent from the record is `null` and its position (from 0)
 is listed in `absent`. A field under an array, such as `tags[]`, joins the
 values of the record with `, `. A JSON `null` is the text `null`.
+
+## `limits`
+
+What the scan could not measure completely in the dataset. A limited measure
+is never estimated.
+
+| Field | Content |
+| --- | --- |
+| `measures` | One item per limited measure: `column_id` and `path` of its field (both `null` for a measure of the dataset), `measure` (its place in the scan result, such as `values.cardinality`, `numeric.median` or `structure.paths`), `reason` (such as `distinct_limit`, `global_budget`, `value_too_long`, `field_limit` or `record_budget`), `limit` and `lower_bound`, a proven minimum or `null` |
+| `untracked_observations` | Values under paths beyond `scan.limits.max_fields`, counted but not analyzed |
+| `depth_truncated_observations` | Values deeper than `scan.limits.max_depth`, counted but not analyzed |
+| `diagnostics` | The scan diagnostics of this dataset and of the whole scan: `code`, `level` (`error` or `warning`), `message`, `count`, `dataset` (`null` for the whole scan), `path`, `detector` and up to `scan.errors.max_locations` `locations` (`record`, and `line` for CSV or `element` for JSON) |
+
+## `structure`
+
+The shape of a JSON dataset; `null` for CSV files.
+
+| Field | Content |
+| --- | --- |
+| `record_types` | Number of records of each native type, such as `{"object": 60}` |
+| `path_count` | Number of paths; `null` when `path_status` is `limited` |
+| `path_status` | `complete`, or `limited` when the dataset has more paths than `scan.limits.max_fields` |
+| `max_depth_seen` | Depth of the deepest analyzed value |
+| `fields` | One item per path, in order of discovery, containers included (see below) |
+
+Each item of `fields` has:
+
+| Field | Content |
+| --- | --- |
+| `id` | Scan field id |
+| `path` | Path from the record, such as `orders[].total` |
+| `depth` | Number of path segments: `orders[].total` has depth 3 |
+| `parent` | Path of the parent field, `null` at the record root |
+| `native_types` | Occurrences of each JSON type: `object`, `array`, `string`, `integer`, `number`, `boolean`, `null` |
+| `occurrences` | Values found at the path |
+| `parent_type` | `record`, `object`, or `array` for array items |
+| `parent_count`, `present_count`, `absent_count` | Parents that could hold the field, those that do and those that do not; `absent_count` is `null` for array items |
+| `present_percent` | Share of the parents holding the field; `null` for array items, which count elements |
+| `collection` | For an array analyzed as its own dataset, the id of that dataset |
+| `arrays` | For arrays: `count`, `empty_count`, `minimum_length`, `maximum_length`, `mean_length` and `item_count`; `null` otherwise |
+| `column` | `true` when the field is also listed in `columns` |
 
 ## Versioning
 

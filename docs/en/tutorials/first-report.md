@@ -69,7 +69,9 @@ someone else, but it contains values from your data: share it accordingly.
 
 The report is organized in sections: **Dataset overview**, **Columns**,
 **Transformations**, **Numeric analysis**, **Date analysis**,
-**String analysis**, **Data sample** and **Analysis settings**.
+**String analysis**, **Detectors and formats**, **Data sample** and
+**Analysis settings**. A **Limits and diagnostics** section appears when the
+scan stopped a measure at a limit or recorded a diagnostic.
 
 In **Dataset overview**, the **Quality observations** card lists the problems in
 `orders.csv`. Warnings come first; the two whitespace observations are

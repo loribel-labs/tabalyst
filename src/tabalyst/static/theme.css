@@ -73,6 +73,21 @@ code,pre{font-family:var(--f-mono)}
 .ds[hidden]{display:none}
 .ds-select{display:block;width:calc(100% - 20px);max-width:100%;margin:0 10px 14px;min-height:34px;padding:0 8px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--s1);color:var(--text);font:400 12px/1 var(--f-mono)}
 .fmts{display:flex;flex-wrap:wrap;gap:4px}
+.subh{font:600 15px/1.3 var(--f-display);margin:28px 0 4px;color:var(--text)}
+.subh .n{font-weight:400;color:var(--text-3);margin-left:6px}
+.pbody>.metrics+.toolbar,.pbody>.metrics+.subh{margin-top:20px}
+p.sub{font-size:12.5px;margin:0 0 10px}
+.sub-n{display:block;font-size:11px;color:var(--text-3);margin-top:3px}
+.attn-text{color:var(--attn-text)}
+.metric .s code{overflow-wrap:anywhere}
+.spath{display:inline-block;padding-left:calc(var(--d,0) * 14px)}
+.spath code,.dtable code{font:400 12px/1.3 var(--f-mono);white-space:nowrap}
+.dtable code.ws,.vchip{white-space:pre}
+.vchip{max-width:none;overflow:visible}
+.vchip small{margin-left:6px;color:var(--text-3)}
+.diags li{align-items:flex-start}
+.diags li>span{min-width:0;overflow-wrap:anywhere}
+.diags i{margin-top:6px}
 .dprim{font:500 11px/1 var(--f-mono);color:var(--text-3);text-transform:uppercase;letter-spacing:.08em}
 .rep-tab{display:flex;align-items:center;gap:10px;width:100%;border-radius:var(--r-sm);color:var(--text-2);padding:9px 10px;font-size:13.5px;position:relative;transition:background .2s,color .2s}
 .rep-tab small{font:400 11px/1 var(--f-mono);color:var(--text-3);width:18px;flex:none}

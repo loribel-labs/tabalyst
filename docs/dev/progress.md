@@ -2,6 +2,16 @@
 
 ## 2026-09-28
 
+- Normalization, limits and structure sections of the report (Tabalyst Scan
+  lot 5d): profile format revision 6. "Transformations" shows every
+  normalization stage (Unicode composition, trimming, whitespace collapsing,
+  case folding, accent removal) with the distinct counts and a table of
+  variant groups; new `variant_groups` info issue. A "Limits and
+  diagnostics" section, shown only when needed, lists every measure stopped
+  by a scan limit with its reason, limit and proven lower bound, structural
+  truncation and the scan diagnostics. JSON reports have a "JSON structure"
+  section: every path, containers included, with depth, native types,
+  presence per parent and array lengths.
 - Scan reuse, streaming duplicates and pandas removal (Tabalyst Scan lot 5c):
   every scan dataset has a `records` block (scan format revision 2) with
   records with missing values, empty records, duplicate records and a

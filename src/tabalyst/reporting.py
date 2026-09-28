@@ -9,6 +9,32 @@ from jinja2 import Environment, StrictUndefined
 from tabalyst._version import get_version
 from tabalyst.models import ReportProfile
 
+# Plain names of the scan measures a limit can stop (design 8 and 11).
+MEASURE_LABELS = {
+    "structure.paths": "Paths",
+    "records.duplicates.count": "Duplicate records",
+    "values.cardinality": "Distinct values",
+    "values.frequencies": "Value frequencies",
+    "numeric.median": "Median",
+    "normalization.variant_groups": "Variant groups",
+    "normalization.stages.raw.cardinality": "Distinct raw values",
+    "normalization.stages.nfc.cardinality": "Distinct after Unicode composition",
+    "normalization.stages.trim.cardinality": "Distinct after trimming",
+    "normalization.stages.collapse_whitespace.cardinality": (
+        "Distinct after whitespace collapsing"
+    ),
+    "normalization.stages.casefold.cardinality": "Distinct after case folding",
+    "normalization.stages.strip_accents.cardinality": "Distinct after accent removal",
+}
+# Settings behind each limit reason.
+REASON_SETTINGS = {
+    "distinct_limit": "scan.limits.max_distinct_per_field",
+    "global_budget": "scan.limits.max_tracked_values",
+    "value_too_long": "scan.limits.max_stored_value_length",
+    "record_budget": "scan.limits.max_tracked_records",
+    "field_limit": "scan.limits.max_fields",
+}
+
 
 def format_number(number: float) -> str:
     """Keep ordinary values readable and compact only genuinely large magnitudes."""
@@ -74,6 +100,18 @@ def render_report(profile: ReportProfile) -> str:
                 for column in dataset.columns
                 for detector in column.detectors
             ],
+            "variant_rows": [
+                (column, group)
+                for column in dataset.columns
+                for group in column.normalization.variant_groups
+            ],
+            # The limits section is shown only when something was limited.
+            "has_limits": bool(
+                dataset.limits.measures
+                or dataset.limits.diagnostics
+                or dataset.limits.untracked_observations
+                or dataset.limits.depth_truncated_observations
+            ),
         }
         for index, dataset in enumerate(profile.datasets, start=1)
     ]
@@ -85,6 +123,8 @@ def render_report(profile: ReportProfile) -> str:
         source_suffix=Path(profile.source.filename).suffix,
         type_colors=type_colors,
         semantic_colors=semantic_colors,
+        measure_labels=MEASURE_LABELS,
+        reason_settings=REASON_SETTINGS,
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
     )

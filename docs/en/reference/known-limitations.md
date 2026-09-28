@@ -48,10 +48,10 @@ published release lifts them.
 
 - **Types are hints.** Detected types describe the values; Tabalyst never
   converts or validates data against business rules.
-- **Detector details not in reports.** The report shows one semantic type
-  per column, the scan's primary interpretation, such as an enumeration, email
-  addresses or postal codes. The coverage, formats and evidence of each
-  detector, and normalization variants, are only in `tabalyst scan` documents.
+- **Detector evidence not in reports.** The report shows what each detector
+  recognized, with its formats, and the normalization variant groups of each
+  column. The evidence examples and details of each detector are only in
+  `tabalyst scan` documents.
 - **Ambiguous dates stay ambiguous.** Values such as `02/03/2025` are never
   resolved from other values of the column; set
   `scan.detectors.date.ambiguous_order` to read them one way.

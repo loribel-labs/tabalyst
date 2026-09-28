@@ -1,4 +1,4 @@
-"""Serializable report profile (revision 5), independent from presentation.
+"""Serializable report profile (revision 6), independent from presentation.
 
 Built from a Tabalyst Scan result by ``report_profile.py``.
 """
@@ -34,11 +34,53 @@ class NumericStats(ResultModel):
     median: FiniteFloat | None
 
 
+MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
+
+
+class NormalizationStage(ResultModel):
+    """One stage of the scan's normalization (design 10), ``raw`` first."""
+
+    stage: Literal[
+        "raw", "nfc", "trim", "collapse_whitespace", "casefold", "strip_accents"
+    ]
+    enabled: bool
+    # Occurrences changed by the stage; null for ``raw`` and disabled stages.
+    changed_count: int | None
+    changed_percent: float | None
+    # Distinct values after the stage; null unless ``distinct_status`` is
+    # ``complete``.
+    distinct_count: int | None
+    distinct_status: MeasureStatus
+
+
+class Variant(ResultModel):
+    value: str
+    count: int
+
+
+class VariantGroup(ResultModel):
+    """Raw spellings sharing one comparison key."""
+
+    key: str
+    count: int
+    distinct_count: int
+    variants: list[Variant]
+    truncated: bool
+
+
 class NormalizationStats(ResultModel):
     trim_count: int
     trim_percent: float
     collapse_internal_whitespace_count: int
     collapse_internal_whitespace_percent: float
+    stages: list[NormalizationStage]
+    # Comparison keys with at least two raw spellings; null unless
+    # ``variant_group_status`` is ``complete``.
+    variant_group_count: int | None
+    variant_group_status: MeasureStatus
+    # The largest groups listed by the scan; empty for a hidden column.
+    variant_groups: list[VariantGroup]
+    variant_groups_truncated: bool
 
 
 class DateFormatCount(ResultModel):
@@ -230,6 +272,95 @@ class PreviewRow(ResultModel):
     absent: list[int] = []
 
 
+class MeasureLimit(ResultModel):
+    """A scan measure stopped by a limit (design 8 and 11)."""
+
+    # Null for a measure of the dataset.
+    column_id: str | None
+    # Display path of the scan field, null for a measure of the dataset.
+    path: str | None
+    # Location of the envelope in the scan result, such as
+    # ``values.cardinality`` or ``normalization.stages.casefold.cardinality``.
+    measure: str
+    reason: str
+    limit: int
+    lower_bound: int | None
+
+
+class DiagnosticLocation(ResultModel):
+    record: int
+    # CSV line, or 0-based JSON element index; null when not applicable.
+    line: int | None = None
+    element: int | None = None
+
+
+class DiagnosticProfile(ResultModel):
+    code: str
+    level: Literal["fatal", "error", "warning"]
+    message: str
+    count: int
+    # Null for a diagnostic of the whole scan.
+    dataset: str | None
+    path: str | None
+    detector: str | None
+    locations: list[DiagnosticLocation]
+
+
+class DatasetLimits(ResultModel):
+    """What the scan could not measure completely in a dataset."""
+
+    measures: list[MeasureLimit]
+    untracked_observations: int
+    depth_truncated_observations: int
+    # Diagnostics of this dataset and of the whole scan.
+    diagnostics: list[DiagnosticProfile]
+
+
+class ArrayProfile(ResultModel):
+    count: int
+    empty_count: int
+    minimum_length: int
+    maximum_length: int
+    mean_length: FiniteFloat
+    item_count: int
+
+
+class StructureField(ResultModel):
+    """One path of a JSON dataset, containers included (design 16.2)."""
+
+    id: str
+    path: str
+    depth: int
+    # Display path of the parent field, null at the record root.
+    parent: str | None
+    native_types: dict[str, int]
+    occurrences: int
+    parent_type: Literal["object", "array", "record"]
+    parent_count: int
+    present_count: int
+    # Null for array items, which cannot be absent.
+    absent_count: int | None
+    # Share of the parents holding the field; null for array items, which
+    # count elements rather than parents.
+    present_percent: float | None
+    # Dataset holding the elements of a promoted array.
+    collection: str | None
+    arrays: ArrayProfile | None
+    # Whether the field is also listed as a column.
+    column: bool
+
+
+class DatasetStructure(ResultModel):
+    """Shape of a JSON dataset; null for CSV sources."""
+
+    record_types: dict[str, int]
+    # Null unless ``path_status`` is ``complete``: ``scan.limits.max_fields``.
+    path_count: int | None
+    path_status: Literal["complete", "limited"]
+    max_depth_seen: int
+    fields: list[StructureField]
+
+
 class DatasetProfile(ResultModel):
     """One scan dataset: the rows of a CSV, or the records of a JSON document
     or collection (design 5)."""
@@ -241,11 +372,13 @@ class DatasetProfile(ResultModel):
     columns: list[ColumnProfile]
     issues: list[Issue]
     preview: list[PreviewRow]
+    limits: DatasetLimits
+    structure: DatasetStructure | None = None
 
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[5] = 5
+    format_revision: Literal[6] = 6
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

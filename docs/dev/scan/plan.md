@@ -25,6 +25,8 @@ regenerated, documentation consistent with what is released.
 | 5b | JSON sources and new sections in the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
 | 5c | Scan reuse, streaming duplicates, pandas removal | Done | Opus 5.5 | High | `scan/phase-5` |
 | 5c-fr | French translation of the lot 5b and 5c documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
+| 5d | Normalization, limits and structure sections of the report | Done | Opus 5.5 | Medium | `scan/phase-5` |
+| 5d-fr | French translation of the lot 5d documentation | Planned | Sonnet 5 | Low | `scan/phase-5-fr` |
 | 6 | Measure, set targets, optimize | Planned | Opus 5.5 | High | `scan/phase-6` |
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
 
@@ -293,6 +295,26 @@ benchmarks.md.
   `reference/known-limitations`, `reference/json-profile`,
   `reference/profile-format-changelog`, `reference/scan-format` and
   `reference/scan-format-changelog`.
+
+### Lot 5d: normalization, limits and structure sections
+
+- The report sections deferred by lot 5b: normalization variants, limits and
+  JSON structure.
+- Done on 2026-09-28, decisions of the maintainer at the start of the lot:
+  the "Transformations" section is extended with every stage and a variant
+  groups table; the "Limits and diagnostics" section appears only when
+  something was limited or diagnosed; the "JSON structure" section is for
+  JSON sources only. Profile revision 6, `variant_groups` issue, contract
+  tests `tests/scan/test_scan_report_sections.py`. Decisions in design
+  section 16.7. Notes below.
+
+### Lot 5d-fr: French documentation
+
+- Update the French pages from the English ones changed by lot 5d:
+  `how-to/report-json-files`, `tutorials/first-report` (if translated),
+  `reference/configuration`, `reference/json-profile`,
+  `reference/known-limitations` and `reference/profile-format-changelog`. Can
+  be merged with lot 5c-fr.
 
 ### Lot 6: measure, set targets, optimize
 
@@ -704,8 +726,29 @@ done, and anything the next lot must know.
     revision 3).
   - `on_record` of `scan()` stays in the API but the report no longer uses
     it.
-  - Still open from lot 5b: normalization variants, limits and JSON structure
-    sections of the report; `executions.json` records sums over datasets.
+  - Still open from lot 5b: `executions.json` records sums over datasets
+    (the report sections were done by lot 5d).
+- Lot 5d, for later lots and the maintainer:
+  - The "Case folded" stage changes almost every value of identifiers and
+    capitalized names, so its column is mostly full; it is exact, but a
+    presentation that highlights stages that change the distinct count may
+    read better.
+  - Datasets without columns (a `$` whose values all lie in collections) are
+    still omitted, so their structure, including the promoted array, is not
+    shown; the collection's own view shows its records.
+  - Scan-wide diagnostics (`global_budget`, `record_budget`) appear in every
+    dataset view.
+  - `tests/browser/report.cjs` now checks the variant, structure and limits
+    tables of the first dataset; the limits and structure sections were
+    checked with an ad hoc JSON file under small limits at desktop and mobile
+    sizes (no demo reaches a limit).
+  - `tabalyst-studio` follow-up: `report.json` is revision 6 (the site reads
+    `examples/output/insurance-customers/`), the insurance demo shows the
+    extended Transformations section with 74 variant groups; pages changed:
+    JSON profile, profile changelog, known limitations, configuration,
+    how-to report JSON files, first-report tutorial.
+  - Release notes: profile revision 6 (additive, apart from the revision
+    number), new report sections.
   - `tabalyst-studio` follow-up: `report.json` is revision 5 (the site reads
     `examples/output/insurance-customers/`), `examples/config.json` moved
     `preview_rows` to `scan.records.preview`, the report can be built from a
