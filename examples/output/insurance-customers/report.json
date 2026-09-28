@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 6,
-  "generated_at": "2026-09-28T02:45:56.054282Z",
-  "processing_seconds": 0.996,
+  "generated_at": "2026-09-28T03:03:42.036913Z",
+  "processing_seconds": 1.0014,
   "source": {
     "filename": "insurance-customers.csv",
     "format": "csv",

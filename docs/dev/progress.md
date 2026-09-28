@@ -2,6 +2,8 @@
 
 ## 2026-09-28
 
+- Prepared Tabalyst `0.4.0` with Tabalyst Scan, `tabalyst scan`, reports
+  of JSON files built on the streaming engine and profile format revision 6.
 - Normalization, limits and structure sections of the report (Tabalyst Scan
   lot 5d): profile format revision 6. "Transformations" shows every
   normalization stage (Unicode composition, trimming, whitespace collapsing,
