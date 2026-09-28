@@ -11,7 +11,7 @@ updating the design document in the same lot.
 
 import pytest
 
-ENABLED_LOTS: set[str] = {"1a", "1b", "2a", "2b", "3a", "3b", "5a", "5b", "5c", "5d"}
+ENABLED_LOTS: set[str] = {"1a", "1b", "2a", "2b", "3a", "3b", "5a", "5b", "5c", "5d", "6"}
 
 
 def pytest_collection_modifyitems(config, items):

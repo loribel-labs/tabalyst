@@ -37,7 +37,7 @@ from tabalyst.scanner.models import (
 from tabalyst.scanner.normalization import ANALYTICAL_STAGE, STAGES, Normalizer
 
 if TYPE_CHECKING:  # detectors import this module
-    from tabalyst.scanner.detectors.registry import DetectorSet
+    from tabalyst.scanner.detectors.registry import DetectorSet, Plans
 
 # Exact decimal arithmetic: any rounding or exponent outside the range makes
 # the numeric envelope ``limited`` with reason ``precision``.
@@ -151,11 +151,14 @@ def decimal_or_unconvertible(text: str) -> Decimal | _Unconvertible:
         return UNCONVERTIBLE
 
 
-def string_facts(raw: str, normalizer: Normalizer, detectors: DetectorSet) -> Facts:
-    """Facts of a content string; detectors see its analytical value."""
+def string_facts(
+    raw: str, normalizer: Normalizer, detectors: DetectorSet, plans: Plans | None = None
+) -> Facts:
+    """Facts of a content string; detectors see its analytical value, and
+    ``plans`` may skip some of them (design 13)."""
     forms, changes = normalizer.run(raw)
     text = forms[ANALYTICAL_STAGE]
-    classifications, number, decimal_form, family = detectors.analyze(text)
+    classifications, number, decimal_form, family = detectors.analyze(text, plans)
     return (
         "string",
         text,
@@ -177,11 +180,13 @@ def canonical_text(native_type: str, value: object) -> str:
     return str(value)
 
 
-def scalar_facts(native_type: str, value: object, detectors: DetectorSet) -> Facts:
+def scalar_facts(
+    native_type: str, value: object, detectors: DetectorSet, plans: Plans | None = None
+) -> Facts:
     """Facts of an integer, number (``Decimal``) or boolean; detectors that
     accept its native type see its canonical text."""
     text = canonical_text(native_type, value)
-    classifications = detectors.classify(native_type, text)
+    classifications = detectors.classify(native_type, text, plans)
     if native_type == "boolean":
         return (native_type, text, 0, -1, None, False, 0, None, classifications, "boolean")
     return (

@@ -83,6 +83,7 @@ class QuantityDetector(Detector):
 
 class QuantityAccumulator(AmountAccumulator):
     __slots__ = ("units",)
+    ignores_unmatched = True
 
     def __init__(self, reader: AmountReader, units: NameCounts) -> None:
         super().__init__(reader)

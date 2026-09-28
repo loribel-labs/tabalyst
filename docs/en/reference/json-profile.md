@@ -21,7 +21,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 6,
+  "format_revision": 7,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -111,7 +111,7 @@ A shortened profile for a five-row `orders.csv`:
 | `format_version` | string | Format family, `"0.1.0a"` during the alpha |
 | `format_revision` | integer | Revision within the family, increased for each structural or semantic change |
 | `generated_at` | string | UTC date and time of the analysis (ISO 8601) |
-| `processing_seconds` | number | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the time to read the document and build the profile, the scan's own duration being in the document |
+| `processing_seconds` | number | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
 | `source` | object | The analyzed file (see below) |
 | `config` | object | The effective settings, after merging defaults, the configuration files and command options: `string_analysis`, `value_examples` and `scan`, the complete scan configuration; for a report built from a scan document, `scan` is the configuration recorded in it. See the [configuration](configuration.md) |
 | `datasets` | array | One profile per dataset of the file (see below) |

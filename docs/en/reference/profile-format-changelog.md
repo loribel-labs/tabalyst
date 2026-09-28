@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 6
+  "format_revision": 7
 }
 ```
 
@@ -128,3 +128,19 @@ scan could not measure completely, and the structure of JSON datasets.
   `path_status`, `max_depth_seen` and one item per path, containers
   included, with presence per parent and array lengths. It is `null` for CSV
   files.
+
+## Revision 7 - 2026-09-28
+
+The scan behind the report uses adaptive detection by default: on columns
+with more than 10,000 distinct values, detectors that recognized none of the
+first ones stop testing the others.
+
+- `config.scan.detection` gains `warmup_values` (default 10,000; `0` tests
+  every value) and `probe_interval` (default 100).
+- Semantic types and inferred types are unchanged on columns where a
+  detector matches at least 95% of the values. Counts of rare matches after
+  the warm-up may be lower; a `detector_skipped_reacted` warning in the
+  dataset `limits.diagnostics` says when a probe found one.
+- For a report built from a scan document, `processing_seconds` now adds the
+  scan duration recorded in the document to the time to read it and build
+  the profile, so it is comparable with a report built from the source.

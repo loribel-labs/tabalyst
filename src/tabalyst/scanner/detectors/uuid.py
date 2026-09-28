@@ -83,6 +83,7 @@ class UuidDetector(Detector):
 
 class UuidAccumulator(DetectorAccumulator):
     __slots__ = ("versions",)
+    ignores_unmatched = True
 
     def __init__(self) -> None:
         self.versions: Counter[str] = Counter()

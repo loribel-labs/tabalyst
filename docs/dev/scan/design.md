@@ -53,6 +53,7 @@ lot, with the reason recorded in section 17.
 | O20 | Costly exact measures, external storage | Out of the first phases; exact medians only when derivable. | Deferred to 7 | 9.4 |
 | O21 | Dynamic plugins | Internal registry only; no external loading. | Deferred to 7 | 12.1 |
 | O22 | Approximations | Outside the contract. Any approximation requires a new explicit decision. | Accepted (specification) | 8 |
+| O23 | Adaptive detection | Adaptive detectors that react to none of the first `detection.warmup_values` distinct values of a field (default 10,000) skip its later values, except probes; skipped values are `not_tested`, never guessed. `number` and `date` are never skipped. Sensitive detectors are skipped like the others for now (open point in section 13). | Accepted 2026-09-28 (lot 6) | 12.2, 13 |
 
 ## 2. Principles
 
@@ -801,9 +802,10 @@ For each detector and field:
 - `share_tested = matched / tested` and `share_eligible = matched / eligible`,
   both published with their denominators.
 
-Detection is exhaustive by default, so `not_tested` is 0. It becomes non-zero
-only for values longer than a detector's input cap, or later for adaptive
-strategies, which must then publish the reason.
+`not_tested` is non-zero only for values longer than a detector's input cap
+and for values skipped by adaptive detection (section 13), whose count the
+result publishes in `adaptive`. With `detection.warmup_values` set to 0,
+detection is exhaustive.
 
 ### 12.3 Result
 
@@ -817,9 +819,17 @@ strategies, which must then publish the reason.
                "share_tested": 0.6667, "share_eligible": 0.6667},
   "formats": [{"format": "YYYY-MM-DD", "count": 1}, {"format": "DD/MM/YYYY", "count": 1}],
   "evidence": {"matched": ["2026-09-26"], "invalid": [], "not_matched": ["x"]},
-  "details": {}
+  "details": {},
+  "adaptive": null
 }
 ```
+
+`adaptive` is `null` unless adaptive detection skipped the detector on the
+field (section 13); it is then
+`{"skipped_after": 10000, "not_tested": 1200, "diagnostic": null}`:
+the warm-up size, the occurrences skipped (included in `coverage.not_tested`)
+and the index of the `detector_skipped_reacted` warning when a probe reacted,
+else `null`.
 
 A failed detector has `status: "failed"`, `reason: "detector_error"`, a
 `diagnostic` index and no `coverage`: a failure is never reported as values
@@ -975,6 +985,41 @@ this without changing results:
 3. Both modes produce identical results. A contract test compares a scan with
    `max_distinct_per_field=1` and a scan with the default for every
    non-table measure.
+4. Adaptive detection (lot 6, O23). The first `detection.warmup_values`
+   distinct values of a field, in first-seen order, go through every
+   detector. The next distinct value ends the warm-up: each adaptive detector
+   that reacted to none of them (no `matched`, `ambiguous` or `invalid` value,
+   no failure) is skipped for the rest of the field. Later values are
+   classified by the other detectors only, and count as `not_tested` for the
+   skipped ones, except:
+   - warm-up values, at every occurrence: a streamed field keeps its warm-up
+     values (at most `warmup_values` per field) to recognize them;
+   - probes: values whose CRC-32 (of the raw string, or of `type:canonical`
+     for other native types) is a multiple of `detection.probe_interval`,
+     about one distinct value in `probe_interval`, go through every detector.
+     A skipped detector that reacts on a probe keeps counting it, and the
+     field gets a `detector_skipped_reacted` warning: its counts are
+     incomplete, and a scan with `warmup_values` 0 gives them exactly.
+
+   A skipped detector is never re-enabled: a re-enabled detector would count
+   the later occurrences of an earlier value differently in streaming mode,
+   which cannot recognize them. Every rule above depends only on the
+   first-seen order of distinct values and on each value, so both execution
+   modes keep identical results. `number` and `date` are never skipped: they
+   give every value its technical type family (9.7). A field with at most
+   `warmup_values` distinct values stays exhaustive, so small files are never
+   affected.
+
+   With `warmup_values` 10,000, a detector reacting on at least 0.05% of the
+   distinct values of a field, spread through the file, is skipped by
+   mistake with a probability below 1% (`e^(-p × warmup)`); interpretations
+   need 95%, so they never change. Sorted files remain the risk the probes
+   cover.
+
+   Open point: sensitive detectors (`email`, `phone`, `ip_address`) are
+   skipped like the others. A sensitive value first met after the warm-up,
+   outside a probe, is therefore not detected and the field is not masked
+   (12.8). To be revisited before a release that relies on masking.
 
 The current engine is vectorized with pandas; a pure Python streaming engine
 has a higher cost per cell. The per-distinct strategy is the main mitigation.
@@ -1012,6 +1057,7 @@ never guessed when corruption prevents delimiting them.
 | Global value budget | One `global_budget` warning per scan: `count` is the number of released tables | Same |
 | Duplicate record budget | One `record_budget` warning per scan: `count` is the number of records whose digest was not stored | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
+| Skipped detector reacting on a probe (section 13) | `detector_skipped_reacted` warning per field and detector: `count` is the number of occurrences that reacted | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
   analyzed, `partial` when records were excluded. Fatal problems raise and
@@ -1054,7 +1100,7 @@ settings from it (section 16.4).
     },
     "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
-    "detection": {"minimum_share": 0.95},
+    "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100},
     "detectors": {
       "number": {"enabled": true, "conventions": ["dot", "comma"],
                  "ambiguous_convention": null},
@@ -1414,3 +1460,4 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-27 | 5b | Section 16.4: JSON sources accepted. New section 16.5: profile revision 4 with `datasets`, JSON columns as scalar fields named by path, value slots, record facts per dataset, preview of JSON records, detectors per column, `.report` output names for JSON sources, one HTML view per dataset. | Lot 5b; maintainer decisions (revision 4 with a dataset list, flattened paths, detectors section only). |
 | 2026-09-28 | 5c | New section 9.10 and `records` block of datasets (format revision 2): records with missing values, empty records, duplicates under the new `limits.max_tracked_records` budget with reason `record_budget`, preview through the exposure gate; `records` settings and `max_listed_records`; section 14 `record_budget` warning. Section 16.4: record facts from the scan, `preview_rows` moved to `scan.records.preview`. New section 16.6 and O12 accepted: report from a scan document and the staleness rule. Pandas engine removed after gate 5. | Maintainer decisions of lot 5c: record facts in the scan so a report needs no source, stale scans fail, pandas removed at gate 5. |
 | 2026-09-28 | 5d | New section 16.7: profile revision 6 with every normalization stage and the variant groups per column, limits and diagnostics per dataset, structure of JSON datasets; "Transformations" extended, "Limits and diagnostics" shown only when needed, "JSON structure" for JSON sources only. | Sections deferred by lot 5b; maintainer decisions of lot 5d. |
+| 2026-09-28 | 6 | Decision O23 and section 13 item 4: adaptive detection after a warm-up of `detection.warmup_values` distinct values per field, with probes every `detection.probe_interval`; section 12.2: `not_tested` of skipped values; section 12.3: `adaptive` in detector results (scan format revision 3); section 14: `detector_skipped_reacted` warning; section 15: new `detection` settings. | Detection of high-cardinality fields dominated the scan time; exact `not_tested` counts keep the contract. Re-enabling a detector after a probe was dropped: it would break principle 6. |

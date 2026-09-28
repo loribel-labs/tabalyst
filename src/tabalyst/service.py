@@ -80,7 +80,10 @@ def _profile_from_scan(
         scan=result.config,
     )
     profile = build_profile(result, config)
-    profile.processing_seconds = round(perf_counter() - started, 4)
+    # The scan and the report: as long as a report of the source itself.
+    profile.processing_seconds = round(
+        result.duration_seconds + perf_counter() - started, 4
+    )
     return profile, checked
 
 
@@ -243,7 +246,8 @@ def _report_scan_resolved(
         report,
         json_report,
         execution_report,
-        started=started,
+        # The total covers the scan too, as ``processing_seconds`` does.
+        started=started - result.duration_seconds,
         on_progress=on_progress,
     )
     return written, checked

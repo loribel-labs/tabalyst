@@ -57,6 +57,12 @@ published release lifts them.
   `scan.detectors.date.ambiguous_order` to read them one way.
 - **Syntax only.** Detectors check the form of values, never whether an
   address, number or code exists.
+- **Rare late values on large columns.** On a column with more than
+  `scan.detection.warmup_values` distinct values (10,000 by default), a
+  detector that recognized none of the first ones stops testing the others,
+  except about one value in 100. A rare email address, phone number or code
+  that appears only later can go unnoticed, and a sensitive one is then not
+  masked. Set `scan.detection.warmup_values` to `0` to test every value.
 - **Missing values.** By default only empty and whitespace-only cells are
   missing. `NA`, `NULL` or `NaN` stay text unless you declare them in
   `scan.values.null_markers` in a [configuration file](configuration.md).

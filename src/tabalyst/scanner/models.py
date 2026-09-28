@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 2
+FORMAT_REVISION = 3
 
 
 class ScanModel(BaseModel):
@@ -341,12 +341,23 @@ class _Detector(ScanModel):
     version: int
 
 
+class Adaptive(ScanModel):
+    """Design 13: the detector reacted to none of the first ``skipped_after``
+    distinct values of the field, so later values other than probes were not
+    tested. ``diagnostic`` points to the warning raised when a probe reacted."""
+
+    skipped_after: int
+    not_tested: int
+    diagnostic: int | None
+
+
 class DetectorComplete(_Detector):
     status: Literal["complete"] = "complete"
     coverage: Coverage
     formats: list[FormatCount]
     evidence: Evidence
     details: dict[str, Any]
+    adaptive: Adaptive | None
 
 
 class DetectorNotApplicable(_Detector):

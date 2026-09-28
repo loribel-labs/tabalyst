@@ -46,7 +46,8 @@ share one folder.
 ```
 
 `analysis_seconds` covers CSV ingestion and profiling. `total_seconds` also covers
-JSON serialization and HTML rendering. The Tabalyst package version is always
+JSON serialization and HTML rendering. For a report built from a scan document
+with `--scan`, both include the scan duration recorded in the document. The Tabalyst package version is always
 recorded. Git metadata is included when the command runs inside a checkout; an
 installed production run outside Git uses `available: false` and null values.
 

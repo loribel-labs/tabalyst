@@ -37,6 +37,7 @@ from tabalyst.scanner.detectors.uuid import UuidDetector
 from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import UNCONVERTIBLE
 from tabalyst.scanner.models import (
+    Adaptive,
     Coverage,
     DetectorComplete,
     DetectorDisabled,
@@ -70,10 +71,15 @@ BUILT_INS: tuple[type[Detector], ...] = (
 _NATIVE_SCALARS = ("string", "integer", "number", "boolean")
 _NO_VALUES = NotApplicable(reason="no_values")
 _STATES = ("matched", "ambiguous", "invalid", "not_matched")
+# Distinct shapes memoized by a detector set (``DetectorSet._fits``).
+SHAPE_CACHE_SIZE = 4_096
 
 # ``report_failure(detector_id, error)`` records a ``detector_failed``
 # diagnostic and returns its index.
 FailureReporter = Callable[[str, str], int]
+# ``report_probe(detector_id, count)`` records a ``detector_skipped_reacted``
+# warning for ``count`` probed occurrences and returns its index.
+ProbeReporter = Callable[[str, int], int]
 
 
 class _NotEligible:
@@ -86,6 +92,22 @@ class _NotEligible:
 
 
 NOT_ELIGIBLE = _NotEligible()
+
+
+class _Skipped:
+    """Adaptive detection did not test the value (design 13)."""
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "SKIPPED"
+
+
+SKIPPED = _Skipped()
+# The plan of a skipped detector, for the native types it accepts.
+_SKIP = ("skip",)
+# Per native type, one plan per active detector (``DetectorSet._plans``).
+Plans = dict[str, tuple[object, ...]]
 
 
 class DetectorRegistry:
@@ -121,6 +143,15 @@ def default_registry() -> DetectorRegistry:
     return DetectorRegistry(BUILT_INS)
 
 
+def _ignores_unmatched(accumulator: object) -> bool:
+    """Whether the class that defines ``accumulator.add`` declares, in its own
+    body, that ``add`` does nothing for unmatched values."""
+    for cls in type(accumulator).__mro__:
+        if "add" in cls.__dict__:
+            return cls.__dict__.get("ignores_unmatched", False) is True
+    return False
+
+
 class DetectorTally:
     """Coverage, formats and evidence of one detector on one field."""
 
@@ -138,6 +169,10 @@ class DetectorTally:
         "max_length",
         "not_matched",
         "not_tested",
+        "skipped",
+        "skipped_after",
+        "unmatched_examples",
+        "unmatched_to_accumulator",
     )
 
     def __init__(self, detector: Detector, max_examples: int, max_length: int) -> None:
@@ -150,22 +185,49 @@ class DetectorTally:
         self.invalid = 0
         self.not_matched = 0
         self.not_tested = 0
+        # Adaptive detection: values not tested, and the warm-up size once
+        # the detector is skipped for the field.
+        self.skipped = 0
+        self.skipped_after: int | None = None
         self.formats: dict[str, int] = {}
         self.examples: dict[str, list[str]] = {state: [] for state in _STATES}
         self.error: str | None = None
+        self.unmatched_examples = self.examples["not_matched"]
+        self.unmatched_to_accumulator = True
         try:
             self.accumulator = detector.accumulator()
         except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
             self.error = type(exc).__name__
+        else:
+            self.unmatched_to_accumulator = not _ignores_unmatched(self.accumulator)
 
     def add(self, value: str, classification: object, count: int) -> None:
+        if classification is None:  # the most frequent case
+            if self.error is not None:
+                return
+            self.eligible += count
+            self.not_matched += count
+            examples = self.unmatched_examples
+            if (
+                len(examples) < self.max_examples
+                and len(value) <= self.max_length
+                and value not in examples
+            ):
+                examples.append(value)
+            if self.unmatched_to_accumulator:
+                try:
+                    self.accumulator.add(value, None, count)
+                except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
+                    self.error = type(exc).__name__
+            return
         if classification is NOT_ELIGIBLE or self.error is not None:
             return
         self.eligible += count
-        if classification is None:  # the most frequent case
-            state = "not_matched"
-            self.not_matched += count
-        elif classification is NOT_TESTED:
+        if classification is SKIPPED:
+            self.not_tested += count
+            self.skipped += count
+            return
+        if classification is NOT_TESTED:
             self.not_tested += count
             return
         elif type(classification) is DetectorFailure:
@@ -197,12 +259,23 @@ class DetectorTally:
         except Exception as exc:  # noqa: BLE001 - detector code is isolated (CA19)
             self.error = type(exc).__name__
 
+    def reacted(self) -> bool:
+        """A value matched, was ambiguous or invalid, or the detector failed."""
+        return bool(
+            self.matched or self.ambiguous or self.invalid or self.error is not None
+        )
+
     def exposes_sensitive_values(self) -> bool:
         """A sensitive detector matched a value of the field, or failed on it,
         which cannot prove that nothing matched (design 12.8)."""
         return self.detector.sensitive and (self.matched > 0 or self.error is not None)
 
-    def result(self, report_failure: FailureReporter, gate: ExposureGate = SHOW):
+    def result(
+        self,
+        report_failure: FailureReporter,
+        gate: ExposureGate = SHOW,
+        report_probe: ProbeReporter | None = None,
+    ):
         detector = self.detector
         identity = {"id": detector.id, "version": detector.version}
         if self.error is None and self.eligible:
@@ -229,6 +302,19 @@ class DetectorTally:
             moved = (examples["matched"] + examples["not_matched"])[: self.max_examples]
             examples = {**examples, "matched": [], "not_matched": moved}
         tested = self.eligible - self.not_tested
+        adaptive = None
+        if self.skipped_after is not None:
+            # The warm-up saw no reaction: every reaction comes from a probe.
+            reactions = matched + self.ambiguous + self.invalid
+            adaptive = Adaptive(
+                skipped_after=self.skipped_after,
+                not_tested=self.skipped,
+                diagnostic=(
+                    report_probe(detector.id, reactions)
+                    if reactions and report_probe is not None
+                    else None
+                ),
+            )
         return DetectorComplete(
             **identity,
             coverage=Coverage(
@@ -252,6 +338,7 @@ class DetectorTally:
                 **{state: gate.examples(values) for state, values in examples.items()}
             ),
             details=details,
+            adaptive=adaptive,
         )
 
 
@@ -263,16 +350,20 @@ class DetectorSet:
     """The detectors of one scan, in registry order."""
 
     __slots__ = (
+        "_adaptive",
         "_date",
         "_exposure",
         "_idle",
         "_number",
         "_plans",
+        "_shape_cache",
         "active",
         "entries",
         "max_examples",
         "max_length",
         "minimum_share",
+        "probe_interval",
+        "warmup_values",
     )
 
     def __init__(self, registry: DetectorRegistry, config: ScanConfig) -> None:
@@ -300,6 +391,13 @@ class DetectorSet:
         self.max_examples = config.limits.max_evidence_examples
         self.max_length = config.limits.max_stored_value_length
         self.minimum_share = exact_share(config.detection.minimum_share)
+        self.warmup_values = config.detection.warmup_values
+        self.probe_interval = config.detection.probe_interval
+        # The number and date detectors give every value its technical type
+        # family (design 9.7): adaptive detection never skips them.
+        self._adaptive = tuple(
+            i not in (self._number, self._date) for i in range(len(active))
+        )
         self._exposure = ExposureGate(config.exposure.sensitive_values)
         # Native types that no active detector accepts need no work.
         self._idle = {
@@ -318,30 +416,37 @@ class DetectorSet:
             )
             for native_type in _NATIVE_SCALARS
         }
+        self._shape_cache: dict[str, tuple[bool, ...]] = {}
 
     def versions(self) -> dict[str, int]:
         return {detector.id: detector.version for detector in self.active}
 
-    def classify(self, native_type: str, text: str) -> tuple[object, ...]:
+    def classify(
+        self, native_type: str, text: str, plans: Plans | None = None
+    ) -> tuple[object, ...]:
         """One entry per active detector: a classification, ``None`` (not
-        matched), ``NOT_TESTED``, ``NOT_ELIGIBLE`` or a ``DetectorFailure``."""
+        matched), ``NOT_TESTED``, ``SKIPPED``, ``NOT_ELIGIBLE`` or a
+        ``DetectorFailure``. ``plans`` skips detectors (``skipping``)."""
         idle = self._idle.get(native_type)
         if idle is not None:
             return idle
         results: list[object] = []
-        value_shape = None
-        for plan in self._plans[native_type]:
+        fits = None
+        for i, plan in enumerate((plans or self._plans)[native_type]):
             if plan is None:
                 results.append(NOT_ELIGIBLE)
+                continue
+            if plan is _SKIP:
+                results.append(SKIPPED)
                 continue
             classify, cap, pattern = plan
             if cap is not None and len(text) > cap:
                 results.append(NOT_TESTED)
                 continue
             if pattern is not None:
-                if value_shape is None:
-                    value_shape = shape(text)
-                if pattern.fullmatch(value_shape) is None:
+                if fits is None:
+                    fits = self._fits(shape(text))
+                if not fits[i]:
                     results.append(None)
                     continue
             try:
@@ -354,11 +459,52 @@ class DetectorSet:
             results.append(found)
         return tuple(results)
 
-    def analyze(self, text: str) -> tuple[tuple[object, ...], object, bool, str]:
+    def _fits(self, value_shape: str) -> tuple[bool, ...]:
+        """Whether ``value_shape`` fits the shapes of each active detector.
+
+        Shapes repeat across values far more than values do: the matches are
+        memoized per shape, in a bounded cache.
+        """
+        cache = self._shape_cache
+        fits = cache.get(value_shape)
+        if fits is None:
+            if len(cache) >= SHAPE_CACHE_SIZE:
+                cache.clear()
+            fits = cache[value_shape] = tuple(
+                detector.shapes is None
+                or detector.shapes.fullmatch(value_shape) is not None
+                for detector in self.active
+            )
+        return fits
+
+    def skipping(self, tallies: list[DetectorTally]) -> Plans | None:
+        """Plans that skip, for the rest of a field, the adaptive detectors
+        that reacted to none of its warm-up values; ``None`` when every
+        detector reacted (design 13). Skipped tallies record the warm-up."""
+        skip = [
+            adaptive and not tally.reacted()
+            for adaptive, tally in zip(self._adaptive, tallies)
+        ]
+        if not any(skip):
+            return None
+        for tally, skipped in zip(tallies, skip):
+            if skipped:
+                tally.skipped_after = self.warmup_values
+        return {
+            native_type: tuple(
+                _SKIP if skipped and plan is not None else plan
+                for plan, skipped in zip(plans, skip)
+            )
+            for native_type, plans in self._plans.items()
+        }
+
+    def analyze(
+        self, text: str, plans: Plans | None = None
+    ) -> tuple[tuple[object, ...], object, bool, str]:
         """Classifications of an analytical string, the number the number
         detector reads without ambiguity, whether it has a decimal form, and
         the technical type family."""
-        classifications = self.classify("string", text)
+        classifications = self.classify("string", text, plans)
         number, decimal_form = None, False
         if self._number is not None:
             found = classifications[self._number]
@@ -389,6 +535,7 @@ class DetectorSet:
         tallies: list[DetectorTally] | None,
         report_failure: FailureReporter,
         gate: ExposureGate = SHOW,
+        report_probe: ProbeReporter | None = None,
     ) -> list:
         """Every registered detector in order; ``tallies`` is ``None`` for a
         field without analyzable values."""
@@ -409,7 +556,9 @@ class DetectorSet:
                     )
                 )
             else:
-                results.append(tallies[position].result(report_failure, gate))
+                results.append(
+                    tallies[position].result(report_failure, gate, report_probe)
+                )
             position += 1
         return results
 

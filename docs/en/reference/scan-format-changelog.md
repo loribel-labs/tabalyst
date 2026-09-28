@@ -10,7 +10,7 @@ fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 2
+  "format_revision": 3
 }
 ```
 
@@ -24,6 +24,20 @@ documentation or corrections that keep the contract.
 Alpha revisions may be incompatible. No automatic migration is provided.
 `tabalyst report --scan` reads the current revision only: scan the source
 again to report on an older document.
+
+## Revision 3
+
+- Adaptive detection: after the first `detection.warmup_values` distinct
+  values of a field (default 10,000), a detector that recognized none of them
+  skips the other values of the field, except about one in
+  `detection.probe_interval` (default 100). Skipped values count as
+  `not_tested`. `number` and `date` are never skipped. Set
+  `detection.warmup_values` to `0` for the exhaustive detection of revision 2.
+- Each `complete` detector result gains `adaptive`: `null`, or the warm-up
+  size, the values not tested and the index of a new
+  `detector_skipped_reacted` warning when a probe was recognized.
+- New settings in `config`: `detection.warmup_values` and
+  `detection.probe_interval`.
 
 ## Revision 2
 

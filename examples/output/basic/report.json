@@ -1,7 +1,7 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 6,
-  "generated_at": "2026-09-28T03:03:40.636342Z",
+  "format_revision": 7,
+  "generated_at": "2026-09-28T05:21:35.059007Z",
   "processing_seconds": 0.0054,
   "source": {
     "filename": "basic.csv",
@@ -87,7 +87,9 @@
         "minimum_confidence": 0.95
       },
       "detection": {
-        "minimum_share": 0.95
+        "minimum_share": 0.95,
+        "warmup_values": 10000,
+        "probe_interval": 100
       },
       "detectors": {
         "number": {
