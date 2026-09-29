@@ -1,9 +1,9 @@
 ---
 title: Limites connues
-description: Ce que Tabalyst ne fait pas encore pendant sa phase alpha, notamment les limites des rapports JSON, le budget de la détection des doublons et les formats JSON expérimentaux.
+description: Ce que Tabalyst ne fait pas encore pendant sa phase bêta, notamment les limites des rapports JSON, le budget de la détection des doublons et les formats JSON expérimentaux.
 ---
 
-Tabalyst est en alpha. Cette page liste ce qu’il ne fait pas encore, pour vous
+Tabalyst est en bêta. Cette page liste ce qu’il ne fait pas encore, pour vous
 aider à décider s’il convient à vos données. Une limite est retirée de cette
 page lorsqu’une version publiée la lève.
 
@@ -75,7 +75,7 @@ page lorsqu’une version publiée la lève.
   d’une version à l’autre. Aucun outil de migration n’est fourni. Vérifiez
   `format_version` et `format_revision` avant de lire un profil ou une analyse.
 - **Commandes susceptibles de changer.** Les commandes et les options peuvent
-  changer de manière incompatible tant que Tabalyst est en alpha. Mettez-le à
+  changer de manière incompatible tant que Tabalyst est en bêta. Mettez-le à
   jour souvent avec `pip install --upgrade tabalyst` : cette documentation
   décrit la dernière version publiée.
 - **Rapport en anglais.** Le rapport HTML n’est disponible qu’en anglais.

@@ -20,7 +20,7 @@ significatif de structure ou de sens. Il ne change pas pour le style du
 rapport, la documentation, les améliorations de performance ou les corrections
 qui préservent le contrat JSON.
 
-Les révisions alpha peuvent être incompatibles. Aucune migration automatique
+Les révisions bêta peuvent être incompatibles. Aucune migration automatique
 n’est encore fournie.
 
 ## Révision 1 - 2026-09-18

@@ -2,6 +2,24 @@
 
 ## 2026-09-29
 
+- Reduced per-push storage platform CI from 12 OS/Python combinations to
+  Windows and macOS on Python 3.12. The full test suite still runs on Ubuntu
+  with Python 3.11-3.14, including all storage tests. This keeps cross-platform
+  storage coverage while avoiding duplicate Linux and interpreter runs.
+
+- Aligned French documentation's beta-status references and scan version
+  example with the 0.4.3 English sources. Other French format content remains
+  behind the English source and needs a separate translation pass.
+
+- Prepared version `0.4.3` as the first beta: updated package metadata, English
+  public documentation and version assertions. The documentation site now
+  displays the beta status and groups English navigation by Report, Scan and
+  Sample; the French page navigation was left unchanged, while beta status
+  references in French source pages were aligned separately.
+  The experimental JSON format identifiers and revisions remain unchanged.
+  Validation: 1,536 tests passed / 9 skipped, Ruff and both documentation
+  builds passed. All three public demos were regenerated for `0.4.3`.
+
 - Fixed CI workflow YAML parsing by quoting the DuckDB binary-wheel install
   command, whose `:all:` option otherwise made the `run` value invalid.
 

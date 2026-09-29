@@ -102,7 +102,7 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 
 | Champ | Type | Contenu |
 | --- | --- | --- |
-| `format_version` | chaîne | Famille du format, `"0.1.0a"` pendant l’alpha |
+| `format_version` | chaîne | Famille du format expérimental, `"0.1.0a"`, conservée pendant la phase bêta |
 | `format_revision` | entier | Révision dans la famille, augmentée à chaque changement de structure ou de sens |
 | `generated_at` | chaîne | Date et heure UTC de l’analyse (ISO 8601) |
 | `processing_seconds` | nombre | Durée de l’analyse et du profil, en secondes ; pour un rapport généré à partir d’un document d’analyse avec `--scan`, le temps de lire le document et de construire le profil, la durée de l’analyse elle-même figurant dans le document |
@@ -260,7 +260,7 @@ texte `null`.
 ## Versionnage
 
 - `format_version` nomme la famille de format expérimentale. Elle reste
-  `"0.1.0a"` pendant l’alpha.
+  `"0.1.0a"` pendant la phase bêta.
 - `format_revision` augmente à chaque changement de structure ou de sens. Elle
   ne change pas pour les améliorations du style du rapport ou des performances.
 - Les révisions peuvent être incompatibles, et aucune migration n’est fournie.

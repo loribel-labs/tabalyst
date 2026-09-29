@@ -51,6 +51,7 @@ Keep these exactly as written in every language:
 | batch | lot | Several source files processed by one command |
 | output directory | dossier de sortie | The folder given with `-d` / `--output-dir` |
 | alpha | alpha | Early stage where interfaces and formats may change |
+| beta | bêta | Pre-1.0 stage where interfaces and formats may still change |
 | scan | analyse | The complete description of a source written by `tabalyst scan` |
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |

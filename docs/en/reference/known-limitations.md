@@ -1,9 +1,9 @@
 ---
 title: Known limitations
-description: What Tabalyst does not do yet during its alpha, including JSON report limits, the duplicate detection budget and experimental JSON formats.
+description: What Tabalyst does not do yet during its beta, including JSON report limits, the duplicate detection budget and experimental JSON formats.
 ---
 
-Tabalyst is in alpha. This page lists what it does not do yet, so you can decide
+Tabalyst is in beta. This page lists what it does not do yet, so you can decide
 whether it fits your data. Limitations are removed from this page when a
 published release lifts them.
 
@@ -77,7 +77,7 @@ published release lifts them.
   migration tool is provided. Check `format_version` and `format_revision`
   before reading a profile or a scan.
 - **Changing commands.** Commands and options may change incompatibly while
-  Tabalyst is in alpha. Update often with `pip install --upgrade tabalyst`: this
+  Tabalyst is in beta. Update often with `pip install --upgrade tabalyst`: this
   documentation describes the latest release.
 - **English report.** The HTML report is only available in English.
 - **Raw data in outputs.** The report, the JSON profile and scan documents

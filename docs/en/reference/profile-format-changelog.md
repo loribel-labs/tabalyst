@@ -18,7 +18,7 @@ The generated `report.json` identifies its contract with two independent fields:
 semantic changes. It does not change for report styling, documentation, performance
 improvements, or corrections that preserve the JSON contract.
 
-Alpha revisions may be incompatible. No automatic migration is provided yet.
+Beta revisions may be incompatible. No automatic migration is provided yet.
 
 ## Revision 1 - 2026-09-18
 
