@@ -1,10 +1,12 @@
-"""``project.json`` (project-storage.md section 5), format revision 1.
+"""``project.json``: legacy revision 1 and atomic generation manifest revision 2.
 
 Identity and location only. The size, modification time and SHA-256 of the
 source stay in ``scan.json``'s ``source`` block (S05), the scan engine and
-document versions in its ``engine`` and format fields.
+document versions in its ``engine`` and format fields. Revision 2 adds the
+generation id and artifact hashes, independently of the Scan format.
 """
 
+import re
 from datetime import UTC, datetime
 from pathlib import PurePath, PurePosixPath, PureWindowsPath
 from typing import Literal
@@ -19,7 +21,7 @@ FORMAT_REVISION = 1
 
 
 class ProjectModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
 
 class ProjectSource(ProjectModel):
@@ -76,3 +78,33 @@ class ProjectDocument(ProjectModel):
 def utc_now() -> datetime:
     """The current UTC time in whole seconds, as ``project.json`` records it."""
     return datetime.now(UTC).replace(microsecond=0)
+
+
+class GenerationBinding(ProjectModel):
+    id: str
+    scan_sha256: str
+    database_sha256: str
+
+    @field_validator("id")
+    @classmethod
+    def _id(cls, value: str) -> str:
+        if not is_project_id(value):
+            raise ValueError("not a generation id")
+        return value
+
+    @field_validator("scan_sha256", "database_sha256")
+    @classmethod
+    def _hash(cls, value: str) -> str:
+        if re.fullmatch(r"[0-9a-f]{64}", value) is None:
+            raise ValueError("must be a lowercase SHA-256 digest")
+        return value
+
+
+class ProjectManifest(ProjectDocument):
+    """Revision 2 commits one immutable pair; revision 1 remains legacy scan-only."""
+
+    format_revision: Literal[2] = 2
+    generation: GenerationBinding
+
+
+Project = ProjectDocument | ProjectManifest

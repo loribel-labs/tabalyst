@@ -1,6 +1,198 @@
 # Development progress
 
+## 2026-09-29
+
+- Implemented private pinned inspection/open sessions (Scan lot 7.storage-f1),
+  accepting S17's read-only boundary after the maintainer requested f1.
+  `_session.py` verifies the selected generation before immutable source/config
+  readiness assessment. `require_current` refuses stale/missing/failed checks;
+  explicit `snapshot` carries structured warnings. Exact full-config mismatch
+  blocks both intents. Optional expected-generation preconditions reject an
+  intervening publication; explicit refresh compares the original pinned Scan.
+  Exposure-aware record/value queries retain generation/cursor scope, and
+  outstanding materializations close with their session. Inspection/opening
+  never scans, repairs an index or upgrades legacy projects. Low-level
+  `open_generation()`, public exports, persisted formats and the 10,000-value
+  cap are unchanged. f2, product D04 defaults, D07 and automatic D03 policies
+  remain deferred. Added session tests to storage-platform CI without claiming
+  remote-platform results. No studio follow-up is needed for this private
+  boundary; the public demos were regenerated and all nine initial output files
+  restored byte-for-byte, preserving the existing working tree.
+  Validation: full suite 1,496 passed / 9 skipped; 31 focused session tests
+  passed again after strengthening exclusive-lock release checks. Ruff and diff
+  whitespace checks passed. Test evidence
+  lives outside the checkout in the OS temporary directory, as supported by
+  architecture.md; no repository `artifacts/`, branch, commit, tag or push.
+
+- Designed the next private project reopening boundary (Scan lot 7.storage-f,
+  D04/S17), without implementation. Proposed inspection/open sessions bind
+  one verified generation, point-in-time source assessment and effective
+  recorded/explicit configuration. Private `require_current` refuses stale,
+  missing or failed checks; explicit `snapshot` permits historical-generation
+  queries with warnings, never an integrity bypass or current-source claim.
+  A separate f2 rescan must target the selected project and compare its
+  generation under writer ownership: current source/index lookup may select
+  another project sharing that path. S17 remains Proposed before f1, which
+  is Next; product defaults/public exposure, D07 and automatic D03 policies
+  stay deferred. The 10,000-value cap and external test-artifact location
+  remain unchanged. No code, branch, commit, tag or public format change.
+  Validation: diff whitespace checks passed; all three demos regenerated and
+  their nine initial outputs restored byte-for-byte. Hash checks preserved
+  existing changes outside the three design/plan/history documents. No local
+  `artifacts/` directory created; Python tests not rerun for design-only work.
+
+- Implemented Tabalyst Scan lot 7.storage-e: private metadata-only query-cache
+  inventory/dry-run and explicit cleanup of unchanged planned candidates
+  under exclusive workspace maintenance/writer ownership. New query caches
+  have synchronized ULID/path-bound ownership markers. Unknown/unmarked
+  contents, invalid markers, symlinks/reparse points and hardlinks are
+  preserved; regular known files are removed individually, marker last.
+  Per-target outcomes report removed/skipped/error states and partial removed
+  logical bytes; ordinary final-directory failures restore retry metadata.
+  Normal query teardown also validates ownership/contents and unchanged
+  empty parent identities. Cleanup never opens the source or changes project
+  storage. Rebuilt pages/cursors retain exposure and storage-limit semantics.
+  D03 is only partly implemented: automatic TTL/quotas, generation retention
+  and public commands remain deferred; D07 and the 10,000 raw typed analyzable
+  values per column cap stay unchanged. The storage CI matrix includes the
+  new tests; remote OS/Python runs remain unverified. No public format,
+  CLI/report behavior, studio follow-up, branch or commit.
+  Validation: full suite 1,465 passed, 9 skipped, including 48 new cache tests
+  (41 passed; seven symlink fixtures require privileges unavailable locally).
+  Native Windows junction and reparse-attribute cases passed. Ruff and diff
+  whitespace checks passed; browser test harness syntax checked with Node.
+  All three demos regenerated and their nine existing files restored exactly;
+  hash checks preserved existing changes outside the intended edit scope.
+  Manual review used in place of an unavailable `/code-review` command.
+  Final cache/query/generation verification after parent-identity hardening:
+  213 passed, 7 skipped.
+- At the maintainer's request, moved the existing local `artifacts/` tree to
+  `D:\GIT.test\tabalyst\artifacts`, outside the Obsidian-watched checkout.
+  Subsequent pytest runs use fresh external base directories and disable
+  pytest's cache provider. Browser screenshots now honor
+  `TABALYST_ARTIFACTS_DIR`, defaulting to the OS temporary directory rather
+  than recreating `artifacts/` in the repository. Developer instructions
+  explain external pytest/benchmark paths; no local artifacts directory was
+  recreated.
+
+- Framed the proposed next Scan lot, 7.storage-e, before implementation:
+  explicit private inventory/dry-run/cleanup of owned query caches abandoned
+  after process termination. The plan requires an ownership marker contract,
+  exclusive maintenance/writer locking, execution-time revalidation,
+  preservation of unknown contents and all persistent project artifacts,
+  and failure/concurrency/source-free rebuild tests. This addresses a narrow
+  part of D03; automatic TTL/quotas, old-generation retention/deletion and
+  public cache/project interfaces remain undecided. The 10,000 raw typed
+  analyzable-value storage cap and complete record memberships stay intact;
+  D07 remains deferred. No implementation or cleanup ran, and no branch,
+  commit, tag or public behavior changed.
+  Validation: diff whitespace checks passed; all three demos regenerated
+  successfully, then their nine pre-existing outputs were restored byte for
+  byte. Hash checks preserved all 214 other existing changed/untracked files.
+  Python tests were not rerun for this documentation-only framing.
+
+- Private generation queries and budgets (Tabalyst Scan lot 7.storage-d3):
+  keyset pages for complete missing/empty/duplicate record memberships,
+  frequencies, normalization groups and independently paged variants.
+  Scope identifies project/workspace/generation, dataset/field, configuration,
+  Scan/structural limits, exposure and semantic versions. Cursors reject a
+  different generation/query and survive an identical cache rebuild or an
+  old pinned reader. Shared classification/normalization/exposure precede
+  ranking, including masked collisions and hidden lists.
+  The maintainer explicitly amended retention to cap values actually kept
+  in `project.duckdb`: new logical DB revision 2 keeps the first 10,000 raw
+  typed analyzable keys per field and counts their later occurrences. It
+  discards other payloads after bounded batches and reports retained/omitted
+  populations; saturated frequency/variant pages are limited. Complete
+  record facts/memberships persist; old DB revision 1 remains readable and
+  Scan JSON/manifest formats are unchanged. Short private ingestion commits
+  release catalog update/delete undo; d2's manifest is still the sole
+  publication point. Reopen checks all retained data and memberships, but
+  cannot reconstruct discarded cells or independently recompute their
+  record digests. D07 richer attribution and exact JSON/row reconstruction
+  remain deferred.
+  Loader/readers/materializers use 256 MiB and 1 GiB of DuckDB-accounted
+  spill per database instance. Quotas also use runtime SET, after detecting
+  that pinned DuckDB's connect option alone could report an unenforced spill
+  limit; zero disables spill entirely. Maintenance verification uses the
+  reader policy too. Disposable query caches close/remove after failure;
+  budgets do not promise process RSS or hard OS disk quotas. Real sort and
+  value-query probes cover disabled/exhausted spill and memory failures.
+  Repeated synthetic CSV/JSON/wide/deep/long-value measurements and the
+  old+new+staging/cache disk composition are recorded in project-storage.md
+  section 10.2, reproduced by `benchmarks/project_queries.py`. The final
+  million-record CSV under enforced quotas builds first/rescan pairs in
+  61.33/58.05 s, opens with full verification in 4.10 s, uses a 68.51 MiB DB,
+  peaks at 432.40 MiB process RSS, 10.75 MiB sampled spill files and 138.51 MiB
+  simultaneous project disk. The 10,000 retained id keys omit 980,000 value
+  occurrences explicitly; all 500,000 duplicate references remain paginable.
+  Resource evidence is local Windows/Python 3.12 only; remote OS CI and D08
+  durability remain unverified. Validation: 1,424 passed, 2 skipped, including
+  124 new query/storage-budget tests; Ruff and diff whitespace checks passed.
+  The d2 termination test waits for Windows process death before closing its
+  stdin barrier, avoiding a race with pending termination. The three demos
+  were regenerated and all
+  nine initial working-tree outputs restored byte-for-byte. All interfaces
+  remain private; no public format/CLI/report change or studio follow-up,
+  and no branch, commit or tag created.
+
 ## 2026-09-28
+
+- Atomic project generations (Tabalyst Scan lot 7.storage-d2), continued at
+  the maintainer's request: revision-2 manifests commit one immutable
+  scan/database pair through a single replacement. OS-backed workspace
+  writer locks cover every mutator; shared maintenance locks pin readers
+  and block explicit quarantine until no reader/writer remains. First scans
+  stay invisible before commit; rescans preserve identity and old generations.
+  File synchronization precedes publication; POSIX directory fsync is
+  implemented, Windows directory synchronization explicitly unsupported.
+  The tested guarantee is local process-failure atomic visibility; power-loss
+  durability, network filesystems and multi-host coordination remain D08.
+  Read-only sessions validate manifest hashes and database bindings, with
+  no fallback for corruption; freshness uses the pinned scan. Explicit
+  revision-1 rebuild preserves identity/created_at and upgrades on success.
+  Index updates follow commit and failures produce repair warnings; ambiguous
+  replacement errors are classified from the manifest, preserving artifacts
+  if the outcome is unknown. Explicit quarantine preserves unselected ULID
+  directories and their contents; scans never clean up old generations.
+  Service and SQL access remain private, with consumer query APIs in d3.
+  Validation: 48 new tests include eleven injected pre-commit boundaries for
+  first scans/rescans, subprocess termination before/after commit, lock
+  owner termination, old readers, index failure, unknown outcome, corruption,
+  source absence, legacy upgrade/failure and ownership-safe quarantine.
+  Full suite: 1,300 passed, 2 skipped; Ruff passed. The 12-job OS/Python CI
+  matrix includes generation tests; remote execution remains unverified.
+  All three demos regenerated with the nine pre-existing output files
+  restored byte-for-byte. No public format/CLI change or studio follow-up;
+  no branch, commit or tag created. A fresh conversation is recommended for
+  d3, with its handoff prompt in scan/plan.md.
+
+- Private project database staging (Tabalyst Scan lot 7.storage-d1), after
+  maintainer acceptance of c: pinned DuckDB 1.5.5 with physical target
+  `v1.4.0`, explicit revision-1 schema, canonical path/native-value codec,
+  bounded parameterized `on_record` ingestion, Scan document hash binding,
+  complete missing/empty/duplicate record memberships and exhaustive
+  validation before commit and after checkpoint/close/read-only reopen.
+  The record digest helper is shared with Scan; its envelopes and sampled
+  lists are unchanged. Cross-schema FK checks are explicit because DuckDB
+  cannot declare them. Lots a/b and their scan-only service remain intact:
+  no manifest, index, generation publication or default value-query API.
+  D06 wheel/platform evidence and initial CSV/JSON, batching, spill, memory,
+  hash/open measurements are recorded in project-storage.md section 10.1;
+  `benchmarks/project_storage.py` reproduces them. A 12-job storage CI matrix
+  covers Windows/Linux/macOS and Python 3.11-3.14; only Windows/Python 3.12
+  was executed locally. The generated physical database also reopened in an
+  isolated DuckDB 1.4.2 reader. Low-memory failure is explicit; d3 retains
+  large-scale and old/new-generation measurements and exposure-aware
+  queries. d2 must provide atomic publication/recovery before any DB use.
+  Validation: 87 new tests cover both JSON backends, raw representations,
+  structures/limits/configuration, missing/empty/duplicate parity, more than
+  12,438 affected records, disabled duplicates/exposure, corruption, reader/
+  sink/finalization/serialization/source-mutation/memory failures and spill.
+  Full suite: 1,252 passed, 2 skipped; Ruff and diff whitespace checks passed.
+  All three demos were regenerated, then their nine original working-tree
+  files restored byte-for-byte to preserve existing edits. No public format
+  change or tabalyst-studio follow-up; no branch, commit or tag created.
 
 - Detailed project.duckdb design (Tabalyst Scan lot 7.storage-c, D01), no
   implementation or new dependency: project-storage.md specifies independent

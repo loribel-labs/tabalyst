@@ -145,6 +145,25 @@ class DuplicateBudget:
         self.untracked = 0
 
 
+def record_digest(record: Record, table: TableLayout | None, paths: PathTokens) -> bytes:
+    """Shared, storage-neutral record comparison (semantic version 1).
+
+    Keep one PathTokens instance per dataset, in reader order. A CSV caller
+    must supply the complete declared layout, including unprofiled columns.
+    """
+    if table is not None:
+        values = table.values(record)
+        if values is not None:
+            return _table_digest(values)
+    key = [
+        (paths.token(observation.path), observation.type, observation.value)
+        for observation in record.observations
+    ]
+    return hashlib.blake2b(
+        repr(key).encode("utf-8", "surrogatepass"), digest_size=16
+    ).digest()
+
+
 class RecordContext:
     """Settings shared by the record facts of every dataset of a scan."""
 
@@ -297,19 +316,7 @@ class RecordFacts:
                 compare(digest, start + offset)
 
     def _digest(self, record: Record) -> bytes:
-        table = self._table
-        if table is not None:
-            values = table.values(record)
-            if values is not None:
-                return _table_digest(values)
-        token = self._paths.token
-        key = [
-            (token(observation.path), observation.type, observation.value)
-            for observation in record.observations
-        ]
-        return hashlib.blake2b(
-            repr(key).encode("utf-8", "surrogatepass"), digest_size=16
-        ).digest()
+        return record_digest(record, self._table, self._paths)
 
     def _compare(self, digest: bytes, index: int) -> None:
         if digest in self._seen:

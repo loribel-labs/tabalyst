@@ -1,4 +1,4 @@
-"""Project storage: identity, location and ``project.json`` of a project.
+"""Project storage: identity, location, ``project.json`` and freshness.
 
 Internal for now: not part of the public ``tabalyst`` API. See
 ``docs/dev/scan/project-storage.md``.
@@ -9,6 +9,7 @@ from tabalyst.projects.catalog import (
     open_or_create_project,
     record_scan,
 )
+from tabalyst.projects.freshness import ProjectFreshness, project_freshness
 from tabalyst.projects.identity import is_project_id, new_project_id
 from tabalyst.projects.index import (
     ProjectIndex,
@@ -27,6 +28,7 @@ from tabalyst.projects.store import list_projects, read_project, write_project
 __all__ = [
     "LOCAL_WORKSPACE",
     "ProjectDocument",
+    "ProjectFreshness",
     "ProjectIndex",
     "ProjectSource",
     "StorageLocation",
@@ -37,6 +39,7 @@ __all__ = [
     "local_storage_root",
     "new_project_id",
     "open_or_create_project",
+    "project_freshness",
     "read_index",
     "read_project",
     "rebuild_index",

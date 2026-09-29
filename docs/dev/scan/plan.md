@@ -33,9 +33,13 @@ regenerated, documentation consistent with what is released.
 | 7.storage-a | Project identity, storage root, `project.json`, `projects/index.json` | Done | Sonnet 5 | High | `scan/phase-7-storage` |
 | 7.storage-b | Project scan service and freshness | Done | Sonnet 5.5 | High | `scan/phase-7-storage` |
 | 7.storage-c | Detailed project.duckdb design (D01), no implementation | Done | Session model | - | Existing working tree; no branch created |
-| 7.storage-d1 | Database codec, staged loader and semantic parity | Planned | To select at gate | High | No branch authorized |
-| 7.storage-d2 | Atomic generations, publication and recovery | Planned | To select at gate | High | No branch authorized |
-| 7.storage-d3 | Large listings, exposure and storage benchmarks | Planned | To select at gate | High | No branch authorized |
+| 7.storage-d1 | Database codec, staged loader and semantic parity | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-d2 | Atomic generations, publication and recovery | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-d3 | Large listings, exposure and storage benchmarks | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-e | Explicit private query-cache maintenance | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-f | Private project reopening design (D04/S17) | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-f1 | Private pinned inspection/open sessions | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-f2 | Explicit project-targeted conditional rescan | Planned | Session model | High | Existing working tree; no branch created |
 
 Status values: Planned, Next, In progress, Done, Blocked. The session that
 works on a lot updates this table.
@@ -458,21 +462,328 @@ high, for their design).
 - **d3:** paginated large record/value queries, normalization and exposure,
   resource benchmarks. Detector/exclusion row attribution requires D07 first.
 - Acceptance matrix and evidence to collect: project-storage.md section 10.
-  Keep each lot in a separate conversation. Model/branch are selected at the
+  Prefer a separate conversation for each lot; the maintainer requested d2
+  as a continuation of d1. Model/branch are selected at the
   implementation gate; this plan does not authorize creating a branch.
 
-Suggested next conversation prompt:
+### Lot 7.storage-d1: codec and private staging loader
+
+- The maintainer accepted the lot c design before implementation. D06 pins
+  DuckDB 1.5.5 and physical storage compatibility `v1.4.0`; local Windows
+  Python 3.12 evidence, wheel coverage and measurements are recorded in
+  project-storage.md section 10.1. A 12-job OS/Python storage CI matrix is
+  added; remote execution remains unverified in this session.
+- Private modules in `projects/` build a new staging directory only, through
+  `scan(on_record=...)`. They use explicit constrained tables, row/byte-bound
+  parameterized buffers, canonical paths and native payloads, metadata bound
+  to exact scan document bytes, complete record memberships and exhaustive
+  validation before commit and after checkpoint/close/read-only reopen.
+- The storage-neutral record digest helper is shared with Scan. CSV layouts
+  include unprofiled columns; JSON comparison retains observation order and
+  Decimal representations. Scan's bounded lists/envelopes are unchanged.
+- DuckDB does not support cross-schema foreign keys. Their bindings are
+  checked explicitly, alongside nullable parent/collection links, native
+  counts, array statistics, record flags/digests and listing parity.
+- Lots a/b remain unchanged. No manifest/index/generation publication or
+  default value APIs are added. Failed staging is retained privately for
+  d2's ownership-aware recovery. d2 must supply locking, synchronization,
+  atomic publication, pinned readers and legacy revision-1 rebuilding.
+- d3 retains pagination, exposure-aware value queries, million-record and
+  old/new-generation resource measurements. Small d1 measurements are not
+  performance guarantees. There is no public behavior/studio follow-up.
+- Validation: 1,252 tests passed, 2 skipped (87 new storage tests); Ruff and
+  diff whitespace checks passed. All three demos regenerated and the nine
+  pre-existing demo files restored byte-for-byte. No report presentation
+  change, so no new browser regression run was required for d1.
+
+### Lot 7.storage-d2: atomic publication and recovery
+
+- Revision-2 manifests bind immutable generation scan/database hashes.
+  OS-backed nonblocking workspace locks serialize all mutators; shared
+  maintenance locks protect pinned readers and writers. First-scan identity
+  stays private until the single manifest replacement. Rescans retain old
+  generations and timestamps on pre-commit failure. Post-commit index errors
+  are repair warnings; uncertain replacement outcomes are reclassified from
+  the manifest, with evidence preserved when unreadable.
+- Read-only sessions pin and verify one generation; freshness follows its
+  scan. Missing/corrupt selected artifacts fail closed. Explicit legacy
+  rebuilding preserves identity/created_at and upgrades only on success.
+  Legacy mutators cannot bypass publication or downgrade revision 2.
+- Explicit maintenance quarantines unselected ULID directories only under
+  exclusive maintenance and writer ownership; it preserves unknown contents
+  and never runs automatically during a scan. Retention policy remains D03.
+- File synchronization is implemented; POSIX directory fsync is implemented,
+  while Windows reports directory synchronization unsupported. Local tests
+  establish process-failure atomic visibility, not power-loss durability.
+  D08, remote OS CI, consumer APIs and d3 resource budgets remain open.
+- Validation: 1,300 passed, 2 skipped, including 48 new failure/concurrency/
+  recovery tests and real subprocess termination before/after commit. Ruff
+  passed. Storage CI now includes these tests across its 12 OS/Python jobs;
+  only Windows/Python 3.12 ran locally. Public behavior is unchanged; no
+  tabalyst-studio follow-up, branch, commit or tag.
+
+Handoff prompt used for d3:
 
 ```text
-Tabalyst Scan, lot 7.storage-d1 : codec et chargeur de staging project.duckdb.
+Tabalyst Scan, lot 7.storage-d3 : requêtes paginées et budgets project.duckdb.
 Lis AGENTS.md, README.md, docs/dev/architecture.md, docs/dev/scan/plan.md,
-design.md, project-storage.md et docs/dev/progress.md. Examine les lots a/b
-dans le working tree et préserve leurs modifications. Applique le contrat
-D01 du lot c, en validant d'abord D06 (runtime, format physique, plateformes).
-Implémente le schéma explicite, le stockage des observations via on_record
-et les tests de parité. Le chargeur reste privé : aucune publication de
-projet DuckDB avant le protocole atomique du lot d2. Ne crée ni commit, ni
-tag, ni branche et ne modifie pas tabalyst-studio.
+design.md, project-storage.md et docs/dev/progress.md. Préserve toutes les
+modifications existantes des lots a/b/d1/d2. Implémente les requêtes de records
+et de valeurs paginées, liées à une génération, avec normalisation et
+exposition Tabalyst. Vérifie la parité exhaustive, les limites et les curseurs
+périmés. Mesure les sources volumineuses, la mémoire, le spill, l'ouverture
+et le pic disque ancien/nouveau/staging. D07 reste différé : pas d'attribution
+par détecteur ni de reconstruction JSON exacte sans nouvelle conception.
+Garde les interfaces de projet privées. Ne crée ni commit, ni tag, ni branche
+et ne modifie pas tabalyst-studio.
+```
+
+### Lot 7.storage-d3: bounded catalogs and generation queries
+
+- Private keyset pages expose complete missing/empty/duplicate memberships,
+  frequencies, normalization groups and independently paged variants. Every
+  page identifies its pinned generation, Scan/structural scope, configuration,
+  exposure and semantic versions. Cursors reject another generation or query
+  and remain valid for an old reader or an identical rebuilt materialization.
+- The maintainer amended retention on 2026-09-29: the 10,000-value limit
+  applies to values actually kept in `project.duckdb`. New database revision
+  2 retains the first raw typed analyzable keys per profiled field and counts
+  their later occurrences; omitted occurrences are explicit. Record facts and
+  memberships remain complete. Revision-1 databases keep their exhaustive
+  behavior; Scan JSON and the project manifest format do not change.
+- Shared categorization/normalization/exposure run before grouping/ranking.
+  Masked collisions merge before ordering; hidden values have no items or
+  cursors. Saturated catalogs yield limited pages with retained/omitted
+  populations; normalized/masked counts can be lower bounds for the full
+  source. Retained catalogs contain no record-to-value mapping.
+- Reader/materializer memory and spill budgets are explicit per DuckDB instance.
+  Disposable generation caches close before ownership-safe removal. Bounded
+  ingestion commits short private batches to release update/delete undo;
+  d2's manifest remains the sole publication point. Failures never yield a
+  partially built complete query. D07 and D08 remain deferred; all interfaces
+  remain private and there is no CLI/API/report/studio change.
+- Validation: 1,424 passed, 2 skipped (124 new query/storage-budget tests);
+  Ruff and diff whitespace checks passed. Small exhaustive fixtures,
+  both JSON backends, all 32 normalization combinations, native/Unicode ties,
+  released Scan tables, zero listings, sensitive modes, long values, 10,000
+  stored keys, omitted analytical collisions, batch independence, corruption,
+  real memory exhaustion and stale cursors are covered. On Windows, the d2
+  termination test now waits for process death before closing stdin: closing
+  the pipe could otherwise release its commit barrier while termination was
+  pending. The three demos were regenerated and all nine original files were
+  restored byte-for-byte. Repeated resource results, quota initialization
+  probes and a final million-record run with enforced spill are recorded in
+  storage section 10.2. All runtime quotas use SET; zero disables spilling.
+  Windows file lengths are measured independently of DuckDB accounting.
+
+### Lot 7.storage-e: explicit private query-cache maintenance
+
+Framed on 2026-09-29; the maintainer subsequently requested implementation.
+This is a narrow first part of D03, not acceptance of a complete
+cache/retention policy. Project-storage.md section 7.1 details its private
+ownership/maintenance contract; sections 8.6-8.7 and 9 still govern storage.
+
+**Why next:** d3 disposes each query directory on normal close/failure, but
+process termination can leave `cache/<generation_id>/query-*` behind. Its
+long-value measurements show materialization files can exceed the committed
+database size. An explicit maintenance operation closes that concrete gap
+without choosing Explore's stale-source default (D04), exposing projects or
+changing Scan's reader contract (D07).
+
+Implementation scope:
+
+- A private cache inventory, dry-run plan and explicit execution boundary,
+  with structured candidate/skipped/error results and logical byte counts.
+  Missing cache is a normal empty result. Do not promise allocated disk size
+  or a hard disk quota. Inventory must not follow links or read raw values.
+- Establish durable ownership/version/binding metadata when creating new
+  query directories. A `query-*` name, timestamp or PID alone is insufficient
+  proof. Unmarked existing caches, unknown files, unsupported metadata and
+  links/reparse points are preserved and reported as skipped. Define the
+  marker protocol and allowed directory contents in project-storage.md
+  before implementing deletion; interruption before the marker is written
+  must leave preserved, unclassified evidence.
+- Reuse d2's exclusive workspace maintenance lock, then writer lock, for
+  execution. Busy readers, materializers, scans or another maintenance
+  operation cause an explicit busy result, with no mutation. Unsupported
+  ownership/locking primitives disable cleanup. A dry-run is advisory:
+  execution re-inventories and revalidates under the locks, including path
+  containment and ownership, instead of trusting old paths or byte counts.
+- Remove only positively identified disposable query directories inside
+  the chosen project's `cache/`, including abandoned caches for an older
+  generation. Preserve unknown contents rather than recursively clearing a
+  whole cache root. Never touch the source, manifest, committed generations,
+  legacy artifacts, index, `.staging`, `.quarantine` or lock files.
+- Keep cleanup independent of source freshness and source availability;
+  rebuilding queries uses the pinned project storage and the same exposure,
+  ordering and cursor semantics. Cleanup is never invoked automatically by
+  a scan, an open or a query. Keep all entry points private, without exports,
+  CLI, HTTP adapter, report controls or public configuration.
+
+Acceptance before marking e Done:
+
+- Fixtures cover missing/empty cache, marked abandoned directories, unmarked
+  legacy directories, unknown contents, invalid/unsupported markers,
+  project/generation binding mismatches and symlinks/Windows reparse points.
+- Subprocess termination leaves an eligible marked query cache; live reader,
+  materializer and writer contention blocks cleanup. A stale dry-run cannot
+  delete a replaced/newly active target. Inject deletion failures and retry:
+  report partial progress explicitly, preserve project storage and remaining
+  evidence, and define marker removal order so retries remain classifiable.
+- Hash every persistent project artifact before/after maintenance. Rebuild
+  frequency/group/variant pages without the source and compare items, counts,
+  exposure, limitations and cursor meaning against the original pages.
+  The first-at-most-10,000 raw typed analyzable keys per field, omitted
+  occurrences and complete record memberships remain unchanged.
+- Run pytest/Ruff and the relevant OS/Python storage CI matrix; record actual
+  platform evidence, leaving unexecuted platforms explicitly unverified.
+  Regenerate the three demos while preserving their pre-existing bytes.
+
+Separate later decisions: automatic TTL/size quotas/eviction, retention or
+deletion of old generations, staging/quarantine disposal, the public
+`tabalyst cache` surface (remaining D03), stale-project policy (D04), Transform
+history (D02), multi-source identity (D05), richer findings/reconstruction
+(D07) and stronger deployment durability (D08). D06/platform evidence remains
+to collect; local cleanup tests cannot establish power-loss guarantees.
+No Scan/profile/project database revision is proposed. No tabalyst-studio
+follow-up is needed while behavior stays private. No commit is created by
+this lot; an implementation commit can be prepared after validation.
+
+Implementation starting prompt (lot e, now completed):
+
+```text
+Tabalyst Scan, lot 7.storage-e : maintenance explicite des caches de requêtes.
+Lis AGENTS.md, README.md, docs/dev/architecture.md, docs/dev/scan/plan.md,
+design.md, project-storage.md et docs/dev/progress.md. Reprends le cadrage
+proposé de 7.storage-e, précise le contrat de propriété des caches et les
+résultats d'inventaire/simulation/exécution avant d'implémenter. Préserve les
+modifications existantes. Utilise les verrous de maintenance de d2 ; ne nettoie
+que les caches identifiés, jamais les générations ni le stockage persistant.
+Pas de TTL/quota/nettoyage automatique ni d'interface publique. Le stockage
+reste borné à 10 000 valeurs distinctes brutes typées analysables par colonne.
+D07 reste différé. Valide les échecs, les processus interrompus et la
+reconstruction sans source ; termine le rituel du lot. Ne modifie pas
+tabalyst-studio et ne crée ni commit, ni tag, ni push sans demande explicite.
+```
+
+Implementation notes (2026-09-29):
+
+- `projects/_cache.py` implements private immutable inventories/plans and
+  per-target cleanup results. New query directories have synchronized
+  `.tabalyst-query.json` markers. Execution rejects other project/root plans,
+  revalidates file/directory identities and acts only on unchanged candidates
+  under exclusive maintenance/writer locks. Unknown/unmarked contents,
+  symlinks/reparse points and hardlinks stay untouched. Explicit file deletion
+  retains/restores marker evidence on ordinary failures; interrupted final
+  marker removal may leave an unmarked empty directory, conservatively skipped.
+- `_query_budget.query_directory()` marks before use and validates normal
+  teardown after handles close. Empty parents are removed only with unchanged
+  identities. There is no new cleanup invocation in scans/opens/queries,
+  public adapter/export, automatic policy or project-storage format change.
+- `tests/test_project_cache.py` adds 48 cases: 41 pass locally, seven actual
+  symlink fixtures lack Windows privileges. The real Windows junction and
+  seven reparse-attribute cases pass; remote OS/Python CI remains unverified.
+  Killed materializers, live ownership, stale plans, partial deletion/retry,
+  unknown/corrupt markers and source-free exposed/limited page/cursor parity
+  are covered. Persistent artifact hashes remain unchanged after cleanup.
+- Full suite: 1,465 passed, 9 skipped; Ruff/diff checks and browser harness
+  syntax pass. Three demos regenerated and nine existing files restored
+  byte-for-byte. Manual review completed; `/code-review` is unavailable.
+  After final parent-identity hardening, the targeted cache/query/generation
+  suite also passes: 213 passed, 7 skipped.
+- Local artifact evidence now lives in `D:\GIT.test\tabalyst\artifacts` at
+  the maintainer's request; browser captures default outside the repository
+  and accept `TABALYST_ARTIFACTS_DIR`. No branch/commit/tag was created.
+  Suggested commit, when requested:
+  `feat(projects): add explicit owned query cache maintenance`.
+- Suggested next conversation: frame D04's private project reopening policy
+  (`fresh`/`stale`/`missing`, explicit caller actions and pinned generation
+  scope) before its implementation. Keep D07 and public project exposure
+  deferred; this does not settle automatic D03 quotas or generation retention.
+
+### Lot 7.storage-f: private project reopening design (D04/S17)
+
+Design only, completed on 2026-09-29 after the maintainer requested the next
+step. Proposed contract: project-storage.md section 6.1 (S17). No engine,
+service, public API or persistent format change; no contract-test lot enabled.
+
+- f1 inspects/opens one fully verified generation by project id. Proposed
+  private default `require_current` refuses stale/missing/failed source
+  checks; explicit `snapshot` allows stored-generation queries with the
+  corresponding warning. Integrity failures never get a snapshot bypass.
+- Assessments bind the pinned manifest, source comparison time and config.
+  Source I/O failures remain failures, not a new `SourceState`. No requested
+  config means the recorded config; a complete explicit ScanConfig mismatch
+  blocks both opening intents. Adapter/file-layer merging is out of scope.
+- A check is a point-in-time O12 fact, not continuous source validity. Refresh
+  compares the same pinned scan. No index lookup/repair, automatic scan,
+  project creation or legacy upgrade occurs during read-only opening.
+- f2 is separate because `publish_scan()` currently selects a project via
+  source/index lookup. An explicitly selected project requires a target id
+  and generation precondition checked under writer ownership. New-reader
+  opening after publication must also reject an intervening manifest change.
+- S17 remains Proposed for the implementation gate; the product default of
+  D04 remains deferred. D07, public project interfaces, automatic D03 policy,
+  history/version comparison and source relocation stay out of scope. The
+  10,000 stored-key bound remains unchanged.
+
+### Implementation lot 7.storage-f1: pinned inspection/open sessions
+
+Implemented on 2026-09-29 after the maintainer requested f1, accepting S17's
+read-only boundary. Private `_session.py` supplies `inspect_project()`,
+`open_project()`, immutable `SessionAssessment` and owned query contexts.
+Structured source warnings are `source_stale`, `source_not_checked` and
+`source_check_failed`; `config_mismatch` blocks both intents. Changed selection
+raises `GenerationConflictError`; readiness refusal includes its assessment.
+Legacy/integrity failures keep `open_generation()`'s fail-closed semantics.
+Explicit refresh updates facts about the pinned generation, preserving old
+assessments and cursors; readiness gates entry, not ongoing snapshot queries.
+Session teardown closes outstanding materializations before the pinned reader.
+Existing low-level readers, public exports, formats and value caps are unchanged.
+f2 still requires its own design/implementation gate. Storage-platform CI now
+includes the session tests; remote results have not been observed locally.
+Validation: full pytest suite 1,496 passed / 9 skipped; 31 focused session tests
+passed again with explicit exclusive-maintenance lock-release assertions.
+Ruff passed. All three demos regenerated and nine pre-existing outputs restored
+byte-for-byte. Tests used external OS temporary paths (architecture.md); no
+repository artifacts or studio changes. No branch, commit, tag or push.
+
+The original implementation scope and acceptance requirements follow:
+
+Implement only after accepting/amending S17. Use a private session module
+above `_generation`/`_queries`; do not export it from `tabalyst` or projects.
+Keep low-level `open_generation()` semantics unchanged for current consumers.
+Add immutable assessment/warnings and context-managed sessions, reusing
+`compare_source` against the already pinned manifest/Scan. Implement the
+source/config readiness matrix, explicit assessment refresh, deterministic
+refusal and resource release. Do not implement f2's publisher mutation yet.
+Opening after a closed inspection rechecks its own pinned generation and
+supports an optional expected-generation precondition for that earlier decision.
+
+Acceptance matrix is in storage section 6.1. In particular, prove no scan,
+publication/index mutation or persistent hash changes; source I/O errors must
+not become missing/fresh, and a rescan between pinning and assessment must
+not mix generations. Tests cover settings mismatch, legacy/corruption,
+mask/hide/show and saturated catalogs. Run pytest/Ruff, regenerate demos and
+restore pre-existing outputs, and extend storage-platform CI without claiming
+remote results. Keep pytest/benchmark evidence under the external artifact
+root (`D:\GIT.test\tabalyst\artifacts` locally), never recreate repository
+`artifacts/`. No branch/commit/tag/push or studio changes without a request.
+
+Suggested fresh-session prompt:
+
+```text
+Tabalyst Scan, lot 7.storage-f1 : inspection et réouverture privées d'un projet.
+Lis AGENTS.md, README.md, docs/dev/architecture.md, docs/dev/scan/plan.md,
+design.md, project-storage.md et docs/dev/progress.md. Reprends la proposition
+S17 (section 6.1) et précise les modèles d'assessment/session avant de coder.
+Préserve les modifications existantes. Une session reste liée à sa génération
+vérifiée ; require_current refuse stale/missing/failed, snapshot est explicite
+avec avertissements. Compare la configuration complète à celle du scan épinglé.
+Pas de rescan automatique, de mutation d'index ni d'interface publique. f2 reste
+séparé. Le stockage garde au maximum 10 000 valeurs distinctes brutes typées
+analysables par colonne ; D07 reste différé. Place les artefacts de tests dans
+D:\GIT.test\tabalyst\artifacts et termine le rituel sans commit ni push.
 ```
 
 ## Notes

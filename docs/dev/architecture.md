@@ -32,6 +32,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 - `scan_reuse.py`: reads scan documents for `tabalyst report --scan` and
   applies the staleness rule (design O12): source size, modification time and
   SHA-256, and the `config_sha256` of requested scan settings.
+  `compare_source()` holds the comparison alone, for a source located by the
+  caller: beside the document (`check_source()`) or from `project.json`.
 - `batch.py`: shared batch planning: shell-independent input resolution,
   output naming for `-o` and `-d`, collision, input-overwrite and `--force`
   checks, and atomic text writes.
@@ -47,8 +49,59 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`
   (storage root and layout), `models.py` and `store.py` (`project.json`),
   `index.py` (`projects/index.json` lookup, rebuilt from the project files) and
-  `catalog.py` (create, find and update a project). It never imports
-  `tabalyst.scanner`.
+  `catalog.py` (create, find and update a project) and `freshness.py`
+  (`project_freshness()`: the source located by `project.json` compared with
+  the facts of the project's `scan.json`). `freshness.py` reads scan
+  models, through `scan_reuse.py`; nothing in it runs a scan.
+- `projects/_codec.py`, `_schema.py`, `_staging.py`, `_bounded_values.py` and
+  `_validation.py`: private explicit project-db schemas and bounded Scan
+  record sink. Revision 1 retains exhaustive observations; new revision-2
+  generations retain the first 10,000 raw typed analyzable values per field
+  and their continuing counts, with explicit omissions. Complete record
+  facts/memberships persist independently. Validation checks all retained
+  data and Scan invariants; discarded cells cannot be reconstructed or used
+  to recompute digests at reopen. DuckDB is pinned to 1.5.5 with a physical
+  `v1.4.0` target. The loader owns only its new staging directory.
+- `projects/_publication.py`, `_generation.py`, `_locks.py`, `_sync.py` and
+  `_recovery.py`: private revision-2 publication and pinned read-only sessions.
+  A workspace OS writer lock serializes mutation; a shared maintenance lock
+  protects readers and writers against explicit orphan quarantine. One atomic
+  manifest replacement commits an immutable scan/database pair. Both hashes
+  and database bindings are verified before opening; an index failure after
+  commit is a repair warning. File fsync is supported locally; directory fsync
+  is implemented on POSIX and explicitly unavailable on Windows. No stronger
+  power-loss or network-filesystem guarantee is claimed.
+- `projects/_queries.py` and `_query_budget.py`: private generation-bound
+  complete record memberships and field frequencies/normalization groups,
+  with independently paged variants. Shared Scan categorization,
+  normalization and exposure precede ranking. Disposable materializations
+  and reader spill live only in generation-scoped `cache/` directories;
+  memory/spill budgets fail explicitly. Value pages are exact for the stored
+  population and marked limited when the catalog omitted occurrences.
+  Cursors bind project, generation and query semantics. D07 row attribution
+  and source reconstruction remain deferred.
+- `projects/_cache.py`: private inventory/dry-run and explicit cleanup of
+  owned disposable query directories. New caches have synchronized path-bound
+  ownership markers. Execution revalidates a supplied plan under exclusive
+  maintenance/writer locks; unknown/unmarked contents and links/reparse points
+  stay in place. It never opens the source or modifies project storage.
+  Automatic TTL/quotas and generation retention remain deferred (D03).
+- `projects/_session.py`: private S17 inspection and context-managed opening
+  above verified generations and exposure-aware queries. Immutable assessments
+  identify the pinned generation, source check time, configuration fingerprints
+  and readiness for `require_current`/explicit `snapshot`. Refresh compares the
+  same Scan; a closed inspection is advisory and opening rechecks with an
+  optional expected-generation precondition. Source I/O failures remain separate
+  from the three source states. Query contexts close with the session. No scan,
+  index mutation, legacy upgrade or public export occurs; f2 remains deferred.
+- `project_scan_service.py`: `scan_project()`, the peer of `scan_service.py` for
+  project storage: reserves identity privately, builds a staged scan/database
+  pair and publishes its revision-2 manifest through the protocol above.
+  Rescans preserve identity and previous generations. Legacy revision-1
+  projects remain readable as scan-only metadata; explicit rebuilding from
+  source upgrades them on success. The service and SQL sessions remain
+  internal; lot 7.storage-d3 supplies private exposure-aware queries. The one-shot CLI
+  and public API keep their existing output behavior.
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
@@ -180,7 +233,20 @@ node tests/browser/report.cjs examples/output/insurance-customers/report.html ex
 
 An optional third argument is the Playwright module path. `TABALYST_BROWSER`
 selects another installed browser channel. Run from the repository root with an
-`artifacts/` directory available for screenshots. Checks cover JSON-backed issue
+external artifact directory for screenshots. By default the browser check uses
+`<OS temporary directory>/tabalyst/artifacts`; set `TABALYST_ARTIFACTS_DIR` to
+override it. For a local Windows checkout watched by Obsidian, keep test and
+benchmark evidence outside `D:\GIT`, for example:
+
+```powershell
+$env:TABALYST_ARTIFACTS_DIR = 'D:\GIT.test\tabalyst\artifacts'
+.\.venv\Scripts\python.exe -m pytest --basetemp "$env:TABALYST_ARTIFACTS_DIR\pytest-session-1" -p no:cacheprovider
+```
+
+Choose a fresh `--basetemp` path for each run: pytest clears that exact
+directory when reusing it. Put benchmark `--root`/`--stage` paths under the
+same external artifact directory. The environment setting affects browser
+screenshots; pytest receives its path explicitly. Checks cover JSON-backed issue
 filtering, numeric ordering and filtering, percentage/count alignment,
 date-format tooltips, theme persistence, collapsible panels and desktop/mobile
 popup layout. Filtering never recalculates dataset metrics.
