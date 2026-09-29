@@ -2,6 +2,36 @@
 
 ## 2026-09-28
 
+- Detailed project.duckdb design (Tabalyst Scan lot 7.storage-c, D01), no
+  implementation or new dependency: project-storage.md specifies independent
+  logical versioning, shared dataset/field/record/observation tables, canonical
+  path identities and tagged raw Scan values. S07 now uses the Scan record
+  hook instead of a second parser with DuckDB inference. Full record lists
+  and storage-derived value listings keep Scan's scope, limits and exposure
+  explicit. A revision-2 project manifest will commit an immutable generation
+  containing scan.json and project.duckdb; separate file replacements in the
+  current a/b service do not yet provide this guarantee. Recovery states,
+  acceptance tests and implementation lots d1/d2/d3 are specified. Runtime
+  selection, richer detector/exclusion attribution and JSON ancestry, and
+  platform durability remain deferred with required evidence (D06-D08).
+  Decisions remain Proposed for the implementation gate. Existing code and
+  working-tree changes are preserved; no public behavior or studio change.
+  Validation: 1,165 tests passed, 2 skipped; Ruff and diff whitespace checks
+  passed. Three demos regenerated successfully, with the original nine demo
+  files restored byte-for-byte afterward to preserve existing edits.
+- Project scan service and freshness (Tabalyst Scan lot 7.storage-b): the
+  comparison of the staleness rule (size, modification time, SHA-256) is
+  extracted from `scan_reuse.check_source` into `compare_source()`, which
+  returns `fresh`, `stale` (with its reason) or `missing` for a source located
+  by the caller; the report's messages are unchanged. Project storage reuses it
+  through `project_freshness()`, which locates the source with `project.json`
+  and reads the recorded facts in the project's `scan.json`. The new internal
+  service `project_scan_service.scan_project()` finds or creates the project of
+  a source, runs `scan()`, writes `scan.json` atomically in the project
+  directory and calls `record_scan`; a project created by a failed scan is
+  removed, a failed rescan leaves the previous scan. `tabalyst.scanner` is
+  untouched and `project.duckdb` is not started. Tests in
+  `tests/test_source_freshness.py` and `tests/test_project_scan.py`.
 - Project identity and `project.json` (Tabalyst Scan lot 7.storage-a), first
   implementation of [project-storage.md](scan/project-storage.md): the new
   internal package `tabalyst.projects` generates `project_id` (ULID, never

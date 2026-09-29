@@ -31,6 +31,11 @@ regenerated, documentation consistent with what is released.
 | 7.x | Extensions, one lot each | Planned | See lot 7 | - | `scan/<topic>` |
 | 7.storage | Project storage design: identity, `project.json`, cache boundary | Done | Sonnet 5 | High | `scan/phase-7-storage` |
 | 7.storage-a | Project identity, storage root, `project.json`, `projects/index.json` | Done | Sonnet 5 | High | `scan/phase-7-storage` |
+| 7.storage-b | Project scan service and freshness | Done | Sonnet 5.5 | High | `scan/phase-7-storage` |
+| 7.storage-c | Detailed project.duckdb design (D01), no implementation | Done | Session model | - | Existing working tree; no branch created |
+| 7.storage-d1 | Database codec, staged loader and semantic parity | Planned | To select at gate | High | No branch authorized |
+| 7.storage-d2 | Atomic generations, publication and recovery | Planned | To select at gate | High | No branch authorized |
+| 7.storage-d3 | Large listings, exposure and storage benchmarks | Planned | To select at gate | High | No branch authorized |
 
 Status values: Planned, Next, In progress, Done, Blocked. The session that
 works on a lot updates this table.
@@ -48,6 +53,11 @@ The maintainer validates before the next lot starts:
 - **Gate 4**, before releasing `tabalyst scan`.
 - **Gate 5**, before removing the pandas engine in 5c. Passed on
   2026-09-28: removal approved at the start of lot 5c.
+- **Storage implementation gate**, before 7.storage-d1: review the detailed
+  D01 design in project-storage.md (S07, S10-S16), especially the shared Scan
+  reader, raw local storage and generation layout. Choose/test the DuckDB
+  runtime in d1; do not claim D06-D08 are already resolved. Project database
+  use is enabled only after d2's publication/recovery acceptance tests.
 
 ## Why these models
 
@@ -393,6 +403,77 @@ high, for their design).
   `tests/test_project_identity.py`, `test_project_location.py`,
   `test_project_store.py` and `test_project_index.py` (no `lot` marker: they
   are not scan contract tests). Notes below.
+
+### Lot 7.storage-b: project scan service and freshness
+
+- Done on 2026-09-28: `scan_reuse.compare_source()` separates O12's source
+  comparison from the beside-the-document lookup; `check_source()` keeps the
+  report's existing behavior and messages. `projects.freshness` applies the
+  same comparison to the source path recorded in `project.json` and the facts
+  recorded in the project's `scan.json` (S05 and S09).
+- The internal `project_scan_service.scan_project()` finds or creates the
+  project of one source, resolves Scan configuration like `generate_scans()`,
+  runs `scan()`, writes the same `scan.json` document atomically and records
+  the successful scan in `project.json`. A scan failure removes a project
+  created by that call and leaves an existing project's artifacts unchanged.
+  Progress uses the existing presentation-neutral events.
+- No CLI or public API, no change to `tabalyst.scanner`, and no
+  `project.duckdb`: D01 was the next design decision, detailed in 7.storage-c.
+  Tests are in
+  `tests/test_source_freshness.py` and `tests/test_project_scan.py`.
+
+### Lot 7.storage-c: detailed project.duckdb design (D01)
+
+- Done on 2026-09-28, design only: project-storage.md sections 8-10 define
+  the logical database format, fixed metadata/record/observation tables,
+  dataset/field/path identity, tagged raw values, absence and collections,
+  effective configuration, large listings, publication and recovery tests.
+- S07 is amended: consume the existing Scan record hook in a storage layer
+  above the engine, instead of independently inferring the source with DuckDB.
+  Scan keeps its bounded JSON; the database holds all analyzed observations
+  and full baseline record memberships. No dependency or loader added.
+- The target revision-2 project manifest points to an immutable generation;
+  its atomic replacement commits scan.json and project.duckdb together.
+  Current a/b code remains unchanged: its separate scan/metadata writes do
+  not yet satisfy this multi-artifact protocol.
+- S10-S16 are Proposed pending the implementation gate, not Implemented.
+  D06 (runtime/performance), D07 (richer attribution/ancestry) and D08
+  (deployment durability) remain explicit evidence requirements. D02-D05
+  retain their original deferred scope.
+- No contract-test lot is enabled for documentation-only work. No public
+  format changes, branch, commit, tag or tabalyst-studio edit in this lot.
+- Validation: 1,165 tests passed, 2 skipped; Ruff and `git diff --check`
+  passed. All three demos regenerated successfully, then their nine original
+  working-tree files were restored byte-for-byte to preserve existing edits.
+  Manual design review checked reader/record semantics and publication
+  boundaries; no `/code-review` command is available in this session.
+
+### Next implementation: lots 7.storage-d1 to d3
+
+- **d1:** explicit codec/schema, private staged loader through on_record,
+  DuckDB compatibility selection, record listings and semantic parity.
+- **d2:** manifest revision 2, generation resolver, OS writer lock, first
+  scan/rescan publication, pinned readers, freshness/index integration,
+  legacy rebuild and crash/recovery tests. Only then enable project DB use.
+- **d3:** paginated large record/value queries, normalization and exposure,
+  resource benchmarks. Detector/exclusion row attribution requires D07 first.
+- Acceptance matrix and evidence to collect: project-storage.md section 10.
+  Keep each lot in a separate conversation. Model/branch are selected at the
+  implementation gate; this plan does not authorize creating a branch.
+
+Suggested next conversation prompt:
+
+```text
+Tabalyst Scan, lot 7.storage-d1 : codec et chargeur de staging project.duckdb.
+Lis AGENTS.md, README.md, docs/dev/architecture.md, docs/dev/scan/plan.md,
+design.md, project-storage.md et docs/dev/progress.md. Examine les lots a/b
+dans le working tree et préserve leurs modifications. Applique le contrat
+D01 du lot c, en validant d'abord D06 (runtime, format physique, plateformes).
+Implémente le schéma explicite, le stockage des observations via on_record
+et les tests de parité. Le chargeur reste privé : aucune publication de
+projet DuckDB avant le protocole atomique du lot d2. Ne crée ni commit, ni
+tag, ni branche et ne modifie pas tabalyst-studio.
+```
 
 ## Notes
 
@@ -868,15 +949,12 @@ done, and anything the next lot must know.
 - Lot 7.storage, for its implementation lot:
   - `platformdirs` was accepted by the maintainer in lot 7.storage-a and is
     now a runtime dependency (`platformdirs>=4`).
-  - `scan_reuse.check_source` assumes the scan document sits beside the
-    source (`scan_path.parent / result.source.name`); the implementation lot
-    should extract its size/modification-time/SHA-256 comparison from that
-    beside-the-document lookup so project storage can reuse it with a path
-    resolved from `project.json` instead (project-storage.md section 6).
-  - The `project.duckdb` table layout, its own schema version, and how
-    SCAN-04's large listings are produced are open (D01): the first
-    implementation session should start with that detailed design rather
-    than guessing a schema while writing the loader.
+  - Settled in 7.storage-b: `scan_reuse.check_source` keeps the beside-source
+    lookup, while `compare_source` provides the shared comparison for a
+    project source resolved from `project.json` (project-storage.md section 6).
+  - D01's detailed design is now in project-storage.md sections 8-10
+    (7.storage-c); implement only after its gate. S07's initial independent
+    DuckDB-reader proposal is superseded by the shared observation stream.
   - No default behavior is chosen yet for reopening a project whose source
     changed (D04, PROJ-04): unlike `tabalyst report --scan`'s hard failure,
     this is likely a per-session UX choice for Explore, not a scan-engine
@@ -914,11 +992,20 @@ done, and anything the next lot must know.
     document whose `project_id` differs from its directory name or whose
     `workspace_id` differs from the location's (a copied file must not pass
     for another project); `write_project()` refuses another workspace.
-  - Left for the next lots: extracting the comparison of
-    `scan_reuse.check_source` from its beside-the-document lookup (S09), the
-    layer that runs `scan()` and writes `scan.json` into the project directory
-    (`create_project()` then `record_scan()` on success), `project.duckdb` (D01,
-    which starts with its detailed design), and any CLI surface.
+  - Settled in lot 7.storage-b: the shared source comparison (S09) and the
+    layer that runs `scan()` and writes `scan.json` into the project directory.
+    Left for the next lots: `project.duckdb` implementation (D01 detailed
+    in 7.storage-c) and any CLI surface.
   - `tabalyst-studio` follow-up: none, nothing public changed; the new runtime
     dependency `platformdirs` matters for packaging and the release notes only
     when a feature uses the storage.
+- Lot 7.storage-b, for the next implementation lot and the maintainer:
+  - `project_scan_service.py` deliberately stops after `scan.json`; D01 is
+    now detailed by 7.storage-c. The next implementation must replace the
+    separate scan/metadata publication with S14 before exposing a database.
+  - `project_freshness()` returns the three-way fact `fresh`, `stale` or
+    `missing`. D04 remains deferred: an Explore interface, not this storage
+    service, will decide whether a stale source is reused, rescanned, compared
+    or versioned.
+  - There is still no CLI or public Python API and therefore no
+    `tabalyst-studio` follow-up.
