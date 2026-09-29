@@ -11,7 +11,10 @@ specification for traceability. Its identifiers (`PROJ-xx`, `SCAN-xx`,
 This document governs the persisted project state that a future Explore, and
 later Transform, will read instead of re-scanning a source every time. Project
 identity, `project.json`, `scan.json` and freshness are implemented;
-`project.duckdb` and the public interface are not. This layer does not change
+the private staged `project.duckdb` loader is implemented in d1 and atomic
+generation publication in d2. The public interface is not implemented.
+Lot d3 adds private paginated consumer queries and resource measurements.
+This layer does not change
 the current `tabalyst scan` / `tabalyst report --scan` behavior (design.md
 sections 16.3 and 16.6, decisions O12 and O17): a scan document written beside
 its source stays a supported, simpler mode for one-shot CLI use. Project
@@ -26,9 +29,14 @@ are amended at a gate before the lot that implements them starts;
 **Deferred** decisions are left open on purpose, to a named later point;
 **Implemented** decisions are built and tested, in the lot named.
 
-Lot 7.storage-c completes D01 as a detailed **Proposed** design, ready for
-the implementation gate, not as shipped behavior. Sections 8 and 9 specify
-the target; the revision-1 layout and models of lots 7.storage-a/b still run.
+The maintainer accepted the lot c design at the d1 implementation gate.
+Lot 7.storage-d1 implements the codec, private staged loader and baseline
+record lists. Lot 7.storage-d2 implements section 9's publication protocol,
+pinned readers and explicit orphan quarantine. Revision-1 projects remain
+scan-only until explicitly rebuilt; a successful rebuild preserves their
+identity and commits a revision-2 generation.
+Lot 7.storage-d3 adds section 8.6's private consumer queries and section 8.7's
+maintainer-amended capped value storage; the Scan contract is unchanged.
 
 ### Decision register
 
@@ -39,24 +47,25 @@ the target; the revision-1 layout and models of lots 7.storage-a/b still run.
 | S03 | Workspace and dataset identity | `workspace_id` is the fixed constant `local` in CLI/local mode. No separate `dataset_id` is introduced while one project holds one source. | Implemented (lot 7.storage-a) | 4 |
 | S04 | `project.json` schema | Its own `format`, `format_version` and `format_revision`; `project_id`, `workspace_id`, `source.path`, `source.name`, `created_at`, `last_scan_at` (PROJ-02). | Implemented (lot 7.storage-a) | 5 |
 | S05 | Freshness storage | `project.json` does not duplicate the source's size, modification time or SHA-256: they stay in `scan.json`'s `source` block, already required by O12 (PROJ-03). | Implemented (lot 7.storage-b) | 5, 6 |
-| S06 | Cache boundary | Everything under `cache/` is disposable at the file level; `project.duckdb` in full is project storage, never mixed with cache tables (CACHE-01). | Proposed | 7 |
-| S07 | `project.duckdb` population | A layer above `tabalyst.scanner` consumes the same Tabalyst observations as Scan; no independent DuckDB source inference. Rebuilt in full per generation. Supersedes the original second-reader proposal. | Proposed (7.storage-c) | 8.4 |
+| S06 | Cache boundary | Everything under `cache/` is disposable at the file level; `project.duckdb` in full is project storage, never mixed with cache tables (CACHE-01). Explicit cleanup is limited to owned query directories. | Implemented privately (7.storage-d3/e); automatic quotas/cleanup deferred | 7, 8.6 |
+| S07 | `project.duckdb` population | A layer above `tabalyst.scanner` consumes the same Tabalyst observations as Scan; no independent DuckDB source inference. Rebuilt in full per generation. Supersedes the original second-reader proposal. | Implemented privately (7.storage-d1) | 8.4 |
 | S08 | Project lookup | `projects/index.json` maps a resolved source path to a `project_id`; reconstructible from `project.json` files, not authoritative (PROJ-06). | Implemented (lot 7.storage-a) | 4 |
 | S09 | Relation to O12 | The freshness comparison of O12 (design.md section 16.6) is reused, not duplicated, resolving the source from `project.json`'s stored path instead of "beside the document" (PROJ-03, PROJ-04). | Implemented (lot 7.storage-b) | 6 |
-| D01 | DuckDB schema | Detailed design completed by S10-S16; implementation and validation remain. | Proposed (7.storage-c) | 8, 9 |
-| S10 | Internal format | `tabalyst.project-db`, alpha family `0.1.0a`, revision 1; physical DuckDB compatibility is separate. | Proposed (7.storage-c) | 8.1 |
-| S11 | Dataset representation | Shared record and ordered-observation tables, dataset ids as values, canonical paths as identity; no inferred wide base table. | Proposed (7.storage-c) | 8.2 |
-| S12 | Raw values | Native type tag plus lossless Scan canonical text; containers and null remain distinct; no automatic SQL casts. | Proposed (7.storage-c) | 8.3 |
-| S13 | Large results | Persist unbounded record membership and paginate; compute value listings from stored observations with Tabalyst rules. Never overwrite bounded Scan measures. | Proposed (7.storage-c) | 8.5 |
-| S14 | Publication | Immutable generation directory and one atomic revision-2 `project.json` manifest replacement; readers pin a generation. | Proposed (7.storage-c) | 9 |
-| S15 | Scope and exposure | Raw local storage, exposure on every consumer; explicit structural scope, no claim of source-byte preservation. | Proposed (7.storage-c) | 8.3-8.5 |
-| S16 | Acceptance | Semantic parity, failure injection and platform tests precede enabling project database consumers. | Proposed (7.storage-c) | 10 |
-| D06 | DuckDB runtime and performance | Pin supported package/storage versions and ingestion batching after wheel, spill and benchmark evidence in 7.storage-d1. | Deferred | 10 |
+| D01 | DuckDB schema | Explicit schema/codec/staging, atomic publication and private paginated queries. | Implemented privately (7.storage-d1/d2/d3) | 8, 9 |
+| S10 | Internal format | `tabalyst.project-db`, alpha family `0.1.0a`; revision 1 reads exhaustive observations, revision 2 writes capped catalogs. Physical compatibility stays independent. | Implemented privately (d1/d3) | 8.1, 8.7 |
+| S11 | Dataset representation | Revision 1 has ordered observations; revision 2 keeps complete record facts and bounded per-field catalogs, without row payload reconstruction. | Implemented privately (d1/d3) | 8.2, 8.7 |
+| S12 | Raw values | Native tag plus canonical text, no SQL inference. New generations retain at most 10,000 distinct analyzable values per field, with occurrence/omission counts. | Amended by maintainer 2026-09-29; implemented (d3) | 8.3, 8.7 |
+| S13 | Large results | Record memberships stay complete. Value queries are complete for retained values, explicitly limited for the full population after storage saturation. Scan measures never change. | Implemented privately (d1/d3) | 8.5-8.7 |
+| S14 | Publication | Immutable generation directory and one atomic revision-2 `project.json` manifest replacement; readers pin a generation. | Implemented privately (7.storage-d2) | 9 |
+| S15 | Scope and exposure | Raw local storage, exposure on every consumer; explicit structural scope, no claim of source-byte preservation. | Implemented privately (d1/d3) | 8.3-8.6 |
+| S16 | Acceptance | Semantic parity, failure injection and platform tests precede enabling project database consumers. | d1/d2/d3 tested locally; remote OS CI remains unverified | 10 |
+| D06 | DuckDB runtime and performance | DuckDB 1.5.5, physical v1.4.0, bounded batches; local loader/query/resource evidence, OS CI added. No native-reader speed or process-memory guarantee. | Selected/tested locally (7.storage-d1/d3) | 10.1, 10.2 |
 | D07 | Rich row findings and JSON ancestry | Per-detector record attribution, exact source reconstruction and collection parent links need a richer engine/reader contract; design before Explore/Transform requires them. | Deferred | 8.5 |
 | D08 | Deployment durability | Power-loss guarantees, network filesystems and SaaS writer coordination require platform evidence; first implementation supports tested local filesystems only. | Deferred | 9.3 |
 | D02 | Transform history | Storage of future correction and transformation history inside a project. | Deferred | - |
-| D03 | Cache policy | TTL, size quotas, automatic cleanup, and the exact `tabalyst cache` command surface (CACHE-06, CACHE-07, specification section 7). | Deferred | 7 |
-| D04 | Stale project default | The default behavior when a project's source has changed: reuse, rescan, compare or version (PROJ-04). | Deferred | 6 |
+| D03 | Cache policy | Private explicit owned-query cleanup is implemented; TTL, size quotas, automatic cleanup, generation retention and the exact `tabalyst cache` command surface remain open (CACHE-06, CACHE-07, specification section 7). | Partially implemented (e); remaining policy deferred | 7 |
+| S17 | Private project reopening | Inspect/open a verified pinned generation with explicit current-source or snapshot intent; no automatic rescan. Explicit rescan must target the chosen project with a generation precondition. | Read-only boundary accepted and implemented (7.storage-f1); f2 remains proposed | 6.1 |
+| D04 | Stale project default | Section 6.1 proposes private caller behavior; Explore's user-facing default, version comparison and history remain undecided (PROJ-04). | Private proposal; product default deferred | 6, 6.1 |
 | D05 | Multi-source projects | A `dataset_id` distinct from `project_id`, if a project ever holds more than one source. | Deferred | 4 |
 
 ## 2. Principles
@@ -216,6 +225,127 @@ the target; the revision-1 layout and models of lots 7.storage-a/b still run.
   result may be presented as describing the current source without that
   check, per PROJ-04.
 
+### 6.1 Private reopening contract (S17, lots 7.storage-f/f1)
+
+Framed after lot e on 2026-09-29; the maintainer's request to implement f1
+accepts the read-only boundary. `_session.py` implements inspection/opening;
+the explicit rescan boundary below remains proposed for f2. It does not change
+`open_generation()`, O12, public project exposure or the Scan engine. The
+proposal separates inspecting/reusing stored analysis from explicitly replacing
+it. Product UX and the default Explore response to staleness remain deferred.
+
+**Read-only session (implemented lot f1).** Select by
+`StorageLocation` and `project_id`, never by source path/index. Open through
+the existing verified generation context and use its one pinned manifest,
+Scan and database for configuration comparison, source comparison and queries.
+Do not call `project_freshness()` to read another manifest after pinning.
+No open/inspection creates a project, scans a source or repairs an index.
+Normal disposable reader/query scratch files remain allowed under `cache/`;
+read-only means persistent project/source artifacts stay unchanged.
+
+The session's immutable assessment identifies workspace/project/generation,
+source path, check time, the existing `SourceCheck` fact, recorded and optional
+requested configuration fingerprints, readiness, and structured warning/error
+codes. It is transient metadata, not another persisted profile or public
+format. Inspection returns readiness facts for a valid verified generation;
+integrity failures raise before a query session can be yielded. Source I/O
+failure is a separate failed assessment, never `missing` or `fresh`; do not
+extend or reinterpret the shared three-state `SourceState` contract.
+An assessment returned after closing its inspection context is advisory.
+Subsequent opening rechecks the newly pinned generation; an optional
+`expected_generation_id` binds a caller's earlier decision and rejects a
+changed selection. Never treat an old assessment as current verification.
+
+Two explicit opening intents are implemented:
+
+| Intent | Fresh source | Stale source | Missing/non-file source | Source comparison I/O failure |
+| --- | --- | --- | --- | --- |
+| `require_current` (private default) | Queries allowed if settings match | Inspection explains blockage; opening refuses | Inspection explains blockage; opening refuses | Inspection records failure; opening refuses |
+| `snapshot` (explicit) | Queries describe the stored generation | Queries allowed with stale-source warning | Queries allowed with source-not-checked warning | Queries allowed with check-failed warning; no current-source claim |
+
+Both intents query the stored generation only. Freshness is O12's observation
+at check time, not a live guarantee or atomic source snapshot. Same size/mtime
+retains O12's fast-path limitations; another mtime triggers the existing hash
+comparison. A long session may explicitly refresh its assessment against the
+same pinned Scan; never switch generations or rescan implicitly. A concurrent
+rescan does not invalidate an old pinned reader/cursor, nor make its previous
+assessment proof about the new manifest. Assessment and all session page scope
+must identify that same pinned generation. Existing limited catalogs and
+complete record memberships keep their d3 meanings; a snapshot cannot recreate
+discarded rows, full JSON or detector findings (D07).
+
+**Configuration.** With no request, use the pinned Scan's effective config,
+not today's defaults. The first private interface accepts only an optional
+fully validated `ScanConfig` and compares its canonical fingerprint exactly.
+A mismatch blocks opening in either intent: it is not merely stale source
+content and cannot change stored normalization, exposure or detector results.
+Inspection may still explain the mismatch. Do not implement partial config-file
+merging in f1; leave that to a separately designed adapter. Page generation,
+configuration, exposure and semantic versions continue to come from d3.
+
+Legacy scan-only projects have no database session: explicitly report rebuild
+required, with no fabricated DB or automatic upgrade. Corrupt/missing selected
+artifacts and unsupported formats fail closed under d2; `snapshot` cannot bypass
+verification or fall back to another generation. Source relocation/adoption,
+multi-source projects, history comparison, arbitrary prior-generation opening
+and a public CLI/API/HTTP/UI stay out of scope.
+
+**Explicit rescan (proposed later implementation lot f2).** Reusing
+`scan_project(source)` is insufficient: its publisher looks up the source path
+and may choose another project when several projects share a path. Define a
+separate private boundary with project id, expected selected generation and
+effective config. Under d2 writer ownership, reread that exact manifest and
+reject a changed generation/source binding before staging. Preserve project id
+and `created_at`; bypass index selection. Use the recorded config by default,
+or an explicit full replacement config. A source missing/unreadable cannot
+be rescanned; cancellation/precommit failure preserves the old generation.
+After successful publication, release write ownership and open a separately
+verified session pinned to the returned new manifest; if the manifest changed
+again before open, report a conflict rather than silently returning another
+writer's generation. Preserve existing postcommit warnings/unknown outcomes.
+Rescan is explicit even for a fresh source and never removes old generations.
+New databases retain at most 10,000 raw typed analyzable keys per field.
+Stored-value cap selection for rescans must also be explicit: f2 defaults to
+10,000; preserving a smaller private cap is opt-in and cannot infer a single
+cap from heterogeneous legacy metadata. f2 must settle that interface before
+implementation. No publisher change is made by this design lot.
+
+Acceptance for f1: fresh/touched/same-size-changed/different-size/missing/non-file
+sources, inaccessible stat/hash, both intents, exact config/mismatch, corruption
+and legacy cases; no scan/index mutator on read-only paths; hash all persistent
+artifacts; return/close contexts without leaking locks or caches on refusal.
+Exercise a rescan between pinning and comparison and during a live reader,
+assessment refresh, stale inspection preconditions and generation-bound cursors.
+Test mask/hide/show, saturated
+catalogs and source-free snapshot pages. f2 additionally needs same-path
+projects, stale preconditions, two writers, identity preservation, effective
+configuration retention and d2 failure/unknown-outcome regressions.
+Tests/artifacts stay outside the checkout; use the external root documented in
+architecture.md. Local tests cannot establish D08 power-loss guarantees or
+remote-platform support. S17's read-only boundary was accepted for f1;
+f2 needs its own gate.
+
+**Private implementation.** `inspect_project()` returns an immutable
+`SessionAssessment` after closing its verified reader. `open_project()` yields
+a context-managed `ProjectSession` with `assessment`, `refresh_assessment()`,
+`records_page()` and owned `materialize_values()` contexts. Both entry points
+accept `requested_config`, `expected_generation_id` and a reader `QueryBudget`.
+Assessment fields include `current_ready`, `snapshot_ready`, tuple warning/error
+codes and a nullable `source_check`/`source_error`: failed source I/O has no
+fabricated source state. Codes are `source_stale`, `source_not_checked`,
+`source_check_failed` and `config_mismatch`. `SessionRefusedError` carries the
+assessment; `GenerationConflictError` reports `generation_changed`. Integrity
+and legacy failures retain the low-level `InputError` diagnostics (legacy
+explicitly requires rebuilding), before any session is yielded.
+
+Readiness gates entry. Refresh returns new facts about the same pinned Scan,
+without changing the opening intent, blocking already-open stored queries or
+mutating an earlier assessment. Outstanding value materializations close before
+the generation connection on session exit; closed sessions reject new queries
+and refresh. Session configuration fingerprints are captured at entry, so
+mutating a caller's config object cannot change the decision on refresh.
+No module is exported from `tabalyst` or `projects`; no persistent format changed.
+
 ## 7. Cache boundary (S06)
 
 | Artifact | Class | Rule |
@@ -242,7 +372,76 @@ the target; the revision-1 layout and models of lots 7.storage-a/b still run.
   surface are deferred (D03): the specification itself states these
   parameters are not decided (specification sections 6 and 7).
 
+### 7.1 Explicit private query-cache maintenance (lot 7.storage-e)
+
+The maintainer requested implementation of the framed e lot on 2026-09-29.
+Only explicit maintenance of owned query directories is in scope. Automatic
+TTL/quotas, generation retention, staging/quarantine disposal and public
+commands remain deferred under D03. D07 and the 10,000-value cap are unchanged.
+
+New query directories contain an owner-only `.tabalyst-query.json` marker,
+written exclusively, flushed and synchronized before yielding the directory
+to DuckDB. It has the exact keys `format` (`tabalyst.query-cache`), `revision`
+(integer 1), `workspace_id`, `project_id`, `generation_id` and `query_id`
+(fresh ULID). The directory is named `query-<query_id>`; all bindings must
+match its storage path. This metadata is private and independent of Scan,
+manifest and database revisions. It is ownership evidence inside the trusted
+local storage boundary, not authentication against a hostile local writer.
+
+Allowed contents are the marker, regular `values.duckdb` and
+`values.duckdb.wal` files, and an optional `spill/` directory containing only
+recognized DuckDB temporary files. Unknown contents, unmarked legacy caches,
+invalid/unsupported markers, symlinks, Windows reparse points and multiply
+linked files are preserved. Inventory reads bounded marker metadata and file
+statistics only, never database or raw spill payloads. Byte counts describe
+logical file lengths, not allocated disk space or a disk quota.
+
+The private inventory is also an advisory dry-run plan. Execution requires
+that plan and takes the exclusive workspace maintenance lock before the
+writer lock. It re-inventories under ownership and acts only on unchanged
+planned candidates (directory/file identities, marker bytes and file stats).
+New or replaced targets are skipped; busy ownership raises ProjectBusyError
+without cache mutation. Unsupported platforms cannot execute maintenance.
+All cooperating readers/materializers/writers already hold shared maintenance
+ownership. External non-cooperating changes are outside the local locking
+guarantee; paths and entries are nevertheless checked again before removal.
+
+Files are removed individually, without recursive deletion of a cache root;
+the marker is last. Results distinguish removed, skipped and failed targets,
+including actual removed logical bytes on partial failure. An ordinary
+failure preserves the marker for retry (recreating it exclusively if final
+directory removal fails). A process dying between final marker unlink and
+empty-directory removal may leave an unmarked empty directory, which later
+maintenance conservatively skips. No transaction across cache deletions or
+power-loss guarantee is claimed. Normal query teardown uses the same content
+validation, after closing all DuckDB handles, and preserves unknown contents.
+
+Cleanup does not open the source, manifest or committed database. It touches
+only planned owned query directories, including ones for old generation ids;
+it neither deletes generations nor validates/promotes a generation. Rebuilding
+materializations still uses verified pinned project storage, with unchanged
+exposure, ordering, omission status and cursor semantics. Nothing calls this
+maintenance automatically during scan/open/query. No public exports or adapter
+are added; remote platform evidence remains to collect in storage CI.
+
+Implementation uses `projects._cache.inventory_query_caches(location,
+project_id)` to return an immutable `CacheInventory`; its entries have
+`path`, `status`, `reason`, `logical_bytes` and `removed_bytes`. Private
+comparison signatures bind directory identities, marker bytes and file
+identity/size/timestamps. `clean_query_caches(location, project_id, plan=...)`
+rejects a different root/workspace/project plan. Inventory statuses are
+`candidate`, `skipped` or `error`; execution adds `removed`, retaining explicit
+per-target failures and skipped/new/changed targets. Missing cache returns
+no entries. The accepted spill names are `duckdb_temp_storage-<digits>.tmp`
+and `duckdb_temp_block-<word-or-hyphen>.block`; other engine files are preserved
+until this private protocol is deliberately extended. This format does not
+introduce a supported public API or a cache authentication scheme.
+
 ## 8. Detailed database contract (D01, S07, S10-S13, S15)
+
+Sections 8.1-8.5 describe the original exhaustive revision-1 database. The
+maintainer amendment in 8.7 supersedes its raw retention and reopen proof for
+new revision-2 generations. Section 8.6 supports both revisions explicitly.
 
 ### 8.1 Format and compatibility
 
@@ -269,8 +468,11 @@ from table names. No automatic alpha migration: rebuild from the source;
 if unavailable, keep the old generation and report incompatibility. A physical
 DuckDB open failure is distinct from an unsupported Tabalyst revision.
 An engine upgrade alone does not increment the logical revision; changed
-meaning or required tables do. The supported DuckDB package range and physical
-storage target must be chosen and tested in d1 (D06), not invented here.
+meaning or required tables do. The d1 runtime is pinned to `duckdb==1.5.5`;
+the loader selects physical `storage_compatibility_version='v1.4.0'` explicitly
+when creating the database (header storage version 67). Writer version and
+this target are recorded separately. The loader rejects another runtime
+instead of silently changing storage behavior. See section 10.1 for evidence.
 Consult DuckDB's separate
 [storage compatibility contract](https://duckdb.org/docs/current/internals/storage)
 when selecting that physical target; it does not version Tabalyst's schema.
@@ -320,6 +522,12 @@ JSON discovery can renumber `f<n>` on rescan. Cross-generation matching uses
 (dataset id, canonical path segments), never `f<n>`, display or table order.
 CSV `column_3` maps to `[{"column":3}]`, not the header text. No promise
 of semantic column identity survives a source column reorder.
+
+DuckDB 1.5.5 rejects cross-schema foreign keys. The d1 schema declares SQL
+PK/unique/check/not-null constraints and same-schema FKs; the loader's
+build/reopen validator enforces records-to-datasets, observations-to-fields
+and membership-to-listings links explicitly, together with nullable parent
+and collection links. The table layout and logical semantics are unchanged.
 
 Every emitted observation, including root and containers, is retained in
 reader order. Resolve field ids after Scan finalization by canonical path.
@@ -503,17 +711,171 @@ SCAN-04/SCAN-05 cases. Likewise defer exact JSON occurrence ancestry and
 source-byte reconstruction. The three record lists and value listings above
 are the initial supported scope, not a claim that every future issue exists.
 
+### 8.6 Private d3 query contract
+
+`projects._queries` is internal: it is not exported by `tabalyst` or
+`projects.__init__`, and has no CLI, HTTP adapter or public document format.
+Use it inside an active `_generation.open_generation()` context:
+
+```python
+with open_generation(location, project_id, budget=QueryBudget()) as pinned:
+    page = records_page(pinned, "rows", "records.with_missing", size=100)
+    with materialize_values(pinned, "rows", "column_1") as values:
+        frequencies = values.frequencies_page(size=100)
+        groups = values.groups_page(size=100)
+        if groups.items:
+            variants = values.variants_page(groups.items[0].key, size=100)
+```
+
+Every page identifies workspace, project, generation, dataset, optional field,
+listing, analyzed record count, the original Scan scope and dataset structural
+limits, configuration fingerprint, exposure and semantic versions. Its origin
+is `storage-derived`. Counts cover the whole retained population, independent
+of page size and Scan's distinct/value/record/listing limits. Revision 2 also
+reports storage omissions as specified in 8.7; Scan's envelopes
+and artifact bytes stay unchanged. Record items are index/location references,
+not row payloads or detector findings. Unknown datasets, listings and
+unprofiled field ids are rejected. Empty populations give complete empty pages;
+disabled duplicate detection gives `disabled`, a null count and no items.
+
+Page sizes are strict integers from 1 through 1,000. Private immutable cursor
+objects bind workspace/project/generation, dataset, field, listing, effective
+configuration, exposure and query/normalization versions; variant cursors also
+bind the exposed group key. Record keysets use `record_index > after`. Values
+are sorted once during materialization, assigned stable dense ordinal keys and
+paged by `position > after`, never OFFSET. Frequency tie order is count
+descending, UTF-8 BLOB text ascending, then Scan's native-type order. Groups
+and their variants use count descending then binary text. UTF-8 order equals
+Python codepoint ordering for the valid Unicode retained by Scan, including
+NUL and the BMP/non-BMP boundary, independently of locale SQL collations.
+
+An old pinned reader can continue its cursor after a rescan; a newly opened
+generation rejects that cursor with `StaleCursorError`. Identical cache
+rebuilding retains cursor meaning. A cursor for another field, dataset,
+listing or variant key is rejected rather than silently starting over.
+These cursor objects are not an authenticated network protocol; a future
+public transport must design its own serialization and trust boundary.
+
+`materialize_values()` streams revision-1 observations or weighted revision-2
+catalog values through the
+shared `StringClassifier`, `Normalizer` and `ExposureGate`. Frequencies use
+content strings and native numbers/booleans; absence, nulls, arrays, objects,
+empty/blank/marker strings are excluded. Native tags and canonical numeric
+text never pass through SQL numeric inference. Raw variant groups qualify
+with at least two distinct raw content strings before exposure, exactly as
+Scan does; qualifying equal masked keys and masked variants then merge before
+ranking. A single-variant raw group cannot enter merely because its mask
+matches another group. `hide` returns no value items or cursors, preserves
+unexposed frequency/group counts, and rejects variant-key queries.
+
+Each materialization uses a new owner-only disposable directory under
+`cache/<generation_id>/query-*`. Raw intermediates can contain sensitive
+values; the directory inherits the private project's access boundary. Only
+the operation's own directory is removed on close/failure, after every handle
+is closed. Concurrent sessions have separate directories. No derived table
+is added to `project.duckdb`; a process killed during a query can leave a
+disposable cache directory (automatic cleanup/quotas remain D03).
+
+`QueryBudget` defaults to 256 MiB of DuckDB memory **per database instance**,
+one thread and 1 GiB of DuckDB-accounted spill per instance. Connections to
+the same generation may share that pool; a materializer owns a separate DB.
+Generation validation/open and
+value materialization have separate connections and spill directories.
+One reader and one materializer can coexist; these limits do not bound total
+process RSS, Python Scan state, database/cache file sizes or old-generation
+retention. Query insert buffers cap rows at 2,048 and encoded payload at
+4 MiB; one oversized value is processed alone without truncation. Page limits
+bound item counts, not the bytes of a single long value. The loader retains
+its private `memory_limit` setting and gains `spill_limit`; their d3 defaults
+are 256 MiB and 1 GiB, aligned with readers and the measured policy. Both
+also apply to read-only post-checkpoint validation.
+Ingestion order preservation is disabled because indices and explicit query
+orders define all semantics. Integrity verification over all retained data
+is mandatory; a hash-only or sample-only shortcut is not introduced. Revision
+2's discarded cells cannot be independently revalidated, as detailed in 8.7.
+
+Memory, disk and spill exhaustion raises an explicit error; failed
+materializations never yield a complete query object or truncate a list.
+Validation memory failure is distinguished in the error message from schema
+corruption. There is no automatic larger-budget retry. Larger settings are
+an explicit private caller choice; section 10.2 records successes and failures.
+Every connection also applies the quota with runtime `SET`: in pinned
+DuckDB 1.5.5, the connect option alone could report a limit without enforcing
+it in the temporary manager. Zero additionally disables the temporary
+directory. Positive spill quotas govern DuckDB accounting, not an OS disk
+quota: Windows temp-file lengths can retain freed blocks. Physical peaks
+are measured separately; project/cache files are outside this spill quota.
+D07 remains deferred, including attribution of detector results, excluded
+locations, exact JSON ancestry and exact source reconstruction.
+
+### 8.7 Maintainer amendment: 10,000 stored distinct values per field
+
+On 2026-09-29, during d3 resource measurements, the maintainer explicitly
+chose to cap **values conserved in `project.duckdb`**, rather than just pages.
+This supersedes exhaustive raw-observation retention in sections 8.1-8.5 for
+new generations. Revision-1 databases remain readable and retain their
+original exhaustive validation/query behavior; they are never rewritten.
+New publication writes database logical revision 2 and loader version 2,
+with the same physical target, project manifest revision 2 and unchanged
+Scan JSON. An explicit rescan builds the new form; no migration is required.
+
+The sink still receives every analyzed record and computes the shared
+version-1 digest and missing/empty flags before discarding any payload.
+Complete record headers and the three memberships persist as before.
+The new database replaces `data.observations` with `data.values`: dataset id,
+profiled field id, first-seen value ordinal, native scalar tag, exact raw
+canonical text and occurrence count. `meta.value_storage` stores per field
+the distinct limit, retained distinct count, retained occurrences and omitted
+occurrences. Dataset/field metadata and Scan remain authoritative for
+structural/native statistics. There is no record-to-value mapping in revision 2.
+
+The default and maximum limit is 10,000 **raw typed analyzable values** per
+field (content strings, integers, numbers and booleans). Private callers may
+choose a smaller positive limit. The first distinct keys in Scan reading
+order are selected deterministically; long values are retained without
+truncation. Equal later keys increment their counts even after saturation;
+other payloads are dropped after a bounded batch. Catalog membership uses
+exact native/text equality, never a hash or SQL cast. Empty, blank, marker,
+null and container payloads are outside this catalog population. Unprofiled
+paths never gain stored catalogs. Temporary batches cap rows and bytes;
+DuckDB manages the temporary catalog under its memory/spill budget rather
+than a Python set of every field's keys.
+No full unbounded observation staging is built first. Bounded ingestion
+batches commit privately to release update/delete undo; generation publication
+still happens only after full finalization, validation and manifest replacement.
+
+Value pages report `value_population`, `retained_occurrences`,
+`omitted_occurrences`, `stored_distinct_limit` and database revision. If any
+occurrences were omitted, their status is `limited`, reason
+`stored_value_budget`. Page `total` counts entries derived from the retained
+catalog, not full-source cardinality. Analytical/masked frequencies and
+variant counts are lower bounds for the whole population: omitted raw values
+could normalize/mask into a listed key. Hidden pages also carry the limitation
+without exposing values. Record pages remain complete. Storage saturation
+never becomes an apparently complete frequency list.
+
+Reopen verifies catalog tags, exact keys, limits, counts, field mappings,
+Scan bindings and complete memberships, including Scan prefix/subset
+invariants. Artifact hashes bind full-hook record flags/digests to the
+manifest. It cannot independently reconstruct digests or presence from
+discarded cells; that former revision-1 proof is unavailable in revision 2.
+D07 reconstruction/ancestry and per-detector attribution remain deferred.
+Even retained catalog values do not recreate rows for a Transform export.
+A consumer needing all raw rows requires a new design.
+
 ## 9. Atomic generations, failure and recovery (S14)
 
 ### 9.1 Why the layout must evolve
 
-The working-tree implementation of 7.storage-b writes `scan.json` with
+The original implementation of 7.storage-b wrote `scan.json` with
 `write_text_atomic()`, then calls `record_scan()`. A scan failure before
 writing preserves the old project, as its tests show. However, a failure
 between those two writes can leave a new scan with old project metadata.
-Adding a third rename does not make the three files atomic. The current
-`create_project()` also publishes metadata/index before scanning. These
-are implementation gaps to fix in the next lot, not guarantees already met.
+Adding a third rename does not make the three files atomic. The original
+service also published metadata/index before scanning. Lot 7.storage-d2
+replaces these separate writes with the protocol below. Legacy metadata
+helpers remain available internally, under the writer lock, but cannot
+republish or downgrade a revision-2 manifest.
 
 The target layout supersedes section 3's revision-1 artifact locations:
 
@@ -531,6 +893,8 @@ The target layout supersedes section 3's revision-1 artifact locations:
 Generation ids are new opaque ULIDs, unique within the project, unrelated to
 dataset/field ids. Files in a published generation never change. Do not create
 root-level scan/database aliases that could accidentally mix generations.
+An existing legacy root `scan.json` is preserved as evidence after rebuilding;
+revision-2 readers derive both artifact paths exclusively from the manifest.
 
 Revision-2 `project.json` retains all revision-1 identity/source/timestamp
 fields and adds exactly:
@@ -635,10 +999,49 @@ and multi-host SaaS publication are not implicitly supported by this local
 rename protocol. Old generations cost disk space until explicit maintenance;
 retention/quotas remain D03, not an automatic `cache clear` side effect.
 
+### 9.4 Implemented d2 boundaries and local evidence
+
+`project_scan_service.scan_project()` now uses the private publisher. The
+writer lock covers lookup, staging, synchronization, commit and index update.
+Windows uses nonblocking `LockFileEx`; POSIX uses nonblocking `flock`.
+Lock files remain outside the projects directory, and their existence is
+never interpreted as ownership. Closing a handle or process death releases
+ownership. Legacy mutators use the same writer discipline.
+
+`_generation.open_generation()` holds a shared maintenance lock, reads the
+manifest once and returns a read-only session pinned to the verified pair.
+Normal scans retain old generations. `_recovery.quarantine_uncommitted()` is
+an explicit private maintenance operation: it requires exclusive maintenance
+and writer ownership, verifies the selected generation and moves only
+unselected ULID directories to `.quarantine/`. It preserves their contents,
+ignores unknown names/symlinks and fails closed for a corrupt selection.
+No automatic cleanup or retention policy is implemented.
+
+Files are closed and synchronized before publication. Manifest temporary
+files use the destination directory, restrictive creation permissions,
+flush/fsync/close, then `os.replace`. POSIX directory synchronization uses
+`fsync`; the Windows implementation reports it unsupported rather than
+claiming power-loss durability. Local Windows/Python 3.12 subprocess tests
+demonstrate old-or-new visibility after process termination on both sides
+of the commit point, writer release after termination and an old open
+DuckDB reader surviving publication of a new generation. Linux/macOS and
+other Python versions are included in the storage CI matrix but have not
+been executed in this session. D08 remains deferred.
+
+The 48 d2 tests cover first-scan invisibility, legacy upgrade/failure,
+eleven injected pre-commit boundaries for first scans and rescans,
+post-commit index warnings, reclassification after replacement errors,
+unknown outcomes, corruption without fallback, missing-source freshness,
+lock contention and quarantine blocked by readers/writers. These tests
+extend the existing a/b layout expectations deliberately; the public CLI
+continues to write its ordinary standalone scan/report artifacts.
+
 ## 10. Acceptance and implementation test plan (S16)
 
-The implementation gate reviews S07/S10-S16 and the explicit D06-D08
-boundaries. No DuckDB dependency or loader is added by 7.storage-c.
+The implementation gate accepted S07/S10-S16 and the explicit D06-D08
+boundaries. No DuckDB dependency or loader was added by 7.storage-c; d1
+implements private staging only. The matrix below spans d1, d2 and d3;
+publication/concurrency and public value queries are not claimed by d1.
 
 | Area | Required acceptance evidence |
 | --- | --- |
@@ -674,10 +1077,222 @@ Suggested sequential implementation lots (one conversation each):
    cache boundary. Do not imply per-detector/exclusion attribution; design
    D07 separately if the next Explore requirements need it.
 
-No new public behavior ships in this design lot; no public format changelog,
+No public behavior is enabled by c/d1; no public format changelog,
 release notes or tabalyst-studio changes are required. When implementation
 exposes a CLI/API/report/demo change, update English documentation then and
 record the corresponding tabalyst-studio follow-up.
+
+### 10.1 d1 runtime, platforms and measurements (D06)
+
+**Runtime selection:** exact `duckdb==1.5.5`, physical target `v1.4.0`.
+The [published wheel inventory](https://pypi.org/project/duckdb/1.5.5/)
+was checked on 2026-09-28 through PyPI's version-specific JSON endpoint.
+For standard CPython 3.11, 3.12, 3.13 and 3.14, each has wheels for Windows
+AMD64/ARM64, Linux glibc x86-64/aarch64 (manylinux 2.26/2.28), macOS ARM64
+11+ and macOS x86-64 (minimum 10.9/10.13/10.13/10.15 respectively).
+This is wheel availability, not runtime validation of all architectures.
+No musl, 32-bit, PyPy or free-threaded Python support is asserted for staging.
+
+The storage CI matrix now runs Python 3.11-3.14 on `windows-latest`,
+`ubuntu-latest` and `macos-latest`, requiring a binary wheel and running the
+staging and existing a/b tests. Only Windows 11 AMD64, CPython 3.12.14 was
+executed locally in this session; Linux/macOS and the other Python versions
+remain CI evidence to collect before enabling database consumers in d2.
+ARM64 wheel availability alone does not add a tested platform. Staging uses
+local filesystems; network filesystems and power-loss durability remain D08.
+
+The [DuckDB physical contract](https://duckdb.org/docs/current/internals/storage)
+is independent of logical revision 1. Local tests verify header version 67
+after checkpoint/close. An isolated DuckDB 1.4.2 wheel also reopened the
+insurance database read-only and read all 105,000 observations. This is an
+older-reader compatibility probe, not an additional supported writer.
+No extension or source access is required. Reopen checks the exact scan
+document hash, identity/version binding, canonical payloads, mappings,
+counts, flags, shared record digests and complete-prefix/limited-subset
+listing invariants. These checks are exhaustive and intentionally have a cost.
+
+**Ingestion:** two parameterized column buffers, each capped at 2,048 rows
+or 4 MiB of encoded payload (one oversized observation is flushed alone).
+No registry of all unknown paths is retained. Dataset-local digest path
+tokens keep the existing Scan bound of 65,536. The connection uses one
+thread, a 256 MB DuckDB memory limit and a staging-owned spill directory;
+this limit is not a total Python process memory guarantee. Raw project data
+is protected by the private directory (0700) and artifact modes (0600) on
+POSIX; Windows inherits local directory ACLs. d2 owns lock/sync/recovery.
+
+Initial single-run measurements, imports excluded, Windows/Python above:
+
+| Source | Records | Build including validation (s) | Read-only validation (s) | DB hash (s) | DB bytes | Peak process bytes |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `examples/input/insurance-customers.csv` | 3,000 | 2.603 | 0.690 | 0.008 | 9,711,616 | 201,867,264 |
+| `examples/input/orders.json` | 61 | 0.472 | 0.064 | 0.004 | 5,779,456 | 133,750,784 |
+| Synthetic CSV, id/text/marker, `str(i)` repeated 100 times | 20,000 | 2.576 | 0.524 | 0.010 | 15,216,640 | 236,662,784 |
+
+Reproduce with a fresh stage:
+
+```console
+python benchmarks/project_storage.py examples/input/insurance-customers.csv --stage artifacts/storage-measure-1
+```
+
+On the insurance input, 64-row buffers took 3.191 s versus 2.603 s at 2,048
+and 2.521 s at 8,192, with similar process peaks (200-202 MB). These are
+single runs, not speed guarantees; keep 2,048 to bound buffered rows while
+amortizing inserts. `--batch-rows` allows later comparisons without changing
+the loader defaults. The three default runs used no spill. A dedicated
+32 MB runtime probe sorted 500,000 rows with about 39 MB of spill files,
+with external access disabled, and returned every row. The 20,000-record
+loader experiment at 64 MB failed explicitly during precommit validation;
+indexes/non-spillable state can exhaust a low budget. It published nothing
+and made no complete-result claim. Disk/spill errors similarly propagate.
+
+`benchmarks/project_storage.py` records sampled staging/spill disk peaks,
+process memory, final size, hash and reopen-validation times. Full repeated
+CSV/JSON, wide/deep/long-value, million-record and old+new-generation peak
+disk measurements remain d3. Baseline memberships are complete on disk,
+including 13,000 affected records under zero listing and exhausted duplicate
+budgets; pagination and exposure-aware value queries remain d3.
+
+### 10.2 d3 queries, capped storage and resource evidence
+
+`benchmarks/project_queries.py` measures synthetic CSV/JSON sources in a
+fresh child process per repetition, with two publications of the same source.
+Imports and source generation are excluded from timings. Each run records
+loader subphases, hash and full verified-open time, all record pages, field
+materialization and frequency/group/variant pages. JSON evidence remains in
+the supplied fresh root; failures retain their stage and never retry with a
+larger budget automatically. Only Windows 11 AMD64/Python 3.12.14 and the
+pinned DuckDB 1.5.5 were executed locally. The storage CI matrix includes the
+d3 tests, but remote OS/Python runs remain unverified.
+The runs use one Scan worker, `max_distinct_per_field=2000`,
+`max_tracked_values=20000`, `max_tracked_records=1000`, and zero record/value/
+group listing limits, deliberately exhausting Scan tables. Loader and reader
+budgets are 256 MiB/1 GiB; materializers use 64 MiB except long values at
+256 MiB. File-system caches are not flushed; these are local warm-file
+measurements, not cold-open latency or multi-worker process-memory guarantees.
+
+Two fresh-process repetitions, each building first and replacement pairs.
+Build ranges cover all four publications; open/hash ranges cover the two
+verified new generations. RSS, spill and disk columns are the largest
+observations across repetitions. Sizes are MiB, timings seconds:
+
+| Synthetic source | Source MiB / records | Build s | Verified open / hash s | DB MiB | Process RSS MiB | Spill MiB | Project disk MiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| CSV, 3 columns | 17.27 / 1,000,000 | 59.43-67.84 | 3.08-4.45 / 0.043-0.055 | 68.51 | 433.98 | 9.59 | 138.51 |
+| JSON, nested arrays/missing/container values | 9.02 / 100,000 | 9.45-12.59 | 0.45-0.55 / 0.008-0.009 | 14.01 | 189.56 | 0 | 29.70 |
+| CSV, 100 columns | 2.39 / 10,000 | 10.63-11.30 | 0.37-0.38 / 0.005-0.007 | 5.76 | 189.63 | 0 | 17.31 |
+| JSON, 30 nested child objects | 3.95 / 10,000 | 2.21-2.54 | 0.13-0.18 / 0.003-0.004 | 5.76 | 139.44 | 0 | 13.34 |
+| CSV, long strings (up to about 8,000 characters) | 26.34 / 4,000 | 1.88-2.26 | 0.12-0.16 / 0.008-0.009 | 13.76 | 322.38 | 0 | 229.87 |
+
+The million-record CSV's sampled rescan peak is 137.20 MiB: 68.59 MiB old
+pair plus 68.60 MiB stage and small metadata files. Its overall 138.51 MiB
+sample contains 68.59 MiB old, 68.59 MiB new and 1.32 MiB disposable query
+cache, with no staging or spill at that instant. The 9.59 MiB spill peak
+occurs earlier during loader finalization/validation and is not added again.
+The wide case's Scan JSON alone is about 2.39 MiB and is part of each pair.
+The deep case's largest sampled footprint includes old plus staging, whereas
+the long-value case peaks with both pairs plus about 202.13 MiB of query
+materialization files. A capped catalog can still produce a cache much larger
+than its compressed committed database; each query removes its own files.
+
+Materializing the million-record CSV id field takes 0.11-0.15 s; its ten
+frequency pages take about 0.03 s in total. Full missing and duplicate record
+walks take about 14-25 s each (1,000 items per page). Across the other cases,
+field materialization ranges from 0.03 to 1.95 s; the upper end is long values.
+No reader/value-query spill occurs under these particular budgets; zero is
+a measured result, not a promise that all 10,000-key fields fit without spill.
+The table's original configured quotas preceded the runtime-SET correction;
+all measured spill peaks were below the intended 1 GiB. Targeted final probes
+and another million-record run verify the corrected policy explicitly.
+That final CSV run builds its first/replacement pairs in 61.33/58.05 s,
+opens with full verification in 4.10 s, and hashes the DB in 0.042 s. Its
+DB remains 68.51 MiB, high-water process RSS 432.40 MiB, sampled managed-spill
+file peak 10.75 MiB and simultaneous project disk peak 138.51 MiB. These
+are an additional single repetition after applying runtime quotas, with no
+tests or other resource runs concurrent.
+
+The long-value probe at 64 MiB/1 GiB succeeds with about 15 MiB of sampled
+query spill. At 32 MiB it fails during materialization/autocheckpoint; at
+64 MiB with spill disabled it also fails, with zero spill files. With a
+1 MiB runtime quota it fails explicitly on offloading at 832 KiB used,
+before yielding a query. Both previously committed pairs stay valid; only
+the disposable query fails. A real 500,000-row sort also verifies disabled
+spill and quota exhaustion. Query caches close/remove after these failures.
+The runtime quota is reapplied on loader, staging-validation, generation
+reader/maintenance verification and value-materializer connections. This
+guards a pinned-engine initialization behavior; no larger-budget retry occurs.
+
+Windows file lengths are not a hard spill-quota proof: DuckDB decrements its
+accounted block extent on release, but disables file truncation on Windows.
+This distinction follows the pinned runtime's
+[temporary-file implementation](https://github.com/duckdb/duckdb/blob/v1.5.5/src/storage/temporary_file_manager.cpp#L310)
+and is why peak-disk sampling remains necessary alongside configured quotas.
+
+Reproduce with new roots (the script rejects an existing root):
+
+```console
+python benchmarks/project_queries.py --case csv --rows 1000000 --root artifacts/d3-csv --query-memory-mib 64 --repeat 2
+python benchmarks/project_queries.py --case json --rows 100000 --root artifacts/d3-json --query-memory-mib 64 --repeat 2
+python benchmarks/project_queries.py --case wide --rows 10000 --root artifacts/d3-wide --query-memory-mib 64 --repeat 2
+python benchmarks/project_queries.py --case deep --rows 10000 --root artifacts/d3-deep --query-memory-mib 64 --repeat 2
+python benchmarks/project_queries.py --case long --rows 4000 --root artifacts/d3-long --repeat 2
+```
+
+The million-record CSV has three columns, 500,000 distinct ids and adjacent
+duplicate pairs. With the revision-2 catalog, the id field retains 10,000
+keys/20,000 occurrences and reports 980,000 omitted occurrences. Its ten
+1,000-item pages are limited; the low-cardinality variant field remains
+complete. Missing memberships cover 333,334 records in 334 pages, duplicates
+cover 500,000 records in 500 pages, with first occurrences excluded; Scan's
+record listing limit is zero and digest budget only 1,000. Nothing is
+truncated by the record page interface. High-cardinality value pages no
+longer pretend to cover all 500,000 raw ids.
+
+Before the retention amendment, the same million-record source under the
+exhaustive revision-1 writer failed at 256 MiB and 1 GiB during finalization.
+Explicit 2 GiB loading succeeded: two builds took 166.70/138.04 s, verified
+open 24.21 s, DB 255.51 MiB, process high-water RSS 2,213.23 MiB. A 256 MiB
+reader spilled up to 288.53 MiB during exhaustive reopen validation. This is
+one exploratory run of the earlier implementation, with different retention
+and integrity coverage; it is not a controlled speed comparison. Failed
+low-budget builds published nothing and retained their evidence.
+
+The first bounded prototype still held one ingestion transaction: repeated
+catalog UPDATE/DELETE undo exhausted its 256 MiB budget on this source.
+Short private catalog transactions release that undo and make the capped
+ingestion succeed. This does not move d2's manifest commit point. Per-field
+retention bounds payload cardinality, not record count, value length, the
+number of fields, total process memory or final disk size.
+
+Disk sampling runs every 10 ms and reports logical file lengths under the
+project root, excluding the source, interpreter and retained evidence from
+other runs. During rescan, an old committed pair coexists with staging; after
+rename, old and new pairs coexist. Query/reader spill and materialization
+files add to that footprint. `at_sampled_disk_peak` stores the simultaneous
+old/new/staging/cache composition at each phase's largest sample. Independent
+maxima must not be summed; spill is already included in staging or cache.
+These disk samples are lower bounds on transient peaks and do not measure
+filesystem allocation blocks. Process RSS/high-water measurements are also
+reported; a DuckDB connection budget is not a process RSS guarantee.
+
+The local measured policy sets loader/reader/query defaults to 256 MiB,
+each with 1 GiB spill and one thread. These binary units supersede the d1
+loader's decimal 256 MB and d3's initial decimal 1 GB spill setting.
+The narrower 64 MiB materializer is an explicit experiment, not the default.
+One oversized string can exceed a batch byte threshold and is handled alone.
+Zero/insufficient spill or non-spillable hash/index state can still fail;
+memory/spill errors remain explicit. There is no silent truncation or larger
+budget retry. Automatic project retention/cache quotas are still D03; local
+process-failure visibility does not resolve D08 power-loss/network durability.
+
+Validation: exhaustive small-reference parity, both JSON backends, all 32
+normalization flag combinations, Unicode/NUL/type ties, released Scan value
+tables and zero listing limits; sensitive mask/hide/show, more than 13,000
+affected records, revision-1 large value/group compatibility, cap saturation,
+continued counts, batch independence, omitted analytical collisions, retained
+fact corruption, real memory exhaustion, cache ownership and generation/query
+cursor rejection. All retained catalog values can be read without the source
+or a detector rerun. D07 richer findings and row/JSON reconstruction remain
+deferred, including for capped catalogs.
 
 ## 11. Changes to this document
 
@@ -687,3 +1302,9 @@ record the corresponding tabalyst-studio follow-up.
 | 2026-09-28 | S02, S03, S04 and S08 implemented (`tabalyst.projects`); `platformdirs` accepted; `TABALYST_HOME` added; the example `project_id` corrected to a valid ULID. | Lot 7.storage-a. |
 | 2026-09-28 | S05 and S09 implemented: the project scan service writes `scan.json`; project freshness reuses O12 through the location-independent `compare_source()`. | Lot 7.storage-b. |
 | 2026-09-28 | D01 detailed: S07 amended; S10-S16 define schema, raw observation loading, scope, large listings and generation publication; D06-D08 name evidence still required. | Lot 7.storage-c, design only. Independent inference cannot establish Scan parity; per-file atomic replacement cannot commit an artifact set. |
+| 2026-09-28 | Maintainer accepted c; private codec/schema/staged loader and record memberships implemented, D06 runtime/physical target selected with wheel and local measurement evidence. | Lot 7.storage-d1. No publication before d2; queries and large benchmarks remain d3. |
+| 2026-09-28 | Revision-2 atomic generations, OS locks, pinned sessions, index/freshness integration, explicit legacy rebuild and orphan quarantine implemented with failure/process-termination tests. | Lot 7.storage-d2, continued at maintainer request. Interfaces remain private; directory durability on Windows, remote OS CI and d3 queries/resources are not claimed. |
+| 2026-09-29 | Private generation-bound paginated records/values, shared normalization/exposure, memory/spill budgets and repeated large-source measurements. New DB revision 2 caps raw typed analyzable catalogs at 10,000 per field with explicit omissions; revision 1 remains readable. | Lot 7.storage-d3; maintainer explicitly chose to cap values conserved in project.duckdb. Complete record memberships persist; D07/D08 and all public project interfaces remain deferred. |
+| 2026-09-29 | Private owned query-cache markers, metadata inventory/dry-run and explicit plan-bound cleanup under exclusive maintenance ownership; unknown contents and project storage are preserved. | Lot 7.storage-e, requested after framing. D03 automatic policies/public commands remain deferred; no change to the 10,000-value cap, D07 or public formats. |
+| 2026-09-29 | Proposed S17 private reopening: pinned generation assessment, explicit current/snapshot intents, configuration comparison and separate project-targeted conditional rescan. | Lot 7.storage-f, design only. The existing source-index publisher cannot guarantee rescan of the explicitly selected project; f1/f2 stay unimplemented and product D04 defaults remain deferred. |
+| 2026-09-29 | Accepted and implemented S17 read-only inspection/opening with immutable readiness facts, exact configuration matching, explicit snapshot warnings, refresh and generation preconditions. | Lot 7.storage-f1 requested by the maintainer. f2, product D04 defaults, public exposure, D07 and automatic D03 policies remain deferred; 10,000-value cap unchanged. |

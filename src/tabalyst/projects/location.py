@@ -23,6 +23,7 @@ ROOT_ENVIRONMENT_VARIABLE = "TABALYST_HOME"
 LOCAL_WORKSPACE = "local"
 
 PROJECT_FILE_NAME = "project.json"
+SCAN_FILE_NAME = "scan.json"
 INDEX_FILE_NAME = "index.json"
 
 
@@ -68,7 +69,19 @@ class StorageLocation:
 
     @property
     def projects_dir(self) -> Path:
-        return self.root / "workspaces" / self.workspace_id / "projects"
+        return self.workspace_dir / "projects"
+
+    @property
+    def workspace_dir(self) -> Path:
+        return self.root / "workspaces" / self.workspace_id
+
+    @property
+    def writer_lock_path(self) -> Path:
+        return self.workspace_dir / ".writer.lock"
+
+    @property
+    def maintenance_lock_path(self) -> Path:
+        return self.workspace_dir / ".maintenance.lock"
 
     @property
     def index_path(self) -> Path:
@@ -81,3 +94,25 @@ class StorageLocation:
 
     def project_path(self, project_id: str) -> Path:
         return self.project_dir(project_id) / PROJECT_FILE_NAME
+
+    def generation_dir(self, project_id: str, generation_id: str) -> Path:
+        if not is_project_id(generation_id):
+            raise InputError(f"Not a generation id: {generation_id!r}.")
+        return self.project_dir(project_id) / "generations" / generation_id
+
+    def staging_dir(self, project_id: str, generation_id: str) -> Path:
+        if not is_project_id(generation_id):
+            raise InputError(f"Not a generation id: {generation_id!r}.")
+        return self.project_dir(project_id) / ".staging" / generation_id
+
+    def scan_path(self, project_id: str, generation_id: str | None = None) -> Path:
+        """Legacy path, or an explicitly pinned generation. Never resolves a manifest."""
+        parent = (
+            self.project_dir(project_id)
+            if generation_id is None
+            else self.generation_dir(project_id, generation_id)
+        )
+        return parent / SCAN_FILE_NAME
+
+    def database_path(self, project_id: str, generation_id: str) -> Path:
+        return self.generation_dir(project_id, generation_id) / "project.duckdb"

@@ -8,22 +8,25 @@ from pydantic import ValidationError
 from tabalyst.batch import write_text_atomic
 from tabalyst.config import validation_message
 from tabalyst.errors import InputError
+from tabalyst.projects._locks import locked_writer
 from tabalyst.projects.identity import is_project_id
 from tabalyst.projects.location import StorageLocation
 from tabalyst.projects.models import (
     FORMAT,
-    FORMAT_REVISION,
     FORMAT_VERSION,
+    Project,
     ProjectDocument,
+    ProjectManifest,
 )
 
 
-def project_document_text(document: ProjectDocument) -> str:
+def project_document_text(document: Project) -> str:
     text = json.dumps(document.model_dump(mode="json"), indent=2, ensure_ascii=False)
     return text + "\n"
 
 
-def write_project(location: StorageLocation, document: ProjectDocument) -> Path:
+@locked_writer
+def write_project(location: StorageLocation, document: Project) -> Path:
     """Write ``project.json`` atomically (O17) and return its path."""
     if document.workspace_id != location.workspace_id:
         raise ValueError(
@@ -31,11 +34,19 @@ def write_project(location: StorageLocation, document: ProjectDocument) -> Path:
             f"{document.workspace_id!r}, not {location.workspace_id!r}."
         )
     path = location.project_path(document.project_id)
+    if isinstance(document, ProjectManifest):
+        raise InputError("Revision-2 manifests require atomic generation publication")
+    if path.exists() and isinstance(
+        read_project(location, document.project_id), ProjectManifest
+    ):
+        raise InputError(
+            "Cannot overwrite a committed generation with revision-1 metadata"
+        )
     write_text_atomic(path, project_document_text(document))
     return path
 
 
-def read_project(location: StorageLocation, project_id: str) -> ProjectDocument:
+def read_project(location: StorageLocation, project_id: str) -> Project:
     """The ``project.json`` of a project, validated.
 
     Raises ``InputError`` when the project does not exist or its file is not
@@ -55,14 +66,15 @@ def read_project(location: StorageLocation, project_id: str) -> ProjectDocument:
     if not isinstance(document, dict) or document.get("format") != FORMAT:
         raise InputError(f"Not a project document: {path}.")
     version = (document.get("format_version"), document.get("format_revision"))
-    if version != (FORMAT_VERSION, FORMAT_REVISION):
+    if version[0] != FORMAT_VERSION or version[1] not in (1, 2):
         raise InputError(
             f"Unsupported project document {path}: format {version[0]} revision "
             f"{version[1]}; this version of Tabalyst reads format "
-            f"{FORMAT_VERSION} revision {FORMAT_REVISION}."
+            f"{FORMAT_VERSION} revisions 1 and 2."
         )
     try:
-        result = ProjectDocument.model_validate(document)
+        model = ProjectDocument if version[1] == 1 else ProjectManifest
+        result = model.model_validate(document)
     except ValidationError as exc:
         raise InputError(
             f"Invalid project document {path}: {validation_message(exc)}"
@@ -77,7 +89,7 @@ def read_project(location: StorageLocation, project_id: str) -> ProjectDocument:
     return result
 
 
-def list_projects(location: StorageLocation) -> list[ProjectDocument]:
+def list_projects(location: StorageLocation) -> list[Project]:
     """The valid projects of the workspace, ordered by project id.
 
     Entries that are not project directories (the index file, temporary
@@ -93,7 +105,13 @@ def list_projects(location: StorageLocation) -> list[ProjectDocument]:
         if not is_project_id(name):
             continue
         try:
-            documents.append(read_project(location, name))
+            document = read_project(location, name)
+            if isinstance(document, ProjectManifest):
+                from tabalyst.projects._generation import open_generation
+
+                with open_generation(location, name) as pinned:
+                    document = pinned.project
+            documents.append(document)
         except InputError:
             continue
     return documents

@@ -19,7 +19,9 @@ must still describe the current source and the requested scan settings:
 
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -32,6 +34,7 @@ from tabalyst.scanner.models import (
     FORMAT_REVISION,
     FORMAT_VERSION,
     ScanResult,
+    SourceInfo,
 )
 
 _HASH_CHUNK = 1 << 20
@@ -95,6 +98,58 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+class SourceState(StrEnum):
+    FRESH = "fresh"
+    STALE = "stale"
+    MISSING = "missing"
+
+
+@dataclass(frozen=True)
+class SourceCheck:
+    """The outcome of comparing a source with what a scan recorded of it."""
+
+    state: SourceState
+    # Why the source is stale, as a sentence naming the file; ``None`` otherwise.
+    reason: str | None = None
+
+
+def compare_source(source: Path, recorded: SourceInfo) -> SourceCheck:
+    """Compare the file at ``source`` with the facts a scan recorded (O12).
+
+    Independent of where the source was looked for: the caller resolves the
+    location, beside a scan document or from ``project.json``. A file that is
+    not there, or is not a regular file, is ``MISSING``: nothing was checked.
+    Raises ``InputError`` when the file exists but cannot be read.
+    """
+    try:
+        stat = source.stat()
+    except FileNotFoundError:
+        return SourceCheck(SourceState.MISSING)
+    except OSError as exc:
+        raise InputError(f"Cannot read source {source}: {exc}") from exc
+    if not source.is_file():
+        return SourceCheck(SourceState.MISSING)
+    if stat.st_size != recorded.size_bytes:
+        return SourceCheck(
+            SourceState.STALE,
+            f"{source.name} has {stat.st_size:,} bytes, "
+            f"the scan read {recorded.size_bytes:,}.",
+        )
+    if datetime.fromtimestamp(stat.st_mtime, UTC) == recorded.modified_at:
+        return SourceCheck(SourceState.FRESH)
+    try:
+        current = _sha256(source)
+    except OSError as exc:
+        raise InputError(f"Cannot read source {source}: {exc}") from exc
+    if current != recorded.sha256:
+        return SourceCheck(
+            SourceState.STALE,
+            f"the content of {source.name} changed since the scan "
+            "(SHA-256 differs).",
+        )
+    return SourceCheck(SourceState.FRESH)
+
+
 def check_source(scan_path: Path, result: ScanResult) -> bool:
     """Raise ``InputError`` when the source beside the document changed.
 
@@ -102,33 +157,13 @@ def check_source(scan_path: Path, result: ScanResult) -> bool:
     checked.
     """
     source = source_path(scan_path, result)
-    try:
-        stat = source.stat()
-    except FileNotFoundError:
-        return False
-    except OSError as exc:
-        raise InputError(f"Cannot read source {source}: {exc}") from exc
-    if not source.is_file():
-        return False
-    recorded = result.source
-    rescan = f"Run tabalyst scan {source} again."
-    if stat.st_size != recorded.size_bytes:
+    check = compare_source(source, result.source)
+    if check.state is SourceState.STALE:
         raise InputError(
-            f"Stale scan {scan_path}: {source.name} has {stat.st_size:,} bytes, "
-            f"the scan read {recorded.size_bytes:,}. {rescan}"
+            f"Stale scan {scan_path}: {check.reason} "
+            f"Run tabalyst scan {source} again."
         )
-    if datetime.fromtimestamp(stat.st_mtime, UTC) == recorded.modified_at:
-        return True
-    try:
-        current = _sha256(source)
-    except OSError as exc:
-        raise InputError(f"Cannot read source {source}: {exc}") from exc
-    if current != recorded.sha256:
-        raise InputError(
-            f"Stale scan {scan_path}: the content of {source.name} changed "
-            f"since the scan (SHA-256 differs). {rescan}"
-        )
-    return True
+    return check.state is SourceState.FRESH
 
 
 def check_config(scan_path: Path, result: ScanResult, scan_layer: dict) -> None:

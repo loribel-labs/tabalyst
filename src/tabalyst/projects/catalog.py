@@ -10,13 +10,21 @@ import contextlib
 from datetime import datetime
 from pathlib import Path
 
+from tabalyst.errors import InputError
+from tabalyst.projects._locks import locked_writer
 from tabalyst.projects.identity import new_project_id
 from tabalyst.projects.index import find_project, register_project
 from tabalyst.projects.location import StorageLocation
-from tabalyst.projects.models import ProjectDocument, ProjectSource, utc_now
+from tabalyst.projects.models import (
+    ProjectDocument,
+    ProjectManifest,
+    ProjectSource,
+    utc_now,
+)
 from tabalyst.projects.store import read_project, write_project
 
 
+@locked_writer
 def create_project(
     location: StorageLocation, source: Path, *, now: datetime | None = None
 ) -> ProjectDocument:
@@ -46,22 +54,22 @@ def create_project(
     return document
 
 
+@locked_writer
 def open_or_create_project(
     location: StorageLocation, source: Path, *, now: datetime | None = None
 ) -> ProjectDocument:
     """The project of ``source``, created when it has none."""
-    return find_project(location, source) or create_project(
-        location, source, now=now
-    )
+    return find_project(location, source) or create_project(location, source, now=now)
 
 
+@locked_writer
 def record_scan(
     location: StorageLocation, project_id: str, *, now: datetime | None = None
 ) -> ProjectDocument:
     """Record a successful scan: ``last_scan_at`` moves, ``created_at`` does not."""
     document = read_project(location, project_id)
-    updated = document.model_copy(
-        update={"last_scan_at": now or utc_now()}
-    )
+    if isinstance(document, ProjectManifest):
+        raise InputError("Committed generations can only be rescanned atomically")
+    updated = document.model_copy(update={"last_scan_at": now or utc_now()})
     write_project(location, updated)
     return updated

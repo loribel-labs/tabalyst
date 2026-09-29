@@ -3,7 +3,10 @@ const { chromium } = require(process.argv[4] || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const os = require('node:os');
 const { pathToFileURL } = require('node:url');
+const artifactsDirectory = process.env.TABALYST_ARTIFACTS_DIR ||
+  path.join(os.tmpdir(), 'tabalyst', 'artifacts');
 
 const visibleRows = async (page, table) =>
   page.locator('#' + table + ' tbody tr:not([hidden])').evaluateAll(rows =>
@@ -164,9 +167,9 @@ async function openFilter(page, table, index) {
         false,
       );
       assert.equal(await page.evaluate(() => Boolean(globalThis.__tabalystXss)), false);
-      await fs.mkdir('artifacts', { recursive: true });
+      await fs.mkdir(artifactsDirectory, { recursive: true });
       await page.screenshot({
-        path: 'artifacts/report-' + name + '.png',
+        path: path.join(artifactsDirectory, 'report-' + name + '.png'),
         fullPage: false,
       });
       console.log(name + ': layout, JSON-backed issue state, filters and percentage alignment passed');
