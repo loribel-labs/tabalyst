@@ -58,6 +58,8 @@ def _print_batch_result(
                     typer.echo("  " + " | ".join(details), err=True)
 
     for success in batch.successes:
+        for warning in success.warnings:
+            typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
         if success.source_checked is False:
             typer.echo(
                 f"Warning [{success.job.source}]: source "

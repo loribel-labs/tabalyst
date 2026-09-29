@@ -12,13 +12,14 @@ This document governs the persisted project state that a future Explore, and
 later Transform, will read instead of re-scanning a source every time. Project
 identity, `project.json`, `scan.json` and freshness are implemented;
 the private staged `project.duckdb` loader is implemented in d1 and atomic
-generation publication in d2. The public interface is not implemented.
-Lot d3 adds private paginated consumer queries and resource measurements.
-This layer does not change
-the current `tabalyst scan` / `tabalyst report --scan` behavior (design.md
-sections 16.3 and 16.6, decisions O12 and O17): a scan document written beside
-its source stays a supported, simpler mode for one-shot CLI use. Project
-storage is an additional, central store built from the same
+generation publication in d2. CSV Scan and Report now use project storage by
+default; Explore remains private.
+Lot d3 added private paginated consumer queries and resource measurements.
+The CSV command handoff changes the default `tabalyst scan` output, while
+`tabalyst report --scan` keeps its standalone-document behavior (design.md
+sections 16.3 and 16.6, decisions O12 and O17): a scan document explicitly
+exported beside its source stays a supported mode for one-shot CLI use. Project
+storage is the default central store for CSV commands, built from the same
 `tabalyst.scanner.scan()` engine, for tools that need to reopen a dataset
 without a full rescan.
 
@@ -64,8 +65,9 @@ maintainer-amended capped value storage; the Scan contract is unchanged.
 | D08 | Deployment durability | Power-loss guarantees, network filesystems and SaaS writer coordination require platform evidence; first implementation supports tested local filesystems only. | Deferred | 9.3 |
 | D02 | Transform history | Storage of future correction and transformation history inside a project. | Deferred | - |
 | D03 | Cache policy | Private explicit owned-query cleanup is implemented; TTL, size quotas, automatic cleanup, generation retention and the exact `tabalyst cache` command surface remain open (CACHE-06, CACHE-07, specification section 7). | Partially implemented (e); remaining policy deferred | 7 |
-| S17 | Private project reopening | Inspect/open a verified pinned generation with explicit current-source or snapshot intent; no automatic rescan. Explicit rescan must target the chosen project with a generation precondition. | Read-only boundary accepted and implemented (7.storage-f1); f2 remains proposed | 6.1 |
-| D04 | Stale project default | Section 6.1 proposes private caller behavior; Explore's user-facing default, version comparison and history remain undecided (PROJ-04). | Private proposal; product default deferred | 6, 6.1 |
+| S17 | Private project reopening | Inspect/open a verified pinned generation with explicit current-source or snapshot intent; no automatic rescan. Explicit rescan must target the chosen project with a generation precondition. | Private f1/f2 implemented; product D04 default deferred | 6.1 |
+| S18 | Product reopening policy | Open verified fresh projects against the current source; otherwise present the pinned assessment and require an explicit snapshot or rescan choice. | Accepted by maintainer; private adapter implemented (7.storage-g1) | 6.2 |
+| D04 | Stale project default | Section 6.2 defines the first Explore-facing choice for stale/missing/failed checks; version comparison and history remain undecided (PROJ-04). | First private policy implemented; public exposure deferred | 6, 6.2 |
 | D05 | Multi-source projects | A `dataset_id` distinct from `project_id`, if a project ever holds more than one source. | Deferred | 4 |
 
 ## 2. Principles
@@ -225,13 +227,13 @@ maintainer-amended capped value storage; the Scan contract is unchanged.
   result may be presented as describing the current source without that
   check, per PROJ-04.
 
-### 6.1 Private reopening contract (S17, lots 7.storage-f/f1)
+### 6.1 Private reopening contract (S17, lots 7.storage-f/f1/f2)
 
 Framed after lot e on 2026-09-29; the maintainer's request to implement f1
 accepts the read-only boundary. `_session.py` implements inspection/opening;
-the explicit rescan boundary below remains proposed for f2. It does not change
+the explicit rescan boundary below is implemented in f2. It does not change
 `open_generation()`, O12, public project exposure or the Scan engine. The
-proposal separates inspecting/reusing stored analysis from explicitly replacing
+contract separates inspecting/reusing stored analysis from explicitly replacing
 it. Product UX and the default Explore response to staleness remain deferred.
 
 **Read-only session (implemented lot f1).** Select by
@@ -290,25 +292,25 @@ verification or fall back to another generation. Source relocation/adoption,
 multi-source projects, history comparison, arbitrary prior-generation opening
 and a public CLI/API/HTTP/UI stay out of scope.
 
-**Explicit rescan (proposed later implementation lot f2).** Reusing
+**Explicit rescan (implemented lot f2).** Reusing
 `scan_project(source)` is insufficient: its publisher looks up the source path
-and may choose another project when several projects share a path. Define a
-separate private boundary with project id, expected selected generation and
-effective config. Under d2 writer ownership, reread that exact manifest and
-reject a changed generation/source binding before staging. Preserve project id
-and `created_at`; bypass index selection. Use the recorded config by default,
-or an explicit full replacement config. A source missing/unreadable cannot
-be rescanned; cancellation/precommit failure preserves the old generation.
-After successful publication, release write ownership and open a separately
-verified session pinned to the returned new manifest; if the manifest changed
-again before open, report a conflict rather than silently returning another
-writer's generation. Preserve existing postcommit warnings/unknown outcomes.
+and may choose another project when several projects share a path. The private
+boundary takes project id, expected selected generation and source binding,
+plus an optional complete replacement config. Under d2 writer ownership it
+rereads that exact manifest and rejects a changed generation/source binding
+before staging. It preserves project id and `created_at`, bypassing index
+selection. The recorded config is the default. A source missing/unreadable
+cannot be rescanned; cancellation/precommit failure preserves the old
+generation. After successful publication, writer ownership ends before a
+separately verified session pins the returned new manifest. An intervening
+manifest change causes a conflict rather than opening another writer's
+generation. Existing postcommit warnings/unknown outcomes are preserved.
 Rescan is explicit even for a fresh source and never removes old generations.
 New databases retain at most 10,000 raw typed analyzable keys per field.
 Stored-value cap selection for rescans must also be explicit: f2 defaults to
 10,000; preserving a smaller private cap is opt-in and cannot infer a single
-cap from heterogeneous legacy metadata. f2 must settle that interface before
-implementation. No publisher change is made by this design lot.
+cap from heterogeneous legacy metadata. f2 implements that as an explicit
+`value_limit` argument from 1 to 10,000, defaulting to 10,000.
 
 Acceptance for f1: fresh/touched/same-size-changed/different-size/missing/non-file
 sources, inaccessible stat/hash, both intents, exact config/mismatch, corruption
@@ -323,7 +325,27 @@ configuration retention and d2 failure/unknown-outcome regressions.
 Tests/artifacts stay outside the checkout; use the external root documented in
 architecture.md. Local tests cannot establish D08 power-loss guarantees or
 remote-platform support. S17's read-only boundary was accepted for f1;
-f2 needs its own gate.
+f2's private boundary was accepted when the maintainer chose to continue after
+f1; product D04 defaults and public exposure still need separate gates.
+
+**Private f2 implementation.** `rescan_project()` requires
+`expected_generation_id` and `expected_source` in addition to the selected
+`project_id` and `StorageLocation`. It yields a `ProjectRescan` containing the
+committed `PublishedGeneration` and a live `ProjectSession`. The publisher
+checks both preconditions and verifies the selected old generation under d2
+writer ownership, so a stale caller never stages or redirects through the
+source index. The recorded ScanConfig is the default; a complete explicit
+`ScanConfig` replaces it. Missing/non-file/unreadable source refuses before
+staging, while a source that changes during staging follows d2 failure rules.
+The publisher keeps project identity/creation time and old generations. It
+releases writer ownership before the new generation is independently verified
+and opened with `expected_generation_id`; an intervening publication yields
+`CommittedRescanOpenError` with the committed result and underlying conflict.
+Index/post-commit synchronization warnings remain attached to the result;
+unknown commit outcomes remain errors and keep generation artifacts for
+recovery. Progress `complete` is emitted only after the new session opens;
+post-commit callback failures carry the committed result. The one-shot source
+publisher and public API are unchanged.
 
 **Private implementation.** `inspect_project()` returns an immutable
 `SessionAssessment` after closing its verified reader. `open_project()` yields
@@ -345,6 +367,76 @@ the generation connection on session exit; closed sessions reject new queries
 and refresh. Session configuration fingerprints are captured at entry, so
 mutating a caller's config object cannot change the decision on refresh.
 No module is exported from `tabalyst` or `projects`; no persistent format changed.
+
+### 6.2 First product reopening policy (S18, lots 7.storage-g/g1)
+
+Accepted by the maintainer after lot g and implemented as a private adapter in
+g1. It chooses only
+the first behavior when an Explore-like caller opens one existing project. It
+does not expose a CLI, public Python API, HTTP endpoint or UI yet. It does
+not decide version comparison, history, source relocation or automatic cache
+retention. The one-shot `tabalyst report --scan` staleness behavior stays O12.
+
+**First-open decision.** Inspect by project id and keep its
+immutable assessment and generation id with the caller's choice. If the source
+is fresh and the requested complete ScanConfig matches (or no config is
+requested), open with `require_current` and the inspected generation as an
+expected precondition. If the source is stale, missing/non-file or its check
+failed, pause before yielding stored queries: show the specific assessment,
+including check time, and require an explicit `snapshot` or `rescan` choice.
+Do not silently rescan, silently open a snapshot or claim that old results
+describe the current source. Source state is a point-in-time O12 fact.
+
+| Inspection result | Initial action | Explicit choices |
+| --- | --- | --- |
+| Fresh source, matching settings | Open `require_current`; recheck the same selected generation on entry. | Explicit rescan remains possible, including a new complete config. |
+| Stale source | Show the old scan's check time and reason; wait for a choice. | `snapshot` with persistent stale-source warning, or targeted `rescan` with expected generation and source path. |
+| Missing/non-file source | Show that current source content could not be checked; wait for a choice. | `snapshot` with source-not-checked warning. Rescan is unavailable until the source is restored at the recorded path. |
+| Source stat/hash I/O failure | Show the check failure separately from missing; wait for a choice. | `snapshot` with check-failed warning. Rescan may be attempted only when the source is readable. |
+| Complete config mismatch | Show recorded/requested fingerprints and block both opening intents. | Remove the request to use recorded settings and re-inspect, or explicitly rescan with a complete replacement config if the source is readable. |
+| Corrupt/unsupported selected generation or legacy scan-only project | Fail closed with the existing integrity/rebuild diagnostic. | No snapshot fallback or automatic upgrade. |
+
+The caller keeps `expected_generation_id` and `expected_source` from the
+assessment, never replaces them with a source-index lookup. Opening or rescan
+rejects an intervening manifest change and asks for a new inspection. A source
+change between inspection and opening is rechecked by f1. A source change
+after a successful rescan can make `require_current` refuse despite the new
+generation having committed; the adapter must show that committed generation
+from `CommittedRescanOpenError` and offer a new inspection, never retry a rescan
+silently. An explicit snapshot always labels its generation and warning during
+the session. A refresh updates the warning about the same pinned generation;
+it does not switch generations or start a scan.
+
+The product adapter may choose later wording and presentation, but must keep
+the state distinctions and explicit choices above. Acceptance before exposing
+it: fresh/stale/missing/non-file/I/O failure, config mismatch, corruption,
+concurrent generation change, source change after rescan, and preservation of
+older pinned sessions/cursors. D07 remains deferred; snapshot pages retain the
+10,000-value catalog bound and cannot reconstruct discarded values or rows.
+
+**Private g1 adapter.** `project_open_service.py` implements
+`inspect_opening()` and the context-managed `enter_project()` decision.
+`ProjectOpenDecision` binds storage root, workspace, project, generation,
+source path, check time, requested/recorded configuration fingerprints and
+available explicit choices. A fresh project is opened again with
+`require_current` and its expected generation; a changed source between
+inspection and opening returns a new decision instead of a current session.
+`open_snapshot()` and `rescan_from_decision()` consume the earlier decision
+with its original generation/source preconditions. A configuration mismatch
+allows rescan only with the complete replacement configuration inspected by
+the caller. Missing/non-file and failed-check decisions require reinspection
+before a rescan can become an available choice. Source path changes with an
+unchanged generation id are conflicts. A live old snapshot/cursor remains
+usable during an explicit rescan. Integrity/legacy failures still raise before
+a decision is yielded. No product presentation or public export is added.
+
+F2 checks the selected manifest and both committed artifact hashes and reads
+the recorded Scan/config before staging. It deliberately does not open a
+second DuckDB connection to the old generation: an existing pinned reader may
+use a different private spill directory, and DuckDB refuses another connection
+to that same file with different connection settings. Opening either the old
+snapshot or new generation remains fully verified by f1/d2. A mismatched or
+missing artifact hash still blocks targeted rescan.
 
 ## 7. Cache boundary (S06)
 
@@ -1308,3 +1400,6 @@ deferred, including for capped catalogs.
 | 2026-09-29 | Private owned query-cache markers, metadata inventory/dry-run and explicit plan-bound cleanup under exclusive maintenance ownership; unknown contents and project storage are preserved. | Lot 7.storage-e, requested after framing. D03 automatic policies/public commands remain deferred; no change to the 10,000-value cap, D07 or public formats. |
 | 2026-09-29 | Proposed S17 private reopening: pinned generation assessment, explicit current/snapshot intents, configuration comparison and separate project-targeted conditional rescan. | Lot 7.storage-f, design only. The existing source-index publisher cannot guarantee rescan of the explicitly selected project; f1/f2 stay unimplemented and product D04 defaults remain deferred. |
 | 2026-09-29 | Accepted and implemented S17 read-only inspection/opening with immutable readiness facts, exact configuration matching, explicit snapshot warnings, refresh and generation preconditions. | Lot 7.storage-f1 requested by the maintainer. f2, product D04 defaults, public exposure, D07 and automatic D03 policies remain deferred; 10,000-value cap unchanged. |
+| 2026-09-29 | Implemented S17 private conditional rescan targeted by project id with generation/source preconditions under writer ownership, recorded-config default, explicit replacement config and 10,000-key default cap. | Lot 7.storage-f2; the new generation is reopened separately with an exact precondition. Product D04 defaults, D07, public project interfaces and automatic D03 policies remain deferred. |
+| 2026-09-29 | Proposed S18 first product reopening policy: fresh verified generation opens as current; stale/missing/failed checks require explicit snapshot or targeted rescan choice with persistent warnings. | Lot 7.storage-g, design only. Maintainer review required before any adapter; D07, version history and automatic D03 policy remain deferred. |
+| 2026-09-29 | Accepted S18 and implemented its first private project-opening adapter, preserving inspection preconditions and explicit snapshot/rescan choices. F2 old-generation preflight now validates immutable artifact hashes and Scan/config without a second DuckDB connection, allowing a pinned reader to survive a rescan. | Lot 7.storage-g1. No CLI/API/HTTP/UI exposure or demo change; D07, version history and automatic D03 policy remain deferred. |

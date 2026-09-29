@@ -25,10 +25,18 @@ runner = CliRunner()
 ROWS = "id,email,city\n1,ann@example.com,Paris\n2,bob@example.com,\n1,ann@example.com,Paris\n"
 
 
+@pytest.fixture(autouse=True)
+def _isolated_project_home(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
+
+
 def _scan(path, *options):
-    result = runner.invoke(app, ["scan", str(path), "--force", *options])
+    target = path.with_name(f"{path.stem}.scan.json")
+    result = runner.invoke(
+        app, ["scan", str(path), "--force", "-o", str(target), *options]
+    )
     assert result.exit_code == 0, result.output
-    return path.with_name(f"{path.stem}.scan.json")
+    return target
 
 
 def _report(*arguments):

@@ -22,6 +22,12 @@ from tabalyst.scan_reuse import compare_source, load_scan
 from tabalyst.scanner import ScanResult
 
 
+class GenerationConflictError(InputError):
+    """The selected project generation or source binding has changed."""
+
+    code = "generation_changed"
+
+
 @dataclass(frozen=True)
 class PinnedGeneration:
     project: ProjectManifest

@@ -12,6 +12,11 @@ runner = CliRunner()
 ANSI_ESCAPE_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
+@pytest.fixture(autouse=True)
+def _isolated_project_home(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
+
+
 def test_public_api_writes_canonical_reports_and_execution_history(tmp_path):
     source = tmp_path / "input.csv"
     source.write_text("id,name\n001,Alice\n002,Bob\n", encoding="utf-8")
@@ -132,21 +137,13 @@ def test_batch_api_plans_outputs_and_emits_progress(tmp_path):
         "first.html",
         "second.html",
     ]
-    assert [event.phase for event in events] == [
-        ProgressPhase.READING,
-        ProgressPhase.ANALYZING,
-        ProgressPhase.RENDERING,
-        ProgressPhase.WRITING,
-        ProgressPhase.COMPLETE,
-        ProgressPhase.READING,
-        ProgressPhase.ANALYZING,
-        ProgressPhase.RENDERING,
-        ProgressPhase.WRITING,
-        ProgressPhase.COMPLETE,
-    ]
-    assert [(event.index, event.total) for event in events] == [(1, 2)] * 5 + [
-        (2, 2)
-    ] * 5
+    for index in (1, 2):
+        phases = [event.phase for event in events if event.index == index]
+        assert ProgressPhase.READING in phases
+        assert ProgressPhase.ANALYZING in phases
+        assert ProgressPhase.RENDERING in phases
+        assert phases[-1] is ProgressPhase.COMPLETE
+    assert all(event.total == 2 for event in events)
 
 
 def test_cli_help_version_and_report(tmp_path):

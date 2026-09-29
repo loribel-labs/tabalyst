@@ -13,10 +13,17 @@ from tabalyst.cli.terminal import ProgressPrinter
 from tabalyst.config import load_config
 from tabalyst.errors import ConfigurationError, InputError
 from tabalyst.progress import ProgressEvent, ProgressPhase
+from tabalyst.projects.index import find_project
+from tabalyst.projects.location import StorageLocation
 from tabalyst.scanner.config import resolve_scan_config
 from tabalyst.scanner.readers.json_reader import _has_long_digit_run
 
 runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_project_home(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
 
 
 def _write(path, text):
@@ -32,7 +39,8 @@ def _config(path, document):
 # Command and outputs ------------------------------------------------------
 
 
-def test_scan_writes_scan_document_beside_the_source(tmp_path):
+def test_scan_writes_scan_document_in_the_project(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
     source = _write(tmp_path / "customers.csv", "id,city\n1,Montréal\n2,Laval\n")
 
     result = runner.invoke(app, ["scan", str(source)])
@@ -40,9 +48,11 @@ def test_scan_writes_scan_document_beside_the_source(tmp_path):
     assert result.exit_code == 0, result.output
     assert result.stdout == ""
     assert "Scanned 2 records: 1 dataset, 2 fields." in result.stderr
-    document = json.loads(
-        (tmp_path / "customers.scan.json").read_text(encoding="utf-8")
-    )
+    location = StorageLocation.local()
+    project = find_project(location, source)
+    assert project is not None
+    scan_path = location.scan_path(project.project_id, project.generation.id)
+    document = json.loads(scan_path.read_text(encoding="utf-8"))
     assert document["format"] == "tabalyst.scan"
     assert document["source"]["name"] == "customers.csv"
     assert document["config"]["json"]["collections"] is None
@@ -51,10 +61,7 @@ def test_scan_writes_scan_document_beside_the_source(tmp_path):
         "city",
     ]
     # Nothing else, such as a temporary file, is left beside the source.
-    assert sorted(path.name for path in tmp_path.iterdir()) == [
-        "customers.csv",
-        "customers.scan.json",
-    ]
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["customers.csv", "storage"]
 
 
 def test_scan_accepts_json_sources_and_collections(tmp_path):
@@ -99,7 +106,9 @@ def test_scan_rejects_unsafe_plans_before_scanning(tmp_path):
     csv_source = _write(tmp_path / "data.csv", "x\n1\n")
     json_source = _write(tmp_path / "data.json", "[1]")
 
-    collision = runner.invoke(app, ["scan", str(csv_source), str(json_source)])
+    collision = runner.invoke(
+        app, ["scan", str(csv_source), str(json_source), "-d", str(tmp_path / "scans")]
+    )
     assert collision.exit_code == 1
     assert "Output name collision" in collision.stderr
     assert not (tmp_path / "data.scan.json").exists()
@@ -124,7 +133,9 @@ def test_scan_never_replaces_a_configuration_file(tmp_path):
     source = _write(tmp_path / "data.csv", "x\n1\n")
     config = _config(tmp_path / "data.scan.json", {})
 
-    result = runner.invoke(app, ["scan", str(source), "-c", str(config), "--force"])
+    result = runner.invoke(
+        app, ["scan", str(source), "-c", str(config), "-o", str(config), "--force"]
+    )
 
     assert result.exit_code == 4
     assert "would overwrite an input file" in result.stderr
@@ -135,18 +146,21 @@ def test_existing_scan_requires_force(tmp_path):
     source = _write(tmp_path / "data.csv", "x\n1\n")
     output = _write(tmp_path / "data.scan.json", "previous")
 
-    refused = runner.invoke(app, ["scan", str(source)])
+    refused = runner.invoke(app, ["scan", str(source), "-o", str(output)])
     assert refused.exit_code == 1
     assert "Use --force" in refused.stderr
     assert output.read_text(encoding="utf-8") == "previous"
 
-    replaced = runner.invoke(app, ["scan", str(source), "--force", "-q"])
+    replaced = runner.invoke(
+        app, ["scan", str(source), "-o", str(output), "--force", "-q"]
+    )
     assert replaced.exit_code == 0, replaced.output
     assert replaced.stderr == ""
     assert json.loads(output.read_text(encoding="utf-8"))["format"] == "tabalyst.scan"
 
 
-def test_failed_source_does_not_stop_the_batch(tmp_path):
+def test_failed_source_does_not_stop_the_batch(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
     broken = _write(tmp_path / "broken.json", "[1,")
     valid = _write(tmp_path / "valid.csv", "x\n1\n")
 
@@ -156,10 +170,15 @@ def test_failed_source_does_not_stop_the_batch(tmp_path):
     assert f"Error [{broken}]: Invalid JSON in broken.json" in result.stderr
     assert "1 succeeded, 1 failed" in result.stderr
     assert not (tmp_path / "broken.scan.json").exists()
-    assert (tmp_path / "valid.scan.json").is_file()
+    project = find_project(StorageLocation.local(), valid)
+    assert project is not None
+    assert StorageLocation.local().scan_path(
+        project.project_id, project.generation.id
+    ).is_file()
 
 
-def test_partial_scan_succeeds_with_a_warning(tmp_path):
+def test_partial_scan_succeeds_with_a_warning(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
     source = _write(tmp_path / "data.csv", "a,b\n1,2\n3\n4,5\n")
     config = _config(tmp_path / "tolerant.json", {"scan": {"errors": {"policy": "tolerant"}}})
 
@@ -167,7 +186,12 @@ def test_partial_scan_succeeds_with_a_warning(tmp_path):
 
     assert result.exit_code == 0, result.output
     assert "partial scan, 1 record excluded (width_mismatch: 1)" in result.stderr
-    document = json.loads((tmp_path / "data.scan.json").read_text(encoding="utf-8"))
+    project = find_project(StorageLocation.local(), source)
+    document = json.loads(
+        StorageLocation.local()
+        .scan_path(project.project_id, project.generation.id)
+        .read_text(encoding="utf-8")
+    )
     assert document["status"] == "partial"
 
 
@@ -322,7 +346,9 @@ def test_scan_workers_must_be_positive(tmp_path):
 
 def test_report_workers_cannot_be_used_with_scan_documents(tmp_path):
     source = _write(tmp_path / "data.csv", "x\n1\n")
-    assert runner.invoke(app, ["scan", str(source)]).exit_code == 0
+    assert runner.invoke(
+        app, ["scan", str(source), "-o", str(tmp_path / "data.scan.json")]
+    ).exit_code == 0
 
     result = runner.invoke(
         app, ["report", "--scan", str(tmp_path / "data.scan.json"), "--workers", "2"]

@@ -57,6 +57,7 @@ class ReportSuccess:
     # Reports of scan documents: whether the source was found beside the
     # document and checked for staleness.
     source_checked: bool | None = None
+    warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -211,6 +212,7 @@ def generate_reports(
             separator=separator,
             encoding=encoding,
         )
+        _, report_scan_layer = load_config_layers(config_paths)
     successes: list[ReportSuccess] = []
     failures: list[ReportFailure] = []
     total = len(plan.jobs)
@@ -231,6 +233,7 @@ def generate_reports(
                 )
 
         checked = None
+        warnings: tuple[str, ...] = ()
         try:
             if job.error is not None:
                 raise job.error
@@ -245,7 +248,7 @@ def generate_reports(
                     on_progress=forward,
                 )
             else:
-                result = _analyze_resolved(
+                result, warnings = _analyze_resolved(
                     job.source,
                     job.output,
                     config,
@@ -253,6 +256,9 @@ def generate_reports(
                     force=force,
                     on_progress=forward,
                     workers=workers,
+                    scan_layer=report_scan_layer,
+                    separator=separator,
+                    encoding=encoding,
                 )
         except TabalystError as exc:
             failures.append(ReportFailure(job=job, error=exc))
@@ -266,7 +272,12 @@ def generate_reports(
             )
         else:
             successes.append(
-                ReportSuccess(job=job, result=result, source_checked=checked)
+                ReportSuccess(
+                    job=job,
+                    result=result,
+                    source_checked=checked,
+                    warnings=warnings,
+                )
             )
 
     return BatchReportResult(

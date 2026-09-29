@@ -3,8 +3,9 @@ title: Scan format
 description: Structure of the JSON document written by tabalyst scan, with its top level, datasets, fields, measure envelopes, detectors and diagnostics.
 ---
 
-`tabalyst scan data.csv` writes `data.scan.json`, a JSON document that
-describes every field of the source. This page describes format
+`tabalyst scan data.csv` writes a project generation's `scan.json` by default;
+`-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
+describe every field of the source. This page describes format
 `tabalyst.scan`, version `0.1.0a`, revision `4`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in

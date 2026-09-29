@@ -76,6 +76,8 @@ def _print_batch_result(
     for success in batch.successes:
         if success.result.status == "partial":
             _print_partial(success)
+        for warning in success.warnings:
+            typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
     for failure in batch.failures:
         typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
 
@@ -180,6 +182,7 @@ def scan_command(
             force=force,
             on_progress=progress,
             workers=workers,
+            project_storage=True,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

@@ -2,6 +2,67 @@
 
 ## 2026-09-29
 
+- Connected the CSV `scan` and `report` commands to project generations.
+  Default Scan writes generation-bound `scan.json`; Report verifies committed
+  artifact hashes, source freshness and requested Scan settings, reuses a
+  current scan or publishes a replacement. Superseded generations and owned
+  query caches are removed under exclusive maintenance ownership; active
+  readers keep the old generation with a warning. Added `tabalyst cache info`
+  and `tabalyst cache clean`, globally or for one source, over owned disposable
+  query caches. Explicit `scan -o/-d` and `report --scan` remain standalone.
+  Public English/French docs and tests were updated. Studio needs to refresh
+  CLI copy and the insurance demo after these public changes. Validation:
+  1,536 tests passed / 9 skipped in the full suite, then 98 focused tests
+  passed / 7 skipped after the cache lookup refinement; Ruff and diff
+  whitespace checks passed. All three demos were regenerated and their nine
+  tracked outputs restored byte-for-byte because only volatile timestamps,
+  durations and cumulative execution entries changed.
+
+- Accepted S18 and implemented the first private reopening adapter (Scan lot
+  7.storage-g1). Fresh projects open with a verified current session; stale,
+  missing or failed-check projects return a decision requiring an explicit
+  snapshot or rescan. Config mismatch remains a blocker until the inspected
+  complete replacement config is supplied; generation/source races fail
+  closed. An integration test with a live old reader found that F2's preflight
+  opened the same DuckDB file with a different private spill directory. F2 now
+  checks manifest artifact hashes and the recorded Scan/config without a
+  second old-database connection; f1 still fully verifies query-session opens.
+  Older pinned readers and cursors continue through an explicit rescan. No
+  CLI/API/HTTP/UI, demo, studio, commit or push change. D07 and the 10,000-key
+  cap remain unchanged. Review follow-up: current opening now carries the
+  inspected requested ScanConfig into its live session, preserving its
+  fingerprint on refresh. Validation: 1,532 tests passed / 9 skipped, including
+  live old-reader and source-binding races; Ruff and diff whitespace checks
+  passed. Demo regeneration remains deferred at the maintainer's request.
+
+- Proposed S18 as the next product reopening decision (Scan lot 7.storage-g),
+  design only. A verified fresh project would open with `require_current`;
+  stale/missing/failed source checks would present the assessment and require
+  an explicit snapshot or targeted rescan choice. Configuration mismatch,
+  legacy and integrity failures remain separate blockers. Concurrent changes
+  trigger reinspection; a post-commit open failure must report the generation
+  already published. The proposal is pending maintainer review before any
+  adapter or public interface. D07, history comparison and automatic D03
+  policies remain deferred. No demo, code, studio, commit or push change.
+
+- Implemented Scan lot 7.storage-f2 privately: explicit project-targeted
+  rescan checks the selected generation and source binding under writer
+  ownership, verifies the old generation, and bypasses source-index selection.
+  It retains recorded ScanConfig by default or accepts a complete replacement.
+  New generations default to 10,000 stored raw typed analyzable keys per field;
+  a lower bound is opt-in. Publication preserves project identity and older
+  generations, then releases writer ownership before a new verified session
+  opens at the exact returned generation. Post-commit opening failures carry
+  the committed result; existing d2 warnings and unknown-outcome errors are
+  retained. Added F2 cases to storage-platform CI. D07, public project
+  interfaces, automatic rescan and product D04 defaults remain deferred.
+  Progress reports completion only after verified reopening; post-commit
+  callback failures still identify the committed generation. Validation:
+  20 focused f2 tests and the full suite (1,516 passed / 9 skipped) pass; Ruff
+  and diff whitespace checks pass.
+  At the end of the lot, all three public demos were regenerated and their nine
+  pre-existing outputs restored byte-for-byte. No studio change, commit or push.
+
 - Implemented private pinned inspection/open sessions (Scan lot 7.storage-f1),
   accepting S17's read-only boundary after the maintainer requested f1.
   `_session.py` verifies the selected generation before immutable source/config
