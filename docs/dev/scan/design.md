@@ -650,7 +650,7 @@ run in this order; each can be disabled:
 | --- | --- | --- |
 | `nfc` | Unicode canonical composition (NFC). Compatibility forms (NFKC) are not applied. | on |
 | `trim` | `str.strip()`: removes leading and trailing characters for which `str.isspace()` is true, including no-break spaces. | on |
-| `collapse_whitespace` | Replaces every run of whitespace other than line breaks (`[^\S\r\n\v\f\x1c-\x1e\x85  ]+`) with one U+0020 space. | on |
+| `collapse_whitespace` | Replaces every run of whitespace other than line breaks (`[^\S\r\n\v\f\x1c-\x1e\x85]+`) with one U+0020 space. | on |
 | `casefold` | `str.casefold()`. | on |
 | `strip_accents` | NFD, removal of combining marks (category `Mn`), then NFC. | on |
 
