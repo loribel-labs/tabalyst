@@ -33,6 +33,10 @@
     b.setAttribute('aria-label', (open ? 'Expand ' : 'Collapse ') + b.dataset.name);
     body.hidden = open;
   }));
+  $$('.phead h2, .subhead .subh').forEach((h) => h.addEventListener('click', () => {
+    const b = $('.collapse', h.closest('.phead, .subhead'));
+    if (b) b.click();
+  }));
   const openSection = (id) => {
     const p = document.getElementById(id);
     const b = p && $('.collapse', p);
@@ -348,32 +352,39 @@
     return ctrl;
   };
 
-  /* columns table: name search box + "with issues" are part of its filter state */
-  const colSearch = $('#col-filter');
-  const seg = $$('#col-seg button');
-  let segMode = 'all';
-  const colExtra = {
-    active: () => (colSearch && colSearch.value.trim() !== '') || segMode !== 'all',
-    test: (r) => {
-      const q = colSearch ? colSearch.value.trim().toLowerCase() : '';
-      return (!q || r.dataset.name.includes(q)) && (segMode === 'all' || r.dataset.flag === '1');
-    },
-    reset: () => {
-      if (colSearch) colSearch.value = '';
-      segMode = 'all';
-      seg.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.mode === 'all')));
-    },
+  /* toolbar controls of a table: name search box and segmented filters (rows carry data-name / data-flags) */
+  const toolbarExtra = (id) => {
+    const search = $('[data-search="' + id + '"]');
+    const segs = $$('[data-seg="' + id + '"]').map((g) => ({ btns: $$('button', g), mode: 'all' }));
+    if (!search && !segs.length) return null;
+    return {
+      segs,
+      search,
+      active: () => (search && search.value.trim() !== '') || segs.some((s) => s.mode !== 'all'),
+      test: (r) => {
+        const q = search ? search.value.trim().toLowerCase() : '';
+        const name = r.dataset.name !== undefined ? r.dataset.name : cellVal0(r);
+        if (q && !name.includes(q)) return false;
+        const flags = (r.dataset.flags || '').split(' ');
+        return segs.every((s) => s.mode === 'all' || flags.includes(s.mode));
+      },
+      reset: () => {
+        if (search) search.value = '';
+        segs.forEach((s) => { s.mode = 'all'; s.btns.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.mode === 'all'))); });
+      },
+    };
   };
+  const cellVal0 = (r) => { const c = r.cells[0]; return (c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim()).toLowerCase(); };
   $$('table[data-table]').forEach((t) => {
-    const c = makeTable(t, t.id === 'columns-table' ? colExtra : null);
-    if (t.id === 'columns-table') {
-      colSearch && colSearch.addEventListener('input', () => c.apply());
-      seg.forEach((b) => b.addEventListener('click', () => {
-        segMode = b.dataset.mode;
-        seg.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        c.apply();
-      }));
-    }
+    const extra = toolbarExtra(t.id);
+    const c = makeTable(t, extra);
+    if (!extra) return;
+    extra.search && extra.search.addEventListener('input', () => c.apply());
+    extra.segs.forEach((s) => s.btns.forEach((b) => b.addEventListener('click', () => {
+      s.mode = b.dataset.mode;
+      s.btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      c.apply();
+    })));
   });
   resetAllBtn && resetAllBtn.addEventListener('click', () => controllers.forEach((c) => { if (c.isActive()) c.reset(); }));
   refreshGlobal();

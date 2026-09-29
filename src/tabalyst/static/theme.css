@@ -75,6 +75,10 @@ code,pre{font-family:var(--f-mono)}
 .fmts{display:flex;flex-wrap:wrap;gap:4px}
 .subh{font:600 15px/1.3 var(--f-display);margin:28px 0 4px;color:var(--text)}
 .subh .n{font-weight:400;color:var(--text-3);margin-left:6px}
+.subhead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:28px}
+.subhead .subh{margin-top:0}
+.subhead p{margin:0;max-width:80ch;font-size:13px}
+.subhead+.pbody{margin-top:14px}
 .pbody>.metrics+.toolbar,.pbody>.metrics+.subh{margin-top:20px}
 p.sub{font-size:12.5px;margin:0 0 10px}
 .sub-n{display:block;font-size:11px;color:var(--text-3);margin-top:3px}
@@ -288,7 +292,8 @@ tr.dx[hidden]{display:none}
 .limits p strong{font-weight:500;color:var(--text)}
 
 /* raw sample */
-.sample{max-height:560px}
+.sample .tscroll{max-height:520px}
+.phead h2,.subhead .subh{cursor:pointer;-webkit-user-select:none;user-select:none}
 .raw{font:400 12.5px/1 var(--f-mono)}
 .raw td,.raw tbody th{height:34px;color:var(--text)}
 .raw thead th > span{flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px}

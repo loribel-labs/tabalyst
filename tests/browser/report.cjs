@@ -65,7 +65,7 @@ async function openFilter(page, table, index) {
       );
       assert.equal(hoverBackgrounds[0], hoverBackgrounds[1]);
       assert.equal(
-        await page.locator('#col-seg [data-mode="flag"] .c').innerText(),
+        await page.locator('[data-seg="columns-table"] [data-mode="issue"] .c').innerText(),
         String(profile.summary.with_issues_column_count),
       );
 
@@ -83,15 +83,15 @@ async function openFilter(page, table, index) {
       assert.ok(percentLayout.countRightGap <= 1, JSON.stringify(percentLayout));
       assert.equal(percentLayout.countIsRightOfCenter, true);
 
-      await page.locator('#col-seg [data-mode="flag"]').click();
+      await page.locator('[data-seg="columns-table"] [data-mode="issue"]').click();
       const expectedIssues = profile.columns.filter(column => column.with_issues);
       assert.deepEqual(await visibleRows(page, 'columns-table'), expectedIssues.map(column => column.name));
 
       const firstIssue = expectedIssues[0];
-      await page.locator('#col-filter').fill(firstIssue.name);
+      await page.locator('[data-search="columns-table"]').fill(firstIssue.name);
       assert.deepEqual(await visibleRows(page, 'columns-table'), [firstIssue.name]);
       await resetTable(page, 'columns-table');
-      assert.equal(await page.locator('#col-filter').inputValue(), '');
+      assert.equal(await page.locator('[data-search="columns-table"]').inputValue(), '');
       assert.equal(await page.locator('#columns-table tbody tr:not([hidden])').count(), profile.columns.length);
 
       const missingSort = page.locator('#columns-table thead th').nth(1).locator('.hb-s');
