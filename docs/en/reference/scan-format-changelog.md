@@ -16,12 +16,12 @@ fields:
 
 `format` names the kind of document; the JSON profile of `tabalyst report` has
 its own [changelog](profile-format-changelog.md). `format_version` names the
-experimental compatibility family, `0.1.0a` throughout the alpha.
+experimental compatibility family, `0.1.0a` retained during beta.
 `format_revision` is a monotonic integer incremented for each meaningful
 structural or semantic change. It does not change for performance improvements,
 documentation or corrections that keep the contract.
 
-Alpha revisions may be incompatible. No automatic migration is provided.
+Beta revisions may be incompatible. No automatic migration is provided.
 `tabalyst report --scan` reads the current revision only: scan the source
 again to report on an older document.
 

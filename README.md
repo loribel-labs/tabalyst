@@ -8,8 +8,10 @@ with structured data.
 Its first tool is **Tabalyst Report**. The current CSV implementation,
 **Tabalyst CSV Report**, analyzes a CSV file and produces both a structured JSON
 profile and a self-contained interactive HTML report.
+**Tabalyst Scan** describes CSV and JSON files in a scan document, and
+**Tabalyst Sample** creates smaller CSV files.
 
-Tabalyst is in active alpha development. Its interfaces may still change while
+Tabalyst is in beta. Its interfaces may still change while
 the shared toolkit architecture is being established.
 
 ## Install
@@ -20,7 +22,7 @@ Tabalyst supports Python 3.11, 3.12, 3.13, and 3.14.
 pip install --upgrade tabalyst
 ```
 
-The same command installs Tabalyst or updates it. Tabalyst is in alpha and
+The same command installs Tabalyst or updates it. Tabalyst is in beta and
 changes often: update it before each new test.
 
 ## Tabalyst Report

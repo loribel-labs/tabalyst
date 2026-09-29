@@ -54,6 +54,7 @@ Conservez-les exactement tels quels dans toutes les langues :
 | batch | lot | Plusieurs fichiers sources traités par une seule commande |
 | output directory | dossier de sortie | Le dossier indiqué avec `-d` / `--output-dir` |
 | alpha | alpha | Stade précoce où les interfaces et les formats peuvent changer |
+| beta | bêta | Stade avant la version 1.0 où les interfaces et les formats peuvent encore changer |
 | scan | analyse | La description complète d’une source écrite par `tabalyst scan` |
 | scan document | document d'analyse | Le `scan.json` du projet ou un export autonome `.scan.json` écrit par `tabalyst scan` |
 | stale scan | analyse périmée | Un document d’analyse dont la source ou les paramètres ont changé depuis son écriture |

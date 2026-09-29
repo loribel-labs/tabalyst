@@ -6,6 +6,8 @@ description: Tabalyst est une boîte à outils open source et locale qui transfo
 Tabalyst est une boîte à outils open source et locale pour comprendre des
 données inconnues. Son premier outil, **Tabalyst Report**, analyse un fichier CSV
 ou JSON et produit un rapport HTML interactif et un profil JSON structuré.
+**Tabalyst Scan** décrit les fichiers CSV et JSON dans un document d’analyse,
+et **Tabalyst Sample** crée des fichiers CSV plus petits.
 
 ```console
 pip install --upgrade tabalyst
@@ -17,7 +19,7 @@ et `executions.json` (l’historique d’exécution) à côté du fichier CSV. T
 s’exécute sur votre ordinateur ; aucune donnée n’est envoyée.
 
 La première commande installe Tabalyst, ou le met à jour s’il est déjà
-installé. Tabalyst est en alpha et évolue souvent : relancez-la avant chaque
+installé. Tabalyst est en bêta et évolue souvent : relancez-la avant chaque
 nouvel essai. Les commandes et le format JSON peuvent encore changer d’une
 version à l’autre. Cette documentation décrit la dernière version publiée sur
 PyPI.

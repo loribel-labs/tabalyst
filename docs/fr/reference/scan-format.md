@@ -19,7 +19,7 @@ dans le [journal des modifications du format d’analyse](scan-format-changelog.
   "format_version": "0.1.0a",
   "format_revision": 4,
   "engine": {
-    "version": "0.4.2",
+    "version": "0.4.3",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },

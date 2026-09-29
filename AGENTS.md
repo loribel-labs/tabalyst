@@ -88,6 +88,12 @@ Update `docs/dev/progress.md` for meaningful work. Update
 semantics change. Update release notes in `docs/dev/releases/` for release
 milestones.
 
+For release preparation, also update the private release status and feature
+summaries in `../tabalyst-gb/DOCS/` and note the work in its progress log.
+Check the documentation and website changes in `../tabalyst-studio` against
+the public README and released tag. Keep prepared, committed, tagged and
+published states distinct in all three repositories.
+
 ## Documentation
 
 `docs/` holds the sources of the public documentation site (docs.tabalyst.com,

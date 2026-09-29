@@ -11,9 +11,9 @@ pip install --upgrade tabalyst
 tabalyst --version
 ```
 
-The second command prints the installed version, for example `0.4.2`.
+The second command prints the installed version, for example `0.4.3`.
 
-> **Update before each test.** Tabalyst is in alpha and new versions are
+> **Update before each test.** Tabalyst is in beta and new versions are
 > released often, with fixes and new options. Run
 > `pip install --upgrade tabalyst` before testing, before following a tutorial
 > and before reporting a problem. See
@@ -82,7 +82,7 @@ With pipx, update with `pipx upgrade tabalyst`.
 
 ## Keep Tabalyst up to date
 
-Tabalyst changes often during its alpha. Update it before each test session,
+Tabalyst changes often during its beta. Update it before each test session,
 before following this documentation and before reporting a problem: the
 documentation describes the latest release, and older versions may lack
 commands or options.
