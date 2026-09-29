@@ -2,6 +2,9 @@
 
 ## 2026-09-29
 
+- Fixed CI workflow YAML parsing by quoting the DuckDB binary-wheel install
+  command, whose `:all:` option otherwise made the `run` value invalid.
+
 - Connected the CSV `scan` and `report` commands to project generations.
   Default Scan writes generation-bound `scan.json`; Report verifies committed
   artifact hashes, source freshness and requested Scan settings, reuses a

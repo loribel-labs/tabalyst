@@ -40,7 +40,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Require a binary DuckDB wheel
-        run: python -m pip install --only-binary=:all: duckdb==1.5.5
+        run: 'python -m pip install --only-binary=:all: duckdb==1.5.5'
       - run: python -m pip install -e ".[dev]"
       - run: python -m pytest tests/test_project_database.py tests/test_project_generations.py tests/test_project_queries.py tests/test_project_cache.py tests/test_project_sessions.py tests/test_project_rescan.py tests/test_project_open_service.py tests/test_project_store.py tests/test_project_index.py tests/test_project_scan.py tests/test_source_freshness.py
 
