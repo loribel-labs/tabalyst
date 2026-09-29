@@ -10,6 +10,11 @@ from tabalyst.execution_log import tabalyst_version
 runner = CliRunner()
 
 
+@pytest.fixture(autouse=True)
+def _isolated_project_home(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
+
+
 def test_source_checkout_reports_pyproject_version():
     assert tabalyst_version() == "0.4.2"
 

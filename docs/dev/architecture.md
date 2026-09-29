@@ -102,6 +102,31 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   source upgrades them on success. The service and SQL sessions remain
   internal; lot 7.storage-d3 supplies private exposure-aware queries. The one-shot CLI
   and public API keep their existing output behavior.
+  `rescan_project()` is the private S17 f2 context: the caller supplies the
+  selected project id, generation id and source path from inspection. Publication
+  verifies all three under writer ownership, bypasses source-index selection,
+  retains the pinned Scan configuration unless given a complete replacement,
+  and defaults to the 10,000-key bound. A smaller bound is explicit. It releases
+  the writer before reopening a separately verified reader at the exact new
+  generation; post-commit open failures carry the committed publication.
+  Selected old artifact hashes and the recorded Scan/config are checked before
+  staging without a second DuckDB connection, so an active old reader with a
+  different private spill directory does not block an explicit rescan.
+- `project_open_service.py`: private S18 first-open adapter. It inspects one
+  project by id, opens a fresh selected generation as current, or returns a
+  transient decision with explicit snapshot/rescan choices. Actions carry
+  storage, workspace, generation and source preconditions. No public adapter
+  or product presentation is exposed yet.
+- `shared_scan_service.py`: CSV command handoff. Scan publishes a project
+  generation; Report reuses a hash-verified current Scan and publishes a new
+  generation when source bytes or effective Scan settings change. It reads the
+  committed JSON without opening a DuckDB query connection.
+- `projects/_retention.py`: removes the previously selected generation and its
+  owned cache after successful replacement under exclusive maintenance
+  ownership. Active readers or unknown contents retain it with a warning.
+- `cache_service.py`, `cli/cache.py`: read-only cache information and explicit
+  cleanup, for one source project or all valid projects. Only owned disposable
+  query caches are cleaned; selected Scan/database artifacts remain storage.
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
 - `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.

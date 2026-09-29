@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 
 from tabalyst import __version__
+from tabalyst.cli.cache import cache_app
 from tabalyst.cli.report import report_command
 from tabalyst.cli.sample import sample_command
 from tabalyst.cli.scan import scan_command
@@ -41,6 +42,7 @@ def root(
 app.command("report")(report_command)
 app.command("sample")(sample_command)
 app.command("scan")(scan_command)
+app.add_typer(cache_app, name="cache")
 
 
 def main() -> None:

@@ -12,7 +12,11 @@ from typing import Literal
 
 from tabalyst.errors import InputError
 from tabalyst.projects import _queries
-from tabalyst.projects._generation import PinnedGeneration, open_generation
+from tabalyst.projects._generation import (
+    GenerationConflictError,
+    PinnedGeneration,
+    open_generation,
+)
 from tabalyst.projects._query_budget import QueryBudget
 from tabalyst.projects.location import StorageLocation
 from tabalyst.scan_reuse import SourceCheck, SourceState, compare_source
@@ -48,10 +52,6 @@ class SessionRefusedError(InputError):
         if intent == "require_current":
             reasons += assessment.warnings
         super().__init__(f"Cannot open project with {intent}: {', '.join(reasons)}")
-
-
-class GenerationConflictError(InputError):
-    code = "generation_changed"
 
 
 def _requested_hash(config: ScanConfig | None) -> str | None:

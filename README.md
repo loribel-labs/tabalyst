@@ -191,8 +191,10 @@ tabalyst scan customers.csv
 tabalyst scan orders.json --collection "$.customers[]"
 ```
 
-The default output is `customers.scan.json` beside the source; `-o`, `-d` and
-`--force` work as for the other commands. Tabalyst Scan reads the file once as
+For a CSV, the default scan is the project's generation-bound `scan.json` under
+Tabalyst's local storage directory (or `TABALYST_HOME`). The project also holds
+the database and disposable `cache/` used by future tools. `-o` or `-d` writes
+a standalone `<stem>.scan.json` export instead. Tabalyst Scan reads the file once as
 a stream, with memory bounded by configurable limits, and records for each
 field its presence, native types, missing values, frequencies, exact
 statistics, normalization variants, technical type and the result of every
@@ -204,7 +206,14 @@ interrupted scan never leaves a partial file. Files of 16 MiB or more are
 analyzed by several worker processes, with the same result; `--workers`
 chooses their number, `--workers 1` keeps one process.
 
-Build the report from a scan document without reading the source again:
+`tabalyst report customers.csv` reuses the verified project scan when the CSV
+content and requested scan settings are current. It creates a project scan when
+none exists. If the CSV changed, it publishes a new generation, removes the old
+generation and its owned cache when no reader holds it, then builds the report.
+The source check uses size, modification time and SHA-256. An old generation
+held by a reader is retained with a warning.
+
+Build the report from a standalone scan document without reading the source again:
 
 ```console
 tabalyst report --scan customers.scan.json
@@ -212,6 +221,18 @@ tabalyst report --scan customers.scan.json
 
 Tabalyst refuses a scan whose source changed since it was written, or whose
 settings differ from the `scan` settings of `--config`.
+
+Inspect or clean disposable project query caches for every project, or for one
+CSV file:
+
+```console
+tabalyst cache info
+tabalyst cache info customers.csv
+tabalyst cache clean
+tabalyst cache clean customers.csv
+```
+
+`cache clean` leaves project scans and databases in place.
 
 See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/scan-files.md)
 and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/scan-format.md).
@@ -267,8 +288,9 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 `analyze()` returns the JSON-serializable profile for one report.
 `generate_reports()` returns the complete batch plan, successes, and failures.
 `scan()` returns a scan result without writing anything; `generate_scans()`
-writes one `.scan.json` document per source; `from_scan=True` builds reports
-from such documents.
+writes one standalone `.scan.json` document per source by default. Pass
+`project_storage=True` to use project storage for CSV files. `from_scan=True`
+builds reports from standalone scan documents.
 Expected failures derive from `tabalyst.TabalystError`.
 
 Existing artifacts are never replaced silently. Pass `force=True` when

@@ -185,7 +185,10 @@ def _analyze_resolved(
     force: bool,
     on_progress: ProgressCallback | None,
     workers: int | None = None,
-) -> dict[str, Any]:
+    scan_layer: dict | None = None,
+    separator: str | None = None,
+    encoding: str | None = None,
+) -> tuple[dict[str, Any], tuple[str, ...]]:
     started = perf_counter()
     json_report, execution_report = _validate_paths(
         source,
@@ -194,13 +197,34 @@ def _analyze_resolved(
         force=force,
     )
 
+    warnings: tuple[str, ...] = ()
     try:
-        profile = analyze_csv(source, config, on_progress=on_progress, workers=workers)
+        if source.suffix.lower() == ".json":
+            profile = analyze_csv(source, config, on_progress=on_progress, workers=workers)
+        else:
+            from tabalyst.shared_scan_service import current_scan
+
+            shared = current_scan(
+                source,
+                config.scan,
+                workers=workers,
+                on_progress=on_progress,
+                scan_layer=scan_layer,
+                delimiter=separator,
+                encoding=encoding,
+            )
+            emit_progress(on_progress, source, ProgressPhase.ANALYZING)
+            effective_config = config.model_copy(update={"scan": shared.result.config})
+            profile = build_profile(shared.result, effective_config)
+            profile.processing_seconds = round(
+                shared.result.duration_seconds + perf_counter() - started, 4
+            )
+            warnings = shared.warnings
     except InputError:
         raise
     except OSError as exc:
         raise InputError(f"Cannot read source file {source}: {exc}") from exc
-    return _write_report(
+    written = _write_report(
         profile,
         source,
         source,
@@ -210,6 +234,7 @@ def _analyze_resolved(
         started=started,
         on_progress=on_progress,
     )
+    return written, warnings
 
 
 def _report_scan_resolved(
@@ -322,11 +347,16 @@ def analyze(
         separator=separator,
         encoding=encoding,
     )
-    return _analyze_resolved(
+    _, scan_layer = load_config_layers(config_paths)
+    result, _ = _analyze_resolved(
         source,
         report,
         config,
         config_paths,
         force=force,
         on_progress=None,
+        scan_layer=scan_layer,
+        separator=separator,
+        encoding=encoding,
     )
+    return result

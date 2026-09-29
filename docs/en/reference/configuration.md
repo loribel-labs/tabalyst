@@ -33,8 +33,9 @@ override.
 
 ## Report settings
 
-The report is built on Tabalyst Scan: it reads the CSV and analyzes it with the
-`scan` settings, then presents the result with the settings below.
+The report is built on Tabalyst Scan: it reuses a current project scan when
+possible, or reads the CSV with the effective `scan` settings, then presents
+the result with the settings below.
 
 ```json
 {

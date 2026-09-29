@@ -12,8 +12,10 @@ montants.
 tabalyst scan customers.csv
 ```
 
-Cette commande crée `customers.scan.json` à côté de `customers.csv`. Le fichier
-source n’est jamais modifié. **Tabalyst Scan** lit tout le fichier en une seule
+Pour un CSV, cette commande crée un projet avec un `scan.json` lié à une
+génération dans le dossier de stockage local de Tabalyst. Définissez
+`TABALYST_HOME` pour choisir la racine de ce stockage. Le fichier source n’est
+jamais modifié. **Tabalyst Scan** lit tout le fichier en une seule
 lecture en flux : la mémoire utilisée dépend des limites configurées, pas du
 nombre d’enregistrements. La structure du résultat est décrite dans la
 [référence du format d’analyse](../reference/scan-format.md).
@@ -47,7 +49,8 @@ avertissement, avec un jeu de données vide.
 
 ## Choisir l’emplacement des sorties
 
-Utilisez `-o` pour le nom complet du fichier de sortie lorsque vous analysez une
+Utilisez `-o` pour exporter un document d’analyse autonome sous un nom complet
+de fichier lorsque vous analysez une
 seule source. Le nom doit se terminer par `.json` :
 
 ```console
@@ -55,7 +58,7 @@ tabalyst scan customers.csv -o scans/customers.json
 ```
 
 Les caractères génériques sont résolus par Tabalyst, y compris dans les shells
-qui ne les développent pas. Utilisez `-d` pour placer les analyses d’une ou de
+qui ne les développent pas. Utilisez `-d` pour exporter les analyses d’une ou de
 plusieurs sources dans un dossier :
 
 ```console
@@ -68,7 +71,7 @@ suite. `-o` n’accepte qu’une seule entrée résolue ; `-o` et `-d` ne peuven
 
 ## Comportement sûr des lots
 
-Avant d’analyser, Tabalyst résout chaque entrée et chaque sortie, et rejette
+Avant d’écrire des analyses autonomes, Tabalyst résout chaque entrée et chaque sortie, et rejette
 tout le lot lorsque :
 
 - deux sources correspondent à la même sortie, comme `data.csv` et `data.json` ;
@@ -81,7 +84,7 @@ Lorsqu’une source échoue, par exemple avec un JSON invalide, Tabalyst signale
 l’erreur, continue avec les autres sources et renvoie un code de sortie non nul
 à la fin.
 
-Un motif comme `data/*.json` correspond aussi à des résultats précédents comme
+Un motif comme `data/*.json` correspond aussi à des résultats autonomes précédents comme
 `data/orders.scan.json`. Écrivez les analyses dans un autre dossier avec `-d`
 pour les séparer des sources.
 
@@ -161,7 +164,17 @@ statut et le nombre de diagnostics.
 
 ## Rapport à partir d’une analyse
 
-Générez le rapport HTML à partir d’un document d’analyse au lieu de relire la
+`tabalyst report customers.csv` utilise l’analyse courante du projet. S’il
+n’existe pas de projet, il en crée un. L’analyse est réutilisée si le CSV n’a
+pas changé et si les paramètres d’analyse demandés correspondent. Si le CSV a
+changé, Tabalyst publie une nouvelle génération, puis supprime l’ancienne et
+son cache géré, sauf si un lecteur actif les utilise. Avant de réutiliser une
+analyse du projet, Report vérifie l’empreinte SHA-256 du CSV même si sa taille
+et sa date de modification sont inchangées. Si aucun paramètre d’analyse n’est
+demandé, Report reprend ceux de
+l’analyse existante.
+
+Générez le rapport HTML à partir d’un document d’analyse autonome au lieu de relire la
 source :
 
 ```console
@@ -215,7 +228,26 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 `tabalyst.scan()` lit une source et renvoie le résultat sans rien écrire ;
 `result.model_dump(mode="json")` donne le document. Passez
 `config=tabalyst.ScanConfig(...)` pour modifier les paramètres.
-`tabalyst.generate_scans()` fait la même chose que la commande et renvoie le
-plan, les succès et les échecs.
+`tabalyst.generate_scans()` écrit par défaut des documents d’analyse autonomes
+et renvoie le plan, les succès et les échecs. Passez `project_storage=True`
+pour utiliser le stockage de projet par défaut de la commande pour les CSV.
 `tabalyst.generate_reports(..., from_scan=True)` génère des rapports à partir
 de documents d’analyse, comme `tabalyst report --scan`.
+
+## Cache du projet
+
+Inspectez ou supprimez les dossiers de cache de requêtes jetables pour tous
+les projets ou pour un seul fichier CSV :
+
+```console
+tabalyst cache info
+tabalyst cache info customers.csv
+tabalyst cache clean
+tabalyst cache clean customers.csv
+```
+
+`info` indique le nombre de dossiers gérés et leur taille logique en octets,
+ainsi que les entrées que Tabalyst ne peut pas gérer. `clean` supprime
+uniquement les dossiers de cache jetables dont Tabalyst connaît la propriété ;
+il conserve le scan et la base de données du projet sélectionné. Un lecteur
+actif empêche le nettoyage jusqu’à sa fermeture.

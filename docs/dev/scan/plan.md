@@ -39,7 +39,9 @@ regenerated, documentation consistent with what is released.
 | 7.storage-e | Explicit private query-cache maintenance | Done | Session model | High | Existing working tree; no branch created |
 | 7.storage-f | Private project reopening design (D04/S17) | Done | Session model | High | Existing working tree; no branch created |
 | 7.storage-f1 | Private pinned inspection/open sessions | Done | Session model | High | Existing working tree; no branch created |
-| 7.storage-f2 | Explicit project-targeted conditional rescan | Planned | Session model | High | Existing working tree; no branch created |
+| 7.storage-f2 | Explicit project-targeted conditional rescan | Done | Session model | High | Existing working tree; no branch created |
+| 7.storage-g | First product reopening policy (D04/S18), design only | Done | Session model | Medium | Existing working tree; no branch created |
+| 7.storage-g1 | First private product adapter for project reopening | Done | Session model | High | Existing working tree; no branch created |
 
 Status values: Planned, Next, In progress, Done, Blocked. The session that
 works on a lot updates this table.
@@ -785,6 +787,80 @@ séparé. Le stockage garde au maximum 10 000 valeurs distinctes brutes typées
 analysables par colonne ; D07 reste différé. Place les artefacts de tests dans
 D:\GIT.test\tabalyst\artifacts et termine le rituel sans commit ni push.
 ```
+
+### Implementation lot 7.storage-f2: explicit project-targeted rescan
+
+Implemented on 2026-09-29 in this conversation after the maintainer chose to
+continue here. `rescan_project()` is a private context manager taking the
+selected project id, expected generation id and expected absolute source path.
+`publish_selected_scan()` checks those preconditions under writer ownership,
+verifies the selected old generation, then stages and publishes directly to
+that identity without source/index lookup. An omitted config retains the
+pinned ScanConfig; an explicit argument is a complete replacement. New storage
+defaults to 10,000 raw typed analyzable keys per field; `value_limit` below
+10,000 is an explicit opt-in, never inferred from old field metadata.
+
+Writer ownership ends before `open_project()` re-verifies and pins the returned
+generation. `CommittedRescanOpenError` carries the committed publication if
+that second opening fails; a concurrent publication is rejected by the
+expected-generation precondition. Existing d2 post-commit warnings and
+unknown-outcome errors propagate. Reader intent defaults to `require_current`;
+`snapshot` can be selected explicitly if the source changes after the scan.
+Progress filters the scanner's early completion and emits one `complete` only
+after verified reopening; failures emit `failed`, and a progress callback
+failure after commit still carries the committed publication.
+Source/index mutation, legacy upgrade, automatic rescan and public exposure
+remain outside this boundary. D07 and product D04 defaults remain deferred.
+
+Acceptance tests cover same-path projects, configuration and cap choices,
+stale preconditions, missing/non-file/unreadable source, precommit failure,
+two writers, postcommit warning/unknown outcome, and a publication between
+commit and reopen. A later source change exercises both reopening intents,
+caller exceptions close the session, and an interruption during post-commit
+opening still identifies the committed result. Progress ordering and callback
+failure are also tested. The 20 focused f2 tests and full pytest (1,516 passed /
+9 skipped) pass. Ruff passed. Storage-platform CI includes these tests;
+remote results are not claimed from local runs.
+
+### Design lot 7.storage-g: first product reopening policy (D04/S18)
+
+Framed on 2026-09-29 after the maintainer asked for the next step following
+f2. Proposed contract: project-storage.md section 6.2. No adapter, public
+interface, persistent format or Scan engine change. S18 awaits maintainer
+review before g1 implementation. Recommendation: open a fresh verified source
+with `require_current`; for stale/missing/failed source checks, present the
+assessment and require an explicit stored `snapshot` or targeted `rescan`
+choice. Config mismatch and integrity failures remain separate blockers.
+Rescan of a missing/unreadable source is unavailable until it is readable.
+Every action carries the selected generation/source preconditions, and a
+post-commit open failure reports the already committed generation. Older
+pinned sessions remain valid. No automatic rescan, history comparison, D07
+row attribution or public project exposure is implemented by this design lot.
+
+### Implementation lot 7.storage-g1: private first-open adapter
+
+The maintainer accepted S18 on 2026-09-29. `project_open_service.py` applies
+the policy without a public command or API. `enter_project()` verifies and
+opens a fresh selected generation as current; stale/missing/failed checks
+return immutable decisions without a session or mutation. Explicit
+`open_snapshot()` and `rescan_from_decision()` use the inspected generation and
+source binding, and reject a changed selection. Config mismatch requires a
+complete replacement with the inspected fingerprint before rescan. Source
+changes between inspection and current opening return a new decision; a
+generation change is a conflict. The adapter does not invent a default
+snapshot/rescan or perform a hidden retry after committed publication.
+
+Integration tests cover the S18 matrix, races, storage-root/workspace binding,
+older pinned readers/cursors, and fail-closed corruption. The live-reader test
+exposed a DuckDB connection-setting conflict in F2's old-generation preflight.
+F2 now verifies the selected manifest, artifact hashes and Scan/config without
+opening a second connection to that old database; f1 still fully verifies
+generations when opening query sessions. This keeps D07, the 10,000-key cap,
+public project interfaces and version history unchanged. Validation: 1,531
+tests passed / 9 skipped, Ruff and diff whitespace checks passed. A review
+follow-up passes the requested ScanConfig into a fresh current session so its
+fingerprint survives refresh; validation then reached 1,532 passed / 9 skipped.
+Demo regeneration was deferred at the maintainer's request.
 
 ## Notes
 

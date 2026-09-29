@@ -5,7 +5,12 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tabalyst.batch import plan_outputs, validate_outputs, write_text_atomic
+from tabalyst.batch import (
+    plan_outputs,
+    resolve_input_specs,
+    validate_outputs,
+    write_text_atomic,
+)
 from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.progress import (
     ProgressCallback,
@@ -23,7 +28,7 @@ SCAN_SUFFIX = ".scan.json"
 @dataclass(frozen=True)
 class ScanJob:
     source: Path
-    output: Path
+    output: Path | None
 
 
 @dataclass(frozen=True)
@@ -35,6 +40,7 @@ class ScanPlan:
 class ScanSuccess:
     job: ScanJob
     result: ScanResult
+    warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -66,22 +72,34 @@ def build_scan_plan(
     output_dir: str | Path | None = None,
     force: bool = False,
     config_paths: Sequence[Path] = (),
+    project_storage: bool = False,
 ) -> ScanPlan:
     """Resolve input patterns and reject unsafe output plans before scanning."""
-    jobs = tuple(
-        ScanJob(source=source, output=target)
-        for source, target in plan_outputs(
-            input_specs,
-            output=output,
-            output_dir=output_dir,
-            output_name=lambda source: default_scan_output(source).name,
+    if project_storage and output is None and output_dir is None:
+        jobs = tuple(
+            ScanJob(
+                source,
+                default_scan_output(source)
+                if source.suffix.lower() == ".json"
+                else None,
+            )
+            for source in resolve_input_specs(input_specs)
         )
-    )
+    else:
+        jobs = tuple(
+            ScanJob(source=source, output=target)
+            for source, target in plan_outputs(
+                input_specs,
+                output=output,
+                output_dir=output_dir,
+                output_name=lambda source: default_scan_output(source).name,
+            )
+        )
     for job in jobs:
-        if job.output.suffix.lower() != ".json":
+        if job.output is not None and job.output.suffix.lower() != ".json":
             raise InputError("--output must be a complete filename ending in .json")
     validate_outputs(
-        ((job.source, job.output) for job in jobs),
+        ((job.source, job.output) for job in jobs if job.output is not None),
         sources=[*(job.source for job in jobs), *config_paths],
         force=force,
         label="Scan",
@@ -107,6 +125,7 @@ def generate_scans(
     force: bool = False,
     on_progress: ProgressCallback | None = None,
     workers: int | None = None,
+    project_storage: bool = False,
 ) -> BatchScanResult:
     """Scan one or more CSV or JSON files and write one scan document each.
 
@@ -130,6 +149,7 @@ def generate_scans(
         output_dir=output_dir,
         force=force,
         config_paths=config_paths,
+        project_storage=project_storage,
     )
     successes: list[ScanSuccess] = []
     failures: list[ScanFailure] = []
@@ -153,18 +173,38 @@ def generate_scans(
                 )
 
         try:
-            result = scan(
-                job.source, config=config, on_progress=forward, workers=workers
-            )
-            emit_progress(
-                on_progress, job.source, ProgressPhase.WRITING, index=index, total=total
-            )
-            try:
-                write_text_atomic(job.output, scan_document(result))
-            except OSError as exc:
-                raise ReportError(
-                    f"Cannot write scan file {job.output}: {exc}"
-                ) from exc
+            warnings: tuple[str, ...] = ()
+            if job.output is None:
+                from tabalyst.shared_scan_service import current_scan
+
+                shared = current_scan(
+                    job.source,
+                    config,
+                    on_progress=forward,
+                    workers=workers,
+                    refresh=True,
+                )
+                result = shared.result
+                completed_job = ScanJob(job.source, shared.path)
+                warnings = shared.warnings
+            else:
+                result = scan(
+                    job.source, config=config, on_progress=forward, workers=workers
+                )
+                emit_progress(
+                    on_progress,
+                    job.source,
+                    ProgressPhase.WRITING,
+                    index=index,
+                    total=total,
+                )
+                try:
+                    write_text_atomic(job.output, scan_document(result))
+                except OSError as exc:
+                    raise ReportError(
+                        f"Cannot write scan file {job.output}: {exc}"
+                    ) from exc
+                completed_job = job
         except TabalystError as exc:
             failures.append(ScanFailure(job=job, error=exc))
             emit_progress(
@@ -176,7 +216,7 @@ def generate_scans(
                 detail=str(exc),
             )
         else:
-            successes.append(ScanSuccess(job=job, result=result))
+            successes.append(ScanSuccess(job=completed_job, result=result, warnings=warnings))
             emit_progress(
                 on_progress, job.source, ProgressPhase.COMPLETE, index=index, total=total
             )

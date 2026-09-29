@@ -2,23 +2,32 @@
 
 ## Project scope
 
-Tabalyst is an alpha CSV profiling project. Its main workflow is:
+Tabalyst is a beta toolkit for understanding unfamiliar structured data. Its
+current Report workflow is:
 
 ```text
-CSV -> global JSON profile -> interactive HTML report
+CSV/JSON -> Scan -> global JSON profile -> interactive HTML report
 ```
 
-The JSON format is intentionally experimental during the `0.1.0aX` series.
-Breaking changes are allowed and migration support is not required yet.
+Tabalyst is presented as beta until its first stable 1.0 release. The JSON
+format remains experimental during beta. Its historical `0.1.0a` format
+identifier is retained; breaking changes are allowed and migration support is
+not yet required. Record format changes in the relevant changelogs.
 
 ## Source of truth
 
 - This repository is the public source of truth for Tabalyst code and public documentation.
 - Keep private strategy, personal notes, confidential data and unpublished research in `tabalyst-gb`, not here.
+- The sibling `../tabalyst-gb` is the private starting point for the maintainer's
+  AI requests. For work originating there, read `../tabalyst-gb/AGENTS.md` and
+  its relevant `DOCS/` pages for intent and decisions. Verify product behavior
+  against this public repository before changing code or public documentation.
 - Do not commit secrets, credentials or real sensitive datasets.
-- The sibling repository `tabalyst-studio` holds the public website
-  (`tabalyst.com`), brand guidelines and DNS references. It consumes this
-  repository: it copies `examples/output/insurance-customers/` into its site and
+- The sibling repository `tabalyst-studio` holds the documentation site
+  (`docs.tabalyst.com`), public website (`tabalyst.com`), brand guidelines and
+  DNS references. It consumes this repository: the documentation site imports
+  `docs/en/` and `docs/fr/`, and the website copies
+  `examples/output/insurance-customers/`. The website
   only advertises features documented in this `README.md`. When a change affects
   the CLI, the public API, the report or the demos, mention the follow-up needed
   in `tabalyst-studio` (see its `AGENTS.md`), but do not edit it unless asked.
@@ -119,7 +128,7 @@ The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
 
 - Application versions use PEP 440, for example `0.1.0a1`.
 - Git release tags use the matching `v` prefix, for example `v0.1.0a1`.
-- During the alpha family, JSON uses `format_version: "0.1.0a"` and a monotonic
+- The existing JSON format family uses `format_version: "0.1.0a"` and a monotonic
   `format_revision`.
 - `executions.json` has its own `schema_version`.
 

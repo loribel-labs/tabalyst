@@ -11,8 +11,9 @@ as email addresses, dates or amounts.
 tabalyst scan customers.csv
 ```
 
-This creates `customers.scan.json` beside `customers.csv`. The source file is
-never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
+For a CSV, this creates a project with a generation-bound `scan.json` in
+Tabalyst's local storage directory. Set `TABALYST_HOME` to choose that storage
+root. The source file is never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
 so memory depends on the configured limits, not on the number of records. The
 structure of the result is described in the
 [scan format reference](../reference/scan-format.md).
@@ -43,7 +44,8 @@ with an empty dataset.
 
 ## Choose output locations
 
-Use `-o` for the complete output filename when scanning one source. The name
+Use `-o` to export a standalone scan document with a complete output filename
+when scanning one source. The name
 must end in `.json`:
 
 ```console
@@ -51,7 +53,7 @@ tabalyst scan customers.csv -o scans/customers.json
 ```
 
 Wildcards are resolved by Tabalyst, including on shells that do not expand
-them. Use `-d` to put the scans of one or more sources in a directory:
+them. Use `-d` to export the scans of one or more sources in a directory:
 
 ```console
 tabalyst scan data/*.csv data/*.json -d scans/
@@ -63,8 +65,8 @@ Recursive `**` patterns are not supported.
 
 ## Safe batch behavior
 
-Before scanning, Tabalyst resolves every input and output and rejects the whole
-batch when:
+Before writing standalone scans, Tabalyst resolves every input and output and
+rejects the whole batch when:
 
 - two sources map to the same output, such as `data.csv` and `data.json`;
 - an output would replace an input or a configuration file;
@@ -75,7 +77,7 @@ into place: an interrupted scan never leaves a partial result. When one source
 fails, for example with invalid JSON, Tabalyst reports the error, continues
 with the other sources and returns a non-zero exit code at the end.
 
-A pattern such as `data/*.json` also matches earlier results such as
+A pattern such as `data/*.json` also matches earlier standalone results such as
 `data/orders.scan.json`. Write scans to another directory with `-d` to keep
 them apart from the sources.
 
@@ -163,7 +165,15 @@ format, encoding, delimiter, status and number of diagnostics.
 
 ## Report from a scan
 
-Build the HTML report from a scan document instead of reading the source
+`tabalyst report customers.csv` uses the project's current scan. If none exists,
+it creates one. A scan is reused when the CSV is unchanged and its effective
+scan settings match. A changed CSV causes a new scan; the superseded generation
+and its owned cache are removed after publication, unless an active reader holds
+them. Before reusing a project scan, Report checks the CSV's SHA-256 even if
+its size and modification time are unchanged. When no scan settings are
+requested, Report keeps the settings recorded by the existing scan.
+
+Build the HTML report from a standalone scan document instead of reading the source
 again:
 
 ```console
@@ -215,6 +225,25 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 anything; `result.model_dump(mode="json")` gives the document. Pass
 `config=tabalyst.ScanConfig(...)` to change settings, and `workers=` to choose
 the number of worker processes as `--workers` does. `tabalyst.generate_scans()`
-does what the command does and returns the plan, successes and failures.
+writes standalone scan documents by default and returns the plan, successes and
+failures. Pass `project_storage=True` to use the command's default project
+storage for CSV files.
 `tabalyst.generate_reports(..., from_scan=True)` builds reports from scan
 documents, as `tabalyst report --scan` does.
+
+## Project cache
+
+Inspect or remove disposable query cache directories for every project or one
+CSV source:
+
+```console
+tabalyst cache info
+tabalyst cache info customers.csv
+tabalyst cache clean
+tabalyst cache clean customers.csv
+```
+
+`info` reports the managed directory count and logical byte size, plus entries
+Tabalyst cannot manage. `clean` removes only owned disposable cache directories;
+it never removes the selected project scan or database. An active project reader
+prevents cleanup until it closes.
