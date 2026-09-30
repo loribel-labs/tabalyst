@@ -13,7 +13,6 @@ from tabalyst.cli.terminal import ProgressPrinter
 from tabalyst.config import load_config
 from tabalyst.errors import ConfigurationError, InputError
 from tabalyst.progress import ProgressEvent, ProgressPhase
-from tabalyst.projects.index import find_project
 from tabalyst.projects.location import StorageLocation
 from tabalyst.scanner.config import resolve_scan_config
 from tabalyst.scanner.readers.json_reader import _has_long_digit_run
@@ -39,7 +38,7 @@ def _config(path, document):
 # Command and outputs ------------------------------------------------------
 
 
-def test_scan_writes_scan_document_in_the_project(tmp_path, monkeypatch):
+def test_scan_writes_shared_scan_document_without_database(tmp_path, monkeypatch):
     monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
     source = _write(tmp_path / "customers.csv", "id,city\n1,Montréal\n2,Laval\n")
 
@@ -49,9 +48,8 @@ def test_scan_writes_scan_document_in_the_project(tmp_path, monkeypatch):
     assert result.stdout == ""
     assert "Scanned 2 records: 1 dataset, 2 fields." in result.stderr
     location = StorageLocation.local()
-    project = find_project(location, source)
-    assert project is not None
-    scan_path = location.scan_path(project.project_id, project.generation.id)
+    scan_path = location.shared_scan_path(source)
+    assert not location.projects_dir.exists()
     document = json.loads(scan_path.read_text(encoding="utf-8"))
     assert document["format"] == "tabalyst.scan"
     assert document["source"]["name"] == "customers.csv"
@@ -170,11 +168,7 @@ def test_failed_source_does_not_stop_the_batch(tmp_path, monkeypatch):
     assert f"Error [{broken}]: Invalid JSON in broken.json" in result.stderr
     assert "1 succeeded, 1 failed" in result.stderr
     assert not (tmp_path / "broken.scan.json").exists()
-    project = find_project(StorageLocation.local(), valid)
-    assert project is not None
-    assert StorageLocation.local().scan_path(
-        project.project_id, project.generation.id
-    ).is_file()
+    assert StorageLocation.local().shared_scan_path(valid).is_file()
 
 
 def test_partial_scan_succeeds_with_a_warning(tmp_path, monkeypatch):
@@ -186,10 +180,9 @@ def test_partial_scan_succeeds_with_a_warning(tmp_path, monkeypatch):
 
     assert result.exit_code == 0, result.output
     assert "partial scan, 1 record excluded (width_mismatch: 1)" in result.stderr
-    project = find_project(StorageLocation.local(), source)
     document = json.loads(
         StorageLocation.local()
-        .scan_path(project.project_id, project.generation.id)
+        .shared_scan_path(source)
         .read_text(encoding="utf-8")
     )
     assert document["status"] == "partial"

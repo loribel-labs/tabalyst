@@ -11,9 +11,10 @@ as email addresses, dates or amounts.
 tabalyst scan customers.csv
 ```
 
-For a CSV, this creates a project with a generation-bound `scan.json` in
-Tabalyst's local storage directory. Set `TABALYST_HOME` to choose that storage
-root. The source file is never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
+For a CSV, this stores a reusable `scan.json` in Tabalyst's local storage
+directory, under `workspaces/local/scans/` in a directory keyed by the source
+path. It does not build a DuckDB database. Set `TABALYST_HOME` to choose the
+storage root. The source file is never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
 so memory depends on the configured limits, not on the number of records. The
 structure of the result is described in the
 [scan format reference](../reference/scan-format.md).
@@ -165,12 +166,12 @@ format, encoding, delimiter, status and number of diagnostics.
 
 ## Report from a scan
 
-`tabalyst report customers.csv` uses the project's current scan. If none exists,
-it creates one. A scan is reused when the CSV is unchanged and its effective
-scan settings match. A changed CSV causes a new scan; the superseded generation
-and its owned cache are removed after publication, unless an active reader holds
-them. Before reusing a project scan, Report checks the CSV's SHA-256 even if
-its size and modification time are unchanged. When no scan settings are
+`tabalyst report customers.csv` uses the stored scan. If none exists, it
+creates one. A scan is reused when the CSV is unchanged and its effective
+scan settings match. A changed CSV causes an atomic replacement of `scan.json`.
+Existing DuckDB projects from 0.4.3 are left untouched. Before reusing a scan,
+Report checks the CSV's SHA-256 even if its size and modification time are
+unchanged. When no scan settings are
 requested, Report keeps the settings recorded by the existing scan.
 
 Build the HTML report from a standalone scan document instead of reading the source
@@ -226,15 +227,15 @@ anything; `result.model_dump(mode="json")` gives the document. Pass
 `config=tabalyst.ScanConfig(...)` to change settings, and `workers=` to choose
 the number of worker processes as `--workers` does. `tabalyst.generate_scans()`
 writes standalone scan documents by default and returns the plan, successes and
-failures. Pass `project_storage=True` to use the command's default project
+failures. Pass `project_storage=True` to use the command's default scan-only
 storage for CSV files.
 `tabalyst.generate_reports(..., from_scan=True)` builds reports from scan
 documents, as `tabalyst report --scan` does.
 
 ## Project cache
 
-Inspect or remove disposable query cache directories for every project or one
-CSV source:
+Inspect or remove disposable query cache directories of existing DuckDB projects,
+for every project or one CSV source:
 
 ```console
 tabalyst cache info
@@ -246,4 +247,5 @@ tabalyst cache clean customers.csv
 `info` reports the managed directory count and logical byte size, plus entries
 Tabalyst cannot manage. `clean` removes only owned disposable cache directories;
 it never removes the selected project scan or database. An active project reader
-prevents cleanup until it closes.
+prevents cleanup until it closes. Ordinary scans and reports do not create
+these query caches.

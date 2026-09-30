@@ -12,8 +12,9 @@ montants.
 tabalyst scan customers.csv
 ```
 
-Pour un CSV, cette commande crée un projet avec un `scan.json` lié à une
-génération dans le dossier de stockage local de Tabalyst. Définissez
+Pour un CSV, cette commande conserve un `scan.json` réutilisable dans le
+stockage local de Tabalyst, sous `workspaces/local/scans/` dans un dossier
+déterminé par le chemin de la source. Elle ne crée pas de base DuckDB. Définissez
 `TABALYST_HOME` pour choisir la racine de ce stockage. Le fichier source n’est
 jamais modifié. **Tabalyst Scan** lit tout le fichier en une seule
 lecture en flux : la mémoire utilisée dépend des limites configurées, pas du
@@ -164,12 +165,12 @@ statut et le nombre de diagnostics.
 
 ## Rapport à partir d’une analyse
 
-`tabalyst report customers.csv` utilise l’analyse courante du projet. S’il
-n’existe pas de projet, il en crée un. L’analyse est réutilisée si le CSV n’a
+`tabalyst report customers.csv` utilise l’analyse enregistrée. Si elle
+n’existe pas, il la crée. L’analyse est réutilisée si le CSV n’a
 pas changé et si les paramètres d’analyse demandés correspondent. Si le CSV a
-changé, Tabalyst publie une nouvelle génération, puis supprime l’ancienne et
-son cache géré, sauf si un lecteur actif les utilise. Avant de réutiliser une
-analyse du projet, Report vérifie l’empreinte SHA-256 du CSV même si sa taille
+changé, Tabalyst remplace `scan.json` de façon atomique. Les projets DuckDB
+créés par 0.4.3 restent intacts. Avant de réutiliser une
+analyse, Report vérifie l’empreinte SHA-256 du CSV même si sa taille
 et sa date de modification sont inchangées. Si aucun paramètre d’analyse n’est
 demandé, Report reprend ceux de
 l’analyse existante.
@@ -230,14 +231,14 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 `config=tabalyst.ScanConfig(...)` pour modifier les paramètres.
 `tabalyst.generate_scans()` écrit par défaut des documents d’analyse autonomes
 et renvoie le plan, les succès et les échecs. Passez `project_storage=True`
-pour utiliser le stockage de projet par défaut de la commande pour les CSV.
+pour utiliser le stockage d’analyses sans DuckDB de la commande pour les CSV.
 `tabalyst.generate_reports(..., from_scan=True)` génère des rapports à partir
 de documents d’analyse, comme `tabalyst report --scan`.
 
 ## Cache du projet
 
-Inspectez ou supprimez les dossiers de cache de requêtes jetables pour tous
-les projets ou pour un seul fichier CSV :
+Inspectez ou supprimez les dossiers de cache de requêtes jetables des projets
+DuckDB existants, pour tous les projets ou pour un seul fichier CSV :
 
 ```console
 tabalyst cache info
@@ -250,4 +251,5 @@ tabalyst cache clean customers.csv
 ainsi que les entrées que Tabalyst ne peut pas gérer. `clean` supprime
 uniquement les dossiers de cache jetables dont Tabalyst connaît la propriété ;
 il conserve le scan et la base de données du projet sélectionné. Un lecteur
-actif empêche le nettoyage jusqu’à sa fermeture.
+actif empêche le nettoyage jusqu’à sa fermeture. Les analyses et rapports
+ordinaires ne créent pas ces caches.

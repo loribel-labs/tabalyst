@@ -1,5 +1,10 @@
 # Tabalyst Scan: project storage design
 
+Default CSV Scan and Report stopped building this private DuckDB project
+storage after the measured 0.4.3 regression. They now share a scan-only JSON
+document; this design and its explicit private APIs remain available for future
+query features. Existing generations are not removed by the default commands.
+
 This document started as the design of the storage layer and now records its
 incremental implementation. It turns the storage requirements of the private
 specification (`tabalyst-gb`,
