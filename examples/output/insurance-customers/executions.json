@@ -340,6 +340,23 @@
         "dirty": true,
         "state": "43b5cfc1+working"
       }
+    },
+    {
+      "timestamp": "2026-09-30T21:19:56.034009Z",
+      "tabalyst_version": "0.4.4",
+      "source_file": "insurance-customers.csv",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 3000,
+      "columns": 34,
+      "analysis_seconds": 0.655,
+      "total_seconds": 1.7576,
+      "git": {
+        "available": true,
+        "commit": "0896c0d427fbec7952c3d3637d800e0567d77a42",
+        "dirty": true,
+        "state": "0896c0d4+working"
+      }
     }
   ]
 }
