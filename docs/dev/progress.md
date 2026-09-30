@@ -1,5 +1,13 @@
 # Development progress
 
+## 2026-09-30
+
+- Prepared package version `0.4.4` after the `v0.4.4` release workflow rejected
+  a tag pointing to a commit that still declared `0.4.3`. Updated version
+  assertions, format examples, release notes and public demos. The existing
+  tag must be moved to the version-preparation commit before the workflow can
+  build the intended release; no publication is implied by these source edits.
+
 ## 2026-09-29
 
 - Measured the 0.4.2-to-0.4.3 scan regression on 20,000 synthetic CSV rows and

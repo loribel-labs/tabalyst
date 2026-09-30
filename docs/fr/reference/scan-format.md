@@ -3,8 +3,8 @@ title: Format d’analyse
 description: Structure du document JSON écrit par tabalyst scan, avec son niveau supérieur, ses jeux de données, champs, enveloppes de mesure, détecteurs et diagnostics.
 ---
 
-`tabalyst scan data.csv` écrit par défaut le `scan.json` d’une génération de
-projet ; `-o` et `-d` exportent un document autonome `<stem>.scan.json`. Ces
+`tabalyst scan data.csv` écrit par défaut un `scan.json` réutilisable ;
+`-o` et `-d` exportent un document autonome `<stem>.scan.json`. Ces
 documents JSON décrivent chaque champ de la source. Cette page décrit le format
 `tabalyst.scan`, version `0.1.0a`, révision `4`. Le format est **expérimental** : il peut changer de
 manière incompatible d’une version à l’autre. Vérifiez toujours d’abord
@@ -19,7 +19,7 @@ dans le [journal des modifications du format d’analyse](scan-format-changelog.
   "format_version": "0.1.0a",
   "format_revision": 4,
   "engine": {
-    "version": "0.4.3",
+    "version": "0.4.4",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },
