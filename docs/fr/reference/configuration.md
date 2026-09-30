@@ -34,8 +34,8 @@ erreur. Les valeurs explicites de la ligne de commande, comme `--delimiter` et
 
 ## Paramètres du rapport
 
-Le rapport repose sur Tabalyst Scan : il réutilise une analyse courante du
-projet lorsque c’est possible, ou lit le CSV et l’analyse avec les
+Le rapport repose sur Tabalyst Scan : il réutilise une analyse enregistrée
+encore courante lorsque c’est possible, ou lit le CSV et l’analyse avec les
 paramètres `scan`, puis présente le résultat avec les paramètres ci-dessous.
 
 ```json

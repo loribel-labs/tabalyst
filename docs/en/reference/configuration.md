@@ -33,7 +33,7 @@ override.
 
 ## Report settings
 
-The report is built on Tabalyst Scan: it reuses a current project scan when
+The report is built on Tabalyst Scan: it reuses a current stored scan when
 possible, or reads the CSV with the effective `scan` settings, then presents
 the result with the settings below.
 

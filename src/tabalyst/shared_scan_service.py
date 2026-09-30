@@ -1,26 +1,20 @@
-"""The current project scan shared by Scan and Report CSV commands."""
+"""Scan-only document shared by the CSV Scan and Report commands.
+
+DuckDB project generations remain available to the private project API, but
+ordinary scans do not need to materialize a database to serve a report.
+"""
 
 from dataclasses import dataclass
 from pathlib import Path
 
+from tabalyst.batch import write_text_atomic
 from tabalyst.config import merge_settings
-from tabalyst.errors import InputError
-from tabalyst.project_scan_service import scan_project
-from tabalyst.projects._locks import workspace_reader
-from tabalyst.projects._publication import publish_selected_scan
-from tabalyst.projects._retention import remove_superseded_generation
-from tabalyst.projects._staging import _file_hash
-from tabalyst.projects.index import (
-    document_key,
-    find_project,
-    read_index,
-    source_key,
-)
+from tabalyst.errors import InputError, ReportError
+from tabalyst.projects._locks import workspace_writer
 from tabalyst.projects.location import StorageLocation
-from tabalyst.projects.models import ProjectManifest
-from tabalyst.projects.store import read_project
 from tabalyst.scan_reuse import SourceState, _sha256, compare_source, load_scan
-from tabalyst.scanner import ScanConfig, ScanResult
+from tabalyst.scan_service import scan_document
+from tabalyst.scanner import ScanConfig, ScanResult, scan
 from tabalyst.scanner.config import config_sha256, scan_config_from_layer
 
 
@@ -29,22 +23,7 @@ class SharedScan:
     result: ScanResult
     path: Path
     reused: bool
-    project_id: str
     warnings: tuple[str, ...] = ()
-
-
-def _find_project(location: StorageLocation, source: Path):
-    index = read_index(location)
-    project_id = index.projects.get(source_key(source)) if index else None
-    if project_id is not None:
-        try:
-            project = read_project(location, project_id)
-        except InputError:
-            pass
-        else:
-            if document_key(project) == source_key(source):
-                return project
-    return find_project(location, source)
 
 
 def current_scan(
@@ -59,37 +38,18 @@ def current_scan(
     delimiter: str | None = None,
     encoding: str | None = None,
 ) -> SharedScan:
-    """Reuse a verified current scan, or publish a replacement generation.
-
-    ``refresh`` makes the Scan command run again even when the source is fresh.
-    Report only scans when source bytes or effective Scan settings differ.
-    """
+    """Reuse a current scan document, or atomically replace it after scanning."""
     source = source.resolve()
     location = location or StorageLocation.local()
-    previous = _find_project(location, source)
-    effective = config
-    if isinstance(previous, ProjectManifest) and not refresh:
-        with workspace_reader(location):
-            selected = read_project(location, previous.project_id)
-            if not isinstance(selected, ProjectManifest):
-                raise InputError("Project has no committed scan generation")
-            if selected.source.path != source.as_posix():
-                raise InputError("Project source binding differs from the requested file")
-            scan_path = location.scan_path(selected.project_id, selected.generation.id)
-            database_path = location.database_path(
-                selected.project_id, selected.generation.id
-            )
-            try:
-                if (
-                    _file_hash(scan_path) != selected.generation.scan_sha256
-                    or _file_hash(database_path) != selected.generation.database_sha256
-                ):
-                    raise InputError("Committed project artifact hash mismatch")
-            except OSError as exc:
-                raise InputError(f"Cannot read committed project artifacts: {exc}") from exc
-            result = load_scan(scan_path)
+    path = location.shared_scan_path(source)
+    with workspace_writer(location):
+        effective = config
+        if path.exists() and not refresh:
+            result = load_scan(path)
+            if result.source.name != source.name:
+                raise InputError("Stored scan source binding differs from the requested file")
             if config_sha256(result.config) != result.config_sha256:
-                raise InputError("Committed scan configuration fingerprint is invalid")
+                raise InputError("Stored scan configuration fingerprint is invalid")
             check = compare_source(source, result.source)
             fingerprint_matches = False
             if check.state is SourceState.FRESH:
@@ -109,41 +69,11 @@ def current_scan(
                 and fingerprint_matches
                 and result.config_sha256 == config_sha256(effective)
             ):
-                return SharedScan(
-                    result, scan_path, True, previous.project_id
-                )
-    if isinstance(previous, ProjectManifest):
-        published = publish_selected_scan(
-            location,
-            previous.project_id,
-            expected_generation_id=previous.generation.id,
-            expected_source=source,
-            config=effective,
-            on_progress=on_progress,
-            workers=workers,
-        )
-    else:
-        published = scan_project(
-            source,
-            location=location,
-            on_progress=on_progress,
-            workers=workers,
-            config=effective,
-        )
-    warnings = list(published.warnings)
-    if isinstance(previous, ProjectManifest):
-        warning = remove_superseded_generation(
-            location,
-            previous.project_id,
-            previous.generation.id,
-            published.project.generation.id,
-        )
-        if warning is not None:
-            warnings.append(warning)
-    return SharedScan(
-        published.result,
-        published.scan_path,
-        False,
-        published.project.project_id,
-        tuple(warnings),
-    )
+                return SharedScan(result, path, True)
+
+        result = scan(source, config=effective, workers=workers, on_progress=on_progress)
+        try:
+            write_text_atomic(path, scan_document(result))
+        except OSError as exc:
+            raise ReportError(f"Cannot write scan file {path}: {exc}") from exc
+        return SharedScan(result, path, False)

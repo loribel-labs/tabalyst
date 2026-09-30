@@ -33,7 +33,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   applies the staleness rule (design O12): source size, modification time and
   SHA-256, and the `config_sha256` of requested scan settings.
   `compare_source()` holds the comparison alone, for a source located by the
-  caller: beside the document (`check_source()`) or from `project.json`.
+  caller: beside the document (`check_source()`), from scan-only storage, or
+  from `project.json`.
 - `batch.py`: shared batch planning: shell-independent input resolution,
   output naming for `-o` and `-d`, collision, input-overwrite and `--force`
   checks, and atomic text writes.
@@ -45,7 +46,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   multi-sample execution.
 - `scan_service.py`: scan batch planning on `batch.py`, configuration layers,
   sequential scans and atomic `.scan.json` writes (`generate_scans()`).
-- `projects/`: project storage, not yet used by any command (design in
+- `projects/`: private DuckDB project storage, not used by default Scan/Report
+  (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`
   (storage root and layout), `models.py` and `store.py` (`project.json`),
   `index.py` (`projects/index.json` lookup, rebuilt from the project files) and
@@ -117,10 +119,11 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   transient decision with explicit snapshot/rescan choices. Actions carry
   storage, workspace, generation and source preconditions. No public adapter
   or product presentation is exposed yet.
-- `shared_scan_service.py`: CSV command handoff. Scan publishes a project
-  generation; Report reuses a hash-verified current Scan and publishes a new
-  generation when source bytes or effective Scan settings change. It reads the
-  committed JSON without opening a DuckDB query connection.
+- `shared_scan_service.py`: CSV command handoff. Scan writes a scan-only
+  document under `workspaces/local/scans/<source-path-hash>/scan.json`;
+  Report reuses it after source SHA-256 and settings checks or atomically
+  replaces it when stale. Ordinary Scan/Report runs neither open nor build a
+  DuckDB database. Existing private project generations remain untouched.
 - `projects/_retention.py`: removes the previously selected generation and its
   owned cache after successful replacement under exclusive maintenance
   ownership. Active readers or unknown contents retain it with a warning.

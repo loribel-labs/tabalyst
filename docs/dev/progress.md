@@ -2,6 +2,22 @@
 
 ## 2026-09-29
 
+- Measured the 0.4.2-to-0.4.3 scan regression on 20,000 synthetic CSV rows and
+  20 fields (Windows, Python 3.12, one worker): standalone Scan took 1.23 s;
+  staging Scan plus DuckDB took 9.47 s, including 4.47 s in Scan with the
+  database observation sink and 1.79 s reopening/validating the database.
+  The default CSV Scan/Report path now stores and reuses only `scan.json` in a
+  source-keyed local location. Existing DuckDB project generations remain
+  untouched and the private project API remains available. This changes
+  storage behavior, not the experimental Scan/profile JSON formats. The
+  Tabalyst Studio follow-up is to update the documented default scan location
+  and remove claims that ordinary scans build a DuckDB project. The new
+  command took 1.52 s on the same file; a report reusing that scan took 0.57 s.
+  Validation: 1,545 tests passed / 9 skipped before the final regression test;
+  69 focused tests passed afterward, Ruff passed, and all three demos were
+  regenerated. A process-termination test failed in a later suite interrupted
+  by a long host pause; it passed alone and in the 69-test focused run.
+
 - Added opt-in `report --details` for standalone column HTML reports under
   `<report-stem>/`, with source-order numbered slugs, links from the main
   Columns table, and the same

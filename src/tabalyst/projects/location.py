@@ -9,6 +9,7 @@ or the directory named by ``TABALYST_HOME``, which tests and a server can use
 to relocate storage.
 """
 
+import hashlib
 import os
 import sys
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import platformdirs
 
+from tabalyst.batch import path_key
 from tabalyst.errors import ConfigurationError, InputError
 from tabalyst.projects.identity import is_project_id
 
@@ -70,6 +72,11 @@ class StorageLocation:
     @property
     def projects_dir(self) -> Path:
         return self.workspace_dir / "projects"
+
+    def shared_scan_path(self, source: Path) -> Path:
+        """The scan-only document for a resolved source, independent of DuckDB projects."""
+        key = path_key(source.resolve()).encode("utf-8", "surrogatepass")
+        return self.workspace_dir / "scans" / hashlib.sha256(key).hexdigest() / SCAN_FILE_NAME
 
     @property
     def workspace_dir(self) -> Path:

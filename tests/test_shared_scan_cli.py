@@ -7,10 +7,12 @@ import os
 from typer.testing import CliRunner
 
 from tabalyst.cli import app
+from tabalyst.project_scan_service import scan_project
 from tabalyst.projects._cache import create_query_directory
 from tabalyst.projects._generation import open_generation
 from tabalyst.projects.index import find_project
 from tabalyst.projects.location import StorageLocation
+from tabalyst.projects.store import read_project
 
 runner = CliRunner()
 
@@ -21,7 +23,7 @@ def _project(location, source):
     return result
 
 
-def test_scan_and_report_share_project_scan_then_replace_stale_generation(
+def test_scan_and_report_share_scan_only_document_then_replace_stale_scan(
     tmp_path, monkeypatch
 ):
     monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
@@ -31,14 +33,15 @@ def test_scan_and_report_share_project_scan_then_replace_stale_generation(
 
     scanned = runner.invoke(app, ["scan", str(source)])
     assert scanned.exit_code == 0, scanned.output
-    first = _project(location, source)
-    first_path = location.scan_path(first.project_id, first.generation.id)
-    assert first_path.is_file()
+    scan_path = location.shared_scan_path(source)
+    assert scan_path.is_file()
+    assert not location.projects_dir.exists()
     assert not (tmp_path / "data.scan.json").exists()
+    first_bytes = scan_path.read_bytes()
 
     report = runner.invoke(app, ["report", str(source)])
     assert report.exit_code == 0, report.output
-    assert _project(location, source).generation.id == first.generation.id
+    assert scan_path.read_bytes() == first_bytes
 
     before = source.stat()
     source.write_text("id,city\n1,Lyon \n", encoding="utf-8")
@@ -46,14 +49,23 @@ def test_scan_and_report_share_project_scan_then_replace_stale_generation(
     assert source.stat().st_size == before.st_size
     refreshed = runner.invoke(app, ["report", str(source), "--force"])
     assert refreshed.exit_code == 0, refreshed.output
-    second = _project(location, source)
-    assert second.project_id == first.project_id
-    assert second.generation.id != first.generation.id
-    assert not first_path.exists()
-    document = json.loads(
-        location.scan_path(second.project_id, second.generation.id).read_text()
-    )
+    assert scan_path.read_bytes() != first_bytes
+    assert not location.projects_dir.exists()
+    document = json.loads(scan_path.read_text())
     assert document["source"]["sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+
+
+def test_report_creates_only_a_scan_document_for_new_csv(tmp_path, monkeypatch):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
+    source = tmp_path / "fresh.csv"
+    source.write_text("id\n1\n", encoding="utf-8")
+    location = StorageLocation.local()
+
+    report = runner.invoke(app, ["report", str(source)])
+
+    assert report.exit_code == 0, report.output
+    assert location.shared_scan_path(source).is_file()
+    assert not location.projects_dir.exists()
 
 
 def test_cache_info_and_clean_select_source_or_all(tmp_path, monkeypatch):
@@ -63,8 +75,7 @@ def test_cache_info_and_clean_select_source_or_all(tmp_path, monkeypatch):
     for name in ("a", "b"):
         source = tmp_path / f"{name}.csv"
         source.write_text("x\n1\n", encoding="utf-8")
-        assert runner.invoke(app, ["scan", str(source)]).exit_code == 0
-        project = _project(location, source)
+        project = scan_project(source, location=location).project
         create_query_directory(
             location.project_dir(project.project_id), project.generation.id
         )
@@ -95,11 +106,12 @@ def test_report_preserves_recorded_csv_settings_when_reusing(tmp_path, monkeypat
     source.write_text("id;city\n1;Paris\n", encoding="utf-8")
     assert runner.invoke(app, ["scan", str(source), "--delimiter", ";"]).exit_code == 0
     location = StorageLocation.local()
-    first = _project(location, source)
+    scan_path = location.shared_scan_path(source)
+    first_bytes = scan_path.read_bytes()
 
     report = runner.invoke(app, ["report", str(source)])
     assert report.exit_code == 0, report.output
-    assert _project(location, source).generation.id == first.generation.id
+    assert scan_path.read_bytes() == first_bytes
     profile = json.loads((tmp_path / "semicolon.json").read_text())
     assert profile["source"]["delimiter"] == ";"
 
@@ -109,22 +121,19 @@ def test_report_preserves_recorded_csv_settings_when_reusing(tmp_path, monkeypat
         app, ["report", str(source), "--config", str(settings), "--force"]
     )
     assert configured.exit_code == 0, configured.output
-    assert _project(location, source).generation.id == first.generation.id
+    assert scan_path.read_bytes() == first_bytes
 
 
-def test_active_reader_keeps_old_generation_until_it_closes(tmp_path, monkeypatch):
+def test_default_scan_does_not_modify_existing_duckdb_generation(tmp_path, monkeypatch):
     monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
     source = tmp_path / "data.csv"
     source.write_text("x\n1\n", encoding="utf-8")
-    assert runner.invoke(app, ["scan", str(source)]).exit_code == 0
     location = StorageLocation.local()
-    first = _project(location, source)
+    first = scan_project(source, location=location).project
     with open_generation(location, first.project_id):
-        info = runner.invoke(app, ["cache", "info", str(source)])
-        assert info.exit_code == 0, info.output
-        assert "1 project" in info.stdout
         source.write_text("x\n2\n", encoding="utf-8")
         result = runner.invoke(app, ["scan", str(source)])
         assert result.exit_code == 0, result.output
-        assert "Old generation retained" in result.stderr
+        assert location.shared_scan_path(source).is_file()
+        assert read_project(location, first.project_id).generation.id == first.generation.id
         assert location.scan_path(first.project_id, first.generation.id).exists()
