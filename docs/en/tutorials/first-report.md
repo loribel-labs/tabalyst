@@ -62,8 +62,11 @@ open orders.html       # macOS
 xdg-open orders.html   # Linux
 ```
 
-The report is a single self-contained file. It works offline and can be sent to
-someone else, but it contains values from your data: share it accordingly.
+The report works offline. Add `--details` to the command to create an
+independent HTML page per column under `orders/`. The **Columns** table then
+links to those pages. In each column page, **Overview** shows the stored values
+with counts and all detected formats directly. The files contain values from
+your data: share them accordingly.
 
 ## 4. Read what Tabalyst found
 

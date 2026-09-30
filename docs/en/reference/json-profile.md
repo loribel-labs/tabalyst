@@ -12,7 +12,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `8`.
+format `0.1.0a`, revision `9`.
 
 ## Example
 
@@ -21,7 +21,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 8,
+  "format_revision": 9,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -197,6 +197,12 @@ Each column profile always contains:
 | `semantic_type` | `date` for date columns, otherwise the id of the scan's primary interpretation, such as `enumeration`, `email`, `phone` or `postal_code`, or `null` |
 | `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and `preview`; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
+| `scan_details` | Bounded field evidence retained from the exposed Scan result: presence, native types, missing breakdown, first and last values, string characteristics and lengths, numeric statistics, boolean counts and temporal ranges. See below |
+
+`value_profile.selection` is `complete` when all available frequencies are
+listed. A primary `enumeration` keeps this complete list even above
+`value_examples.full_distribution_max_distinct`, if the Scan frequency measure
+is complete. Otherwise the profile uses a bounded diverse or random sample.
 
 Depending on the column, these objects are also present (otherwise `null`):
 
@@ -250,6 +256,20 @@ as well as failed ones.
 | `ambiguous_count` | Values with more than one reading, such as `01/02/2026` |
 | `invalid_count` | Values with the right shape but an impossible content, such as `2026-02-30` |
 | `formats` | Formats found, each with `format`, `count` and `percent` of the eligible values |
+| `coverage` | Complete Scan coverage, including tested, not tested and not matched counts; `null` for a failed detector |
+| `evidence` | Bounded exposed examples for matched, ambiguous, invalid and not matched values; `null` for a failed detector |
+| `details` | Detector-specific, exposure-controlled Scan metadata |
+| `adaptive` | Adaptive detection skip and probe metadata, when applicable |
+
+## `scan_details`
+
+The standalone column pages use these Scan facts when present. `first` and
+`last` retain the record number and scalar type; their values, detector
+evidence and detector details use the same `mask`, `hide` or `show` policy as
+the rest of the profile. `string_lengths`, `numeric`, `booleans` and `temporal`
+are `null` when the corresponding Scan measure is unavailable. The complete
+Scan document has other fields and statuses; `scan_details` is a bounded
+selection, not a copy of the Scan document.
 
 ## `issues`
 

@@ -18,6 +18,7 @@ examples/
     |-- insurance-customers/
     |   |-- report.html
     |   |-- report.json
+    |   |-- report/ (34 standalone column pages with --details)
     |   `-- executions.json
     `-- orders/
         |-- report.html
@@ -36,12 +37,13 @@ From the repository root, regenerate the outputs with:
 
 ```console
 tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
-tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --force
+tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
 tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
 ```
 
 Every output folder is independent and contains its own HTML report, canonical
-JSON profile, and cumulative `executions.json` history. Delete an output folder
+JSON profile and cumulative `executions.json` history. The insurance example
+also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel

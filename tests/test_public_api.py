@@ -36,6 +36,28 @@ def test_public_api_writes_canonical_reports_and_execution_history(tmp_path):
     assert history["executions"][0]["json_file"] == "client-a.json"
 
 
+def test_cli_details_flag_is_opt_in(tmp_path):
+    source = tmp_path / "input.csv"
+    source.write_text("name\nAlice\n", encoding="utf-8")
+    output = tmp_path / "report.html"
+
+    ordinary = runner.invoke(app, ["report", str(source), "-o", str(output)])
+    assert ordinary.exit_code == 0, ordinary.output
+    assert not (tmp_path / "report").exists()
+
+    detailed = runner.invoke(
+        app, ["report", str(source), "-o", str(output), "--details", "--force"]
+    )
+    assert detailed.exit_code == 0, detailed.output
+    assert (tmp_path / "report" / "col-01-name.html").is_file()
+
+    plain = runner.invoke(
+        app, ["report", str(source), "-o", str(output), "--no-details", "--force"]
+    )
+    assert plain.exit_code == 0, plain.output
+    assert not (tmp_path / "report").exists()
+
+
 def test_config_encoding_and_explicit_separator_precedence(tmp_path):
     configured_source = tmp_path / "configured.csv"
     configured_source.write_bytes("city;value\nMontréal;1\n".encode("cp1252"))

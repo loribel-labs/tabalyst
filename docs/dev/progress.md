@@ -2,6 +2,17 @@
 
 ## 2026-09-29
 
+- Added opt-in `report --details` for standalone column HTML reports under
+  `<report-stem>/`, with source-order numbered slugs, links from the main
+  Columns table, and the same
+  sidebar/panel design. Each page shows stored values with counts and all
+  detected formats in Overview, then the column's analyses, sample and limits.
+  Sensitive values remain subject to the profile's exposure setting. The
+  default report omits column pages; a forced plain rerun removes generated
+  pages while preserving unrelated files. The `insurance-customers` demo was
+  regenerated with `--details` for review. Studio follow-up:
+  refresh the copied insurance demo and describe the column pages after release.
+
 - Reduced per-push storage platform CI from 12 OS/Python combinations to
   Windows and macOS on Python 3.12. The full test suite still runs on Ubuntu
   with Python 3.11-3.14, including all storage tests. This keeps cross-platform

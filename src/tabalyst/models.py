@@ -1,14 +1,28 @@
-"""Serializable report profile (revision 6), independent from presentation.
+"""Serializable report profile (revision 9), independent from presentation.
 
 Built from a Tabalyst Scan result by ``report_profile.py``.
 """
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, FiniteFloat
 
 from tabalyst.report_config import ReportConfig
+from tabalyst.scanner.models import (
+    Adaptive,
+    BooleanCounts,
+    Coverage,
+    Evidence,
+    Missing,
+    Presence,
+    StringCategories,
+    StringCharacteristics,
+    StringLengths,
+    TemporalStats,
+    ValueAt,
+)
+from tabalyst.scanner.models import NumericStats as ScanNumericStats
 
 
 class ResultModel(BaseModel):
@@ -176,6 +190,29 @@ class DetectorProfile(ResultModel):
     ambiguous_count: int
     invalid_count: int
     formats: list[DetectorFormat]
+    coverage: Coverage | None = None
+    evidence: Evidence | None = None
+    details: dict[str, Any] = {}
+    adaptive: Adaptive | None = None
+
+
+class ScanFieldDetails(ResultModel):
+    """Useful bounded field evidence retained from the exposed Scan document."""
+
+    first_record: int | None
+    occurrences: int
+    value_count: int
+    presence: Presence
+    native_types: dict[str, int]
+    strings: StringCategories
+    missing: Missing
+    first: ValueAt | None
+    last: ValueAt | None
+    string_characteristics: StringCharacteristics
+    string_lengths: StringLengths | None
+    numeric: ScanNumericStats | None
+    booleans: BooleanCounts | None
+    temporal: TemporalStats | None
 
 
 class ColumnProfile(ResultModel):
@@ -208,6 +245,7 @@ class ColumnProfile(ResultModel):
     numeric: NumericStats | None = None
     # Detectors that recognized values, in scan order; failed ones included.
     detectors: list[DetectorProfile] = []
+    scan_details: ScanFieldDetails | None = None
 
 
 class DatasetSummary(ResultModel):
@@ -378,7 +416,7 @@ class DatasetProfile(ResultModel):
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[8] = 8
+    format_revision: Literal[9] = 9
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo
