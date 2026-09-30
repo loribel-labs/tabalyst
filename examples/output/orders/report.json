@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 8,
-  "generated_at": "2026-09-29T20:56:40.821459Z",
-  "processing_seconds": 0.1184,
+  "format_revision": 9,
+  "generated_at": "2026-09-30T03:05:01.006533Z",
+  "processing_seconds": 0.116,
   "source": {
     "filename": "orders.json",
     "format": "json",
@@ -396,7 +396,82 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 1,
+            "value_count": 1,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 1,
+              "present": 1,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 1
+            },
+            "strings": {
+              "count": 1,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 1
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Synthetic shop",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Synthetic shop",
+              "type": "string",
+              "record": 1
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 1,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 1,
+              "min_length": 14,
+              "max_length": 14,
+              "mean_length": 14,
+              "median_length": 14,
+              "length_histogram": [
+                {
+                  "length": 14,
+                  "count": 1
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f3",
@@ -557,9 +632,132 @@
                   "count": 1,
                   "percent": 100.0
                 }
+              ],
+              "coverage": {
+                "eligible": 1,
+                "tested": 1,
+                "matched": 1,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "2026-09-01"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 1,
+            "value_count": 1,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 1,
+              "present": 1,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 1
+            },
+            "strings": {
+              "count": 1,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 1
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-09-01",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "2026-09-01",
+              "type": "string",
+              "record": 1
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 1
+            },
+            "string_lengths": {
+              "count": 1,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 1
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 1,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 1,
+                  "min": "2026-09-01",
+                  "max": "2026-09-01",
+                  "years": [
+                    {
+                      "year": 2026,
+                      "count": 1
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "f4",
@@ -662,7 +860,88 @@
             "mean": 2.0,
             "median": 2.0
           },
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 1,
+            "value_count": 1,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 1,
+              "present": 1,
+              "absent": 0
+            },
+            "native_types": {
+              "integer": 1
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2",
+              "type": "integer",
+              "record": 1
+            },
+            "last": {
+              "value": "2",
+              "type": "integer",
+              "record": 1
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 1,
+              "native_count": 1,
+              "text_count": 0,
+              "min": 2,
+              "max": 2,
+              "sum": 2,
+              "mean": 2,
+              "population_variance": 0,
+              "population_std": 0,
+              "positive": 1,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 2
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         }
       ],
       "issues": [
@@ -1132,7 +1411,82 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 60,
+            "value_count": 60,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 60,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 60
+            },
+            "strings": {
+              "count": 60,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 60
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "C0001",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "C0060",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 60,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 60,
+              "min_length": 5,
+              "max_length": 5,
+              "mean_length": 5,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 60
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f2",
@@ -1554,7 +1908,102 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 60,
+            "value_count": 60,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 60,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 60
+            },
+            "strings": {
+              "count": 60,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 60
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Tania Robert",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Samir Robert",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 8,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 60,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 60,
+              "min_length": 10,
+              "max_length": 15,
+              "mean_length": 12.233333333333333,
+              "median_length": 12,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 4
+                },
+                {
+                  "length": 11,
+                  "count": 9
+                },
+                {
+                  "length": 12,
+                  "count": 26
+                },
+                {
+                  "length": 13,
+                  "count": 13
+                },
+                {
+                  "length": 14,
+                  "count": 6
+                },
+                {
+                  "length": 15,
+                  "count": 2
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f3",
@@ -1874,9 +2323,149 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 56,
+                "tested": 56,
+                "matched": 56,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                  "aaaa.aaaaa9@aaaa.aaaaaaa",
+                  "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                  "aaa.aaaaaa9@aaaa.aaaaaaa",
+                  "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                  "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
+                  "aaaa.aaaaaaa99@aaaa.aaaaaaa"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 1,
+                    "listed": [
+                      {
+                        "value": "aaaa.aaaaaaa",
+                        "count": 56
+                      }
+                    ],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 56,
+            "value_count": 56,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 56,
+              "absent": 4
+            },
+            "native_types": {
+              "string": 56
+            },
+            "strings": {
+              "count": 56,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 56
+            },
+            "missing": {
+              "count": 4,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 4,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 56,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 56,
+              "min_length": 24,
+              "max_length": 30,
+              "mean_length": 27.035714285714285,
+              "median_length": 27,
+              "length_histogram": [
+                {
+                  "length": 24,
+                  "count": 2
+                },
+                {
+                  "length": 25,
+                  "count": 2
+                },
+                {
+                  "length": 26,
+                  "count": 14
+                },
+                {
+                  "length": 27,
+                  "count": 20
+                },
+                {
+                  "length": 28,
+                  "count": 11
+                },
+                {
+                  "length": 29,
+                  "count": 6
+                },
+                {
+                  "length": 30,
+                  "count": 1
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f4",
@@ -2015,9 +2604,110 @@
                   "count": 40,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 40,
+                "tested": 40,
+                "matched": 40,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "+99 9 99 99 99 99"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "regions": {
+                  "fr": 40,
+                  "nanp": 0
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 40,
+            "value_count": 40,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 40,
+              "absent": 20
+            },
+            "native_types": {
+              "string": 40
+            },
+            "strings": {
+              "count": 40,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 40
+            },
+            "missing": {
+              "count": 20,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 20,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "+99 9 99 99 99 99",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "+99 9 99 99 99 99",
+              "type": "string",
+              "record": 58
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 40
+            },
+            "string_lengths": {
+              "count": 40,
+              "min_length": 17,
+              "max_length": 17,
+              "mean_length": 17,
+              "median_length": 17,
+              "length_histogram": [
+                {
+                  "length": 17,
+                  "count": 40
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f6",
@@ -2213,7 +2903,94 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 60,
+            "value_count": 60,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 60,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 60
+            },
+            "strings": {
+              "count": 60,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 60
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Lyon",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Bordeaux",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 60,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 60,
+              "min_length": 4,
+              "max_length": 8,
+              "mean_length": 5.533333333333333,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 15
+                },
+                {
+                  "length": 5,
+                  "count": 24
+                },
+                {
+                  "length": 6,
+                  "count": 8
+                },
+                {
+                  "length": 8,
+                  "count": 13
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f7",
@@ -2354,7 +3131,42 @@
                   "count": 51,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 51,
+                "tested": 51,
+                "matched": 51,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "69003",
+                  "44000",
+                  "59000",
+                  "33000",
+                  "75011"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
             },
             {
               "id": "postal_code",
@@ -2371,9 +3183,132 @@
                   "count": 51,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 51,
+                "tested": 51,
+                "matched": 51,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "69003",
+                  "44000",
+                  "59000",
+                  "33000",
+                  "75011"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "regions": {
+                  "ca": 0,
+                  "us": 51
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 51,
+            "value_count": 51,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 51,
+              "absent": 9
+            },
+            "native_types": {
+              "string": 51
+            },
+            "strings": {
+              "count": 51,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 51
+            },
+            "missing": {
+              "count": 9,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 9,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "69003",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "33000",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 51
+            },
+            "string_lengths": {
+              "count": 51,
+              "min_length": 5,
+              "max_length": 5,
+              "mean_length": 5,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 51
+                }
+              ]
+            },
+            "numeric": {
+              "count": 51,
+              "native_count": 0,
+              "text_count": 51,
+              "min": 33000,
+              "max": 75011,
+              "sum": 3017155,
+              "mean": 59159.901960784315,
+              "population_variance": 207747398.91195694,
+              "population_std": 14413.445074372641,
+              "positive": 51,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 59000
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f8",
@@ -2631,9 +3566,141 @@
                   "count": 60,
                   "percent": 100.0
                 }
+              ],
+              "coverage": {
+                "eligible": 60,
+                "tested": 60,
+                "matched": 60,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "2025-03-04",
+                  "2025-07-06",
+                  "2025-12-07",
+                  "2025-01-09",
+                  "2025-04-04",
+                  "2025-12-10",
+                  "2025-08-20",
+                  "2025-09-28",
+                  "2025-10-28",
+                  "2025-08-10"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 60,
+            "value_count": 60,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 60,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 60
+            },
+            "strings": {
+              "count": 60,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 60
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2025-03-04",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "2025-08-26",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 60
+            },
+            "string_lengths": {
+              "count": 60,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 60
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 60,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 60,
+                  "min": "2025-01-01",
+                  "max": "2025-12-25",
+                  "years": [
+                    {
+                      "year": 2025,
+                      "count": 60
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "f9",
@@ -2736,7 +3803,74 @@
           "date_profile": null,
           "string_profile": null,
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 60,
+            "value_count": 56,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 60,
+              "present": 60,
+              "absent": 0
+            },
+            "native_types": {
+              "null": 4,
+              "boolean": 56
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 4,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 4,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "true",
+              "type": "boolean",
+              "record": 1
+            },
+            "last": {
+              "value": "false",
+              "type": "boolean",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": null,
+            "booleans": {
+              "true": 27,
+              "false": 29
+            },
+            "temporal": null
+          }
         },
         {
           "id": "f11",
@@ -2923,7 +4057,94 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 70,
+            "value_count": 70,
+            "presence": {
+              "parent_type": "array",
+              "parent_count": 56,
+              "present": 70,
+              "absent": null
+            },
+            "native_types": {
+              "string": 70
+            },
+            "strings": {
+              "count": 70,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 70
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": null,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "returning",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "returning",
+              "type": "string",
+              "record": 60
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 70,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 70,
+              "min_length": 3,
+              "max_length": 10,
+              "mean_length": 6.585714285714285,
+              "median_length": 7,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 27
+                },
+                {
+                  "length": 7,
+                  "count": 10
+                },
+                {
+                  "length": 9,
+                  "count": 20
+                },
+                {
+                  "length": 10,
+                  "count": 13
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f14",
@@ -3179,7 +4400,82 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 119
+            },
+            "strings": {
+              "count": 119,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 119
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "O0002-1",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "O0059-1",
+              "type": "string",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 119,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 119,
+              "min_length": 7,
+              "max_length": 7,
+              "mean_length": 7,
+              "median_length": 7,
+              "length_histogram": [
+                {
+                  "length": 7,
+                  "count": 119
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f15",
@@ -3437,9 +4733,141 @@
                   "count": 119,
                   "percent": 100.0
                 }
+              ],
+              "coverage": {
+                "eligible": 119,
+                "tested": 119,
+                "matched": 119,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "2026-01-07",
+                  "2026-03-09",
+                  "2026-01-20",
+                  "2026-05-25",
+                  "2026-06-28",
+                  "2026-02-07",
+                  "2026-06-05",
+                  "2026-01-08",
+                  "2026-07-05",
+                  "2026-06-27"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 119
+            },
+            "strings": {
+              "count": 119,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 119
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-01-07",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "2026-02-24",
+              "type": "string",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 119
+            },
+            "string_lengths": {
+              "count": 119,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 119
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 119,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 119,
+                  "min": "2026-01-01",
+                  "max": "2026-08-28",
+                  "years": [
+                    {
+                      "year": 2026,
+                      "count": 119
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "f16",
@@ -3591,7 +5019,86 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 119
+            },
+            "strings": {
+              "count": 119,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 119
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "delivered",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "cancelled",
+              "type": "string",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 119,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 119,
+              "min_length": 7,
+              "max_length": 9,
+              "mean_length": 8.596638655462185,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 7,
+                  "count": 24
+                },
+                {
+                  "length": 9,
+                  "count": 95
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f19",
@@ -3778,7 +5285,94 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 119
+            },
+            "strings": {
+              "count": 119,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 119
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Desk lamp",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "Desk lamp",
+              "type": "string",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 119,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 119,
+              "min_length": 3,
+              "max_length": 10,
+              "mean_length": 7.739495798319328,
+              "median_length": 8,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 21
+                },
+                {
+                  "length": 8,
+                  "count": 49
+                },
+                {
+                  "length": 9,
+                  "count": 24
+                },
+                {
+                  "length": 10,
+                  "count": 25
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f20",
@@ -3893,7 +5487,88 @@
             "mean": 2.008403361344538,
             "median": 2.0
           },
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "integer": 119
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "1",
+              "type": "integer",
+              "record": 2
+            },
+            "last": {
+              "value": "3",
+              "type": "integer",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 119,
+              "native_count": 119,
+              "text_count": 0,
+              "min": 1,
+              "max": 3,
+              "sum": 239,
+              "mean": 2.008403361344538,
+              "population_variance": 0.6806016524256762,
+              "population_std": 0.8249858498336055,
+              "positive": 119,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 2
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f21",
@@ -4018,7 +5693,88 @@
             "mean": 37.55966386554622,
             "median": 29.9
           },
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "number": 119
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "29.9",
+              "type": "number",
+              "record": 2
+            },
+            "last": {
+              "value": "29.9",
+              "type": "number",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 119,
+              "native_count": 119,
+              "text_count": 0,
+              "min": 4.5,
+              "max": 89,
+              "sum": 4469.6,
+              "mean": 37.55966386554622,
+              "population_variance": 1012.9669444248287,
+              "population_std": 31.827141631394245,
+              "positive": 119,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 69,
+              "median": {
+                "status": "complete",
+                "value": 29.9
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f22",
@@ -4193,7 +5949,89 @@
             "mean": 69.15648148148148,
             "median": 54.0
           },
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 108,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "null": 11,
+              "number": 108
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 11,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 11,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "29.9",
+              "type": "number",
+              "record": 2
+            },
+            "last": {
+              "value": "89.7",
+              "type": "number",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 108,
+              "native_count": 108,
+              "text_count": 0,
+              "min": 4.5,
+              "max": 267,
+              "sum": 7468.9,
+              "mean": 69.15648148148148,
+              "population_variance": 4580.029495027435,
+              "population_std": 67.67591517687393,
+              "positive": 108,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 73,
+              "median": {
+                "status": "complete",
+                "value": 54
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "f23",
@@ -4316,7 +6154,82 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 119,
+            "value_count": 119,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 119,
+              "present": 119,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 119
+            },
+            "strings": {
+              "count": 119,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 119
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "EUR",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "EUR",
+              "type": "string",
+              "record": 59
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 119,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 119,
+              "min_length": 3,
+              "max_length": 3,
+              "mean_length": 3,
+              "median_length": 3,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 119
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         }
       ],
       "issues": [

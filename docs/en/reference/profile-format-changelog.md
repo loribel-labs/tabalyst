@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 8
+  "format_revision": 9
 }
 ```
 
@@ -157,3 +157,17 @@ none of the last 5,000.
   with rare matches may be lower. A `detector_skipped_reacted` warning in the
   dataset `limits.diagnostics` says when such a detector recognized probed
   values more often than its warm-up.
+
+## Revision 9 - 2026-09-29
+
+- Column `scan_details` retains bounded Scan evidence for standalone column
+  pages: presence, native types, missing components, first/last exposed values,
+  string characteristics and lengths, numeric statistics, boolean counts and
+  temporal ranges. Values obey the Scan exposure setting.
+- Detector entries gain complete coverage, exposed evidence, exposed details
+  and adaptive detection metadata when available.
+- Primary enumerations include every available frequency even when their
+  cardinality exceeds `value_examples.full_distribution_max_distinct`.
+- `tabalyst report --details` generates one self-contained HTML page per column
+  under the report stem folder. Details are off by default. This changes report
+  artifacts, not the meaning of other profile fields.

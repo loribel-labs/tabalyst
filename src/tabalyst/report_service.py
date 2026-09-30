@@ -174,6 +174,7 @@ def generate_reports(
     encoding: str | None = None,
     config_path: ConfigPath | None = None,
     force: bool = False,
+    details: bool = False,
     on_progress: ProgressCallback | None = None,
     from_scan: bool = False,
     workers: int | None = None,
@@ -184,6 +185,7 @@ def generate_reports(
     ``tabalyst scan``: each report is built from its document without reading
     the source again, after the staleness checks of ``tabalyst.scan_reuse``.
     Otherwise ``workers`` is passed to ``tabalyst.scan()``.
+    Set ``details=True`` to write a standalone HTML page for each column.
     """
     if from_scan and (separator is not None or encoding is not None):
         raise ConfigurationError(
@@ -245,6 +247,7 @@ def generate_reports(
                     scan_layer,
                     config_paths,
                     force=force,
+                    details=details,
                     on_progress=forward,
                 )
             else:
@@ -254,6 +257,7 @@ def generate_reports(
                     config,
                     config_paths,
                     force=force,
+                    details=details,
                     on_progress=forward,
                     workers=workers,
                     scan_layer=report_scan_layer,

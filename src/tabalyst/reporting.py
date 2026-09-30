@@ -1,6 +1,7 @@
 """Render self-contained analysis results as an interactive HTML report."""
 
 import re
+import unicodedata
 from collections import defaultdict
 from importlib.resources import files
 from pathlib import Path
@@ -9,7 +10,7 @@ from jinja2 import Environment, StrictUndefined
 from markupsafe import Markup, escape
 
 from tabalyst._version import get_version
-from tabalyst.models import ReportProfile
+from tabalyst.models import ColumnProfile, DatasetProfile, ReportProfile
 
 # Plain names of the scan measures a limit can stop (design 8 and 11).
 MEASURE_LABELS = {
@@ -73,7 +74,24 @@ def load_profile(path: str | Path) -> ReportProfile:
     return ReportProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
 
 
-def render_report(profile: ReportProfile) -> str:
+def column_pages(
+    profile: ReportProfile, report_path: Path
+) -> list[tuple[Path, DatasetProfile, ColumnProfile]]:
+    """Name standalone column pages in source order, across all datasets."""
+    pages = []
+    number = 0
+    for dataset in profile.datasets:
+        for column in dataset.columns:
+            number += 1
+            plain = unicodedata.normalize("NFKD", column.name).encode("ascii", "ignore").decode()
+            slug = re.sub(r"[^a-z0-9]+", "-", plain.lower()).strip("-")[:48].rstrip("-")
+            slug = slug or "unnamed"
+            path = report_path.with_suffix("") / f"col-{number:02d}-{slug}.html"
+            pages.append((path, dataset, column))
+    return pages
+
+
+def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str], str] | None = None) -> str:
     """Render exclusively from serialized analysis results; CSV access is unnecessary."""
     resources = files("tabalyst")
     environment = Environment(autoescape=True, undefined=StrictUndefined)
@@ -141,4 +159,36 @@ def render_report(profile: ReportProfile) -> str:
         reason_settings=REASON_SETTINGS,
         theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
         report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
+        column_links=column_links or {},
     )
+
+
+def render_column_report(
+    profile: ReportProfile,
+    dataset: DatasetProfile,
+    column: ColumnProfile,
+    report_href: str,
+) -> str:
+    """Render a self-contained page from one serialized column profile."""
+    resources = files("tabalyst")
+    environment = Environment(autoescape=True, undefined=StrictUndefined)
+    environment.filters["count"] = lambda number: f"{number:,}"
+    environment.filters["number"] = format_number
+    template = environment.from_string(
+        resources.joinpath("templates/column.html").read_text(encoding="utf-8")
+    )
+    rendered = template.render(
+        report=profile,
+        ds=dataset,
+        column=column,
+        report_href=report_href,
+        tabalyst_version=get_version(),
+        limits=[item for item in dataset.limits.measures if item.column_id == column.id],
+        issues=[item for item in dataset.issues if column.id in item.column_ids],
+        diagnostics=[
+            item for item in dataset.limits.diagnostics if item.path == column.path
+        ],
+        theme_css=resources.joinpath("static/theme.css").read_text(encoding="utf-8"),
+        report_js=resources.joinpath("static/report.js").read_text(encoding="utf-8"),
+    )
+    return re.sub(r"(?m)^[ \t]+$", "", rendered)

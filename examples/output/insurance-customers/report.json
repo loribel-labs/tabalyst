@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 8,
-  "generated_at": "2026-09-29T20:56:38.971600Z",
-  "processing_seconds": 3.7801,
+  "format_revision": 9,
+  "generated_at": "2026-09-30T03:04:53.261782Z",
+  "processing_seconds": 3.5627,
   "source": {
     "filename": "insurance-customers.csv",
     "format": "csv",
@@ -497,9 +497,120 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "principal",
+                  "ontario",
+                  "quebec"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 3
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "principal",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "quebec",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 3000,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 6,
+              "max_length": 9,
+              "mean_length": 8.267333333333333,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 6,
+                  "count": 568
+                },
+                {
+                  "length": 7,
+                  "count": 247
+                },
+                {
+                  "length": 9,
+                  "count": 2185
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_2",
@@ -876,7 +987,98 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "CLI-00000281",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "QC-0004-9871",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 3000,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 9,
+              "max_length": 13,
+              "mean_length": 11.834333333333333,
+              "median_length": 12,
+              "length_histogram": [
+                {
+                  "length": 9,
+                  "count": 1
+                },
+                {
+                  "length": 10,
+                  "count": 246
+                },
+                {
+                  "length": 11,
+                  "count": 19
+                },
+                {
+                  "length": 12,
+                  "count": 2717
+                },
+                {
+                  "length": 13,
+                  "count": 17
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_3",
@@ -1028,9 +1230,115 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "Mme",
+                  "M."
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Mme",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Mme",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 1517,
+              "lowercase": 0,
+              "mixed_case": 1483,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 2,
+              "max_length": 3,
+              "mean_length": 2.4943333333333335,
+              "median_length": 2,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 1517
+                },
+                {
+                  "length": 3,
+                  "count": 1483
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_4",
@@ -1844,7 +2152,126 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2993,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 7,
+              "blank": 0,
+              "marker": 0,
+              "content": 2993
+            },
+            "missing": {
+              "count": 7,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 7,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Lucie",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Sophie",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 536,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 6,
+              "uppercase": 0,
+              "lowercase": 10,
+              "mixed_case": 2983,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 2993,
+              "min_length": 3,
+              "max_length": 14,
+              "mean_length": 6.289675910457735,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 113
+                },
+                {
+                  "length": 4,
+                  "count": 376
+                },
+                {
+                  "length": 5,
+                  "count": 629
+                },
+                {
+                  "length": 6,
+                  "count": 736
+                },
+                {
+                  "length": 7,
+                  "count": 421
+                },
+                {
+                  "length": 8,
+                  "count": 304
+                },
+                {
+                  "length": 9,
+                  "count": 285
+                },
+                {
+                  "length": 10,
+                  "count": 59
+                },
+                {
+                  "length": 11,
+                  "count": 13
+                },
+                {
+                  "length": 12,
+                  "count": 14
+                },
+                {
+                  "length": 13,
+                  "count": 26
+                },
+                {
+                  "length": 14,
+                  "count": 17
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_5",
@@ -2611,7 +3038,114 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2996,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 4,
+              "blank": 0,
+              "marker": 0,
+              "content": 2996
+            },
+            "missing": {
+              "count": 4,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 4,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Roy",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Morin",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 260,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 5,
+              "uppercase": 0,
+              "lowercase": 16,
+              "mixed_case": 2980,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 2996,
+              "min_length": 2,
+              "max_length": 10,
+              "mean_length": 6.219626168224299,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 46
+                },
+                {
+                  "length": 3,
+                  "count": 151
+                },
+                {
+                  "length": 4,
+                  "count": 247
+                },
+                {
+                  "length": 5,
+                  "count": 529
+                },
+                {
+                  "length": 6,
+                  "count": 756
+                },
+                {
+                  "length": 7,
+                  "count": 385
+                },
+                {
+                  "length": 8,
+                  "count": 735
+                },
+                {
+                  "length": 9,
+                  "count": 125
+                },
+                {
+                  "length": 10,
+                  "count": 22
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_6",
@@ -2971,9 +3505,450 @@
                   "count": 1,
                   "percent": 0.03
                 }
+              ],
+              "coverage": {
+                "eligible": 2994,
+                "tested": 2994,
+                "matched": 2635,
+                "ambiguous": 356,
+                "invalid": 3,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.8801,
+                "share_eligible": 0.8801
+              },
+              "evidence": {
+                "matched": [
+                  "1961-03-31",
+                  "1983-01-14",
+                  "1941-09-10",
+                  "1936-12-13",
+                  "1943-04-16",
+                  "1979-07-29",
+                  "1996-03-27",
+                  "1958-01-22",
+                  "1987-11-05",
+                  "1981-09-04"
+                ],
+                "ambiguous": [
+                  "11-02-1944",
+                  "01-01-2006",
+                  "06-02-1974",
+                  "11-10-1985",
+                  "05-06-1969",
+                  "07-10-1983",
+                  "03-09-1985",
+                  "07-04-1985",
+                  "02-11-2005",
+                  "12-08-1988"
+                ],
+                "invalid": [
+                  "2026-13-40"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 356,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 356
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 325,
+                    "MDY": 138
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2994,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 6,
+              "blank": 0,
+              "marker": 0,
+              "content": 2994
+            },
+            "missing": {
+              "count": 6,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 6,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "1961-03-31",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "01-10-1949",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 2994
+            },
+            "string_lengths": {
+              "count": 2994,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 2994
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 2635,
+              "ambiguous": 356,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 2635,
+                  "min": "1936-09-22",
+                  "max": "2008-09-16",
+                  "years": [
+                    {
+                      "year": 1936,
+                      "count": 8
+                    },
+                    {
+                      "year": 1937,
+                      "count": 28
+                    },
+                    {
+                      "year": 1938,
+                      "count": 33
+                    },
+                    {
+                      "year": 1939,
+                      "count": 38
+                    },
+                    {
+                      "year": 1940,
+                      "count": 36
+                    },
+                    {
+                      "year": 1941,
+                      "count": 33
+                    },
+                    {
+                      "year": 1942,
+                      "count": 35
+                    },
+                    {
+                      "year": 1943,
+                      "count": 27
+                    },
+                    {
+                      "year": 1944,
+                      "count": 48
+                    },
+                    {
+                      "year": 1945,
+                      "count": 41
+                    },
+                    {
+                      "year": 1946,
+                      "count": 43
+                    },
+                    {
+                      "year": 1947,
+                      "count": 38
+                    },
+                    {
+                      "year": 1948,
+                      "count": 37
+                    },
+                    {
+                      "year": 1949,
+                      "count": 38
+                    },
+                    {
+                      "year": 1950,
+                      "count": 38
+                    },
+                    {
+                      "year": 1951,
+                      "count": 42
+                    },
+                    {
+                      "year": 1952,
+                      "count": 41
+                    },
+                    {
+                      "year": 1953,
+                      "count": 38
+                    },
+                    {
+                      "year": 1954,
+                      "count": 41
+                    },
+                    {
+                      "year": 1955,
+                      "count": 41
+                    },
+                    {
+                      "year": 1956,
+                      "count": 37
+                    },
+                    {
+                      "year": 1957,
+                      "count": 35
+                    },
+                    {
+                      "year": 1958,
+                      "count": 34
+                    },
+                    {
+                      "year": 1959,
+                      "count": 31
+                    },
+                    {
+                      "year": 1960,
+                      "count": 31
+                    },
+                    {
+                      "year": 1961,
+                      "count": 46
+                    },
+                    {
+                      "year": 1962,
+                      "count": 41
+                    },
+                    {
+                      "year": 1963,
+                      "count": 37
+                    },
+                    {
+                      "year": 1964,
+                      "count": 42
+                    },
+                    {
+                      "year": 1965,
+                      "count": 50
+                    },
+                    {
+                      "year": 1966,
+                      "count": 45
+                    },
+                    {
+                      "year": 1967,
+                      "count": 44
+                    },
+                    {
+                      "year": 1968,
+                      "count": 41
+                    },
+                    {
+                      "year": 1969,
+                      "count": 39
+                    },
+                    {
+                      "year": 1970,
+                      "count": 34
+                    },
+                    {
+                      "year": 1971,
+                      "count": 34
+                    },
+                    {
+                      "year": 1972,
+                      "count": 28
+                    },
+                    {
+                      "year": 1973,
+                      "count": 45
+                    },
+                    {
+                      "year": 1974,
+                      "count": 31
+                    },
+                    {
+                      "year": 1975,
+                      "count": 43
+                    },
+                    {
+                      "year": 1976,
+                      "count": 35
+                    },
+                    {
+                      "year": 1977,
+                      "count": 22
+                    },
+                    {
+                      "year": 1978,
+                      "count": 39
+                    },
+                    {
+                      "year": 1979,
+                      "count": 43
+                    },
+                    {
+                      "year": 1980,
+                      "count": 34
+                    },
+                    {
+                      "year": 1981,
+                      "count": 38
+                    },
+                    {
+                      "year": 1982,
+                      "count": 44
+                    },
+                    {
+                      "year": 1983,
+                      "count": 34
+                    },
+                    {
+                      "year": 1984,
+                      "count": 35
+                    },
+                    {
+                      "year": 1985,
+                      "count": 35
+                    },
+                    {
+                      "year": 1986,
+                      "count": 40
+                    },
+                    {
+                      "year": 1987,
+                      "count": 48
+                    },
+                    {
+                      "year": 1988,
+                      "count": 29
+                    },
+                    {
+                      "year": 1989,
+                      "count": 31
+                    },
+                    {
+                      "year": 1990,
+                      "count": 23
+                    },
+                    {
+                      "year": 1991,
+                      "count": 29
+                    },
+                    {
+                      "year": 1992,
+                      "count": 27
+                    },
+                    {
+                      "year": 1993,
+                      "count": 33
+                    },
+                    {
+                      "year": 1994,
+                      "count": 28
+                    },
+                    {
+                      "year": 1995,
+                      "count": 46
+                    },
+                    {
+                      "year": 1996,
+                      "count": 50
+                    },
+                    {
+                      "year": 1997,
+                      "count": 29
+                    },
+                    {
+                      "year": 1998,
+                      "count": 30
+                    },
+                    {
+                      "year": 1999,
+                      "count": 34
+                    },
+                    {
+                      "year": 2000,
+                      "count": 28
+                    },
+                    {
+                      "year": 2001,
+                      "count": 36
+                    },
+                    {
+                      "year": 2002,
+                      "count": 46
+                    },
+                    {
+                      "year": 2003,
+                      "count": 38
+                    },
+                    {
+                      "year": 2004,
+                      "count": 27
+                    },
+                    {
+                      "year": 2005,
+                      "count": 36
+                    },
+                    {
+                      "year": 2006,
+                      "count": 40
+                    },
+                    {
+                      "year": 2007,
+                      "count": 32
+                    },
+                    {
+                      "year": 2008,
+                      "count": 24
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_7",
@@ -3116,9 +4091,111 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "F",
+                  "M"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "F",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "F",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 3000,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 1,
+              "max_length": 1,
+              "mean_length": 1,
+              "median_length": 1,
+              "length_histogram": [
+                {
+                  "length": 1,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_8",
@@ -3261,9 +4338,111 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "fr",
+                  "en"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "fr",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "fr",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 3000,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 2,
+              "max_length": 2,
+              "mean_length": 2,
+              "median_length": 2,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_9",
@@ -3479,9 +4658,150 @@
                   "count": 3000,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "4682",
+                  "518",
+                  "2943",
+                  "6132",
+                  "9307",
+                  "2174",
+                  "909",
+                  "6362",
+                  "7641",
+                  "528"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "4682",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "5013",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 2,
+              "max_length": 4,
+              "mean_length": 3.891,
+              "median_length": 4,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 25
+                },
+                {
+                  "length": 3,
+                  "count": 277
+                },
+                {
+                  "length": 4,
+                  "count": 2698
+                }
+              ]
+            },
+            "numeric": {
+              "count": 3000,
+              "native_count": 0,
+              "text_count": 3000,
+              "min": 11,
+              "max": 9999,
+              "sum": 14842476,
+              "mean": 4947.492,
+              "population_variance": 8354300.537936,
+              "population_std": 2890.380690832265,
+              "positive": 3000,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 4858
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_10",
@@ -3985,9 +5305,143 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "chemin",
+                  "rue",
+                  "avenue",
+                  "route",
+                  "Street",
+                  "promenade",
+                  "Place",
+                  "Avenue",
+                  "Way",
+                  "croissant"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 31
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "chemin",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "avenue",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 185,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 2101,
+              "mixed_case": 899,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 3,
+              "max_length": 9,
+              "mean_length": 5.808,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 487
+                },
+                {
+                  "length": 4,
+                  "count": 308
+                },
+                {
+                  "length": 5,
+                  "count": 491
+                },
+                {
+                  "length": 6,
+                  "count": 938
+                },
+                {
+                  "length": 7,
+                  "count": 116
+                },
+                {
+                  "length": 8,
+                  "count": 104
+                },
+                {
+                  "length": 9,
+                  "count": 556
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_11",
@@ -5058,7 +6512,142 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "des Tulipes",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "du Parc",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 611,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 9,
+              "uppercase": 0,
+              "lowercase": 13,
+              "mixed_case": 2987,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 3,
+              "max_length": 18,
+              "mean_length": 9.823666666666666,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 34
+                },
+                {
+                  "length": 4,
+                  "count": 33
+                },
+                {
+                  "length": 5,
+                  "count": 124
+                },
+                {
+                  "length": 6,
+                  "count": 295
+                },
+                {
+                  "length": 7,
+                  "count": 114
+                },
+                {
+                  "length": 8,
+                  "count": 334
+                },
+                {
+                  "length": 9,
+                  "count": 479
+                },
+                {
+                  "length": 10,
+                  "count": 388
+                },
+                {
+                  "length": 11,
+                  "count": 353
+                },
+                {
+                  "length": 12,
+                  "count": 262
+                },
+                {
+                  "length": 13,
+                  "count": 320
+                },
+                {
+                  "length": 14,
+                  "count": 38
+                },
+                {
+                  "length": 15,
+                  "count": 183
+                },
+                {
+                  "length": 16,
+                  "count": 22
+                },
+                {
+                  "length": 17,
+                  "count": 8
+                },
+                {
+                  "length": 18,
+                  "count": 13
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_12",
@@ -5274,9 +6863,125 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 720,
+                "tested": 720,
+                "matched": 720,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "Ouest",
+                  "Nord",
+                  "Est",
+                  "West",
+                  "South",
+                  "North",
+                  "Sud",
+                  "East"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 8
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 720,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 2280,
+              "blank": 0,
+              "marker": 0,
+              "content": 720
+            },
+            "missing": {
+              "count": 2280,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 2280,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Ouest",
+              "type": "string",
+              "record": 8
+            },
+            "last": {
+              "value": "Nord",
+              "type": "string",
+              "record": 2997
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 720,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 720,
+              "min_length": 3,
+              "max_length": 5,
+              "mean_length": 4.006944444444445,
+              "median_length": 4,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 238
+                },
+                {
+                  "length": 4,
+                  "count": 239
+                },
+                {
+                  "length": 5,
+                  "count": 243
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_13",
@@ -5492,9 +7197,150 @@
                   "count": 1072,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 1072,
+                "tested": 1072,
+                "matched": 1072,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "245",
+                  "405",
+                  "519",
+                  "358",
+                  "557",
+                  "991",
+                  "244",
+                  "283",
+                  "868",
+                  "791"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 1072,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 1928,
+              "blank": 0,
+              "marker": 0,
+              "content": 1072
+            },
+            "missing": {
+              "count": 1928,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 1928,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "245",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "261",
+              "type": "string",
+              "record": 2997
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 1072
+            },
+            "string_lengths": {
+              "count": 1072,
+              "min_length": 1,
+              "max_length": 3,
+              "mean_length": 2.903917910447761,
+              "median_length": 3,
+              "length_histogram": [
+                {
+                  "length": 1,
+                  "count": 9
+                },
+                {
+                  "length": 2,
+                  "count": 85
+                },
+                {
+                  "length": 3,
+                  "count": 978
+                }
+              ]
+            },
+            "numeric": {
+              "count": 1072,
+              "native_count": 0,
+              "text_count": 1072,
+              "min": 1,
+              "max": 998,
+              "sum": 544713,
+              "mean": 508.12779850746267,
+              "population_variance": 79940.20661530268,
+              "population_std": 282.73699194711446,
+              "positive": 1072,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 501
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_14",
@@ -6409,7 +8255,142 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Montréal",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Gatineau",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 812,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 7,
+              "uppercase": 0,
+              "lowercase": 14,
+              "mixed_case": 2986,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 4,
+              "max_length": 24,
+              "mean_length": 8.995666666666667,
+              "median_length": 8,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 24
+                },
+                {
+                  "length": 5,
+                  "count": 281
+                },
+                {
+                  "length": 6,
+                  "count": 376
+                },
+                {
+                  "length": 7,
+                  "count": 257
+                },
+                {
+                  "length": 8,
+                  "count": 864
+                },
+                {
+                  "length": 9,
+                  "count": 207
+                },
+                {
+                  "length": 10,
+                  "count": 372
+                },
+                {
+                  "length": 11,
+                  "count": 151
+                },
+                {
+                  "length": 12,
+                  "count": 60
+                },
+                {
+                  "length": 13,
+                  "count": 163
+                },
+                {
+                  "length": 14,
+                  "count": 71
+                },
+                {
+                  "length": 15,
+                  "count": 51
+                },
+                {
+                  "length": 16,
+                  "count": 17
+                },
+                {
+                  "length": 19,
+                  "count": 27
+                },
+                {
+                  "length": 20,
+                  "count": 1
+                },
+                {
+                  "length": 24,
+                  "count": 78
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_15",
@@ -6704,9 +8685,119 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 2997,
+                "tested": 2997,
+                "matched": 2997,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "QC",
+                  "MB",
+                  "ON",
+                  "NB",
+                  "NS",
+                  "PE",
+                  "AB",
+                  "BC",
+                  "SK",
+                  "qc"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 16
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2997,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 3,
+              "blank": 0,
+              "marker": 0,
+              "content": 2997
+            },
+            "missing": {
+              "count": 3,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 3,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "QC",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "QC",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 2974,
+              "lowercase": 23,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 2997,
+              "min_length": 2,
+              "max_length": 2,
+              "mean_length": 2,
+              "median_length": 2,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 2997
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_16",
@@ -7145,9 +9236,159 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "Québec",
+                  "Manitoba",
+                  "Ontario",
+                  "quebec",
+                  "Nouveau-Brunswick",
+                  "Nouvelle-Écosse",
+                  "Île-du-Prince-Édouard",
+                  "Alberta",
+                  "Colombie-Britannique",
+                  "Saskatchewan"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 18
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Québec",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Québec",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 2254,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 12,
+              "mixed_case": 2988,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 5,
+              "max_length": 25,
+              "mean_length": 7.0296666666666665,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 5
+                },
+                {
+                  "length": 6,
+                  "count": 2244
+                },
+                {
+                  "length": 7,
+                  "count": 509
+                },
+                {
+                  "length": 8,
+                  "count": 32
+                },
+                {
+                  "length": 12,
+                  "count": 23
+                },
+                {
+                  "length": 15,
+                  "count": 24
+                },
+                {
+                  "length": 17,
+                  "count": 56
+                },
+                {
+                  "length": 20,
+                  "count": 86
+                },
+                {
+                  "length": 21,
+                  "count": 7
+                },
+                {
+                  "length": 23,
+                  "count": 12
+                },
+                {
+                  "length": 25,
+                  "count": 2
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_17",
@@ -7513,9 +9754,134 @@
                   "count": 2979,
                   "percent": 99.3
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 2979,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 21,
+                "not_tested": 0,
+                "share_tested": 0.993,
+                "share_eligible": 0.993
+              },
+              "evidence": {
+                "matched": [
+                  "H4A 9M3",
+                  "G6V 8P2",
+                  "J2H 0H3",
+                  "J5Y 2J3",
+                  "G2B 7V8",
+                  "R3C 4S8",
+                  "G6V 8A4",
+                  "G6W 9E4",
+                  "M6G 7M3",
+                  "H4A 4S8"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": [
+                  "T3A 95",
+                  "T5J 60",
+                  "J1 5M4",
+                  "G9 5R1",
+                  "6K 0E0",
+                  "J7 4B4",
+                  "L6X 51",
+                  "3R 3R3",
+                  "7N 1L5",
+                  "H3 6C7"
+                ]
+              },
+              "details": {
+                "regions": {
+                  "ca": 2979,
+                  "us": 0
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "H4A 9M3",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "J8Y 1Z0",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 54,
+              "uppercase": 3000,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 6,
+              "max_length": 7,
+              "mean_length": 6.993,
+              "median_length": 7,
+              "length_histogram": [
+                {
+                  "length": 6,
+                  "count": 21
+                },
+                {
+                  "length": 7,
+                  "count": 2979
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_18",
@@ -7675,9 +10041,111 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "CA",
+                  "ca"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 2
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "CA",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "CA",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 2978,
+              "lowercase": 22,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 2,
+              "max_length": 2,
+              "mean_length": 2,
+              "median_length": 2,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_19",
@@ -8624,9 +11092,238 @@
               "matched_percent": 99.6,
               "ambiguous_count": 0,
               "invalid_count": 12,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 2988,
+                "ambiguous": 0,
+                "invalid": 12,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.996,
+                "share_eligible": 0.996
+              },
+              "evidence": {
+                "matched": [
+                  "aa9999@aaaaa.aaaaaaa",
+                  "aaa9999@aaaaaaa.aaaaaaa",
+                  "aaa99@aaaaa.aaaaaaa",
+                  "aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
+                  "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
+                  "aaaaa@aaaaaaa.aaaaaaa",
+                  "aaaaa.aaaaaa@aaaaaaa.aaaaaaa",
+                  "aaaaaa@aaaaa.aaaaaaa",
+                  "aaaa99@aaaaaaa.aaaaaaa"
+                ],
+                "ambiguous": [],
+                "invalid": [
+                  "aaaa.aaaaaa@aaaaa. aaaaaaa",
+                  "aaaaaaaaa@ aaaaa.aaaaaaa",
+                  "aaaaaaa@aaaaaaaaa.aaaaaa a",
+                  "aaaaaaaaaaaaaaaa@aaaaaaa .aaaaaaa",
+                  "aaaa@aaaaaa.aaaaaa a",
+                  "aaaaaaaaaa@aaaaaa.a aaaaaa",
+                  "aaaaa@aaaaa.aaaaaa a",
+                  "aaaaaaaaaaaaaaaaaa@aaaa aa.aaaaaaa",
+                  "aaaaaaaaa999@aaaaaaa.a aaaaaa",
+                  "aaaaaa99@a aaaa.aaaaaaa"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 5,
+                    "listed": [
+                      {
+                        "value": "aaaaa.aaaaaaa",
+                        "count": 1271
+                      },
+                      {
+                        "value": "aaaaaaa.aaaaaaa",
+                        "count": 1044
+                      },
+                      {
+                        "value": "aaaaaa.aaaaaaa",
+                        "count": 437
+                      },
+                      {
+                        "value": "aaaaaaaaa.aaaaaaa",
+                        "count": 149
+                      },
+                      {
+                        "value": "aaaa.aaaaaaa",
+                        "count": 87
+                      }
+                    ],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "aa9999@aaaaa.aaaaaaa",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "aaa999@aaaaa.aaaaaaa",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 6,
+              "uppercase": 0,
+              "lowercase": 3000,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 17,
+              "max_length": 38,
+              "mean_length": 25.339,
+              "median_length": 25,
+              "length_histogram": [
+                {
+                  "length": 17,
+                  "count": 2
+                },
+                {
+                  "length": 18,
+                  "count": 27
+                },
+                {
+                  "length": 19,
+                  "count": 100
+                },
+                {
+                  "length": 20,
+                  "count": 181
+                },
+                {
+                  "length": 21,
+                  "count": 277
+                },
+                {
+                  "length": 22,
+                  "count": 235
+                },
+                {
+                  "length": 23,
+                  "count": 264
+                },
+                {
+                  "length": 24,
+                  "count": 227
+                },
+                {
+                  "length": 25,
+                  "count": 276
+                },
+                {
+                  "length": 26,
+                  "count": 261
+                },
+                {
+                  "length": 27,
+                  "count": 248
+                },
+                {
+                  "length": 28,
+                  "count": 229
+                },
+                {
+                  "length": 29,
+                  "count": 197
+                },
+                {
+                  "length": 30,
+                  "count": 171
+                },
+                {
+                  "length": 31,
+                  "count": 129
+                },
+                {
+                  "length": 32,
+                  "count": 74
+                },
+                {
+                  "length": 33,
+                  "count": 46
+                },
+                {
+                  "length": 34,
+                  "count": 27
+                },
+                {
+                  "length": 35,
+                  "count": 20
+                },
+                {
+                  "length": 36,
+                  "count": 5
+                },
+                {
+                  "length": 37,
+                  "count": 2
+                },
+                {
+                  "length": 38,
+                  "count": 2
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_20",
@@ -8780,9 +11477,110 @@
                   "count": 42,
                   "percent": 1.4
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "+9-999-999-9999"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "regions": {
+                  "fr": 0,
+                  "nanp": 3000
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "+9-999-999-9999",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "+9-999-999-9999",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 42,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 15,
+              "max_length": 15,
+              "mean_length": 15,
+              "median_length": 15,
+              "length_histogram": [
+                {
+                  "length": 15,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_21",
@@ -9094,7 +11892,90 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2991,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 9,
+              "blank": 0,
+              "marker": 0,
+              "content": 2991
+            },
+            "missing": {
+              "count": 9,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 9,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "CTR-1000000281",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "CTR-3000049871",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 2991,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 2991,
+              "min_length": 13,
+              "max_length": 15,
+              "mean_length": 13.997325309261116,
+              "median_length": 14,
+              "length_histogram": [
+                {
+                  "length": 13,
+                  "count": 22
+                },
+                {
+                  "length": 14,
+                  "count": 2955
+                },
+                {
+                  "length": 15,
+                  "count": 14
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_22",
@@ -9316,9 +12197,135 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 2998,
+                "tested": 2998,
+                "matched": 2998,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "auto",
+                  "vie",
+                  "voyage",
+                  "habitation",
+                  "voyage_X",
+                  "habitation_X"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 6
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2998,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 2,
+              "blank": 0,
+              "marker": 0,
+              "content": 2998
+            },
+            "missing": {
+              "count": 2,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 2,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "auto",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "auto",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 2992,
+              "mixed_case": 6,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 2998,
+              "min_length": 3,
+              "max_length": 12,
+              "mean_length": 6.0563709139426285,
+              "median_length": 4,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 349
+                },
+                {
+                  "length": 4,
+                  "count": 1228
+                },
+                {
+                  "length": 6,
+                  "count": 505
+                },
+                {
+                  "length": 8,
+                  "count": 1
+                },
+                {
+                  "length": 10,
+                  "count": 910
+                },
+                {
+                  "length": 12,
+                  "count": 5
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_23",
@@ -9659,9 +12666,207 @@
                   "count": 2,
                   "percent": 0.07
                 }
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 2658,
+                "ambiguous": 335,
+                "invalid": 7,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.886,
+                "share_eligible": 0.886
+              },
+              "evidence": {
+                "matched": [
+                  "2020-07-16",
+                  "2027-06-02",
+                  "2016-09-30",
+                  "2023-03-29",
+                  "2017-05-26",
+                  "2025-05-17",
+                  "2025-03-16",
+                  "2018-07-30",
+                  "2022-06-11",
+                  "2022-09-27"
+                ],
+                "ambiguous": [
+                  "04-12-2025",
+                  "12-12-2021",
+                  "06-12-2018",
+                  "02-04-2025",
+                  "11-12-2025",
+                  "12-04-2017",
+                  "11-07-2025",
+                  "09-08-2022",
+                  "01-02-2017",
+                  "01-03-2026"
+                ],
+                "invalid": [
+                  "2026-13-40",
+                  "13-40-2026"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 335,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 335
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 340,
+                    "MDY": 142
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2020-07-16",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "25-04-2026",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 2658,
+              "ambiguous": 335,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 2658,
+                  "min": "2016-09-19",
+                  "max": "2027-08-30",
+                  "years": [
+                    {
+                      "year": 2016,
+                      "count": 74
+                    },
+                    {
+                      "year": 2017,
+                      "count": 244
+                    },
+                    {
+                      "year": 2018,
+                      "count": 215
+                    },
+                    {
+                      "year": 2019,
+                      "count": 234
+                    },
+                    {
+                      "year": 2020,
+                      "count": 256
+                    },
+                    {
+                      "year": 2021,
+                      "count": 269
+                    },
+                    {
+                      "year": 2022,
+                      "count": 261
+                    },
+                    {
+                      "year": 2023,
+                      "count": 280
+                    },
+                    {
+                      "year": 2024,
+                      "count": 267
+                    },
+                    {
+                      "year": 2025,
+                      "count": 311
+                    },
+                    {
+                      "year": 2026,
+                      "count": 232
+                    },
+                    {
+                      "year": 2027,
+                      "count": 15
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_24",
@@ -10027,9 +13232,210 @@
                   "count": 1,
                   "percent": 0.04
                 }
+              ],
+              "coverage": {
+                "eligible": 2498,
+                "tested": 2498,
+                "matched": 2221,
+                "ambiguous": 274,
+                "invalid": 3,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.8891,
+                "share_eligible": 0.8891
+              },
+              "evidence": {
+                "matched": [
+                  "2026-12-28",
+                  "2021-11-27",
+                  "2022-07-20",
+                  "2027-05-07",
+                  "2018-11-19",
+                  "2026-07-30",
+                  "2027-01-30",
+                  "2027-05-13",
+                  "2027-07-11",
+                  "2027-04-23"
+                ],
+                "ambiguous": [
+                  "12-05-2026",
+                  "05-09-2027",
+                  "06-05-2027",
+                  "05-08-2026",
+                  "03-07-2027",
+                  "07-11-2020",
+                  "09-06-2026",
+                  "08-10-2027",
+                  "07-10-2021",
+                  "11-11-2026"
+                ],
+                "invalid": [
+                  "2026-13-40",
+                  "40-13-2026"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 274,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 271
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 3
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 291,
+                    "MDY": 125
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 2498,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 502,
+              "blank": 0,
+              "marker": 0,
+              "content": 2498
+            },
+            "missing": {
+              "count": 502,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 502,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-12-28",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "05-05-2026",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 2498
+            },
+            "string_lengths": {
+              "count": 2498,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 2498
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 2221,
+              "ambiguous": 274,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 2221,
+                  "min": "2017-05-20",
+                  "max": "2027-09-16",
+                  "years": [
+                    {
+                      "year": 2017,
+                      "count": 4
+                    },
+                    {
+                      "year": 2018,
+                      "count": 9
+                    },
+                    {
+                      "year": 2019,
+                      "count": 16
+                    },
+                    {
+                      "year": 2020,
+                      "count": 27
+                    },
+                    {
+                      "year": 2021,
+                      "count": 29
+                    },
+                    {
+                      "year": 2022,
+                      "count": 30
+                    },
+                    {
+                      "year": 2023,
+                      "count": 53
+                    },
+                    {
+                      "year": 2024,
+                      "count": 81
+                    },
+                    {
+                      "year": 2025,
+                      "count": 110
+                    },
+                    {
+                      "year": 2026,
+                      "count": 555
+                    },
+                    {
+                      "year": 2027,
+                      "count": 1307
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_25",
@@ -10235,9 +13641,127 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "actif",
+                  "résilié",
+                  "expiré",
+                  "suspendu",
+                  "actif_X",
+                  "expiré_X"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 6
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "actif",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "résilié",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 527,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 2995,
+              "mixed_case": 5,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 5,
+              "max_length": 8,
+              "mean_length": 5.42,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 2279
+                },
+                {
+                  "length": 6,
+                  "count": 373
+                },
+                {
+                  "length": 7,
+                  "count": 157
+                },
+                {
+                  "length": 8,
+                  "count": 191
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_26",
@@ -10453,9 +13977,154 @@
                   "count": 3000,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "1234.18",
+                  "1123.69",
+                  "379.29",
+                  "-744.79",
+                  "241.17",
+                  "695.97",
+                  "1144.35",
+                  "433.12",
+                  "1509.17",
+                  "405.78"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 3000
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "1234.18",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "1971.55",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 5,
+              "max_length": 8,
+              "mean_length": 6.558666666666666,
+              "median_length": 7,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 18
+                },
+                {
+                  "length": 6,
+                  "count": 1300
+                },
+                {
+                  "length": 7,
+                  "count": 1670
+                },
+                {
+                  "length": 8,
+                  "count": 12
+                }
+              ]
+            },
+            "numeric": {
+              "count": 3000,
+              "native_count": 0,
+              "text_count": 3000,
+              "min": -3097.96,
+              "max": 4948.16,
+              "sum": 3672281.42,
+              "mean": 1224.0938066666668,
+              "population_variance": 681687.0128881093,
+              "population_std": 825.6433932928364,
+              "positive": 2975,
+              "negative": 25,
+              "zero": 0,
+              "integral_decimals": 23,
+              "median": {
+                "status": "complete",
+                "value": 1101.34
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_27",
@@ -10677,9 +14346,135 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "mensuelle",
+                  "annuelle",
+                  "trimestrielle",
+                  "semestrielle",
+                  "annuelle_X",
+                  "mensuelle_X"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 6
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "mensuelle",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "mensuelle",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 2997,
+              "mixed_case": 3,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 8,
+              "max_length": 13,
+              "mean_length": 9.325333333333333,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 8,
+                  "count": 609
+                },
+                {
+                  "length": 9,
+                  "count": 1959
+                },
+                {
+                  "length": 10,
+                  "count": 2
+                },
+                {
+                  "length": 11,
+                  "count": 1
+                },
+                {
+                  "length": 12,
+                  "count": 135
+                },
+                {
+                  "length": 13,
+                  "count": 294
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_28",
@@ -10969,9 +14764,142 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "chèque",
+                  "prélèvement",
+                  "carte",
+                  "virement",
+                  "prélèvement_X",
+                  "prelevement",
+                  "carte_X",
+                  "cheque",
+                  "virement_X"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 9
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "chèque",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "virement",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 1792,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 2992,
+              "mixed_case": 8,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 5,
+              "max_length": 13,
+              "mean_length": 8.808666666666667,
+              "median_length": 11,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 741
+                },
+                {
+                  "length": 6,
+                  "count": 157
+                },
+                {
+                  "length": 7,
+                  "count": 3
+                },
+                {
+                  "length": 8,
+                  "count": 445
+                },
+                {
+                  "length": 10,
+                  "count": 2
+                },
+                {
+                  "length": 11,
+                  "count": 1649
+                },
+                {
+                  "length": 13,
+                  "count": 3
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_29",
@@ -11309,9 +15237,123 @@
               "matched_percent": 100.0,
               "ambiguous_count": 0,
               "invalid_count": 0,
-              "formats": []
+              "formats": [],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 3000,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "AG-PR-001",
+                  "AG-PR-003",
+                  "AG-PR-004",
+                  "AG-PR-008",
+                  "AG-PR-005",
+                  "AG-PR-006",
+                  "AG-PR-007",
+                  "AG-PR-002",
+                  "AG-ON-004",
+                  "AG--PR-002"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "distinct": {
+                  "status": "complete",
+                  "value": 27
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "AG-PR-001",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "AG-QC-005",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 3000,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 9,
+              "max_length": 10,
+              "mean_length": 9.005333333333333,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 9,
+                  "count": 2984
+                },
+                {
+                  "length": 10,
+                  "count": 16
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_30",
@@ -11639,9 +15681,211 @@
                   "count": 8,
                   "percent": 0.27
                 }
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 2695,
+                "ambiguous": 299,
+                "invalid": 6,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.8983,
+                "share_eligible": 0.8983
+              },
+              "evidence": {
+                "matched": [
+                  "2020-07-08",
+                  "2021-11-09",
+                  "2016-09-16",
+                  "2023-03-04",
+                  "2017-05-12",
+                  "2025-04-17",
+                  "2025-02-28",
+                  "2018-07-08",
+                  "2022-06-10",
+                  "2022-09-11"
+                ],
+                "ambiguous": [
+                  "12-10-2021",
+                  "06-11-2026",
+                  "11-12-2025",
+                  "01-01-2017",
+                  "11-11-2017",
+                  "02-07-2021",
+                  "07-03-2020",
+                  "03-02-2018",
+                  "12-08-2016",
+                  "09-04-2022"
+                ],
+                "invalid": [
+                  "2026-13-40",
+                  "13-40-2026",
+                  "40-13-2026"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 299,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 298
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 1
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 359,
+                    "MDY": 159
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2020-07-08",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "14-04-2026",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 2695,
+              "ambiguous": 299,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 2695,
+                  "min": "2016-08-24",
+                  "max": "2026-09-16",
+                  "years": [
+                    {
+                      "year": 2016,
+                      "count": 82
+                    },
+                    {
+                      "year": 2017,
+                      "count": 232
+                    },
+                    {
+                      "year": 2018,
+                      "count": 220
+                    },
+                    {
+                      "year": 2019,
+                      "count": 249
+                    },
+                    {
+                      "year": 2020,
+                      "count": 264
+                    },
+                    {
+                      "year": 2021,
+                      "count": 260
+                    },
+                    {
+                      "year": 2022,
+                      "count": 265
+                    },
+                    {
+                      "year": 2023,
+                      "count": 289
+                    },
+                    {
+                      "year": 2024,
+                      "count": 281
+                    },
+                    {
+                      "year": 2025,
+                      "count": 331
+                    },
+                    {
+                      "year": 2026,
+                      "count": 222
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_31",
@@ -11988,9 +16232,210 @@
                   "count": 1,
                   "percent": 0.03
                 }
+              ],
+              "coverage": {
+                "eligible": 3000,
+                "tested": 3000,
+                "matched": 2684,
+                "ambiguous": 313,
+                "invalid": 3,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.8947,
+                "share_eligible": 0.8947
+              },
+              "evidence": {
+                "matched": [
+                  "2024-10-24",
+                  "2021-11-22",
+                  "2017-04-05",
+                  "2024-06-01",
+                  "2019-10-29",
+                  "2026-06-07",
+                  "2025-10-06",
+                  "2026-01-16",
+                  "2023-02-24",
+                  "2023-08-08"
+                ],
+                "ambiguous": [
+                  "05-03-2026",
+                  "02-11-2022",
+                  "03-11-2020",
+                  "06-09-2025",
+                  "06-12-2020",
+                  "03-08-2026",
+                  "12-07-2025",
+                  "07-02-2025",
+                  "04-12-2025",
+                  "07-11-2023"
+                ],
+                "invalid": [
+                  "2026-13-40",
+                  "40-13-2026"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 313,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 312
+                    },
+                    {
+                      "formats": [
+                        "DD/MM/YYYY",
+                        "MM/DD/YYYY"
+                      ],
+                      "count": 1
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 346,
+                    "MDY": 159
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 3000,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 3000
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2024-10-24",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "15-04-2026",
+              "type": "string",
+              "record": 3000
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 3000
+            },
+            "string_lengths": {
+              "count": 3000,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 3000
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 2684,
+              "ambiguous": 313,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 2684,
+                  "min": "2016-11-07",
+                  "max": "2026-09-16",
+                  "years": [
+                    {
+                      "year": 2016,
+                      "count": 3
+                    },
+                    {
+                      "year": 2017,
+                      "count": 19
+                    },
+                    {
+                      "year": 2018,
+                      "count": 31
+                    },
+                    {
+                      "year": 2019,
+                      "count": 84
+                    },
+                    {
+                      "year": 2020,
+                      "count": 120
+                    },
+                    {
+                      "year": 2021,
+                      "count": 175
+                    },
+                    {
+                      "year": 2022,
+                      "count": 232
+                    },
+                    {
+                      "year": 2023,
+                      "count": 293
+                    },
+                    {
+                      "year": 2024,
+                      "count": 420
+                    },
+                    {
+                      "year": 2025,
+                      "count": 576
+                    },
+                    {
+                      "year": 2026,
+                      "count": 731
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_32",
@@ -12293,9 +16738,198 @@
                   "count": 24,
                   "percent": 5.71
                 }
+              ],
+              "coverage": {
+                "eligible": 420,
+                "tested": 420,
+                "matched": 366,
+                "ambiguous": 53,
+                "invalid": 1,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 0.8714,
+                "share_eligible": 0.8714
+              },
+              "evidence": {
+                "matched": [
+                  "2026-05-13",
+                  "2026-05-21",
+                  "2025-10-18",
+                  "2026-06-13",
+                  "2025-01-01",
+                  "2024-01-23",
+                  "2023-09-01",
+                  "2024-07-28",
+                  "2026-08-16",
+                  "2026-04-25"
+                ],
+                "ambiguous": [
+                  "12-06-2026",
+                  "05-07-2025",
+                  "08-03-2026",
+                  "05-02-2025",
+                  "08-11-2021",
+                  "01-06-2022",
+                  "08-03-2024",
+                  "07-11-2024",
+                  "12-01-2025",
+                  "05-05-2023"
+                ],
+                "invalid": [
+                  "2026-13-40"
+                ],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 53,
+                  "candidates": [
+                    {
+                      "formats": [
+                        "DD-MM-YYYY",
+                        "MM-DD-YYYY"
+                      ],
+                      "count": 53
+                    }
+                  ],
+                  "evidence": {
+                    "DMY": 46,
+                    "MDY": 24
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 420,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 2580,
+              "blank": 0,
+              "marker": 0,
+              "content": 420
+            },
+            "missing": {
+              "count": 2580,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 2580,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-05-13",
+              "type": "string",
+              "record": 6
+            },
+            "last": {
+              "value": "28-01-2026",
+              "type": "string",
+              "record": 2999
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 420
+            },
+            "string_lengths": {
+              "count": 420,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 420
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 366,
+              "ambiguous": 53,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 366,
+                  "min": "2017-10-11",
+                  "max": "2026-09-16",
+                  "years": [
+                    {
+                      "year": 2017,
+                      "count": 2
+                    },
+                    {
+                      "year": 2018,
+                      "count": 7
+                    },
+                    {
+                      "year": 2019,
+                      "count": 17
+                    },
+                    {
+                      "year": 2020,
+                      "count": 22
+                    },
+                    {
+                      "year": 2021,
+                      "count": 16
+                    },
+                    {
+                      "year": 2022,
+                      "count": 30
+                    },
+                    {
+                      "year": 2023,
+                      "count": 43
+                    },
+                    {
+                      "year": 2024,
+                      "count": 55
+                    },
+                    {
+                      "year": 2025,
+                      "count": 78
+                    },
+                    {
+                      "year": 2026,
+                      "count": 96
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          }
         },
         {
           "id": "column_33",
@@ -12511,9 +17145,158 @@
                   "count": 349,
                   "percent": 100.0
                 }
-              ]
+              ],
+              "coverage": {
+                "eligible": 349,
+                "tested": 349,
+                "matched": 349,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "24940.92",
+                  "4087.60",
+                  "25200.13",
+                  "13463.64",
+                  "13721.04",
+                  "15301.03",
+                  "19325.85",
+                  "56421.85",
+                  "24978.40",
+                  "6403.63"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "comma": 0,
+                    "dot": 349
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
             }
-          ]
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 349,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 2651,
+              "blank": 0,
+              "marker": 0,
+              "content": 349
+            },
+            "missing": {
+              "count": 2651,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 2651,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "24940.92",
+              "type": "string",
+              "record": 6
+            },
+            "last": {
+              "value": "10654.50",
+              "type": "string",
+              "record": 2999
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 349
+            },
+            "string_lengths": {
+              "count": 349,
+              "min_length": 4,
+              "max_length": 9,
+              "mean_length": 7.819484240687679,
+              "median_length": 8,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 5
+                },
+                {
+                  "length": 6,
+                  "count": 1
+                },
+                {
+                  "length": 7,
+                  "count": 59
+                },
+                {
+                  "length": 8,
+                  "count": 266
+                },
+                {
+                  "length": 9,
+                  "count": 18
+                }
+              ]
+            },
+            "numeric": {
+              "count": 349,
+              "native_count": 0,
+              "text_count": 349,
+              "min": -63902.75,
+              "max": 179995.88,
+              "sum": 10092044.6,
+              "mean": 28917.03323782235,
+              "population_variance": 834899485.7147342,
+              "population_std": 28894.627281118097,
+              "positive": 343,
+              "negative": 1,
+              "zero": 5,
+              "integral_decimals": 12,
+              "median": {
+                "status": "complete",
+                "value": 19513.98
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
         },
         {
           "id": "column_34",
@@ -12683,7 +17466,90 @@
             ]
           },
           "numeric": null,
-          "detectors": []
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 3000,
+            "value_count": 440,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 3000,
+              "present": 3000,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 3000
+            },
+            "strings": {
+              "count": 3000,
+              "empty": 2560,
+              "blank": 0,
+              "marker": 0,
+              "content": 440
+            },
+            "missing": {
+              "count": 2560,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 2560,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "rejeté",
+              "type": "string",
+              "record": 6
+            },
+            "last": {
+              "value": "fermé",
+              "type": "string",
+              "record": 2999
+            },
+            "string_characteristics": {
+              "non_ascii": 247,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 440,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 440,
+              "min_length": 5,
+              "max_length": 8,
+              "mean_length": 6.081818181818182,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 218
+                },
+                {
+                  "length": 6,
+                  "count": 95
+                },
+                {
+                  "length": 8,
+                  "count": 127
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
         }
       ],
       "issues": [

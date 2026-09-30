@@ -130,6 +130,13 @@ def report_command(
         bool,
         typer.Option("--force", "-f", help="Replace all existing report artifacts."),
     ] = False,
+    details: Annotated[
+        bool,
+        typer.Option(
+            "--details/--no-details",
+            help="Generate standalone HTML pages for every column (off by default).",
+        ),
+    ] = False,
     quiet: Annotated[
         bool,
         typer.Option("--quiet", "-q", help="Suppress success messages."),
@@ -173,6 +180,7 @@ def report_command(
             encoding=encoding,
             config_path=config,
             force=force,
+            details=details,
             on_progress=progress,
             from_scan=from_scan,
             workers=workers,

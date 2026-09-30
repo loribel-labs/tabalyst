@@ -1,4 +1,4 @@
-"""Report profile built from a Tabalyst Scan result (profile revision 6).
+"""Report profile built from a Tabalyst Scan result (profile revision 9).
 
 ``build_profile`` turns a scan result, fresh or read back from a scan
 document, into the profile that ``reporting.py`` renders: the columns come
@@ -45,6 +45,7 @@ from tabalyst.models import (
     NumericStats,
     PreviewRow,
     ReportProfile,
+    ScanFieldDetails,
     SourceInfo,
     StringLengthDistribution,
     StringLengthExample,
@@ -293,7 +294,10 @@ def build_value_profile(
     """
     settings = config.value_examples
     listed, complete = _listed_values(field)
-    if complete and len(listed) <= settings.full_distribution_max_distinct:
+    if complete and (
+        len(listed) <= settings.full_distribution_max_distinct
+        or field.interpretations.primary == "enumeration"
+    ):
         return ValueProfile(
             selection="complete",
             sampled_distinct_count=len(listed),
@@ -558,6 +562,10 @@ def build_detectors(field: FieldResult) -> list[DetectorProfile]:
                     )
                     for item in detector.formats
                 ],
+                coverage=coverage,
+                evidence=detector.evidence,
+                details=detector.details,
+                adaptive=detector.adaptive,
             )
         )
     return detectors
@@ -613,6 +621,30 @@ def build_column(
         string_profile=build_string_profile(field, inferred, config),
         numeric=build_numeric(field, inferred),
         detectors=build_detectors(field),
+        scan_details=ScanFieldDetails(
+            first_record=field.first_record,
+            occurrences=field.occurrences,
+            value_count=field.values.count,
+            presence=field.presence,
+            native_types=dict(field.native_types),
+            strings=field.strings,
+            missing=field.missing,
+            first=field.values.first,
+            last=field.values.last,
+            string_characteristics=field.string_characteristics,
+            string_lengths=(
+                field.string_lengths.value
+                if isinstance(field.string_lengths, Complete)
+                else None
+            ),
+            numeric=field.numeric.value if isinstance(field.numeric, Complete) else None,
+            booleans=(
+                field.booleans.value if isinstance(field.booleans, Complete) else None
+            ),
+            temporal=(
+                field.temporal.value if isinstance(field.temporal, Complete) else None
+            ),
+        ),
     )
 
 

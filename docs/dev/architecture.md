@@ -16,9 +16,9 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 6: one
+- `models.py`: Pydantic models of the report profile (revision 9: one
   profile per dataset in `datasets`, with its limits and, for JSON, its
-  structure).
+  structure; column scan evidence is retained for standalone detail pages).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
   `load_config_layers()` validates every file completely (top-level settings and
   the `scan` section), rejects the settings moved to `scan` with their new
@@ -129,7 +129,10 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   query caches are cleaned; selected Scan/database artifacts remain storage.
 - `progress.py`: presentation-neutral progress events emitted by report services
   and consumed by adapters such as the CLI.
-- `reporting.py`: renders a validated JSON result through Jinja2. No CSV access.
+- `reporting.py`: renders a validated JSON result through Jinja2. With
+  `--details`, the report service writes one independent HTML page per column
+  under a folder named after the main HTML stem. No CSV access. Column
+  filenames use source order and a bounded slug.
 - `execution_log.py`: records successful run metadata and timing in a shared,
   atomically updated `executions.json` file.
 - `scanner/`: Tabalyst Scan, the streaming engine (see below); `tabalyst scan`

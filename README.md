@@ -51,6 +51,20 @@ customers.json
 executions.json
 ```
 
+Add `--details` to generate one self-contained HTML page per column:
+
+```console
+tabalyst report customers.csv --details
+```
+
+The **Columns** table then links to those pages. Each page has its own sidebar
+and shows values, counts, detected formats and other analysis directly. The
+subfolder takes the HTML filename without `.html`; for `-o report.html`, pages
+are in `report/`. Names use `col-01-` and a shortened slug of the column name,
+in source order. Details are off by default. `--no-details` states that choice
+explicitly; with `--force`, it removes prior generated column pages while
+preserving other files in the folder.
+
 Use `-o` to choose a different HTML filename for one source:
 
 ```console
@@ -121,8 +135,10 @@ instead.
 
 ### Safe batch behavior
 
-Before processing begins, Tabalyst resolves every input and planned output. It
-stops the entire batch if output names collide or if an output already exists.
+Before processing begins, Tabalyst resolves every input and planned main HTML
+and JSON output. It stops the entire batch if those names collide or if an
+output already exists. With `--details`, each column page is checked after its
+profile has been built, before that report's files are written.
 Use `--force` only when replacing all matching report artifacts is intentional:
 
 ```console
