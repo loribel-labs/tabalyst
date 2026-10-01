@@ -18,7 +18,7 @@ COLLECTION_HELP = (
 def collection_paths(values: list[str] | None) -> list[str] | None:
     """``--collection`` values as absolute paths. Without the leading ``$``, the
     value is the keys leading to the array, so ``data.items`` is
-    ``$.data.items[]``; a collection is always an array, so ``[]`` is implied."""
+    ``$.data.items[]``, and ``.`` is the root array, ``$[]``; a collection is always an array, so ``[]`` is implied."""
     if values is None:
         return None
     paths = []
@@ -26,8 +26,11 @@ def collection_paths(values: list[str] | None) -> list[str] | None:
         if value.startswith("$"):
             paths.append(value)
             continue
+        if value == ".":
+            paths.append(format_absolute((ITEMS,)))
+            continue
         try:
-            path = parse_path(value)
+            path = parse_path(value, numeric_keys=True)
         except ValueError as exc:
             raise typer.BadParameter(str(exc), param_hint="--collection") from exc
         if not path or path[-1] != ITEMS:
