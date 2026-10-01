@@ -1,6 +1,6 @@
 ---
 title: Release notes
-description: What changed in each Tabalyst release, from 0.1.0 to 0.5.0 - new commands, compatibility changes and experimental JSON format revisions.
+description: What changed in each Tabalyst release, from 0.1.0 to 0.5.1 - new commands, compatibility changes and experimental JSON format revisions.
 ---
 
 Tabalyst is in beta. Interfaces and JSON formats may change between releases;
@@ -10,6 +10,20 @@ changelog: [profile](../report/profile-changelog.md),
 [Inspect](../inspect/format-changelog.md). The full release notes of
 each version are on
 [GitHub](https://github.com/loribel-labs/tabalyst/tree/main/docs/dev/releases).
+
+## 0.5.1
+
+Chooses a JSON collection from `report`, and from `inspect`'s own output.
+
+- `tabalyst report` gains `--collection`, as `tabalyst scan` has it. It outranks
+  the Inspect file and the configuration, and cannot be used with `--scan`.
+- `--collection` accepts a short form: `data.items` stands for
+  `$.data.items[]`, `.` for the root array `$[]`, and a key made of digits, such
+  as `groups.121`, is accepted as it is.
+- When several collections are equally plausible, `tabalyst inspect` prints one
+  ready-to-run `tabalyst report` command per collection.
+- The report theme button cycles auto (the system preference, now the default),
+  light and dark.
 
 ## 0.5.0
 

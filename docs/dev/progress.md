@@ -1,5 +1,12 @@
 # Development progress
 
+## 2026-10-01 (version 0.5.1 prepared)
+
+- Version 0.5.1 prepared, not tagged: `pyproject.toml`, release notes
+  `docs/dev/releases/0.5.1.md`, `docs/en/about/releases.md`, version in the
+  overviews and the install page. Demos regenerated. No JSON format change.
+  Studio follow-up: the site rebuilds from the release tag.
+
 ## 2026-10-01 (--collection on report)
 
 - `tabalyst report` gains `--collection`, with the semantics of `scan`: it
