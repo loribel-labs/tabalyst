@@ -4,6 +4,7 @@ DuckDB project generations remain available to the private project API, but
 ordinary scans do not need to materialize a database to serve a report.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,8 +43,16 @@ def current_scan(
     scan_layer: dict | None = None,
     delimiter: str | None = None,
     encoding: str | None = None,
+    source_sha256: str | None = None,
+    check: Callable[[ScanResult], tuple[str, ...]] | None = None,
 ) -> SharedScan:
-    """Reuse a current scan document, or atomically replace it after scanning."""
+    """Reuse a current scan document, or atomically replace it after scanning.
+
+    ``source_sha256`` is the hash of the source when the caller already has it.
+    ``check`` receives the result, reused or just scanned and not yet written:
+    it may raise to refuse it, which leaves the stored document as it is, and
+    its notices join the warnings of the outcome (design inspect 11.5, 11.6).
+    """
     source = source.resolve()
     location = location or StorageLocation.local()
     path = location.shared_scan_path(source)
@@ -55,7 +64,7 @@ def current_scan(
                 raise InputError("Stored scan source binding differs from the requested file")
             if config_sha256(result.config) != result.config_sha256:
                 raise InputError("Stored scan configuration fingerprint is invalid")
-            check = compare_source(source, result.source)
+            fresh = compare_source(source, result.source, sha256=source_sha256)
             if scan_layer is not None:
                 recorded = result.config.model_dump(mode="json", by_alias=True)
                 effective = scan_config_from_layer(
@@ -65,16 +74,18 @@ def current_scan(
                 )
             # Reuse only when source content, applied rules and engine
             # version are all those of the document (design inspect 10.1).
-            if check.state is SourceState.FRESH and check.sha256 is not None:
+            if fresh.state is SourceState.FRESH and fresh.sha256 is not None:
                 wanted = expected_identity(
-                    check.sha256, effective, source_format=source_format_of(source)
+                    fresh.sha256, effective, source_format=source_format_of(source)
                 )
                 if wanted == scan_identity(result):
-                    return SharedScan(result, path, True)
+                    notices = () if check is None else check(result)
+                    return SharedScan(result, path, True, notices)
 
         result = scan(source, config=effective, workers=workers, on_progress=on_progress)
+        notices = () if check is None else check(result)
         try:
             write_text_atomic(path, scan_document(result))
         except OSError as exc:
             raise ReportError(f"Cannot write scan file {path}: {exc}") from exc
-        return SharedScan(result, path, False)
+        return SharedScan(result, path, False, notices)

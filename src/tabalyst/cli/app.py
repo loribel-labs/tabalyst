@@ -6,6 +6,7 @@ import typer
 
 from tabalyst import __version__
 from tabalyst.cli.cache import cache_app
+from tabalyst.cli.inspect import inspect_command
 from tabalyst.cli.report import report_command
 from tabalyst.cli.sample import sample_command
 from tabalyst.cli.scan import scan_command
@@ -39,6 +40,7 @@ def root(
     """Understand, explore, clean, and validate structured data."""
 
 
+app.command("inspect")(inspect_command)
 app.command("report")(report_command)
 app.command("sample")(sample_command)
 app.command("scan")(scan_command)

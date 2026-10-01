@@ -755,7 +755,7 @@ engine version of the running package.
 | `current_scan` (shared cache) | Reuse only when the triple is equal. Another engine version rescans. |
 | Project freshness (`projects/freshness`, `_session`) | Same triple: `ProjectFreshness` carries `recorded_engine_version` and `engine_current`; an assessment of another engine version adds the warning `engine_version_changed`, which blocks `require_current` and not `snapshot`. |
 | `scan_reuse.compare_source` (DP-D) | A present source is always compared by content. A different size is stale at once (the hash would differ). Otherwise the SHA-256 decides; the modification time is not consulted. `modified_at` stays recorded, informatively. Replaces the rule of Scan design O12 (amended in JI-2). `SourceCheck` carries the SHA-256 it computed, which `current_scan` reuses for the identity. |
-| `report --scan` | The document's `engine.version` differing from the running version is a warning, not a refusal: the document is a file the user chose, not a cache (Q5, answered). |
+| `report --scan` | The document's `engine.version` differing from the running version is a warning, not a refusal: the document is a file the user chose, not a cache (Q5, answered). A visible Inspect file beside the source whose `config`, projected onto the document's configuration, would give another `config_sha256` is also a warning ("sets a configuration that differs"), and so is one that cannot be read (it is not compared): the rule of identity is unchanged and the document is never refused for it (JI-7). |
 | Visible Inspect file | Never evidence for reuse (I-T01, 11.6). |
 
 A missing source is still accepted for `report --scan`, with a warning.
@@ -792,7 +792,10 @@ source format), the `origin` of the collection (`visible`, `cache`,
 `automatic`, `none`), `inspect_path` (the visible file used, or `None`) and
 `notices`, the sentences to print. `scan`, `report` and the Python API call it for every `.json`,
 `.jsonl` and `.ndjson` source, so both commands read a source with the same
-rules (EF-11). CSV sources do not use it.
+rules (EF-11), each source with its own configuration (a batch may mix formats).
+CSV sources do not use it. `tabalyst.scan()` and `analyze_csv()` stay engine
+level: they do not resolve an interpretation, so `scan()` keeps its automatic
+discovery mode (E2).
 
 ### 11.1 Layers (DP-04)
 
@@ -824,13 +827,16 @@ unknown keys fail.
 | `.json`, visible file exists | Read and validated (4.6). The cache is not consulted and not modified (EF-09, DP-15). |
 | `.json`, no visible file, valid cache | The cache's detected `dataset_path` is layer 2. |
 | `.json`, no visible file, no valid cache | Automatic inspection runs, its document is written to the cache (12.4), its `dataset_path` is layer 2. |
-| `.jsonl` or `.ndjson` | No detection: the dataset is `$[]` (9.1). No automatic Inspect, no cache entry. A visible file may still set the other keys. |
+| `.json`, no visible file, and the command line or a `--config` file already names the collections | No automatic inspection, no cache entry: the detected `dataset_path` is the only thing it could contribute and that layer outranks it (decided in JI-7). |
+| `.jsonl` or `.ndjson` | No detection: the dataset is `$[]` (9.1). No automatic Inspect, no cache entry. A visible file may still set the other keys. The `json.collections` of a `--config` file is dropped for such a source (a configuration file is shared by sources of every format and its collections name JSON ones); a command-line `--collection` other than `$[]` is a `ConfigurationError` for that source alone (JI-7). |
 | Command line `--collection` | Layer 5, replaces the list of every layer. |
 
 Automatic inspection reads the whole source once more than a Scan that has a
 visible file would; the full-content hash is shared with it when the caller
 passes the already computed hash (`source_sha256`, an optimization, not a
-behavior).
+behavior). The hash computed to validate the cache comes back in
+`Interpretation.source_sha256`; `current_scan(source_sha256=...)` and
+`compare_source(sha256=...)` reuse it, so a source is read once for it (JI-7).
 
 `Interpretation` also holds `collection_origin`, the layer that decided the
 collection (`command_line`, `visible`, `config_file`, `detected`, `none`):
@@ -863,7 +869,8 @@ element count, says why nothing was selected, and gives the exits:
   discovery depth searched.
 
 The candidates come from the visible file's `detection` when it has them, else
-from the cache.
+from the cache. A notice found on the way, such as a cache that could not be
+written, is appended to the message (JI-7).
 
 ### 11.5 A configured path that no longer exists (DP-16, CA-20, EF-12, E3)
 
@@ -877,7 +884,11 @@ The check runs on the in-memory result, together with the comparison of 11.6:
 check_result(interpretation, result: ScanResult) -> tuple[str, ...]
 ```
 
-It raises for the case above and returns the notices of 11.6.
+It raises for the case above and returns the notices of 11.6. The shared scan
+service takes it as `current_scan(..., check=callable)`: the callable receives
+the result, reused or just scanned, before the stored document is written, and
+its notices join the warnings of the outcome. Scans written with `-o` or `-d`
+are checked the same way before they are written.
 
 For a path that comes from a command-line option, `--config` or the automatic
 layer, the existing warning and empty dataset stay (E3): they are the API's
@@ -905,9 +916,11 @@ give `data.json-inspect.json` and `data.jsonl-inspect.json`, distinct (CA-02).
 inspect_path(source: Path) -> Path
 ```
 
-Pattern expansion in `scan`, `report` and `inspect` ignores files named
-`*-inspect.json`; an explicit path to such a file is refused with a message
-saying it is an Inspect file (E8). A real source whose name ends in
+Pattern expansion in `scan`, `report`, `sample` and `inspect` ignores files
+named `*-inspect.json`; an explicit path to such a file is refused with a
+`ConfigurationError` saying it is an Inspect file (E8). The rule lives in
+`batch.resolve_input_specs`; `INSPECT_SUFFIX` and `is_inspect_name` are defined
+in `batch.py` and re-exported by `inspector.persistence`. A real source whose name ends in
 `-inspect.json` cannot be used until renamed (known limitation).
 
 ### 12.2 Writing
@@ -954,7 +967,7 @@ absent, and the inspection is redone. A failure to write the cache is a notice,
 not an error: the cache is disposable and the Scan can still run. The visible
 file is never regenerated, rewritten or deleted by `scan` or `report`.
 
-## 13. Command line (provisional, settled in JI-7)
+## 13. Command line (settled in JI-7)
 
 ```text
 tabalyst inspect INPUT... [--config FILE]... [--reset-config] [--force]
@@ -974,13 +987,29 @@ tabalyst inspect INPUT... [--config FILE]... [--reset-config] [--force]
   with the existing "most general failure wins" rule for batches. Batches
   plan first: a collision, or an output that would replace an input, rejects
   the whole batch before any read.
-- Standard error (not part of the file): the path written, the selection and
-  its basis, then each warning. Stable phrases that tests rely on are
-  "different version of the source" (11.6) and "Inspect file" (11.5).
+- Standard error (not part of the file): `Inspect: <path>`, `Selection: <path
+  or none> (<basis>)`, `Configured collection: <path> (kept from the existing
+  file)` when a kept `config` names another collection than the detection, then
+  each warning as `Warning [source]: ...` (the informative entries only with
+  `--verbose`, which also lists the candidates). `--quiet` hides the first three
+  and keeps the warnings and errors. Several sources print one line each and a
+  count. Stable phrases that tests rely on are "different version of the
+  source" (11.6) and "Inspect file" (11.5).
+- A fatal problem of an existing Inspect file is detected before its source is
+  read, unless `--force`.
+- Where scans go: with no `-o` and no `-d`, `tabalyst scan` stores the scan in
+  the shared storage for every format (it used to write `<stem>.scan.json`
+  beside a `.json` source), so `report` reuses it when its identity matches
+  (10.1). `-o` and `-d` export a standalone `<stem>.scan.json` as before.
 
 `scan` and `report` gain no Inspect-specific option. `--collection` stays.
-`tabalyst.inspect(...)` joins the public API in JI-7, with the same arguments
-and results as the command.
+`tabalyst.inspect(source, *, config_path=None, reset_config=False, force=False,
+on_progress=None) -> InspectResult` inspects one source as the command does,
+writes the visible file and returns an `InspectResult` (`source`, `path`,
+`document`: the document as written, kept `config` and added warnings
+included; a kept `config` that omits keys shows their defaults there, the file
+holds it as the user wrote it); it raises the error that `tabalyst.generate_inspections(...)`, the
+batch form returning `BatchInspectResult`, reports per source.
 
 ## 14. Edge cases (specification section 8)
 
@@ -1196,7 +1225,11 @@ change.
 | `StorageLocation.shared_inspect_path(source)` | JI-6 |
 | `tabalyst.inspector.resolution`: `resolve_interpretation(source, *, scan_layer, collections, delimiter, encoding, location, source_sha256) -> Interpretation` (`config`, `origin`, `collection_origin`, `inspect_path`, `notices`, `recorded_sha256`), `check_result(interpretation, result)` | JI-6 |
 | `tabalyst.scan_reuse.file_sha256(path)` (was private) | JI-6 |
-| `tabalyst inspect`, `tabalyst.inspect()` | JI-7 |
+| `tabalyst.inspector.persistence.save_inspection(source, document, *, reset_config=False, force=False) -> (Path, InspectDocument)` (`write_inspection` returns its path) | JI-7 |
+| `tabalyst.inspector.resolution.inspect_notice(source, result)`, `Interpretation.source_sha256` | JI-7 |
+| `tabalyst.shared_scan_service.current_scan(..., source_sha256=None, check=None)`, `tabalyst.scan_reuse.compare_source(source, recorded, *, sha256=None)` | JI-7 |
+| `tabalyst.inspect_service`: `build_inspect_plan`, `generate_inspections`, `inspect`, `InspectResult`, `BatchInspectResult`; `tabalyst.batch.is_inspect_name` | JI-7 |
+| `tabalyst inspect`, `tabalyst.inspect()`, `tabalyst.generate_inspections()` | JI-7 |
 
 ### 16.2 Layout
 
@@ -1260,3 +1293,4 @@ the measurements.
 | 2026-09-30 | JI-4 | `limits.max_line_bytes` fixed by measurement (16 MiB default, 256 MiB cap; section 15). 9.2: the size limit counts the content without its line break. The JSONL reader parses each line with `json.loads` and walks the result, instead of consuming parser events: a record reads as the same object inside a JSON array, with the flatten rule of section 7.2 (duplicate keys below the limit are not checked). A lone surrogate escape anywhere in a line makes it an invalid line. A JSONL source is routed like a JSON source by `report` (no shared scan cache until JI-7) and by project staging. No contract change. | Implementation of lot JI-4. |
 | 2026-09-30 | JI-5 | Section 15: the four parameters measured and fixed (`RECORDS_OBSERVED` 1,000, `FIELDS_OBSERVED` 1,000, `MAX_CANDIDATES` 100, `DOMINANCE_RATIO` 10), with the measurement tables and the result of the rule at G2. Clarifications, no contract change: 4.4 `invalid` counts the lines above `limits.max_line_bytes` and a line with a duplicate key is an object; 5.3 `json.collections` of the layers below the file plays no part in the seed; 8.1 `JsonEvents` and `JsonlLines` are the event source shared with the Scan readers (extracted from them without change of behavior), so both refuse the same documents with the same message; 8.2 an array repeated under one key is one candidate; 8.5 the observation ignores `flatten` and `limits.max_depth`, a container is a field, an empty object has depth 0. `byte_progress` moved to `tabalyst/progress.py` to serve both engines. | Implementation of lot JI-5. |
 | 2026-10-01 | JI-6 | Amendment: `detection.scope.discovery_max_depth` is recorded (4.4) and a cache made at another depth is rebuilt (12.4); the format stays at revision 1, which is not published. Clarifications, no other contract change: 12.3 a path the candidates cannot judge (deeper than the discovery depth, crossing an array, list truncated) gives no `configured_path_not_found`; 11 `Interpretation.collection_origin`, `source_sha256`, CSV passed through, `json.collections` of a JSONL source resolved to `null`; 12.4 a size mismatch rebuilds the cache without hashing; a failure to write the cache, a busy workspace lock included, is a notice; `scan_reuse.file_sha256` made public. | Implementation of lot JI-6. |
+| 2026-10-01 | JI-7 | The command, the services and the API (sections 13, 16.1). Amendments decided by the maintainer: 11.2 no automatic inspection when the command line or a `--config` file already names the collections; `Interpretation.source_sha256` shared with `current_scan` and `compare_source`; 11.4 the notices join the suspension message; 10.2 `report --scan` warns about a visible file that differs from the document. Clarifications: scans with no `-o` or `-d` go to the shared storage for every format and `report` reuses them (section 13); in a mixed batch the `json.collections` of a `--config` file is ignored for JSONL sources and `--collection` fails that source alone (11.2); `*-inspect.json` is skipped by patterns and refused as a path in `batch.py` for every command (12.1); `save_inspection` returns the document as written. No change to the file format. | Implementation of lot JI-7. |

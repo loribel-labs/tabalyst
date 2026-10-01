@@ -36,7 +36,8 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   `compare_source()` holds the comparison alone, for a source located by the
   caller: beside the document (`check_source()`), from scan-only storage, or
   from `project.json`.
-- `batch.py`: shared batch planning: shell-independent input resolution,
+- `batch.py`: shared batch planning: shell-independent input resolution (a
+  pattern skips `*-inspect.json` files and an explicit path to one is refused),
   output naming for `-o` and `-d`, collision, input-overwrite and `--force`
   checks, and atomic text writes.
 - `report_service.py`: report batch planning on `batch.py` and sequential
@@ -46,7 +47,14 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
 - `sampling_service.py`: sample batch planning on `batch.py` and sequential
   multi-sample execution.
 - `scan_service.py`: scan batch planning on `batch.py`, configuration layers,
-  sequential scans and atomic `.scan.json` writes (`generate_scans()`).
+  sequential scans and atomic `.scan.json` writes (`generate_scans()`). A JSON,
+  JSONL or NDJSON source takes the configuration resolved by
+  `inspector/resolution.py`, per source; without `-o` or `-d` the scan of every
+  format goes to the shared storage.
+- `inspect_service.py`: inspect batch planning on `batch.py` (unknown kinds and
+  unsafe outputs reject the batch before any reading), sequential inspections
+  and the visible Inspect file writes (`generate_inspections()`); `inspect()` is
+  its single-source form in the public API.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`
@@ -147,9 +155,11 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   `.json`, `.jsonl` or `.ndjson` source in one event pass (shared with the Scan
   readers through `JsonEvents` and `JsonlLines`), hashes it, finds the candidate
   collections, applies the selection rule and returns an `InspectDocument`.
-  It writes nothing: no command, no persistence yet.
+  `persistence.py` writes and reads the visible file and the automatic cache;
+  `resolution.py` resolves the configuration of a source by layers and is
+  called by Scan and Report (`resolve_interpretation()`, `check_result()`).
 - `cli/app.py`: root command registration and global options.
-- `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
+- `cli/inspect.py`, `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
   error/diagnostic presentation over the services.
 - `cli/terminal.py`: progress line, exit codes shared by the adapters.
 - `templates/` and `static/`: self-contained report presentation. The Signature

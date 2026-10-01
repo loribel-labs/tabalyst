@@ -2,6 +2,9 @@
 
 from tabalyst._version import __version__
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
+from tabalyst.inspect_service import InspectResult as InspectResult
+from tabalyst.inspect_service import generate_inspections as generate_inspections
+from tabalyst.inspect_service import inspect as inspect
 from tabalyst.report_config import ReportConfig as ReportConfig
 from tabalyst.report_service import generate_reports as generate_reports
 from tabalyst.reporting import render_report as render_report
@@ -20,15 +23,18 @@ from tabalyst.service import analyze_scan as analyze_scan
 __all__ = [
     "ConfigurationError",
     "InputError",
+    "InspectResult",
     "ReportError",
     "ScanConfig",
     "ScanResult",
     "TabalystError",
     "__version__",
     "analyze",
+    "generate_inspections",
     "generate_reports",
     "generate_samples",
     "generate_scans",
+    "inspect",
     "sample_csv",
     "scan",
 ]

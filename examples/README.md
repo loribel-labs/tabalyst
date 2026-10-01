@@ -30,8 +30,8 @@ examples/
 synthetic customer and contract records across 34 columns. Its people, contact
 details, and contracts are fictional; email addresses use reserved `.example`
 domains. `orders.json` is a synthetic shop export: 60 customers with nested
-addresses, tags and orders, whose report has two datasets, `$` and
-`$.customers[]`.
+addresses, tags and orders. Its report has one dataset, `$.customers[]`, the only
+collection of arrays of objects that Tabalyst Inspect finds in it.
 
 From the repository root, regenerate the outputs with:
 

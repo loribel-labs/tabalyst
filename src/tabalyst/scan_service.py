@@ -3,6 +3,7 @@
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 
 from tabalyst.batch import (
@@ -11,7 +12,9 @@ from tabalyst.batch import (
     validate_outputs,
     write_text_atomic,
 )
+from tabalyst.config import load_config_layers
 from tabalyst.errors import InputError, ReportError, TabalystError
+from tabalyst.inspector.resolution import check_result, resolve_interpretation
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
@@ -19,7 +22,8 @@ from tabalyst.progress import (
     emit_progress,
 )
 from tabalyst.scanner import ScanResult, scan
-from tabalyst.scanner.config import resolve_scan_config
+from tabalyst.scanner.config import scan_config_from_layer
+from tabalyst.scanner.identity import source_format_of
 from tabalyst.service import ConfigPath, _config_paths
 
 SCAN_SUFFIX = ".scan.json"
@@ -76,15 +80,8 @@ def build_scan_plan(
 ) -> ScanPlan:
     """Resolve input patterns and reject unsafe output plans before scanning."""
     if project_storage and output is None and output_dir is None:
-        jobs = tuple(
-            ScanJob(
-                source,
-                default_scan_output(source)
-                if source.suffix.lower() == ".json"
-                else None,
-            )
-            for source in resolve_input_specs(input_specs)
-        )
+        # The scan goes to the shared storage, whatever the format.
+        jobs = tuple(ScanJob(source, None) for source in resolve_input_specs(input_specs))
     else:
         jobs = tuple(
             ScanJob(source=source, output=target)
@@ -131,17 +128,17 @@ def generate_scans(
 
     Configuration layers, from lowest to highest priority: built-in defaults,
     the ``scan`` section of each ``config_path`` file in order, then
-    ``delimiter``, ``encoding`` and ``collections``. The whole batch is
-    rejected before any scan when an output is unsafe; afterwards, a failed
-    source does not stop the others. ``workers`` is passed to
-    ``tabalyst.scan()``.
+    ``delimiter``, ``encoding`` and ``collections``. A JSON, JSONL or NDJSON
+    source also takes its Inspect configuration, resolved for that source
+    (design inspect 11): a source whose collection cannot be decided fails
+    alone. The whole batch is rejected before any scan when an output is
+    unsafe; afterwards, a failed source does not stop the others. ``workers``
+    is passed to ``tabalyst.scan()``.
     """
     config_paths = _config_paths(config_path)
-    config = resolve_scan_config(
-        config_paths,
-        delimiter=delimiter,
-        encoding=encoding,
-        collections=collections,
+    _, scan_layer = load_config_layers(config_paths)
+    config = scan_config_from_layer(
+        scan_layer, delimiter=delimiter, encoding=encoding, collections=collections
     )
     plan = build_scan_plan(
         input_specs,
@@ -174,23 +171,40 @@ def generate_scans(
 
         try:
             warnings: tuple[str, ...] = ()
+            job_config = config
+            check = None
+            if source_format_of(job.source) != "csv":
+                interpretation = resolve_interpretation(
+                    job.source,
+                    scan_layer=scan_layer,
+                    collections=collections,
+                    delimiter=delimiter,
+                    encoding=encoding,
+                )
+                job_config = interpretation.config
+                warnings = interpretation.notices
+                check = partial(check_result, interpretation)
+
             if job.output is None:
                 from tabalyst.shared_scan_service import current_scan
 
                 shared = current_scan(
                     job.source,
-                    config,
+                    job_config,
                     on_progress=forward,
                     workers=workers,
                     refresh=True,
+                    check=check,
                 )
                 result = shared.result
                 completed_job = ScanJob(job.source, shared.path)
-                warnings = shared.warnings
+                warnings += shared.warnings
             else:
                 result = scan(
-                    job.source, config=config, on_progress=forward, workers=workers
+                    job.source, config=job_config, on_progress=forward, workers=workers
                 )
+                if check is not None:
+                    warnings += check(result)
                 emit_progress(
                     on_progress,
                     job.source,

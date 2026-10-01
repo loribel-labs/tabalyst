@@ -160,10 +160,12 @@ def test_report_command_names_json_outputs_apart_from_the_source(tmp_path):
     result = CliRunner().invoke(app, ["report", str(source)])
 
     assert result.exit_code == 0, result.output
-    assert "4 records and 6 fields in 2 datasets" in result.stderr
+    # The command reads the one collection Inspect selects, not the document.
+    assert "3 records and 5 fields in 1 dataset" in result.stderr
     assert json.loads(source.read_text(encoding="utf-8")) == ORDERS
     profile = json.loads((tmp_path / "orders.report.json").read_text(encoding="utf-8"))
     assert profile["source"]["format"] == "json"
+    assert [item["id"] for item in profile["datasets"]] == ["$.customers[]"]
     assert (tmp_path / "orders.report.html").exists()
 
 

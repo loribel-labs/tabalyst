@@ -122,11 +122,15 @@ class SourceCheck:
     sha256: str | None = None
 
 
-def compare_source(source: Path, recorded: SourceInfo) -> SourceCheck:
+def compare_source(
+    source: Path, recorded: SourceInfo, *, sha256: str | None = None
+) -> SourceCheck:
     """Compare the file at ``source`` with the facts a scan recorded (O12).
 
     A present source is compared by content: its size, then its SHA-256. The
-    modification time is not consulted (design inspect DP-D).
+    modification time is not consulted (design inspect DP-D). ``sha256`` is the
+    hash of the current content when the caller already computed it, which
+    saves reading the file again.
 
     Independent of where the source was looked for: the caller resolves the
     location, beside a scan document or from ``project.json``. A file that is
@@ -148,7 +152,7 @@ def compare_source(source: Path, recorded: SourceInfo) -> SourceCheck:
             f"the scan read {recorded.size_bytes:,}.",
         )
     try:
-        current = file_sha256(source)
+        current = sha256 or file_sha256(source)
     except OSError as exc:
         raise InputError(f"Cannot read source {source}: {exc}") from exc
     if current != recorded.sha256:

@@ -13,6 +13,15 @@ from pathlib import Path
 
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 
+# The visible Inspect file of a source is its full name plus this suffix
+# (design inspect 12.1). It is never a source itself.
+INSPECT_SUFFIX = "-inspect.json"
+
+
+def is_inspect_name(name: str) -> bool:
+    """Whether a file name is that of an Inspect file."""
+    return name.endswith(INSPECT_SUFFIX)
+
 
 def path_key(path: Path) -> str:
     """Identity of a path for comparisons, whatever its spelling and case."""
@@ -20,7 +29,11 @@ def path_key(path: Path) -> str:
 
 
 def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
-    """Resolve explicit files and shell-independent, non-recursive glob patterns."""
+    """Resolve explicit files and shell-independent, non-recursive glob patterns.
+
+    A pattern skips the Inspect files it matches; an explicit path to one is
+    refused (design inspect 12.1).
+    """
     if not input_specs:
         raise ConfigurationError("At least one input file is required.")
 
@@ -34,7 +47,11 @@ def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
             )
         if glob.has_magic(text):
             matches = sorted(
-                (Path(match) for match in glob.glob(text) if Path(match).is_file()),
+                (
+                    Path(match)
+                    for match in glob.glob(text)
+                    if Path(match).is_file() and not is_inspect_name(Path(match).name)
+                ),
                 key=path_key,
             )
             if not matches:
@@ -45,6 +62,11 @@ def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
                 raise InputError(f"Input file does not exist: {path}")
             if not path.is_file():
                 raise InputError(f"Input path is not a file: {path}")
+            if is_inspect_name(path.name):
+                raise ConfigurationError(
+                    f"{path} is an Inspect file, not a source. Give the source it "
+                    "describes; edit the Inspect file to change how it is read."
+                )
             matches = [path]
 
         for path in matches:

@@ -3,6 +3,7 @@
 import json
 import re
 from collections.abc import Sequence
+from functools import partial
 from pathlib import Path
 from time import perf_counter
 from typing import Any
@@ -18,6 +19,11 @@ from tabalyst.execution_log import (
     EXECUTION_LOG_NAME,
     append_execution,
     build_execution_entry,
+)
+from tabalyst.inspector.resolution import (
+    check_result,
+    inspect_notice,
+    resolve_interpretation,
 )
 from tabalyst.models import ReportProfile
 from tabalyst.progress import (
@@ -233,27 +239,44 @@ def _analyze_resolved(
 
     warnings: tuple[str, ...] = ()
     try:
-        if source_format_of(source) != "csv":
-            profile = analyze_csv(source, config, on_progress=on_progress, workers=workers)
-        else:
-            from tabalyst.shared_scan_service import current_scan
+        from tabalyst.shared_scan_service import current_scan
 
-            shared = current_scan(
+        scan_config = config.scan
+        check = None
+        reused_layer = scan_layer
+        source_sha256 = None
+        if source_format_of(source) != "csv":
+            # A JSON, JSONL or NDJSON source is read with its Inspect
+            # configuration, resolved here for both Scan and Report.
+            interpretation = resolve_interpretation(
                 source,
-                config.scan,
-                workers=workers,
-                on_progress=on_progress,
                 scan_layer=scan_layer,
                 delimiter=separator,
                 encoding=encoding,
             )
-            emit_progress(on_progress, source, ProgressPhase.ANALYZING)
-            effective_config = config.model_copy(update={"scan": shared.result.config})
-            profile = build_profile(shared.result, effective_config)
-            profile.processing_seconds = round(
-                shared.result.duration_seconds + perf_counter() - started, 4
-            )
-            warnings = shared.warnings
+            scan_config = interpretation.config
+            check = partial(check_result, interpretation)
+            warnings = interpretation.notices
+            source_sha256 = interpretation.source_sha256
+            reused_layer = None
+        shared = current_scan(
+            source,
+            scan_config,
+            workers=workers,
+            on_progress=on_progress,
+            scan_layer=reused_layer,
+            delimiter=separator,
+            encoding=encoding,
+            source_sha256=source_sha256,
+            check=check,
+        )
+        emit_progress(on_progress, source, ProgressPhase.ANALYZING)
+        effective_config = config.model_copy(update={"scan": shared.result.config})
+        profile = build_profile(shared.result, effective_config)
+        profile.processing_seconds = round(
+            shared.result.duration_seconds + perf_counter() - started, 4
+        )
+        warnings += shared.warnings
     except InputError:
         raise
     except OSError as exc:
@@ -318,8 +341,12 @@ def _report_scan_resolved(
         started=started - result.duration_seconds,
         on_progress=on_progress,
     )
-    warning = engine_warning(result)
-    return written, checked, () if warning is None else (warning,)
+    warnings = [
+        warning
+        for warning in (engine_warning(result), inspect_notice(source, result))
+        if warning is not None
+    ]
+    return written, checked, tuple(warnings)
 
 
 def _write_report(
