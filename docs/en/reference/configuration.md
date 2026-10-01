@@ -159,7 +159,7 @@ every column: a CSV wider than `scan.limits.max_fields` is an error.
 A report built from a scan document with `tabalyst report --scan` uses the
 settings recorded in the document. Its configuration files still give the
 presentation settings; settings given in their `scan` object must have the
-values recorded in the document, otherwise the report stops with an error (see [Report from a scan](../how-to/scan-files.md#report-from-a-scan)).
+values recorded in the document, otherwise the report stops with an error (see [Report from a scan](../scan/files.md#report-from-a-scan)).
 
 ### Settings moved to `scan`
 
@@ -244,9 +244,9 @@ and encoding in `scan.csv`, or pass `--delimiter` and `--encoding`.
 ### Layers and merge rules
 
 From lowest to highest priority: built-in defaults, for a JSON source with no
-Inspect file the collection that [Inspect](../how-to/inspect-json-files.md)
+Inspect file the collection that [Inspect](../inspect/json.md)
 detects, the `scan` object of each `--config` file in the order given, the
-`config` of the [Inspect file](inspect-format.md#config) beside the source, then
+`config` of the [Inspect file](../inspect/format.md#config) beside the source, then
 `--delimiter`, `--encoding` and `--collection`.
 
 - Objects merge key by key, including `detectors.<id>`: a file that sets
@@ -271,7 +271,7 @@ configuration and the version of Tabalyst are all the same.
   be unique and not contain one another, and are stored in canonical spelling
   (`$["orders"][]` becomes `$.orders[]`). `null` means that no collection is
   named: `tabalyst scan` and `tabalyst report` then use the collection that
-  [Inspect](../how-to/inspect-json-files.md) selects, or stop with exit code `2`
+  [Inspect](../inspect/json.md) selects, or stop with exit code `2`
   when it cannot select one. Only `tabalyst.scan()` turns `null` into automatic
   discovery of every array. For a JSONL file it is `null` or `["$[]"]`. A file
   that lists `json.collections` is shared by sources of every format, so it is
@@ -303,7 +303,7 @@ configuration and the version of Tabalyst are all the same.
 - `errors.max_locations`: how many record locations each diagnostic lists.
 
 The `json.collections`, `json.flatten`, `json.arrays` and `errors.policy`
-settings are the ones an [Inspect file](inspect-format.md#config) edits, under
+settings are the ones an [Inspect file](../inspect/format.md#config) edits, under
 the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
 
 ### Values and missing values

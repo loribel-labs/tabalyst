@@ -1,14 +1,17 @@
 ---
 title: Tabalyst documentation
-description: Tabalyst is an open-source, local-first toolkit that turns a CSV, JSON or JSONL file into an interactive HTML report and a JSON profile.
+description: Documentation of Tabalyst 0.5.0, the open-source, local-first toolkit that turns CSV, JSON and JSONL files into reports, JSON profiles, scans and samples.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
-data. Its first tool, **Tabalyst Report**, analyzes a CSV, JSON or JSONL file and produces an
-interactive HTML report and a structured JSON profile. **Tabalyst Scan**
-describes CSV, JSON and JSONL files in a scan document, **Tabalyst Inspect**
-finds how to read a JSON or JSONL file, and **Tabalyst Sample** creates
-smaller CSV files.
+structured data. Install it once and use its tools from the command line or
+from Python:
+
+- **Tabalyst Report** turns a CSV, JSON or JSONL file into an interactive HTML
+  report and a JSON profile.
+- **Tabalyst Scan** describes every field of a file in one JSON document.
+- **Tabalyst Inspect** finds how to read a JSON or JSONL file.
+- **Tabalyst Sample** creates smaller CSV files.
 
 ```console
 pip install --upgrade tabalyst
@@ -19,37 +22,57 @@ This creates `customers.html` (the report), `customers.json` (the profile) and
 `executions.json` (the run history) beside the CSV file. Everything runs on your
 computer; no data is sent anywhere.
 
-The first command installs Tabalyst, or updates it when it is already
-installed. Tabalyst is in beta and changes often: run it again before each new
-test. Commands and the JSON format may still change between versions. This
+Tabalyst is in beta and changes often: run the first command again before each
+new test. Commands and the JSON formats may still change between versions. This
 documentation describes the latest release published on PyPI.
 
-## Start here
+## What do you want to do?
 
-- [Install Tabalyst](how-to/install.md), on Windows, macOS or Linux, and
-  [keep it up to date](how-to/install.md#keep-tabalyst-up-to-date).
-- [Create your first report](tutorials/first-report.md) from a small CSV file.
-- [Sample CSV files](how-to/sample-csv.md) with first, last, random or
-  stratified selection.
-- [Report JSON files](how-to/report-json-files.md), one view per collection
-  of records.
-- [Inspect JSON and JSONL files](how-to/inspect-json-files.md) to see how
-  Tabalyst finds the collection of records, and to choose it.
-- [Scan CSV and JSON files](how-to/scan-files.md) into a complete JSON
-  description of every field.
+| Goal | Page |
+| --- | --- |
+| Install or update Tabalyst | [Install Tabalyst](install.md) |
+| Try it step by step | [Create your first report](report/getting-started.md) |
+| See a finished report | [Examples and demos](examples.md) |
+| Report one or many CSV files | [Report CSV files](report/csv.md) |
+| Report a JSON or JSONL file | [Report JSON files](report/json.md) |
+| Choose which array of a JSON file is analyzed | [Inspect JSON and JSONL files](inspect/json.md) |
+| Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
+| Cut a large CSV down | [Sample CSV files](sample/index.md) |
+| Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
+| Find a command or an option | [Command line reference](reference/cli.md) |
+| Use Tabalyst from Python | [Python API reference](reference/python-api.md) |
+| Read a generated JSON file in a script | [JSON profile](report/profile.md), [scan format](scan/format.md), [Inspect format](inspect/format.md) |
+| Know what is not supported yet | [Known limitations](reference/limitations.md) |
 
-## Reference
+## Sections
 
-- [JSON profile](reference/json-profile.md): the structure of the generated
-  `.json` file.
-- [Configuration](reference/configuration.md): the JSON configuration file.
-- [Execution history](reference/execution-history.md): the `executions.json`
-  file.
-- [Profile format changelog](reference/profile-format-changelog.md).
-- [Scan format](reference/scan-format.md): the structure of the `.scan.json`
-  file, and its [changelog](reference/scan-format-changelog.md).
-- [Inspect format](reference/inspect-format.md): the structure of the
-  `-inspect.json` file, and its [changelog](reference/inspect-format-changelog.md).
-- [Known limitations](reference/known-limitations.md): what Tabalyst does not do
-  yet.
-- [Glossary](reference/glossary.md): English and French terms.
+- **Get started**: [install](install.md),
+  [first report](report/getting-started.md) and
+  [examples](examples.md).
+- **Tabalyst Report**: [overview](report/index.md), CSV and JSON guides, the
+  [JSON profile](report/profile.md) and its
+  [changelog](report/profile-changelog.md).
+- **Tabalyst Inspect**: the [guide](inspect/json.md), the
+  [Inspect format](inspect/format.md) and its
+  [changelog](inspect/format-changelog.md).
+- **Tabalyst Scan**: [overview](scan/index.md), the
+  [guide](scan/files.md), the [scan format](scan/format.md), its
+  [changelog](scan/format-changelog.md) and
+  [query caches](scan/cache.md).
+- **Tabalyst Sample**: [Sample CSV files](sample/index.md).
+- **Reference**: [command line](reference/cli.md),
+  [Python API](reference/python-api.md),
+  [configuration](reference/configuration.md),
+  [execution history](report/history.md) and the
+  [glossary](reference/glossary.md).
+- **Project**: [concepts](project/concepts.md),
+  [known limitations](reference/limitations.md),
+  [release notes](project/release-notes.md) and
+  [support](project/contributing.md).
+
+## For AI assistants
+
+This site publishes plain-text versions of its pages: `/llms.txt` lists every
+page with a one-line description, `/llms-full.txt` holds the whole
+documentation in one file, and every page is also available as Markdown by
+adding `.md` to its URL, for example `/report.md`.

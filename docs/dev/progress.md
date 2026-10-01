@@ -1,5 +1,27 @@
 # Development progress
 
+## 2026-10-01 (documentation overhaul)
+
+- Reorganized `docs/en/` by tool, with URLs of the form `/tool/subject/`:
+  `install`, `examples`, `report/`, `inspect/`, `scan/`, `sample/`,
+  `reference/` and `project/`. Files were renamed with `git mv` and every
+  relative link rewritten; the old `how-to/`, `tutorials/` and most `reference/`
+  URLs are gone.
+- New pages: `report/index`, `report/csv`, `inspect/index`, `scan/index`, `scan/cache`, `reference/index`
+  (`tabalyst cache`, moved out of the scan guide), `examples`,
+  `reference/cli`, `reference/python-api`, `project/concepts`, `report/profile`, `sample/index`,
+  `project/release-notes` and `project/contributing`. `index.md` now starts with
+  a goal-to-page table.
+- English only during the beta: `docs/fr/` holds one page that points to
+  docs.tabalyst.com; the 16 translated pages were removed. `AGENTS.md` and
+  `docs/README.md` updated.
+- `tabalyst-studio`: new menu (`src/navigation.ts`), no i18n, `llms.txt`,
+  `llms-full.txt`, a Markdown twin of each page and `robots.txt`.
+  Follow-ups: `tabalyst.com` links to
+  `docs.tabalyst.com/fr/reference/configuration/` (French site) and `llms.txt`
+  of tabalyst.com; the README links of PyPI's description change at the next
+  release.
+
 ## 2026-10-01
 
 - Prepared package version `0.5.0`, the first release with Tabalyst Inspect and

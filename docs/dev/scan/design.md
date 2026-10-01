@@ -1324,7 +1324,7 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 
 The format follows the repository convention: `format_version` names the
 alpha family and `format_revision` increases for each meaningful change. Its
-changelog is `docs/en/reference/scan-format-changelog.md` (lot 4).
+changelog is `docs/en/scan/format-changelog.md` (lot 4).
 
 ### 16.2 Datasets and fields
 
