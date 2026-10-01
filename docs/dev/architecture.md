@@ -141,6 +141,13 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   atomically updated `executions.json` file.
 - `scanner/`: Tabalyst Scan, the streaming engine (see below); `tabalyst scan`
   and `tabalyst.scan()` expose it. Tabalyst has no pandas dependency.
+- `inspector/`: Tabalyst Inspect (design in `docs/dev/inspect/design.md`),
+  under construction. `models.py` holds the Inspect document and the editable
+  `config`; `json_inspect/` is the JSON kind: `inspect_source()` reads a
+  `.json`, `.jsonl` or `.ndjson` source in one event pass (shared with the Scan
+  readers through `JsonEvents` and `JsonlLines`), hashes it, finds the candidate
+  collections, applies the selection rule and returns an `InspectDocument`.
+  It writes nothing: no command, no persistence yet.
 - `cli/app.py`: root command registration and global options.
 - `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
   error/diagnostic presentation over the services.

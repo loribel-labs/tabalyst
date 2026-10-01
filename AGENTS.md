@@ -53,6 +53,10 @@ not yet required. Record format changes in the relevant changelogs.
   batch planning and execution of each command.
 - `src/tabalyst/progress.py`: presentation-neutral engine progress events.
 - `src/tabalyst/reporting.py`: JSON-to-HTML rendering without CSV access.
+- `src/tabalyst/inspector/`: Tabalyst Inspect, built in lots (JSON kind first):
+  document models, the JSON event pass and the selection rule. Its contract is
+  `docs/dev/inspect/design.md`; its tests in `tests/inspect/` are enabled lot by
+  lot.
 - `src/tabalyst/cli/`: thin command adapters, error presentation and terminal
   output management.
 - `src/tabalyst/templates/` and `src/tabalyst/static/`: report presentation.

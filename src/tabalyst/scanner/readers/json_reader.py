@@ -210,33 +210,21 @@ class _Frame:
         self.length = 0
 
 
-class JsonReader:
+class JsonEvents:
+    """Parser events of a JSON source, hashed while read.
+
+    The one place that opens a JSON source: byte order mark, parser backend,
+    lone surrogates, parse failures translated to ``InputError``. The Scan
+    reader and Inspect (design inspect section 8.1) both consume it, so they
+    accept and refuse exactly the same documents. ``summary`` is available
+    once the iteration is complete.
+    """
+
     def __init__(
-        self,
-        path: Path,
-        config: ScanConfig,
-        on_bytes: Callable[[int], None] | None = None,
+        self, path: Path, on_bytes: Callable[[int], None] | None = None
     ) -> None:
         self.path = path
         self.on_bytes = on_bytes
-        self.tolerant = config.errors.policy == "tolerant"
-        self.max_depth = config.limits.max_depth
-        self.max_observations = config.limits.max_record_observations
-        self.discovery_depth = config.json_.discovery_max_depth
-        limit = config.json_.flatten.depth_limit()
-        self.flatten_limit = sys.maxsize if limit is None else limit
-        requested = config.json_.collections
-        self.auto = requested is None
-        # Explicit collections by path, and the paths leading to them.
-        self.targets: dict[FieldPath, str] = {}
-        self.prefixes: set[FieldPath] = set()
-        for text in requested or ():
-            path_ = parse_path(text)
-            self.targets[path_] = format_absolute(path_)
-            self.prefixes.update(path_[:end] for end in range(len(path_)))
-        self._found: set[str] = set()
-        self._opened: set[str] = set()
-        self._counts: dict[str, int] = {}
         self._summary: SourceSummary | None = None
 
     def summary(self) -> SourceSummary:
@@ -244,7 +232,7 @@ class JsonReader:
             raise RuntimeError("The JSON source has not been read completely")
         return self._summary
 
-    def __iter__(self) -> Iterator[StreamItem]:
+    def __iter__(self) -> Iterator[tuple[str, object]]:
         backend = BACKEND
         try:
             if backend.backend_name == "yajl2_c" and _has_long_digit_run(self.path):
@@ -264,9 +252,7 @@ class JsonReader:
             if backend.backend_name != "yajl2_c":
                 events = _reject_surrogates(events)
             try:
-                yield from self._walk(events)
-            except InputError:
-                raise
+                yield from events
             except OSError as exc:
                 raise InputError(f"Cannot read JSON file {self.path}: {exc}") from exc
             except _PARSE_ERRORS as exc:
@@ -293,6 +279,41 @@ class JsonReader:
             sha256=stream.hexdigest(),
             encoding="utf-8-sig" if bom else "utf-8",
         )
+
+
+class JsonReader:
+    def __init__(
+        self,
+        path: Path,
+        config: ScanConfig,
+        on_bytes: Callable[[int], None] | None = None,
+    ) -> None:
+        self.path = path
+        self._events = JsonEvents(path, on_bytes)
+        self.tolerant = config.errors.policy == "tolerant"
+        self.max_depth = config.limits.max_depth
+        self.max_observations = config.limits.max_record_observations
+        self.discovery_depth = config.json_.discovery_max_depth
+        limit = config.json_.flatten.depth_limit()
+        self.flatten_limit = sys.maxsize if limit is None else limit
+        requested = config.json_.collections
+        self.auto = requested is None
+        # Explicit collections by path, and the paths leading to them.
+        self.targets: dict[FieldPath, str] = {}
+        self.prefixes: set[FieldPath] = set()
+        for text in requested or ():
+            path_ = parse_path(text)
+            self.targets[path_] = format_absolute(path_)
+            self.prefixes.update(path_[:end] for end in range(len(path_)))
+        self._found: set[str] = set()
+        self._opened: set[str] = set()
+        self._counts: dict[str, int] = {}
+
+    def summary(self) -> SourceSummary:
+        return self._events.summary()
+
+    def __iter__(self) -> Iterator[StreamItem]:
+        yield from self._walk(iter(self._events))
 
     # Datasets and records ------------------------------------------------
 

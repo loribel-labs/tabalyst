@@ -53,3 +53,33 @@ def emit_progress(
                 bytes_total=bytes_total,
             )
         )
+
+
+# Reading progress is reported at most once per percent of the source, and
+# never more often than every MiB.
+_BYTE_PROGRESS_MIN_STEP = 1 << 20
+
+
+def byte_progress(
+    callback: ProgressCallback | None, source: Path, total: int
+) -> Callable[[int], None] | None:
+    """A callback for the reader that reports the bytes read so far, or
+    ``None`` when nobody listens."""
+    if callback is None:
+        return None
+    step = max(_BYTE_PROGRESS_MIN_STEP, total // 100)
+    next_report = step
+
+    def report(bytes_read: int) -> None:
+        nonlocal next_report
+        if bytes_read >= next_report:
+            next_report = bytes_read + step
+            emit_progress(
+                callback,
+                source,
+                ProgressPhase.READING,
+                bytes_read=bytes_read,
+                bytes_total=max(total, bytes_read),
+            )
+
+    return report

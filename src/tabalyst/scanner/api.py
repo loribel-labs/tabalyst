@@ -9,7 +9,12 @@ from time import perf_counter
 
 from tabalyst._version import __version__
 from tabalyst.errors import ConfigurationError, InputError
-from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
+from tabalyst.progress import (
+    ProgressCallback,
+    ProgressPhase,
+    byte_progress,
+    emit_progress,
+)
 from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 from tabalyst.scanner.detectors.registry import (
     DetectorRegistry,
@@ -40,9 +45,6 @@ from tabalyst.scanner.readers.jsonl_reader import JsonlReader
 from tabalyst.scanner.workers import WorkerPool, worker_count
 
 NORMALIZATION_VERSION = 1
-# Reading progress is reported at most once per percent of the source, and
-# never more often than every MiB.
-_PROGRESS_MIN_STEP = 1 << 20
 
 
 def _open_reader(
@@ -54,29 +56,6 @@ def _open_reader(
     if source_format == "jsonl":
         return JsonlReader(path, config, on_bytes)
     return CsvReader(path, config, on_bytes)
-
-
-def _byte_progress(
-    on_progress: ProgressCallback | None, path: Path, total: int
-) -> Callable[[int], None] | None:
-    if on_progress is None:
-        return None
-    step = max(_PROGRESS_MIN_STEP, total // 100)
-    next_report = step
-
-    def report(bytes_read: int) -> None:
-        nonlocal next_report
-        if bytes_read >= next_report:
-            next_report = bytes_read + step
-            emit_progress(
-                on_progress,
-                path,
-                ProgressPhase.READING,
-                bytes_read=bytes_read,
-                bytes_total=max(total, bytes_read),
-            )
-
-    return report
 
 
 def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope | None:
@@ -152,7 +131,7 @@ def scan(
         on_progress, path, ProgressPhase.READING, bytes_read=0, bytes_total=stat.st_size
     )
     reader = _open_reader(
-        path, config, _byte_progress(on_progress, path, stat.st_size)
+        path, config, byte_progress(on_progress, path, stat.st_size)
     )
     detectors = DetectorSet(
         default_registry() if registry is None else registry, config
