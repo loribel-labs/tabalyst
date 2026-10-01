@@ -12,10 +12,15 @@ from tabalyst.config import merge_settings
 from tabalyst.errors import InputError, ReportError
 from tabalyst.projects._locks import workspace_writer
 from tabalyst.projects.location import StorageLocation
-from tabalyst.scan_reuse import SourceState, _sha256, compare_source, load_scan
+from tabalyst.scan_reuse import SourceState, compare_source, load_scan
 from tabalyst.scan_service import scan_document
 from tabalyst.scanner import ScanConfig, ScanResult, scan
 from tabalyst.scanner.config import config_sha256, scan_config_from_layer
+from tabalyst.scanner.identity import (
+    expected_identity,
+    scan_identity,
+    source_format_of,
+)
 
 
 @dataclass(frozen=True)
@@ -51,12 +56,6 @@ def current_scan(
             if config_sha256(result.config) != result.config_sha256:
                 raise InputError("Stored scan configuration fingerprint is invalid")
             check = compare_source(source, result.source)
-            fingerprint_matches = False
-            if check.state is SourceState.FRESH:
-                try:
-                    fingerprint_matches = _sha256(source) == result.source.sha256
-                except OSError as exc:
-                    raise InputError(f"Cannot hash source {source}: {exc}") from exc
             if scan_layer is not None:
                 recorded = result.config.model_dump(mode="json", by_alias=True)
                 effective = scan_config_from_layer(
@@ -64,12 +63,14 @@ def current_scan(
                     delimiter=delimiter,
                     encoding=encoding,
                 )
-            if (
-                check.state is SourceState.FRESH
-                and fingerprint_matches
-                and result.config_sha256 == config_sha256(effective)
-            ):
-                return SharedScan(result, path, True)
+            # Reuse only when source content, applied rules and engine
+            # version are all those of the document (design inspect 10.1).
+            if check.state is SourceState.FRESH and check.sha256 is not None:
+                wanted = expected_identity(
+                    check.sha256, effective, source_format=source_format_of(source)
+                )
+                if wanted == scan_identity(result):
+                    return SharedScan(result, path, True)
 
         result = scan(source, config=effective, workers=workers, on_progress=on_progress)
         try:

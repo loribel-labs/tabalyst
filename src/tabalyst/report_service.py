@@ -240,7 +240,7 @@ def generate_reports(
             if job.error is not None:
                 raise job.error
             if from_scan:
-                result, checked = _report_scan_resolved(
+                result, checked, warnings = _report_scan_resolved(
                     job.source,
                     job.output,
                     settings,

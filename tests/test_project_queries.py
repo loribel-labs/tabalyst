@@ -22,6 +22,7 @@ from tabalyst.projects._queries import (
 from tabalyst.projects._query_budget import QueryBudget, apply_spill_limit
 from tabalyst.projects._staging import _file_hash
 from tabalyst.scanner import ScanConfig, scan
+from tabalyst.scanner.config import resolve_config_defaults
 from tabalyst.scanner.normalization import STAGES
 
 
@@ -146,7 +147,7 @@ def test_exposure_before_frequency_and_variant_ranking(tmp_path, mode):
     )
     source.unlink()  # Queries require neither the source nor rerunning detectors.
     with open_generation(location, outcome.project.project_id) as pinned:
-        assert pinned.result.config == config
+        assert pinned.result.config == resolve_config_defaults(config, "csv")
         assert_value_parity(pinned, outcome.result)
         with materialize_values(pinned, "rows", "column_1") as query:
             page = query.frequencies_page(size=1)

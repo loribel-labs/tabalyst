@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 9,
-  "generated_at": "2026-09-30T21:19:49.610929Z",
-  "processing_seconds": 0.0111,
+  "format_revision": 10,
+  "generated_at": "2026-10-01T02:52:52.149032Z",
+  "processing_seconds": 0.0139,
   "source": {
     "filename": "basic.csv",
     "format": "csv",
@@ -37,7 +37,15 @@
       },
       "json": {
         "collections": null,
-        "discovery_max_depth": 3
+        "discovery_max_depth": 3,
+        "flatten": {
+          "enabled": true,
+          "separator": ".",
+          "max_depth": null
+        },
+        "arrays": {
+          "mode": "preserve"
+        }
       },
       "errors": {
         "policy": "strict",

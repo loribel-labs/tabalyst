@@ -42,7 +42,7 @@ lot, with the reason recorded in section 17.
 | O09 | Limits | Initial defaults and hard caps of section 11; values revisited after phase 6 benchmarks. | Accepted 2026-09-26 | 11 |
 | O10 | Sensitive values | Sensitive fields expose masked shapes by default, through one exposure gate. | Accepted 2026-09-26 | 12.8 |
 | O11 | Declarative patterns | Validated Python regular expressions with length caps. | Accepted 2026-09-26 | 12.7 |
-| O12 | Reuse and staleness | The report reuses a scan document; a source beside it with another size, or another content when its modification time changed, and configured scan settings that differ from the document's are stale and fail; a missing source is accepted with a warning. | Accepted 2026-09-28 (lot 5c) | 16.6 |
+| O12 | Reuse and staleness | The report reuses a scan document; a source beside it with another size, or another content (its SHA-256, whatever its modification time), and configured scan settings that differ from the document's are stale and fail; a missing source is accepted with a warning. A document of another engine version is reported with a warning. Amended 2026-09-30 (lot JI-2, inspect design DP-D, 10.2). | Accepted 2026-09-28 (lot 5c); amended 2026-09-30 | 16.6 |
 | O13 | Configuration merge | Objects merge, lists replace, unknown keys fail. | Accepted 2026-09-26 | 15 |
 | O14 | Detector catalogue | Each detector gets a short specification in [detectors.md](detectors.md) before it is implemented. | Accepted 2026-09-26, file created in lot 3b | 12 |
 | O15 | Empty inputs | Zero counts and `not_applicable` measures; never a division by zero. | Accepted 2026-09-26 | 9.9 |
@@ -1178,8 +1178,12 @@ settings from it (section 16.4).
 {
   "scan": {
     "csv": {"encoding": "utf-8-sig", "delimiter": ","},
-    "json": {"collections": null, "discovery_max_depth": 3},
-    "errors": {"policy": "strict", "max_locations": 10},
+    "json": {
+      "collections": null, "discovery_max_depth": 3,
+      "flatten": {"enabled": true, "separator": ".", "max_depth": null},
+      "arrays": {"mode": "preserve"}
+    },
+    "errors": {"policy": null, "max_locations": 10},
     "values": {
       "null_markers": [],
       "null_markers_case_sensitive": true,
@@ -1261,7 +1265,13 @@ Merge rules:
   is no deletion syntax.
 
 The result embeds the effective configuration and `config_sha256`, the SHA-256
-of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
+of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42). Since format
+revision 5 the embedded configuration is the one the scan applied:
+`errors.policy: null` is resolved by the source format (`strict` for CSV and
+JSON, `tolerant` for JSONL), unused flatten settings are normalized, and
+collection paths are canonical (`resolve_config_defaults`, inspect design 5.5,
+5.6, 10.3). `flatten` is applied by the JSON reader since lot
+JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 
 ## 16. Result document (O01)
 
@@ -1271,7 +1281,7 @@ of its canonical JSON (sorted keys, no whitespace, UTF-8) (EF42).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {"version": "0.4.0", "normalization_version": 1,
              "detectors": {"number": 1, "date": 1, "boolean": 1,
                            "enumeration": 1, "email": 1, "url": 1,
@@ -1488,8 +1498,11 @@ Decided with the maintainer in lot 5c:
 - **Staleness.** The source is looked for beside the document under
   `source.name`. Missing: accepted, the document stands on its own, and
   the command warns that the source was not checked (scans written with `-d`
-  elsewhere). Another size: stale. Same size and modification time: fresh. Other modification
-  time: its SHA-256 decides, so a touched file stays fresh. Stale is an
+  elsewhere). Another size: stale. Otherwise its SHA-256 decides, whatever the
+  modification time (amended in lot JI-2, DP-D): a touched file stays fresh, a
+  file rewritten with the same size and time is stale. A document whose
+  `engine.version` is not the running one is reported with a warning: it is a
+  file the user chose, not a cache. Stale is an
   `InputError` (exit 4) naming the source and asking for a new scan.
 - **Settings.** The document's `config` is the report's `scan`
   configuration. The `scan` settings of the configuration files, merged over
@@ -1562,3 +1575,4 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-28 | 5d | New section 16.7: profile revision 6 with every normalization stage and the variant groups per column, limits and diagnostics per dataset, structure of JSON datasets; "Transformations" extended, "Limits and diagnostics" shown only when needed, "JSON structure" for JSON sources only. | Sections deferred by lot 5b; maintainer decisions of lot 5d. |
 | 2026-09-28 | 6 | Decision O23 and section 13 item 4: adaptive detection after a warm-up of `detection.warmup_values` distinct values per field, with probes every `detection.probe_interval`; section 12.2: `not_tested` of skipped values; section 12.3: `adaptive` in detector results (scan format revision 3); section 14: `detector_skipped_reacted` warning; section 15: new `detection` settings. | Detection of high-cardinality fields dominated the scan time; exact `not_tested` counts keep the contract. Re-enabling a detector after a probe was dropped: it would break principle 6. |
 | 2026-09-28 | 6 | Decisions O24 and O25 (Proposed). Section 13 items 2 and 4 to 7: streaming batches instead of the memoization cache, rare detectors, batches of distinct values, column batches, worker processes. Section 6: `RecordBatch`, `Observation` as a named tuple, shared path objects. Section 12.1: `classify_many`, `rejects_field`, `Classification` as a named tuple. Section 12.3: `adaptive.warmup_reactions` (scan format revision 4). Section 9.10: table digests joined by NUL. Section 14: warning of rare detectors. Section 15: `detection.rare_share`. | The maintainer asked for the most speed on large files, progressive learning that drops what became unlikely, and reading that uses the machine: per-call overhead dominated, not the rules. The rare rule keeps detectors reacting at the end of the warm-up, found on the sorted `id` column of the benchmark. |
+| 2026-09-30 | JI-2 | Decision O12 amended and section 16.6: the SHA-256 always decides for a present source (no modification-time shortcut); another engine version warns. Section 15 and 16.1 (format revision 5): `json.flatten`, `json.arrays`, nullable `errors.policy`, the document records the resolved configuration, collection paths in canonical spelling. | Inspect design DP-D and DP-10 (scan identity), lot JI-2. |

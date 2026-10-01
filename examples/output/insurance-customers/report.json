@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
-  "format_revision": 9,
-  "generated_at": "2026-09-30T21:19:54.726842Z",
-  "processing_seconds": 0.655,
+  "format_revision": 10,
+  "generated_at": "2026-10-01T02:52:53.091550Z",
+  "processing_seconds": 0.6847,
   "source": {
     "filename": "insurance-customers.csv",
     "format": "csv",
@@ -37,7 +37,15 @@
       },
       "json": {
         "collections": null,
-        "discovery_max_depth": 3
+        "discovery_max_depth": 3,
+        "flatten": {
+          "enabled": true,
+          "separator": ".",
+          "max_depth": null
+        },
+        "arrays": {
+          "mode": "preserve"
+        }
       },
       "errors": {
         "policy": "strict",

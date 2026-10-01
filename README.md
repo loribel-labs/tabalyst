@@ -226,8 +226,8 @@ chooses their number, `--workers 1` keeps one process.
 
 `tabalyst report customers.csv` reuses the verified stored scan when the CSV
 content and requested scan settings are current. It creates a scan when none
-exists and atomically replaces a stale one. The source check uses size,
-modification time and SHA-256. Existing DuckDB projects from 0.4.3 are left
+exists and atomically replaces a stale one. The source check uses size and
+SHA-256, and a scan written by another version of Tabalyst is replaced. Existing DuckDB projects from 0.4.3 are left
 untouched.
 
 Build the report from a standalone scan document without reading the source again:

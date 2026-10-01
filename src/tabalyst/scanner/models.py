@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 4
+FORMAT_REVISION = 5
 
 
 class ScanModel(BaseModel):

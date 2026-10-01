@@ -302,7 +302,7 @@ class DatasetState:
         if state.declared is not None:
             name, display = state.declared.name, state.declared.display
         else:
-            display = format_relative(path)
+            display = format_relative(path, config.json_.flatten.separator)
             last = path[-1] if path else None
             name = last.name if isinstance(last, Key) else ("[]" if last else "$")
 

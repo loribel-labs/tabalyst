@@ -3,13 +3,16 @@
 The comparison is the one of the report's staleness rule (O12,
 ``tabalyst.scan_reuse.compare_source``); only the location differs: the source
 is found through the path in ``project.json``, and the facts it is compared
-with are those of the project's ``scan.json`` (S05). What to do with a stale
-project is not decided here (D04).
+with are those of the project's ``scan.json`` (S05). The engine version of
+that document is compared with the running one too: it is the third fact of a
+scan's identity (design inspect 10.1). What to do with a stale project is not
+decided here (D04).
 """
 
 from dataclasses import dataclass
 from pathlib import Path
 
+from tabalyst._version import __version__
 from tabalyst.errors import InputError
 from tabalyst.projects.location import StorageLocation
 from tabalyst.projects.models import ProjectManifest
@@ -23,6 +26,10 @@ class ProjectFreshness:
     # The source as located by ``project.json``.
     source: Path
     check: SourceCheck
+    # The engine version that wrote the project's scan, and whether it is the
+    # running one.
+    recorded_engine_version: str
+    engine_current: bool
 
 
 def project_freshness(location: StorageLocation, project_id: str) -> ProjectFreshness:
@@ -37,7 +44,11 @@ def project_freshness(location: StorageLocation, project_id: str) -> ProjectFres
 
         with open_generation(location, project_id) as pinned:
             return ProjectFreshness(
-                project_id, Path(pinned.project.source.path), pinned.freshness()
+                project_id,
+                Path(pinned.project.source.path),
+                pinned.freshness(),
+                pinned.result.engine.version,
+                pinned.result.engine.version == __version__,
             )
     scan_path = location.scan_path(project_id)
     if not scan_path.is_file():
@@ -51,4 +62,6 @@ def project_freshness(location: StorageLocation, project_id: str) -> ProjectFres
         project_id=project_id,
         source=source,
         check=compare_source(source, result.source),
+        recorded_engine_version=result.engine.version,
+        engine_current=result.engine.version == __version__,
     )

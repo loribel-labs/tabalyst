@@ -1,4 +1,4 @@
-"""Report profile built from a Tabalyst Scan result (profile revision 9).
+"""Report profile built from a Tabalyst Scan result (profile revision 10).
 
 ``build_profile`` turns a scan result, fresh or read back from a scan
 document, into the profile that ``reporting.py`` renders: the columns come
@@ -583,6 +583,14 @@ def build_column(
     row_count = value_slots(field)
     technical = field.technical_type
     inferred = technical.type
+    type_counts = dict(technical.counts)
+    complex_counts = {
+        name: count for name, count in field.native_types.items() if name in CONTAINER_TYPES
+    }
+    if inferred == "empty" and complex_counts:
+        # Containers kept whole at the flatten limit: no scalar family.
+        inferred = "complex"
+        type_counts = complex_counts
     date_profile = build_date_profile(field)
     value_profile = build_value_profile(
         field, inferred_type=inferred, position=position, config=config
@@ -595,7 +603,7 @@ def build_column(
         path=field.display,
         position=position,
         inferred_type=inferred,
-        type_counts=dict(technical.counts),
+        type_counts=type_counts,
         type_confidence=technical.confidence,
         type_error_count=outside,
         type_error_percent=(
@@ -814,13 +822,16 @@ def build_structure(dataset: DatasetResult, columns: set[str]) -> DatasetStructu
 
 def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResult]:
     """The fields shown as columns: every CSV column; the JSON fields holding
-    scalar values or nulls, containers being structure (design 16.4)."""
+    scalar values or nulls, containers being structure (design 16.4), except
+    the containers kept whole at the flatten limit, which are complex columns."""
     if result.source.csv is not None:
         return list(dataset.fields)
+    limit = result.config.json_.flatten.depth_limit()
     return [
         field
         for field in dataset.fields
         if any(native not in CONTAINER_TYPES for native in field.native_types)
+        or (len(field.path) == limit and field.collection is None)
     ]
 
 

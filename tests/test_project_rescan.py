@@ -18,6 +18,7 @@ from tabalyst.projects._locks import ProjectBusyError, workspace_maintenance
 from tabalyst.projects._session import inspect_project, open_project
 from tabalyst.projects.store import read_project
 from tabalyst.scanner import ScanConfig
+from tabalyst.scanner.config import resolve_config_defaults
 
 
 @pytest.fixture
@@ -49,7 +50,7 @@ def test_selected_rescan_preserves_identity_and_recorded_config(project):
         assert second.project.created_at == first.project.created_at
         assert second.project.generation.id != assessment.generation_id
         assert second.result.config_sha256 == first.result.config_sha256
-        assert second.result.config == config
+        assert second.result.config == resolve_config_defaults(config, "csv")
         assert second.result.scope.records_analyzed == 2
         assert result.session.generation_id == second.project.generation.id
         assert result.session.assessment.current_ready
@@ -75,7 +76,9 @@ def test_explicit_full_config_and_smaller_cap_opt_in(project):
         config=replacement,
         value_limit=2,
     ) as result:
-        assert result.published.result.config == replacement
+        assert result.published.result.config == resolve_config_defaults(
+            replacement, "csv"
+        )
         with result.session.materialize_values(
             "rows", result.published.result.datasets[0].fields[0].id
         ) as query:
@@ -89,7 +92,9 @@ def test_explicit_full_config_and_smaller_cap_opt_in(project):
         expected_generation_id=second.project.generation.id,
         expected_source=source,
     ) as result:
-        assert result.published.result.config == replacement
+        assert result.published.result.config == resolve_config_defaults(
+            replacement, "csv"
+        )
         with result.session.materialize_values(
             "rows", result.published.result.datasets[0].fields[0].id
         ) as query:

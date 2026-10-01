@@ -10,13 +10,14 @@ from time import perf_counter
 from tabalyst._version import __version__
 from tabalyst.errors import ConfigurationError, InputError
 from tabalyst.progress import ProgressCallback, ProgressPhase, emit_progress
-from tabalyst.scanner.config import ScanConfig, config_sha256
+from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 from tabalyst.scanner.detectors.registry import (
     DetectorRegistry,
     DetectorSet,
     default_registry,
 )
 from tabalyst.scanner.engine import ScanEngine
+from tabalyst.scanner.identity import source_format_of
 from tabalyst.scanner.models import (
     CollectionScope,
     CsvSourceInfo,
@@ -46,7 +47,7 @@ _PROGRESS_MIN_STEP = 1 << 20
 def _open_reader(
     path: Path, config: ScanConfig, on_bytes: Callable[[int], None] | None
 ) -> Reader:
-    if path.suffix.lower() == ".json":
+    if source_format_of(path) == "json":
         return JsonReader(path, config, on_bytes)
     return CsvReader(path, config, on_bytes)
 
@@ -133,6 +134,7 @@ def scan(
     path = Path(source)
     # A private copy: the finalized result must not share state with the caller.
     config = ScanConfig() if config is None else config.model_copy(deep=True)
+    config = resolve_config_defaults(config, source_format_of(path))
     started_at = datetime.now(UTC)
     start = perf_counter()
     try:

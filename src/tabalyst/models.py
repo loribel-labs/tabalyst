@@ -1,4 +1,4 @@
-"""Serializable report profile (revision 9), independent from presentation.
+"""Serializable report profile (revision 10), independent from presentation.
 
 Built from a Tabalyst Scan result by ``report_profile.py``.
 """
@@ -223,7 +223,7 @@ class ColumnProfile(ResultModel):
     path: str
     position: int
     inferred_type: Literal[
-        "empty", "boolean", "integer", "number", "date", "text", "mixed"
+        "empty", "complex", "boolean", "integer", "number", "date", "text", "mixed"
     ]
     type_counts: dict[str, int]
     type_confidence: float | None
@@ -416,7 +416,7 @@ class DatasetProfile(ResultModel):
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[9] = 9
+    format_revision: Literal[10] = 10
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

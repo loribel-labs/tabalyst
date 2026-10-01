@@ -10,7 +10,7 @@ fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 4
+  "format_revision": 5
 }
 ```
 
@@ -24,6 +24,26 @@ documentation or corrections that keep the contract.
 Beta revisions may be incompatible. No automatic migration is provided.
 `tabalyst report --scan` reads the current revision only: scan the source
 again to report on an older document.
+
+## Revision 5
+
+- `config` records the rules the scan applied, defaults resolved:
+  `errors.policy` is `strict` or `tolerant`, never `null`; the setting itself
+  accepts `null`, meaning the default of the source format (`strict` for CSV
+  and JSON). `config_sha256` is the hash of that resolved configuration.
+- `config.json` gains `flatten` (`enabled`, `separator`, `max_depth`) and
+  `arrays` (`mode`). Their defaults keep the previous behavior. When
+  `flatten.enabled` is `false`, `separator` and `max_depth` are recorded as
+  their defaults, since they change nothing.
+- The JSON reader applies `flatten`: a container at `max_depth` segments is
+  kept whole (type and array length), its children are not observed and are not
+  counted as truncated. The field `display` is joined with `flatten.separator`.
+- `config.json.collections` is recorded in canonical spelling (`$.orders[]`
+  for `$["orders"][]`), so equal paths give equal hashes.
+- The identity of a scan is its source SHA-256, its `config_sha256` and
+  `engine.version`. Another engine version is no longer reused as a stored
+  scan, and a source is compared with `source.sha256` whatever its
+  modification time; `source.modified_at` stays informative.
 
 ## Revision 4
 

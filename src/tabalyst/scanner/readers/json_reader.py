@@ -251,6 +251,8 @@ class JsonReader:
         self.max_depth = config.limits.max_depth
         self.max_observations = config.limits.max_record_observations
         self.discovery_depth = config.json_.discovery_max_depth
+        limit = config.json_.flatten.depth_limit()
+        self.flatten_limit = sys.maxsize if limit is None else limit
         requested = config.json_.collections
         self.auto = requested is None
         # Explicit collections by path, and the paths leading to them.
@@ -415,6 +417,7 @@ class JsonReader:
             for path, dataset in self.targets.items():
                 yield self._open(dataset, "collection", path)
         max_depth = self.max_depth
+        flatten_limit = self.flatten_limit
         discovery_depth = self.discovery_depth
         child = _Paths().child
         stack: list[_Frame] = []
@@ -520,27 +523,31 @@ class JsonReader:
 
             if is_container:
                 is_map = event == "start_map"
+                # In automatic mode, only keys up to the discovery depth can
+                # lead to a promoted array.
+                keep_abs = (
+                    self.auto
+                    and is_map
+                    and abs_path is not None
+                    and len(abs_path) < discovery_depth
+                )
                 if record is not None:
-                    # In automatic mode, only keys up to the discovery depth
-                    # can lead to a promoted array.
-                    keep_abs = (
-                        self.auto
-                        and is_map
-                        and abs_path is not None
-                        and len(abs_path) < discovery_depth
-                    )
+                    # At the flatten limit the container is kept whole: its
+                    # children are not observed, and not counted as lost. The
+                    # frame has no record, only the array length is tracked.
+                    whole = len(rel) >= flatten_limit
                     stack.append(
                         _Frame(
                             is_map,
                             abs=abs_path if keep_abs else None,
-                            record=record,
+                            record=None if whole else record,
                             rel=rel,
                             owner=record,
                             slot=slot,
                             starts=starts,
                         )
                     )
-                elif abs_path is not None and abs_path in self.prefixes:
+                elif abs_path is not None and (keep_abs or abs_path in self.prefixes):
                     stack.append(_Frame(is_map, abs=abs_path))
                 else:
                     skip = 1

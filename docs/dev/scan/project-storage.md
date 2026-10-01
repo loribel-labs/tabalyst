@@ -207,9 +207,9 @@ maintainer-amended capped value storage; the Scan contract is unchanged.
 ## 6. Freshness and O12 (S05, S09)
 
 - `scan_reuse.check_source` (design.md section 16.6, O12) already implements
-  the freshness comparison this design needs: same size and modification
-  time is fresh; a differing modification time is decided by SHA-256, so a
-  merely touched file stays fresh; a differing size is stale; a missing
+  the freshness comparison this design needs: a differing size is
+  stale, otherwise the SHA-256 decides whatever the modification time (inspect
+  design DP-D), so a merely touched file stays fresh; a missing
   source is accepted, with a warning that it was not checked. Its current
   implementation assumes the scan document sits beside the source
   (`scan_path.parent / result.source.name`), which does not hold for
@@ -271,9 +271,10 @@ Two explicit opening intents are implemented:
 | `snapshot` (explicit) | Queries describe the stored generation | Queries allowed with stale-source warning | Queries allowed with source-not-checked warning | Queries allowed with check-failed warning; no current-source claim |
 
 Both intents query the stored generation only. Freshness is O12's observation
-at check time, not a live guarantee or atomic source snapshot. Same size/mtime
-retains O12's fast-path limitations; another mtime triggers the existing hash
-comparison. A long session may explicitly refresh its assessment against the
+at check time, not a live guarantee or atomic source snapshot. The
+comparison hashes the source content (inspect design DP-D); the engine version
+of the stored Scan is compared with the running one, and a difference adds
+the warning `engine_version_changed`, which blocks `require_current` only. A long session may explicitly refresh its assessment against the
 same pinned Scan; never switch generations or rescan implicitly. A concurrent
 rescan does not invalidate an old pinned reader/cursor, nor make its previous
 assessment proof about the new manifest. Assessment and all session page scope

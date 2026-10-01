@@ -22,7 +22,12 @@ def test_defaults_serialize_with_the_documented_section_names():
         "exposure",
         "random_seed",
     ]
-    assert document["json"] == {"collections": None, "discovery_max_depth": 3}
+    assert document["json"] == {
+        "collections": None,
+        "discovery_max_depth": 3,
+        "flatten": {"enabled": True, "separator": ".", "max_depth": None},
+        "arrays": {"mode": "preserve"},
+    }
     assert ScanConfig.model_validate(document) == ScanConfig()
 
 

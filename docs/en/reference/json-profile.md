@@ -21,7 +21,7 @@ A shortened profile for a five-row `orders.csv`:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 9,
+  "format_revision": 10,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -149,8 +149,9 @@ when it holds values outside the collections. See the
 
 In a JSON dataset, a column is a field that holds strings, numbers, booleans
 or nulls, named by its path: `email`, `address.city`, `orders[].total`.
-Objects and arrays themselves are not columns. A row is a record of the
-dataset.
+Objects and arrays themselves are not columns, except the ones kept whole at
+the `scan.json.flatten.max_depth` limit, which are columns of type `complex`.
+A row is a record of the dataset.
 
 ## `summary`
 
@@ -184,7 +185,7 @@ Each column profile always contains:
 | `name` | Header text for CSV; the field path for JSON |
 | `path` | Field path as displayed by the scan: the header text for CSV, a path such as `orders[].total` for JSON |
 | `position` | Position in the file for CSV, in order of discovery for JSON, starting at 1 |
-| `inferred_type` | `empty`, `boolean`, `integer`, `number`, `date`, `text` or `mixed`. A column of dates is `date` even with several formats or ambiguous values |
+| `inferred_type` | `empty`, `complex`, `boolean`, `integer`, `number`, `date`, `text` or `mixed`. A column of dates is `date` even with several formats or ambiguous values. `complex` is a JSON column whose present values are all objects or arrays kept whole at the flatten limit; `type_counts` then counts `object` and `array` |
 | `type_counts` | Number of present values of each type |
 | `type_confidence` | Share of present values accepted by the inferred type, from 0 to 1. For `mixed` columns, the share of the largest type family; `null` for `empty` columns |
 | `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns |

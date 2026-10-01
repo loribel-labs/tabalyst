@@ -490,6 +490,19 @@ created for them, they are not counted in `depth_truncated_observations`, no
 warning is raised. The field of the container is kept, so Report can present it
 as a column holding a complex value (JI-3).
 
+Content below the limit is not read at all: it is not checked for duplicate
+keys either, so a record whose complex value holds a duplicate key is not
+excluded (the same rule as content truncated by `limits.max_depth` or outside a
+collection; confirmed by the maintainer in JI-3). Its syntax is still checked by
+the parser. In automatic mode (Python API), a collection reachable below a
+container kept whole is still promoted.
+
+The report presents a container kept whole as a column: a field whose path has
+exactly `N` segments, holds objects or arrays and is not the array of another
+dataset, is a column of `inferred_type` `complex` (`type_counts` counts
+`object` and `array`) when it holds no scalar value. Without a limit, containers
+stay structure: the default report is unchanged (profile revision 10).
+
 `flatten.enabled: false` is `flatten.max_depth = 1`: only the members of the
 record are fields; objects and arrays that they hold stay complex values.
 Consequence worth knowing: with flatten off, the elements of an array member
@@ -706,19 +719,20 @@ invalidate; `refresh` (existing) is the way out.
 
 ```python
 scan_identity(result: ScanResult) -> ScanIdentity        # of a document
-expected_identity(source_sha256: str, config: ScanConfig) -> ScanIdentity
+expected_identity(source_sha256: str, config: ScanConfig, *, source_format="json") -> ScanIdentity
 ```
 
-`expected_identity` resolves defaults (5.5) before hashing and takes the engine
-version of the running package.
+`expected_identity` resolves defaults (5.5) before hashing, for `source_format`
+(`csv` and `json` resolve alike; callers pass `jsonl` for JSONL), and takes the
+engine version of the running package.
 
 ### 10.2 Where it applies
 
 | Place | Rule |
 | --- | --- |
 | `current_scan` (shared cache) | Reuse only when the triple is equal. Another engine version rescans. |
-| Project freshness (`projects/freshness`) | Same triple. |
-| `scan_reuse.compare_source` (DP-D) | A present source is always compared by content. A different size is stale at once (the hash would differ). Otherwise the SHA-256 decides; the modification time is not consulted. `modified_at` stays recorded, informatively. Replaces the rule of Scan design O12 (to be amended in JI-2). |
+| Project freshness (`projects/freshness`, `_session`) | Same triple: `ProjectFreshness` carries `recorded_engine_version` and `engine_current`; an assessment of another engine version adds the warning `engine_version_changed`, which blocks `require_current` and not `snapshot`. |
+| `scan_reuse.compare_source` (DP-D) | A present source is always compared by content. A different size is stale at once (the hash would differ). Otherwise the SHA-256 decides; the modification time is not consulted. `modified_at` stays recorded, informatively. Replaces the rule of Scan design O12 (amended in JI-2). `SourceCheck` carries the SHA-256 it computed, which `current_scan` reuses for the identity. |
 | `report --scan` | The document's `engine.version` differing from the running version is a warning, not a refusal: the document is a file the user chose, not a cache (Q5, answered). |
 | Visible Inspect file | Never evidence for reuse (I-T01, 11.6). |
 
@@ -992,8 +1006,8 @@ change.
 | --- | --- |
 | `ScanConfig`: `json.flatten`, `json.arrays`, nullable `errors.policy` | JI-2 |
 | `tabalyst.scanner.config.resolve_config_defaults(config, source_format)` | JI-2 |
-| `tabalyst.scanner.identity`: `ScanIdentity`, `scan_identity(result)`, `expected_identity(sha, config)` | JI-2 |
-| `tabalyst.scanner.paths.format_relative(path, separator)`, `parse_path(text, separator=)` | JI-3 |
+| `tabalyst.scanner.identity`: `ScanIdentity`, `scan_identity(result)`, `expected_identity(sha, config, *, source_format="json")`, `source_format_of(path)` | JI-2 |
+| `tabalyst.scanner.paths.format_relative(path, separator=".")`, `parse_path(text, *, separator=".")` | JI-3 |
 | `tabalyst.scanner.readers.jsonl_reader`, source format `jsonl`, reason codes of 9.2 | JI-4 |
 | `tabalyst.inspector.json_inspect.parameters` | JI-5 |
 | `tabalyst.inspector.json_inspect.inspect_source(source, *, scan_config=None, on_progress=None) -> InspectDocument` (reads, writes nothing) | JI-5 |
@@ -1060,3 +1074,5 @@ the measurements.
 | Date | Lot | Change | Reason |
 | --- | --- | --- | --- |
 | 2026-09-30 | JI-1 | Initial contract. Amends the plan: format triple at the top level; `inspect.kind` and the shell/kind separation (the maintainer announced several Inspect kinds); `config` preserved as a value on re-inspection; automatic detection below `--config`; no automatic Inspect for JSONL; no confidence score; `_` excluded from separators; numeric parameters deferred to measurements. | Lot JI-1. |
+| 2026-09-30 | JI-2 | `expected_identity` takes `source_format` (default `json`); `SourceCheck.sha256`; `engine_version_changed` project warning and `ProjectFreshness` engine fields; `report --scan` engine warning through `scan_reuse.engine_warning`; profile revision 10 (the profile records the resolved scan configuration). `flatten` and `arrays` are accepted, recorded and hashed from JI-2 and applied from JI-3. | Implementation of lot JI-2; no contract change. |
+| 2026-09-30 | JI-3 | Section 7.2: content below the flatten limit is not read for duplicate keys; the report shows a container kept whole as a `complex` column (profile revision 10, completed); automatic mode keeps promoting collections below the limit. `parse_path` takes `separator` as a keyword-only argument. No contract change. | Implementation of lot JI-3. |

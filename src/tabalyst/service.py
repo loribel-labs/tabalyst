@@ -29,7 +29,13 @@ from tabalyst.progress import (
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.report_profile import build_profile
 from tabalyst.reporting import column_pages, render_column_report, render_report
-from tabalyst.scan_reuse import check_config, check_source, load_scan, source_path
+from tabalyst.scan_reuse import (
+    check_config,
+    check_source,
+    engine_warning,
+    load_scan,
+    source_path,
+)
 from tabalyst.scanner import ScanResult, scan
 
 ConfigPath = str | Path | Sequence[str | Path]
@@ -60,7 +66,8 @@ def analyze_csv(
 
     result = scan(source, config=config.scan, on_progress=forward, workers=workers)
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
-    profile = build_profile(result, config)
+    # The profile records the rules the scan applied, defaults resolved.
+    profile = build_profile(result, config.model_copy(update={"scan": result.config}))
     profile.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
@@ -275,9 +282,10 @@ def _report_scan_resolved(
     force: bool,
     details: bool,
     on_progress: ProgressCallback | None,
-) -> tuple[dict[str, Any], bool]:
+) -> tuple[dict[str, Any], bool, tuple[str, ...]]:
     """Write the report of a scan document; also returns whether the source
-    was found beside it and checked for staleness."""
+    was found beside it and checked for staleness, and the warnings (a scan
+    document of another engine version is reported, not refused)."""
     started = perf_counter()
     emit_progress(on_progress, scan_path, ProgressPhase.READING)
     result = load_scan(scan_path)
@@ -309,7 +317,8 @@ def _report_scan_resolved(
         started=started - result.duration_seconds,
         on_progress=on_progress,
     )
-    return written, checked
+    warning = engine_warning(result)
+    return written, checked, () if warning is None else (warning,)
 
 
 def _write_report(

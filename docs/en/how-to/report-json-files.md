@@ -41,7 +41,9 @@ its path from the record:
 | `{"tags": ["a", "b"]}` | `tags[]` |
 | `{"orders": [{"total": 3}]}` | `orders[].total` |
 
-Objects and arrays themselves are not columns. A field absent from a record is
+Objects and arrays themselves are not columns, unless the scan setting
+`json.flatten.max_depth` keeps them whole: at that depth, an object or an array
+is one column of type `complex` and its content is not analyzed. A field absent from a record is
 missing, like a null or an empty string. In the data sample, an absent field
 shows `absent`, and the values of a field under an array are joined with `, `.
 
