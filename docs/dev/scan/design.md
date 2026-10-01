@@ -1384,8 +1384,9 @@ size, modification time and SHA-256, and the result carries `config_sha256`.
 
 ### 16.3 Output files (lot 4, O17)
 
-`tabalyst scan data.json` writes `data.scan.json` beside the source. `-o` and
-`-d` follow the other commands. Writing uses a temporary file in the target
+`tabalyst scan data.csv` stores the scan in the shared storage; since lot JI-7 so
+does a JSON, JSONL or NDJSON source (it used to write `data.scan.json` beside
+the source). `-o` and `-d` export `<stem>.scan.json` and follow the other commands. Writing uses a temporary file in the target
 directory and an atomic replace, so an interrupted scan never leaves a partial
 result. Existing outputs require `--force`; an output can never replace an
 input.
@@ -1587,3 +1588,4 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-28 | 6 | Decisions O24 and O25 (Proposed). Section 13 items 2 and 4 to 7: streaming batches instead of the memoization cache, rare detectors, batches of distinct values, column batches, worker processes. Section 6: `RecordBatch`, `Observation` as a named tuple, shared path objects. Section 12.1: `classify_many`, `rejects_field`, `Classification` as a named tuple. Section 12.3: `adaptive.warmup_reactions` (scan format revision 4). Section 9.10: table digests joined by NUL. Section 14: warning of rare detectors. Section 15: `detection.rare_share`. | The maintainer asked for the most speed on large files, progressive learning that drops what became unlikely, and reading that uses the machine: per-call overhead dominated, not the rules. The rare rule keeps detectors reacting at the end of the warm-up, found on the sorted `id` column of the benchmark. |
 | 2026-09-30 | JI-2 | Decision O12 amended and section 16.6: the SHA-256 always decides for a present source (no modification-time shortcut); another engine version warns. Section 15 and 16.1 (format revision 5): `json.flatten`, `json.arrays`, nullable `errors.policy`, the document records the resolved configuration, collection paths in canonical spelling. | Inspect design DP-D and DP-10 (scan identity), lot JI-2. |
 | 2026-09-30 | JI-4 | Section 5.3: JSONL sources, read as the dataset `$[]`; `limits.max_line_bytes`; `source.format` `jsonl`. |
+| 2026-10-01 | JI-7 | Section 16.3: with no `-o` or `-d`, the scan of a JSON, JSONL or NDJSON source goes to the shared storage like a CSV's. Sources of these formats are read with the configuration resolved by Inspect (inspect design 11). |

@@ -266,16 +266,26 @@ def _warnings(
                 )
             )
     if counts is not None:
-        for located, code, what in (
-            (counts.invalid, "invalid_lines", "are not valid JSON or are too long"),
-            (counts.not_object, "non_object_lines", "are valid JSON but not objects"),
+        for located, code, many, one in (
+            (
+                counts.invalid,
+                "invalid_lines",
+                "lines are not valid JSON or are too long",
+                "line is not valid JSON or is too long",
+            ),
+            (
+                counts.not_object,
+                "non_object_lines",
+                "lines are valid JSON but not objects",
+                "line is valid JSON but not an object",
+            ),
         ):
             if located.count:
                 out.append(
                     InspectWarning(
                         code=code,
                         level="warning",
-                        message=f"{located.count} lines {what}.",
+                        message=f"{located.count} {one if located.count == 1 else many}.",
                         count=located.count,
                         locations=[
                             Location(record=record, line=line)

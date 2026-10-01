@@ -2,6 +2,38 @@
 
 ## 2026-10-01
 
+- JSON Inspect, lot JI-7 (command, Scan and Report integration, Python API):
+  `tabalyst inspect INPUT... [--config FILE]... [--reset-config] [--force]
+  [--quiet] [--verbose] [--no-progress]` writes only the visible file; new
+  `inspect_service.py` (`generate_inspections()`, plan before any reading, an
+  unknown kind such as a CSV rejects the batch with exit 2) and `cli/inspect.py`;
+  `persistence.save_inspection()` returns the document as written (the existing
+  file's `config` kept, the warnings it added). `tabalyst.inspect()` (one source,
+  raises) and `tabalyst.generate_inspections()` join the public API. `scan` and
+  `report` on `.json`, `.jsonl` and `.ndjson` call `resolve_interpretation()` per
+  source and `check_result()` on the in-memory result, before any write of scan,
+  cache or report (`current_scan(check=...)`); a source with no decided
+  collection is suspended with its candidates (exit 2). **Behavior change:** a
+  scan with no `-o` or `-d` goes to the shared storage for every format, so JSON
+  and JSONL reports reuse a fresh scan (identity: content, resolved
+  configuration, engine version) and `scan x.json` no longer writes
+  `x.scan.json`; the CLI no longer lists a `$` document dataset (DP-A), so the
+  `orders.json` demo report has one dataset. Patterns skip `*-inspect.json` and an
+  explicit path to an Inspect file is refused. Decisions of the maintainer on the
+  review findings of lot JI-6: the automatic inspection is skipped when
+  `--collection` or a `--config` collection already decides; the source hash
+  computed to validate the cache is passed to `current_scan` and
+  `compare_source`; the "cache not written" notice joins the suspension message.
+  `report --scan` warns (never refuses) when the visible file beside the source
+  asks for a configuration that differs from the document's. In a mixed batch
+  `json.collections` of a `--config` file is ignored for JSONL sources and a
+  command-line `--collection` fails the JSONL job alone. Inspect messages: "1
+  line", "1 element". 26 contract tests of `test_json_inspect_cli.py` enabled
+  (`ENABLED_LOTS` adds `JI-7`) plus 27 in `test_json_inspect_cli_services.py`;
+  two existing tests updated for DP-A (`orders.json` report has one dataset;
+  `[1, 2]` is not a collection). Demos regenerated; browser check of the
+  `orders` report (single dataset, desktop and 375 px). Nothing committed.
+
 - JSON Inspect, lot JI-6 (persistence and resolution, no command):
   `inspector/persistence.py` names the visible file (`<full name>-inspect.json`),
   reads it (`read_visible_inspect`: triple, kind and `config` validated, other

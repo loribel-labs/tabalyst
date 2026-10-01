@@ -16,7 +16,11 @@ from typing import Any
 from pydantic import ValidationError
 
 from tabalyst._version import __version__
-from tabalyst.batch import write_text_atomic
+from tabalyst.batch import (  # noqa: F401
+    INSPECT_SUFFIX,
+    is_inspect_name,
+    write_text_atomic,
+)
 from tabalyst.config import validation_message
 from tabalyst.errors import ConfigurationError, ReportError
 from tabalyst.inspector.models import (
@@ -32,7 +36,6 @@ from tabalyst.projects._locks import workspace_writer
 from tabalyst.projects.location import StorageLocation
 from tabalyst.scanner.paths import Key, parse_path
 
-INSPECT_SUFFIX = "-inspect.json"
 # The Inspect kinds this Tabalyst reads (design inspect section 1).
 KINDS = ("json",)
 
@@ -45,11 +48,6 @@ def inspect_path(source: str | Path) -> Path:
     """
     source = Path(source)
     return source.with_name(source.name + INSPECT_SUFFIX)
-
-
-def is_inspect_name(name: str) -> bool:
-    """Whether a file name is that of an Inspect file."""
-    return name.endswith(INSPECT_SUFFIX)
 
 
 # Reading the visible file ------------------------------------------------
@@ -244,14 +242,19 @@ def _not_found_warning(path: str) -> InspectWarning:
     )
 
 
-def write_inspection(
+def save_inspection(
     source: str | Path,
     document: InspectDocument,
     *,
     reset_config: bool = False,
     force: bool = False,
-) -> Path:
-    """Write the visible Inspect file of ``source`` and return its path.
+) -> tuple[Path, InspectDocument]:
+    """Write the visible Inspect file of ``source``.
+
+    Returns its path and the document as written: a re-inspection keeps the
+    ``config`` of the existing file and may add warnings of its own. A kept
+    ``config`` that omits keys shows their defaults in the document, while the
+    file holds it as the user wrote it.
 
     A first inspection writes the document as it is. Re-inspecting replaces
     ``inspect``, ``source``, ``detection`` and ``warnings`` and keeps the
@@ -269,6 +272,7 @@ def write_inspection(
             if not force:
                 raise
     config: dict[str, Any] | None = None
+    written = document
     warnings = list(document.warnings)
     if existing is not None:
         if existing.recorded_name not in (None, document.source.name):
@@ -285,6 +289,7 @@ def write_inspection(
             )
         if not reset_config:
             config = existing.document["config"]
+            written = document.model_copy(update={"config": existing.config})
             chosen = existing.config.structure.dataset_path
             known = {item.path for item in document.detection.candidates}
             if (
@@ -293,12 +298,25 @@ def write_inspection(
                 and not _cannot_be_judged(chosen, document)
             ):
                 warnings.append(_not_found_warning(chosen))
-    text = inspect_text(document.model_copy(update={"warnings": warnings}), config=config)
+    written = written.model_copy(update={"warnings": warnings})
     try:
-        write_text_atomic(path, text)
+        write_text_atomic(path, inspect_text(written, config=config))
     except OSError as exc:
         raise ReportError(f"Cannot write Inspect file {path}: {exc}") from exc
-    return path
+    return path, written
+
+
+def write_inspection(
+    source: str | Path,
+    document: InspectDocument,
+    *,
+    reset_config: bool = False,
+    force: bool = False,
+) -> Path:
+    """``save_inspection`` that returns only the path of the file written."""
+    return save_inspection(
+        source, document, reset_config=reset_config, force=force
+    )[0]
 
 
 # The automatic cache -----------------------------------------------------

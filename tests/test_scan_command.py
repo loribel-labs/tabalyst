@@ -85,7 +85,7 @@ def test_scan_accepts_json_sources_and_collections(tmp_path):
 
 def test_scan_output_directory_names_scans_after_sources(tmp_path):
     first = _write(tmp_path / "a.csv", "x\n1\n")
-    second = _write(tmp_path / "b.json", "[1, 2]")
+    second = _write(tmp_path / "b.json", '[{"x": 1}, {"x": 2}]')
     destination = tmp_path / "scans"
 
     result = runner.invoke(

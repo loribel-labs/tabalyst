@@ -30,6 +30,7 @@ from tabalyst.projects.location import StorageLocation
 from tabalyst.scan_reuse import file_sha256
 from tabalyst.scanner.config import (
     ScanConfig,
+    config_sha256,
     resolve_config_defaults,
     scan_config_from_layer,
 )
@@ -58,6 +59,9 @@ class Interpretation:
     notices: tuple[str, ...] = ()
     # ``source.sha256`` of the visible file, when it recorded one (design 11.6).
     recorded_sha256: str | None = None
+    # SHA-256 of the current content when resolving had to compute it (to
+    # validate the cache): later steps reuse it instead of reading again.
+    source_sha256: str | None = None
 
 
 def resolve_interpretation(
@@ -86,6 +90,10 @@ def resolve_interpretation(
     source = Path(source)
     source_format = source_format_of(source)
     layer = scan_layer or {}
+    if source_format == "jsonl":
+        # A configuration file is shared by sources of every format, and its
+        # collections name JSON ones: a JSONL source has the one dataset ``$[]``.
+        layer = _without_collections(layer)
     visible: VisibleInspect | None = None
     detected: InspectDocument | None = None
     origin: Origin = "none"
@@ -96,8 +104,10 @@ def resolve_interpretation(
         if file.exists() or file.is_symlink():
             visible = read_visible_inspect(file)
             origin = "visible"
-        elif source_format == "json":
-            detected, origin, note = _detect(source, layer, location, source_sha256)
+        elif source_format == "json" and not _decided(layer, collections):
+            detected, origin, note, source_sha256 = _detect(
+                source, layer, location, source_sha256
+            )
             notices.extend(note)
 
     detected_layer: dict[str, Any] = {}
@@ -113,11 +123,7 @@ def resolve_interpretation(
         config = _jsonl_dataset(config, visible)
     config = resolve_config_defaults(config, source_format)
     if source_format == "jsonl":
-        # ``$[]`` is the only dataset: whether it was written or not, the rules
-        # applied are the same, so they hash the same.
-        config = config.model_copy(
-            update={"json_": config.json_.model_copy(update={"collections": None})}
-        )
+        config = _implicit_dataset(config)
 
     collection_origin = _collection_origin(
         collections, visible_layer, layer, detected_layer
@@ -133,7 +139,7 @@ def resolve_interpretation(
                 f"({chosen}) of {visible.path.name}."
             )
     if source_format == "json" and config.json_.collections is None:
-        raise _suspension(source, config, visible, detected)
+        raise _suspension(source, config, visible, detected, notices)
     return Interpretation(
         config=config,
         origin=origin,
@@ -141,6 +147,7 @@ def resolve_interpretation(
         inspect_path=None if visible is None else visible.path,
         notices=tuple(notices),
         recorded_sha256=None if visible is None else visible.recorded_sha256,
+        source_sha256=source_sha256,
     )
 
 
@@ -180,6 +187,45 @@ def check_result(interpretation: Interpretation, result: ScanResult) -> tuple[st
     return tuple(notices)
 
 
+def inspect_notice(source: Path, result: ScanResult) -> str | None:
+    """For ``report --scan``: a sentence when the visible Inspect file beside
+    ``source`` asks for settings that the scan document was not written with.
+
+    The document stands on its own and is never refused for it (the rule of
+    identity is unchanged): the file only explains why a new scan would differ.
+    """
+    file = inspect_path(source)
+    source_format = result.source.format
+    if source_format == "csv" or not (file.is_file() or file.is_symlink()):
+        return None
+    try:
+        visible = read_visible_inspect(file)
+        recorded = result.config.model_dump(mode="json", by_alias=True)
+        wanted = scan_config_from_layer(
+            merge_settings(recorded, visible.config.to_scan_layer())
+        )
+        wanted = resolve_config_defaults(wanted, source_format)
+    except ConfigurationError as exc:
+        return f"{exc} It was not compared with the scan document."
+    if source_format == "jsonl":
+        wanted = _implicit_dataset(wanted)
+    if config_sha256(wanted) == result.config_sha256:
+        return None
+    return (
+        f"the Inspect file {file.name} sets a configuration that differs from "
+        f"the one recorded in this scan document; scan {source.name} again to "
+        "apply it."
+    )
+
+
+def _implicit_dataset(config: ScanConfig) -> ScanConfig:
+    """``$[]`` is the only dataset of a JSONL source: whether it was written or
+    not, the rules applied are the same, so they hash the same."""
+    return config.model_copy(
+        update={"json_": config.json_.model_copy(update={"collections": None})}
+    )
+
+
 def _name(path: Path | None) -> str:
     return "its config" if path is None else path.name
 
@@ -197,6 +243,20 @@ def _collection_origin(
     if layer.get("json", {}).get("collections"):
         return "config_file"
     return "detected" if detected_layer else "none"
+
+
+def _decided(layer: dict[str, Any], collections: Sequence[str] | None) -> bool:
+    """Whether the command line or a configuration file already names the
+    collections: the detection could only propose a path that they outrank."""
+    return bool(collections) or bool(layer.get("json", {}).get("collections"))
+
+
+def _without_collections(layer: dict[str, Any]) -> dict[str, Any]:
+    json_layer = layer.get("json")
+    if not isinstance(json_layer, dict) or "collections" not in json_layer:
+        return layer
+    rest = {key: value for key, value in json_layer.items() if key != "collections"}
+    return {**{key: value for key, value in layer.items() if key != "json"}, "json": rest}
 
 
 def _jsonl_dataset(config: ScanConfig, visible: VisibleInspect | None) -> ScanConfig:
@@ -219,37 +279,43 @@ def _detect(
     layer: dict[str, Any],
     location: StorageLocation | None,
     source_sha256: str | None,
-) -> tuple[InspectDocument, Origin, tuple[str, ...]]:
+) -> tuple[InspectDocument, Origin, tuple[str, ...], str | None]:
     """The detection of a source with no visible file: the cache when it
     describes this content and this search depth, else a new inspection that
-    replaces it."""
+    replaces it. Also returns the hash of the content when it was computed."""
     # Validates the layer here too, so a mistake in it is named once.
     base = scan_config_from_layer(layer)
     location = location or StorageLocation.local()
     cached = read_inspect_cache(location.shared_inspect_path(source))
-    if (
-        cached is not None
-        and cached.detection.scope.discovery_max_depth == base.json_.discovery_max_depth
-        and _describes(source, cached, source_sha256)
+    if cached is not None and (
+        cached.detection.scope.discovery_max_depth == base.json_.discovery_max_depth
     ):
-        return cached, "cache", ()
+        matches, source_sha256 = _describes(source, cached, source_sha256)
+        if matches:
+            return cached, "cache", (), source_sha256
     document = inspect_source(source, scan_config=base)
     note = write_inspect_cache(location, source, document)
-    return document, "automatic", () if note is None else (note,)
+    # The pass hashed every byte it read: that is the hash of the content.
+    return document, "automatic", () if note is None else (note,), document.source.sha256
 
 
-def _describes(source: Path, cached: InspectDocument, sha256: str | None) -> bool:
-    """Whether a cached document was made from the content of ``source``.
+def _describes(
+    source: Path, cached: InspectDocument, sha256: str | None
+) -> tuple[bool, str | None]:
+    """Whether a cached document was made from the content of ``source``, and
+    the hash computed to decide it.
 
     Decided by content, never by date (EF-28); a different size is enough to
     say no without reading it.
     """
     try:
         if source.stat().st_size != cached.source.size_bytes:
-            return False
-        return (sha256 or file_sha256(source)) == cached.source.sha256
+            return False, sha256
+        sha256 = sha256 or file_sha256(source)
     except OSError:
-        return False  # the inspection that follows reports the unreadable source
+        # The inspection that follows reports the unreadable source.
+        return False, sha256
+    return sha256 == cached.source.sha256, sha256
 
 
 # Suspension (design 11.4) ------------------------------------------------
@@ -260,6 +326,7 @@ def _suspension(
     config: ScanConfig,
     visible: VisibleInspect | None,
     detected: InspectDocument | None,
+    notices: Sequence[str] = (),
 ) -> ConfigurationError:
     if visible is not None:
         candidates = visible.candidates
@@ -302,11 +369,17 @@ def _suspension(
             f"Pass --collection, or run `tabalyst inspect {source.name}` and set "
             "config.structure.dataset_path in the file it writes."
         )
+    # What was found out on the way, such as a cache that could not be written.
+    lines.extend(notices)
     return ConfigurationError("\n".join(lines))
 
 
 def _describe(item: CandidateSummary) -> str:
-    count = "" if item.elements is None else f" ({item.elements} elements)"
+    count = (
+        ""
+        if item.elements is None
+        else f" ({item.elements:,} element{'' if item.elements == 1 else 's'})"
+    )
     reason = {"empty": ", empty", "non_object_elements": ", not objects"}.get(
         item.ineligible_reason or "", ""
     )
