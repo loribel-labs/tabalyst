@@ -62,15 +62,21 @@ the [scan format changelog](scan-format-changelog.md).
   `config_sha256` is the SHA-256 of its canonical JSON (sorted keys, no
   whitespace, UTF-8): two scans with the same value used the same settings.
 - `scope`: records read, analyzed and excluded, with exclusions counted by
-  reason (`width_mismatch`, `duplicate_key`, `record_too_large`).
-  `collections` is `null` for CSV; for JSON it gives the `mode` (`auto` or
+  reason (`width_mismatch`, `duplicate_key`, `record_too_large`, and for JSONL
+  `invalid_line`, `not_object` and `line_too_long`).
+  `collections` is `null` for CSV and JSONL; for JSON it gives the `mode` (`auto` or
   `explicit`) and the `requested` collection paths.
 
 ## Datasets
 
 A CSV source has one dataset, `rows`. A JSON source has one dataset per
 collection of records, and one `document` dataset when its root is not an
-array.
+array and the collections were discovered automatically (`mode` `auto`). A
+JSONL source has one dataset, `$[]`. The commands choose the collection with
+[Inspect](../how-to/inspect-json-files.md) and name it explicitly, so a scan
+made by `tabalyst scan` or `tabalyst report` has `mode` `explicit` and no
+`document` dataset; only `tabalyst.scan()` without `json.collections` discovers
+collections.
 
 ```json
 {

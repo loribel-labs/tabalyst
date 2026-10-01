@@ -1,12 +1,13 @@
 ---
 title: Tabalyst documentation
-description: Tabalyst is an open-source, local-first toolkit that turns a CSV or JSON file into an interactive HTML report and a JSON profile.
+description: Tabalyst is an open-source, local-first toolkit that turns a CSV, JSON or JSONL file into an interactive HTML report and a JSON profile.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
-data. Its first tool, **Tabalyst Report**, analyzes a CSV or JSON file and produces an
+data. Its first tool, **Tabalyst Report**, analyzes a CSV, JSON or JSONL file and produces an
 interactive HTML report and a structured JSON profile. **Tabalyst Scan**
-describes CSV and JSON files in a scan document, and **Tabalyst Sample** creates
+describes CSV, JSON and JSONL files in a scan document, **Tabalyst Inspect**
+finds how to read a JSON or JSONL file, and **Tabalyst Sample** creates
 smaller CSV files.
 
 ```console
@@ -32,6 +33,8 @@ documentation describes the latest release published on PyPI.
   stratified selection.
 - [Report JSON files](how-to/report-json-files.md), one view per collection
   of records.
+- [Inspect JSON and JSONL files](how-to/inspect-json-files.md) to see how
+  Tabalyst finds the collection of records, and to choose it.
 - [Scan CSV and JSON files](how-to/scan-files.md) into a complete JSON
   description of every field.
 
@@ -45,6 +48,8 @@ documentation describes the latest release published on PyPI.
 - [Profile format changelog](reference/profile-format-changelog.md).
 - [Scan format](reference/scan-format.md): the structure of the `.scan.json`
   file, and its [changelog](reference/scan-format-changelog.md).
+- [Inspect format](reference/inspect-format.md): the structure of the
+  `-inspect.json` file, and its [changelog](reference/inspect-format-changelog.md).
 - [Known limitations](reference/known-limitations.md): what Tabalyst does not do
   yet.
 - [Glossary](reference/glossary.md): English and French terms.

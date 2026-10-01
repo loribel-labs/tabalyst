@@ -323,6 +323,38 @@ def test_the_number_of_candidates_is_bounded_and_blocks_the_choice(tmp_path):
     assert _warning(result, "candidates_truncated")["count"] == limit
 
 
+def test_ineligible_candidates_are_described_up_to_a_bound_then_counted(tmp_path):
+    notes = parameters().MAX_INELIGIBLE_NOTES
+    total = notes + 5
+    document = {f"empty{index:03d}": [] for index in range(total)}
+    document["results"] = rows(3)
+
+    result = inspect_document(write_json(tmp_path, "many.json", document))
+
+    assert _selection(result)["path"] == "$.results[]"
+    described = [
+        item["path"]
+        for item in result["warnings"]
+        if item["code"] == "candidate_not_eligible"
+    ]
+    assert described == [f"$.empty{index:03d}[]" for index in range(notes)]
+    summary = _warning(result, "candidate_not_eligible_truncated")
+    assert summary["level"] == "info"
+    assert summary["count"] == total
+    # Every candidate stays in the detection itself.
+    assert len(result["detection"]["candidates"]) == total + 1
+
+
+def test_no_summary_when_every_ineligible_candidate_is_described(tmp_path):
+    notes = parameters().MAX_INELIGIBLE_NOTES
+    document = {f"empty{index}": [] for index in range(notes)}
+    document["results"] = rows(3)
+
+    result = inspect_document(write_json(tmp_path, "few.json", document))
+
+    assert "candidate_not_eligible_truncated" not in warning_codes(result)
+
+
 # Late fields (CA-11, EF-18) -------------------------------------------------
 
 

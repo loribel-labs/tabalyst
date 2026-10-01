@@ -187,5 +187,8 @@ none of the last 5,000.
   Lines excluded under the `tolerant` policy are counted by the existing
   `excluded_records` issue, with their line numbers as `row_numbers`.
   `config.scan.limits` gains `max_line_bytes`.
+- The reports built by the commands have one dataset per collection chosen with
+  [Inspect](inspect-format.md) or `--collection`, usually one, and no dataset
+  `$` for the rest of the document. The structure of `datasets` does not change.
 - Column `path` and `name` of JSON fields are joined with
   `config.scan.json.flatten.separator`.

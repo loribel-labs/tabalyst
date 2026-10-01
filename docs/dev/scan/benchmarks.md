@@ -134,3 +134,9 @@ runs, fresh process, same method):
   microsecond for fields whose detectors are skipped.
 - JSON is bound by its reader and the per-observation engine: the reader
   alone takes 3 s for these 100,000 records (2.9 million observations).
+
+## JSON Inspect
+
+The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL
+parcours (hash, event pass, Scan, report with a stored scan) are in
+`docs/dev/inspect/benchmarks.md` (lot JI-8).

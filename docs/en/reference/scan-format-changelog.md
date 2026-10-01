@@ -46,6 +46,10 @@ again to report on an older document.
   counted as truncated. The field `display` is joined with `flatten.separator`.
 - `config.json.collections` is recorded in canonical spelling (`$.orders[]`
   for `$["orders"][]`), so equal paths give equal hashes.
+- The datasets of a JSON scan made by `tabalyst scan` or `tabalyst report` come
+  from [Inspect](inspect-format.md): `scope.collections` has `mode` `explicit`
+  and there is no `document` dataset `$`. `tabalyst.scan()` alone keeps the
+  automatic discovery (`mode` `auto`). The document structure does not change.
 - The identity of a scan is its source SHA-256, its `config_sha256` and
   `engine.version`. Another engine version is no longer reused as a stored
   scan, and a source is compared with `source.sha256` whatever its

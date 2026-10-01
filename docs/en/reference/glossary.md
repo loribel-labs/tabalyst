@@ -10,8 +10,8 @@ source language; every French page uses the French terms below.
 
 Keep these exactly as written in every language:
 
-- the product names `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report` and
-  `Tabalyst Scan`;
+- the product names `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report`,
+  `Tabalyst Scan` and `Tabalyst Inspect`;
 - commands and options, such as `tabalyst report`, `-o`, `--output-dir` or
   `--config`;
 - JSON keys and values, such as `format_version`, `with_issues` or `mixed`;
@@ -56,8 +56,8 @@ Keep these exactly as written in every language:
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
-| record | enregistrement | One CSV row or one element of a JSON collection |
-| collection | collection | A JSON array whose elements are analyzed as records |
+| record | enregistrement | One CSV row, one element of a JSON collection or one object line of a JSONL file |
+| collection | collection | A JSON array whose elements are analyzed as records; a JSONL file is one collection, `$[]` |
 | field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |
 | detector | détecteur | A rule that recognizes a kind of value, such as email addresses or dates |
 | interpretation | interprétation | A meaning proposed for a field by the detectors that match its values |
@@ -66,3 +66,15 @@ Keep these exactly as written in every language:
 | measure envelope | enveloppe de mesure | The `status` wrapper saying whether a measure is complete or limited |
 | diagnostic | diagnostic | A technical event of a scan, such as an excluded record or a reached limit |
 | configuration layer | couche de configuration | One level of settings: defaults, each configuration file, then options |
+| JSONL | JSONL | A file with one JSON object per line, ending in `.jsonl` or `.ndjson` |
+| inspect, Tabalyst Inspect | inspection, Tabalyst Inspect | The step that reads a JSON or JSONL source, finds its collection and writes the Inspect file; the command is `tabalyst inspect` |
+| Inspect file | fichier Inspect | The `<source>-inspect.json` file beside a source, with the detection and the `config` you may edit |
+| detection | détection | The section of an Inspect file that describes what Inspect found |
+| candidate collection | collection candidate | An array that Inspect could analyze as the dataset of a source |
+| eligible candidate | candidat éligible | A candidate collection that has at least one element, all of them objects |
+| selection | sélection | The collection Inspect proposes, or none |
+| ambiguous selection, unresolved selection | sélection ambiguë, sélection non résolue | Several collections are equally plausible, or none is usable, so nothing is selected and `tabalyst scan` and `tabalyst report` stop |
+| flatten | aplatissement | Reading nested objects as fields named by their path, such as `address.city` |
+| complex value | valeur complexe | An object or array kept whole instead of being developed into fields |
+| error policy | politique d'erreurs | `strict` or `tolerant`: whether a malformed record stops the scan or is excluded |
+| partial scan | analyse partielle | A scan with status `partial`, which excluded some records under the `tolerant` policy |
