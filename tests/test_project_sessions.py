@@ -141,7 +141,7 @@ def test_source_io_failure_is_not_a_source_state(project, monkeypatch, operation
         def fail(path):
             raise PermissionError("denied")
 
-        monkeypatch.setattr(scan_reuse, "_sha256", fail)
+        monkeypatch.setattr(scan_reuse, "file_sha256", fail)
     assessment = inspect_project(location, pid)
     assert assessment.source_check is None
     assert "denied" in assessment.source_error

@@ -26,6 +26,7 @@ LOCAL_WORKSPACE = "local"
 
 PROJECT_FILE_NAME = "project.json"
 SCAN_FILE_NAME = "scan.json"
+INSPECT_FILE_NAME = "inspect.json"
 INDEX_FILE_NAME = "index.json"
 
 
@@ -73,10 +74,17 @@ class StorageLocation:
     def projects_dir(self) -> Path:
         return self.workspace_dir / "projects"
 
+    def _shared_source_dir(self, source: Path) -> Path:
+        key = path_key(source.resolve()).encode("utf-8", "surrogatepass")
+        return self.workspace_dir / "scans" / hashlib.sha256(key).hexdigest()
+
     def shared_scan_path(self, source: Path) -> Path:
         """The scan-only document for a resolved source, independent of DuckDB projects."""
-        key = path_key(source.resolve()).encode("utf-8", "surrogatepass")
-        return self.workspace_dir / "scans" / hashlib.sha256(key).hexdigest() / SCAN_FILE_NAME
+        return self._shared_source_dir(source) / SCAN_FILE_NAME
+
+    def shared_inspect_path(self, source: Path) -> Path:
+        """The automatic Inspect cache of a source, beside its shared scan document."""
+        return self._shared_source_dir(source) / INSPECT_FILE_NAME
 
     @property
     def workspace_dir(self) -> Path:

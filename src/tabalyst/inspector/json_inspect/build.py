@@ -118,6 +118,7 @@ def inspect_source(
                     records=parameters.RECORDS_OBSERVED,
                     fields=parameters.FIELDS_OBSERVED,
                 ),
+                discovery_max_depth=config.json_.discovery_max_depth,
                 candidates="truncated" if truncated else None,
             ),
             root=RootInfo(type=root),

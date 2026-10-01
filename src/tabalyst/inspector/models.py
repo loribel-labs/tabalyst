@@ -195,6 +195,9 @@ class DetectionScope(InspectModel):
     structure: Literal["complete"] = "complete"
     detail: Literal["bounded"] = "bounded"
     limits: ScopeLimits
+    # The ``json.discovery_max_depth`` the candidates were searched with: a
+    # cached detection is only valid for the same depth (design 12.4).
+    discovery_max_depth: int
     candidates: Literal["truncated"] | None = None
 
     _sparse: ClassVar[tuple[str, ...]] = ("candidates",)

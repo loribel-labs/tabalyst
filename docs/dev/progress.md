@@ -1,5 +1,29 @@
 # Development progress
 
+## 2026-10-01
+
+- JSON Inspect, lot JI-6 (persistence and resolution, no command):
+  `inspector/persistence.py` names the visible file (`<full name>-inspect.json`),
+  reads it (`read_visible_inspect`: triple, kind and `config` validated, other
+  zones read leniently, unknown keys and unsupported versions refused naming the
+  file and the key) and writes it atomically (`write_inspection`: a first
+  inspection writes the document; re-inspecting replaces every zone but `config`,
+  kept as a value; `reset_config`, `force`; an invalid file is never replaced;
+  `configured_path_not_found` and `source_name_mismatch` warnings). It also reads
+  and writes the automatic cache `inspect.json` beside `scan.json`
+  (`StorageLocation.shared_inspect_path`); a defective cache is absent, a failed
+  write is a notice. `inspector/resolution.py` resolves the effective
+  `ScanConfig` of a source by layers (defaults, detection, `--config`, visible
+  file, command line), runs the automatic inspection when nothing is stored,
+  suspends with the candidates listed when no collection is decided, and
+  `check_result` refuses a visible path that no longer exists and notes a source
+  that changed since the file was written. Design amendment:
+  `detection.scope.discovery_max_depth` is recorded and a cache made at another
+  depth is rebuilt (format revision 1, unpublished). `scan_reuse.file_sha256` is
+  public. 66 contract tests enabled (`ENABLED_LOTS` adds `JI-6`) plus 18 in
+  `test_json_inspect_persistence_services.py`. Demos regenerated; nothing
+  committed.
+
 ## 2026-09-30
 
 - JSON Inspect, lot JI-5 (Inspect engine, no command): new package

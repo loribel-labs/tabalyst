@@ -270,6 +270,15 @@ def test_the_scope_says_what_is_exact_and_what_is_bounded(tmp_path):
         "records": params.RECORDS_OBSERVED,
         "fields": params.FIELDS_OBSERVED,
     }
+    assert scope["discovery_max_depth"] == 3
+
+
+def test_the_scope_records_the_discovery_depth_that_was_searched(tmp_path):
+    source = write_json(tmp_path, "r.json", rows(3))
+
+    document = inspect_document(source, json={"discovery_max_depth": 5})
+
+    assert document["detection"]["scope"]["discovery_max_depth"] == 5
 
 
 def test_counts_are_exact_but_details_cover_the_first_records_only(tmp_path):
