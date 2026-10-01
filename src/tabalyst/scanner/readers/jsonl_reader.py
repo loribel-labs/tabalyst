@@ -18,6 +18,7 @@ import sys
 from collections.abc import Callable, Iterator
 from decimal import Decimal
 from pathlib import Path
+from typing import NamedTuple
 
 from tabalyst.errors import InputError
 from tabalyst.scanner.config import ScanConfig
@@ -161,22 +162,42 @@ def _native(value: object) -> NativeType:
     return "object" if isinstance(value, dict) else "array"
 
 
-class JsonlReader:
+class JsonlLine(NamedTuple):
+    """One non-blank line, classified.
+
+    ``kind`` is ``object`` (``value`` is the parsed ``dict``), or an exclusion
+    reason: ``invalid_line`` (``value`` describes the failure), ``not_object``
+    or ``line_too_long``. ``index`` counts non-blank lines from 1; ``line`` is
+    the physical line number.
+    """
+
+    kind: str
+    index: int
+    line: int
+    value: object
+
+
+class JsonlLines:
+    """Classified lines of a JSONL source, hashed while read.
+
+    The one place that opens and splits a JSONL source (design inspect
+    section 9.2): the Scan reader and Inspect consume it, so both classify a
+    line alike. It applies no error policy: an excluded line is yielded, never
+    raised. Invalid UTF-8 and a source without a non-blank line are fatal.
+    ``blank`` counts the blank lines skipped; ``summary`` is available once the
+    iteration is complete.
+    """
+
     def __init__(
         self,
         path: Path,
-        config: ScanConfig,
+        max_line_bytes: int,
         on_bytes: Callable[[int], None] | None = None,
     ) -> None:
         self.path = path
+        self.max_line_bytes = max_line_bytes
         self.on_bytes = on_bytes
-        self.tolerant = config.errors.policy == "tolerant"
-        self.max_depth = config.limits.max_depth
-        self.max_observations = config.limits.max_record_observations
-        self.max_line_bytes = config.limits.max_line_bytes
-        limit = config.json_.flatten.depth_limit()
-        self.flatten_limit = sys.maxsize if limit is None else limit
-        self._paths = Paths()
+        self.blank = 0
         self._summary: SourceSummary | None = None
 
     def summary(self) -> SourceSummary:
@@ -184,7 +205,7 @@ class JsonlReader:
             raise RuntimeError("The JSONL source has not been read completely")
         return self._summary
 
-    def __iter__(self) -> Iterator[StreamItem]:
+    def __iter__(self) -> Iterator[JsonlLine]:
         try:
             raw = self.path.open("rb")
         except OSError as exc:
@@ -196,7 +217,7 @@ class JsonlReader:
             if bom:
                 buffered.read(len(UTF8_BOM))
             try:
-                yield from self._lines(buffered)
+                yield from self._classify(buffered)
             except OSError as exc:
                 raise InputError(f"Cannot read JSONL file {self.path}: {exc}") from exc
             stream.drain()
@@ -208,8 +229,6 @@ class JsonlReader:
             sha256=stream.hexdigest(),
             encoding="utf-8-sig" if bom else "utf-8",
         )
-
-    # Lines ---------------------------------------------------------------
 
     def _read_line(self, buffered: io.BufferedReader) -> tuple[bytes, bool] | None:
         """The next physical line without its line break, and whether it is
@@ -235,22 +254,18 @@ class JsonlReader:
             if not rest or rest.endswith(b"\n"):
                 return b"", True
 
-    def _lines(self, buffered: io.BufferedReader) -> Iterator[StreamItem]:
-        yield DatasetOpened(
-            dataset=DATASET, kind="collection", collection_path=(ITEMS,)
-        )
-        paths = self._paths
+    def _classify(self, buffered: io.BufferedReader) -> Iterator[JsonlLine]:
         line = 0
         index = 0
         while (read := self._read_line(buffered)) is not None:
             line += 1
             data, too_long = read
             if not too_long and not data.strip(_BLANK):
+                self.blank += 1
                 continue
             index += 1
-            location = Location(record=index, line=line)
             if too_long:
-                yield self._exclude(index, location, "line_too_long")
+                yield JsonlLine("line_too_long", index, line, None)
                 continue
             try:
                 text = data.decode("utf-8")
@@ -262,22 +277,55 @@ class JsonlReader:
             try:
                 value = _parse(text)
             except (ValueError, RecursionError, ArithmeticError) as exc:
-                yield self._exclude(index, location, "invalid_line", _detail(exc))
+                yield JsonlLine("invalid_line", index, line, _detail(exc))
                 continue
             if _SURROGATE_ESCAPE.search(text) and _has_lone_surrogate(value):
-                yield self._exclude(
-                    index,
-                    location,
+                yield JsonlLine(
                     "invalid_line",
+                    index,
+                    line,
                     "a string contains a lone surrogate escape",
                 )
                 continue
             if not isinstance(value, dict):
-                yield self._exclude(index, location, "not_object")
+                yield JsonlLine("not_object", index, line, None)
                 continue
-            yield self._record(value, index, location, paths.child)
+            yield JsonlLine("object", index, line, value)
         if not index:
             raise InputError(f"{self.path.name} has no record line; it is empty.")
+
+
+class JsonlReader:
+    def __init__(
+        self,
+        path: Path,
+        config: ScanConfig,
+        on_bytes: Callable[[int], None] | None = None,
+    ) -> None:
+        self.path = path
+        self.tolerant = config.errors.policy == "tolerant"
+        self.max_depth = config.limits.max_depth
+        self.max_observations = config.limits.max_record_observations
+        self.max_line_bytes = config.limits.max_line_bytes
+        limit = config.json_.flatten.depth_limit()
+        self.flatten_limit = sys.maxsize if limit is None else limit
+        self._paths = Paths()
+        self._lines = JsonlLines(path, self.max_line_bytes, on_bytes)
+
+    def summary(self) -> SourceSummary:
+        return self._lines.summary()
+
+    def __iter__(self) -> Iterator[StreamItem]:
+        yield DatasetOpened(
+            dataset=DATASET, kind="collection", collection_path=(ITEMS,)
+        )
+        child = self._paths.child
+        for kind, index, line, value in self._lines:
+            location = Location(record=index, line=line)
+            if kind == "object":
+                yield self._record(value, index, location, child)
+            else:
+                yield self._exclude(index, location, kind, value or "")
 
     # Records -------------------------------------------------------------
 

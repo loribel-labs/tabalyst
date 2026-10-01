@@ -13,8 +13,8 @@ amends where it says so. The contract tests are in `tests/inspect/`.
 
 **Status.** Gate G1 passed on 2026-09-30: the maintainer validated this
 contract, answers included (section 2). The decisions DP-01 to DP-17 are
-Accepted, except the numeric parameters of section 15, which stay Deferred to
-their measurements (reviewed at gate G2). Accepted is not released: nothing
+Accepted. The numeric parameters of section 15 were measured and fixed in lot
+JI-5 (2026-09-30); the result of the selection rule is reviewed at gate G2. Accepted is not released: nothing
 here is implemented before its lot.
 
 ## 1. Scope: Inspect has several kinds
@@ -38,7 +38,7 @@ Rules that carry the separation:
   its own keys (such as `csv`) under `config`.
 - Code: the shell is `tabalyst.inspector` (`models`, `persistence`,
   `resolution`), the JSON kind is `tabalyst.inspector.json_inspect`
-  (`detect`, `parameters`). A second kind adds a sibling package and a branch
+  (`build`, `detect`, `parameters`). A second kind adds a sibling package and a branch
   in the shell's dispatch, nothing else.
 - Public names that cannot be kind-neutral say so: `tabalyst inspect` accepts
   only the kinds that exist and refuses the others clearly (section 13).
@@ -65,7 +65,7 @@ means this document.
 | DP-08 | Invalid JSON | Section 8.7. | Accepted 2026-09-30 (G1) |
 | DP-09 | JSONL rules | Section 9. | Accepted 2026-09-30 (G1) |
 | DP-10 | Scan identity | Section 10. | Accepted 2026-09-30 (G1) |
-| DP-11 | Observation budget | Section 8.5. Values deferred to a measurement. | Accepted (G1); values Deferred (JI-5) |
+| DP-11 | Observation budget | Section 8.5. Values deferred to a measurement. | Accepted (G1); values fixed in JI-5 (section 15), reviewed at G2 |
 | DP-12 | Empty and unsupported shapes | Section 8.6. | Accepted 2026-09-30 (G1) |
 | DP-13 | Unresolved configuration | Section 11.4. | Accepted 2026-09-30 (G1) |
 | DP-14 | Re-inspection | Section 12.3. Amended: `config` is preserved as a value, not byte for byte. | Accepted 2026-09-30 (G1) |
@@ -230,7 +230,7 @@ There is no modification time: it is volatile and carries no decision.
 | `selection.path` | The collection Inspect proposes, or `null`. |
 | `selection.basis` | Why: `root_array`, `jsonl_records`, `only_eligible_candidate`, `dominant_candidate`, `ambiguous`, `no_eligible_candidate`, `candidates_truncated`. |
 | `selection.over` | Present for `dominant_candidate`: the path of the next candidate by element count. |
-| `lines` | JSONL only (the key is absent for `.json`): `{"read", "blank", "objects", "invalid", "not_object"}`, exact. |
+| `lines` | JSONL only (the key is absent for `.json`): `{"read", "blank", "objects", "invalid", "not_object"}`, exact. `read` counts the non-blank lines. `invalid` counts the lines that are not valid JSON and the lines longer than `limits.max_line_bytes`, which are not parsed. A line with a duplicate key is an object. |
 
 There is **no confidence score** in v1: `selection.basis` is the explanation
 (EF-06 allows the notion only "when it is used"). A score would need a
@@ -255,7 +255,7 @@ A list of entries, all informative (no effect on identity). An entry holds
 | `no_collection` | warning | `selection.basis` is `no_eligible_candidate` | `reason`: `scalar_root`, `no_array`, `no_eligible_array` |
 | `candidates_truncated` | warning | the candidate list was cut | `count` of candidates kept |
 | `candidate_not_eligible` | info | one per ineligible candidate | `path`, `reason` (`empty`, `non_object_elements`) |
-| `invalid_lines` | warning | JSONL lines that are not valid JSON | `count`, `locations` |
+| `invalid_lines` | warning | JSONL lines that are not valid JSON, or longer than `limits.max_line_bytes` | `count`, `locations` |
 | `non_object_lines` | warning | JSONL lines that are valid JSON but not objects | `count`, `locations` |
 | `configured_path_not_found` | warning | re-inspection: the preserved `dataset_path` is not an array of the new source | `path` |
 | `source_name_mismatch` | info | `source.name` of an existing file differs from the source being inspected | `path` is the recorded name |
@@ -360,6 +360,9 @@ detection and `--config` files (11.1), plus the detected `dataset_path`. So a
 with `/`, and the visible file does not silently undo what the user asked for
 by `--config`. `errors.policy` is always written resolved: `strict` for a
 `.json` source, `tolerant` for a JSONL source, unless a layer says otherwise.
+`json.collections` of those layers does not take part in the seed: `config.structure.dataset_path` is the
+detected selection, and ranking a `--config` collection against it is the
+business of `resolve_interpretation` (section 11, lot JI-6).
 
 ### 5.4 Projection onto `ScanConfig` (DP-03)
 
@@ -533,7 +536,10 @@ case. Contract tests attach to these existing behaviors (section 16.3).
 JSON Inspect reads **every event** of the source once, with the same parser as
 the Scan reader (`ijson`; JSONL: one standard `json` parse per line), and
 computes the SHA-256 of the same bytes during that read. It builds no records
-and no statistics. Consequences:
+and no statistics. The event source (`JsonEvents`, `JsonlLines`) is the one the
+Scan readers use: BOM, parser backend, lone surrogates, digit runs, long lines
+and invalid UTF-8 are accepted or refused alike, with the same message.
+Consequences:
 
 - Candidates, exact element counts and exact element types cover the whole
   source.
@@ -557,6 +563,10 @@ candidates; they remain fields of the candidate's records, as in Scan (design
 section 5.2). Candidates never nest or overlap. They are listed in document
 order. The path is in canonical spelling (`$["a.b"][]` is how a key holding a
 dot appears).
+
+An array that appears twice under one key (a duplicate key, which the pass does
+not check outside the records) is one candidate whose elements add up, as the
+explicit mode of Scan reads it.
 
 The names of properties play no role: `results`, `data` or `items` get no
 preference (PO-01).
@@ -608,6 +618,12 @@ Per candidate, over the first `RECORDS_OBSERVED` records, Inspect tracks
 as soon as a bound cut something: more records than observed, or more fields
 than tracked. `max_depth` is exact for the records observed and is not bounded.
 Memory depends on these parameters and `MAX_CANDIDATES`, not on the source.
+
+The observation describes the source as written: neither `flatten` nor
+`limits.max_depth` limits it, so `max_depth` shows the real depth of the records
+observed, which is what a user needs to choose `flatten.max_depth`. A container
+counts as a field of its own (`address` and `address.city` are two fields). An
+object element with no member has no field and a depth of 0.
 
 An observed value is never presented as exhaustive: `complete: false` and
 `scope.detail: "bounded"` say so (EF-05, CA-03). A field that first appears
@@ -686,7 +702,11 @@ bounded by `errors.max_locations`. The report shows them with the existing
 ### 9.4 Inspect on JSONL
 
 Inspect never fails on a bad line: it counts and locates them (`lines`,
-`invalid_lines`, `non_object_lines`), whatever the policy of `config`. Its
+`invalid_lines`, `non_object_lines`), whatever the policy of `config`. A line
+above `limits.max_line_bytes` is hashed and not parsed; it counts as invalid. A
+line with a duplicate key is counted as an object, because Inspect builds no
+record that could be excluded: `elements` can exceed the records a Scan
+analyzes. Invalid UTF-8 and a source with no non-blank line stay fatal. Its
 `config` is `dataset_path: "$[]"`, `errors.policy: "tolerant"` unless a layer
 says otherwise. It reports a single candidate `$[]`, with the object count and
 the same detail observation as JSON.
@@ -974,25 +994,22 @@ and results as the command.
 | `data.json` and `data.jsonl` | Distinct Inspect files; their `*.scan.json` outputs collide and the batch is rejected as today | 12.1, E9 |
 | Inspect file given as an input | Refused | 12.1 |
 
-## 15. Parameters pending measurement
+## 15. Parameters fixed by measurement
 
-The maintainer's rule: no numeric value is fixed without a measurement. These
-parameters have a meaning, a constraint and a protocol here, and **no value**.
-They live in `tabalyst.inspector.json_inspect.parameters` (the first four) and
-in `LimitSettings` (`max_line_bytes`). Until measured, the module defines the
-names without values and no test depends on a number: tests import the symbols
-and build their data from them.
+The maintainer's rule: no numeric value is fixed without a measurement. Each
+parameter has a meaning, a constraint, a protocol and, once measured, a value
+that the maintainer decided. The first four live in
+`tabalyst.inspector.json_inspect.parameters` (lot JI-5), `max_line_bytes` in
+`LimitSettings` (lot JI-4). Tests import the symbols and build their data from
+them: none depends on a number.
 
-| Parameter | Meaning | Constraint | Measured in | Protocol |
+| Parameter | Meaning | Constraint | Value | Measured in |
 | --- | --- | --- | --- | --- |
-| `RECORDS_OBSERVED` | First records per candidate used for the detail observation | integer ≥ 1 | JI-5, confirmed in JI-8 | Time and memory of the observation against the bare event pass on the three public demos and on synthetic flat, nested and wide sources of increasing size; report the cost per record and how `fields`, `max_depth` and `nested_objects` converge as records grow. The lot proposes a value with the table; the maintainer decides at G2. |
-| `FIELDS_OBSERVED` | Distinct field paths tracked per candidate | integer ≥ 1 | JI-5 | Memory of the field tracker on sources with many distinct keys (maps used as dictionaries); same decision path. |
-| `MAX_CANDIDATES` | Candidates kept per source | integer ≥ 1 | JI-5 | Memory and time on an object with many array members; same decision path. |
-| `DOMINANCE_RATIO` | Element count ratio from which the largest eligible candidate stands out | number > 1 | JI-5, reviewed at G2 | Apply the rule to the demos and to synthetic envelopes (paginated responses with a `results` array next to a small `included` array, two comparable lists, a list and a few records); show the top-two ratios, which sources become automatic or ambiguous, and let the maintainer pick on those cases. |
-| `limits.max_line_bytes` | Largest JSONL line parsed | integer ≥ 1 with a hard cap | JI-4 | Memory and time of reading and parsing lines of growing size; relation to `limits.max_record_observations`; the default and the cap are decided with the table. |
-
-The measurement is the first step of the lot, before the code that uses the
-value is written, and its table is added to this section.
+| `RECORDS_OBSERVED` | First records per candidate used for the detail observation | integer ≥ 1 | **1,000** | JI-5, confirmed in JI-8 |
+| `FIELDS_OBSERVED` | Distinct field paths tracked per candidate | integer ≥ 1 | **1,000** | JI-5 |
+| `MAX_CANDIDATES` | Candidates kept per source | integer ≥ 1 | **100** | JI-5 |
+| `DOMINANCE_RATIO` | Element count ratio from which the largest eligible candidate stands out | number > 1 | **10** | JI-5, reviewed at G2 |
+| `limits.max_line_bytes` | Largest JSONL line parsed | integer ≥ 1 with a hard cap | **16 MiB** (cap 256 MiB) | JI-4 |
 
 **`limits.max_line_bytes` (measured in JI-4, 2026-09-30).** `json.loads` with
 `Decimal` for decimals, and the duplicate-key hook the reader needs (about 40%
@@ -1012,6 +1029,133 @@ maintainer (JI-4): default 16 MiB (about 0.2 GB peak in the worst case), hard
 cap 256 MiB (about 3 GB). Reader throughput on 100,000 records (22 MB) is the
 same as the JSON reader: 1.5 s reading, 4.8 s for the whole scan against 5.2 s.
 
+### Measurements of lot JI-5 (2026-09-30)
+
+A throwaway prototype of the event pass measured each parameter before the code
+that uses it was written; the production pass was measured again afterwards.
+Python 3.12 on Windows, the compiled `ijson` backend, medians of three runs.
+Sources are synthetic (flat records of 6 fields, nested customers like the
+`orders.json` demo, wide records, one record holding a map used as a
+dictionary, many arrays under one object). Peak memory is the growth of the
+working set of the process.
+
+**Cost of the pass** (seconds; `K` = 1,000, `F` = 1,000, `C` = 100). "Events" is
+`JsonEvents` alone, which includes the hash and the check for long digit runs;
+"Scan reader" is `JsonReader` without the engine; "Scan" is the whole `scan()`.
+
+| Source | Events | **Inspect** | Scan reader | Scan |
+| --- | --- | --- | --- | --- |
+| flat, 1 M records (118 MB) | 1.45 | **1.99** | 6.83 | 20.95 |
+| nested, 100 k records (54 MB) | 0.86 | **1.04** | 3.21 | 8.77 |
+| wide, 500 fields × 3,000 (25 MB) | 0.39 | **0.47** | 1.18 | 5.11 |
+| wide, 5,000 fields × 300 (25 MB) | 0.41 | **0.65** | 1.43 | 11.15 |
+
+Inspect costs about 1.2 to 1.6 times the bare event pass and about a tenth of
+a Scan. Its memory growth is 2.6 to 3.7 MB, against 104 to 909 MB for a Scan
+(parent process only).
+
+**`RECORDS_OBSERVED`.** Extra seconds over a pass that only finds candidates:
+
+| K | flat, 1 M | nested, 100 k | wide 500 (3,000 records) | wide 5,000 (300 records) |
+| --- | --- | --- | --- | --- |
+| 10 | +0.03 | +0.01 | +0.01 | +0.02 |
+| 100 | +0.05 | +0.01 | +0.02 | +0.07 |
+| 1,000 | +0.06 | +0.03 | +0.07 | +0.17 |
+| 10,000 | +0.06 | +0.04 | +0.17 (all observed) | +0.16 (all observed) |
+| all records | +0.72 | +0.43 | +0.16 | +0.17 |
+
+An observed field costs about 0.11 to 0.19 µs; observing the whole source adds
+at most 55% to the pass. Cost is therefore not what bounds `K`: the bound is the
+decision to describe the structure partially (D15). `K` sets how rare a field
+can be and still be seen: a field present in a share *p* of the records is seen
+within *K* records with probability 1 − (1 − *p*)^*K*, which is 100% for
+*p* = 1% and 99.3% for *p* = 0.5% at `K` = 1,000. On `orders.json`, `K` = 1 sees
+12 of 23 fields and depth 2 of 5, `K` = 10 sees everything; on a real catalog of
+120 products, `K` = 100 sees every field.
+
+**`FIELDS_OBSERVED`.** One record holding a map of 1 M distinct keys:
+
+| F | Memory growth |
+| --- | --- |
+| 1,000 | 3.1 MB |
+| 10,000 | 4.3 MB |
+| 100,000 | 18.5 MB |
+| 1,000,000 | 148.7 MB |
+
+A tracked path costs 145 to 155 bytes. The worst case is
+`MAX_CANDIDATES` × `FIELDS_OBSERVED` × 150 bytes: 15 MB at 100 × 1,000, 145 MB
+at 100 × 10,000 and 1.45 GB at 1,000 × 10,000. The Scan itself stops at
+`limits.max_fields` (10,000).
+
+**`MAX_CANDIDATES`.** Objects holding many arrays:
+
+| Source | Candidates kept | Memory | Time |
+| --- | --- | --- | --- |
+| 10,000 arrays under the root | 10,000 | 11 MB | +0.02 s |
+| 100,000 arrays, no bound | 100,000 | 87 to 92 MB | 0.27 to 0.32 s (bare pass 0.06 s) |
+
+A candidate costs about 0.9 KB of memory and about 290 bytes in the Inspect
+file, plus a `candidate_not_eligible` entry when it is not eligible. Performance
+does not constrain the bound; the readability of the file does: 100 candidates
+are about 29 KB, 1,000 would be 290 KB. A map keyed by identifiers or URLs, with
+an array at depth 3 under each key, is the realistic way to exceed it (a real
+crawler manifest gave more than 100).
+
+**`DOMINANCE_RATIO`.** The rule was applied to a real catalog, to the demo and
+to envelopes built for the purpose; "intended" is the maintainer-side judgment
+of which collection a user wants, when one is clear.
+
+| Source | Ratio of the top two | R = 3 | R = 5 | R = 8 | R = 10 |
+| --- | --- | --- | --- | --- | --- |
+| catalog: products 120 / facets 18 (intended: products) | 6.67 | ok | ok | ambiguous | ambiguous |
+| results 100 / included 4 (intended: results) | 25 | ok | ok | ok | ok |
+| results 100 / facets 12 (intended: results) | 8.33 | ok | ok | ok | ambiguous |
+| data 20 / links 3, users 20 / roles 3 | 6.67 | ok | ok | ambiguous | ambiguous |
+| transactions 100,000 / categories 40 / accounts 12 | 2,500 | ok | ok | ok | ok |
+| JSON:API data 10 / included 25 | 2.5 | ambiguous | ambiguous | ambiguous | ambiguous |
+| customers 1,000 / orders 3,000 | 3 | **picks orders** | ambiguous | ambiguous | ambiguous |
+| hits 10 / buckets 40 | 4 | **picks buckets** | ambiguous | ambiguous | ambiguous |
+| events 5,000 / users 800 | 6.25 | **picks events** | **picks events** | ambiguous | ambiguous |
+
+On this set no ratio above 6.25 picks a collection that a user might not want;
+the clear cases go down to 6.67, a margin too small to tune the ratio on
+without overfitting. Value 10 is the conservative side of that gap: it never
+selects wrongly here, and it suspends four of the clear cases, one edit of
+`config.structure.dataset_path` away (DP-A prefers a suspension to a report on
+a table nobody chose). No ratio protects a relational export whose tables
+differ by more than the ratio (100,000 transactions against 1,000 accounts):
+that is the limit of any size-based rule.
+
+**Decision of the maintainer (JI-5, 2026-09-30):** the four values above, on the
+recommended side. `RECORDS_OBSERVED` 10,000 (field rarity down to 0.05%) and
+`FIELDS_OBSERVED` 10,000 (aligned with `limits.max_fields`, worst case 145 MB)
+were the alternatives; ratio 5 was refused because it selects `events` in the
+5,000 / 800 case.
+
+### Result of the rule at gate G2
+
+`inspect_source` applied to the three public demos and to ambiguous cases:
+
+| Source | Candidates (elements) | Basis | Selected |
+| --- | --- | --- | --- |
+| `orders.json` demo | `$.customers[]` (60) | `only_eligible_candidate` | `$.customers[]` |
+| `basic.csv`, `insurance-customers.csv` demos | not JSON | refused (no CSV Inspect) | - |
+| results 100 / included 4 | both | `dominant_candidate` | `$.results[]` |
+| two lists at exactly 10 times | `$.a[]` (100), `$.b[]` (10) | `dominant_candidate` | `$.a[]` |
+| two lists at 9.9 times | `$.a[]` (99), `$.b[]` (10) | `ambiguous` | none |
+| results 100 / facets 12 | both | `ambiguous` | none |
+| customers 5 / orders 5 (tie) | both | `ambiguous` | none |
+| results 100, tags of strings, empty array | `$.results[]` (100), 2 not eligible | `only_eligible_candidate` | `$.results[]` |
+| `result.records` 50 / `result.fields` 12 | depth 2 | `ambiguous` | none |
+| single object, scalar root | none | `no_eligible_candidate` | none |
+| array of strings | `$[]` (2, not objects) | `no_eligible_candidate` | none |
+| JSONL, 2 objects, 1 invalid, 1 non-object | `$[]` (2) | `jsonl_records` | `$[]` |
+| map of 103 users, array under each | 100 kept | `candidates_truncated` | none |
+
+A real Tabalyst scan document selects `$.datasets[]` (the other arrays are empty
+or hold strings); a real crawler manifest keyed by URL gives
+`candidates_truncated` and 100 informative `candidate_not_eligible` entries.
+
 ## 16. Tests and traceability
 
 ### 16.1 Interface the contract tests use
@@ -1030,6 +1174,7 @@ change.
 | `tabalyst.inspector.json_inspect.parameters` | JI-5 |
 | `tabalyst.inspector.json_inspect.inspect_source(source, *, scan_config=None, on_progress=None) -> InspectDocument` (reads, writes nothing) | JI-5 |
 | `tabalyst.inspector.models`: `InspectDocument`, `InspectConfig` with `to_scan_layer()` | JI-5 |
+| `tabalyst.scanner.readers.json_reader.JsonEvents`, `tabalyst.scanner.readers.jsonl_reader.JsonlLines` (event source and line classifier shared with the Scan readers), `tabalyst.progress.byte_progress` | JI-5 |
 | `tabalyst.inspector.persistence`: `inspect_path`, `write_inspection(source, document, *, reset_config=False, force=False)`, `read_visible_inspect(path) -> VisibleInspect` (`config`, `kind`, `recorded_sha256`, `recorded_name`, `candidates`, raw `document`) | JI-6 |
 | `StorageLocation.shared_inspect_path(source)` | JI-6 |
 | `tabalyst.inspector.resolution`: `resolve_interpretation`, `check_result` | JI-6 |
@@ -1095,3 +1240,4 @@ the measurements.
 | 2026-09-30 | JI-2 | `expected_identity` takes `source_format` (default `json`); `SourceCheck.sha256`; `engine_version_changed` project warning and `ProjectFreshness` engine fields; `report --scan` engine warning through `scan_reuse.engine_warning`; profile revision 10 (the profile records the resolved scan configuration). `flatten` and `arrays` are accepted, recorded and hashed from JI-2 and applied from JI-3. | Implementation of lot JI-2; no contract change. |
 | 2026-09-30 | JI-3 | Section 7.2: content below the flatten limit is not read for duplicate keys; the report shows a container kept whole as a `complex` column (profile revision 10, completed); automatic mode keeps promoting collections below the limit. `parse_path` takes `separator` as a keyword-only argument. No contract change. | Implementation of lot JI-3. |
 | 2026-09-30 | JI-4 | `limits.max_line_bytes` fixed by measurement (16 MiB default, 256 MiB cap; section 15). 9.2: the size limit counts the content without its line break. The JSONL reader parses each line with `json.loads` and walks the result, instead of consuming parser events: a record reads as the same object inside a JSON array, with the flatten rule of section 7.2 (duplicate keys below the limit are not checked). A lone surrogate escape anywhere in a line makes it an invalid line. A JSONL source is routed like a JSON source by `report` (no shared scan cache until JI-7) and by project staging. No contract change. | Implementation of lot JI-4. |
+| 2026-09-30 | JI-5 | Section 15: the four parameters measured and fixed (`RECORDS_OBSERVED` 1,000, `FIELDS_OBSERVED` 1,000, `MAX_CANDIDATES` 100, `DOMINANCE_RATIO` 10), with the measurement tables and the result of the rule at G2. Clarifications, no contract change: 4.4 `invalid` counts the lines above `limits.max_line_bytes` and a line with a duplicate key is an object; 5.3 `json.collections` of the layers below the file plays no part in the seed; 8.1 `JsonEvents` and `JsonlLines` are the event source shared with the Scan readers (extracted from them without change of behavior), so both refuse the same documents with the same message; 8.2 an array repeated under one key is one candidate; 8.5 the observation ignores `flatten` and `limits.max_depth`, a container is a field, an empty object has depth 0. `byte_progress` moved to `tabalyst/progress.py` to serve both engines. | Implementation of lot JI-5. |

@@ -2,6 +2,28 @@
 
 ## 2026-09-30
 
+- JSON Inspect, lot JI-5 (Inspect engine, no command): new package
+  `tabalyst.inspector`. `models.py` holds `InspectDocument` (the fixed zones of
+  design 4.1; optional keys absent, not `null`) and the editable `InspectConfig`
+  (validation without coercion, `to_scan_layer()`); `json_inspect.inspect_source()`
+  reads a `.json`, `.jsonl` or `.ndjson` source in one event pass, hashes it,
+  finds the candidate collections (root array, or arrays reachable through
+  object keys up to `json.discovery_max_depth`), counts elements and element
+  types exactly, observes the structure of the first records within bounded
+  memory, applies the selection rule (root array, only eligible candidate,
+  dominant candidate, ambiguity, truncated list, no collection), writes the
+  warnings and the proposed `config`, and writes nothing. JSONL lines are
+  counted and located, never fatal. To share the same refusals with Scan, the
+  event source of `JsonReader` became `JsonEvents` and the line classifier of
+  `JsonlReader` became `JsonlLines`, with no change of behavior (the Scan suite
+  is untouched); `byte_progress` moved to `progress.py`. Parameters measured
+  before being fixed and decided by the maintainer: `RECORDS_OBSERVED` 1,000,
+  `FIELDS_OBSERVED` 1,000, `MAX_CANDIDATES` 100, `DOMINANCE_RATIO` 10 (tables in
+  inspect design 15, with the result of the rule at gate G2). Inspect costs
+  1.2 to 1.6 times a bare event pass and about a tenth of a Scan, with 3 MB of
+  memory. 77 contract tests enabled (`ENABLED_LOTS` adds `JI-5`) plus 35 in
+  `test_json_inspect_engine.py`. Demos regenerated; nothing committed.
+
 - JSON Inspect, lot JI-4 (JSONL reader and error policy): files ending in
   `.jsonl` or `.ndjson` (any letter case) are read as one dataset `$[]` by the new
   `scanner/readers/jsonl_reader.py`; `source_format_of` returns `jsonl`. Each line
