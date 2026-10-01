@@ -109,8 +109,10 @@ documentation. See `docs/README.md`.
   plus `install.md` and `examples.md` at the root. URLs follow the pattern
   `/tool/subject/` with short, stable slugs; titles can be long. The sidebar order is set in `tabalyst-studio`
   (`src/routeMiddleware.ts`); add a new page there too.
-- `docs/fr/`: a single page pointing to the English documentation. Tabalyst
-  documents in English only during the beta; do not translate other pages.
+- `docs/fr/`: a single page, the French translation of the Overview, whose links
+  lead to the English pages. Tabalyst documents in English only during the
+  beta; keep this page in sync with `docs/en/index.md` and do not translate
+  other pages.
 - `docs/dev/`: maintainer documentation, never published.
 
 Writing rules for `docs/en/`:

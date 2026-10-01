@@ -3,7 +3,7 @@
 | Folder | Content | Published |
 | --- | --- | --- |
 | `en/` | User documentation in English, the source of truth | Yes, on docs.tabalyst.com |
-| `fr/` | One page that points to the English documentation | Yes, at `/fr/` |
+| `fr/` | French overview of Tabalyst; its links lead to the English pages | Yes, at `/fr/` |
 | `dev/` | Maintainer documentation: architecture, progress, packaging, release notes | No |
 
 `en/` is organized by tool: `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `about/`, plus
