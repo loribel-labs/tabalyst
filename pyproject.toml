@@ -69,6 +69,7 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
     "lot(name): Tabalyst Scan implementation lot that provides the tested behavior",
+    "inspect_lot(name): Tabalyst Inspect implementation lot that provides the tested behavior",
 ]
 
 [tool.ruff]

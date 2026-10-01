@@ -2,6 +2,22 @@
 
 ## 2026-09-30
 
+- JSON Inspect, lot JI-1 (design only; gate G1 passed): wrote
+  `docs/dev/inspect/design.md`, the contract of the Inspect file (zones,
+  `config` keys and defaults, projection onto `ScanConfig`), path syntax with a
+  configurable separator, flatten depth, candidate and selection rule, JSONL
+  rules and diagnostics, Scan identity (source SHA-256, configuration hash,
+  engine version), configuration layers, visible file and cache, and the
+  mapping of every acceptance criterion to a test. The design separates the
+  Inspect shell from the JSON kind, since other kinds will follow. No numeric
+  parameter is fixed: the observation bounds, the dominance ratio and the JSONL
+  line limit each have a measurement protocol in the design. Added
+  `tests/inspect/`, 316 contract tests gated by `ENABLED_LOTS` (all skipped
+  today) and registered the `inspect_lot` marker. With the lots JI-2 and JI-3
+  enabled temporarily, the 41 tests that describe behavior Scan already has
+  pass and the 58 that need new code fail for that reason. No production code,
+  no format change, no demo output change; nothing committed.
+
 - Prepared package version `0.4.4` after the `v0.4.4` release workflow rejected
   a tag pointing to a commit that still declared `0.4.3`. Updated version
   assertions, format examples, release notes and public demos. The existing
