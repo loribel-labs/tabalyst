@@ -50,7 +50,8 @@ tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[
 ```
 
 A collection path starts with `$`, the document root, and ends with `[]`, the
-elements of an array. Nested fields are written with dots, such as
+elements of an array. The short form lists the keys that lead to the array:
+`customers` is `$.customers[]` and `data.items` is `$.data.items[]`. Nested fields are written with dots, such as
 `orders[].amount`. `--collection` outranks the Inspect file. A collection set in
 an Inspect file that no longer exists in the source stops the scan with exit
 code `2`; `--collection` or a `--config` collection that is not found is a

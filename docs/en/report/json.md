@@ -44,7 +44,16 @@ When several arrays are equally plausible, or the file has no collection of
 objects, the report stops with exit code `2` before analyzing anything and lists
 the candidates. Run `tabalyst inspect data.json` and set
 `config.structure.dataset_path` in the file it writes, or pass the collection
-with `--collection`. A JSON file whose only content is a single object, a
+with `--collection`, which outranks the Inspect file:
+
+```console
+tabalyst report data.json --collection products
+tabalyst report data.json --collection '$.catalog.products[]'
+```
+
+A collection is written as a path, `$.catalog.products[]`, or in the short
+form without `$` and `[]`, `catalog.products`: the keys that lead to the array.
+A key that is not a plain identifier is quoted, as in `["my key"]`. A JSON file whose only content is a single object, a
 number or an array of plain values has no collection.
 
 To report on several collections of one file, pass `--collection` once for

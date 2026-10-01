@@ -69,6 +69,7 @@ With `--scan`, the inputs are scan documents.
 | `--delimiter TEXT` | One-character CSV delimiter |
 | `--encoding TEXT` | CSV text encoding |
 | `-c`, `--config PATH` | JSON configuration file |
+| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; repeatable. Not with `--scan` |
 | `--scan` | Build reports from `.scan.json` documents without reading the sources |
 | `-f`, `--force` | Replace existing report artifacts |
 | `--details`, `--no-details` | One standalone HTML page per column (off by default) |
@@ -91,7 +92,7 @@ reuse; with them, a standalone `<stem>.scan.json` is written.
 | `-o`, `--output PATH` | Scan filename ending in `.json`, for a single input |
 | `-d`, `--output-dir PATH` | Directory for scans named after their sources |
 | `-c`, `--config PATH` | JSON configuration file; repeat to merge several, in order |
-| `--collection TEXT` | JSON collection path such as `$.customers[]`; repeatable |
+| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; repeatable |
 | `--delimiter TEXT` | One-character CSV delimiter |
 | `--encoding TEXT` | CSV text encoding |
 | `-f`, `--force` | Replace existing scan files |

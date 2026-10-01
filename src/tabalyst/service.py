@@ -228,6 +228,7 @@ def _analyze_resolved(
     scan_layer: dict | None = None,
     separator: str | None = None,
     encoding: str | None = None,
+    collections: Sequence[str] | None = None,
 ) -> tuple[dict[str, Any], tuple[str, ...]]:
     started = perf_counter()
     json_report, execution_report = _validate_paths(
@@ -251,6 +252,7 @@ def _analyze_resolved(
             interpretation = resolve_interpretation(
                 source,
                 scan_layer=scan_layer,
+                collections=collections,
                 delimiter=separator,
                 encoding=encoding,
             )

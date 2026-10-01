@@ -40,6 +40,24 @@ def _configured(success: InspectResult) -> str | None:
     return f"Configured collection: {chosen} (kept from the existing file)"
 
 
+def _choices(success: InspectResult) -> list[str]:
+    """Ready-to-run report commands, one per eligible collection, when the
+    detection could not choose between them."""
+    detection = success.document.detection
+    if detection.selection.basis != "ambiguous":
+        return []
+    source = str(success.source)
+    if " " in source:
+        source = f'"{source}"'
+    lines = ["Choose the collection to analyze:"]
+    lines.extend(
+        f"  tabalyst report {source} --collection '{candidate.path}'"
+        for candidate in detection.candidates
+        if candidate.eligible
+    )
+    return lines
+
+
 def _print_success(success: InspectResult, *, verbose: bool) -> None:
     typer.echo(f"Inspect: {success.path.resolve()}", err=True)
     typer.echo(_selection(success), err=True)
@@ -81,6 +99,8 @@ def _print_batch_result(
         for warning in success.document.warnings:
             if warning.level == "warning" or verbose:
                 typer.echo(f"Warning [{success.source}]: {warning.message}", err=True)
+        for line in _choices(success):
+            typer.echo(line, err=True)
     for failure in batch.failures:
         typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
 
