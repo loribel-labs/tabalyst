@@ -127,7 +127,7 @@ for each JSONL line.
   "format_revision": 1,
   "inspect": {
     "kind": "json",
-    "tabalyst_version": "0.4.4",
+    "tabalyst_version": "0.5.0",
     "generated_at": "2026-09-30T10:00:00Z",
     "note": "Edit only the \"config\" section. Tabalyst replaces every other section each time it inspects this source."
   },
