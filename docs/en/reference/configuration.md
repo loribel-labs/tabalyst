@@ -217,6 +217,7 @@ object of each configuration file. The complete object with its defaults is:
     },
     "limits": {
       "max_fields": 10000, "max_depth": 64, "max_record_observations": 100000,
+      "max_line_bytes": 16777216,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 100, "max_variant_groups": 100,
@@ -262,7 +263,7 @@ The scan document embeds the effective configuration and its SHA-256
 
 - `csv.encoding`, `csv.delimiter`: as for reports. The first record is the
   header.
-- `json.collections`: `null` for automatic discovery, or a list of absolute
+- `json.collections`: for JSON files, `null` for automatic discovery, or a list of absolute
   collection paths such as `"$.customers[]"` or `"$.customers[].orders[]"`.
   Paths must end with `[]`, be unique and not contain one another.
 - `json.discovery_max_depth`: how deep automatic discovery looks for arrays
@@ -282,11 +283,12 @@ The scan document embeds the effective configuration and its SHA-256
   Content below the flatten depth is not read for duplicate keys.
 - `json.arrays` (`mode`, only `preserve`): arrays never add records.
 - `errors.policy`: `null` (default) is the default of the source format,
-  `strict` for CSV and JSON. `strict` stops at the first malformed record, such as a CSV
-  record with the wrong number of fields or a JSON object with a duplicate key.
-  `tolerant` excludes such records, counts them and marks the scan `partial`.
-  Invalid syntax, undecodable text and unreadable files stop the scan in both
-  policies.
+  `strict` for CSV and JSON, `tolerant` for JSONL. `strict` stops at the first
+  malformed record, such as a CSV record with the wrong number of fields, a JSON
+  object with a duplicate key or a JSONL line that is not valid JSON. `tolerant`
+  excludes such records, counts them and marks the scan `partial`. Invalid
+  syntax in a JSON file, undecodable text and unreadable files stop the scan in
+  both policies.
 - `errors.max_locations`: how many record locations each diagnostic lists.
 
 ### Values and missing values
@@ -317,6 +319,7 @@ rejected before the scan starts.
 | `max_fields` | 10,000 | 1,000,000 | New field paths of a dataset are counted but not analyzed. |
 | `max_depth` | 64 | 1,000 | Deeper JSON content is counted but not analyzed. |
 | `max_record_observations` | 100,000 | 100,000,000 | The record is an error, or excluded under `tolerant`. |
+| `max_line_bytes` | 16,777,216 (16 MiB) | 268,435,456 (256 MiB) | JSONL only: a longer line is not parsed. It is an error, or excluded under `tolerant`. The memory needed to parse a line is about 7 to 13 times its size. |
 | `max_distinct_per_field` | 100,000 | 50,000,000 | Distinct values of the field stop being stored; frequencies and cardinality become limited. |
 | `max_tracked_values` | 2,000,000 | 500,000,000 | Distinct values stored for the whole scan; the largest field is released first. |
 | `max_stored_value_length` | 1,000 | 1,000,000 | Longer values are counted, not stored. |

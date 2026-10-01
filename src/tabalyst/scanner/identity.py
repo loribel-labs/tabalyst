@@ -18,6 +18,8 @@ from tabalyst.scanner.config import (
 )
 from tabalyst.scanner.models import ScanResult
 
+JSONL_SUFFIXES = frozenset({".jsonl", ".ndjson"})
+
 
 @dataclass(frozen=True, slots=True)
 class ScanIdentity:
@@ -28,7 +30,10 @@ class ScanIdentity:
 
 def source_format_of(path: Path) -> SourceFormat:
     """The format a source is read as, from its extension."""
-    return "json" if path.suffix.lower() == ".json" else "csv"
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        return "json"
+    return "jsonl" if suffix in JSONL_SUFFIXES else "csv"
 
 
 def scan_identity(result: ScanResult) -> ScanIdentity:

@@ -183,5 +183,9 @@ none of the last 5,000.
   `config.scan.json.flatten.max_depth` limit is a column with `inferred_type`
   `complex` and the `object` and `array` counts in `type_counts`. Without a
   flatten limit, containers stay structure and no column changes.
+- `source.format` can be `jsonl`, for files ending in `.jsonl` or `.ndjson`.
+  Lines excluded under the `tolerant` policy are counted by the existing
+  `excluded_records` issue, with their line numbers as `row_numbers`.
+  `config.scan.limits` gains `max_line_bytes`.
 - Column `path` and `name` of JSON fields are joined with
   `config.scan.json.flatten.separator`.

@@ -501,7 +501,7 @@ class CsvSourceInfo(ScanModel):
 
 
 class SourceInfo(ScanModel):
-    format: Literal["csv", "json"]
+    format: Literal["csv", "json", "jsonl"]
     name: str
     size_bytes: int
     modified_at: datetime

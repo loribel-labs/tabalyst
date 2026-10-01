@@ -267,5 +267,6 @@ reached limits (`field_limit`, `depth_limit`, `measures_limited`,
 `global_budget`, `record_budget`), collections not found and detector
 failures. `level` is
 `error` or `warning`. `count` is always complete; `locations` lists at most
-`errors.max_locations` places, with `record` and `line` for CSV, `record` and
-`element` for JSON.
+`errors.max_locations` places, with `record` and `line` for CSV and JSONL,
+`record` and `element` for JSON. For JSONL, `line` is the physical line number,
+blank lines included, and `record` counts the non-blank lines.

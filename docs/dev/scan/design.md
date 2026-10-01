@@ -254,6 +254,16 @@ with `a` > `b` (specification scenario 4).
 
 At most two passes over a JSON source are allowed; the target is one.
 
+### 5.3 JSONL (lot JI-4)
+
+A source ending in `.jsonl` or `.ndjson` is one dataset `$[]` of kind
+`collection` whose records are its object lines (`source.format` `jsonl`). The
+reader parses each line on its own and gives each record the observations it
+would have as an element of a JSON array, with the same flatten and depth rules.
+Its rules, exclusion reasons and policy are in inspect design section 9;
+`limits.max_line_bytes` bounds a line. Locations are `{record, line}`. The
+source is read once, hashed while reading.
+
 ## 6. Reader to engine contract (D04, D05, ET01, ET02)
 
 Readers are synchronous iterators. They yield three kinds of items:
@@ -1576,3 +1586,4 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-28 | 6 | Decision O23 and section 13 item 4: adaptive detection after a warm-up of `detection.warmup_values` distinct values per field, with probes every `detection.probe_interval`; section 12.2: `not_tested` of skipped values; section 12.3: `adaptive` in detector results (scan format revision 3); section 14: `detector_skipped_reacted` warning; section 15: new `detection` settings. | Detection of high-cardinality fields dominated the scan time; exact `not_tested` counts keep the contract. Re-enabling a detector after a probe was dropped: it would break principle 6. |
 | 2026-09-28 | 6 | Decisions O24 and O25 (Proposed). Section 13 items 2 and 4 to 7: streaming batches instead of the memoization cache, rare detectors, batches of distinct values, column batches, worker processes. Section 6: `RecordBatch`, `Observation` as a named tuple, shared path objects. Section 12.1: `classify_many`, `rejects_field`, `Classification` as a named tuple. Section 12.3: `adaptive.warmup_reactions` (scan format revision 4). Section 9.10: table digests joined by NUL. Section 14: warning of rare detectors. Section 15: `detection.rare_share`. | The maintainer asked for the most speed on large files, progressive learning that drops what became unlikely, and reading that uses the machine: per-call overhead dominated, not the rules. The rare rule keeps detectors reacting at the end of the warm-up, found on the sorted `id` column of the benchmark. |
 | 2026-09-30 | JI-2 | Decision O12 amended and section 16.6: the SHA-256 always decides for a present source (no modification-time shortcut); another engine version warns. Section 15 and 16.1 (format revision 5): `json.flatten`, `json.arrays`, nullable `errors.policy`, the document records the resolved configuration, collection paths in canonical spelling. | Inspect design DP-D and DP-10 (scan identity), lot JI-2. |
+| 2026-09-30 | JI-4 | Section 5.3: JSONL sources, read as the dataset `$[]`; `limits.max_line_bytes`; `source.format` `jsonl`. |

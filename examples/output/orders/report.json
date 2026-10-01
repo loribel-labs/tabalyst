@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 10,
-  "generated_at": "2026-10-01T02:52:54.982521Z",
-  "processing_seconds": 0.1129,
+  "generated_at": "2026-10-01T03:09:44.471778Z",
+  "processing_seconds": 0.1067,
   "source": {
     "filename": "orders.json",
     "format": "json",
@@ -76,6 +76,7 @@
         "max_fields": 10000,
         "max_depth": 64,
         "max_record_observations": 100000,
+        "max_line_bytes": 16777216,
         "max_distinct_per_field": 100000,
         "max_tracked_values": 2000000,
         "max_stored_value_length": 1000,

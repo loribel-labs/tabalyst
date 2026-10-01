@@ -21,7 +21,8 @@ structure of the result is described in the
 
 ## Scan JSON files
 
-Files ending in `.json` are read as JSON; every other file is read as CSV.
+Files ending in `.json` are read as JSON, files ending in `.jsonl` or `.ndjson`
+(in any letter case) as JSONL, and every other file as CSV.
 
 ```console
 tabalyst scan orders.json

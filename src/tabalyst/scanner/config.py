@@ -39,6 +39,7 @@ HARD_CAPS: dict[str, int] = {
     "max_fields": 1_000_000,
     "max_depth": 1_000,
     "max_record_observations": 100_000_000,
+    "max_line_bytes": 268_435_456,
     "max_distinct_per_field": 50_000_000,
     "max_tracked_values": 500_000_000,
     "max_stored_value_length": 1_000_000,
@@ -210,6 +211,8 @@ class LimitSettings(_Settings):
     max_fields: int = _limit(10_000, "max_fields")
     max_depth: int = _limit(64, "max_depth")
     max_record_observations: int = _limit(100_000, "max_record_observations")
+    # Largest JSONL line parsed (16 MiB by default; design inspect section 15).
+    max_line_bytes: int = _limit(16_777_216, "max_line_bytes")
     max_distinct_per_field: int = _limit(100_000, "max_distinct_per_field")
     max_tracked_values: int = _limit(2_000_000, "max_tracked_values")
     max_stored_value_length: int = _limit(1_000, "max_stored_value_length")
@@ -540,7 +543,14 @@ def resolve_config_defaults(config: ScanConfig, source_format: SourceFormat) -> 
     ``strict`` for CSV and JSON. Flatten settings that change nothing while
     flatten is disabled are normalized, so equal rules hash equally
     (design inspect 5.5, 5.6). Resolving twice gives the same configuration.
+    A JSONL source has one dataset, ``$[]``: another collection path is a
+    configuration error (design inspect 9.1).
     """
+    if source_format == "jsonl" and config.json_.collections not in (None, ["$[]"]):
+        raise ConfigurationError(
+            "A JSONL source has one dataset, '$[]'; json.collections must be null "
+            f"or ['$[]'], not {config.json_.collections}"
+        )
     policy = config.errors.policy
     if policy is None:
         policy = "tolerant" if source_format == "jsonl" else "strict"

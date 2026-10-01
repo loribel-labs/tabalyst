@@ -31,11 +31,11 @@ class ResultModel(BaseModel):
 
 class SourceInfo(ResultModel):
     filename: str
-    format: Literal["csv", "json"]
+    format: Literal["csv", "json", "jsonl"]
     size_bytes: int
     sha256: str
     encoding: str
-    # Null for JSON sources.
+    # Null for JSON and JSONL sources.
     delimiter: str | None
 
 

@@ -35,6 +35,12 @@ again to report on an older document.
   `arrays` (`mode`). Their defaults keep the previous behavior. When
   `flatten.enabled` is `false`, `separator` and `max_depth` are recorded as
   their defaults, since they change nothing.
+- `source.format` can be `jsonl`: files ending in `.jsonl` or `.ndjson` are
+  read as one dataset `$[]` whose records are the object lines. Their `tolerant`
+  default policy excludes a line that is not valid JSON (`jsonl_invalid_line`),
+  is not an object (`jsonl_record_not_object`) or exceeds `limits.max_line_bytes`
+  (`jsonl_line_too_long`), with locations `{record, line}`. `scope.collections`
+  is `null`. `config.limits` gains `max_line_bytes`.
 - The JSON reader applies `flatten`: a container at `max_depth` segments is
   kept whole (type and array length), its children are not observed and are not
   counted as truncated. The field `display` is joined with `flatten.separator`.

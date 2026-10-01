@@ -36,6 +36,7 @@ from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
 from tabalyst.scanner.readers.json_reader import JsonReader
+from tabalyst.scanner.readers.jsonl_reader import JsonlReader
 from tabalyst.scanner.workers import WorkerPool, worker_count
 
 NORMALIZATION_VERSION = 1
@@ -47,8 +48,11 @@ _PROGRESS_MIN_STEP = 1 << 20
 def _open_reader(
     path: Path, config: ScanConfig, on_bytes: Callable[[int], None] | None
 ) -> Reader:
-    if source_format_of(path) == "json":
+    source_format = source_format_of(path)
+    if source_format == "json":
         return JsonReader(path, config, on_bytes)
+    if source_format == "jsonl":
+        return JsonlReader(path, config, on_bytes)
     return CsvReader(path, config, on_bytes)
 
 
