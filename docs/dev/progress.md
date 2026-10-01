@@ -2,6 +2,13 @@
 
 ## 2026-10-01
 
+- Prepared package version `0.5.0`, the first release with Tabalyst Inspect and
+  JSONL support: `pyproject.toml`, the version assertions, the version shown in
+  the installation, scan format and Inspect format pages (EN and FR), release
+  notes `docs/dev/releases/0.5.0.md` and the public demos. No tag is created
+  and nothing is published; the tag, `RELEASING.md` steps and the
+  `tabalyst-studio` follow-up need the maintainer's approval.
+
 - JSON Inspect, lot JI-10 (finalization): point-by-point conformity check of the
   specification (design inspect 16.5), with one test added (CA-07, a root array
   through inspect, edit and report) and no unmet requirement. On Windows the

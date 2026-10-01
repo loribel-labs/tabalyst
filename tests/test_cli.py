@@ -16,7 +16,7 @@ def _isolated_project_home(tmp_path, monkeypatch):
 
 
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.4.4"
+    assert tabalyst_version() == "0.5.0"
 
 
 def test_root_help_and_version_describe_the_toolkit():
@@ -27,7 +27,7 @@ def test_root_help_and_version_describe_the_toolkit():
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
-    assert version_result.output.strip() == "0.4.4"
+    assert version_result.output.strip() == "0.5.0"
 
 
 def test_report_generates_html_json_and_history(tmp_path):

@@ -19,7 +19,7 @@ the [scan format changelog](scan-format-changelog.md).
   "format_version": "0.1.0a",
   "format_revision": 5,
   "engine": {
-    "version": "0.4.4",
+    "version": "0.5.0",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },

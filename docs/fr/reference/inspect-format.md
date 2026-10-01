@@ -21,7 +21,7 @@ Pour les commandes, voir
   "format_revision": 1,
   "inspect": {
     "kind": "json",
-    "tabalyst_version": "0.4.4",
+    "tabalyst_version": "0.5.0",
     "generated_at": "2026-10-01T05:34:13Z",
     "note": "Edit only the \"config\" section. Tabalyst replaces every other section each time it inspects this source."
   },
