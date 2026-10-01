@@ -122,6 +122,51 @@ def test_quiet_keeps_the_warnings(tmp_path):
     assert "equally plausible" in result.output
 
 
+def test_ambiguous_selection_lists_a_report_command_per_collection(tmp_path):
+    shop = write_json(tmp_path, "shop.json", TWO)
+
+    result = _invoke("inspect", shop)
+
+    assert "Choose the collection to analyze:" in result.output
+    assert "tabalyst report" in result.output
+    assert "--collection '$.a[]'" in result.output
+    assert "--collection '$.b[]'" in result.output
+
+
+def test_report_takes_a_collection_by_path_or_by_name(tmp_path):
+    shop = write_json(tmp_path, "shop.json", TWO)
+
+    by_path = _invoke("report", shop, "--collection", "$.a[]", "-o", tmp_path / "a.html")
+    by_name = _invoke("report", shop, "--collection", "b", "-o", tmp_path / "b.html")
+
+    assert by_path.exit_code == 0, by_path.output
+    assert by_name.exit_code == 0, by_name.output
+    assert "$.a[]" in (tmp_path / "a.json").read_text(encoding="utf-8")
+    assert "$.b[]" in (tmp_path / "b.json").read_text(encoding="utf-8")
+
+
+def test_collection_short_form_is_a_path_without_dollar_and_brackets():
+    from tabalyst.cli.terminal import collection_paths
+
+    assert collection_paths(["products", "data.items", "data.items[]", "$.a[]"]) == [
+        "$.products[]",
+        "$.data.items[]",
+        "$.data.items[]",
+        "$.a[]",
+    ]
+    assert collection_paths(['["a.b"]']) == ['$["a.b"][]']
+    assert collection_paths(None) is None
+
+
+def test_report_refuses_a_collection_with_a_scan_document(tmp_path):
+    shop = write_json(tmp_path, "shop.json", TWO)
+
+    result = _invoke("report", shop, "--scan", "--collection", "a")
+
+    assert result.exit_code == 2
+    assert "--collection cannot be used with --scan" in result.output
+
+
 # The Python API ---------------------------------------------------------------------
 
 

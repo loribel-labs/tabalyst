@@ -62,8 +62,18 @@ Candidates:
 Pass --collection, or run `tabalyst inspect shop.json` and set config.structure.dataset_path in the file it writes.
 ```
 
-Run `tabalyst inspect shop.json`, open `shop.json-inspect.json`, and set the
-collection in `config`:
+`tabalyst inspect shop.json` lists one ready-to-run `report` command per
+collection. `scan` takes the same `--collection` option, and a short form such
+as `--collection orders` stands for `$.orders[]`:
+
+```text
+Choose the collection to analyze:
+  tabalyst report shop.json --collection '$.customers[]'
+  tabalyst report shop.json --collection '$.orders[]'
+```
+
+To make the choice stick for `report` too, open `shop.json-inspect.json` and
+set the collection in `config`:
 
 ```json
 "config": {

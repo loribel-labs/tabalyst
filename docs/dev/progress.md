@@ -1,5 +1,17 @@
 # Development progress
 
+## 2026-10-01 (--collection on report)
+
+- `tabalyst report` gains `--collection`, with the semantics of `scan`: it
+  outranks the Inspect file and the configuration; refused with `--scan`
+  (`generate_reports(collections=...)`).
+- Short form on both commands, resolved in `cli/terminal.py`
+  (`collection_paths`): `data.items` is `$.data.items[]`, `[]` is implied.
+  Config files and the Python API stay strict (absolute paths).
+- When the selection is ambiguous, `tabalyst inspect` prints one ready-to-run
+  `tabalyst report FILE --collection '<path>'` per eligible collection.
+- `tabalyst-studio`: the CLI reference and the Inspect/Report pages changed.
+
 ## 2026-10-01 (report theme modes)
 
 - The report theme button now cycles auto (system preference, the new default),

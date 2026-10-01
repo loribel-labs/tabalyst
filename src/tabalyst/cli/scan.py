@@ -6,7 +6,13 @@ from typing import Annotated
 
 import typer
 
-from tabalyst.cli.terminal import ProgressPrinter, batch_exit_code, error_exit_code
+from tabalyst.cli.terminal import (
+    COLLECTION_HELP,
+    ProgressPrinter,
+    batch_exit_code,
+    collection_paths,
+    error_exit_code,
+)
 from tabalyst.errors import TabalystError
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
 
@@ -124,7 +130,7 @@ def scan_command(
         list[str] | None,
         typer.Option(
             "--collection",
-            help="JSON collection path such as '$.customers[]'; repeatable.",
+            help=COLLECTION_HELP,
         ),
     ] = None,
     delimiter: Annotated[
@@ -178,7 +184,7 @@ def scan_command(
             config_path=config,
             delimiter=delimiter,
             encoding=encoding,
-            collections=collection,
+            collections=collection_paths(collection),
             force=force,
             on_progress=progress,
             workers=workers,

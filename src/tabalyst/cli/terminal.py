@@ -7,6 +7,33 @@ import typer
 
 from tabalyst.errors import ConfigurationError, InputError, TabalystError
 from tabalyst.progress import ProgressEvent, ProgressPhase
+from tabalyst.scanner.paths import ITEMS, format_absolute, parse_path
+
+COLLECTION_HELP = (
+    "JSON collection: an array path such as '$.data.items[]', or its short "
+    "form data.items; repeatable."
+)
+
+
+def collection_paths(values: list[str] | None) -> list[str] | None:
+    """``--collection`` values as absolute paths. Without the leading ``$``, the
+    value is the keys leading to the array, so ``data.items`` is
+    ``$.data.items[]``; a collection is always an array, so ``[]`` is implied."""
+    if values is None:
+        return None
+    paths = []
+    for value in values:
+        if value.startswith("$"):
+            paths.append(value)
+            continue
+        try:
+            path = parse_path(value)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc), param_hint="--collection") from exc
+        if not path or path[-1] != ITEMS:
+            path = (*path, ITEMS)
+        paths.append(format_absolute(path))
+    return paths
 
 
 def error_exit_code(error: TabalystError) -> int:

@@ -234,7 +234,8 @@ Inspect is optional: `tabalyst scan` and `tabalyst report` inspect a JSON file
 themselves when it has no Inspect file. When several arrays are equally
 plausible, or none holds objects, they stop with exit code `2` before analyzing
 anything and list the candidates; set `config.structure.dataset_path` in the
-Inspect file, or pass `--collection`. See
+Inspect file, or pass `--collection` (`--collection customers` or
+`--collection '$.customers[]'`). See
 [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
 and the [Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
 

@@ -174,6 +174,7 @@ def generate_reports(
     output_dir: str | Path | None = None,
     separator: str | None = None,
     encoding: str | None = None,
+    collections: Sequence[str] | None = None,
     config_path: ConfigPath | None = None,
     force: bool = False,
     details: bool = False,
@@ -186,7 +187,9 @@ def generate_reports(
     With ``from_scan``, the inputs are scan documents written by
     ``tabalyst scan``: each report is built from its document without reading
     the source again, after the staleness checks of ``tabalyst.scan_reuse``.
-    Otherwise ``workers`` is passed to ``tabalyst.scan()``.
+    Otherwise ``workers`` is passed to ``tabalyst.scan()``, and ``collections``
+    (absolute paths such as ``$.products[]``) choose the JSON collections to
+    analyze, over the Inspect file and the configuration.
     Set ``details=True`` to write a standalone HTML page for each column.
     """
     if from_scan and (separator is not None or encoding is not None):
@@ -198,6 +201,11 @@ def generate_reports(
         raise ConfigurationError(
             "--workers cannot be used with --scan: the report reads the scan "
             "document, not its source."
+        )
+    if from_scan and collections:
+        raise ConfigurationError(
+            "--collection cannot be used with --scan: the scan document records "
+            "which collection it analyzed."
         )
     plan = build_report_plan(
         input_specs,
@@ -265,6 +273,7 @@ def generate_reports(
                     scan_layer=report_scan_layer,
                     separator=separator,
                     encoding=encoding,
+                    collections=collections,
                 )
         except TabalystError as exc:
             failures.append(ReportFailure(job=job, error=exc))

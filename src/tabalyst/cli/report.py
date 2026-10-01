@@ -6,7 +6,13 @@ from typing import Annotated
 
 import typer
 
-from tabalyst.cli.terminal import ProgressPrinter, batch_exit_code, error_exit_code
+from tabalyst.cli.terminal import (
+    COLLECTION_HELP,
+    ProgressPrinter,
+    batch_exit_code,
+    collection_paths,
+    error_exit_code,
+)
 from tabalyst.errors import TabalystError
 from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_reports
 
@@ -116,6 +122,10 @@ def report_command(
         Path | None,
         typer.Option("--config", "-c", help="JSON configuration file."),
     ] = None,
+    collection: Annotated[
+        list[str] | None,
+        typer.Option("--collection", help=COLLECTION_HELP),
+    ] = None,
     from_scan: Annotated[
         bool,
         typer.Option(
@@ -178,6 +188,7 @@ def report_command(
             output_dir=output_dir,
             separator=delimiter,
             encoding=encoding,
+            collections=collection_paths(collection),
             config_path=config,
             force=force,
             details=details,
