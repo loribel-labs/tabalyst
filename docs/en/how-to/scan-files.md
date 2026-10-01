@@ -98,10 +98,8 @@ with the other sources and returns a non-zero exit code at the end.
 A pattern such as `data/*.json` also matches earlier standalone results such as
 `data/orders.scan.json`. Write scans to another directory with `-d` to keep
 them apart from the sources. Patterns skip Inspect files, named
-`*-inspect.json`, and an Inspect file given as an input is refused. On Windows,
-the command line library expands a wildcard before Tabalyst sees it, so a
-pattern such as `data/*.json` passes the Inspect files too and the command is
-refused: name the sources instead.
+`*-inspect.json`, and an Inspect file given as an input is refused. Wildcards are resolved by
+Tabalyst, including on Windows, so the same pattern skips them there too.
 
 ## Configure the scan
 

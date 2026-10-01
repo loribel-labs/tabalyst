@@ -1313,6 +1313,44 @@ and `test_json_inspect_persistence.py` (file written beside the source,
 readable, no absolute path). The compactness of `detection` is bounded by
 `MAX_CANDIDATES` and `MAX_INELIGIBLE_NOTES`.
 
+### 16.5 Conformity to the specification (closed in JI-10)
+
+Point-by-point check of lot JI-10 (2026-10-01) against the code and the tests
+of `main`. "Met" means that a test cited in 16.3 or 16.4 exercises the
+behavior. The deviations are all decisions of the maintainer; none is silent.
+
+| Items | Verdict | Evidence |
+| --- | --- | --- |
+| EF-01 to EF-04, CA-01, CA-02 | Met | `test_json_inspect_persistence.py`, `test_json_inspect_document.py` (zones, order, `config` last, no absolute path), `test_json_inspect_cli.py` |
+| EF-05, EF-06, CA-03 | Met, no score | `detection.scope`; `selection.basis` replaces a confidence score (4.4, EF-06 "when it is used") |
+| EF-07, EF-08, CA-04 | Met | re-inspection keeps `config` as a value (12.3) |
+| EF-09 to EF-12, CA-05, CA-06, CA-20, I-E01 | Met | `test_json_inspect_cli.py`, `test_json_inspect_persistence.py` |
+| EF-13 to EF-17, CA-07 to CA-10 | Met | CA-07 had no end-to-end test of a root array: added in JI-10 |
+| EF-18, CA-11 | Met | late field absent from `detection`, found by the Scan |
+| EF-19 to EF-22, CA-12 to CA-15 | Met | flatten, escaping, arrays (`arrays.mode` only `preserve`, EF-22 requires nothing else) |
+| EF-23, EF-24, CA-16, CA-17 | Met | existing behavior, attached to tests in JI-3 |
+| EF-25 to EF-27, CA-18, CA-19, I-F01 | Met | `test_json_inspect_jsonl.py` |
+| EF-28 to EF-32, ET-05 to ET-07, CA-21 to CA-27, I-T01 | Met, one deviation | triple compared field by field; `report --scan` warns on another engine version instead of refusing (Q5: the document is a file the user chose, not a cache) |
+| ET-01, ET-03, ET-04, ET-08 to ET-11 | Met | one pass for Inspect, shared readers and cache; measurements in `benchmarks.md`, no promise (ET-11) |
+| ET-02, CA-28 | Met | version refused, no migration |
+| Section 8 (edge cases) | Met | table 14; I-E02: the `no_collection` message names `json.discovery_max_depth` |
+
+Deviations and reductions, all accepted:
+
+- Not exposed in `config` (E10): `types`, `nulls`, `structure.record_type`,
+  `limits`. Their behavior is fixed and documented.
+- A single object or a scalar root has no dataset in the CLI parcours (E2, Q1);
+  `tabalyst.scan()` keeps `$`.
+- `tabalyst scan` with no `-o` and no `-d` stores the scan in the shared storage
+  and no longer writes `<stem>.scan.json` beside the source (JI-7).
+- `report --scan` warns, and does not refuse, on a visible Inspect file or an
+  engine version that differs from the document (10.2).
+- Inspect for CSV, compression, JSONPath, explosion and GeoJSON are not
+  implemented (CDC 3.3).
+- Windows: wildcard expansion is left to Tabalyst (`main()` passes
+  `windows_expand_args=False`), so a pattern skips the `*-inspect.json` files
+  whatever the shell. Added in JI-10.
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1325,3 +1363,4 @@ readable, no absolute path). The compactness of `detection` is bounded by
 | 2026-10-01 | JI-6 | Amendment: `detection.scope.discovery_max_depth` is recorded (4.4) and a cache made at another depth is rebuilt (12.4); the format stays at revision 1, which is not published. Clarifications, no other contract change: 12.3 a path the candidates cannot judge (deeper than the discovery depth, crossing an array, list truncated) gives no `configured_path_not_found`; 11 `Interpretation.collection_origin`, `source_sha256`, CSV passed through, `json.collections` of a JSONL source resolved to `null`; 12.4 a size mismatch rebuilds the cache without hashing; a failure to write the cache, a busy workspace lock included, is a notice; `scan_reuse.file_sha256` made public. | Implementation of lot JI-6. |
 | 2026-10-01 | JI-7 | The command, the services and the API (sections 13, 16.1). Amendments decided by the maintainer: 11.2 no automatic inspection when the command line or a `--config` file already names the collections; `Interpretation.source_sha256` shared with `current_scan` and `compare_source`; 11.4 the notices join the suspension message; 10.2 `report --scan` warns about a visible file that differs from the document. Clarifications: scans with no `-o` or `-d` go to the shared storage for every format and `report` reuses them (section 13); in a mixed batch the `json.collections` of a `--config` file is ignored for JSONL sources and `--collection` fails that source alone (11.2); `*-inspect.json` is skipped by patterns and refused as a path in `batch.py` for every command (12.1); `save_inspection` returns the document as written. No change to the file format. | Implementation of lot JI-7. |
 | 2026-10-01 | JI-8 | 4.5 and 15: `candidate_not_eligible` is written for the first `MAX_INELIGIBLE_NOTES` (10) ineligible candidates, followed by one `candidate_not_eligible_truncated` entry with the `count` (amendment decided by the maintainer; the finding of JI-5 on a crawler manifest with 100 entries). New 16.4: the minimal verification matrix mapped to tests. New `benchmarks.md`; `RECORDS_OBSERVED` confirmed. No change to the format revision (1, not published). | Implementation of lot JI-8. |
+| 2026-10-01 | JI-10 | New 16.5 (conformity to the specification). `main()` passes `windows_expand_args=False` so that Tabalyst resolves wildcards on Windows and skips Inspect files (12.1). Test of CA-07 end to end. No contract change. | Finalization lot JI-10. |

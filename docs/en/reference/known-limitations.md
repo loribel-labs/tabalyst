@@ -37,9 +37,6 @@ a tenth of the time of a scan.
   (`arrays.mode` is `preserve`), and collection paths use a limited syntax: keys
   from the root, ending with `[]`.
 - **Inspect is for JSON and JSONL.** `tabalyst inspect` refuses CSV files.
-  On Windows, wildcards such as `*.json` are expanded before Tabalyst sees
-  them, so they also pass the Inspect files and the command is refused: name
-  the sources.
 - **JSON reports show scalar fields.** A JSON report lists the fields holding
   strings, numbers, booleans or nulls; the structure of objects and arrays
   (nesting, array lengths) appears only in `tabalyst scan` results. A record

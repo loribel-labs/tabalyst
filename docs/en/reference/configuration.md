@@ -293,10 +293,6 @@ configuration and the version of Tabalyst are all the same.
   Content below the flatten depth is not read for duplicate keys.
 - `json.arrays` (`mode`, only `preserve`): arrays never add records. `ignore`
   and `explode` are refused.
-
-The `json.collections`, `json.flatten`, `json.arrays` and `errors.policy`
-settings are the ones an [Inspect file](inspect-format.md#config) edits, under
-the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
 - `errors.policy`: `null` (default) is the default of the source format,
   `strict` for CSV and JSON, `tolerant` for JSONL. `strict` stops at the first
   malformed record, such as a CSV record with the wrong number of fields, a JSON
@@ -305,6 +301,10 @@ the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
   syntax in a JSON file, undecodable text and unreadable files stop the scan in
   both policies.
 - `errors.max_locations`: how many record locations each diagnostic lists.
+
+The `json.collections`, `json.flatten`, `json.arrays` and `errors.policy`
+settings are the ones an [Inspect file](inspect-format.md#config) edits, under
+the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
 
 ### Values and missing values
 

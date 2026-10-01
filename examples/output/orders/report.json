@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 10,
-  "generated_at": "2026-10-01T05:28:43.313916Z",
-  "processing_seconds": 0.1507,
+  "generated_at": "2026-10-01T13:43:09.655074Z",
+  "processing_seconds": 0.125,
   "source": {
     "filename": "orders.json",
     "format": "json",

@@ -214,11 +214,9 @@ d’erreur standard.
 
 Un motif ignore les fichiers nommés `*-inspect.json`, et un fichier Inspect
 donné en entrée est refusé : indiquez la source qu’il décrit. Une source dont le
-nom se termine par `-inspect.json` doit d’abord être renommée. Sous Windows, la
-bibliothèque de ligne de commande développe un joker avant que Tabalyst le
-voie, si bien que `tabalyst inspect "*.json"` passe aussi les fichiers Inspect
-et est refusé : nommez les sources, ou utilisez un motif qui ne correspond pas
-aux fichiers Inspect, comme `*.jsonl`.
+nom se termine par `-inspect.json` doit d’abord être renommée. Les jokers sont résolus par Tabalyst, y
+compris sous Windows : `tabalyst inspect *.json` ignore donc aussi les fichiers
+Inspect.
 
 ## API Python
 

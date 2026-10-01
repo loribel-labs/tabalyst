@@ -2,6 +2,20 @@
 
 ## 2026-10-01
 
+- JSON Inspect, lot JI-10 (finalization): point-by-point conformity check of the
+  specification (design inspect 16.5), with one test added (CA-07, a root array
+  through inspect, edit and report) and no unmet requirement. On Windows the
+  command line library expanded `*.json` and passed the `*-inspect.json` files
+  as explicit paths, which were refused: `main()` now passes
+  `windows_expand_args=False`, so Tabalyst's own resolver expands wildcards and
+  skips Inspect files (test added, workaround removed from the Inspect how-to).
+  Documentation: `json-profile.md` said profile revision `9` (now `10`); the
+  `errors.policy` bullet of `configuration.md` was cut off from its list (EN and
+  FR); French versions added of `how-to/install.md`,
+  `reference/execution-history.md` and `tutorials/first-report.md`, which
+  `docs/fr/index.md` already linked. Demos regenerated. The target version
+  number stays an open decision (E12).
+
 - JSON Inspect, lot JI-9-fr (French translation): `docs/fr/` brought in line
   with `docs/en/` for the 13 pages of JI-9. New pages
   `how-to/inspect-json-files.md`, `reference/inspect-format.md` and

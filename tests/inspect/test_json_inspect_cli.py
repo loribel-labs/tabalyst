@@ -295,6 +295,29 @@ def test_a_depth_limit_set_in_the_file_reaches_the_report(tmp_path):
     assert "address.city" not in names
 
 
+def test_a_root_array_runs_the_whole_cycle_with_the_visible_choices(tmp_path):
+    # CA-07: inspect, edit, report on a root array of objects.
+    source = write_json(
+        tmp_path,
+        "rows.json",
+        [{"id": i, "address": {"city": "Lyon"}, "tags": ["a", "b"]} for i in range(1, 4)],
+    )
+    inspected = _inspect(source)
+    assert inspected.exit_code == 0, inspected.output
+    document = json.loads(_visible(source).read_text(encoding="utf-8"))
+    assert document["config"]["structure"]["dataset_path"] == "$[]"
+    edit_json_file(_visible(source), lambda d: d["config"]["flatten"].update(max_depth=1))
+
+    result, out = _report(tmp_path, source)
+
+    assert result.exit_code == 0, result.output
+    profile = _profile(out, source)
+    assert len(profile["datasets"]) == 1
+    names = [item["name"] for item in profile["datasets"][0]["columns"]]
+    assert "address" in names
+    assert "address.city" not in names
+
+
 def test_an_invalid_visible_file_stops_scan_and_report(tmp_path, storage):
     source = write_json(tmp_path, "shop.json", SHOP)
     assert _inspect(source).exit_code == 0
@@ -414,3 +437,15 @@ def test_same_stem_scan_outputs_collide_and_the_batch_is_rejected(tmp_path):
 
     assert result.exit_code != 0
     assert not out.exists() or not any(out.iterdir())
+
+
+def test_the_entry_point_leaves_wildcard_expansion_to_tabalyst(monkeypatch):
+    # Windows: an expanded "*.json" would hand over the Inspect files as paths.
+    import importlib
+
+    cli_app = importlib.import_module("tabalyst.cli.app")
+
+    seen = {}
+    monkeypatch.setattr(cli_app, "app", lambda **kwargs: seen.update(kwargs))
+    cli_app.main()
+    assert seen == {"windows_expand_args": False}

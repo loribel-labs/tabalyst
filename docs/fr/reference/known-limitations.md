@@ -42,9 +42,6 @@ page lorsqu’une version publiée la lève.
   collection utilisent une syntaxe limitée : des clés depuis la racine, se
   terminant par `[]`.
 - **Inspect est pour JSON et JSONL.** `tabalyst inspect` refuse les fichiers CSV.
-  Sous Windows, les jokers comme `*.json` sont développés avant que Tabalyst les
-  voie, si bien qu’ils passent aussi les fichiers Inspect et que la commande est
-  refusée : nommez les sources.
 - **Les rapports JSON montrent les champs scalaires.** Un rapport JSON liste
   les champs contenant des chaînes, des nombres, des booléens ou des nulls ; la
   structure des objets et des tableaux (imbrication, longueur des tableaux)
