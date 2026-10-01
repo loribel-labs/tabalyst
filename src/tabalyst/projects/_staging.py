@@ -43,7 +43,11 @@ from tabalyst.projects._validation import (
 from tabalyst.projects.identity import is_project_id
 from tabalyst.scan_service import scan_document
 from tabalyst.scanner import ScanConfig, ScanResult, scan
-from tabalyst.scanner.config import config_sha256, resolve_scan_config
+from tabalyst.scanner.config import (
+    config_sha256,
+    resolve_config_defaults,
+    resolve_scan_config,
+)
 from tabalyst.scanner.field import StringClassifier
 from tabalyst.scanner.observations import Record
 from tabalyst.scanner.paths import ROOT, Column
@@ -373,7 +377,9 @@ def build_staging(
         )
         if before != _source_stamp(path):
             raise DatabaseValidationError("Source changed while building staging")
-        if config_sha256(result.config) != config_sha256(effective):
+        if config_sha256(result.config) != config_sha256(
+            resolve_config_defaults(effective, result.source.format)
+        ):
             raise DatabaseValidationError("Effective Scan configuration changed")
         if value_limit is not None:
             # This stage is private. Commit bounded ingestion batches rather

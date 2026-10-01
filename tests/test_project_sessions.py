@@ -20,7 +20,7 @@ from tabalyst.projects._session import (
 from tabalyst.projects._staging import _file_hash
 from tabalyst.scan_reuse import SourceState
 from tabalyst.scanner import ScanConfig
-from tabalyst.scanner.config import config_sha256
+from tabalyst.scanner.config import config_sha256, resolve_config_defaults
 
 
 @pytest.fixture
@@ -92,7 +92,9 @@ def test_readiness_matrix_and_persistent_artifacts(
     assert assessment.warnings == (() if warning is None else (warning,))
     assert assessment.current_ready is (warning is None)
     assert assessment.snapshot_ready
-    assert assessment.recorded_config_sha256 == config_sha256(config)
+    assert assessment.recorded_config_sha256 == config_sha256(
+        resolve_config_defaults(config, "csv")
+    )
     assert assessment.project_id == pid
     assert assessment.workspace_id == location.workspace_id
     assert assessment.source == source

@@ -167,11 +167,10 @@ format, encoding, delimiter, status and number of diagnostics.
 ## Report from a scan
 
 `tabalyst report customers.csv` uses the stored scan. If none exists, it
-creates one. A scan is reused when the CSV is unchanged and its effective
-scan settings match. A changed CSV causes an atomic replacement of `scan.json`.
+creates one. A scan is reused when the CSV is unchanged, its effective
+scan settings match and the same version of Tabalyst wrote it. A changed CSV causes an atomic replacement of `scan.json`.
 Existing DuckDB projects from 0.4.3 are left untouched. Before reusing a scan,
-Report checks the CSV's SHA-256 even if its size and modification time are
-unchanged. When no scan settings are
+Report checks the CSV's SHA-256, whatever its size and modification time. When no scan settings are
 requested, Report keeps the settings recorded by the existing scan.
 
 Build the HTML report from a standalone scan document instead of reading the source
@@ -195,11 +194,12 @@ tabalyst report --scan scans/*.scan.json -d reports/
 Tabalyst refuses a scan that no longer describes its source. It looks for the
 source beside the scan document, under the name the scan recorded:
 
-- a source of another size, or whose content changed (compared by SHA-256
-  when its modification time changed), is an error: scan it again;
+- a source of another size, or whose content changed (compared by SHA-256,
+  whatever its modification time), is an error: scan it again;
 - a source that is not beside the scan document is accepted, since the scan
   stands on its own, with a warning that it was not checked. This is the case
-  for scans written with `-d` to another directory.
+  for scans written with `-d` to another directory;
+- a scan written by another version of Tabalyst is reported, with a warning.
 
 The report uses the scan settings recorded in the document. Configuration
 files passed with `--config` give the presentation settings; settings given

@@ -2,6 +2,40 @@
 
 ## 2026-09-30
 
+- JSON Inspect, lot JI-3 (JSON reader, flatten and complex columns): the JSON
+  reader applies `json.flatten`: a container whose path reaches `max_depth`
+  segments (`enabled: false` is 1) is observed whole, with its array length,
+  and its children are not observed, not counted as truncated and not warned of
+  (distinct from `limits.max_depth`); content below the limit is not checked for
+  duplicate keys. `format_relative(path, separator)` and
+  `parse_path(text, *, separator)` join field names with `flatten.separator`;
+  absolute paths always use `.`. The report shows a container kept whole as a
+  column with `inferred_type` `complex` (profile revision 10, completed; no
+  change without a flatten limit). 36 contract tests enabled
+  (`ENABLED_LOTS = {"JI-2", "JI-3"}`) plus 11 in
+  `test_json_inspect_flatten_report.py`. Demos regenerated; nothing committed.
+  The JSONL reader is untouched (JI-4).
+
+- JSON Inspect, lot JI-2 (configuration and Scan identity): `ScanConfig` gains
+  `json.flatten` (`enabled`, `separator`, `max_depth`) and `json.arrays`
+  (`mode`, `preserve` only), with the validation of the design; `errors.policy`
+  is nullable and `resolve_config_defaults()` resolves it by source format and
+  normalizes unused flatten settings; collection paths are stored canonically.
+  `scan()` records the resolved configuration. New `scanner/identity.py`:
+  `ScanIdentity`, `scan_identity()`, `expected_identity()`, `source_format_of()`.
+  `compare_source()` always compares the SHA-256 of a present source (DP-D) and
+  returns it; `current_scan()` reuses a scan only when source hash, resolved
+  configuration hash and engine version are all equal; project freshness and
+  sessions compare the engine version (`engine_version_changed` warning,
+  blocking `require_current` only); `report --scan` warns, and still reports,
+  for a document of another engine version. Scan format revision 5 and profile
+  revision 10 (changelogs, O12 and section 15 of the Scan design amended). The
+  project tests that compared a recorded configuration now compare its resolved
+  form. `json.flatten` and `json.arrays` were recorded and hashed only until lot
+  JI-3. Demos regenerated. 63 contract tests of
+  `tests/inspect/` enabled (`ENABLED_LOTS = {"JI-2"}`) plus 8 on where the
+  identity applies; nothing committed.
+
 - JSON Inspect, lot JI-1 (design only; gate G1 passed): wrote
   `docs/dev/inspect/design.md`, the contract of the Inspect file (zones,
   `config` keys and defaults, projection onto `ScanConfig`), path syntax with a

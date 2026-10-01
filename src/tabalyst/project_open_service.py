@@ -19,11 +19,12 @@ from tabalyst.projects._session import (
     SessionRefusedError,
     inspect_project,
     open_project,
+    requested_config_sha256,
 )
 from tabalyst.projects.location import StorageLocation
 from tabalyst.scan_reuse import SourceState
 from tabalyst.scanner import ScanConfig
-from tabalyst.scanner.config import config_sha256
+from tabalyst.scanner.identity import source_format_of
 
 OpeningAction = Literal["open_current", "choose", "resolve_config"]
 
@@ -165,7 +166,10 @@ def rescan_from_decision(
         validated = ScanConfig.model_validate(
             config.model_dump(mode="json", by_alias=True)
         )
-        if config_sha256(validated) != assessment.requested_config_sha256:
+        if (
+            requested_config_sha256(validated, source_format_of(Path(assessment.source)))
+            != assessment.requested_config_sha256
+        ):
             raise InputError("Replacement config differs from the inspected request")
     with rescan_project(
         location,

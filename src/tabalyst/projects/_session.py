@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
+from tabalyst._version import __version__
 from tabalyst.errors import InputError
 from tabalyst.projects import _queries
 from tabalyst.projects._generation import (
@@ -20,7 +21,7 @@ from tabalyst.projects._generation import (
 from tabalyst.projects._query_budget import QueryBudget
 from tabalyst.projects.location import StorageLocation
 from tabalyst.scan_reuse import SourceCheck, SourceState, compare_source
-from tabalyst.scanner.config import ScanConfig, config_sha256
+from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 
 OpenIntent = Literal["require_current", "snapshot"]
 
@@ -54,17 +55,28 @@ class SessionRefusedError(InputError):
         super().__init__(f"Cannot open project with {intent}: {', '.join(reasons)}")
 
 
-def _requested_hash(config: ScanConfig | None) -> str | None:
+def _requested_config(config: ScanConfig | None) -> ScanConfig | None:
     if config is None:
         return None
     if not isinstance(config, ScanConfig):
         raise TypeError("requested_config must be a complete ScanConfig")
     # Revalidate even a model constructed/modified without Pydantic validation.
-    validated = ScanConfig.model_validate(config.model_dump(mode="json", by_alias=True))
-    return config_sha256(validated)
+    return ScanConfig.model_validate(config.model_dump(mode="json", by_alias=True))
 
 
-def _assess(pinned: PinnedGeneration, requested_hash: str | None) -> SessionAssessment:
+def requested_config_sha256(config: ScanConfig, source_format) -> str:
+    """The hash a scan of ``source_format`` with ``config`` would record."""
+    return config_sha256(resolve_config_defaults(config, source_format))
+
+
+def _assess(
+    pinned: PinnedGeneration, requested: ScanConfig | None
+) -> SessionAssessment:
+    requested_hash = (
+        None
+        if requested is None
+        else requested_config_sha256(requested, pinned.result.source.format)
+    )
     source = Path(pinned.project.source.path)
     check, error = None, None
     warnings: tuple[str, ...] = ()
@@ -78,6 +90,8 @@ def _assess(pinned: PinnedGeneration, requested_hash: str | None) -> SessionAsse
             warnings = ("source_stale",)
         elif check.state is SourceState.MISSING:
             warnings = ("source_not_checked",)
+    if pinned.result.engine.version != __version__:
+        warnings += ("engine_version_changed",)
     recorded_hash = pinned.result.config_sha256
     errors = (
         ("config_mismatch",)
@@ -124,10 +138,10 @@ def inspect_project(
     Integrity/legacy failures raise through open_generation; snapshot has no
     bypass. Legacy failures explicitly require rebuilding from the source.
     """
-    requested_hash = _requested_hash(requested_config)
+    requested = _requested_config(requested_config)
     with open_generation(location, project_id, budget=budget) as pinned:
         _expect(pinned, expected_generation_id)
-        return _assess(pinned, requested_hash)
+        return _assess(pinned, requested)
 
 
 class ProjectSession:
@@ -137,8 +151,9 @@ class ProjectSession:
     existing queries still describe the stored generation, including cursors.
     """
 
-    def __init__(self, pinned, assessment, resources, intent):
+    def __init__(self, pinned, assessment, resources, intent, requested=None):
         self._pinned = pinned
+        self._requested = requested
         self._assessment = assessment
         self._materializations: set[ExitStack] = set()
         resources.callback(self._close_queries)
@@ -165,9 +180,7 @@ class ProjectSession:
 
     def refresh_assessment(self) -> SessionAssessment:
         self._require_open()
-        self._assessment = _assess(
-            self._pinned, self._assessment.requested_config_sha256
-        )
+        self._assessment = _assess(self._pinned, self._requested)
         return self._assessment
 
     def records_page(self, dataset_id, listing_id, *, size=100, cursor=None):
@@ -207,10 +220,10 @@ def open_project(
     """Reverify and reassess a selected generation before yielding queries."""
     if intent not in ("require_current", "snapshot"):
         raise ValueError("Unknown project opening intent")
-    requested_hash = _requested_hash(requested_config)
+    requested = _requested_config(requested_config)
     with open_generation(location, project_id, budget=budget) as pinned:
         _expect(pinned, expected_generation_id)
-        assessment = _assess(pinned, requested_hash)
+        assessment = _assess(pinned, requested)
         ready = (
             assessment.current_ready
             if intent == "require_current"
@@ -219,7 +232,7 @@ def open_project(
         if not ready:
             raise SessionRefusedError(intent, assessment)
         with ExitStack() as resources:
-            session = ProjectSession(pinned, assessment, resources, intent)
+            session = ProjectSession(pinned, assessment, resources, intent, requested)
             try:
                 yield session
             finally:

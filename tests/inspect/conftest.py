@@ -13,7 +13,7 @@ updating the design document in the same lot. The marker is not ``lot``:
 
 import pytest
 
-ENABLED_LOTS: set[str] = set()
+ENABLED_LOTS: set[str] = {"JI-2", "JI-3"}
 
 
 def pytest_collection_modifyitems(config, items):

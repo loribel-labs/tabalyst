@@ -56,17 +56,17 @@ def path_to_json(path: FieldPath) -> list[dict[str, object]]:
     return [segment_to_json(segment) for segment in path]
 
 
-def _key_display(name: str, *, leading: bool) -> str:
+def _key_display(name: str, *, leading: bool, separator: str) -> str:
     if _IDENTIFIER.fullmatch(name):
-        return name if leading else f".{name}"
+        return name if leading else f"{separator}{name}"
     return f"[{json.dumps(name, ensure_ascii=False)}]"
 
 
-def _segments_display(path: FieldPath, *, leading: bool) -> str:
+def _segments_display(path: FieldPath, *, leading: bool, separator: str) -> str:
     parts = []
     for segment in path:
         if isinstance(segment, Key):
-            parts.append(_key_display(segment.name, leading=leading))
+            parts.append(_key_display(segment.name, leading=leading, separator=separator))
         elif isinstance(segment, Items):
             parts.append("[]")
         else:
@@ -77,22 +77,32 @@ def _segments_display(path: FieldPath, *, leading: bool) -> str:
 
 def format_absolute(path: FieldPath) -> str:
     """Display an absolute path, such as a dataset identifier: ``$.customers[]``."""
-    return ROOT_DISPLAY + _segments_display(path, leading=False)
+    return ROOT_DISPLAY + _segments_display(path, leading=False, separator=".")
 
 
-def format_relative(path: FieldPath) -> str:
-    """Display a field path relative to its record: ``orders[].amount``, or ``$``."""
+def format_relative(path: FieldPath, separator: str = ".") -> str:
+    """Display a field path relative to its record: ``orders[].amount``, or ``$``.
+
+    ``separator`` joins the bare keys and ``[]`` (``flatten.separator``). Keys
+    that are not identifiers are quoted, so a key holding the separator never
+    collides with nested keys (design inspect section 6).
+    """
     if not path:
         return ROOT_DISPLAY
-    return _segments_display(path, leading=True)
+    return _segments_display(path, leading=True, separator=separator)
 
 
-def parse_path(text: str) -> FieldPath:
-    """Parse the absolute (``$...``) or relative display syntax into segments."""
+def parse_path(text: str, *, separator: str = ".") -> FieldPath:
+    """Parse the absolute (``$...``) or relative display syntax into segments.
+
+    ``separator`` applies to relative texts only: an absolute path (starting
+    with ``$``) always uses ``.``.
+    """
     position = 0
     segments: list[Segment] = []
     if text.startswith(ROOT_DISPLAY):
         position = 1
+        separator = "."
     elif text:
         identifier = _IDENTIFIER.match(text)
         if identifier is not None:
@@ -104,11 +114,12 @@ def parse_path(text: str) -> FieldPath:
         raise ValueError("A path cannot be empty; use '$' for the record root")
 
     while position < len(text):
-        if text.startswith(".", position):
-            identifier = _IDENTIFIER.match(text, position + 1)
+        if text.startswith(separator, position):
+            start = position + len(separator)
+            identifier = _IDENTIFIER.match(text, start)
             if identifier is None:
                 raise ValueError(
-                    f"Invalid path {text!r}: expected a key at position {position + 1}"
+                    f"Invalid path {text!r}: expected a key at position {start}"
                 )
             segments.append(Key(identifier.group()))
             position = identifier.end()

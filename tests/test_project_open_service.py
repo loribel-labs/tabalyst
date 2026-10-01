@@ -19,6 +19,7 @@ from tabalyst.projects.location import StorageLocation
 from tabalyst.projects.store import read_project
 from tabalyst.scan_reuse import SourceState
 from tabalyst.scanner import ScanConfig
+from tabalyst.scanner.config import resolve_config_defaults
 
 
 @pytest.fixture
@@ -144,7 +145,9 @@ def test_config_mismatch_blocks_opening_until_explicit_replacement(project):
     with enter_project(location, pid) as recorded:
         assert recorded.session is not None
     with rescan_from_decision(location, entry.decision, config=requested) as result:
-        assert result.published.result.config == requested
+        assert result.published.result.config == resolve_config_defaults(
+            requested, "csv"
+        )
         assert result.session.assessment.current_ready
     assert read_project(location, pid).source.path == source.as_posix()
 

@@ -16,7 +16,7 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 9: one
+- `models.py`: Pydantic models of the report profile (revision 10: one
   profile per dataset in `datasets`, with its limits and, for JSON, its
   structure; column scan evidence is retained for standalone detail pages).
 - `config.py`: validated settings, loaded from optional JSON configuration files.
@@ -30,8 +30,9 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   Output replacement is an explicit service-level choice rather than a
   CLI-only safeguard.
 - `scan_reuse.py`: reads scan documents for `tabalyst report --scan` and
-  applies the staleness rule (design O12): source size, modification time and
-  SHA-256, and the `config_sha256` of requested scan settings.
+  applies the staleness rule (design O12): source size and SHA-256, and the
+  `config_sha256` of requested scan settings; `scanner/identity.py` holds the
+  scan identity (source SHA-256, resolved configuration hash, engine version).
   `compare_source()` holds the comparison alone, for a source located by the
   caller: beside the document (`check_source()`), from scan-only storage, or
   from `project.json`.

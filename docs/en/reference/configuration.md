@@ -202,8 +202,10 @@ object of each configuration file. The complete object with its defaults is:
 {
   "scan": {
     "csv": {"encoding": "utf-8-sig", "delimiter": ","},
-    "json": {"collections": null, "discovery_max_depth": 3},
-    "errors": {"policy": "strict", "max_locations": 10},
+    "json": {"collections": null, "discovery_max_depth": 3,
+             "flatten": {"enabled": true, "separator": ".", "max_depth": null},
+             "arrays": {"mode": "preserve"}},
+    "errors": {"policy": null, "max_locations": 10},
     "values": {
       "null_markers": [],
       "null_markers_case_sensitive": true,
@@ -265,7 +267,22 @@ The scan document embeds the effective configuration and its SHA-256
   Paths must end with `[]`, be unique and not contain one another.
 - `json.discovery_max_depth`: how deep automatic discovery looks for arrays
   under a root object.
-- `errors.policy`: `strict` stops at the first malformed record, such as a CSV
+- `json.flatten`: how nested objects become fields. `enabled` (default `true`),
+  `separator` (default `.`) joins the keys of a field name such as
+  `address.city`; it is one character that is not a letter, digit, `_`,
+  whitespace or one of `[ ] " \ $`. `max_depth` (default `null`, no limit) counts
+  segments from the root of the record, a key or `[]` each: `address` is 1,
+  `address.city` is 2, `orders[].amount` is 3. A container (object or array)
+  at that depth is kept whole as a complex value and its content is not
+  analyzed: nothing is lost, no warning is raised, and the report shows it as a
+  column of type `complex`. `enabled: false` is a depth of 1. The separator
+  changes only the names shown: a key holding it is written `["a/b"]`, and
+  dataset paths such as `$.customers[]` always use `.`. This is not
+  `limits.max_depth`, which protects the reader and truncates with a warning.
+  Content below the flatten depth is not read for duplicate keys.
+- `json.arrays` (`mode`, only `preserve`): arrays never add records.
+- `errors.policy`: `null` (default) is the default of the source format,
+  `strict` for CSV and JSON. `strict` stops at the first malformed record, such as a CSV
   record with the wrong number of fields or a JSON object with a duplicate key.
   `tolerant` excludes such records, counts them and marks the scan `partial`.
   Invalid syntax, undecodable text and unreadable files stop the scan in both

@@ -19,6 +19,8 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    StrictBool,
+    StrictInt,
     ValidationError,
     field_validator,
     model_validator,
@@ -31,7 +33,7 @@ from tabalyst.config import (
     validation_message,
 )
 from tabalyst.errors import ConfigurationError
-from tabalyst.scanner.paths import Items, parse_path
+from tabalyst.scanner.paths import Items, format_absolute, parse_path
 
 HARD_CAPS: dict[str, int] = {
     "max_fields": 1_000_000,
@@ -64,9 +66,63 @@ class _Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+SourceFormat = Literal["csv", "json", "jsonl"]
+ErrorPolicy = Literal["strict", "tolerant"]
+
+# Characters a flatten separator may never be: they are part of the path
+# syntax (design inspect section 5.2).
+_RESERVED_SEPARATORS = "[]\"\\$_"
+
+
+class FlattenSettings(_Settings):
+    enabled: StrictBool = True
+    separator: str = "."
+    max_depth: StrictInt | None = Field(default=None, ge=1, le=HARD_CAPS["max_depth"])
+
+    def depth_limit(self) -> int | None:
+        """Segments at which a container is kept whole, ``None`` without limit.
+
+        Disabled flatten is a depth of one (design inspect section 7.2).
+        """
+        return self.max_depth if self.enabled else 1
+
+    @field_validator("separator")
+    @classmethod
+    def usable_separator(cls, value: str) -> str:
+        if (
+            len(value) != 1
+            or value.isalnum()
+            or value.isspace()
+            or not value.isprintable()
+            or value in _RESERVED_SEPARATORS
+        ):
+            raise ValueError(
+                "The flatten separator must be one character that is not a "
+                f"letter, digit, whitespace or one of {_RESERVED_SEPARATORS}: "
+                f"{value!r}"
+            )
+        return value
+
+
+class ArraySettings(_Settings):
+    mode: Literal["preserve"] = "preserve"
+
+    @field_validator("mode", mode="before")
+    @classmethod
+    def supported_mode(cls, value: object) -> object:
+        if value in ("ignore", "explode"):
+            raise ValueError(
+                f"Array mode {value!r} is not supported in this version; "
+                "only 'preserve' is"
+            )
+        return value
+
+
 class JsonSettings(_Settings):
     collections: list[str] | None = None
     discovery_max_depth: int = Field(default=3, ge=0, le=HARD_CAPS["max_depth"])
+    flatten: FlattenSettings = Field(default_factory=FlattenSettings)
+    arrays: ArraySettings = Field(default_factory=ArraySettings)
 
     @field_validator("collections")
     @classmethod
@@ -79,6 +135,7 @@ class JsonSettings(_Settings):
                 "discovery"
             )
         paths: dict[tuple, str] = {}
+        canonical: list[str] = []
         for value in values:
             if not value.startswith("$"):
                 raise ValueError(f"Collection paths must be absolute: {value!r}")
@@ -92,6 +149,8 @@ class JsonSettings(_Settings):
                     f"Collection paths must be unique: {paths[path]!r} and {value!r}"
                 )
             paths[path] = value
+            # Equal paths in other spellings hash equally (design inspect 10.3).
+            canonical.append(format_absolute(path))
         # Overlapping selections would put one record in two datasets.
         for path, value in paths.items():
             for other, other_value in paths.items():
@@ -100,11 +159,12 @@ class JsonSettings(_Settings):
                         f"Collection paths cannot overlap: {value!r} contains "
                         f"{other_value!r}"
                     )
-        return values
+        return canonical
 
 
 class ErrorSettings(_Settings):
-    policy: Literal["strict", "tolerant"] = "strict"
+    # ``None`` is the default of the source format (``resolve_config_defaults``).
+    policy: ErrorPolicy | None = None
     max_locations: int = Field(default=10, ge=0, le=10_000)
 
 
@@ -473,8 +533,33 @@ def exact_share(threshold: float) -> Fraction:
     return Fraction(str(threshold))
 
 
+def resolve_config_defaults(config: ScanConfig, source_format: SourceFormat) -> ScanConfig:
+    """The configuration a scan of ``source_format`` really applies.
+
+    ``errors.policy`` is never ``None`` in the result: ``tolerant`` for JSONL,
+    ``strict`` for CSV and JSON. Flatten settings that change nothing while
+    flatten is disabled are normalized, so equal rules hash equally
+    (design inspect 5.5, 5.6). Resolving twice gives the same configuration.
+    """
+    policy = config.errors.policy
+    if policy is None:
+        policy = "tolerant" if source_format == "jsonl" else "strict"
+    flatten = config.json_.flatten
+    if not flatten.enabled:
+        flatten = FlattenSettings(enabled=False)
+    return config.model_copy(
+        update={
+            "errors": config.errors.model_copy(update={"policy": policy}),
+            "json_": config.json_.model_copy(update={"flatten": flatten}),
+        }
+    )
+
+
 def config_sha256(config: ScanConfig) -> str:
-    """SHA-256 of the canonical JSON: sorted keys, no whitespace, UTF-8."""
+    """SHA-256 of the canonical JSON: sorted keys, no whitespace, UTF-8.
+
+    Of the configuration as given: hash the result of ``resolve_config_defaults``
+    to identify the rules a scan applies."""
     canonical = json.dumps(
         config.model_dump(mode="json", by_alias=True),
         sort_keys=True,

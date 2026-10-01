@@ -111,6 +111,7 @@ def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str],
         "boolean": "var(--ok)",
         "date": "var(--d1)",
         "empty": "var(--line-strong)",
+        "complex": "var(--text-3)",
     }
     # Other interpretations (email, phone, patterns...) share one color.
     semantic_colors = defaultdict(

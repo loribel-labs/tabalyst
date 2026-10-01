@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 9
+  "format_revision": 10
 }
 ```
 
@@ -171,3 +171,17 @@ none of the last 5,000.
 - `tabalyst report --details` generates one self-contained HTML page per column
   under the report stem folder. Details are off by default. This changes report
   artifacts, not the meaning of other profile fields.
+
+## Revision 10 - 2026-09-30
+
+- `config.scan` records the rules the scan applied, defaults resolved:
+  `config.scan.errors.policy` is `strict` or `tolerant`, never `null`. The
+  setting itself accepts `null`, meaning the default of the source format.
+- `config.scan.json` gains `flatten` (`enabled`, `separator`, `max_depth`) and
+  `arrays` (`mode`). Their defaults keep the previous behavior.
+- A JSON field holding only objects or arrays kept whole at the
+  `config.scan.json.flatten.max_depth` limit is a column with `inferred_type`
+  `complex` and the `object` and `array` counts in `type_counts`. Without a
+  flatten limit, containers stay structure and no column changes.
+- Column `path` and `name` of JSON fields are joined with
+  `config.scan.json.flatten.separator`.

@@ -6,7 +6,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 `tabalyst scan data.csv` writes a reusable `scan.json` by default;
 `-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
 describe every field of the source. This page describes format
-`tabalyst.scan`, version `0.1.0a`, revision `4`. The format is
+`tabalyst.scan`, version `0.1.0a`, revision `5`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](scan-format-changelog.md).
@@ -17,7 +17,7 @@ the [scan format changelog](scan-format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {
     "version": "0.4.4",
     "normalization_version": 1,
@@ -141,7 +141,7 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 
 | Key | Content |
 | --- | --- |
-| `id`, `path`, `display`, `name`, `parent` | Identity: an identifier such as `f4`, the path as segments, its readable form such as `orders[].amount`, the last segment and the parent field identifier. |
+| `id`, `path`, `display`, `name`, `parent` | Identity: an identifier such as `f4`, the path as segments, its readable form such as `orders[].amount` (keys joined with `json.flatten.separator`), the last segment and the parent field identifier. |
 | `collection` | For a JSON array promoted to its own dataset, the identifier of that dataset. |
 | `first_record`, `occurrences` | The first record with a value, and the number of values at this path. |
 | `presence` | `parent_count`, `present` and `absent`: how often the field exists where it could exist. |
