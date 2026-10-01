@@ -75,6 +75,10 @@ Use the existing patterns and keep changes focused. Preserve user changes alread
 present in the working tree. Use `apply_patch` for manual edits and avoid unrelated
 refactors.
 
+Never create test, benchmark or screenshot output inside the checkout (an
+`artifacts/` or `pytest-*` folder there breaks Obsidian). Always use the sibling
+`D:\GIT\tabalyst.test\artifacts` (see `docs/dev/architecture.md`).
+
 After Python changes:
 
 ```powershell

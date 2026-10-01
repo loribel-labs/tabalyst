@@ -284,11 +284,12 @@ An optional third argument is the Playwright module path. `TABALYST_BROWSER`
 selects another installed browser channel. Run from the repository root with an
 external artifact directory for screenshots. By default the browser check uses
 `<OS temporary directory>/tabalyst/artifacts`; set `TABALYST_ARTIFACTS_DIR` to
-override it. For a local Windows checkout watched by Obsidian, keep test and
-benchmark evidence outside `D:\GIT`, for example:
+override it. For a local Windows checkout watched by Obsidian, always keep test and
+benchmark evidence in the sibling `D:\GIT\tabalyst.test` (never inside the
+checkout, never `D:\GIT.test`), for example:
 
 ```powershell
-$env:TABALYST_ARTIFACTS_DIR = 'D:\GIT.test\tabalyst\artifacts'
+$env:TABALYST_ARTIFACTS_DIR = 'D:\GIT\tabalyst.test\artifacts'
 .\.venv\Scripts\python.exe -m pytest --basetemp "$env:TABALYST_ARTIFACTS_DIR\pytest-session-1" -p no:cacheprovider
 ```
 
