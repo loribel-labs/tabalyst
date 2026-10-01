@@ -55,7 +55,6 @@ def displays(dataset_result: dict) -> list[str]:
 def inspect_document(source: Path, **settings) -> dict:
     """Inspect one source (reads it, writes nothing) and return its JSON form."""
     from tabalyst.inspector.json_inspect import inspect_source
-
     from tabalyst.scanner import ScanConfig
 
     config = ScanConfig.model_validate(settings) if settings else None
@@ -80,7 +79,6 @@ def parameters():
 def inspect_object(source: Path, **settings):
     """Like ``inspect_document`` but returns the ``InspectDocument`` model."""
     from tabalyst.inspector.json_inspect import inspect_source
-
     from tabalyst.scanner import ScanConfig
 
     config = ScanConfig.model_validate(settings) if settings else None
