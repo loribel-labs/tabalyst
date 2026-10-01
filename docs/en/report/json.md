@@ -53,8 +53,11 @@ tabalyst report data.json --collection '$.catalog.products[]'
 
 A collection is written as a path, `$.catalog.products[]`, or in the short
 form without `$` and `[]`, `catalog.products`: the keys that lead to the array.
-The root array of a file is `$[]`, or `.` in the short form. A key made of digits, such as the category in `groups.121`, is accepted as it
-is; any other key that is not a plain identifier is quoted, as in `["my key"]`. A JSON file whose only content is a single object, a
+The root array of a file is `$[]`, or `.` in the short form. A key made of
+digits, such as the category in `groups.121`, is accepted as it is; any other
+key that is not a plain identifier is quoted, as in `["my key"]`.
+
+A JSON file whose only content is a single object, a
 number or an array of plain values has no collection.
 
 To report on several collections of one file, pass `--collection` once for
