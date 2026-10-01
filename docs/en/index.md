@@ -34,26 +34,27 @@ documentation describes the latest release published on PyPI.
 | Try it step by step | [Create your first report](report/getting-started.md) |
 | See a finished report | [Examples and demos](examples.md) |
 | Report one or many CSV files | [Report CSV files](report/csv.md) |
-| Report a JSON or JSONL file | [Report JSON files](report/json.md) |
+| Report a JSON or JSONL file | [Report JSON and JSONL files](report/json.md) |
 | Choose which array of a JSON file is analyzed | [Inspect JSON and JSONL files](inspect/json.md) |
 | Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
-| Find a command or an option | [Command line reference](reference/cli.md) |
-| Use Tabalyst from Python | [Python API reference](reference/python-api.md) |
-| Read a generated JSON file in a script | [JSON profile](report/profile.md), [scan format](scan/format.md), [Inspect format](inspect/format.md) |
-| Know what is not supported yet | [Known limitations](reference/limitations.md) |
+| Find a command or an option | [Command line (CLI)](reference/cli.md) |
+| Use Tabalyst from Python | [Python API](reference/python-api.md) |
+| Read a generated JSON file in a script | [JSON profile](report/json-profile.md), [scan format](scan/format.md), [Inspect format](inspect/format.md) |
+| Know what is not supported yet | [Known limitations](about/limitations.md) |
 
 ## Sections
 
+- **Overview**: this page.
 - **Get started**: [install](install.md),
   [first report](report/getting-started.md) and
-  [examples](examples.md).
-- **Tabalyst Report**: [overview](report/index.md), CSV and JSON guides, the
-  [JSON profile](report/profile.md) and its
-  [changelog](report/profile-changelog.md).
-- **Tabalyst Inspect**: the [guide](inspect/json.md), the
-  [Inspect format](inspect/format.md) and its
+  [examples and demos](examples.md).
+- **Tabalyst Report**: [overview](report/index.md), [CSV](report/csv.md) and
+  [JSON](report/json.md) guides, the [JSON profile](report/json-profile.md) and
+  its [changelog](report/profile-changelog.md).
+- **Tabalyst Inspect**: [overview](inspect/index.md), the
+  [JSON guide](inspect/json.md), the [Inspect format](inspect/format.md) and its
   [changelog](inspect/format-changelog.md).
 - **Tabalyst Scan**: [overview](scan/index.md), the
   [guide](scan/files.md), the [scan format](scan/format.md), its
@@ -63,12 +64,12 @@ documentation describes the latest release published on PyPI.
 - **Reference**: [command line](reference/cli.md),
   [Python API](reference/python-api.md),
   [configuration](reference/configuration.md),
-  [execution history](report/history.md) and the
+  [execution history](reference/history.md) and the
   [glossary](reference/glossary.md).
-- **Project**: [concepts](project/concepts.md),
-  [known limitations](reference/limitations.md),
-  [release notes](project/release-notes.md) and
-  [support](project/contributing.md).
+- **About Tabalyst**: [concepts](about/concepts.md),
+  [known limitations](about/limitations.md),
+  [release notes](about/releases.md) and
+  [contributing and issues](about/contributing.md).
 
 ## For AI assistants
 

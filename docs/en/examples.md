@@ -46,5 +46,5 @@ Each output folder holds an HTML report, a JSON profile and a cumulative
 ## Next steps
 
 - [Create your first report](report/getting-started.md) with a file of your own.
-- [Report JSON files](report/json.md) to understand the
+- [Report JSON and JSONL files](report/json.md) to understand the
   `orders.json` and `web-events.jsonl` examples.

@@ -1,5 +1,5 @@
 ---
-title: Command line reference
+title: Command line (CLI)
 description: Every tabalyst command and option for report, scan, inspect, sample and cache, with the shared conventions for inputs, outputs, wildcards, progress and exit codes.
 ---
 

@@ -105,7 +105,7 @@ built by `tabalyst-studio` from the latest release tag) and the maintainer
 documentation. See `docs/README.md`.
 
 - `docs/en/`: user documentation, published, organized by tool:
-  `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `project/`,
+  `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `about/`,
   plus `install.md` and `examples.md` at the root. URLs follow the pattern
   `/tool/subject/` with short, stable slugs; titles can be long. The sidebar order is set in `tabalyst-studio`
   (`src/routeMiddleware.ts`); add a new page there too.

@@ -64,14 +64,14 @@ configure how to read them.
 Reports, scans, samples and Inspect read files as a stream. Memory is bounded
 by configurable limits, not by the file size. When a limit is reached, results
 show proven lower bounds instead of failing. The detail is in
-[Known limitations](../reference/limitations.md) and the
+[Known limitations](limitations.md) and the
 [configuration reference](../reference/configuration.md).
 
 ## Beta and experimental formats
 
 Tabalyst is in beta until its first stable 1.0 release. Commands and options
 may change, and the JSON formats are experimental: the
-[JSON profile](../report/profile.md), the
+[JSON profile](../report/json-profile.md), the
 [scan format](../scan/format.md) and the
 [Inspect format](../inspect/format.md) may change incompatibly between
 releases, without migration support. Each has a changelog and carries a
