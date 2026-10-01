@@ -11,8 +11,8 @@ ci-dessous.
 
 Conservez-les exactement tels quels dans toutes les langues :
 
-- les noms de produit `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report` et
-  `Tabalyst Scan` ;
+- les noms de produit `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report`,
+  `Tabalyst Scan` et `Tabalyst Inspect` ;
 - les commandes et les options, comme `tabalyst report`, `-o`, `--output-dir`
   ou `--config` ;
 - les clés et les valeurs JSON, comme `format_version`, `with_issues` ou
@@ -59,8 +59,8 @@ Conservez-les exactement tels quels dans toutes les langues :
 | scan document | document d'analyse | Le `scan.json` du projet ou un export autonome `.scan.json` écrit par `tabalyst scan` |
 | stale scan | analyse périmée | Un document d’analyse dont la source ou les paramètres ont changé depuis son écriture |
 | duplicate record | enregistrement en double | Un enregistrement égal à un enregistrement précédent de son jeu de données |
-| record | enregistrement | Une ligne CSV ou un élément d’une collection JSON |
-| collection | collection | Un tableau JSON dont les éléments sont analysés comme des enregistrements |
+| record | enregistrement | Une ligne CSV, un élément d’une collection JSON ou une ligne objet d’un fichier JSONL |
+| collection | collection | Un tableau JSON dont les éléments sont analysés comme des enregistrements ; un fichier JSONL est une seule collection, `$[]` |
 | field | champ | Une colonne CSV ou un chemin dans des enregistrements JSON, comme `orders[].amount` |
 | detector | détecteur | Une règle qui reconnaît un type de valeur, comme les adresses e-mail ou les dates |
 | interpretation | interprétation | Une signification proposée pour un champ par les détecteurs qui reconnaissent ses valeurs |
@@ -69,3 +69,15 @@ Conservez-les exactement tels quels dans toutes les langues :
 | measure envelope | enveloppe de mesure | L’enveloppe `status` qui indique si une mesure est complète ou limitée |
 | diagnostic | diagnostic | Un événement technique d’une analyse, comme un enregistrement exclu ou une limite atteinte |
 | configuration layer | couche de configuration | Un niveau de paramètres : valeurs par défaut, chaque fichier de configuration, puis options |
+| JSONL | JSONL | Un fichier avec un objet JSON par ligne, dont le nom se termine par `.jsonl` ou `.ndjson` |
+| inspect, Tabalyst Inspect | inspection, Tabalyst Inspect | L’étape qui lit une source JSON ou JSONL, trouve sa collection et écrit le fichier Inspect ; la commande est `tabalyst inspect` |
+| Inspect file | fichier Inspect | Le fichier `<source>-inspect.json` placé à côté d’une source, avec la détection et la `config` que vous pouvez modifier |
+| detection | détection | La section d’un fichier Inspect qui décrit ce qu’Inspect a trouvé |
+| candidate collection | collection candidate | Un tableau qu’Inspect pourrait analyser comme le jeu de données d’une source |
+| eligible candidate | candidat éligible | Une collection candidate qui a au moins un élément, tous étant des objets |
+| selection | sélection | La collection qu’Inspect propose, ou aucune |
+| ambiguous selection, unresolved selection | sélection ambiguë, sélection non résolue | Plusieurs collections sont aussi plausibles les unes que les autres, ou aucune n’est utilisable : rien n’est sélectionné et `tabalyst scan` et `tabalyst report` s’arrêtent |
+| flatten | aplatissement | Lire les objets imbriqués comme des champs nommés par leur chemin, comme `address.city` |
+| complex value | valeur complexe | Un objet ou un tableau conservé entier au lieu d’être développé en champs |
+| error policy | politique d'erreurs | `strict` ou `tolerant` : un enregistrement mal formé arrête l’analyse ou est exclu |
+| partial scan | analyse partielle | Une analyse de statut `partial`, qui a exclu des enregistrements sous la politique `tolerant` |

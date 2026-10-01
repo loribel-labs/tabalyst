@@ -2,6 +2,23 @@
 
 ## 2026-10-01
 
+- JSON Inspect, lot JI-9-fr (French translation): `docs/fr/` brought in line
+  with `docs/en/` for the 13 pages of JI-9. New pages
+  `how-to/inspect-json-files.md`, `reference/inspect-format.md` and
+  `reference/inspect-format-changelog.md`; updated `index`, `scan-files`,
+  `report-json-files`, `configuration`, `glossary` (new Inspect terms),
+  `known-limitations`, `scan-format`, `scan-format-changelog`,
+  `profile-format-changelog` and `json-profile`. The French pages lagged further
+  than JI-9: they were also caught up on earlier English changes (profile
+  revisions 6 to 9 and the `normalization`, `scan_details`, `limits` and
+  `structure` sections, scan revisions 3 and 4, adaptive detection settings,
+  `--workers`, the report structure section). Checked EN/FR parity on headings,
+  code fences and code spans. Console output and messages stay in English, as
+  the CLI prints them. Findings left for JI-10 in the English pages:
+  `json-profile.md` still says revision `9` (the profile is at 10), and the
+  `errors.policy` bullet of `configuration.md` follows a paragraph that splits
+  the list. No code touched. Nothing committed.
+
 - JSON Inspect, lot JI-9 (consolidated English documentation, README):
   new `docs/en/how-to/inspect-json-files.md`, `reference/inspect-format.md` and
   `reference/inspect-format-changelog.md` (revision 1, including

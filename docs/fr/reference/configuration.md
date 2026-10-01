@@ -132,6 +132,7 @@ l’infobulle liste les valeurs masquées.
 | Valeurs masquées | `scan.exposure.sensitive_values` |
 | Aperçu | `scan.records.preview` |
 | Lignes en double | `scan.records.duplicates` et `scan.limits.max_tracked_records` |
+| Limites et diagnostics | `scan.limits` et `scan.errors` |
 
 - **Dates.** Une colonne dont les valeurs présentes sont des dates est `date`,
   même avec plusieurs formats ou des valeurs ambiguës. Les valeurs ambiguës
@@ -219,8 +220,10 @@ défaut est :
 {
   "scan": {
     "csv": {"encoding": "utf-8-sig", "delimiter": ","},
-    "json": {"collections": null, "discovery_max_depth": 3},
-    "errors": {"policy": "strict", "max_locations": 10},
+    "json": {"collections": null, "discovery_max_depth": 3,
+             "flatten": {"enabled": true, "separator": ".", "max_depth": null},
+             "arrays": {"mode": "preserve"}},
+    "errors": {"policy": null, "max_locations": 10},
     "values": {
       "null_markers": [],
       "null_markers_case_sensitive": true,
@@ -232,6 +235,7 @@ défaut est :
     },
     "limits": {
       "max_fields": 10000, "max_depth": 64, "max_record_observations": 100000,
+      "max_line_bytes": 16777216,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 100, "max_variant_groups": 100,
@@ -240,7 +244,10 @@ défaut est :
     },
     "records": {"preview": 10, "duplicates": true},
     "types": {"minimum_confidence": 0.95},
-    "detection": {"minimum_share": 0.95},
+    "detection": {
+      "minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
+      "rare_share": 0.001
+    },
     "detectors": {"number": {"enabled": true}},
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
@@ -256,8 +263,11 @@ niveau : indiquez le séparateur et l’encodage dans `scan.csv`, ou passez
 ### Couches et règles de fusion
 
 De la priorité la plus basse à la plus haute : les valeurs par défaut
-intégrées, l’objet `scan` de chaque fichier `--config` dans l’ordre indiqué,
-puis `--delimiter`, `--encoding` et `--collection`.
+intégrées, pour une source JSON sans fichier Inspect la collection
+qu’[Inspect](../how-to/inspect-json-files.md) détecte, l’objet `scan` de chaque
+fichier `--config` dans l’ordre indiqué, la `config` du
+[fichier Inspect](inspect-format.md#config) à côté de la source, puis
+`--delimiter`, `--encoding` et `--collection`.
 
 - Les objets fusionnent clé par clé, y compris `detectors.<id>` : un fichier qui
   définit `{"detectors": {"number": {"enabled": false}}}` conserve les autres
@@ -269,23 +279,57 @@ puis `--delimiter`, `--encoding` et `--collection`.
   syntaxe pour supprimer un paramètre.
 
 Le document d’analyse intègre la configuration effective et son SHA-256
-(`config_sha256`).
+(`config_sha256`). Une analyse stockée n’est réutilisée que si le contenu de la
+source, cette configuration et la version de Tabalyst sont tous identiques.
 
 ### Sources et erreurs
 
 - `csv.encoding`, `csv.delimiter` : comme pour les rapports. Le premier
   enregistrement est l’en-tête.
-- `json.collections` : `null` pour la découverte automatique, ou une liste de
-  chemins de collection absolus comme `"$.customers[]"` ou
-  `"$.customers[].orders[]"`. Les chemins doivent se terminer par `[]`, être
-  uniques et ne pas se contenir les uns les autres.
-- `json.discovery_max_depth` : la profondeur jusqu’à laquelle la découverte
-  automatique cherche des tableaux sous un objet racine.
-- `errors.policy` : `strict` s’arrête au premier enregistrement mal formé, comme
-  un enregistrement CSV avec un mauvais nombre de champs ou un objet JSON avec
-  une clé en double. `tolerant` exclut ces enregistrements, les compte et marque
-  l’analyse `partial`. Une syntaxe invalide, un texte impossible à décoder et un
-  fichier illisible arrêtent l’analyse avec les deux politiques.
+- `json.collections` : pour les fichiers JSON, une liste de chemins de
+  collection absolus comme `"$.customers[]"` ou `"$.customers[].orders[]"`. Les
+  chemins doivent se terminer par `[]`, être uniques et ne pas se contenir les
+  uns les autres, et sont stockés dans leur écriture canonique (`$["orders"][]`
+  devient `$.orders[]`). `null` signifie qu’aucune collection n’est nommée :
+  `tabalyst scan` et `tabalyst report` utilisent alors la collection
+  qu’[Inspect](../how-to/inspect-json-files.md) sélectionne, ou s’arrêtent avec
+  le code de sortie `2` quand il ne peut pas en sélectionner une. Seule
+  `tabalyst.scan()` transforme `null` en découverte automatique de tous les
+  tableaux. Pour un fichier JSONL, c’est `null` ou `["$[]"]`. Un fichier qui
+  liste `json.collections` est partagé par les sources de tous les formats ; il
+  est donc ignoré pour les sources JSONL d’un lot mixte.
+- `json.discovery_max_depth` : la profondeur jusqu’à laquelle Inspect, et la
+  découverte automatique, cherchent des tableaux sous un objet racine.
+- `json.flatten` : comment les objets imbriqués deviennent des champs. `enabled`
+  (`true` par défaut) ; `separator` (`.` par défaut) joint les clés d’un nom de
+  champ comme `address.city` ; c’est un caractère qui n’est ni une lettre, ni un
+  chiffre, ni `_`, ni un espace, ni l’un des caractères `[ ] " \ $`.
+  `max_depth` (`null` par défaut, sans limite) compte les segments depuis la
+  racine de l’enregistrement, une clé ou `[]` pour chacun : `address` vaut 1,
+  `address.city` vaut 2, `orders[].amount` vaut 3. Un conteneur (objet ou
+  tableau) à cette profondeur est conservé entier comme valeur complexe et son
+  contenu n’est pas analysé : rien n’est perdu, aucun avertissement n’est levé,
+  et le rapport l’affiche comme une colonne de type `complex`. `enabled: false`
+  équivaut à une profondeur de 1. Le séparateur ne change que les noms affichés :
+  une clé qui le contient s’écrit `["a/b"]`, et les chemins de jeux de données
+  comme `$.customers[]` utilisent toujours `.`. Ce n’est pas `limits.max_depth`,
+  qui protège le lecteur et tronque avec un avertissement. Le contenu situé sous
+  la profondeur d’aplatissement n’est pas lu pour détecter les clés en double.
+- `json.arrays` (`mode`, seulement `preserve`) : les tableaux n’ajoutent jamais
+  d’enregistrements. `ignore` et `explode` sont refusés.
+
+Les paramètres `json.collections`, `json.flatten`, `json.arrays` et
+`errors.policy` sont ceux qu’un [fichier Inspect](inspect-format.md#config)
+modifie, sous les noms `structure.dataset_path`, `flatten`, `arrays` et
+`errors.policy`.
+- `errors.policy` : `null` (par défaut) est la valeur par défaut du format de la
+  source, `strict` pour CSV et JSON, `tolerant` pour JSONL. `strict` s’arrête au
+  premier enregistrement mal formé, comme un enregistrement CSV avec un mauvais
+  nombre de champs, un objet JSON avec une clé en double ou une ligne JSONL qui
+  n’est pas du JSON valide. `tolerant` exclut ces enregistrements, les compte et
+  marque l’analyse `partial`. Une syntaxe invalide dans un fichier JSON, un
+  texte impossible à décoder et un fichier illisible arrêtent l’analyse avec les
+  deux politiques.
 - `errors.max_locations` : combien d’emplacements d’enregistrements chaque
   diagnostic liste.
 
@@ -320,6 +364,7 @@ supérieures au maximum sont rejetées avant le début de l’analyse.
 | `max_fields` | 10 000 | 1 000 000 | Les nouveaux chemins de champ d’un jeu de données sont comptés mais pas analysés. |
 | `max_depth` | 64 | 1 000 | Le contenu JSON plus profond est compté mais pas analysé. |
 | `max_record_observations` | 100 000 | 100 000 000 | L’enregistrement est une erreur, ou est exclu avec `tolerant`. |
+| `max_line_bytes` | 16 777 216 (16 Mio) | 268 435 456 (256 Mio) | JSONL seulement : une ligne plus longue n’est pas analysée. C’est une erreur, ou la ligne est exclue avec `tolerant`. La mémoire nécessaire pour analyser une ligne vaut environ 7 à 13 fois sa taille. |
 | `max_distinct_per_field` | 100 000 | 50 000 000 | Les valeurs distinctes du champ ne sont plus stockées ; les fréquences et la cardinalité deviennent limitées. |
 | `max_tracked_values` | 2 000 000 | 500 000 000 | Valeurs distinctes stockées pour toute l’analyse ; le champ le plus volumineux est libéré en premier. |
 | `max_stored_value_length` | 1 000 | 1 000 000 | Les valeurs plus longues sont comptées, pas stockées. |
@@ -353,6 +398,36 @@ fois une limite atteinte.
   `mixed`.
 - `detection.minimum_share` : part des valeurs qu’un détecteur doit reconnaître
   pour devenir une interprétation candidate du champ.
+- `detection.warmup_values` : 10 000 par défaut, jusqu’à 1 000 000. Les
+  premières valeurs distinctes de chaque champ passent par tous les détecteurs.
+  Un détecteur qui n’en a reconnu aucune, pas même comme invalide ou ambiguë,
+  est ensuite ignoré pour les autres valeurs du champ, qui comptent comme
+  `not_tested` dans sa couverture. `number` et `date` ne sont jamais ignorés. Un
+  champ avec moins de valeurs distinctes est toujours analysé par tous les
+  détecteurs. Réglez-le sur `0` pour tester chaque valeur avec chaque
+  détecteur, comme avant l’existence de ce paramètre.
+- `detection.rare_share` : 0,001 par défaut, de 0 à 1. Un détecteur qui a reconnu
+  au plus cette part des valeurs de chauffe, et aucune de celles de la seconde
+  moitié de la chauffe, est lui aussi ignoré : ses reconnaissances étaient rares
+  et ont cessé. La valeur par défaut autorise 10 valeurs d’une chauffe de
+  10 000 valeurs. Un détecteur qui reconnaît encore des valeurs à la fin de la
+  chauffe est conservé, comme dans une colonne triée où les correspondances
+  deviennent fréquentes, tout comme un détecteur sensible qui n’a trouvé que des
+  valeurs invalides. `0` n’ignore que les détecteurs qui n’ont rien reconnu.
+- `detection.probe_interval` : 100 par défaut, jusqu’à 1 000 000. Après la
+  chauffe, environ une valeur distincte sur ce nombre, choisie par une empreinte
+  de la valeur, passe encore par tous les détecteurs. L’analyse signale un
+  avertissement `detector_skipped_reacted`, qui signifie que les comptages d’un
+  détecteur ignoré pour le champ sont incomplets, quand il reconnaît l’un de ces
+  sondages après n’avoir rien reconnu pendant la chauffe, ou, pour un détecteur
+  rare, quand il reconnaît au moins 10 valeurs sondées, plus souvent que
+  `detection.rare_share` ne le permet. `0` désactive les sondages.
+
+Un détecteur ignoré après la chauffe peut manquer des valeurs rares qui
+apparaissent plus loin dans le fichier, y compris des valeurs sensibles comme
+une adresse e-mail dans une colonne de commentaires : une telle valeur ne
+serait pas masquée. Réglez `detection.warmup_values` sur `0` quand chaque valeur
+sensible doit être trouvée.
 
 ### Détecteurs
 

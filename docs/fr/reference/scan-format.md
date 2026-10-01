@@ -6,7 +6,7 @@ description: Structure du document JSON écrit par tabalyst scan, avec son nivea
 `tabalyst scan data.csv` écrit par défaut un `scan.json` réutilisable ;
 `-o` et `-d` exportent un document autonome `<stem>.scan.json`. Ces
 documents JSON décrivent chaque champ de la source. Cette page décrit le format
-`tabalyst.scan`, version `0.1.0a`, révision `4`. Le format est **expérimental** : il peut changer de
+`tabalyst.scan`, version `0.1.0a`, révision `5`. Le format est **expérimental** : il peut changer de
 manière incompatible d’une version à l’autre. Vérifiez toujours d’abord
 `format`, `format_version` et `format_revision` ; les changements sont listés
 dans le [journal des modifications du format d’analyse](scan-format-changelog.md).
@@ -17,7 +17,7 @@ dans le [journal des modifications du format d’analyse](scan-format-changelog.
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 4,
+  "format_revision": 5,
   "engine": {
     "version": "0.4.4",
     "normalization_version": 1,
@@ -64,15 +64,23 @@ dans le [journal des modifications du format d’analyse](scan-format-changelog.
   est le SHA-256 de son JSON canonique (clés triées, sans espaces, UTF-8) : deux
   analyses ayant la même valeur ont utilisé les mêmes paramètres.
 - `scope` : les enregistrements lus, analysés et exclus, avec les exclusions
-  comptées par motif (`width_mismatch`, `duplicate_key`, `record_too_large`).
-  `collections` vaut `null` pour le CSV ; pour le JSON, il donne le `mode`
-  (`auto` ou `explicit`) et les chemins de collection demandés (`requested`).
+  comptées par motif (`width_mismatch`, `duplicate_key`, `record_too_large`, et
+  pour JSONL `invalid_line`, `not_object` et `line_too_long`).
+  `collections` vaut `null` pour le CSV et JSONL ; pour le JSON, il donne le
+  `mode` (`auto` ou `explicit`) et les chemins de collection demandés
+  (`requested`).
 
 ## Jeux de données
 
 Une source CSV a un seul jeu de données, `rows`. Une source JSON a un jeu de
 données par collection d’enregistrements, et un jeu de données `document`
-lorsque sa racine n’est pas un tableau.
+lorsque sa racine n’est pas un tableau et que les collections ont été
+découvertes automatiquement (`mode` `auto`). Une source JSONL a un seul jeu de
+données, `$[]`. Les commandes choisissent la collection avec
+[Inspect](../how-to/inspect-json-files.md) et la nomment explicitement : une
+analyse faite par `tabalyst scan` ou `tabalyst report` a donc le `mode`
+`explicit` et pas de jeu de données `document` ; seule `tabalyst.scan()` sans
+`json.collections` découvre des collections.
 
 ```json
 {
@@ -153,7 +161,7 @@ Les champs sont listés dans l’ordre de leur découverte. Un champ est un chem
 
 | Clé | Contenu |
 | --- | --- |
-| `id`, `path`, `display`, `name`, `parent` | Identité : un identifiant comme `f4`, le chemin sous forme de segments, sa forme lisible comme `orders[].amount`, le dernier segment et l’identifiant du champ parent. |
+| `id`, `path`, `display`, `name`, `parent` | Identité : un identifiant comme `f4`, le chemin sous forme de segments, sa forme lisible comme `orders[].amount` (clés jointes avec `json.flatten.separator`), le dernier segment et l’identifiant du champ parent. |
 | `collection` | Pour un tableau JSON promu en jeu de données propre, l’identifiant de ce jeu de données. |
 | `first_record`, `occurrences` | Le premier enregistrement ayant une valeur, et le nombre de valeurs à ce chemin. |
 | `presence` | `parent_count`, `present` et `absent` : à quelle fréquence le champ existe là où il pourrait exister. |
@@ -217,7 +225,8 @@ sur une mesure.
   },
   "formats": [{"format": "0", "count": 1}, {"format": "0.0", "count": 1}],
   "evidence": {"matched": ["12.50", "7"], "ambiguous": [], "invalid": [], "not_matched": []},
-  "details": {}
+  "details": {},
+  "adaptive": null
 }
 ```
 
@@ -233,6 +242,17 @@ Chaque détecteur est listé pour chaque champ, avec le statut `complete`,
 - `evidence` : les premières valeurs distinctes dans chaque état.
 - `details` : des comptages propres au détecteur, comme les domaines des
   adresses e-mail ou les indices d’ambiguïté.
+- `adaptive` : `null` quand le détecteur a testé chaque valeur du champ. Quand il
+  n’a reconnu aucune des `detection.warmup_values` premières valeurs distinctes,
+  ou au plus `detection.rare_share` d’entre elles et aucune dans la seconde
+  moitié de cette chauffe, il est ignoré pour les autres valeurs, sauf les
+  sondages, et `adaptive` vaut
+  `{"skipped_after": 10000, "warmup_reactions": 0, "not_tested": 1200, "diagnostic": null}` :
+  la taille de la chauffe, les valeurs de chauffe qu’il a reconnues, les valeurs
+  qu’il n’a pas testées (incluses dans `coverage.not_tested`), et l’index d’un
+  avertissement `detector_skipped_reacted` quand des sondages ont été reconnus
+  plus souvent que la chauffe ne le permettait, ce qui signifie que ses
+  comptages sont incomplets. `number` et `date` ne sont jamais ignorés.
 
 Les détecteurs intégrés sont `number`, `date`, `boolean`, `enumeration`,
 `email`, `url`, `phone`, `postal_code`, `currency`, `percentage`, `quantity`,
@@ -275,4 +295,6 @@ données : enregistrements exclus, limites atteintes (`field_limit`,
 `depth_limit`, `measures_limited`, `global_budget`, `record_budget`),
 collections introuvables et échecs de détecteurs. `level` vaut `error` ou `warning`. `count` est toujours
 complet ; `locations` liste au plus `errors.max_locations` emplacements, avec
-`record` et `line` pour le CSV, `record` et `element` pour le JSON.
+`record` et `line` pour le CSV et JSONL, `record` et `element` pour le JSON.
+Pour JSONL, `line` est le numéro de ligne physique, lignes vides comprises, et
+`record` compte les lignes non vides.
