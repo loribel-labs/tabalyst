@@ -41,6 +41,7 @@ ROOT: FieldPath = ()
 ROOT_DISPLAY = "$"
 
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_NUMERIC_KEY = re.compile(r"[A-Za-z0-9_]+")
 _DECODER = json.JSONDecoder()
 
 
@@ -92,19 +93,23 @@ def format_relative(path: FieldPath, separator: str = ".") -> str:
     return _segments_display(path, leading=True, separator=separator)
 
 
-def parse_path(text: str, *, separator: str = ".") -> FieldPath:
+def parse_path(
+    text: str, *, separator: str = ".", numeric_keys: bool = False
+) -> FieldPath:
     """Parse the absolute (``$...``) or relative display syntax into segments.
 
     ``separator`` applies to relative texts only: an absolute path (starting
-    with ``$``) always uses ``.``.
+    with ``$``) always uses ``.``. With ``numeric_keys``, a bare key may start
+    with a digit, such as ``categories.121``.
     """
+    key = _NUMERIC_KEY if numeric_keys else _IDENTIFIER
     position = 0
     segments: list[Segment] = []
     if text.startswith(ROOT_DISPLAY):
         position = 1
         separator = "."
     elif text:
-        identifier = _IDENTIFIER.match(text)
+        identifier = key.match(text)
         if identifier is not None:
             segments.append(Key(identifier.group()))
             position = identifier.end()
@@ -116,7 +121,7 @@ def parse_path(text: str, *, separator: str = ".") -> FieldPath:
     while position < len(text):
         if text.startswith(separator, position):
             start = position + len(separator)
-            identifier = _IDENTIFIER.match(text, start)
+            identifier = key.match(text, start)
             if identifier is None:
                 raise ValueError(
                     f"Invalid path {text!r}: expected a key at position {start}"

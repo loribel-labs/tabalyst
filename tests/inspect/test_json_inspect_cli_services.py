@@ -154,7 +154,12 @@ def test_collection_short_form_is_a_path_without_dollar_and_brackets():
         "$.data.items[]",
         "$.a[]",
     ]
+    assert collection_paths([".", "[]"]) == ["$[]", "$[]"]
     assert collection_paths(['["a.b"]']) == ['$["a.b"][]']
+    assert collection_paths(["groups.121", "121.items"]) == [
+        '$.groups["121"][]',
+        '$["121"].items[]',
+    ]
     assert collection_paths(None) is None
 
 
