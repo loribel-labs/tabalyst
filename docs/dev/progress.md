@@ -1,5 +1,15 @@
 # Development progress
 
+## 2026-10-01 (report theme modes)
+
+- The report theme button now cycles auto (system preference, the new default),
+  light and dark, with one icon per mode. `data-theme` stays the resolved theme;
+  `data-theme-mode` holds the choice. The stored `tabalyst-theme` value is
+  `light` or `dark`; auto removes it. Demos regenerated.
+- `tabalyst-studio` (docs site): new menu and labels, redirects from the old
+  URLs, EN | FR switch, auto/light/dark icon button, footer modelled on
+  tabalyst.com, French banner. The tabalyst.com demo stays dark.
+
 ## 2026-10-01 (documentation menu restructure)
 
 - Moved `project/` to `about/` (`concepts`, `limitations`, `releases`,

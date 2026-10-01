@@ -4,22 +4,31 @@
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
 
-  /* theme */
+  /* theme: auto (system preference) -> light -> dark */
   const themeBtn = $('#theme-toggle');
-  const setTheme = (t) => {
-    root.dataset.theme = t;
+  const modes = ['auto', 'light', 'dark'];
+  const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  const setMode = (m) => {
+    root.dataset.themeMode = m;
+    root.dataset.theme = m === 'auto' ? (media && media.matches ? 'light' : 'dark') : m;
     if (themeBtn) {
-      const next = t === 'dark' ? 'light' : 'dark';
-      themeBtn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
-      themeBtn.title = 'Switch to ' + next + ' theme';
-      $$('[data-icon]', themeBtn).forEach((el) => { el.toggleAttribute('hidden', el.dataset.icon !== t); });
+      const label = 'Theme: ' + (m === 'auto' ? 'auto (system)' : m) + '. Click to change.';
+      themeBtn.setAttribute('aria-label', label);
+      themeBtn.title = label;
+      $$('[data-icon]', themeBtn).forEach((el) => { el.toggleAttribute('hidden', el.dataset.icon !== m); });
     }
   };
-  setTheme(root.dataset.theme || 'dark');
+  setMode(root.dataset.themeMode || 'auto');
+  media && media.addEventListener && media.addEventListener('change', () => {
+    if (root.dataset.themeMode === 'auto') setMode('auto');
+  });
   themeBtn && themeBtn.addEventListener('click', () => {
-    const t = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    setTheme(t);
-    try { localStorage.setItem('tabalyst-theme', t); } catch (e) { /* storage unavailable */ }
+    const m = modes[(modes.indexOf(root.dataset.themeMode) + 1) % modes.length];
+    setMode(m);
+    try {
+      if (m === 'auto') localStorage.removeItem('tabalyst-theme');
+      else localStorage.setItem('tabalyst-theme', m);
+    } catch (e) { /* storage unavailable */ }
   });
 
   /* print: show every section */
