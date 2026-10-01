@@ -9,10 +9,37 @@ published release lifts them.
 
 ## Input
 
-- **CSV and JSON only.** `tabalyst report` and `tabalyst scan` read CSV and
-  JSON files; `tabalyst sample` reads CSV files only. Excel
-  workbooks, JSON Lines, XML, Parquet and databases are not supported; export
+- **CSV, JSON and JSONL only.** `tabalyst report` and `tabalyst scan` read CSV,
+  JSON and JSONL files (`.jsonl`, `.ndjson`); `tabalyst inspect` reads JSON and
+  JSONL files; `tabalyst sample` reads CSV files only. Excel workbooks, XML,
+  GeoJSON, compressed JSON, Parquet and databases are not supported; export
   them to CSV first.
+- **One collection per JSON source by default.** Tabalyst analyzes the one
+  collection of records that [Inspect](../how-to/inspect-json-files.md) selects.
+  When several arrays are equally plausible, `scan` and `report` stop until you
+  choose one with `--collection` or in the Inspect file. A JSON file that is a
+  single object, a scalar or an array of plain values has no collection and is
+  not turned into a one-row dataset. Inspect looks for arrays only through
+  object keys, at most `scan.json.discovery_max_depth` (3) deep, and when it
+  finds more than 100 it selects none. The relations between collections are not
+  analyzed.
+- **Inspect selects by size, not by name.** A collection is selected on its own
+  when it is the only array of objects, or has at least 10 times more elements
+  than the next one. A large table next to a much larger one, as in a relational
+  export, can be selected without being the one you want: check the `selection`
+  in the Inspect file.
+- **Inspect observes the first records.** Its fields, depths and nesting come
+  from the first 1,000 records of each collection; a field that appears later is
+  found by the scan, not listed in the Inspect file. Inspect reads the whole
+  source, so its time grows with the file size; on synthetic benchmarks, roughly
+a tenth of the time of a scan.
+- **No array explosion, no JSONPath.** Arrays never add records
+  (`arrays.mode` is `preserve`), and collection paths use a limited syntax: keys
+  from the root, ending with `[]`.
+- **Inspect is for JSON and JSONL.** `tabalyst inspect` refuses CSV files.
+  On Windows, wildcards such as `*.json` are expanded before Tabalyst sees
+  them, so they also pass the Inspect files and the command is refused: name
+  the sources.
 - **JSON reports show scalar fields.** A JSON report lists the fields holding
   strings, numbers, booleans or nulls; the structure of objects and arrays
   (nesting, array lengths) appears only in `tabalyst scan` results. A record
@@ -20,6 +47,14 @@ published release lifts them.
   values, not for absent fields.
 - **JSON integers.** Integers of more than 4,300 digits, the Python limit, make
   a JSON file invalid.
+- **Invalid JSON stops everything.** A syntax error anywhere in a `.json` file,
+  even after the records Inspect observed, fails the inspection and the scan:
+  Tabalyst does not recover a damaged document. In a JSONL file, only the
+  affected lines are excluded.
+- **JSONL lines.** A line is read as UTF-8 and parsed as a whole, up to
+  `scan.limits.max_line_bytes` (16 MiB, at most 256 MiB); parsing a line needs
+  about 7 to 13 times its size in memory. A file of compressed or non-UTF-8
+  text is not read.
 - **One header row.** The first record is always the header.
 - **Strict structure.** A record with too few or too many fields, or a blank
   line inside the data, stops the analysis of that file with an error.
@@ -72,10 +107,16 @@ published release lifts them.
 
 ## Output and interfaces
 
-- **Experimental JSON formats.** The [JSON profile](json-profile.md) and the
-  [scan format](scan-format.md) may change incompatibly between releases. No
-  migration tool is provided. Check `format_version` and `format_revision`
-  before reading a profile or a scan.
+- **Experimental JSON formats.** The [JSON profile](json-profile.md), the
+  [scan format](scan-format.md) and the [Inspect format](inspect-format.md) may
+  change incompatibly between releases. No migration tool is provided: an
+  Inspect file of another version is refused, and `tabalyst inspect --force`
+  writes a new one. Check `format_version` and `format_revision` before reading
+  a profile, a scan or an Inspect file.
+- **Inspect files are yours to keep.** `tabalyst scan` and `tabalyst report`
+  never write or change the Inspect file beside a source; only
+  `tabalyst inspect` does. A source whose own name ends in `-inspect.json`
+  cannot be used until renamed.
 - **Changing commands.** Commands and options may change incompatibly while
   Tabalyst is in beta. Update often with `pip install --upgrade tabalyst`: this
   documentation describes the latest release.

@@ -25,26 +25,35 @@ tabalyst report events.jsonl
 This creates `events.report.html` and `events.report.json`. A line that is not
 valid JSON, is not an object, holds an object with a duplicate key or is longer
 than `scan.limits.max_line_bytes` is excluded and counted; the report lists it
-in its *excluded records* issue, with the physical line numbers. Set
-`scan.errors.policy` to `strict` to stop at the first such line instead. Blank
+in its *excluded records* issue, with the physical line numbers. The report
+is then partial and the command prints a warning. Set `errors.policy` to
+`strict`, in the `config` of an [Inspect file](inspect-json-files.md#jsonl-and-ndjson-files)
+or in `scan.errors.policy`, to stop at the first such line instead. Blank
 lines are ignored, and a file without any record line is an error.
 
-## Datasets
+## Dataset
 
-Tabalyst finds the records of the file as `tabalyst scan` does: a top-level
-array is one collection, and in a top-level object every array reachable
-through objects, such as `customers` in `{"customers": [...]}`, is a
-collection. Each collection is a dataset of the report, such as
-`$.customers[]`. The values of the document outside the collections form the
-dataset `$`, shown only when there are some.
+The report analyzes one **collection** of records, chosen by
+[Tabalyst Inspect](inspect-json-files.md): a top-level array, or an array inside
+a top-level object, such as `customers` in `{"customers": [...]}`. It is the
+dataset of the report, such as `$.customers[]`. When the source has no Inspect
+file, Tabalyst inspects it by itself and uses the collection it selects. The
+values outside the collection are not analyzed.
 
-When the file has several datasets, a **Dataset** selector in the report
-navigation switches between them. Each dataset has its own overview, columns,
-issues and data sample.
+When several arrays are equally plausible, or the file has no collection of
+objects, the report stops with exit code `2` before analyzing anything and lists
+the candidates. Run `tabalyst inspect data.json` and set
+`config.structure.dataset_path` in the file it writes, or pass the collection
+with `--collection`. A JSON file whose only content is a single object, a
+number or an array of plain values has no collection.
 
-To choose the collections, list them in the `scan.json.collections` setting of
-a [configuration file](../reference/configuration.md) passed with `--config`.
-See [Scan CSV and JSON files](scan-files.md) for how collections are found.
+To report on several collections of one file, pass `--collection` once for
+each, or list them in the `scan.json.collections` setting of a
+[configuration file](../reference/configuration.md) passed with `--config`. The
+report then has one dataset per collection, and a **Dataset** selector in the
+report navigation switches between them. Each dataset has its own overview,
+columns, issues and data sample. Rules set in the Inspect file, such as the
+flatten depth, apply to the source whichever way the collections are chosen.
 
 ## Columns
 
@@ -57,8 +66,9 @@ its path from the record:
 | `{"tags": ["a", "b"]}` | `tags[]` |
 | `{"orders": [{"total": 3}]}` | `orders[].total` |
 
-Objects and arrays themselves are not columns, unless the scan setting
-`json.flatten.max_depth` keeps them whole: at that depth, an object or an array
+Objects and arrays themselves are not columns, unless the flatten depth
+(`config.flatten.max_depth` of the Inspect file, or the scan setting
+`json.flatten.max_depth`) keeps them whole: at that depth, an object or an array
 is one column of type `complex` and its content is not analyzed. A field absent from a record is
 missing, like a null or an empty string. In the data sample, an absent field
 shows `absent`, and the values of a field under an array are joined with `, `.

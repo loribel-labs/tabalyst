@@ -1,0 +1,4979 @@
+{
+  "format_version": "0.1.0a",
+  "format_revision": 10,
+  "generated_at": "2026-10-01T05:28:53.767787Z",
+  "processing_seconds": 0.2892,
+  "source": {
+    "filename": "web-events.jsonl",
+    "format": "jsonl",
+    "size_bytes": 69328,
+    "sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
+    "encoding": "utf-8",
+    "delimiter": null
+  },
+  "config": {
+    "string_analysis": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255,
+      "length_distribution_max_length": 50,
+      "examples_per_length": 10
+    },
+    "value_examples": {
+      "full_distribution_max_distinct": 50,
+      "short_text_max_length": 20,
+      "short_text_percentile": 0.95,
+      "short_text_result_size": 20,
+      "long_text_result_size": 20,
+      "long_text_truncate_at": 30,
+      "truncation_suffix": "...",
+      "inline_display_size": 3
+    },
+    "scan": {
+      "csv": {
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      },
+      "json": {
+        "collections": null,
+        "discovery_max_depth": 3,
+        "flatten": {
+          "enabled": true,
+          "separator": ".",
+          "max_depth": null
+        },
+        "arrays": {
+          "mode": "preserve"
+        }
+      },
+      "errors": {
+        "policy": "tolerant",
+        "max_locations": 10
+      },
+      "values": {
+        "null_markers": [
+          "N/A",
+          "NULL"
+        ],
+        "null_markers_case_sensitive": true,
+        "missing": [
+          "absent",
+          "null",
+          "empty",
+          "blank",
+          "marker"
+        ]
+      },
+      "normalization": {
+        "nfc": true,
+        "trim": true,
+        "collapse_whitespace": true,
+        "casefold": true,
+        "strip_accents": true
+      },
+      "limits": {
+        "max_fields": 10000,
+        "max_depth": 64,
+        "max_record_observations": 100000,
+        "max_line_bytes": 16777216,
+        "max_distinct_per_field": 100000,
+        "max_tracked_values": 2000000,
+        "max_stored_value_length": 1000,
+        "max_listed_frequencies": 100,
+        "max_samples": 100,
+        "max_variant_groups": 100,
+        "max_variants_per_group": 20,
+        "max_evidence_examples": 10,
+        "max_tracked_records": 2000000,
+        "max_listed_records": 10
+      },
+      "records": {
+        "preview": 20,
+        "duplicates": true
+      },
+      "types": {
+        "minimum_confidence": 0.95
+      },
+      "detection": {
+        "minimum_share": 0.95,
+        "warmup_values": 10000,
+        "probe_interval": 100,
+        "rare_share": 0.001
+      },
+      "detectors": {
+        "number": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "date": {
+          "enabled": true,
+          "orders": [
+            "YMD",
+            "MDY",
+            "DMY"
+          ],
+          "separators": [
+            "-",
+            "/",
+            "."
+          ],
+          "ambiguous_order": null,
+          "month_languages": [
+            "en",
+            "fr"
+          ]
+        },
+        "boolean": {
+          "enabled": true,
+          "pairs": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ],
+            [
+              "y",
+              "n"
+            ],
+            [
+              "oui",
+              "non"
+            ],
+            [
+              "vrai",
+              "faux"
+            ]
+          ]
+        },
+        "enumeration": {
+          "enabled": true,
+          "minimum_values": 500,
+          "maximum_distinct": 49,
+          "case_sensitive": true
+        },
+        "email": {
+          "enabled": true,
+          "max_tracked_domains": 10000,
+          "max_listed_domains": 20
+        },
+        "url": {
+          "enabled": true,
+          "schemes": [
+            "http",
+            "https",
+            "ftp"
+          ],
+          "www": true,
+          "max_tracked_hosts": 10000,
+          "max_listed_hosts": 20
+        },
+        "phone": {
+          "enabled": true,
+          "regions": [
+            "nanp",
+            "fr"
+          ]
+        },
+        "postal_code": {
+          "enabled": true,
+          "regions": [
+            "ca",
+            "us"
+          ]
+        },
+        "currency": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "percentage": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "quantity": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null,
+          "max_tracked_units": 10000,
+          "max_listed_units": 20
+        },
+        "uuid": {
+          "enabled": true
+        },
+        "ip_address": {
+          "enabled": true,
+          "versions": [
+            "ipv4",
+            "ipv6"
+          ]
+        }
+      },
+      "patterns": [],
+      "exposure": {
+        "sensitive_values": "mask"
+      },
+      "random_seed": 42
+    }
+  },
+  "datasets": [
+    {
+      "id": "$[]",
+      "kind": "collection",
+      "summary": {
+        "row_count": 300,
+        "column_count": 14,
+        "cell_count": 4350,
+        "missing_count": 1220,
+        "missing_percent": 28.05,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 0,
+        "duplicate_row_count": 0,
+        "duplicate_row_status": "complete",
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 1,
+        "with_issues_column_count": 6,
+        "numeric_column_count": 3,
+        "date_column_count": 1,
+        "string_column_count": 10,
+        "inferred_type_counts": {
+          "text": 10,
+          "integer": 2,
+          "boolean": 1,
+          "number": 1
+        },
+        "inferred_type_percents": {
+          "text": 71.43,
+          "integer": 14.29,
+          "boolean": 7.14,
+          "number": 7.14
+        },
+        "semantic_type_counts": {
+          "none": 13,
+          "date": 1
+        },
+        "semantic_type_percents": {
+          "none": 92.86,
+          "date": 7.14
+        }
+      },
+      "date_summary": {
+        "present_count": 300,
+        "valid_count": 300,
+        "ambiguous_count": 0,
+        "ambiguous_percent": 0.0,
+        "invalid_date_count": 0,
+        "not_date_count": 0,
+        "maximum_column_ambiguous_count": 0,
+        "columns": []
+      },
+      "columns": [
+        {
+          "id": "f1",
+          "name": "event_id",
+          "path": "event_id",
+          "position": 1,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 300,
+          "examples": [
+            "evt-00001",
+            "evt-00002",
+            "evt-00003"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 100,
+            "values": [
+              {
+                "value": "evt-00001",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00002",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00003",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00014",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00026",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00041",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00050",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00082",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00095",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00120",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00137",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00166",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00172",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00198",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00215",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00222",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00249",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00273",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00288",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "evt-00291",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 300,
+            "minimum_length": 9,
+            "maximum_length": 9,
+            "mean_length": 9.0,
+            "median_length": 9.0,
+            "distinct_length_count": 1,
+            "fixed_length": 9,
+            "length_distribution": [
+              {
+                "length": 9,
+                "count": 300,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "evt-00001",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00002",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00003",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00004",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00005",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00006",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00007",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00008",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00009",
+                    "count": 1
+                  },
+                  {
+                    "value": "evt-00010",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "evt-00001"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "evt-00001",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "evt-00300",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 300,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 9,
+              "max_length": 9,
+              "mean_length": 9,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 9,
+                  "count": 300
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f2",
+          "name": "timestamp",
+          "path": "timestamp",
+          "position": 2,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 300,
+                "changed_percent": 100.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 300,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 300,
+          "examples": [
+            "2026-03-01T08:00:16Z",
+            "2026-03-01T08:00:17Z",
+            "2026-03-01T08:01:03Z"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 100,
+            "values": [
+              {
+                "value": "2026-03-01T08:00:16Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:00:17Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:01:03Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:07:38Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:19:03Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:30:59Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T08:56:27Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T09:03:40Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T09:11:39Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T09:24:02Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T09:45:56Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T09:59:15Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T10:08:29Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T10:14:51Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T10:15:23Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T10:21:13Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T10:42:44Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T11:06:50Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T11:25:05Z",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-01T11:30:22Z",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 300,
+            "valid_count": 300,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DDTHH:MM:SSZ",
+                "order": null,
+                "separator": null,
+                "count": 300,
+                "percent": 100.0,
+                "iso": false
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DDTHH:MM:SSZ",
+                "category": "valid",
+                "count": 300,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": {
+            "status": "short",
+            "present_count": 300,
+            "minimum_length": 20,
+            "maximum_length": 20,
+            "mean_length": 20.0,
+            "median_length": 20.0,
+            "distinct_length_count": 1,
+            "fixed_length": 20,
+            "length_distribution": [
+              {
+                "length": 20,
+                "count": 300,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "2026-03-01T08:00:16Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:00:17Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:01:03Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:02:26Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:03:41Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:04:47Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:05:17Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:06:09Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:07:38Z",
+                    "count": 1
+                  },
+                  {
+                    "value": "2026-03-01T08:07:51Z",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "2026-03-01T08:00:16Z"
+            ]
+          },
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 300,
+              "matched_count": 300,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DDTHH:MM:SSZ",
+                  "count": 300,
+                  "percent": 100.0
+                }
+              ],
+              "coverage": {
+                "eligible": 300,
+                "tested": 300,
+                "matched": 300,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "2026-03-01T08:00:16Z",
+                  "2026-03-01T08:00:17Z",
+                  "2026-03-01T08:01:03Z",
+                  "2026-03-01T08:02:26Z",
+                  "2026-03-01T08:03:41Z",
+                  "2026-03-01T08:04:47Z",
+                  "2026-03-01T08:05:17Z",
+                  "2026-03-01T08:06:09Z",
+                  "2026-03-01T08:07:38Z",
+                  "2026-03-01T08:07:51Z"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-03-01T08:00:16Z",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "2026-03-01T11:42:42Z",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 300,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 20,
+              "max_length": 20,
+              "mean_length": 20,
+              "median_length": 20,
+              "length_histogram": [
+                {
+                  "length": 20,
+                  "count": 300
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 300,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "datetime_aware",
+                  "count": 300,
+                  "min": "2026-03-01T08:00:16+00:00",
+                  "max": "2026-03-01T11:42:42+00:00",
+                  "years": [
+                    {
+                      "year": 2026,
+                      "count": 300
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "f3",
+          "name": "type",
+          "path": "type",
+          "position": 3,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 5,
+          "examples": [
+            "page_view",
+            "click",
+            "error"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "page_view",
+                "count": 152,
+                "truncated": false
+              },
+              {
+                "value": "click",
+                "count": 80,
+                "truncated": false
+              },
+              {
+                "value": "error",
+                "count": 26,
+                "truncated": false
+              },
+              {
+                "value": "purchase",
+                "count": 21,
+                "truncated": false
+              },
+              {
+                "value": "signup",
+                "count": 21,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 300,
+            "minimum_length": 5,
+            "maximum_length": 9,
+            "mean_length": 7.31,
+            "median_length": 9.0,
+            "distinct_length_count": 4,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 5,
+                "count": 106,
+                "percent": 35.33,
+                "relative_percent": 69.74,
+                "examples": [
+                  {
+                    "value": "click",
+                    "count": 80
+                  },
+                  {
+                    "value": "error",
+                    "count": 26
+                  }
+                ]
+              },
+              {
+                "length": 6,
+                "count": 21,
+                "percent": 7.0,
+                "relative_percent": 13.82,
+                "examples": [
+                  {
+                    "value": "signup",
+                    "count": 21
+                  }
+                ]
+              },
+              {
+                "length": 8,
+                "count": 21,
+                "percent": 7.0,
+                "relative_percent": 13.82,
+                "examples": [
+                  {
+                    "value": "purchase",
+                    "count": 21
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 152,
+                "percent": 50.67,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "page_view",
+                    "count": 152
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "page_view",
+              "click",
+              "signup"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "page_view",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "click",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 300,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 5,
+              "max_length": 9,
+              "mean_length": 7.306666666666667,
+              "median_length": 9,
+              "length_histogram": [
+                {
+                  "length": 5,
+                  "count": 106
+                },
+                {
+                  "length": 6,
+                  "count": 21
+                },
+                {
+                  "length": 8,
+                  "count": 21
+                },
+                {
+                  "length": 9,
+                  "count": 152
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f5",
+          "name": "user.id",
+          "path": "user.id",
+          "position": 4,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 229
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 71,
+          "missing_percent": 23.67,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 60,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 60,
+          "examples": [
+            "59",
+            "25",
+            "34"
+          ],
+          "value_profile": {
+            "selection": "random_sample",
+            "sampled_distinct_count": 60,
+            "values": [
+              {
+                "value": "59",
+                "count": 8,
+                "truncated": false
+              },
+              {
+                "value": "25",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "34",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "6",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "60",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "43",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "18",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "28",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "8",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "9",
+                "count": 5,
+                "truncated": false
+              },
+              {
+                "value": "22",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "32",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "10",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "13",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "57",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "11",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "12",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "4",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "40",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "46",
+                "count": 2,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 1.0,
+            "maximum": 60.0,
+            "range": 59.0,
+            "mean": 31.70305676855895,
+            "median": 33.0
+          },
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 229,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "null": 71,
+              "integer": 229
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 71,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 71,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "33",
+              "type": "integer",
+              "record": 1
+            },
+            "last": {
+              "value": "50",
+              "type": "integer",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 229,
+              "native_count": 229,
+              "text_count": 0,
+              "min": 1,
+              "max": 60,
+              "sum": 7260,
+              "mean": 31.70305676855895,
+              "population_variance": 310.60178104917907,
+              "population_std": 17.623898009497758,
+              "positive": 229,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 33
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f6",
+          "name": "user.country",
+          "path": "user.country",
+          "position": 5,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 253
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 47,
+          "missing_percent": 15.67,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 253,
+                "changed_percent": 84.33,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 5,
+          "examples": [
+            "FR",
+            "US",
+            "DE"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "FR",
+                "count": 57,
+                "truncated": false
+              },
+              {
+                "value": "US",
+                "count": 54,
+                "truncated": false
+              },
+              {
+                "value": "DE",
+                "count": 53,
+                "truncated": false
+              },
+              {
+                "value": "CA",
+                "count": 45,
+                "truncated": false
+              },
+              {
+                "value": "BE",
+                "count": 44,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 253,
+            "minimum_length": 2,
+            "maximum_length": 2,
+            "mean_length": 2.0,
+            "median_length": 2.0,
+            "distinct_length_count": 1,
+            "fixed_length": 2,
+            "length_distribution": [
+              {
+                "length": 2,
+                "count": 253,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "FR",
+                    "count": 57
+                  },
+                  {
+                    "value": "US",
+                    "count": 54
+                  },
+                  {
+                    "value": "DE",
+                    "count": 53
+                  },
+                  {
+                    "value": "CA",
+                    "count": 45
+                  },
+                  {
+                    "value": "BE",
+                    "count": 44
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "FR"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 253,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "null": 47,
+              "string": 253
+            },
+            "strings": {
+              "count": 253,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 253
+            },
+            "missing": {
+              "count": 47,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 47,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "DE",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "FR",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 253,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 253,
+              "min_length": 2,
+              "max_length": 2,
+              "mean_length": 2,
+              "median_length": 2,
+              "length_histogram": [
+                {
+                  "length": 2,
+                  "count": 253
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f7",
+          "name": "user.plan",
+          "path": "user.plan",
+          "position": 6,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 3,
+          "examples": [
+            "pro",
+            "free",
+            "team"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "pro",
+                "count": 111,
+                "truncated": false
+              },
+              {
+                "value": "free",
+                "count": 105,
+                "truncated": false
+              },
+              {
+                "value": "team",
+                "count": 84,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 300,
+            "minimum_length": 3,
+            "maximum_length": 4,
+            "mean_length": 3.63,
+            "median_length": 4.0,
+            "distinct_length_count": 2,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 111,
+                "percent": 37.0,
+                "relative_percent": 58.73,
+                "examples": [
+                  {
+                    "value": "pro",
+                    "count": 111
+                  }
+                ]
+              },
+              {
+                "length": 4,
+                "count": 189,
+                "percent": 63.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "free",
+                    "count": 105
+                  },
+                  {
+                    "value": "team",
+                    "count": 84
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "free",
+              "pro"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "free",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "free",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 300,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 3,
+              "max_length": 4,
+              "mean_length": 3.63,
+              "median_length": 4,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 111
+                },
+                {
+                  "length": 4,
+                  "count": 189
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f9",
+          "name": "device.os",
+          "path": "device.os",
+          "position": 7,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 300,
+                "changed_percent": 100.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 5,
+          "examples": [
+            "Windows",
+            "Android",
+            "iOS"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "Windows",
+                "count": 66,
+                "truncated": false
+              },
+              {
+                "value": "Android",
+                "count": 61,
+                "truncated": false
+              },
+              {
+                "value": "iOS",
+                "count": 60,
+                "truncated": false
+              },
+              {
+                "value": "macOS",
+                "count": 58,
+                "truncated": false
+              },
+              {
+                "value": "Linux",
+                "count": 55,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 300,
+            "minimum_length": 3,
+            "maximum_length": 7,
+            "mean_length": 5.45,
+            "median_length": 5.0,
+            "distinct_length_count": 3,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 60,
+                "percent": 20.0,
+                "relative_percent": 47.24,
+                "examples": [
+                  {
+                    "value": "iOS",
+                    "count": 60
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 113,
+                "percent": 37.67,
+                "relative_percent": 88.98,
+                "examples": [
+                  {
+                    "value": "macOS",
+                    "count": 58
+                  },
+                  {
+                    "value": "Linux",
+                    "count": 55
+                  }
+                ]
+              },
+              {
+                "length": 7,
+                "count": 127,
+                "percent": 42.33,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Windows",
+                    "count": 66
+                  },
+                  {
+                    "value": "Android",
+                    "count": 61
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Windows",
+              "macOS",
+              "iOS"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "macOS",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "macOS",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 300,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 3,
+              "max_length": 7,
+              "mean_length": 5.446666666666666,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 60
+                },
+                {
+                  "length": 5,
+                  "count": 113
+                },
+                {
+                  "length": 7,
+                  "count": 127
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f10",
+          "name": "device.mobile",
+          "path": "device.mobile",
+          "position": 8,
+          "inferred_type": "boolean",
+          "type_counts": {
+            "boolean": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 2,
+          "examples": [
+            "false",
+            "true"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 2,
+            "values": [
+              {
+                "value": "false",
+                "count": 171,
+                "truncated": false
+              },
+              {
+                "value": "true",
+                "count": 129,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "boolean": 300
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "false",
+              "type": "boolean",
+              "record": 1
+            },
+            "last": {
+              "value": "false",
+              "type": "boolean",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": null,
+            "booleans": {
+              "true": 129,
+              "false": 171
+            },
+            "temporal": null
+          }
+        },
+        {
+          "id": "f11",
+          "name": "page",
+          "path": "page",
+          "position": 9,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 300
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 8,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 8,
+          "examples": [
+            "/docs",
+            "/checkout",
+            "/blog"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 8,
+            "values": [
+              {
+                "value": "/docs",
+                "count": 51,
+                "truncated": false
+              },
+              {
+                "value": "/checkout",
+                "count": 49,
+                "truncated": false
+              },
+              {
+                "value": "/blog",
+                "count": 41,
+                "truncated": false
+              },
+              {
+                "value": "/login",
+                "count": 40,
+                "truncated": false
+              },
+              {
+                "value": "/pricing",
+                "count": 36,
+                "truncated": false
+              },
+              {
+                "value": "/",
+                "count": 31,
+                "truncated": false
+              },
+              {
+                "value": "/docs/install",
+                "count": 29,
+                "truncated": false
+              },
+              {
+                "value": "/signup",
+                "count": 23,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 300,
+            "minimum_length": 1,
+            "maximum_length": 13,
+            "mean_length": 6.66,
+            "median_length": 6.0,
+            "distinct_length_count": 7,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 1,
+                "count": 31,
+                "percent": 10.33,
+                "relative_percent": 33.7,
+                "examples": [
+                  {
+                    "value": "/",
+                    "count": 31
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 92,
+                "percent": 30.67,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "/docs",
+                    "count": 51
+                  },
+                  {
+                    "value": "/blog",
+                    "count": 41
+                  }
+                ]
+              },
+              {
+                "length": 6,
+                "count": 40,
+                "percent": 13.33,
+                "relative_percent": 43.48,
+                "examples": [
+                  {
+                    "value": "/login",
+                    "count": 40
+                  }
+                ]
+              },
+              {
+                "length": 7,
+                "count": 23,
+                "percent": 7.67,
+                "relative_percent": 25.0,
+                "examples": [
+                  {
+                    "value": "/signup",
+                    "count": 23
+                  }
+                ]
+              },
+              {
+                "length": 8,
+                "count": 36,
+                "percent": 12.0,
+                "relative_percent": 39.13,
+                "examples": [
+                  {
+                    "value": "/pricing",
+                    "count": 36
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 49,
+                "percent": 16.33,
+                "relative_percent": 53.26,
+                "examples": [
+                  {
+                    "value": "/checkout",
+                    "count": 49
+                  }
+                ]
+              },
+              {
+                "length": 13,
+                "count": 29,
+                "percent": 9.67,
+                "relative_percent": 31.52,
+                "examples": [
+                  {
+                    "value": "/docs/install",
+                    "count": 29
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "/docs",
+              "/checkout",
+              "/login"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 300,
+            "value_count": 300,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 300,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 300
+            },
+            "strings": {
+              "count": 300,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 300
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "/login",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "/login",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 269,
+              "mixed_case": 0,
+              "no_letters": 31
+            },
+            "string_lengths": {
+              "count": 300,
+              "min_length": 1,
+              "max_length": 13,
+              "mean_length": 6.66,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 1,
+                  "count": 31
+                },
+                {
+                  "length": 5,
+                  "count": 92
+                },
+                {
+                  "length": 6,
+                  "count": 40
+                },
+                {
+                  "length": 7,
+                  "count": 23
+                },
+                {
+                  "length": 8,
+                  "count": 36
+                },
+                {
+                  "length": 9,
+                  "count": 49
+                },
+                {
+                  "length": 13,
+                  "count": 29
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f13",
+          "name": "tags[]",
+          "path": "tags[]",
+          "position": 10,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 450
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 5,
+          "examples": [
+            "beta",
+            "newsletter",
+            "returning"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "beta",
+                "count": 95,
+                "truncated": false
+              },
+              {
+                "value": "newsletter",
+                "count": 94,
+                "truncated": false
+              },
+              {
+                "value": "returning",
+                "count": 93,
+                "truncated": false
+              },
+              {
+                "value": "mobile",
+                "count": 84,
+                "truncated": false
+              },
+              {
+                "value": "promo",
+                "count": 84,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 450,
+            "minimum_length": 4,
+            "maximum_length": 10,
+            "mean_length": 6.85,
+            "median_length": 6.0,
+            "distinct_length_count": 5,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 4,
+                "count": 95,
+                "percent": 21.11,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "beta",
+                    "count": 95
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 84,
+                "percent": 18.67,
+                "relative_percent": 88.42,
+                "examples": [
+                  {
+                    "value": "promo",
+                    "count": 84
+                  }
+                ]
+              },
+              {
+                "length": 6,
+                "count": 84,
+                "percent": 18.67,
+                "relative_percent": 88.42,
+                "examples": [
+                  {
+                    "value": "mobile",
+                    "count": 84
+                  }
+                ]
+              },
+              {
+                "length": 9,
+                "count": 93,
+                "percent": 20.67,
+                "relative_percent": 97.89,
+                "examples": [
+                  {
+                    "value": "returning",
+                    "count": 93
+                  }
+                ]
+              },
+              {
+                "length": 10,
+                "count": 94,
+                "percent": 20.89,
+                "relative_percent": 98.95,
+                "examples": [
+                  {
+                    "value": "newsletter",
+                    "count": 94
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "beta",
+              "newsletter",
+              "returning"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 450,
+            "value_count": 450,
+            "presence": {
+              "parent_type": "array",
+              "parent_count": 300,
+              "present": 450,
+              "absent": null
+            },
+            "native_types": {
+              "string": 450
+            },
+            "strings": {
+              "count": 450,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 450
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": null,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "newsletter",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "newsletter",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 450,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 450,
+              "min_length": 4,
+              "max_length": 10,
+              "mean_length": 6.846666666666667,
+              "median_length": 6,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 95
+                },
+                {
+                  "length": 5,
+                  "count": 84
+                },
+                {
+                  "length": 6,
+                  "count": 84
+                },
+                {
+                  "length": 9,
+                  "count": 93
+                },
+                {
+                  "length": 10,
+                  "count": 94
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f14",
+          "name": "amount",
+          "path": "amount",
+          "position": 11,
+          "inferred_type": "number",
+          "type_counts": {
+            "number": 21
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 279,
+          "missing_percent": 93.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 21,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 21,
+          "examples": [
+            "151.62",
+            "160.1",
+            "165.74"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 21,
+            "values": [
+              {
+                "value": "151.62",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "160.1",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "165.74",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "203.71",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "216.5",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "226.44",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "23.43",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "232.05",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "239.9",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "248.12",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "262.23",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "269.96",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "273.29",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "289.62",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "30.23",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "47.97",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "51.35",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "59.65",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "79.2",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "91.93",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "94.1",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 23.43,
+            "maximum": 289.62,
+            "range": 266.19,
+            "mean": 162.72095238095238,
+            "median": 165.74
+          },
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 21,
+            "value_count": 21,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 21,
+              "absent": 279
+            },
+            "native_types": {
+              "number": 21
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 279,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 279,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "79.2",
+              "type": "number",
+              "record": 2
+            },
+            "last": {
+              "value": "151.62",
+              "type": "number",
+              "record": 266
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 21,
+              "native_count": 21,
+              "text_count": 0,
+              "min": 23.43,
+              "max": 289.62,
+              "sum": 3417.14,
+              "mean": 162.72095238095238,
+              "population_variance": 7924.073475283447,
+              "population_std": 89.01726504045969,
+              "positive": 21,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 165.74
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f15",
+          "name": "currency",
+          "path": "currency",
+          "position": 12,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 21
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 279,
+          "missing_percent": 93.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 21,
+                "changed_percent": 7.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 1,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 1,
+          "examples": [
+            "EUR"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 1,
+            "values": [
+              {
+                "value": "EUR",
+                "count": 21,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 21,
+            "minimum_length": 3,
+            "maximum_length": 3,
+            "mean_length": 3.0,
+            "median_length": 3.0,
+            "distinct_length_count": 1,
+            "fixed_length": 3,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 21,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "EUR",
+                    "count": 21
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "EUR"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 2,
+            "occurrences": 21,
+            "value_count": 21,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 21,
+              "absent": 279
+            },
+            "native_types": {
+              "string": 21
+            },
+            "strings": {
+              "count": 21,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 21
+            },
+            "missing": {
+              "count": 279,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 279,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "EUR",
+              "type": "string",
+              "record": 2
+            },
+            "last": {
+              "value": "EUR",
+              "type": "string",
+              "record": 266
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 21,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 21,
+              "min_length": 3,
+              "max_length": 3,
+              "mean_length": 3,
+              "median_length": 3,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 21
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f16",
+          "name": "error_code",
+          "path": "error_code",
+          "position": 13,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 26
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 274,
+          "missing_percent": 91.33,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 3,
+          "examples": [
+            "500",
+            "404",
+            "503"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "500",
+                "count": 11,
+                "truncated": false
+              },
+              {
+                "value": "404",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "503",
+                "count": 6,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 404.0,
+            "maximum": 503.0,
+            "range": 99.0,
+            "mean": 467.46153846153845,
+            "median": 500.0
+          },
+          "detectors": [],
+          "scan_details": {
+            "first_record": 4,
+            "occurrences": 26,
+            "value_count": 26,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 26,
+              "absent": 274
+            },
+            "native_types": {
+              "integer": 26
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 274,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 274,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "500",
+              "type": "integer",
+              "record": 4
+            },
+            "last": {
+              "value": "404",
+              "type": "integer",
+              "record": 302
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 26,
+              "native_count": 26,
+              "text_count": 0,
+              "min": 404,
+              "max": 503,
+              "sum": 12154,
+              "mean": 467.46153846153845,
+              "population_variance": 2133.4792899408285,
+              "population_std": 46.18960153477001,
+              "positive": 26,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 500
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "f17",
+          "name": "experiment",
+          "path": "experiment",
+          "position": 14,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 30
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 270,
+          "missing_percent": 90.0,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 30,
+                "changed_percent": 10.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 2,
+          "examples": [
+            "A",
+            "B"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 2,
+            "values": [
+              {
+                "value": "A",
+                "count": 20,
+                "truncated": false
+              },
+              {
+                "value": "B",
+                "count": 10,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 30,
+            "minimum_length": 1,
+            "maximum_length": 1,
+            "mean_length": 1.0,
+            "median_length": 1.0,
+            "distinct_length_count": 1,
+            "fixed_length": 1,
+            "length_distribution": [
+              {
+                "length": 1,
+                "count": 30,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "A",
+                    "count": 20
+                  },
+                  {
+                    "value": "B",
+                    "count": 10
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "A"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 274,
+            "occurrences": 30,
+            "value_count": 30,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 300,
+              "present": 30,
+              "absent": 270
+            },
+            "native_types": {
+              "string": 30
+            },
+            "strings": {
+              "count": 30,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 30
+            },
+            "missing": {
+              "count": 270,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 270,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "B",
+              "type": "string",
+              "record": 274
+            },
+            "last": {
+              "value": "B",
+              "type": "string",
+              "record": 303
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 30,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 30,
+              "min_length": 1,
+              "max_length": 1,
+              "mean_length": 1,
+              "median_length": 1,
+              "length_histogram": [
+                {
+                  "length": 1,
+                  "count": 30
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        }
+      ],
+      "issues": [
+        {
+          "code": "excluded_records",
+          "severity": "warning",
+          "message": "Records excluded by the tolerant error policy, not analyzed",
+          "count": 3,
+          "column_ids": [],
+          "row_numbers": [
+            121,
+            201,
+            251
+          ]
+        },
+        {
+          "code": "missing_values",
+          "severity": "warning",
+          "message": "Missing cells",
+          "count": 1220,
+          "column_ids": [
+            "f5",
+            "f6",
+            "f14",
+            "f15",
+            "f16",
+            "f17"
+          ],
+          "row_numbers": [
+            1,
+            2,
+            3,
+            7,
+            11,
+            14,
+            15,
+            20,
+            24,
+            27
+          ]
+        },
+        {
+          "code": "trimmed_cells",
+          "severity": "info",
+          "message": "Cells changed by trimming surrounding whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "collapsed_whitespace",
+          "severity": "info",
+          "message": "Cells changed by collapsing repeated internal whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "constant_columns",
+          "severity": "info",
+          "message": "Columns with one distinct present value",
+          "count": 1,
+          "column_ids": [
+            "f15"
+          ],
+          "row_numbers": []
+        }
+      ],
+      "preview": [
+        {
+          "row_number": 1,
+          "values": [
+            "evt-00001",
+            "2026-03-01T08:00:16Z",
+            "page_view",
+            "33",
+            "null",
+            "free",
+            "macOS",
+            "false",
+            "/login",
+            "newsletter, beta, promo",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 2,
+          "values": [
+            "evt-00002",
+            "2026-03-01T08:00:17Z",
+            "purchase",
+            "null",
+            "DE",
+            "free",
+            "Android",
+            "true",
+            "/checkout",
+            "mobile, beta",
+            "79.2",
+            "EUR",
+            null,
+            null
+          ],
+          "absent": [
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 3,
+          "values": [
+            "evt-00003",
+            "2026-03-01T08:01:03Z",
+            "click",
+            "33",
+            "null",
+            "free",
+            "Linux",
+            "true",
+            "/blog",
+            "beta, mobile",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 4,
+          "values": [
+            "evt-00004",
+            "2026-03-01T08:02:26Z",
+            "error",
+            "20",
+            "FR",
+            "team",
+            "Linux",
+            "true",
+            "/login",
+            null,
+            null,
+            null,
+            "500",
+            null
+          ],
+          "absent": [
+            9,
+            10,
+            11,
+            13
+          ]
+        },
+        {
+          "row_number": 5,
+          "values": [
+            "evt-00005",
+            "2026-03-01T08:03:41Z",
+            "click",
+            "8",
+            "US",
+            "team",
+            "iOS",
+            "false",
+            "/login",
+            "beta, newsletter",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 6,
+          "values": [
+            "evt-00006",
+            "2026-03-01T08:04:47Z",
+            "click",
+            "37",
+            "CA",
+            "free",
+            "Windows",
+            "false",
+            "/pricing",
+            "beta, mobile, newsletter",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 7,
+          "values": [
+            "evt-00007",
+            "2026-03-01T08:05:17Z",
+            "page_view",
+            "30",
+            "null",
+            "pro",
+            "iOS",
+            "true",
+            "/login",
+            "newsletter, beta",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 8,
+          "values": [
+            "evt-00008",
+            "2026-03-01T08:06:09Z",
+            "click",
+            "54",
+            "DE",
+            "free",
+            "Windows",
+            "true",
+            "/checkout",
+            "returning, mobile, beta",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 9,
+          "values": [
+            "evt-00009",
+            "2026-03-01T08:07:38Z",
+            "click",
+            "50",
+            "US",
+            "pro",
+            "iOS",
+            "false",
+            "/",
+            "returning, beta",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 10,
+          "values": [
+            "evt-00010",
+            "2026-03-01T08:07:51Z",
+            "click",
+            "51",
+            "BE",
+            "pro",
+            "Android",
+            "false",
+            "/docs",
+            "beta, promo, returning",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 11,
+          "values": [
+            "evt-00011",
+            "2026-03-01T08:08:26Z",
+            "click",
+            "13",
+            "null",
+            "pro",
+            "macOS",
+            "false",
+            "/",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            9,
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 12,
+          "values": [
+            "evt-00012",
+            "2026-03-01T08:08:27Z",
+            "click",
+            "60",
+            "FR",
+            "team",
+            "macOS",
+            "true",
+            "/",
+            "returning, mobile",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 13,
+          "values": [
+            "evt-00013",
+            "2026-03-01T08:08:28Z",
+            "page_view",
+            "37",
+            "US",
+            "team",
+            "macOS",
+            "false",
+            "/checkout",
+            "newsletter",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 14,
+          "values": [
+            "evt-00014",
+            "2026-03-01T08:09:57Z",
+            "click",
+            "27",
+            "null",
+            "free",
+            "macOS",
+            "false",
+            "/blog",
+            "beta, mobile, returning",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 15,
+          "values": [
+            "evt-00015",
+            "2026-03-01T08:10:23Z",
+            "click",
+            "null",
+            "FR",
+            "pro",
+            "Windows",
+            "true",
+            "/signup",
+            "promo, newsletter",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 16,
+          "values": [
+            "evt-00016",
+            "2026-03-01T08:11:29Z",
+            "click",
+            "20",
+            "US",
+            "pro",
+            "Windows",
+            "false",
+            "/checkout",
+            "mobile",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 17,
+          "values": [
+            "evt-00017",
+            "2026-03-01T08:12:45Z",
+            "click",
+            "40",
+            "DE",
+            "pro",
+            "iOS",
+            "true",
+            "/pricing",
+            "promo, mobile, returning",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 18,
+          "values": [
+            "evt-00018",
+            "2026-03-01T08:13:08Z",
+            "page_view",
+            "60",
+            "FR",
+            "pro",
+            "macOS",
+            "false",
+            "/",
+            "newsletter",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 19,
+          "values": [
+            "evt-00019",
+            "2026-03-01T08:13:36Z",
+            "click",
+            "9",
+            "CA",
+            "team",
+            "macOS",
+            "true",
+            "/login",
+            "promo, beta, mobile",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "row_number": 20,
+          "values": [
+            "evt-00020",
+            "2026-03-01T08:14:00Z",
+            "page_view",
+            "null",
+            "US",
+            "pro",
+            "Android",
+            "true",
+            "/docs",
+            "newsletter, beta",
+            null,
+            null,
+            null,
+            null
+          ],
+          "absent": [
+            10,
+            11,
+            12,
+            13
+          ]
+        }
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": [
+          {
+            "code": "jsonl_invalid_line",
+            "level": "error",
+            "message": "Lines that are not valid JSON were excluded.",
+            "count": 2,
+            "dataset": "$[]",
+            "path": null,
+            "detector": null,
+            "locations": [
+              {
+                "record": 121,
+                "line": 121,
+                "element": null
+              },
+              {
+                "record": 251,
+                "line": 251,
+                "element": null
+              }
+            ]
+          },
+          {
+            "code": "jsonl_record_not_object",
+            "level": "error",
+            "message": "Lines holding valid JSON that is not an object were excluded: a record is a JSON object.",
+            "count": 1,
+            "dataset": "$[]",
+            "path": null,
+            "detector": null,
+            "locations": [
+              {
+                "record": 201,
+                "line": 201,
+                "element": null
+              }
+            ]
+          }
+        ]
+      },
+      "structure": {
+        "record_types": {
+          "object": 300
+        },
+        "path_count": 17,
+        "path_status": "complete",
+        "max_depth_seen": 2,
+        "fields": [
+          {
+            "id": "f1",
+            "path": "event_id",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f2",
+            "path": "timestamp",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f3",
+            "path": "type",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f4",
+            "path": "user",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "object": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f5",
+            "path": "user.id",
+            "depth": 2,
+            "parent": "user",
+            "native_types": {
+              "null": 71,
+              "integer": 229
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f6",
+            "path": "user.country",
+            "depth": 2,
+            "parent": "user",
+            "native_types": {
+              "null": 47,
+              "string": 253
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f7",
+            "path": "user.plan",
+            "depth": 2,
+            "parent": "user",
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f8",
+            "path": "device",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "object": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": false
+          },
+          {
+            "id": "f9",
+            "path": "device.os",
+            "depth": 2,
+            "parent": "device",
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f10",
+            "path": "device.mobile",
+            "depth": 2,
+            "parent": "device",
+            "native_types": {
+              "boolean": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f11",
+            "path": "page",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f12",
+            "path": "tags",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "array": 300
+            },
+            "occurrences": 300,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 300,
+            "absent_count": 0,
+            "present_percent": 100.0,
+            "collection": null,
+            "arrays": {
+              "count": 300,
+              "empty_count": 81,
+              "minimum_length": 0,
+              "maximum_length": 3,
+              "mean_length": 1.5,
+              "item_count": 450
+            },
+            "column": false
+          },
+          {
+            "id": "f13",
+            "path": "tags[]",
+            "depth": 2,
+            "parent": "tags",
+            "native_types": {
+              "string": 450
+            },
+            "occurrences": 450,
+            "parent_type": "array",
+            "parent_count": 300,
+            "present_count": 450,
+            "absent_count": null,
+            "present_percent": null,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f14",
+            "path": "amount",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "number": 21
+            },
+            "occurrences": 21,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 21,
+            "absent_count": 279,
+            "present_percent": 7.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f15",
+            "path": "currency",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 21
+            },
+            "occurrences": 21,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 21,
+            "absent_count": 279,
+            "present_percent": 7.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f16",
+            "path": "error_code",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "integer": 26
+            },
+            "occurrences": 26,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 26,
+            "absent_count": 274,
+            "present_percent": 8.67,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          },
+          {
+            "id": "f17",
+            "path": "experiment",
+            "depth": 1,
+            "parent": null,
+            "native_types": {
+              "string": 30
+            },
+            "occurrences": 30,
+            "parent_type": "object",
+            "parent_count": 300,
+            "present_count": 30,
+            "absent_count": 270,
+            "present_percent": 10.0,
+            "collection": null,
+            "arrays": null,
+            "column": true
+          }
+        ]
+      }
+    }
+  ]
+}

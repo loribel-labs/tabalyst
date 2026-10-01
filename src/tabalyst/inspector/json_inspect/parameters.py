@@ -12,3 +12,5 @@ FIELDS_OBSERVED = 1_000
 MAX_CANDIDATES = 100
 # Element count ratio from which the largest eligible candidate stands out.
 DOMINANCE_RATIO = 10
+# Ineligible candidates described one by one in the warnings; the rest is counted.
+MAX_INELIGIBLE_NOTES = 10

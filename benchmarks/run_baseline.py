@@ -26,6 +26,21 @@ TASKS = {
     "scan": "Tabalyst Scan: tabalyst.scan() with defaults, workers for large files",
     "scan-single": "Tabalyst Scan in one process: tabalyst.scan(workers=1)",
 }
+# Tasks added with JSON Inspect (lot JI-8); run them with ``--task`` on JSON or
+# JSONL sources. The default keeps the four historical tasks.
+INSPECT_TASKS = {
+    "sha256": "Full SHA-256 of the source (scan_reuse.file_sha256)",
+    "events": "JSON only: ijson event pass of the Scan reader, nothing else",
+    "inspect": "Tabalyst Inspect: inspect_source() (event pass, hash, detection)",
+    "resolve-cold": "resolve_interpretation() with an empty storage (inspects, writes the cache)",
+    "resolve-warm": "resolve_interpretation() with the cache written by a first call",
+    "report-cold": "generate_reports() with an empty storage (resolution, scan, report)",
+    "report-reuse": "generate_reports() again: stored scan reused, report rebuilt",
+    "jsonl-parse-hook": "JSONL only: json.loads per line with the duplicate-key hook",
+    "jsonl-parse-plain": "JSONL only: json.loads per line without the hook (same Decimal)",
+}
+TASKS.update(INSPECT_TASKS)
+DEFAULT_TASKS = ("csv-read", "report-engine", "scan", "scan-single")
 # Directory where scan workers record their peak memory, set by ``_child``.
 _PEAKS = "TABALYST_BENCHMARK_PEAKS"
 
@@ -87,7 +102,76 @@ def _count_worker_peaks() -> None:
     )
 
 
-def _run_task(task: str, path: Path) -> int:
+def _isolated_storage() -> None:
+    """Point the shared storage at an empty folder, so no cache is inherited."""
+    os.environ["TABALYST_HOME"] = tempfile.mkdtemp()
+
+
+def _run_inspect_task(task: str, path: Path) -> tuple[int, float | None]:
+    """Run a JI-8 task; return the count and, when only a part is timed, its seconds."""
+    if task == "sha256":
+        from tabalyst.scan_reuse import file_sha256
+
+        file_sha256(path)
+        return 1, None
+    if task == "events":
+        from tabalyst.scanner.readers.json_reader import JsonEvents
+
+        count = 0
+        for _ in JsonEvents(path):
+            count += 1
+        return count, None
+    if task == "inspect":
+        from tabalyst.inspector.json_inspect import inspect_source
+
+        document = inspect_source(path)
+        return sum(item.elements for item in document.detection.candidates), None
+    if task in ("resolve-cold", "resolve-warm"):
+        from tabalyst.inspector.resolution import resolve_interpretation
+        from tabalyst.projects.location import StorageLocation
+
+        _isolated_storage()
+        location = StorageLocation.local()
+        if task == "resolve-warm":
+            resolve_interpretation(path, location=location)
+        started = perf_counter()
+        resolve_interpretation(path, location=location)
+        return 1, perf_counter() - started
+    if task in ("report-cold", "report-reuse"):
+        from tabalyst import generate_reports
+
+        _isolated_storage()
+        out = Path(tempfile.mkdtemp())
+        if task == "report-reuse":
+            generate_reports([path], output_dir=out, force=True)
+        started = perf_counter()
+        generate_reports([path], output_dir=out, force=True)
+        return 1, perf_counter() - started
+    if task in ("jsonl-parse-hook", "jsonl-parse-plain"):
+        import json as json_module
+        from decimal import Decimal
+
+        from tabalyst.scanner.readers.jsonl_reader import _object, _reject_constant
+
+        hook = _object if task == "jsonl-parse-hook" else None
+        count = 0
+        with path.open("rb") as stream:
+            for line in stream:
+                if line.strip():
+                    json_module.loads(
+                        line,
+                        parse_float=Decimal,
+                        parse_constant=_reject_constant,
+                        object_pairs_hook=hook,
+                    )
+                    count += 1
+        return count, None
+    raise ValueError(f"Unknown task: {task}")
+
+
+def _run_task(task: str, path: Path) -> int | tuple[int, float | None]:
+    if task in INSPECT_TASKS:
+        return _run_inspect_task(task, path)
     if task == "csv-read":
         with path.open("r", encoding="utf-8-sig", newline="") as stream:
             return sum(1 for _ in csv.reader(stream, strict=True)) - 1
@@ -114,8 +198,12 @@ def _child(task: str, path: Path) -> None:
     os.environ[_PEAKS] = peaks
     start_memory, _ = _memory_bytes()
     started = perf_counter()
-    rows = _run_task(task, path)
+    outcome = _run_task(task, path)
     seconds = perf_counter() - started
+    rows = outcome
+    if isinstance(outcome, tuple):
+        rows, timed = outcome
+        seconds = timed if timed is not None else seconds
     _, peak_memory = _memory_bytes()
     peak_memory += sum(int(item.read_text()) for item in Path(peaks).glob("*.peak"))
     print(
@@ -182,7 +270,7 @@ def main() -> None:
     print("| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |")
     for path in args.files:
         size_mb = path.stat().st_size / 1024**2
-        for task in args.task or sorted(TASKS):
+        for task in args.task or DEFAULT_TASKS:
             runs = [_measure(task, path) for _ in range(args.repeat)]
             best = min(run["seconds"] for run in runs)
             peak = max(run["peak_bytes"] for run in runs) / 1024**2

@@ -78,6 +78,7 @@ WarningCode = Literal[
     "no_collection",
     "candidates_truncated",
     "candidate_not_eligible",
+    "candidate_not_eligible_truncated",
     "invalid_lines",
     "non_object_lines",
     "configured_path_not_found",

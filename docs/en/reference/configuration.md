@@ -243,9 +243,11 @@ and encoding in `scan.csv`, or pass `--delimiter` and `--encoding`.
 
 ### Layers and merge rules
 
-From lowest to highest priority: built-in defaults, the `scan` object of each
-`--config` file in the order given, then `--delimiter`, `--encoding` and
-`--collection`.
+From lowest to highest priority: built-in defaults, for a JSON source with no
+Inspect file the collection that [Inspect](../how-to/inspect-json-files.md)
+detects, the `scan` object of each `--config` file in the order given, the
+`config` of the [Inspect file](inspect-format.md#config) beside the source, then
+`--delimiter`, `--encoding` and `--collection`.
 
 - Objects merge key by key, including `detectors.<id>`: a file that sets
   `{"detectors": {"number": {"enabled": false}}}` keeps the other number
@@ -257,17 +259,25 @@ From lowest to highest priority: built-in defaults, the `scan` object of each
   delete a setting.
 
 The scan document embeds the effective configuration and its SHA-256
-(`config_sha256`).
+(`config_sha256`). A stored scan is reused only when the source content, that
+configuration and the version of Tabalyst are all the same.
 
 ### Sources and errors
 
 - `csv.encoding`, `csv.delimiter`: as for reports. The first record is the
   header.
-- `json.collections`: for JSON files, `null` for automatic discovery, or a list of absolute
-  collection paths such as `"$.customers[]"` or `"$.customers[].orders[]"`.
-  Paths must end with `[]`, be unique and not contain one another.
-- `json.discovery_max_depth`: how deep automatic discovery looks for arrays
-  under a root object.
+- `json.collections`: for JSON files, a list of absolute collection paths such
+  as `"$.customers[]"` or `"$.customers[].orders[]"`. Paths must end with `[]`,
+  be unique and not contain one another, and are stored in canonical spelling
+  (`$["orders"][]` becomes `$.orders[]`). `null` means that no collection is
+  named: `tabalyst scan` and `tabalyst report` then use the collection that
+  [Inspect](../how-to/inspect-json-files.md) selects, or stop with exit code `2`
+  when it cannot select one. Only `tabalyst.scan()` turns `null` into automatic
+  discovery of every array. For a JSONL file it is `null` or `["$[]"]`. A file
+  that lists `json.collections` is shared by sources of every format, so it is
+  ignored for JSONL sources in a mixed batch.
+- `json.discovery_max_depth`: how deep Inspect, and automatic discovery, look
+  for arrays under a root object.
 - `json.flatten`: how nested objects become fields. `enabled` (default `true`),
   `separator` (default `.`) joins the keys of a field name such as
   `address.city`; it is one character that is not a letter, digit, `_`,
@@ -281,7 +291,12 @@ The scan document embeds the effective configuration and its SHA-256
   dataset paths such as `$.customers[]` always use `.`. This is not
   `limits.max_depth`, which protects the reader and truncates with a warning.
   Content below the flatten depth is not read for duplicate keys.
-- `json.arrays` (`mode`, only `preserve`): arrays never add records.
+- `json.arrays` (`mode`, only `preserve`): arrays never add records. `ignore`
+  and `explode` are refused.
+
+The `json.collections`, `json.flatten`, `json.arrays` and `errors.policy`
+settings are the ones an [Inspect file](inspect-format.md#config) edits, under
+the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
 - `errors.policy`: `null` (default) is the default of the source format,
   `strict` for CSV and JSON, `tolerant` for JSONL. `strict` stops at the first
   malformed record, such as a CSV record with the wrong number of fields, a JSON

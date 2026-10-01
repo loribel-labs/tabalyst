@@ -130,10 +130,11 @@ A shortened profile for a five-row `orders.csv`:
 ## `datasets`
 
 A CSV file has one dataset, `rows`, whose records are the rows of the file. A
-JSON file has one dataset per collection found by the scan, such as
-`$.customers[]`, and the dataset `$` for the rest of the document, listed only
-when it holds values outside the collections. See the
-[scan format](scan-format.md) for how collections are chosen.
+JSON file has one dataset per collection analyzed, such as `$.customers[]`,
+usually one: the collection selected by [Inspect](../how-to/inspect-json-files.md)
+or named with `--collection`. A JSONL file has one dataset, `$[]`. Reports
+built by the commands have no `$` dataset for the rest of the document. See the
+[scan format](scan-format.md) for the datasets of a scan.
 
 | Field | Type | Content |
 | --- | --- | --- |

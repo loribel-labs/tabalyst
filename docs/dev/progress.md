@@ -2,6 +2,46 @@
 
 ## 2026-10-01
 
+- JSON Inspect, lot JI-9 (consolidated English documentation, README):
+  new `docs/en/how-to/inspect-json-files.md`, `reference/inspect-format.md` and
+  `reference/inspect-format-changelog.md` (revision 1, including
+  `candidate_not_eligible_truncated`); updated `scan-files`,
+  `report-json-files` (one dataset chosen by Inspect, no `$` dataset, JSONL
+  policies), `configuration` (layers with the Inspect file, `json.collections`
+  `null`), `glossary`, `known-limitations`, `scan-format`, `json-profile`,
+  `index`, both format changelogs and `README.md`, which now announces
+  `tabalyst inspect` and JSONL. Every command and message of the new pages was
+  run against the real CLI on the `orders.json` and `web-events.jsonl` demos.
+  Finding left as is: on Windows the command line library expands `*.json`
+  before Tabalyst, so `tabalyst inspect "*.json"` also passes `*-inspect.json`
+  files and is refused (documented in the how-to and known limitations). French
+  pages are JI-9-fr. Follow-up in `tabalyst-studio`: imported docs change, the
+  site may now announce Inspect and JSONL. Suite: 1,990 passed, 10 skipped;
+  `ruff` clean. Nothing committed.
+
+- JSON Inspect, lot JI-8 (verification matrix, measurements, demo):
+  the specification's minimal matrix is mapped to tests in `design.md` 16.4
+  (checked: every referenced test exists); two cases that only had engine tests
+  got command-level tests (`test_json_inspect_matrix.py`: several collections
+  chosen with `--collection`, a JSONL source with nested objects and bad lines
+  from the file to the report; `ENABLED_LOTS` adds `JI-8`). Measurements in
+  the new `docs/dev/inspect/benchmarks.md` from new `benchmarks/run_baseline.py`
+  tasks (`sha256`, `events`, `inspect`, `resolve-cold`, `resolve-warm`,
+  `report-cold`, `report-reuse`, `jsonl-parse-hook`, `jsonl-parse-plain`) and
+  JSONL output in `benchmarks/generate_data.py`: the full hash is 0.5% of a
+  Scan, Inspect 8 to 12%, a report from a stored scan 0.3 to 0.7 s whatever the
+  size; `RECORDS_OBSERVED` (1,000) confirmed; the duplicate-key hook costs 16 to
+  20% of JSONL parse time on these records (accepted). Decided by the
+  maintainer: `candidate_not_eligible` lists the first `MAX_INELIGIBLE_NOTES`
+  (10) ineligible candidates, then one `candidate_not_eligible_truncated` entry
+  with the count (new warning code; format revision unchanged, not published).
+  New public demo `examples/input/web-events.jsonl` (300 fictional web events,
+  nested objects, three bad lines excluded by the tolerant policy), its command
+  in `examples/README.md`; the three other demos regenerated (timestamps only).
+  Suite: 1,990 passed, 10 skipped; `ruff` clean; browser check of the
+  `web-events` report at desktop and 375 px (no console error, no overflow).
+  Public docs, README and site untouched (JI-9). Nothing committed.
+
 - JSON Inspect, lot JI-7 (command, Scan and Report integration, Python API):
   `tabalyst inspect INPUT... [--config FILE]... [--reset-config] [--force]
   [--quiet] [--verbose] [--no-progress]` writes only the visible file; new

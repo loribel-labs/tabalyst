@@ -173,6 +173,22 @@ def write_json(path: Path, rows: int, seed: int) -> None:
         stream.write("]\n")
 
 
+def write_jsonl(path: Path, rows: int, seed: int) -> None:
+    """Write one JSON object per line, with the records of ``write_json``."""
+    temporary = path.with_suffix(".tmp.json")
+    write_json(temporary, rows, seed)
+    # write_json puts one record per line: strip the array brackets and commas.
+    with temporary.open(encoding="utf-8") as source, path.open(
+        "w", encoding="utf-8", newline="\n"
+    ) as stream:
+        for line in source:
+            line = line.strip()
+            if line in {"[", "]", ""}:
+                continue
+            stream.write(line.removesuffix(",") + "\n")
+    temporary.unlink()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--rows", type=int, required=True)
@@ -182,7 +198,7 @@ def main() -> None:
         "--output",
         type=Path,
         required=True,
-        help="Output path; the .csv or .json suffix selects the format.",
+        help="Output path; the .csv, .json or .jsonl suffix selects the format.",
     )
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -191,8 +207,10 @@ def main() -> None:
         write_csv(args.output, args.rows, args.seed)
     elif suffix == ".json":
         write_json(args.output, args.rows, args.seed)
+    elif suffix == ".jsonl":
+        write_jsonl(args.output, args.rows, args.seed)
     else:
-        parser.error("output must end in .csv or .json")
+        parser.error("output must end in .csv, .json or .jsonl")
 
 
 if __name__ == "__main__":

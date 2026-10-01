@@ -1,9 +1,9 @@
 ---
 title: Scan CSV and JSON files
-description: Describe every field of a CSV or JSON file in a complete JSON scan document with tabalyst scan, in one streaming pass.
+description: Describe every field of a CSV, JSON or JSONL file in a complete JSON scan document with tabalyst scan, in one streaming pass.
 ---
 
-Use `tabalyst scan` to describe a CSV or JSON file in a JSON document: every
+Use `tabalyst scan` to describe a CSV, JSON or JSONL file in a JSON document: every
 field, its presence, values, statistics, formats and detected meanings, such
 as email addresses, dates or amounts.
 
@@ -11,9 +11,9 @@ as email addresses, dates or amounts.
 tabalyst scan customers.csv
 ```
 
-For a CSV, this stores a reusable `scan.json` in Tabalyst's local storage
-directory, under `workspaces/local/scans/` in a directory keyed by the source
-path. It does not build a DuckDB database. Set `TABALYST_HOME` to choose the
+Without `-o` or `-d`, whatever the format, this stores a reusable `scan.json` in
+Tabalyst's local storage directory, under `workspaces/local/scans/` in a
+directory keyed by the source path. It does not build a DuckDB database. Set `TABALYST_HOME` to choose the
 storage root. The source file is never modified. **Tabalyst Scan** reads the whole file in one streaming pass,
 so memory depends on the configured limits, not on the number of records. The
 structure of the result is described in the
@@ -28,12 +28,22 @@ Files ending in `.json` are read as JSON, files ending in `.jsonl` or `.ndjson`
 tabalyst scan orders.json
 ```
 
-By default, Tabalyst finds the records itself. A top-level array is one
-collection of records. A top-level object is one document record, and every
-array reachable from it through objects, at most three levels deep, is also a
-collection, such as `customers` in `{"customers": [...]}`. Arrays inside records,
-such as the `orders` of each customer, stay fields of their records. Name the
-collections explicitly with `--collection`, repeated for several:
+A scan analyzes one **collection** of records: a top-level array, or an array
+inside a top-level object, such as `customers` in `{"customers": [...]}`.
+Arrays inside records, such as the `orders` of each customer, stay fields of
+their records. Tabalyst finds the collection with
+[Inspect](inspect-json-files.md), which runs by itself when the source has no
+Inspect file, and keeps the choice in the Inspect file beside the source when
+you ran `tabalyst inspect`. When several arrays are equally plausible, the scan
+stops with exit code `2` and lists them; choose one in the Inspect file, or
+pass `--collection`:
+
+```console
+tabalyst scan orders.json --collection "$.customers[]"
+```
+
+Repeat `--collection` to analyze several collections in one scan, one dataset
+each:
 
 ```console
 tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[]"
@@ -41,8 +51,14 @@ tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[
 
 A collection path starts with `$`, the document root, and ends with `[]`, the
 elements of an array. Nested fields are written with dots, such as
-`orders[].amount`. A collection that is not found is reported as a warning,
-with an empty dataset.
+`orders[].amount`. `--collection` outranks the Inspect file. A collection set in
+an Inspect file that no longer exists in the source stops the scan with exit
+code `2`; `--collection` or a `--config` collection that is not found is a
+warning, with an empty dataset.
+
+A JSONL source has one dataset, `$[]`: its records are the lines. An invalid
+line, or one that is not an object, is excluded and counted under the default
+`tolerant` policy, and the scan is `partial`.
 
 ## Choose output locations
 
@@ -81,7 +97,11 @@ with the other sources and returns a non-zero exit code at the end.
 
 A pattern such as `data/*.json` also matches earlier standalone results such as
 `data/orders.scan.json`. Write scans to another directory with `-d` to keep
-them apart from the sources.
+them apart from the sources. Patterns skip Inspect files, named
+`*-inspect.json`, and an Inspect file given as an input is refused. On Windows,
+the command line library expands a wildcard before Tabalyst sees it, so a
+pattern such as `data/*.json` passes the Inspect files too and the command is
+refused: name the sources instead.
 
 ## Configure the scan
 
@@ -116,10 +136,11 @@ tabalyst scan data.csv --delimiter ";" --encoding cp1252
 ## Errors and partial scans
 
 By default, a CSV record with the wrong number of fields, or a JSON object with
-a duplicate key, stops the scan of that file with an error. With
-`"errors": {"policy": "tolerant"}`, such records are excluded and counted, and
-the scan finishes with status `partial`. The command then succeeds and prints a
-warning:
+a duplicate key, stops the scan of that file with an error. A JSONL file is
+tolerant by default: a line that is not valid JSON or not an object is excluded.
+With `"errors": {"policy": "tolerant"}`, such records are excluded and counted,
+and the scan finishes with status `partial`; `"strict"` stops at the first one.
+The command then succeeds and prints a warning:
 
 ```text
 Warning [data.csv]: partial scan, 2 records excluded (width_mismatch: 2).
@@ -167,12 +188,16 @@ format, encoding, delimiter, status and number of diagnostics.
 
 ## Report from a scan
 
-`tabalyst report customers.csv` uses the stored scan. If none exists, it
-creates one. A scan is reused when the CSV is unchanged, its effective
-scan settings match and the same version of Tabalyst wrote it. A changed CSV causes an atomic replacement of `scan.json`.
-Existing DuckDB projects from 0.4.3 are left untouched. Before reusing a scan,
-Report checks the CSV's SHA-256, whatever its size and modification time. When no scan settings are
-requested, Report keeps the settings recorded by the existing scan.
+`tabalyst report customers.csv` uses the stored scan, and so does a report on
+a JSON or JSONL file. If none exists, it creates one. A scan is reused when the
+source content is unchanged, its effective scan settings match and the same
+version of Tabalyst wrote it. For a JSON file, the settings include the
+collection, so editing `config.structure.dataset_path` in the
+[Inspect file](inspect-json-files.md) rescans. A changed source causes an atomic replacement of
+`scan.json`. Existing DuckDB projects from 0.4.3 are left untouched. Before
+reusing a scan, Report checks the source's SHA-256, whatever its size and
+modification time. When no scan settings are requested, Report keeps the
+settings recorded by the existing scan.
 
 Build the HTML report from a standalone scan document instead of reading the source
 again:
@@ -200,7 +225,10 @@ source beside the scan document, under the name the scan recorded:
 - a source that is not beside the scan document is accepted, since the scan
   stands on its own, with a warning that it was not checked. This is the case
   for scans written with `-d` to another directory;
-- a scan written by another version of Tabalyst is reported, with a warning.
+- a scan written by another version of Tabalyst is reported, with a warning;
+- for a JSON or JSONL source, an Inspect file beside the source that asks for
+  settings different from the scan's, or that cannot be read, is reported with
+  a warning. The report still follows the scan document.
 
 The report uses the scan settings recorded in the document. Configuration
 files passed with `--config` give the presentation settings; settings given
@@ -224,7 +252,11 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
 `tabalyst.scan()` reads one source and returns the result without writing
-anything; `result.model_dump(mode="json")` gives the document. Pass
+anything; `result.model_dump(mode="json")` gives the document. It works at the
+level of the engine: it does not read an Inspect file and, for a JSON file with
+no `json.collections` setting, discovers every array reachable through objects
+as a collection, plus the document itself as dataset `$`. Use
+`tabalyst.generate_scans()` or `tabalyst.generate_reports()` to apply Inspect. Pass
 `config=tabalyst.ScanConfig(...)` to change settings, and `workers=` to choose
 the number of worker processes as `--workers` does. `tabalyst.generate_scans()`
 writes standalone scan documents by default and returns the plan, successes and

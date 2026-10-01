@@ -256,7 +256,8 @@ A list of entries, all informative (no effect on identity). An entry holds
 | `ambiguous_collections` | warning | `selection.basis` is `ambiguous` | `count` of eligible candidates |
 | `no_collection` | warning | `selection.basis` is `no_eligible_candidate` | `reason`: `scalar_root`, `no_array`, `no_eligible_array` |
 | `candidates_truncated` | warning | the candidate list was cut | `count` of candidates kept |
-| `candidate_not_eligible` | info | one per ineligible candidate | `path`, `reason` (`empty`, `non_object_elements`) |
+| `candidate_not_eligible` | info | one per ineligible candidate, the first `MAX_INELIGIBLE_NOTES` in document order | `path`, `reason` (`empty`, `non_object_elements`) |
+| `candidate_not_eligible_truncated` | info | more than `MAX_INELIGIBLE_NOTES` candidates are ineligible | `count` of ineligible candidates |
 | `invalid_lines` | warning | JSONL lines that are not valid JSON, or longer than `limits.max_line_bytes` | `count`, `locations` |
 | `non_object_lines` | warning | JSONL lines that are valid JSON but not objects | `count`, `locations` |
 | `configured_path_not_found` | warning | re-inspection: the preserved `dataset_path` is not an array of the new source | `path` |
@@ -1044,17 +1045,18 @@ batch form returning `BatchInspectResult`, reports per source.
 
 The maintainer's rule: no numeric value is fixed without a measurement. Each
 parameter has a meaning, a constraint, a protocol and, once measured, a value
-that the maintainer decided. The first four live in
+that the maintainer decided. The first five live in
 `tabalyst.inspector.json_inspect.parameters` (lot JI-5), `max_line_bytes` in
 `LimitSettings` (lot JI-4). Tests import the symbols and build their data from
 them: none depends on a number.
 
 | Parameter | Meaning | Constraint | Value | Measured in |
 | --- | --- | --- | --- | --- |
-| `RECORDS_OBSERVED` | First records per candidate used for the detail observation | integer ≥ 1 | **1,000** | JI-5, confirmed in JI-8 |
+| `RECORDS_OBSERVED` | First records per candidate used for the detail observation | integer ≥ 1 | **1,000** | JI-5, confirmed in JI-8 (`benchmarks.md`) |
 | `FIELDS_OBSERVED` | Distinct field paths tracked per candidate | integer ≥ 1 | **1,000** | JI-5 |
 | `MAX_CANDIDATES` | Candidates kept per source | integer ≥ 1 | **100** | JI-5 |
 | `DOMINANCE_RATIO` | Element count ratio from which the largest eligible candidate stands out | number > 1 | **10** | JI-5, reviewed at G2 |
+| `MAX_INELIGIBLE_NOTES` | Ineligible candidates described one by one in `warnings` (the rest is counted) | integer ≥ 1 | **10** | JI-8, decided by the maintainer; not size-sensitive (the candidate list itself is complete up to `MAX_CANDIDATES`) |
 | `limits.max_line_bytes` | Largest JSONL line parsed | integer ≥ 1 with a hard cap | **16 MiB** (cap 256 MiB) | JI-4 |
 
 **`limits.max_line_bytes` (measured in JI-4, 2026-09-30).** `json.loads` with
@@ -1074,6 +1076,10 @@ size limit, which mostly bounds long strings and parse memory. Decision of the
 maintainer (JI-4): default 16 MiB (about 0.2 GB peak in the worst case), hard
 cap 256 MiB (about 3 GB). Reader throughput on 100,000 records (22 MB) is the
 same as the JSON reader: 1.5 s reading, 4.8 s for the whole scan against 5.2 s.
+
+Lot JI-8 measured the finished code on 100,000 and 1,000,000 records of JSON and
+JSONL and confirmed `RECORDS_OBSERVED` (no value changes): see
+`docs/dev/inspect/benchmarks.md`.
 
 ### Measurements of lot JI-5 (2026-09-30)
 
@@ -1200,7 +1206,7 @@ were the alternatives; ratio 5 was refused because it selects `events` in the
 
 A real Tabalyst scan document selects `$.datasets[]` (the other arrays are empty
 or hold strings); a real crawler manifest keyed by URL gives
-`candidates_truncated` and 100 informative `candidate_not_eligible` entries.
+`candidates_truncated` and, before JI-8, 100 informative `candidate_not_eligible` entries (now ten plus one `candidate_not_eligible_truncated` entry with the count).
 
 ## 16. Tests and traceability
 
@@ -1276,12 +1282,36 @@ can add its own.
 | I-T01 | `test_json_inspect_cli.py` | JI-7 |
 | I-F01 | `test_json_inspect_jsonl.py`: JSONL nested objects, parity with JSON | JI-4 |
 
-The specification's minimal matrix (section 10.2) maps as follows: simple
-array, nested, JSONL, `results`, several collections, mixed types, `null` and
-absence, arrays, invalid JSON, incompatible configuration, late field,
-ambiguity, both JSONL policies, collisions and a changed source with identical
-metadata are each covered by a test above; the matrix is closed in JI-8 with
-the measurements.
+### 16.4 Minimal verification matrix (specification 10.2, closed in JI-8)
+
+Each case is covered by the tests below (file in `tests/inspect/` unless said
+otherwise). The engine level proves the rule, the command level proves the
+parcours.
+
+| Case | Engine and readers | Command and services |
+| --- | --- | --- |
+| Simple array | `test_json_inspect_detection.py::test_a_root_array_of_objects_is_the_dataset`, `test_flat_records_have_no_nesting` | `test_json_inspect_cli.py::test_inspect_writes_the_visible_file_beside_the_source` |
+| Nested JSON | `test_json_inspect_flatten.py::test_default_develops_every_level`, `test_depth_limit_keeps_the_container_as_a_complex_value` | `test_json_inspect_flatten_report.py`; `test_json_inspect_cli.py::test_a_depth_limit_set_in_the_file_reaches_the_report` |
+| JSONL | `test_json_inspect_jsonl.py` (reader), `test_json_inspect_detection.py::test_jsonl_has_one_implicit_collection` | `test_json_inspect_matrix.py::test_jsonl_with_nested_objects_and_a_bad_line_reports_partially`; `test_json_inspect_cli.py::test_jsonl_scan_is_partial_but_successful_by_default` |
+| `results` envelope | `test_json_inspect_detection.py::test_results_envelope_selects_that_collection`, `test_names_of_properties_play_no_role` | `test_json_inspect_cli.py::test_a_dominant_collection_needs_no_choice` |
+| Several collections | `tests/scan/test_scan_json.py::test_explicit_collection_limits_the_requested_scope`, `test_explicit_collection_can_gather_nested_arrays` | `test_json_inspect_matrix.py::test_several_collections_are_chosen_on_purpose` |
+| Mixed types | `test_json_inspect_flatten.py::test_mixed_types_stay_distinguishable`, `test_the_string_one_and_the_integer_one_are_different_values` | - |
+| `null` and absence | `test_json_inspect_flatten.py::test_absent_null_and_empty_string_stay_distinguishable`, `test_a_null_parent_leaves_its_children_neither_present_nor_absent` | - |
+| Arrays | `test_json_inspect_flatten.py::test_arrays_never_add_rows`, `test_array_elements_count_a_segment` | - |
+| Invalid JSON | `test_json_inspect_detection.py::test_a_syntax_error_anywhere_fails_the_inspection`, `test_a_syntax_error_after_the_observed_records_still_fails` | `test_json_inspect_cli.py::test_invalid_json_fails_and_writes_nothing`, `test_invalid_json_leaves_the_existing_file_alone` |
+| Incompatible configuration | `test_json_inspect_persistence.py::test_a_configured_path_that_is_gone_is_an_incompatibility` | `test_json_inspect_cli.py::test_a_configured_path_that_disappeared_is_an_incompatibility`, `test_an_invalid_visible_file_stops_scan_and_report` |
+| Late field | `test_json_inspect_detection.py::test_a_field_after_the_observed_records_is_found_by_the_scan` | - |
+| Ambiguity | `test_json_inspect_detection.py::test_equally_plausible_collections_are_not_resolved`, `test_just_below_the_ratio_is_ambiguous` | `test_json_inspect_cli.py::test_an_ambiguous_source_suspends_scan_and_report` |
+| Both JSONL policies | `test_json_inspect_jsonl.py::test_default_policy_continues_counts_locates_and_reports_partial`, `test_strict_policy_stops_at_the_first_invalid_line` | `test_json_inspect_cli.py::test_jsonl_scan_is_partial_but_successful_by_default`, `test_jsonl_strict_policy_set_in_the_file` |
+| Collisions | `test_json_inspect_flatten.py::test_literal_key_and_nested_key_are_two_fields`, `test_collision_is_also_prevented_with_another_separator`; `test_json_inspect_persistence.py::test_sources_with_the_same_stem_have_distinct_inspect_files` | `test_json_inspect_cli.py::test_same_stem_sources_have_distinct_inspect_files`, `test_same_stem_scan_outputs_collide_and_the_batch_is_rejected` |
+| Changed source, same metadata | `test_json_inspect_identity.py`, `test_json_inspect_identity.py::test_same_size_same_time_other_content_is_stale`, `test_cached_scan_is_not_reused_for_same_metadata_other_content`, `test_report_from_scan_document_refuses_same_metadata_other_content` | `test_json_inspect_cli.py::test_a_changed_source_keeps_the_choices_and_is_scanned_again` |
+
+Readability of the written file (specification 10.3): the zone to edit is
+`config`, last in the file, with the order of the zones and the note of the
+`inspect` zone tested in `test_json_inspect_document.py::test_zones_and_their_order`
+and `test_json_inspect_persistence.py` (file written beside the source,
+readable, no absolute path). The compactness of `detection` is bounded by
+`MAX_CANDIDATES` and `MAX_INELIGIBLE_NOTES`.
 
 ## 17. Changes to this document
 
@@ -1294,3 +1324,4 @@ the measurements.
 | 2026-09-30 | JI-5 | Section 15: the four parameters measured and fixed (`RECORDS_OBSERVED` 1,000, `FIELDS_OBSERVED` 1,000, `MAX_CANDIDATES` 100, `DOMINANCE_RATIO` 10), with the measurement tables and the result of the rule at G2. Clarifications, no contract change: 4.4 `invalid` counts the lines above `limits.max_line_bytes` and a line with a duplicate key is an object; 5.3 `json.collections` of the layers below the file plays no part in the seed; 8.1 `JsonEvents` and `JsonlLines` are the event source shared with the Scan readers (extracted from them without change of behavior), so both refuse the same documents with the same message; 8.2 an array repeated under one key is one candidate; 8.5 the observation ignores `flatten` and `limits.max_depth`, a container is a field, an empty object has depth 0. `byte_progress` moved to `tabalyst/progress.py` to serve both engines. | Implementation of lot JI-5. |
 | 2026-10-01 | JI-6 | Amendment: `detection.scope.discovery_max_depth` is recorded (4.4) and a cache made at another depth is rebuilt (12.4); the format stays at revision 1, which is not published. Clarifications, no other contract change: 12.3 a path the candidates cannot judge (deeper than the discovery depth, crossing an array, list truncated) gives no `configured_path_not_found`; 11 `Interpretation.collection_origin`, `source_sha256`, CSV passed through, `json.collections` of a JSONL source resolved to `null`; 12.4 a size mismatch rebuilds the cache without hashing; a failure to write the cache, a busy workspace lock included, is a notice; `scan_reuse.file_sha256` made public. | Implementation of lot JI-6. |
 | 2026-10-01 | JI-7 | The command, the services and the API (sections 13, 16.1). Amendments decided by the maintainer: 11.2 no automatic inspection when the command line or a `--config` file already names the collections; `Interpretation.source_sha256` shared with `current_scan` and `compare_source`; 11.4 the notices join the suspension message; 10.2 `report --scan` warns about a visible file that differs from the document. Clarifications: scans with no `-o` or `-d` go to the shared storage for every format and `report` reuses them (section 13); in a mixed batch the `json.collections` of a `--config` file is ignored for JSONL sources and `--collection` fails that source alone (11.2); `*-inspect.json` is skipped by patterns and refused as a path in `batch.py` for every command (12.1); `save_inspection` returns the document as written. No change to the file format. | Implementation of lot JI-7. |
+| 2026-10-01 | JI-8 | 4.5 and 15: `candidate_not_eligible` is written for the first `MAX_INELIGIBLE_NOTES` (10) ineligible candidates, followed by one `candidate_not_eligible_truncated` entry with the `count` (amendment decided by the maintainer; the finding of JI-5 on a crawler manifest with 100 entries). New 16.4: the minimal verification matrix mapped to tests. New `benchmarks.md`; `RECORDS_OBSERVED` confirmed. No change to the format revision (1, not published). | Implementation of lot JI-8. |

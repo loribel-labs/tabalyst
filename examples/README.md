@@ -9,7 +9,8 @@ examples/
 |-- input/
 |   |-- basic.csv
 |   |-- insurance-customers.csv
-|   `-- orders.json
+|   |-- orders.json
+|   `-- web-events.jsonl
 `-- output/
     |-- basic/
     |   |-- report.html
@@ -20,7 +21,11 @@ examples/
     |   |-- report.json
     |   |-- report/ (34 standalone column pages with --details)
     |   `-- executions.json
-    `-- orders/
+    |-- orders/
+    |   |-- report.html
+    |   |-- report.json
+    |   `-- executions.json
+    `-- web-events/
         |-- report.html
         |-- report.json
         `-- executions.json
@@ -32,6 +37,12 @@ details, and contracts are fictional; email addresses use reserved `.example`
 domains. `orders.json` is a synthetic shop export: 60 customers with nested
 addresses, tags and orders. Its report has one dataset, `$.customers[]`, the only
 collection of arrays of objects that Tabalyst Inspect finds in it.
+`web-events.jsonl` is a synthetic web analytics log in JSON Lines: 300 events with
+nested `user` and `device` objects, tags arrays, null values and an optional
+field that appears late, plus three bad lines (a truncated record, a line that
+is not JSON and a JSON array instead of an object). Its report is partial on
+purpose: the three lines are excluded and counted, the 300 events are analyzed.
+Its people and identifiers are fictional.
 
 From the repository root, regenerate the outputs with:
 
@@ -39,6 +50,7 @@ From the repository root, regenerate the outputs with:
 tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --config examples/config.json --force
 tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
 tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
+tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/report.html --config examples/config.json --force
 ```
 
 Every output folder is independent and contains its own HTML report, canonical

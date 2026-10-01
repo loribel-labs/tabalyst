@@ -254,17 +254,29 @@ def _warnings(
                 count=len(candidates),
             )
         )
-    for item in candidates:
-        if not item.eligible:
-            out.append(
-                InspectWarning(
-                    code="candidate_not_eligible",
-                    level="info",
-                    message=_not_eligible_message(item),
-                    path=item.path,
-                    reason=item.ineligible_reason,
-                )
+    ineligible = [item for item in candidates if not item.eligible]
+    for item in ineligible[: parameters.MAX_INELIGIBLE_NOTES]:
+        out.append(
+            InspectWarning(
+                code="candidate_not_eligible",
+                level="info",
+                message=_not_eligible_message(item),
+                path=item.path,
+                reason=item.ineligible_reason,
             )
+        )
+    if len(ineligible) > parameters.MAX_INELIGIBLE_NOTES:
+        out.append(
+            InspectWarning(
+                code="candidate_not_eligible_truncated",
+                level="info",
+                message=(
+                    f"{len(ineligible)} candidates are not eligible; only the "
+                    f"first {parameters.MAX_INELIGIBLE_NOTES} are described."
+                ),
+                count=len(ineligible),
+            )
+        )
     if counts is not None:
         for located, code, many, one in (
             (
