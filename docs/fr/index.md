@@ -1,6 +1,6 @@
 ---
 title: Documentation de Tabalyst
-description: Présentation en français de Tabalyst 0.5.0, ses outils et ses entrées et sorties, avec des liens vers la documentation détaillée, publiée uniquement en anglais pendant la bêta.
+description: Présentation en français de Tabalyst 0.5.1, ses outils et ses entrées et sorties, avec des liens vers la documentation détaillée, publiée uniquement en anglais pendant la bêta.
 ---
 
 Tabalyst est une boîte à outils open source, locale d'abord, pour comprendre des

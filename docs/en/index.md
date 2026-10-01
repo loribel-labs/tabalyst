@@ -1,6 +1,6 @@
 ---
 title: Tabalyst documentation
-description: Documentation of Tabalyst 0.5.0, the open-source, local-first toolkit that turns CSV, JSON and JSONL files into reports, JSON profiles, scans and samples.
+description: Documentation of Tabalyst 0.5.1, the open-source, local-first toolkit that turns CSV, JSON and JSONL files into reports, JSON profiles, scans and samples.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
