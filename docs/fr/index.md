@@ -1,13 +1,14 @@
 ---
 title: Documentation de Tabalyst
-description: Tabalyst est une boîte à outils open source et locale qui transforme un fichier CSV ou JSON en rapport HTML interactif et en profil JSON.
+description: Tabalyst est une boîte à outils open source et locale qui transforme un fichier CSV, JSON ou JSONL en rapport HTML interactif et en profil JSON.
 ---
 
 Tabalyst est une boîte à outils open source et locale pour comprendre des
-données inconnues. Son premier outil, **Tabalyst Report**, analyse un fichier CSV
-ou JSON et produit un rapport HTML interactif et un profil JSON structuré.
-**Tabalyst Scan** décrit les fichiers CSV et JSON dans un document d’analyse,
-et **Tabalyst Sample** crée des fichiers CSV plus petits.
+données inconnues. Son premier outil, **Tabalyst Report**, analyse un fichier
+CSV, JSON ou JSONL et produit un rapport HTML interactif et un profil JSON
+structuré. **Tabalyst Scan** décrit les fichiers CSV, JSON et JSONL dans un
+document d’analyse, **Tabalyst Inspect** trouve comment lire un fichier JSON ou
+JSONL, et **Tabalyst Sample** crée des fichiers CSV plus petits.
 
 ```console
 pip install --upgrade tabalyst
@@ -34,6 +35,8 @@ PyPI.
   first, last, random ou stratified.
 - [Générer le rapport de fichiers JSON](how-to/report-json-files.md), avec une
   vue par collection d’enregistrements.
+- [Inspecter des fichiers JSON et JSONL](how-to/inspect-json-files.md) pour voir
+  comment Tabalyst trouve la collection d’enregistrements, et pour la choisir.
 - [Analyser des fichiers CSV et JSON](how-to/scan-files.md) pour obtenir une
   description JSON complète de chaque champ.
 
@@ -48,6 +51,8 @@ PyPI.
 - [Journal des modifications du format de profil](reference/profile-format-changelog.md).
 - [Format d’analyse](reference/scan-format.md) : la structure du fichier
   `.scan.json`, et son [journal des modifications](reference/scan-format-changelog.md).
+- [Format Inspect](reference/inspect-format.md) : la structure du fichier
+  `-inspect.json`, et son [journal des modifications](reference/inspect-format-changelog.md).
 - [Limites connues](reference/known-limitations.md) : ce que Tabalyst ne fait
   pas encore.
 - [Glossaire](reference/glossary.md) : les termes anglais et français.

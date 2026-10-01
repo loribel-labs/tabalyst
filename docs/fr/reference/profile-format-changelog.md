@@ -9,7 +9,7 @@ indépendants :
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 5
+  "format_revision": 10
 }
 ```
 
@@ -125,3 +125,100 @@ enregistrements contient désormais l’aperçu et les lignes en double.
 - Pour un rapport généré à partir d’un document d’analyse,
   `processing_seconds` est le temps de lire le document et de construire le
   profil.
+
+## Révision 6 - 2026-09-28
+
+Le rapport montre chaque étape de normalisation avec ses groupes de variantes,
+ce que l’analyse n’a pas pu mesurer complètement, et la structure des jeux de
+données JSON.
+
+- La `normalization` d’une colonne reçoit `stages` (`raw`, puis `nfc`, `trim`,
+  `collapse_whitespace`, `casefold` et `strip_accents`, chacune avec `enabled`,
+  `changed_count`, `changed_percent`, `distinct_count` et `distinct_status`),
+  `variant_group_count`, `variant_group_status`, `variant_groups` et
+  `variant_groups_truncated`.
+- Nouvelle anomalie d’information `variant_groups` : des valeurs écrites de
+  plusieurs façons que la normalisation compare comme égales.
+- Chaque jeu de données reçoit un nouvel objet `limits` : les `measures`
+  arrêtées par une limite de l’analyse, avec leur champ, leur raison, leur
+  limite et la borne inférieure prouvée ; `untracked_observations`,
+  `depth_truncated_observations` ; et les `diagnostics` de l’analyse pour le
+  jeu de données et pour toute l’analyse.
+- Les jeux de données JSON reçoivent un nouvel objet `structure` :
+  `record_types`, `path_count`, `path_status`, `max_depth_seen` et un élément par
+  chemin, conteneurs compris, avec la présence par parent et les longueurs de
+  tableaux. Il vaut `null` pour les fichiers CSV.
+
+## Révision 7 - 2026-09-28
+
+L’analyse derrière le rapport utilise par défaut la détection adaptative : sur
+les colonnes de plus de 10 000 valeurs distinctes, les détecteurs qui n’ont
+reconnu aucune des premières valeurs arrêtent de tester les autres.
+
+- `config.scan.detection` reçoit `warmup_values` (10 000 par défaut ; `0` teste
+  chaque valeur) et `probe_interval` (100 par défaut).
+- Les types sémantiques et les types inférés sont inchangés sur les colonnes où
+  un détecteur reconnaît au moins 95 % des valeurs. Les comptages de
+  reconnaissances rares après la chauffe peuvent être plus bas ; un
+  avertissement `detector_skipped_reacted` dans les `limits.diagnostics` du jeu
+  de données indique quand un sondage en a trouvé une.
+- Pour un rapport généré à partir d’un document d’analyse, `processing_seconds`
+  ajoute désormais la durée de l’analyse enregistrée dans le document au temps
+  de le lire et de construire le profil, ce qui le rend comparable à un rapport
+  généré à partir de la source.
+
+## Révision 8 - 2026-09-28
+
+L’analyse derrière le rapport arrête aussi de tester les détecteurs rares : ceux
+qui ont reconnu au plus 0,1 % des 10 000 premières valeurs distinctes d’une
+colonne, et aucune des 5 000 dernières.
+
+- `config.scan.detection` reçoit `rare_share` (0,001 par défaut ; `0` conserve
+  le comportement de la révision 7).
+- Les types sémantiques et les types inférés sont inchangés ; seuls les
+  comptages des détecteurs à reconnaissances rares peuvent être plus bas. Un
+  avertissement `detector_skipped_reacted` dans les `limits.diagnostics` du jeu
+  de données indique quand un tel détecteur a reconnu des valeurs sondées plus
+  souvent que pendant sa chauffe.
+
+## Révision 9 - 2026-09-29
+
+- La `scan_details` d’une colonne conserve des preuves bornées de l’analyse pour
+  les pages de colonne autonomes : présence, types natifs, composantes
+  manquantes, premières et dernières valeurs exposées, caractéristiques et
+  longueurs des textes, statistiques numériques, comptages de booléens et
+  plages temporelles. Les valeurs respectent le paramètre d’exposition de
+  l’analyse.
+- Les entrées de détecteurs reçoivent la couverture complète, les preuves
+  exposées, les détails exposés et les métadonnées de détection adaptative quand
+  elles existent.
+- Les énumérations primaires incluent toutes les fréquences disponibles même
+  quand leur cardinalité dépasse `value_examples.full_distribution_max_distinct`.
+- `tabalyst report --details` génère une page HTML autonome par colonne dans le
+  dossier du nom du rapport. Les détails sont désactivés par défaut. Cela change
+  les artefacts du rapport, pas le sens des autres champs du profil.
+
+## Révision 10 - 2026-09-30
+
+- `config.scan` enregistre les règles appliquées par l’analyse, valeurs par
+  défaut résolues : `config.scan.errors.policy` vaut `strict` ou `tolerant`,
+  jamais `null`. Le paramètre lui-même accepte `null`, qui signifie la valeur
+  par défaut du format de la source.
+- `config.scan.json` reçoit `flatten` (`enabled`, `separator`, `max_depth`) et
+  `arrays` (`mode`). Leurs valeurs par défaut conservent le comportement
+  précédent.
+- Un champ JSON qui ne contient que des objets ou des tableaux conservés entiers
+  à la limite `config.scan.json.flatten.max_depth` est une colonne dont
+  l’`inferred_type` vaut `complex`, avec les comptages `object` et `array` dans
+  `type_counts`. Sans limite d’aplatissement, les conteneurs restent de la
+  structure et aucune colonne ne change.
+- `source.format` peut valoir `jsonl`, pour les fichiers se terminant par
+  `.jsonl` ou `.ndjson`. Les lignes exclues avec la politique `tolerant` sont
+  comptées par l’anomalie `excluded_records` existante, avec leurs numéros de
+  ligne comme `row_numbers`. `config.scan.limits` reçoit `max_line_bytes`.
+- Les rapports générés par les commandes ont un jeu de données par collection
+  choisie avec [Inspect](inspect-format.md) ou `--collection`, en général un
+  seul, et aucun jeu de données `$` pour le reste du document. La structure de
+  `datasets` ne change pas.
+- Le `path` et le `name` des colonnes des champs JSON sont joints avec
+  `config.scan.json.flatten.separator`.

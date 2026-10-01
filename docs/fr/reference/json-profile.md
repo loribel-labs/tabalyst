@@ -13,7 +13,7 @@ scripts ou d’autres outils.
 
 Le format est **expérimental** : il peut changer de manière incompatible d’une
 version à l’autre. Vérifiez toujours d’abord `format_version` et
-`format_revision`. Cette page décrit le format `0.1.0a`, révision `5`.
+`format_revision`. Cette page décrit le format `0.1.0a`, révision `10`.
 
 ## Exemple
 
@@ -22,7 +22,7 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 5,
+  "format_revision": 10,
   "generated_at": "2026-09-25T22:25:07.873024Z",
   "processing_seconds": 0.0098,
   "source": {
@@ -92,7 +92,14 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
           "values": ["001", "Alice", "12.50", "2026-01-01", "true", "First order"],
           "absent": []
         }
-      ]
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": null
     }
   ]
 }
@@ -105,7 +112,7 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 | `format_version` | chaîne | Famille du format expérimental, `"0.1.0a"`, conservée pendant la phase bêta |
 | `format_revision` | entier | Révision dans la famille, augmentée à chaque changement de structure ou de sens |
 | `generated_at` | chaîne | Date et heure UTC de l’analyse (ISO 8601) |
-| `processing_seconds` | nombre | Durée de l’analyse et du profil, en secondes ; pour un rapport généré à partir d’un document d’analyse avec `--scan`, le temps de lire le document et de construire le profil, la durée de l’analyse elle-même figurant dans le document |
+| `processing_seconds` | nombre | Durée de l’analyse et du profil, en secondes ; pour un rapport généré à partir d’un document d’analyse avec `--scan`, la durée de l’analyse enregistrée dans le document plus le temps de le lire et de construire le profil |
 | `source` | objet | Le fichier analysé (voir ci-dessous) |
 | `config` | objet | Les paramètres effectifs, après fusion des valeurs par défaut, des fichiers de configuration et des options de la commande : `string_analysis`, `value_examples` et `scan`, la configuration d’analyse complète ; pour un rapport généré à partir d’un document d’analyse, `scan` est la configuration qui y est enregistrée. Voir la [configuration](configuration.md) |
 | `datasets` | tableau | Un profil par jeu de données du fichier (voir ci-dessous) |
@@ -115,7 +122,7 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 | Champ | Contenu |
 | --- | --- |
 | `filename` | Nom du fichier, sans dossier |
-| `format` | `csv` ou `json` |
+| `format` | `csv`, `json` ou `jsonl` |
 | `size_bytes` | Taille du fichier en octets |
 | `sha256` | Empreinte SHA-256 du fichier, pour vérifier que deux profils décrivent le même fichier |
 | `encoding` | Encodage utilisé pour lire le fichier |
@@ -125,10 +132,11 @@ Un profil abrégé pour un fichier `orders.csv` de cinq lignes :
 
 Un fichier CSV a un seul jeu de données, `rows`, dont les enregistrements sont
 les lignes du fichier. Un fichier JSON a un jeu de données par collection
-trouvée par l’analyse, comme `$.customers[]`, et le jeu de données `$` pour le
-reste du document, listé seulement lorsqu’il contient des valeurs hors des
-collections. Voir le [format d’analyse](scan-format.md) pour le choix des
-collections.
+analysée, comme `$.customers[]`, en général un seul : la collection
+qu’[Inspect](../how-to/inspect-json-files.md) sélectionne ou que `--collection`
+nomme. Un fichier JSONL a un seul jeu de données, `$[]`. Les rapports générés par
+les commandes n’ont pas de jeu de données `$` pour le reste du document. Voir le
+[format d’analyse](scan-format.md) pour les jeux de données d’une analyse.
 
 | Champ | Type | Contenu |
 | --- | --- | --- |
@@ -139,11 +147,15 @@ collections.
 | `columns` | tableau | Un profil par colonne, dans l’ordre du fichier pour le CSV et dans l’ordre de découverte pour le JSON |
 | `issues` | tableau | Problèmes détectés (voir ci-dessous) |
 | `preview` | tableau | Les premiers enregistrements, avec leurs valeurs brutes ; les valeurs des colonnes sensibles sont masquées ou cachées |
+| `limits` | objet | Mesures arrêtées par une limite d’analyse, troncature de la structure et diagnostics de l’analyse (voir ci-dessous) |
+| `structure` | objet ou `null` | Chemins d’un jeu de données JSON, conteneurs compris (voir ci-dessous) ; `null` pour les fichiers CSV |
 
 Dans un jeu de données JSON, une colonne est un champ qui contient des chaînes,
 des nombres, des booléens ou des nulls, nommé par son chemin : `email`,
 `address.city`, `orders[].total`. Les objets et les tableaux eux-mêmes ne sont
-pas des colonnes. Une ligne est un enregistrement du jeu de données.
+pas des colonnes, sauf ceux conservés entiers à la limite
+`scan.json.flatten.max_depth`, qui sont des colonnes de type `complex`. Une
+ligne est un enregistrement du jeu de données.
 
 ## `summary`
 
@@ -179,19 +191,26 @@ Chaque profil de colonne contient toujours :
 | `name` | Texte de l’en-tête pour le CSV ; le chemin du champ pour le JSON |
 | `path` | Chemin du champ tel qu’affiché par l’analyse : le texte de l’en-tête pour le CSV, un chemin comme `orders[].total` pour le JSON |
 | `position` | Position dans le fichier pour le CSV, dans l’ordre de découverte pour le JSON, à partir de 1 |
-| `inferred_type` | `empty`, `boolean`, `integer`, `number`, `date`, `text` ou `mixed`. Une colonne de dates est `date` même avec plusieurs formats ou des valeurs ambiguës |
+| `inferred_type` | `empty`, `complex`, `boolean`, `integer`, `number`, `date`, `text` ou `mixed`. Une colonne de dates est `date` même avec plusieurs formats ou des valeurs ambiguës. `complex` est une colonne JSON dont les valeurs présentes sont toutes des objets ou des tableaux conservés entiers à la limite d’aplatissement ; `type_counts` compte alors `object` et `array` |
 | `type_counts` | Nombre de valeurs présentes de chaque type |
 | `type_confidence` | Part des valeurs présentes acceptées par le type inféré, de 0 à 1. Pour les colonnes `mixed`, la part de la famille de types la plus grande ; `null` pour les colonnes `empty` |
 | `type_error_count`, `type_error_percent` | Valeurs hors du type inféré ; `null` pour les colonnes `mixed` |
 | `missing_count`, `missing_percent` | Cellules manquantes ; pour le JSON, aussi les objets où le champ est absent |
 | `with_issues` | `true` lorsque la colonne a des valeurs manquantes, que son type est `mixed` ou qu’elle contient des dates ambiguës |
-| `normalization` | Valeurs modifiées par la suppression et la réduction des espaces ; les cellules manquantes ne sont pas comptées |
+| `normalization` | Valeurs modifiées par chaque étape de normalisation et groupes de variantes (voir ci-dessous) ; les cellules manquantes ne sont pas comptées |
 | `distinct_count` | Nombre de valeurs distinctes après normalisation, même pour une colonne masquée ; `null` lorsqu’une limite d’analyse a arrêté le comptage |
 | `examples` | Quelques valeurs représentatives |
 | `value_profile` | Occurrences des valeurs, complètes ou échantillonnées (voir `selection`) |
 | `semantic_type` | `date` pour les colonnes de dates, sinon l’identifiant de l’interprétation principale de l’analyse, comme `enumeration`, `email`, `phone` ou `postal_code`, ou `null` |
 | `exposure` | `mask`, `hide` ou `show` pour une colonne sensible, la façon dont ses valeurs apparaissent dans `examples`, `value_profile` et `preview` ; `null` sinon |
 | `detectors` | Les détecteurs qui ont reconnu des valeurs de la colonne, dans l’ordre de l’analyse (voir ci-dessous) ; vide si aucun ne l’a fait |
+| `scan_details` | Preuves bornées sur le champ, conservées à partir du résultat exposé de l’analyse : présence, types natifs, détail des valeurs manquantes, premières et dernières valeurs, caractéristiques et longueurs des textes, statistiques numériques, comptages de booléens et plages temporelles. Voir ci-dessous |
+
+`value_profile.selection` vaut `complete` quand toutes les fréquences
+disponibles sont listées. Une `enumeration` primaire conserve cette liste
+complète même au-delà de `value_examples.full_distribution_max_distinct`, si la
+mesure des fréquences de l’analyse est complète. Sinon le profil utilise un
+échantillon diversifié ou aléatoire borné.
 
 Selon la colonne, ces objets sont aussi présents (sinon `null`) :
 
@@ -200,6 +219,35 @@ Selon la colonne, ces objets sont aussi présents (sinon `null`) :
 | `numeric` | Colonnes `integer` et `number` avec des valeurs finies | `minimum`, `maximum`, `range`, `mean`, `median` (`null` lorsqu’une limite d’analyse l’a arrêtée), sur tous les nombres de la colonne, y compris les virgules décimales comme `12,5` |
 | `date_profile` | Colonnes contenant des dates, quel que soit leur type | Comptages des valeurs valides, ambiguës et invalides, formats détectés et leur répartition, et `ambiguity_evidence` : le nombre de valeurs non ambiguës par ordre jour-mois (`DMY`, `MDY`), affiché mais jamais appliqué. `resolved_ambiguous_order` n’est défini que par `scan.detectors.date.ambiguous_order` |
 | `string_profile` | Colonnes `text` | Statistiques de longueur, distribution des longueurs et exemples représentatifs |
+
+## `normalization`
+
+Ce que la normalisation de l’analyse a fait aux valeurs présentes de la colonne.
+Les valeurs brutes ne sont jamais modifiées.
+
+| Champ | Contenu |
+| --- | --- |
+| `trim_count`, `trim_percent` | Valeurs modifiées par la suppression des espaces en début et en fin |
+| `collapse_internal_whitespace_count`, `collapse_internal_whitespace_percent` | Valeurs modifiées par la réduction des espaces internes répétés |
+| `stages` | Un élément par étape, dans l’ordre : `raw`, `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` (voir ci-dessous) |
+| `variant_group_count` | Valeurs normalisées écrites d’au moins deux façons brutes ; `null` sauf si `variant_group_status` vaut `complete` |
+| `variant_group_status` | `complete`, `limited` quand une limite d’analyse a arrêté le comptage, ou `not_applicable` sans valeurs textuelles |
+| `variant_groups` | Les plus grands groupes (`scan.limits.max_variant_groups`), chacun avec sa `key` de comparaison, son nombre d’occurrences `count`, `distinct_count` (écritures brutes), `variants` (`value` et `count`, au plus `scan.limits.max_variants_per_group`) et `truncated` ; masqués pour une colonne sensible, vides quand elle est cachée |
+| `variant_groups_truncated` | `true` quand il existe plus de groupes que ceux listés |
+
+Chaque élément de `stages` contient :
+
+| Champ | Contenu |
+| --- | --- |
+| `stage` | Nom de l’étape ; `raw` décrit les valeurs telles que lues |
+| `enabled` | `false` quand l’étape est désactivée dans `scan.normalization` |
+| `changed_count`, `changed_percent` | Valeurs que l’étape a modifiées, par rapport à l’étape activée précédente ; `null` pour `raw` et les étapes désactivées |
+| `distinct_count` | Valeurs distinctes après l’étape ; `null` sauf si `distinct_status` vaut `complete` |
+| `distinct_status` | `complete`, `limited`, `not_applicable` (aucune valeur) ou `disabled` |
+
+Un groupe de variantes est une équivalence analytique, comme `Montréal`,
+`montreal` et `MONTREAL`, pas une preuve que les valeurs veulent dire la même
+chose.
 
 ## `detectors`
 
@@ -217,7 +265,21 @@ valeurs ambiguës ou invalides, ainsi que ceux qui ont échoué.
 | `ambiguous_count` | Valeurs ayant plus d’une lecture, comme `01/02/2026` |
 | `invalid_count` | Valeurs ayant la bonne forme mais un contenu impossible, comme `2026-02-30` |
 | `formats` | Formats trouvés, chacun avec `format`, `count` et `percent` des valeurs éligibles |
+| `coverage` | Couverture complète de l’analyse, avec les comptages testés, non testés et non reconnus ; `null` pour un détecteur en échec |
+| `evidence` | Exemples exposés et bornés pour les valeurs reconnues, ambiguës, invalides et non reconnues ; `null` pour un détecteur en échec |
+| `details` | Métadonnées de l’analyse propres au détecteur, soumises au contrôle de l’exposition |
+| `adaptive` | Métadonnées d’ignorance et de sondage de la détection adaptative, le cas échéant |
 
+## `scan_details`
+
+Les pages de colonne autonomes utilisent ces faits de l’analyse quand ils
+existent. `first` et `last` conservent le numéro d’enregistrement et le type
+scalaire ; leurs valeurs, les preuves des détecteurs et leurs détails suivent la
+même politique `mask`, `hide` ou `show` que le reste du profil.
+`string_lengths`, `numeric`, `booleans` et `temporal` valent `null` quand la
+mesure correspondante de l’analyse n’est pas disponible. Le document d’analyse
+complet a d’autres champs et d’autres statuts ; `scan_details` est une sélection
+bornée, pas une copie du document d’analyse.
 ## `issues`
 
 Chaque anomalie a un `code`, une `severity` (`warning` ou `info`), un
@@ -238,6 +300,7 @@ données à partir de 1 ; l’en-tête d’un CSV n’est pas compté.
 | `collapsed_whitespace` | info | Cellules modifiées par la réduction des espaces internes répétés |
 | `limited_measures` | info | Colonnes dont des mesures ont été arrêtées par une limite d’analyse |
 | `excluded_records` | warning | Enregistrements exclus par la politique d’erreur `tolerant`, non analysés |
+| `variant_groups` | info | Valeurs écrites de plusieurs façons que la normalisation compare comme égales |
 
 Une anomalie n’est listée que lorsque son comptage est supérieur à zéro, sauf
 `trimmed_cells` et `collapsed_whitespace`, qui sont toujours listées.
@@ -256,6 +319,47 @@ Pour le JSON, un champ absent de l’enregistrement vaut `null` et sa position (
 partir de 0) est listée dans `absent`. Un champ sous un tableau, comme
 `tags[]`, joint les valeurs de l’enregistrement avec `, `. Un `null` JSON est le
 texte `null`.
+
+## `limits`
+
+Ce que l’analyse n’a pas pu mesurer complètement dans le jeu de données. Une
+mesure limitée n’est jamais estimée.
+
+| Champ | Contenu |
+| --- | --- |
+| `measures` | Un élément par mesure limitée : `column_id` et `path` de son champ (tous deux `null` pour une mesure du jeu de données), `measure` (sa place dans le résultat de l’analyse, comme `values.cardinality`, `numeric.median` ou `structure.paths`), `reason` (comme `distinct_limit`, `global_budget`, `value_too_long`, `field_limit` ou `record_budget`), `limit` et `lower_bound`, un minimum prouvé ou `null` |
+| `untracked_observations` | Valeurs sous des chemins au-delà de `scan.limits.max_fields`, comptées mais pas analysées |
+| `depth_truncated_observations` | Valeurs plus profondes que `scan.limits.max_depth`, comptées mais pas analysées |
+| `diagnostics` | Les diagnostics de l’analyse pour ce jeu de données et pour toute l’analyse : `code`, `level` (`error` ou `warning`), `message`, `count`, `dataset` (`null` pour toute l’analyse), `path`, `detector` et jusqu’à `scan.errors.max_locations` `locations` (`record`, et `line` pour le CSV ou `element` pour le JSON) |
+
+## `structure`
+
+La forme d’un jeu de données JSON ; `null` pour les fichiers CSV.
+
+| Champ | Contenu |
+| --- | --- |
+| `record_types` | Nombre d’enregistrements de chaque type natif, comme `{"object": 60}` |
+| `path_count` | Nombre de chemins ; `null` quand `path_status` vaut `limited` |
+| `path_status` | `complete`, ou `limited` quand le jeu de données a plus de chemins que `scan.limits.max_fields` |
+| `max_depth_seen` | Profondeur de la valeur analysée la plus profonde |
+| `fields` | Un élément par chemin, dans l’ordre de découverte, conteneurs compris (voir ci-dessous) |
+
+Chaque élément de `fields` contient :
+
+| Champ | Contenu |
+| --- | --- |
+| `id` | Identifiant du champ dans l’analyse |
+| `path` | Chemin depuis l’enregistrement, comme `orders[].total` |
+| `depth` | Nombre de segments du chemin : `orders[].total` a une profondeur de 3 |
+| `parent` | Chemin du champ parent, `null` à la racine de l’enregistrement |
+| `native_types` | Occurrences de chaque type JSON : `object`, `array`, `string`, `integer`, `number`, `boolean`, `null` |
+| `occurrences` | Valeurs trouvées au chemin |
+| `parent_type` | `record`, `object`, ou `array` pour les éléments de tableau |
+| `parent_count`, `present_count`, `absent_count` | Parents qui pourraient contenir le champ, ceux qui le contiennent et ceux qui ne le contiennent pas ; `absent_count` vaut `null` pour les éléments de tableau |
+| `present_percent` | Part des parents qui contiennent le champ ; `null` pour les éléments de tableau, qui comptent des éléments |
+| `collection` | Pour un tableau analysé comme son propre jeu de données, l’identifiant de ce jeu de données |
+| `arrays` | Pour les tableaux : `count`, `empty_count`, `minimum_length`, `maximum_length`, `mean_length` et `item_count` ; `null` sinon |
+| `column` | `true` quand le champ est aussi listé dans `columns` |
 
 ## Versionnage
 
