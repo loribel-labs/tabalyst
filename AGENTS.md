@@ -62,7 +62,7 @@ not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/templates/` and `src/tabalyst/static/`: report presentation.
 
 Read `README.md`, `docs/dev/architecture.md` and the relevant configuration or
-format changelog (`docs/en/reference/`) before changing shared behavior.
+format changelog (`docs/en/report/`, `docs/en/scan/` or `docs/en/inspect/`) before changing shared behavior.
 
 Tabalyst Scan, the future core analysis engine (`src/tabalyst/scanner/`), is
 built in lots. Before working on it, read `docs/dev/scan/plan.md` (lots,
@@ -88,7 +88,7 @@ After every project modification, regenerate the public demos using the commands
 in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
 Update `docs/dev/progress.md` for meaningful work. Update
-`docs/en/reference/profile-format-changelog.md` only when the JSON structure or
+`docs/en/report/profile-changelog.md` only when the JSON structure or
 semantics change. Update release notes in `docs/dev/releases/` for release
 milestones.
 
@@ -104,15 +104,18 @@ published states distinct in all three repositories.
 built by `tabalyst-studio` from the latest release tag) and the maintainer
 documentation. See `docs/README.md`.
 
-- `docs/en/`: user documentation, published, organized as `tutorials/`,
-  `how-to/`, `reference/` and `explanation/`.
-- `docs/fr/`: French translation of `docs/en/`, published under `/fr/`.
+- `docs/en/`: user documentation, published, organized by tool:
+  `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `project/`,
+  plus `install.md` and `examples.md` at the root. URLs follow the pattern
+  `/tool/subject/` with short, stable slugs; titles can be long. The sidebar order is set in `tabalyst-studio`
+  (`src/routeMiddleware.ts`); add a new page there too.
+- `docs/fr/`: a single page pointing to the English documentation. Tabalyst
+  documents in English only during the beta; do not translate other pages.
 - `docs/dev/`: maintainer documentation, never published.
 
-Writing and translation rules for `docs/en/` and `docs/fr/`:
+Writing rules for `docs/en/`:
 
-1. English is the source of truth. French is always derived from English, never
-   the reverse.
+1. English is the only documentation language during the beta.
 2. Never translate commands, CLI options, JSON keys, module names, file paths or
    product names.
 3. "Tabalyst" is always one word with a capital T only. "Tabalyst" is the
@@ -126,9 +129,11 @@ Writing and translation rules for `docs/en/` and `docs/fr/`:
 7. Only document what is available in the latest release published on PyPI.
    Document a feature in the same change that implements it, so the docs ship
    with the release.
-8. Slugs are in English in both languages, with the same file names and folders.
-9. Use the terms of `docs/en/reference/glossary.md` in every translation.
+8. Slugs are in English. Link pages with relative `.md` paths.
+9. Use the terms of `docs/en/reference/glossary.md`.
 10. Pages start with a `title` and `description` frontmatter and have no `# H1`.
+    The `description` is one sentence that says what the page answers: it feeds
+    `llms.txt` and search results.
 
 When a user-facing behavior changes, update the matching page in `docs/en/`.
 The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0

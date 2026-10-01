@@ -1,58 +1,23 @@
 ---
 title: Documentation de Tabalyst
-description: Tabalyst est une boîte à outils open source et locale qui transforme un fichier CSV, JSON ou JSONL en rapport HTML interactif et en profil JSON.
+description: La documentation de Tabalyst est disponible uniquement en anglais pendant la bêta. Cette page renvoie vers la version anglaise.
 ---
 
-Tabalyst est une boîte à outils open source et locale pour comprendre des
-données inconnues. Son premier outil, **Tabalyst Report**, analyse un fichier
-CSV, JSON ou JSONL et produit un rapport HTML interactif et un profil JSON
-structuré. **Tabalyst Scan** décrit les fichiers CSV, JSON et JSONL dans un
-document d’analyse, **Tabalyst Inspect** trouve comment lire un fichier JSON ou
-JSONL, et **Tabalyst Sample** crée des fichiers CSV plus petits.
+Tabalyst est une boîte à outils open source, locale d'abord, pour comprendre des
+données structurées inconnues : CSV, JSON et JSONL.
+
+**Pendant la bêta, la documentation est publiée uniquement en anglais.**
+
+[Lire la documentation en anglais](https://docs.tabalyst.com/)
+
+Pour installer Tabalyst et créer un premier rapport :
 
 ```console
 pip install --upgrade tabalyst
-tabalyst report customers.csv
+tabalyst report clients.csv
 ```
 
-Cette commande crée `customers.html` (le rapport), `customers.json` (le profil)
-et `executions.json` (l’historique d’exécution) à côté du fichier CSV. Tout
-s’exécute sur votre ordinateur ; aucune donnée n’est envoyée.
+Un point de départ en anglais : [Install Tabalyst](https://docs.tabalyst.com/install/) et
+[Create your first report](https://docs.tabalyst.com/report/getting-started/).
 
-La première commande installe Tabalyst, ou le met à jour s’il est déjà
-installé. Tabalyst est en bêta et évolue souvent : relancez-la avant chaque
-nouvel essai. Les commandes et le format JSON peuvent encore changer d’une
-version à l’autre. Cette documentation décrit la dernière version publiée sur
-PyPI.
-
-## Pour commencer
-
-- [Installer Tabalyst](how-to/install.md), sous Windows, macOS ou Linux, et
-  [le tenir à jour](how-to/install.md#garder-tabalyst-à-jour).
-- [Créer votre premier rapport](tutorials/first-report.md) à partir d’un petit
-  fichier CSV.
-- [Échantillonner des fichiers CSV](how-to/sample-csv.md) avec une sélection
-  first, last, random ou stratified.
-- [Générer le rapport de fichiers JSON](how-to/report-json-files.md), avec une
-  vue par collection d’enregistrements.
-- [Inspecter des fichiers JSON et JSONL](how-to/inspect-json-files.md) pour voir
-  comment Tabalyst trouve la collection d’enregistrements, et pour la choisir.
-- [Analyser des fichiers CSV et JSON](how-to/scan-files.md) pour obtenir une
-  description JSON complète de chaque champ.
-
-## Référence
-
-- [Profil JSON](reference/json-profile.md) : la structure du fichier `.json`
-  généré.
-- [Configuration](reference/configuration.md) : le fichier de configuration
-  JSON.
-- [Historique d’exécution](reference/execution-history.md) : le fichier
-  `executions.json`.
-- [Journal des modifications du format de profil](reference/profile-format-changelog.md).
-- [Format d’analyse](reference/scan-format.md) : la structure du fichier
-  `.scan.json`, et son [journal des modifications](reference/scan-format-changelog.md).
-- [Format Inspect](reference/inspect-format.md) : la structure du fichier
-  `-inspect.json`, et son [journal des modifications](reference/inspect-format-changelog.md).
-- [Limites connues](reference/known-limitations.md) : ce que Tabalyst ne fait
-  pas encore.
-- [Glossaire](reference/glossary.md) : les termes anglais et français.
+Le site tabalyst.com est disponible en français : [tabalyst.com/fr/](https://tabalyst.com/fr/).

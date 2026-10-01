@@ -235,8 +235,8 @@ themselves when it has no Inspect file. When several arrays are equally
 plausible, or none holds objects, they stop with exit code `2` before analyzing
 anything and list the candidates; set `config.structure.dataset_path` in the
 Inspect file, or pass `--collection`. See
-[Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/inspect-json-files.md)
-and the [Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/inspect-format.md).
+[Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
+and the [Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
 
 ## Tabalyst Scan
 
@@ -292,8 +292,8 @@ tabalyst cache clean customers.csv
 `cache clean` leaves project scans and databases in place. Ordinary scans and
 reports do not create these query caches.
 
-See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/scan-files.md)
-and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/scan-format.md).
+See [Scan CSV and JSON files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/files.md)
+and the [scan format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/format.md).
 
 ## What the report analyzes
 
@@ -416,7 +416,8 @@ Additional documentation:
 
 - [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/dev/architecture.md)
 - [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
-- [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/how-to/inspect-json-files.md)
+- [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
+- [Documentation site](https://docs.tabalyst.com/)
 - [Release procedure](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md)
 
 Please report defects and feature requests through the

@@ -1,10 +1,10 @@
 ---
 title: Glossary
-description: English and French terms used in the Tabalyst documentation and report, and the names that are never translated.
+description: Terms used in the Tabalyst documentation and report, with their French equivalents, and the names that are never translated.
 ---
 
 This glossary fixes the vocabulary of the Tabalyst documentation. English is the
-source language; every French page uses the French terms below.
+source language; the French terms below are used when Tabalyst is translated, for example on the website.
 
 ## Never translated
 
