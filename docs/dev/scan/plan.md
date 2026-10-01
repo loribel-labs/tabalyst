@@ -693,7 +693,7 @@ Implementation notes (2026-09-29):
   byte-for-byte. Manual review completed; `/code-review` is unavailable.
   After final parent-identity hardening, the targeted cache/query/generation
   suite also passes: 213 passed, 7 skipped.
-- Local artifact evidence now lives in `D:\GIT.test\tabalyst\artifacts` at
+- Local artifact evidence now lives in `D:\GIT\tabalyst.test\artifacts` at
   the maintainer's request; browser captures default outside the repository
   and accept `TABALYST_ARTIFACTS_DIR`. No branch/commit/tag was created.
   Suggested commit, when requested:
@@ -769,7 +769,7 @@ not mix generations. Tests cover settings mismatch, legacy/corruption,
 mask/hide/show and saturated catalogs. Run pytest/Ruff, regenerate demos and
 restore pre-existing outputs, and extend storage-platform CI without claiming
 remote results. Keep pytest/benchmark evidence under the external artifact
-root (`D:\GIT.test\tabalyst\artifacts` locally), never recreate repository
+root (`D:\GIT\tabalyst.test\artifacts` locally), never recreate repository
 `artifacts/`. No branch/commit/tag/push or studio changes without a request.
 
 Suggested fresh-session prompt:
@@ -785,7 +785,7 @@ avec avertissements. Compare la configuration complète à celle du scan épingl
 Pas de rescan automatique, de mutation d'index ni d'interface publique. f2 reste
 séparé. Le stockage garde au maximum 10 000 valeurs distinctes brutes typées
 analysables par colonne ; D07 reste différé. Place les artefacts de tests dans
-D:\GIT.test\tabalyst\artifacts et termine le rituel sans commit ni push.
+D:\GIT\tabalyst.test\artifacts et termine le rituel sans commit ni push.
 ```
 
 ### Implementation lot 7.storage-f2: explicit project-targeted rescan

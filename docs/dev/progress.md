@@ -1,5 +1,13 @@
 # Development progress
 
+## 2026-10-01 (external test root)
+
+- Test, benchmark and screenshot evidence now lives in
+  `D:\GIT\tabalyst.test\artifacts` (an `artifacts/pytest-043` folder in the
+  checkout broke Obsidian). Moved the repository `artifacts/` tree and the old
+  `D:\GIT.test` tree there; `AGENTS.md` and `architecture.md` updated. Some old
+  folders could not be moved (access denied) and remain in `D:\GIT.test`.
+
 ## 2026-10-01 (version 0.5.1 prepared)
 
 - Version 0.5.1 prepared, not tagged: `pyproject.toml`, release notes
@@ -478,7 +486,7 @@
   Final cache/query/generation verification after parent-identity hardening:
   213 passed, 7 skipped.
 - At the maintainer's request, moved the existing local `artifacts/` tree to
-  `D:\GIT.test\tabalyst\artifacts`, outside the Obsidian-watched checkout.
+  `D:\GIT\tabalyst.test\artifacts`, outside the Obsidian-watched checkout.
   Subsequent pytest runs use fresh external base directories and disable
   pytest's cache provider. Browser screenshots now honor
   `TABALYST_ARTIFACTS_DIR`, defaulting to the OS temporary directory rather
