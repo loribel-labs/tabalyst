@@ -12,7 +12,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `9`.
+format `0.1.0a`, revision `10`.
 
 ## Example
 

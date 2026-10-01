@@ -48,5 +48,10 @@ app.add_typer(cache_app, name="cache")
 
 
 def main() -> None:
-    """Run the Tabalyst command-line application."""
-    app()
+    """Run the Tabalyst command-line application.
+
+    Windows wildcard expansion is left to Tabalyst: its own pattern resolver
+    skips the Inspect files that a shell-expanded ``*.json`` would pass as
+    explicit paths.
+    """
+    app(windows_expand_args=False)

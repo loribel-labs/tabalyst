@@ -204,10 +204,8 @@ Messages use standard error.
 
 A pattern skips files named `*-inspect.json`, and an Inspect file given as an
 input is refused: give the source it describes. A source whose own name ends in
-`-inspect.json` must be renamed first. On Windows, the command line library
-expands a wildcard before Tabalyst sees it, so `tabalyst inspect "*.json"` also
-passes the Inspect files and is refused: name the sources, or use a pattern that
-does not match the Inspect files, such as `*.jsonl`.
+`-inspect.json` must be renamed first. Wildcards are resolved by Tabalyst,
+including on Windows, so `tabalyst inspect *.json` skips the Inspect files too.
 
 ## Python API
 

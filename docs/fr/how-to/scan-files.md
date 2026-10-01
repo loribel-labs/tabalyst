@@ -106,10 +106,8 @@ l’erreur, continue avec les autres sources et renvoie un code de sortie non nu
 Un motif comme `data/*.json` correspond aussi à des résultats autonomes précédents comme
 `data/orders.scan.json`. Écrivez les analyses dans un autre dossier avec `-d`
 pour les séparer des sources. Les motifs ignorent les fichiers Inspect, nommés
-`*-inspect.json`, et un fichier Inspect donné en entrée est refusé. Sous
-Windows, la bibliothèque de ligne de commande développe un joker avant que
-Tabalyst le voie, si bien qu’un motif comme `data/*.json` passe aussi les
-fichiers Inspect et que la commande est refusée : nommez plutôt les sources.
+`*-inspect.json`, et un fichier Inspect donné en entrée est refusé. Les jokers sont
+résolus par Tabalyst, y compris sous Windows : le même motif les ignore aussi.
 
 ## Configurer l’analyse
 

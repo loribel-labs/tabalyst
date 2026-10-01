@@ -317,11 +317,6 @@ source, cette configuration et la version de Tabalyst sont tous identiques.
   la profondeur d’aplatissement n’est pas lu pour détecter les clés en double.
 - `json.arrays` (`mode`, seulement `preserve`) : les tableaux n’ajoutent jamais
   d’enregistrements. `ignore` et `explode` sont refusés.
-
-Les paramètres `json.collections`, `json.flatten`, `json.arrays` et
-`errors.policy` sont ceux qu’un [fichier Inspect](inspect-format.md#config)
-modifie, sous les noms `structure.dataset_path`, `flatten`, `arrays` et
-`errors.policy`.
 - `errors.policy` : `null` (par défaut) est la valeur par défaut du format de la
   source, `strict` pour CSV et JSON, `tolerant` pour JSONL. `strict` s’arrête au
   premier enregistrement mal formé, comme un enregistrement CSV avec un mauvais
@@ -332,6 +327,11 @@ modifie, sous les noms `structure.dataset_path`, `flatten`, `arrays` et
   deux politiques.
 - `errors.max_locations` : combien d’emplacements d’enregistrements chaque
   diagnostic liste.
+
+Les paramètres `json.collections`, `json.flatten`, `json.arrays` et
+`errors.policy` sont ceux qu’un [fichier Inspect](inspect-format.md#config)
+modifie, sous les noms `structure.dataset_path`, `flatten`, `arrays` et
+`errors.policy`.
 
 ### Valeurs et valeurs manquantes
 

@@ -28,7 +28,7 @@ PyPI.
 ## Pour commencer
 
 - [Installer Tabalyst](how-to/install.md), sous Windows, macOS ou Linux, et
-  [le tenir à jour](how-to/install.md#keep-tabalyst-up-to-date).
+  [le tenir à jour](how-to/install.md#garder-tabalyst-à-jour).
 - [Créer votre premier rapport](tutorials/first-report.md) à partir d’un petit
   fichier CSV.
 - [Échantillonner des fichiers CSV](how-to/sample-csv.md) avec une sélection
