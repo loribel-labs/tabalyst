@@ -96,7 +96,7 @@ def source_path(scan_path: Path, result: ScanResult) -> Path:
     return scan_path.parent / result.source.name
 
 
-def _sha256(path: Path) -> str:
+def file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
         while chunk := stream.read(_HASH_CHUNK):
@@ -148,7 +148,7 @@ def compare_source(source: Path, recorded: SourceInfo) -> SourceCheck:
             f"the scan read {recorded.size_bytes:,}.",
         )
     try:
-        current = _sha256(source)
+        current = file_sha256(source)
     except OSError as exc:
         raise InputError(f"Cannot read source {source}: {exc}") from exc
     if current != recorded.sha256:

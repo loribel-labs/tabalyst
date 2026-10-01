@@ -141,7 +141,8 @@ for each JSONL line.
     "scope": {
       "structure": "complete",
       "detail": "bounded",
-      "limits": {"records": "<RECORDS_OBSERVED>", "fields": "<FIELDS_OBSERVED>"}
+      "limits": {"records": "<RECORDS_OBSERVED>", "fields": "<FIELDS_OBSERVED>"},
+      "discovery_max_depth": 3
     },
     "root": {"type": "object"},
     "candidates": [
@@ -219,6 +220,7 @@ There is no modification time: it is volatile and carries no decision.
 | `scope.structure` | Always `"complete"`: candidates, element counts and element types come from a pass over every event of the source (DP-C). |
 | `scope.detail` | Always `"bounded"`: fields, depths and nesting come from the first records of each candidate only. |
 | `scope.limits` | The bounds that were applied: `records` (first records per candidate) and `fields` (distinct field paths per candidate), the parameters of section 15. |
+| `scope.discovery_max_depth` | The `json.discovery_max_depth` the candidates were searched with. A cached detection is only valid for the same depth (12.4); re-inspection uses it to tell which paths the candidates can judge (12.3). |
 | `root.type` | Native type of the root: `object`, `array`, `string`, `number`, `boolean`, `null`; for JSONL `lines`. |
 | `candidates` | Candidate collections in document order (8.2). Empty for a scalar root. |
 | `candidates[].path` | Absolute path in canonical spelling. |
@@ -827,8 +829,18 @@ unknown keys fail.
 
 Automatic inspection reads the whole source once more than a Scan that has a
 visible file would; the full-content hash is shared with it when the caller
-passes the already computed hash (an optimization for JI-6 and JI-7, not a
+passes the already computed hash (`source_sha256`, an optimization, not a
 behavior).
+
+`Interpretation` also holds `collection_origin`, the layer that decided the
+collection (`command_line`, `visible`, `config_file`, `detected`, `none`):
+`origin` says where the Inspect information came from, which is not the same
+when a visible file leaves `dataset_path` undecided and a `--config` chooses.
+`check_result` applies 11.5 only to `visible`. A CSV source is not inspected:
+the resolver gives its layers, with `origin` `none`. For a JSONL source the
+resolved `json.collections` is `null` whether or not a visible file wrote
+`$[]`, so writing the file never changes the rules applied (10.3). A visible
+file that names another path for a JSONL source is refused, naming the file.
 
 ### 11.3 No choice made
 
@@ -911,7 +923,7 @@ of the action (exit 1): the requested output could not be produced.
 
 | Existing file | Result |
 | --- | --- |
-| Valid | `inspect`, `source`, `detection`, `warnings` are replaced. `config` is **preserved as a value**: the same keys, the same values, in the same order, nothing added or removed (a partial `config` stays partial). The file is rewritten with Tabalyst's formatting. If the preserved `dataset_path` is not an array of the new source, the warning `configured_path_not_found` is added; the inspection still succeeds. |
+| Valid | `inspect`, `source`, `detection`, `warnings` are replaced. `config` is **preserved as a value**: the same keys, the same values, in the same order, nothing added or removed (a partial `config` stays partial). The file is rewritten with Tabalyst's formatting. If the preserved `dataset_path` is not an array of the new source, the warning `configured_path_not_found` is added; the inspection still succeeds. Only a path the candidates can judge is compared: one reachable through keys alone within `scope.discovery_max_depth`, with the list not truncated (any path of a JSONL source). A deeper path, or one crossing an array, is a valid choice that only a scan can check (11.5), so it gives no warning. |
 | Valid, with `--reset-config` | The same, but `config` is regenerated from the seed rule (5.3). |
 | `config` invalid, unsupported version, unknown kind, or not a JSON object | Refused with `ConfigurationError`; the file is not touched (I-E01). |
 | Any of the previous, with `--force` | Replaced by a new file. |
@@ -930,7 +942,12 @@ only when all of these hold, and rebuilt otherwise:
 
 - `source.sha256` equals the SHA-256 of the current content;
 - `format_version` and `format_revision` are those of the running Tabalyst;
-- `inspect.tabalyst_version` is the running version.
+- `inspect.tabalyst_version` is the running version;
+- `detection.scope.discovery_max_depth` is the `json.discovery_max_depth` of the effective configuration: the candidates, hence the selection, depend on it, and it comes from the `--config` layers, not from the source.
+
+The size of the source is compared first: a different size rebuilds the cache
+without reading the content. The hash is the caller's when it already has it
+(`source_sha256`).
 
 A missing, unreadable, corrupt or invalid cache file is not an error: it is
 absent, and the inspection is redone. A failure to write the cache is a notice,
@@ -1175,9 +1192,10 @@ change.
 | `tabalyst.inspector.json_inspect.inspect_source(source, *, scan_config=None, on_progress=None) -> InspectDocument` (reads, writes nothing) | JI-5 |
 | `tabalyst.inspector.models`: `InspectDocument`, `InspectConfig` with `to_scan_layer()` | JI-5 |
 | `tabalyst.scanner.readers.json_reader.JsonEvents`, `tabalyst.scanner.readers.jsonl_reader.JsonlLines` (event source and line classifier shared with the Scan readers), `tabalyst.progress.byte_progress` | JI-5 |
-| `tabalyst.inspector.persistence`: `inspect_path`, `write_inspection(source, document, *, reset_config=False, force=False)`, `read_visible_inspect(path) -> VisibleInspect` (`config`, `kind`, `recorded_sha256`, `recorded_name`, `candidates`, raw `document`) | JI-6 |
+| `tabalyst.inspector.persistence`: `inspect_path`, `write_inspection(source, document, *, reset_config=False, force=False) -> Path`, `read_visible_inspect(path) -> VisibleInspect` (`path`, `kind`, `config`, `recorded_sha256`, `recorded_name`, `candidates`, `selection_basis`, raw `document`), `read_inspect_cache(path)`, `write_inspect_cache(location, source, document)`, `is_inspect_name(name)` | JI-6 |
 | `StorageLocation.shared_inspect_path(source)` | JI-6 |
-| `tabalyst.inspector.resolution`: `resolve_interpretation`, `check_result` | JI-6 |
+| `tabalyst.inspector.resolution`: `resolve_interpretation(source, *, scan_layer, collections, delimiter, encoding, location, source_sha256) -> Interpretation` (`config`, `origin`, `collection_origin`, `inspect_path`, `notices`, `recorded_sha256`), `check_result(interpretation, result)` | JI-6 |
+| `tabalyst.scan_reuse.file_sha256(path)` (was private) | JI-6 |
 | `tabalyst inspect`, `tabalyst.inspect()` | JI-7 |
 
 ### 16.2 Layout
@@ -1241,3 +1259,4 @@ the measurements.
 | 2026-09-30 | JI-3 | Section 7.2: content below the flatten limit is not read for duplicate keys; the report shows a container kept whole as a `complex` column (profile revision 10, completed); automatic mode keeps promoting collections below the limit. `parse_path` takes `separator` as a keyword-only argument. No contract change. | Implementation of lot JI-3. |
 | 2026-09-30 | JI-4 | `limits.max_line_bytes` fixed by measurement (16 MiB default, 256 MiB cap; section 15). 9.2: the size limit counts the content without its line break. The JSONL reader parses each line with `json.loads` and walks the result, instead of consuming parser events: a record reads as the same object inside a JSON array, with the flatten rule of section 7.2 (duplicate keys below the limit are not checked). A lone surrogate escape anywhere in a line makes it an invalid line. A JSONL source is routed like a JSON source by `report` (no shared scan cache until JI-7) and by project staging. No contract change. | Implementation of lot JI-4. |
 | 2026-09-30 | JI-5 | Section 15: the four parameters measured and fixed (`RECORDS_OBSERVED` 1,000, `FIELDS_OBSERVED` 1,000, `MAX_CANDIDATES` 100, `DOMINANCE_RATIO` 10), with the measurement tables and the result of the rule at G2. Clarifications, no contract change: 4.4 `invalid` counts the lines above `limits.max_line_bytes` and a line with a duplicate key is an object; 5.3 `json.collections` of the layers below the file plays no part in the seed; 8.1 `JsonEvents` and `JsonlLines` are the event source shared with the Scan readers (extracted from them without change of behavior), so both refuse the same documents with the same message; 8.2 an array repeated under one key is one candidate; 8.5 the observation ignores `flatten` and `limits.max_depth`, a container is a field, an empty object has depth 0. `byte_progress` moved to `tabalyst/progress.py` to serve both engines. | Implementation of lot JI-5. |
+| 2026-10-01 | JI-6 | Amendment: `detection.scope.discovery_max_depth` is recorded (4.4) and a cache made at another depth is rebuilt (12.4); the format stays at revision 1, which is not published. Clarifications, no other contract change: 12.3 a path the candidates cannot judge (deeper than the discovery depth, crossing an array, list truncated) gives no `configured_path_not_found`; 11 `Interpretation.collection_origin`, `source_sha256`, CSV passed through, `json.collections` of a JSONL source resolved to `null`; 12.4 a size mismatch rebuilds the cache without hashing; a failure to write the cache, a busy workspace lock included, is a notice; `scan_reuse.file_sha256` made public. | Implementation of lot JI-6. |
