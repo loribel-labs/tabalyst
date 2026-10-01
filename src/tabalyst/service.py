@@ -37,6 +37,7 @@ from tabalyst.scan_reuse import (
     source_path,
 )
 from tabalyst.scanner import ScanResult, scan
+from tabalyst.scanner.identity import source_format_of
 
 ConfigPath = str | Path | Sequence[str | Path]
 
@@ -232,7 +233,7 @@ def _analyze_resolved(
 
     warnings: tuple[str, ...] = ()
     try:
-        if source.suffix.lower() == ".json":
+        if source_format_of(source) != "csv":
             profile = analyze_csv(source, config, on_progress=on_progress, workers=workers)
         else:
             from tabalyst.shared_scan_service import current_scan

@@ -16,7 +16,6 @@ from __future__ import annotations
 import decimal
 import io
 import json
-import re
 import sys
 from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
@@ -39,11 +38,12 @@ from tabalyst.scanner.paths import (
     ITEMS,
     ROOT,
     FieldPath,
-    Key,
     format_absolute,
     parse_path,
 )
 from tabalyst.scanner.readers.base import HashingStream, SourceSummary
+from tabalyst.scanner.readers.json_common import SURROGATE as _SURROGATE
+from tabalyst.scanner.readers.json_common import Paths as _Paths
 
 # Replaced in tests to compare the compiled and pure-Python backends.
 BACKEND = ijson
@@ -77,9 +77,6 @@ _PARSE_ERRORS = (
     UnicodeDecodeError,
     decimal.InvalidOperation,
 )
-_SURROGATE = re.compile(r"[\ud800-\udfff]")
-# Child paths kept by ``_Paths``; a larger cache is cleared, so it stays small.
-MAX_PATHS = 65_536
 _MAX_DETAIL = 200
 # Every digit becomes "0" and every other byte "x": a digit run is then a run
 # of "0", found by a substring search at memory speed.
@@ -143,31 +140,6 @@ def _native(event: str, value: object) -> tuple[NativeType, object]:
     if event == "start_map":
         return "object", None
     return "array", 0
-
-
-class _Paths:
-    """Child paths already built, by parent path and key, so that every
-    occurrence of one path shares one path object: the engine and record
-    digests look paths up by identity first, and a new path would hash each
-    of its segments."""
-
-    __slots__ = ("_children",)
-
-    def __init__(self) -> None:
-        self._children: dict[tuple[int, str | None], tuple] = {}
-
-    def child(self, parent: FieldPath, key: str | None) -> FieldPath:
-        """``parent`` followed by the key ``key``, or by items when ``None``."""
-        children = self._children
-        entry = children.get((id(parent), key))
-        # The entry keeps its parent alive, so the identity cannot be reused.
-        if entry is not None and entry[0] is parent:
-            return entry[1]
-        if len(children) >= MAX_PATHS:
-            children.clear()
-        path = parent + (ITEMS if key is None else Key(key),)
-        children[(id(parent), key)] = (parent, path)
-        return path
 
 
 class _RecordBuilder:

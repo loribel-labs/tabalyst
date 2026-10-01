@@ -17,6 +17,7 @@ from tabalyst.progress import (
 )
 from tabalyst.report_config import resolve_report_config
 from tabalyst.scan_reuse import read_scan_document, source_name
+from tabalyst.scanner.identity import source_format_of
 from tabalyst.service import (
     ConfigPath,
     _analyze_resolved,
@@ -79,8 +80,9 @@ class BatchReportResult:
 
 def report_name(source: Path) -> str:
     """``data.html`` for ``data.csv``; ``data.report.html`` for ``data.json``,
-    whose profile ``data.report.json`` must not replace the source."""
-    if source.suffix.lower() == ".json":
+    ``data.jsonl`` and ``data.ndjson``, whose profile ``data.report.json`` must
+    not replace the source."""
+    if source_format_of(source) != "csv":
         return f"{source.stem}.report.html"
     return f"{source.stem}.html"
 

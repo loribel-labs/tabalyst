@@ -129,6 +129,15 @@ def test_json_stream_and_scan_parity(tmp_path, text, settings, backend, monkeypa
     assert_parity(tmp_path, source, ScanConfig.model_validate(settings), monkeypatch)
 
 
+def test_jsonl_stream_and_scan_parity(tmp_path, monkeypatch):
+    source = tmp_path / "source.jsonl"
+    source.write_text(
+        '{"id": 1, "a": {"b": [1, 2.5, null]}}\nnot json\n{"id": 2, "tags": []}\n',
+        encoding="utf-8",
+    )
+    assert_parity(tmp_path, source, ScanConfig(), monkeypatch)
+
+
 def assert_parity(tmp_path, source, config, monkeypatch):
     observed = []
     reference = scan(source, config=config, workers=1, on_record=observed.append)

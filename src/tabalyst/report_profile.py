@@ -74,7 +74,14 @@ from tabalyst.scanner.models import (
 LISTED_ROWS = 10
 # Diagnostics of records excluded under the tolerant error policy.
 EXCLUSION_CODES = frozenset(
-    {"csv_width_mismatch", "record_too_large", "json_duplicate_key"}
+    {
+        "csv_width_mismatch",
+        "record_too_large",
+        "json_duplicate_key",
+        "jsonl_invalid_line",
+        "jsonl_record_not_object",
+        "jsonl_line_too_long",
+    }
 )
 CONTAINER_TYPES = frozenset({"object", "array"})
 # Separator of the values an items path takes in one record of the preview.

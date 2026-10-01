@@ -663,7 +663,7 @@ or `["$[]"]`; any other value is a `ConfigurationError` raised before reading.
 | Valid JSON that is not an object | Excluded, reason `not_object`, code `jsonl_record_not_object`. |
 | Not valid JSON for Tabalyst | Excluded, reason `invalid_line`, code `jsonl_invalid_line`. "Valid" is the rule of a JSON document: RFC 8259 syntax, no `NaN` or `Infinity`, no lone surrogate escape, integers within `sys.int_max_str_digits`, exponents `Decimal` can represent. |
 | Duplicate key in an object | The existing exclusion: reason `duplicate_key`, code `json_duplicate_key`. |
-| Line above `limits.max_line_bytes` | Not parsed. Excluded, reason `line_too_long`, code `jsonl_line_too_long`; still hashed. The default and the cap are measured in JI-4 (section 15). |
+| Line above `limits.max_line_bytes` | Not parsed. Excluded, reason `line_too_long`, code `jsonl_line_too_long`; still hashed. 16 MiB by default, 256 MiB at most (measured in JI-4, section 15). The content counts without its line break (LF or CRLF): a line of exactly the limit is read. |
 | Record above `limits.max_record_observations` | Existing `record_too_large`. |
 | No non-blank line | Fatal `InputError`: "empty". |
 
@@ -994,6 +994,24 @@ and build their data from them.
 The measurement is the first step of the lot, before the code that uses the
 value is written, and its table is added to this section.
 
+**`limits.max_line_bytes` (measured in JI-4, 2026-09-30).** `json.loads` with
+`Decimal` for decimals, and the duplicate-key hook the reader needs (about 40%
+more time on dense structures), on lines of one string, of many small members
+and of one big array of small objects:
+
+| Line | Peak memory over line size | Time |
+| --- | --- | --- |
+| One long string (1, 10, 52 MB) | 1.0x | 0.03 s at 52 MB |
+| Many small members (1, 14, 76 MB) | 7x to 9x; 11x to 13x with the hook | 5.9 s at 76 MB |
+| One array of small objects (1, 13, 67 MB) | 9x | 3.2 s at 67 MB |
+
+A record that reaches `limits.max_record_observations` (100,000) is about 1 to
+2 MB of JSON, so the observation limit already stops dense lines well before the
+size limit, which mostly bounds long strings and parse memory. Decision of the
+maintainer (JI-4): default 16 MiB (about 0.2 GB peak in the worst case), hard
+cap 256 MiB (about 3 GB). Reader throughput on 100,000 records (22 MB) is the
+same as the JSON reader: 1.5 s reading, 4.8 s for the whole scan against 5.2 s.
+
 ## 16. Tests and traceability
 
 ### 16.1 Interface the contract tests use
@@ -1076,3 +1094,4 @@ the measurements.
 | 2026-09-30 | JI-1 | Initial contract. Amends the plan: format triple at the top level; `inspect.kind` and the shell/kind separation (the maintainer announced several Inspect kinds); `config` preserved as a value on re-inspection; automatic detection below `--config`; no automatic Inspect for JSONL; no confidence score; `_` excluded from separators; numeric parameters deferred to measurements. | Lot JI-1. |
 | 2026-09-30 | JI-2 | `expected_identity` takes `source_format` (default `json`); `SourceCheck.sha256`; `engine_version_changed` project warning and `ProjectFreshness` engine fields; `report --scan` engine warning through `scan_reuse.engine_warning`; profile revision 10 (the profile records the resolved scan configuration). `flatten` and `arrays` are accepted, recorded and hashed from JI-2 and applied from JI-3. | Implementation of lot JI-2; no contract change. |
 | 2026-09-30 | JI-3 | Section 7.2: content below the flatten limit is not read for duplicate keys; the report shows a container kept whole as a `complex` column (profile revision 10, completed); automatic mode keeps promoting collections below the limit. `parse_path` takes `separator` as a keyword-only argument. No contract change. | Implementation of lot JI-3. |
+| 2026-09-30 | JI-4 | `limits.max_line_bytes` fixed by measurement (16 MiB default, 256 MiB cap; section 15). 9.2: the size limit counts the content without its line break. The JSONL reader parses each line with `json.loads` and walks the result, instead of consuming parser events: a record reads as the same object inside a JSON array, with the flatten rule of section 7.2 (duplicate keys below the limit are not checked). A lone surrogate escape anywhere in a line makes it an invalid line. A JSONL source is routed like a JSON source by `report` (no shared scan cache until JI-7) and by project staging. No contract change. | Implementation of lot JI-4. |

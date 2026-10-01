@@ -49,6 +49,7 @@ from tabalyst.scanner.config import (
     resolve_scan_config,
 )
 from tabalyst.scanner.field import StringClassifier
+from tabalyst.scanner.identity import source_format_of
 from tabalyst.scanner.observations import Record
 from tabalyst.scanner.paths import ROOT, Column
 from tabalyst.scanner.records import (
@@ -361,12 +362,12 @@ def build_staging(
         connection.execute(SCHEMA)
         connection.execute(INGESTION)
         if value_limit is None:
-            sink = _Sink(connection, effective, csv=path.suffix.lower() != ".json")
+            sink = _Sink(connection, effective, csv=source_format_of(path) == "csv")
         else:
             from tabalyst.projects._bounded_values import BoundedSink
 
             sink = BoundedSink(
-                connection, effective, csv=path.suffix.lower() != ".json", limit=value_limit
+                connection, effective, csv=source_format_of(path) == "csv", limit=value_limit
             )
         result = scan(
             path,

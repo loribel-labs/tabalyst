@@ -19,7 +19,7 @@ class CsvSummary:
 
 @dataclass(frozen=True, slots=True)
 class SourceSummary:
-    format: Literal["csv", "json"]
+    format: Literal["csv", "json", "jsonl"]
     bytes_read: int
     sha256: str
     encoding: str | None

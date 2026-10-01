@@ -2,6 +2,28 @@
 
 ## 2026-09-30
 
+- JSON Inspect, lot JI-4 (JSONL reader and error policy): files ending in
+  `.jsonl` or `.ndjson` (any letter case) are read as one dataset `$[]` by the new
+  `scanner/readers/jsonl_reader.py`; `source_format_of` returns `jsonl`. Each line
+  is parsed with `json.loads` (`Decimal` decimals, `NaN` rejected, a hook marks
+  duplicate keys) and walked into the observations of a JSON array element, with
+  the flatten limit, `limits.max_depth` and `limits.max_record_observations`.
+  Lines split on LF only; BOM, CRLF, a last line without a break and blank lines
+  follow the design; invalid UTF-8 and an empty source are fatal. Excluded lines
+  (`jsonl_invalid_line`, `jsonl_record_not_object`, `jsonl_line_too_long`, plus
+  the existing duplicate-key and too-large codes) are counted and located by
+  physical line under the default `tolerant` policy; `strict` stops at the first,
+  naming its line. New `limits.max_line_bytes`, fixed by measurement (16 MiB
+  default, 256 MiB cap; table in inspect design 15). Shared helpers moved to
+  `readers/json_common.py`. `report`, `service` and project staging route JSONL
+  like JSON (no shared scan cache until JI-7); `report_name` gives
+  `.report.html`; the profile accepts `source.format` `jsonl`, the report counts
+  excluded lines in `excluded_records` and presents the dataset as records.
+  Documentation, changelogs (Scan revision 5, profile revision 10) and designs
+  updated. 48 contract tests enabled (`ENABLED_LOTS` adds `JI-4`) plus 21 in
+  `test_json_inspect_jsonl_services.py` and a DuckDB staging parity test. Demos
+  regenerated; nothing committed.
+
 - JSON Inspect, lot JI-3 (JSON reader, flatten and complex columns): the JSON
   reader applies `json.flatten`: a container whose path reaches `max_depth`
   segments (`enabled: false` is 1) is observed whole, with its array length,

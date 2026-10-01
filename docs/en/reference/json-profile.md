@@ -121,7 +121,7 @@ A shortened profile for a five-row `orders.csv`:
 | Field | Content |
 | --- | --- |
 | `filename` | File name, without folder |
-| `format` | `csv` or `json` |
+| `format` | `csv`, `json` or `jsonl` |
 | `size_bytes` | File size in bytes |
 | `sha256` | SHA-256 hash of the file, to check that two profiles describe the same file |
 | `encoding` | Text encoding used to read the file |

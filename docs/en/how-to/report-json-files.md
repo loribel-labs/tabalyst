@@ -13,6 +13,22 @@ This creates `orders.report.html` (the report), `orders.report.json` (the
 profile) and `executions.json` beside `orders.json`. The `.report` part keeps
 the profile from replacing the source. `-o` and `-d` work as for CSV files.
 
+## JSONL files
+
+Files ending in `.jsonl` or `.ndjson` hold one JSON object per line. They are
+reported the same way, as one dataset `$[]` whose records are the lines:
+
+```console
+tabalyst report events.jsonl
+```
+
+This creates `events.report.html` and `events.report.json`. A line that is not
+valid JSON, is not an object, holds an object with a duplicate key or is longer
+than `scan.limits.max_line_bytes` is excluded and counted; the report lists it
+in its *excluded records* issue, with the physical line numbers. Set
+`scan.errors.policy` to `strict` to stop at the first such line instead. Blank
+lines are ignored, and a file without any record line is an error.
+
 ## Datasets
 
 Tabalyst finds the records of the file as `tabalyst scan` does: a top-level
