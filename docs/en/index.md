@@ -7,11 +7,11 @@ Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
 structured data. Install it once and use its tools from the command line or
 from Python:
 
-- **Tabalyst Report** turns a CSV, JSON or JSONL file into an interactive HTML
+- **[Tabalyst Report](report/index.md)** turns a CSV, JSON or JSONL file into an interactive HTML
   report and a JSON profile.
-- **Tabalyst Scan** describes every field of a file in one JSON document.
-- **Tabalyst Inspect** finds how to read a JSON or JSONL file.
-- **Tabalyst Sample** creates smaller CSV files.
+- **[Tabalyst Scan](scan/index.md)** describes every field of a file in one JSON document.
+- **[Tabalyst Inspect](inspect/index.md)** finds how to read a JSON or JSONL file.
+- **[Tabalyst Sample](sample/index.md)** creates smaller CSV files.
 
 ```console
 pip install --upgrade tabalyst
