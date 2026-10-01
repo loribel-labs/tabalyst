@@ -1,5 +1,5 @@
 ---
-title: Support and contributing
+title: Contributing and issues
 description: Where to report a defect, ask for a feature, find the source code, and the license of Tabalyst and of its documentation.
 ---
 

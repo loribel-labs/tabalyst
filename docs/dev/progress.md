@@ -1,5 +1,20 @@
 # Development progress
 
+## 2026-10-01 (documentation menu restructure)
+
+- Moved `project/` to `about/` (`concepts`, `limitations`, `releases`,
+  `contributing`), `report/history` to `reference/history` and
+  `report/profile` to `report/json-profile`; links, `docs/README.md` and
+  `AGENTS.md` updated.
+- Shorter menu labels are the job of `tabalyst-studio` (`src/navigation.ts`);
+  page titles stay complete (`Report JSON and JSONL files`, `Command line (CLI)`,
+  `Python API`, `Contributing and issues`).
+- Follow-up in `tabalyst-studio`: new menu (Overview, Get started, Report,
+  Inspect, Scan, Sample, Reference, About Tabalyst, with an `Overview` entry for
+  Report, Inspect and Scan), new slugs `/about/*`, `/reference/history/`,
+  `/report/json-profile/`, and redirects from `/project/*`,
+  `/reference/limitations/`, `/report/history/`, `/report/profile/`.
+
 ## 2026-10-01 (documentation overhaul)
 
 - Reorganized `docs/en/` by tool, with URLs of the form `/tool/subject/`:

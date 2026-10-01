@@ -6,7 +6,7 @@
 | `fr/` | One page that points to the English documentation | Yes, at `/fr/` |
 | `dev/` | Maintainer documentation: architecture, progress, packaging, release notes | No |
 
-`en/` is organized by tool: `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `project/`, plus
+`en/` is organized by tool: `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `about/`, plus
 `install.md` and `examples.md`. URLs follow the pattern `/tool/subject/`. Pages in `en/` start with a `title` and
 `description` frontmatter and have no `# H1` heading; the documentation site
 renders the title.
@@ -22,12 +22,12 @@ the reference of its JSON format with its changelog.
 | Folder | Content |
 | --- | --- |
 | `install.md`, `examples.md` | Installation and demos |
-| `report/` | Tabalyst Report: overview, first report, CSV, JSON, profile format, history |
+| `report/` | Tabalyst Report: overview, first report, CSV, JSON, JSON profile and its changelog |
 | `inspect/` | Tabalyst Inspect: overview, JSON guide, Inspect format |
 | `scan/` | Tabalyst Scan: overview, guide, scan format, query caches |
 | `sample/` | Tabalyst Sample (one page) |
-| `reference/` | Command line, Python API, configuration, limitations, glossary |
-| `project/` | Concepts, release notes, support |
+| `reference/` | Command line, Python API, configuration, execution history, glossary |
+| `about/` | Concepts, known limitations, release notes, contributing and issues |
 
 To add a page, create it in the folder of its tool with a one-sentence
 `description`, link it with relative `.md` paths and add it to

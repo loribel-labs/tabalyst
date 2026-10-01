@@ -132,5 +132,5 @@ tabalyst report orders.csv --force
 - Choose the output name with `-o`, or process several files at once with
   `tabalyst report *.csv -d reports/`. Run `tabalyst report --help` for all
   options.
-- Use the [JSON profile](profile.md) in your own scripts.
+- Use the [JSON profile](json-profile.md) in your own scripts.
 - Adapt the analysis with a [configuration file](../reference/configuration.md).

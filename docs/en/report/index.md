@@ -50,11 +50,11 @@ HTML works without a network connection or a CDN.
   tutorial on a small CSV file.
 - [Report CSV files](csv.md): names, batches, safe behavior and
   options.
-- [Report JSON files](json.md): JSON and JSONL sources, one
+- [Report JSON and JSONL files](json.md): JSON and JSONL sources, one
   collection of records per report.
-- [JSON profile](profile.md): the structure of the generated `.json` file,
+- [JSON profile](json-profile.md): the structure of the generated `.json` file,
   and its [changelog](profile-changelog.md).
-- [Execution history](history.md): the `executions.json`
+- [Execution history](../reference/history.md): the `executions.json`
   file.
 - [Configuration](../reference/configuration.md): adapt the analysis and the
   presentation.

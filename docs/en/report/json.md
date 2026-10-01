@@ -1,5 +1,5 @@
 ---
-title: Report JSON files
+title: Report JSON and JSONL files
 description: Turn a JSON file into an interactive HTML report and a JSON profile with tabalyst report, one view per collection of records.
 ---
 
@@ -96,4 +96,4 @@ formats they found. The detector marked **primary** gives the column its
 semantic type.
 
 The structure of the profile is described in the
-[JSON profile reference](profile.md).
+[JSON profile reference](json-profile.md).

@@ -1,5 +1,5 @@
 ---
-title: Python API reference
+title: Python API
 description: The public Python functions of Tabalyst for reports, scans, Inspect, sampling and errors, with signatures, return values and examples.
 ---
 
@@ -83,7 +83,7 @@ sample = tabalyst.sample_csv("customers.csv", method="random", rows=1000, seed=4
 
 ## Related pages
 
-- [Command line reference](cli.md), for the same operations as commands.
+- [Command line (CLI)](cli.md), for the same operations as commands.
 - [Configuration](configuration.md), for the files that `config_path` reads and
   the `ScanConfig` settings.
 - [Scan CSV and JSON files](../scan/files.md) and

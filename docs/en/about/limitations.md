@@ -100,11 +100,11 @@ a tenth of the time of a scan.
   `scan.detection.warmup_values` to `0` to test every value.
 - **Missing values.** By default only empty and whitespace-only cells are
   missing. `NA`, `NULL` or `NaN` stay text unless you declare them in
-  `scan.values.null_markers` in a [configuration file](configuration.md).
+  `scan.values.null_markers` in a [configuration file](../reference/configuration.md).
 
 ## Output and interfaces
 
-- **Experimental JSON formats.** The [JSON profile](../report/profile.md), the
+- **Experimental JSON formats.** The [JSON profile](../report/json-profile.md), the
   [scan format](../scan/format.md) and the [Inspect format](../inspect/format.md) may
   change incompatibly between releases. No migration tool is provided: an
   Inspect file of another version is refused, and `tabalyst inspect --force`

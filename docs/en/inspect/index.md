@@ -30,5 +30,5 @@ refused.
   the `config`, JSONL files and messages.
 - [Inspect format](format.md): the structure of the Inspect file, and its
   [changelog](format-changelog.md).
-- [Report JSON files](../report/json.md) and [Scan CSV and JSON files](../scan/files.md):
+- [Report JSON and JSONL files](../report/json.md) and [Scan CSV and JSON files](../scan/files.md):
   the tools that apply the Inspect file.
