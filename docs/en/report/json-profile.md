@@ -28,7 +28,7 @@ A shortened profile for a five-row `orders.csv`:
     "filename": "orders.csv",
     "format": "csv",
     "size_bytes": 274,
-    "sha256": "7d426449e1217d4dbcad1e7e4c862d360c63d927cb775caa48007d70ac36c0c8",
+    "sha256": "7d426449...",
     "encoding": "utf-8-sig",
     "delimiter": ","
   },
@@ -88,7 +88,9 @@ A shortened profile for a five-row `orders.csv`:
       "preview": [
         {
           "row_number": 1,
-          "values": ["001", "Alice", "12.50", "2026-01-01", "true", "First order"],
+          "values": [
+            "001", "Alice", "12.50", "2026-01-01", "true", "First order"
+          ],
           "absent": []
         }
       ],

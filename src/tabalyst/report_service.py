@@ -5,7 +5,7 @@
 """Reusable planning and batch execution for Tabalyst Report."""
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +22,7 @@ from tabalyst.execution_log import EXECUTION_LOG_NAME
 from tabalyst.inspector.choices import collection_slug
 from tabalyst.inspector.models import ExcelCandidate, InspectDocument
 from tabalyst.inspector.resolution import detect_collections
+from tabalyst.option_notices import ignored_options
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
@@ -385,6 +386,20 @@ def generate_reports(
         all_collections=all_collections,
         scan_layer=load_config_layers(config_paths)[1] if all_collections else None,
     )
+    if not from_scan:
+        sources = dict.fromkeys(job.source for job in plan.jobs)
+        notices = tuple(
+            (source, notice)
+            for source in sources
+            for notice in ignored_options(
+                source,
+                delimiter=separator,
+                encoding=encoding,
+                collections=collections,
+                all_collections=all_collections,
+            )
+        )
+        plan = replace(plan, warnings=(*plan.warnings, *notices))
     if from_scan:
         top_level, scan_layer = load_config_layers(config_paths)
         settings = settings_from_layer(top_level)

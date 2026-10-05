@@ -30,9 +30,9 @@ documentation describes the latest release published on PyPI.
 
 | Goal | Page |
 | --- | --- |
-| Install or update Tabalyst | [Install Tabalyst](install.md) |
-| Try it step by step | [Create your first report](report/getting-started.md) |
-| See a finished report | [Examples and demos](examples.md) |
+| Install or update Tabalyst | [Install Tabalyst](get-started/install.md) |
+| Try it step by step | [Create your first report](get-started/first-report.md) |
+| See a finished report | [Examples and demos](get-started/examples.md) |
 | Report one or many CSV files | [Report CSV files](report/csv.md) |
 | Report a JSON or JSONL file | [Report JSON and JSONL files](report/json.md) |
 | Report an Excel workbook | [Report Excel workbooks](report/excel.md) |
@@ -42,16 +42,16 @@ documentation describes the latest release published on PyPI.
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
 | Find a command or an option | [Command line (CLI)](reference/cli/index.md) |
-| Use Tabalyst from Python | [Python API](reference/python-api.md) |
+| Use Tabalyst from Python | [Python API](reference/python-api/index.md) |
 | Read a generated JSON file in a script | [JSON profile](report/json-profile.md), [scan format](scan/format.md), [Inspect format](inspect/format.md) |
 | Know what is not supported yet | [Known limitations](about/limitations.md) |
 
 ## Sections
 
 - **Overview**: this page.
-- **Get started**: [install](install.md),
-  [first report](report/getting-started.md) and
-  [examples and demos](examples.md).
+- **[Get started](get-started/index.md)**: [install](get-started/install.md),
+  [first report](get-started/first-report.md) and
+  [examples and demos](get-started/examples.md).
 - **Tabalyst Report**: [overview](report/index.md), [CSV](report/csv.md),
   [JSON](report/json.md) and [Excel](report/excel.md) guides, the [JSON profile](report/json-profile.md) and
   its [changelog](report/profile-changelog.md).
@@ -63,12 +63,12 @@ documentation describes the latest release published on PyPI.
   [changelog](scan/format-changelog.md) and
   [query caches](scan/cache.md).
 - **Tabalyst Sample**: [Sample CSV files](sample/index.md).
-- **Reference**: [command line](reference/cli/index.md),
-  [Python API](reference/python-api.md),
+- **[Reference](reference/index.md)**: [command line](reference/cli/index.md),
+  [Python API](reference/python-api/index.md),
   [configuration](reference/configuration.md),
   [execution history](reference/history.md) and the
   [glossary](reference/glossary.md).
-- **About Tabalyst**: [concepts](about/concepts.md),
+- **[About Tabalyst](about/index.md)**: [concepts](about/concepts.md),
   [known limitations](about/limitations.md),
   [release notes](about/releases.md) and
   [contributing and issues](about/contributing.md).

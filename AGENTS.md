@@ -124,10 +124,11 @@ built by `tabalyst-studio` from the latest release tag) and the maintainer
 documentation. See `docs/README.md`.
 
 - `docs/en/`: user documentation, published, organized by tool:
-  `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `about/`,
-  plus `install.md` and `examples.md` at the root. URLs follow the pattern
-  `/tool/subject/` with short, stable slugs; titles can be long. The sidebar order is set in `tabalyst-studio`
-  (`src/routeMiddleware.ts`); add a new page there too.
+  `get-started/`, `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and
+  `about/`. Every section has an `index.md`: the menu opens it when its title is
+  clicked. URLs follow the pattern `/tool/subject/` with short, stable slugs;
+  titles can be long. The sidebar order is set in `tabalyst-studio`
+  (`src/navigation.ts`); add a new page there too.
 - `docs/fr/`: a single page, the French translation of the Overview, whose links
   lead to the English pages. Tabalyst documents in English only during the
   beta; keep this page in sync with `docs/en/index.md` and do not translate
@@ -155,6 +156,21 @@ Writing rules for `docs/en/`:
 10. Pages start with a `title` and `description` frontmatter and have no `# H1`.
     The `description` is one sentence that says what the page answers: it feeds
     `llms.txt` and search results.
+11. Code blocks never need a sideways scroll when it can be avoided, and the
+    care depends on what the block is:
+    - **Output** (what a command prints, an error, a diagram): tag it `text`.
+      The documentation site wraps `text` blocks, so a long line is fine; show the
+      output as it is, verbatim, and do not wrap it by hand. A diagram must fit in
+      80 characters, since wrapping would break it.
+    - **Code to copy** (`console`, `python`, `json`): it is copied as written, so
+      never break a command with a line continuation (it differs between shells)
+      and never wrap it. Keep lines at 70 characters or less when that costs
+      nothing: shorter file names, the short form of an option
+      (`--collection Costs`), one argument per line inside the parentheses of
+      Python, indentation in JSON. A line that cannot be cut, such as a hash or
+      one JSON Lines record, stays as it is and the block scrolls. Abbreviate a
+      hash in an example (`"sha256": "ece53017..."`).
+    - Check a page at desktop width after editing: output must not scroll.
 
 When a user-facing behavior changes, update the matching page in `docs/en/`.
 The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0

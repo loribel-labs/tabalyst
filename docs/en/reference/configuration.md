@@ -202,9 +202,11 @@ object of each configuration file. The complete object with its defaults is:
 {
   "scan": {
     "csv": {"encoding": "utf-8-sig", "delimiter": ","},
-    "json": {"collections": null, "discovery_max_depth": 3,
-             "flatten": {"enabled": true, "separator": ".", "max_depth": null},
-             "arrays": {"mode": "preserve"}},
+    "json": {
+      "collections": null, "discovery_max_depth": 3,
+      "flatten": {"enabled": true, "separator": ".", "max_depth": null},
+      "arrays": {"mode": "preserve"}
+    },
     "excel": {"dataset_path": null, "header_row": null},
     "errors": {"policy": null, "max_locations": 10},
     "values": {

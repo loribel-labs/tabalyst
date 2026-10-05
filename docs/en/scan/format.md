@@ -145,7 +145,10 @@ empty records, duplicate records and a preview of the first records.
     "records": [3]
   },
   "preview": [
-    {"record": 1, "values": {"column_1": ["1"], "column_2": ["aaa@aaaaaaa.aaa"]}}
+    {
+      "record": 1,
+      "values": {"column_1": ["1"], "column_2": ["aaa@aaaaaaa.aaa"]}
+    }
   ]
 }
 ```
@@ -204,7 +207,8 @@ envelope with a `status`:
 
 ```json
 {"status": "complete", "value": 42}
-{"status": "limited", "reason": "distinct_limit", "limit": 100000, "lower_bound": 100001}
+{"status": "limited", "reason": "distinct_limit",
+ "limit": 100000, "lower_bound": 100001}
 {"status": "not_applicable", "reason": "no_values"}
 {"status": "disabled"}
 {"status": "failed", "reason": "detector_error", "diagnostic": 3}
@@ -234,7 +238,10 @@ status is about records, the envelope about one measure.
     "share_tested": 1.0, "share_eligible": 1.0
   },
   "formats": [{"format": "0", "count": 1}, {"format": "0.0", "count": 1}],
-  "evidence": {"matched": ["12.50", "7"], "ambiguous": [], "invalid": [], "not_matched": []},
+  "evidence": {
+    "matched": ["12.50", "7"], "ambiguous": [],
+    "invalid": [], "not_matched": []
+  },
   "details": {},
   "adaptive": null
 }

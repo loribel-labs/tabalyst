@@ -6,7 +6,7 @@
 
 import json
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import partial
 from pathlib import Path
 
@@ -19,6 +19,7 @@ from tabalyst.batch import (
 from tabalyst.config import load_config_layers
 from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.inspector.resolution import check_result, resolve_interpretation
+from tabalyst.option_notices import ignored_options
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
@@ -42,6 +43,8 @@ class ScanJob:
 @dataclass(frozen=True)
 class ScanPlan:
     jobs: tuple[ScanJob, ...]
+    # Options that a source cannot use, as (source, sentence).
+    warnings: tuple[tuple[Path, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -154,6 +157,19 @@ def generate_scans(
         force=force,
         config_paths=config_paths,
         project_storage=project_storage,
+    )
+    plan = replace(
+        plan,
+        warnings=tuple(
+            (job.source, notice)
+            for job in plan.jobs
+            for notice in ignored_options(
+                job.source,
+                delimiter=delimiter,
+                encoding=encoding,
+                collections=collections,
+            )
+        ),
     )
     successes: list[ScanSuccess] = []
     failures: list[ScanFailure] = []

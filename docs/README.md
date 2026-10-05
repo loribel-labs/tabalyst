@@ -6,8 +6,8 @@
 | `fr/` | French overview of Tabalyst; its links lead to the English pages | Yes, at `/fr/` |
 | `dev/` | Maintainer documentation: architecture, progress, packaging, release notes | No |
 
-`en/` is organized by tool: `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and `about/`, plus
-`install.md` and `examples.md`. URLs follow the pattern `/tool/subject/`. Pages in `en/` start with a `title` and
+`en/` is organized by tool: `get-started/`, `report/`, `inspect/`, `scan/`, `sample/`, `reference/` and
+`about/`. URLs follow the pattern `/tool/subject/`. Pages in `en/` start with a `title` and
 `description` frontmatter and have no `# H1` heading; the documentation site
 renders the title.
 
@@ -21,13 +21,13 @@ the reference of its JSON format with its changelog.
 
 | Folder | Content |
 | --- | --- |
-| `install.md`, `examples.md` | Installation and demos |
+| `get-started/` | Overview, installation, first report and demos |
 | `report/` | Tabalyst Report: overview, first report, CSV, JSON, JSON profile and its changelog |
 | `inspect/` | Tabalyst Inspect: overview, JSON guide, Inspect format |
 | `scan/` | Tabalyst Scan: overview, guide, scan format, query caches |
 | `sample/` | Tabalyst Sample (one page) |
-| `reference/` | Command line (`cli/`: general page and one page per command with every option and examples), Python API, configuration, execution history, glossary |
-| `about/` | Concepts, known limitations, release notes, contributing and issues |
+| `reference/` | Command line (`cli/`: general page and one page per command with every option and examples), Python API (`python-api/`: general page and one page per area, with each function as a section instead of a wide table), configuration, execution history, glossary |
+| `about/` | Overview, concepts, known limitations, release notes, contributing and issues |
 
 To add a page, create it in the folder of its tool with a one-sentence
 `description`, link it with relative `.md` paths and add it to

@@ -1,5 +1,5 @@
 ---
-title: tabalyst cache
+title: "CLI: tabalyst cache"
 description: The tabalyst cache info and tabalyst cache clean commands, which show and remove the disposable query caches of Tabalyst projects.
 ---
 

@@ -388,7 +388,9 @@ scan = tabalyst.scan("orders.json")
 scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
 
 inspection = tabalyst.inspect("orders.json")
-inspections = tabalyst.generate_inspections(["data/*.json", "logs/*.jsonl", "*.xlsx"])
+inspections = tabalyst.generate_inspections(
+    ["data/*.json", "logs/*.jsonl", "*.xlsx"]
+)
 reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 

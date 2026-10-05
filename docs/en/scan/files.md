@@ -47,7 +47,7 @@ Repeat `--collection` to analyze several collections in one scan, one dataset
 each:
 
 ```console
-tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[]"
+tabalyst scan orders.json --collection customers --collection products
 ```
 
 A collection path starts with `$`, the document root, and ends with `[]`, the

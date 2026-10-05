@@ -1,5 +1,5 @@
 ---
-title: tabalyst report
+title: "CLI: tabalyst report"
 description: Every option of tabalyst report and examples for CSV, JSON and Excel files, including how to choose a table with --collection and report every table with --all-collections.
 ---
 
@@ -29,24 +29,60 @@ example `data/`.
 
 ## Options
 
+`INPUT...` is required: one or more files, scan documents with `--scan`, or
+non-recursive glob patterns. The table at the end of this section shows which
+options each kind of file uses.
+
+### Options for every format
+
 | Option | Description |
 | --- | --- |
-| `INPUT...` | One or more files, scan documents with `--scan`, or non-recursive glob patterns (required) |
 | `-o`, `--output PATH` | HTML filename ending in `.html`, for a single input. The profile takes the same name with `.json`. Not with `-d` or `--all-collections` |
 | `-d`, `--output-dir PATH` | Folder for the reports, named after their sources. Required by `--all-collections` with several inputs |
-| `--collection TEXT` | JSON: the array to analyze, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable. Excel: the sheet or table, such as `Sales`, `Sales.Orders` or `'$["Q1 2026"]'`; once. Not with `--scan` or `--all-collections`. See [Choosing a collection or a table](index.md#collection) |
-| `--all-collections` | Report every visible collection of each JSON file or workbook, as `<name>.<collection>.html` and `.json`. Not with `-o`, `--collection` or `--scan` |
-| `--delimiter TEXT` | One-character CSV delimiter, instead of the detected one |
-| `--encoding TEXT` | CSV text encoding, instead of the detected one |
 | `-c`, `--config PATH` | JSON [configuration file](../configuration.md) |
-| `--scan` | Build the reports from scan documents written by `tabalyst scan`, without reading the sources again. Not with `--delimiter`, `--encoding`, `--collection`, `--all-collections` or `--workers` |
 | `-f`, `--force` | Replace existing report files |
 | `--details`, `--no-details` | One standalone HTML page per column (off by default) |
 | `-q`, `--quiet` | Suppress success messages; warnings and errors remain |
-| `-v`, `--verbose` | Also show the profile and history paths, the encoding and the delimiter |
+| `-v`, `--verbose` | Also show the profile and history paths, and the encoding and delimiter of a CSV file |
 | `--no-progress` | Disable the progress line |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default. Not with `--scan` |
 | `--help` | Show the options and exit |
+
+### Options for CSV files
+
+| Option | Description |
+| --- | --- |
+| `--delimiter TEXT` | One-character delimiter, instead of the detected one |
+| `--encoding TEXT` | Text encoding, instead of the detected one |
+
+### Options for JSON and Excel files
+
+| Option | Description |
+| --- | --- |
+| `--collection TEXT` | The part of the file to analyze. JSON: an array, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable. Excel: a sheet or table, such as `Sales`, `Sales.Orders` or `'$["Q1 2026"]'`; once. See [Choosing a collection or a table](index.md#collection). Not with `--scan` or `--all-collections` |
+| `--all-collections` | Report every visible collection of each file, as `<name>.<collection>.html` and `.json`. Not with `-o`, `--collection` or `--scan` |
+
+A JSONL file has one dataset, its lines, so it has no collection to choose.
+
+### Option for scan documents
+
+| Option | Description |
+| --- | --- |
+| `--scan` | Build the reports from scan documents written by `tabalyst scan`, without reading the sources again. Not with `--delimiter`, `--encoding`, `--collection`, `--all-collections` or `--workers` |
+
+### Options by format
+
+| Option | CSV | JSON | JSONL | Excel |
+| --- | :---: | :---: | :---: | :---: |
+| `-o`, `-d`, `-c`, `-f`, `--details`, `-q`, `-v`, `--no-progress`, `--workers` | yes | yes | yes | yes |
+| `--delimiter`, `--encoding` | yes | - | - | - |
+| `--collection` | - | yes, repeatable | - | yes, once |
+| `--all-collections` | - | yes | - | yes |
+| `--scan` (the inputs are scan documents) | yes | yes | yes | yes |
+
+An option that a kind of file cannot use is ignored, with a warning, and the
+report is still written: `report sales.xlsx --delimiter ";"` prints
+`Warning [sales.xlsx]: --delimiter is ignored: sales.xlsx is not a CSV file.`
 
 ## Examples
 

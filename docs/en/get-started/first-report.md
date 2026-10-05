@@ -6,7 +6,7 @@ description: Tutorial that profiles a five-row CSV file with tabalyst report, op
 In this tutorial you create a small CSV file, run `tabalyst report` on it, open
 the HTML report and read the problems Tabalyst detects. It takes about five
 minutes. You need Tabalyst installed and up to date: see
-[Install Tabalyst](../install.md). If it is already installed, update it
+[Install Tabalyst](install.md). If it is already installed, update it
 first, since the output shown here comes from the latest release:
 
 ```console
@@ -132,5 +132,5 @@ tabalyst report orders.csv --force
 - Choose the output name with `-o`, or process several files at once with
   `tabalyst report *.csv -d reports/`. Run `tabalyst report --help` for all
   options.
-- Use the [JSON profile](json-profile.md) in your own scripts.
+- Use the [JSON profile](../report/json-profile.md) in your own scripts.
 - Adapt the analysis with a [configuration file](../reference/configuration.md).
