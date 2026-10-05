@@ -31,11 +31,12 @@ class ResultModel(BaseModel):
 
 class SourceInfo(ResultModel):
     filename: str
-    format: Literal["csv", "json", "jsonl"]
+    format: Literal["csv", "json", "jsonl", "excel"]
     size_bytes: int
     sha256: str
-    encoding: str
-    # Null for JSON and JSONL sources.
+    # Null for an Excel workbook, which has no text encoding.
+    encoding: str | None
+    # Null for JSON, JSONL and Excel sources.
     delimiter: str | None
 
 
@@ -416,7 +417,7 @@ class DatasetProfile(ResultModel):
 
 class ReportProfile(ResultModel):
     format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[10] = 10
+    format_revision: Literal[11] = 11
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

@@ -18,12 +18,23 @@ class CsvSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class ExcelSummary:
+    dataset_path: str
+    sheet: str
+    table: str | None
+    range: str
+    header_row: int
+    header: list[str]
+
+
+@dataclass(frozen=True, slots=True)
 class SourceSummary:
-    format: Literal["csv", "json", "jsonl"]
+    format: Literal["csv", "json", "jsonl", "excel"]
     bytes_read: int
     sha256: str
     encoding: str | None
     csv: CsvSummary | None = None
+    excel: ExcelSummary | None = None
 
 
 class Reader(Protocol):

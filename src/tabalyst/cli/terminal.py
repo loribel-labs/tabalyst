@@ -11,7 +11,8 @@ from tabalyst.scanner.paths import ITEMS, format_absolute, parse_path
 
 COLLECTION_HELP = (
     "JSON collection: an array path such as '$.data.items[]', or its short "
-    "form data.items; repeatable."
+    "form data.items; repeatable. Excel table: a sheet or table path such as "
+    "'$.Sales' or '$.Sales.Orders', or its short form Sales; once."
 )
 
 
