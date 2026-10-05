@@ -465,6 +465,16 @@ Additional documentation:
 Please report defects and feature requests through the
 [GitHub issue tracker](https://github.com/loribel-labs/tabalyst/issues).
 
+## For AI assistants
+
+The documentation site publishes plain-text versions of its pages:
+[llms.txt](https://docs.tabalyst.com/llms.txt) lists every page with a
+one-line description, and
+[llms-full.txt](https://docs.tabalyst.com/llms-full.txt) holds the whole
+documentation in one file. Every page is also available as Markdown by adding
+`.md` to its URL, for example
+[report.md](https://docs.tabalyst.com/report.md).
+
 ## License
 
 Tabalyst is released under the [Mozilla Public License 2.0](LICENSE).

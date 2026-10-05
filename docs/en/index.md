@@ -75,7 +75,11 @@ documentation describes the latest release published on PyPI.
 
 ## For AI assistants
 
-This site publishes plain-text versions of its pages: `/llms.txt` lists every
-page with a one-line description, `/llms-full.txt` holds the whole
-documentation in one file, and every page is also available as Markdown by
-adding `.md` to its URL, for example `/report.md`.
+This site publishes plain-text versions of its pages:
+
+- [llms.txt](https://docs.tabalyst.com/llms.txt) lists every page with a
+  one-line description.
+- [llms-full.txt](https://docs.tabalyst.com/llms-full.txt) holds the whole
+  documentation in one file.
+- Every page is also available as Markdown by adding `.md` to its URL, for
+  example [report.md](https://docs.tabalyst.com/report.md).
