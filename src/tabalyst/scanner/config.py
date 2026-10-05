@@ -33,7 +33,7 @@ from tabalyst.config import (
     validation_message,
 )
 from tabalyst.errors import ConfigurationError
-from tabalyst.scanner.paths import Items, format_absolute, parse_path
+from tabalyst.scanner.paths import Items, Key, format_absolute, parse_path
 
 HARD_CAPS: dict[str, int] = {
     "max_fields": 1_000_000,
@@ -67,7 +67,7 @@ class _Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-SourceFormat = Literal["csv", "json", "jsonl"]
+SourceFormat = Literal["csv", "json", "jsonl", "excel"]
 ErrorPolicy = Literal["strict", "tolerant"]
 
 # Characters a flatten separator may never be: they are part of the path
@@ -161,6 +161,56 @@ class JsonSettings(_Settings):
                         f"{other_value!r}"
                     )
         return canonical
+
+
+def json_collection_paths(values: Sequence[str] | None) -> list[str] | None:
+    """The ``--collection`` values that are JSON collection paths (absolute,
+    ending in ``[]``), ``None`` when there are none. A value naming a sheet or
+    a table (``$.Sales``) belongs to a workbook, which reads it itself; the
+    configuration of the other sources must not choke on it."""
+    kept = []
+    for value in values or ():
+        try:
+            path = parse_path(value) if value.startswith("$") else ()
+        except ValueError:
+            continue
+        if path and isinstance(path[-1], Items):
+            kept.append(value)
+    return kept or None
+
+
+def canonical_excel_path(value: object) -> str | None:
+    """A sheet (``$.Sales``) or a table of a sheet (``$.Sales.Orders``) in its
+    canonical spelling; the workbook is the root. Raises ``ValueError``."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        # A ValueError, not a TypeError: pydantic reports only the former.
+        raise ValueError(  # noqa: TRY004
+            f"dataset_path must be a string or null, not {value!r}"
+        )
+    if not value.startswith("$"):
+        raise ValueError(f"dataset_path must be an absolute path: {value!r}")
+    path = parse_path(value)
+    if not 1 <= len(path) <= 2 or not all(isinstance(seg, Key) for seg in path):
+        raise ValueError(
+            "dataset_path must name a sheet ($.Sheet) or a table of a sheet "
+            f"($.Sheet.Table): {value!r}"
+        )
+    return format_absolute(path)
+
+
+class ExcelSettings(_Settings):
+    """The table read from an Excel workbook: a sheet or a named table, and the
+    1-based sheet row of the header of a sheet (``null``: detected)."""
+
+    dataset_path: str | None = None
+    header_row: StrictInt | None = Field(default=None, ge=1)
+
+    @field_validator("dataset_path", mode="before")
+    @classmethod
+    def sheet_or_table(cls, value: object) -> object:
+        return canonical_excel_path(value)
 
 
 class ErrorSettings(_Settings):
@@ -505,6 +555,7 @@ class ScanConfig(_Settings):
 
     csv: CsvConfig = Field(default_factory=CsvConfig)
     json_: JsonSettings = Field(default_factory=JsonSettings, alias="json")
+    excel: ExcelSettings = Field(default_factory=ExcelSettings)
     errors: ErrorSettings = Field(default_factory=ErrorSettings)
     values: ValueSettings = Field(default_factory=ValueSettings)
     normalization: NormalizationSettings = Field(default_factory=NormalizationSettings)

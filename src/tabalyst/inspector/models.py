@@ -9,11 +9,18 @@ The document has a common shell (format triple, ``inspect``, ``source``,
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, ClassVar, Literal
+from typing import Annotated, Any, ClassVar, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_serializer
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
-from tabalyst.scanner.config import ErrorPolicy, FlattenSettings
+from tabalyst.scanner.config import ErrorPolicy, FlattenSettings, canonical_excel_path
 from tabalyst.scanner.paths import Items, format_absolute, parse_path
 
 FORMAT = "tabalyst.inspect"
@@ -54,8 +61,11 @@ class InspectModel(BaseModel):
 # Shell -------------------------------------------------------------------
 
 
+InspectKind = Literal["json", "excel"]
+
+
 class InspectInfo(InspectModel):
-    kind: Literal["json"]
+    kind: InspectKind
     tabalyst_version: str
     generated_at: datetime
     note: str = NOTE
@@ -63,7 +73,7 @@ class InspectInfo(InspectModel):
 
 class InspectSource(InspectModel):
     name: str
-    format: Literal["json", "jsonl"]
+    format: Literal["json", "jsonl", "excel"]
     size_bytes: int = Field(ge=0)
     sha256: str
 
@@ -83,6 +93,11 @@ WarningCode = Literal[
     "non_object_lines",
     "configured_path_not_found",
     "source_name_mismatch",
+    "blocks_not_split",
+    "duplicate_headers",
+    "blank_headers",
+    "merged_cells",
+    "multi_level_header",
 ]
 
 
@@ -265,19 +280,149 @@ class JsonDetection(InspectModel):
     _sparse: ClassVar[tuple[str, ...]] = ("lines",)
 
 
+# Excel Inspect: configuration and detection -----------------------------
+
+
+class ExcelStructureConfig(InspectModel):
+    """Which table to read: a sheet, or a named table of a sheet.
+
+    ``dataset_path`` uses the absolute path syntax with the workbook as root:
+    ``$.Sales`` is a sheet, ``$.Sales.Orders`` the table ``Orders`` of that
+    sheet, ``$["Q1 2026"]`` a sheet name that is not an identifier.
+    ``header_row`` is the 1-based sheet row of the header of a sheet; ``null``
+    means the detected one.
+    """
+
+    dataset_path: str | None = None
+    header_row: Annotated[int, Field(strict=True, ge=1)] | None = None
+
+    @field_validator("dataset_path", mode="before")
+    @classmethod
+    def sheet_or_table_path(cls, value: object) -> object:
+        return canonical_excel_path(value)
+
+
+class ExcelInspectConfig(InspectModel):
+    """The editable ``config`` section of an Excel Inspect file."""
+
+    structure: ExcelStructureConfig = Field(default_factory=ExcelStructureConfig)
+
+    def to_scan_layer(self) -> dict[str, Any]:
+        """The ``scan`` layer of the keys that are present (like the JSON kind:
+        an undecided ``dataset_path`` selects nothing)."""
+        if "structure" not in self.model_fields_set:
+            return {}
+        excel: dict[str, Any] = {}
+        if (
+            "dataset_path" in self.structure.model_fields_set
+            and self.structure.dataset_path is not None
+        ):
+            excel["dataset_path"] = self.structure.dataset_path
+        if "header_row" in self.structure.model_fields_set:
+            excel["header_row"] = self.structure.header_row
+        return {"excel": excel} if excel else {}
+
+
+class ExcelScope(InspectModel):
+    structure: Literal["complete"] = "complete"
+    # Rows searched, from the first filled row, for the header of a sheet.
+    header_scan_rows: int
+    candidates: Literal["truncated"] | None = None
+
+    _sparse: ClassVar[tuple[str, ...]] = ("candidates",)
+
+
+class WorkbookInfo(InspectModel):
+    sheets: int
+    tables: int
+
+
+class ExcelObservation(InspectModel):
+    columns: int
+    # The first header names, in order; ``columns`` is the full count.
+    column_names: list[str]
+    # Blank rows between the header and the last filled row.
+    blank_rows: int
+    merged_ranges: int
+
+
+ExcelIneligibleReason = Literal["no_cells", "no_header", "no_data_rows", "has_tables"]
+
+
+class ExcelCandidate(InspectModel):
+    path: str
+    kind: Literal["sheet", "table"]
+    sheet: str
+    table: str | None = None
+    visible: bool
+    # A1 range of the header and the data (``A4:H13``); absent without cells.
+    range: str | None = None
+    # 1-based sheet row of the header.
+    header_row: int | None = None
+    # Filled data rows.
+    elements: int
+    eligible: bool
+    ineligible_reason: ExcelIneligibleReason | None = None
+    observation: ExcelObservation | None = None
+
+    _sparse: ClassVar[tuple[str, ...]] = (
+        "table",
+        "range",
+        "header_row",
+        "ineligible_reason",
+        "observation",
+    )
+
+
+class ExcelDetection(InspectModel):
+    scope: ExcelScope
+    workbook: WorkbookInfo
+    candidates: list[ExcelCandidate]
+    selection: Selection
+
+
 # Document ----------------------------------------------------------------
 
 
 class InspectDocument(InspectModel):
-    """The whole Inspect file, in the fixed order of design 4.1."""
+    """The whole Inspect file, in the fixed order of design 4.1.
+
+    ``detection`` and ``config`` belong to the kind named by ``inspect.kind``."""
 
     format: Literal["tabalyst.inspect"] = FORMAT
     format_version: Literal["0.1.0a"] = FORMAT_VERSION
     format_revision: Literal[1] = FORMAT_REVISION
     inspect: InspectInfo
     source: InspectSource
-    # Kind specific: becomes a union discriminated by ``inspect.kind`` when a
-    # second Inspect kind exists.
-    detection: JsonDetection
+    detection: JsonDetection | ExcelDetection
     warnings: list[InspectWarning]
-    config: InspectConfig
+    config: InspectConfig | ExcelInspectConfig
+
+    @model_validator(mode="before")
+    @classmethod
+    def _sections_of_the_kind(cls, data: Any) -> Any:
+        """Read ``detection`` and ``config`` with the models of the kind, so a
+        section never matches the model of another kind."""
+        if not isinstance(data, dict):
+            return data
+        info = data.get("inspect")
+        if not isinstance(info, dict) or info.get("kind") != "excel":
+            return data
+        data = dict(data)
+        for key, model in (("detection", ExcelDetection), ("config", ExcelInspectConfig)):
+            if isinstance(data.get(key), dict):
+                data[key] = model.model_validate(data[key])
+        return data
+
+    @model_validator(mode="after")
+    def _kind_matches_sections(self) -> InspectDocument:
+        excel = self.inspect.kind == "excel"
+        if not (
+            isinstance(self.detection, ExcelDetection) == excel
+            and isinstance(self.config, ExcelInspectConfig) == excel
+        ):
+            raise ValueError(
+                f"detection and config do not belong to inspect.kind "
+                f"{self.inspect.kind!r}"
+            )
+        return self

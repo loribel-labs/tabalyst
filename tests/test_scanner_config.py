@@ -10,6 +10,7 @@ def test_defaults_serialize_with_the_documented_section_names():
     assert list(document) == [
         "csv",
         "json",
+        "excel",
         "errors",
         "values",
         "normalization",
