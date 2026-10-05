@@ -40,6 +40,7 @@ dependencies = [
     "platformdirs>=4",
     "pydantic>=2.11",
     "python-calamine>=0.8",
+    "PyYAML>=6.0",
     "typer>=0.12",
 ]
 
@@ -59,7 +60,7 @@ tabalyst = "tabalyst.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-tabalyst = ["templates/*.html", "static/*.css", "static/*.js"]
+tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "generate_examples/*.yaml"]
 
 [project.urls]
 Homepage = "https://github.com/loribel-labs/tabalyst"

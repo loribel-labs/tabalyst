@@ -55,6 +55,11 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   unsafe outputs reject the batch before any reading), sequential inspections
   and the visible Inspect file writes (`generate_inspections()`); `inspect()` is
   its single-source form in the public API.
+- `generate_definition.py`: strict, bounded YAML version 1 loading and located
+  validation for Generate. `generate_service.py` resolves overrides, apportions
+  rows, plans every artifact and owns staging and best-effort publication.
+  `generate_csv.py` is the UTF-8/LF streaming writer adapted from the Generate
+  prototype. Lot 1 exposes planning; value generation begins in lot 2.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`

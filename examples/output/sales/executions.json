@@ -102,6 +102,23 @@
         "dirty": true,
         "state": "b2fe7745+working"
       }
+    },
+    {
+      "timestamp": "2026-10-05T21:36:37.503391Z",
+      "tabalyst_version": "0.6.1",
+      "source_file": "sales.xlsx",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 120,
+      "columns": 9,
+      "analysis_seconds": 0.0834,
+      "total_seconds": 0.1589,
+      "git": {
+        "available": true,
+        "commit": "12c0a6c2aae4ba36e7fe32276109e051faf2f99c",
+        "dirty": true,
+        "state": "12c0a6c2+working"
+      }
     }
   ]
 }

@@ -71,5 +71,7 @@ also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel
-contains only the runtime package and report resources; examples are not installed
-as package data.
+contains the runtime package, report resources, and packaged copies of the
+`examples/generate/` YAML definitions. These are lot 1 planning fixtures. The
+CRM and Insurance definitions become executable in later lots; Generate
+currently reports that execution is unavailable after a successful plan.
