@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect contract: the document, its zones and its ``config`` (lot JI-5).
 
 Design sections 4 and 5: layout and order of the zones, defaults of ``config``,

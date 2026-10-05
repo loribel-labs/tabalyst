@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Number parts of amounts, percentages and quantities, shared by the
 ``currency``, ``percentage`` and ``quantity`` detectors
 (``docs/dev/scan/detectors.md``, section Amounts).

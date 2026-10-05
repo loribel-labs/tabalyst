@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect contract: the command and its integration with Scan and Report (lot JI-7).
 
 Design sections 11 to 13: ``tabalyst inspect``, automatic and controlled

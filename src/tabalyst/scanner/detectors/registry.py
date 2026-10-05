@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Detector registry and the detectors of one scan (design 12.1 to 12.4).
 
 ``DetectorSet`` instantiates the enabled detectors of a registry with their

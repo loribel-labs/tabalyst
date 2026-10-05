@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """UUID detector (``docs/dev/scan/detectors.md``).
 
 Hyphenated, braced and URN forms of RFC 9562. The version and variant are

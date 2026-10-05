@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect: the service, the Python API and the wiring of Scan and Report (lot JI-7).
 
 Complements ``test_json_inspect_cli.py`` with what the design leaves to the

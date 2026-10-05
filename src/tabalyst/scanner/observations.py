@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Items that readers stream to the engine (design section 6).
 
 A reader yields ``DatasetOpened`` before the records of a dataset, then one

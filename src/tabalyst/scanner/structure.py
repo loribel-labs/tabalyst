@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Per-dataset path registry, presence and structure (design sections 5 and 7).
 
 Presence is derived from container counts: a key or column is absent only

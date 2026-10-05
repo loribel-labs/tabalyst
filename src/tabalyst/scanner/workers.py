@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Worker processes that process the values of fields in parallel (design 13).
 
 A parallel scan keeps reading, frequency tables, budgets and diagnostics in

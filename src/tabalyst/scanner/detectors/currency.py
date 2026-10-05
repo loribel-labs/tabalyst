@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Currency amount detector (``docs/dev/scan/detectors.md``).
 
 An amount needs a currency marker, a symbol or an ISO 4217 code, before or

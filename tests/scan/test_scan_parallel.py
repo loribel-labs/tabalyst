@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Scan contract: parallel scans (lot 6, design 13).
 
 Worker processes analyze the values of fields; a scan gives the same result

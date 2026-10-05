@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Number detector (design 12.10): the strict rule, then decimal conventions.
 
 The strict rule of the current engine applies first: optional sign, digits

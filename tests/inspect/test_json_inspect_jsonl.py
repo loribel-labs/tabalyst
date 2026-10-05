@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect contract: JSONL and NDJSON sources and their error policy (lot JI-4).
 
 Design section 9. A JSONL source is one dataset ``$[]`` whose records are its

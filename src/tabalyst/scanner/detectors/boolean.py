@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Textual boolean detector (design 9.5 and 12.10).
 
 A value matches when its analytical value, ignoring case, is one word of a

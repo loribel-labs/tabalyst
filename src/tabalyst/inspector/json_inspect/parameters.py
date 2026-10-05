@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Measured parameters of JSON Inspect detection (design inspect section 15).
 
 Every value comes from a measurement that the design records, and was decided

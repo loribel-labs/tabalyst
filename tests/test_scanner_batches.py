@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Batch processing of distinct values gives the results of the value by value
 rules (design 13): prefiltered ``classify_many`` of each built-in detector,
 the inline normalization of printable strings, masks, record digests and

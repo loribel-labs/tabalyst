@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Field paths: canonical segments, reversible display syntax and CSV labels.
 
 A path is a tuple of segments relative to the record root (design section 4).

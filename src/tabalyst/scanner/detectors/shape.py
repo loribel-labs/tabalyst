@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Shape signature of a value (design 12.5): ASCII digits become ``9``,
 uppercase letters ``A``, other letters ``a``; other characters are kept and
 runs of one character are compressed. ``2026-09-26`` has the shape ``9-9-9``

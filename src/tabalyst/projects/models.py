@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """``project.json``: legacy revision 1 and atomic generation manifest revision 2.
 
 Identity and location only. The size, modification time and SHA-256 of the
