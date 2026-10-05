@@ -83,7 +83,7 @@ Indicative single runs after the report moved onto Tabalyst Scan (commit
 
 The report on Scan takes about 45% more time than the pandas engine on
 100,000 rows, with about 40% of its memory growth; the detector work of lot 3
-dominates (plan, lot 3a note for lot 6). Lot 6 sets the targets.
+dominates. Lot 6 sets the targets.
 
 ## Lot 6, 2026-09-28
 
