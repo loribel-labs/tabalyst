@@ -1,5 +1,5 @@
 ---
-title: tabalyst sample
+title: "CLI: tabalyst sample"
 description: Every option of tabalyst sample and examples of first, last, random and stratified CSV samples, with fixed sizes, percentages and seeds.
 ---
 

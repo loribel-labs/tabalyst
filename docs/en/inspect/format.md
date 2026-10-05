@@ -24,13 +24,13 @@ follows the same top level with its own `detection` and `config`.
     "kind": "json",
     "tabalyst_version": "0.5.0",
     "generated_at": "2026-10-01T05:34:13Z",
-    "note": "Edit only the \"config\" section. Tabalyst replaces every other section each time it inspects this source."
+    "note": "Edit only the \"config\" section. ..."
   },
   "source": {
     "name": "orders.json",
     "format": "json",
     "size_bytes": 60720,
-    "sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59"
+    "sha256": "ece53017..."
   },
   "detection": {"...": "see below"},
   "warnings": [],
@@ -228,21 +228,37 @@ differ.
   "format": "tabalyst.inspect",
   "format_version": "0.1.0a",
   "format_revision": 1,
-  "inspect": {"kind": "excel", "tabalyst_version": "0.5.1", "generated_at": "2026-10-04T22:36:19Z", "note": "..."},
-  "source": {"name": "sales.xlsx", "format": "excel", "size_bytes": 13344, "sha256": "35657227..."},
+  "inspect": {
+    "kind": "excel",
+    "tabalyst_version": "0.5.1",
+    "generated_at": "2026-10-04T22:36:19Z",
+    "note": "..."
+  },
+  "source": {
+    "name": "sales.xlsx",
+    "format": "excel",
+    "size_bytes": 13344,
+    "sha256": "35657227..."
+  },
   "detection": {
     "scope": {"structure": "complete", "header_scan_rows": 50},
     "workbook": {"sheets": 3, "tables": 0},
     "candidates": [
       {
-        "path": "$.Orders", "kind": "sheet", "sheet": "Orders", "visible": true,
+        "path": "$.Orders", "kind": "sheet", "sheet": "Orders",
+        "visible": true,
         "range": "A4:I124", "header_row": 4, "elements": 120, "eligible": true,
-        "observation": {"columns": 9, "column_names": ["order_id", "..."], "blank_rows": 0, "merged_ranges": 0}
+        "observation": {
+          "columns": 9, "column_names": ["order_id", "..."],
+          "blank_rows": 0, "merged_ranges": 0
+        }
       },
       {"path": "$.Notes", "kind": "sheet", "sheet": "Notes", "visible": true,
        "elements": 0, "eligible": false, "ineligible_reason": "no_header"}
     ],
-    "selection": {"path": "$.Orders", "basis": "dominant_candidate", "over": "$.Regions"}
+    "selection": {
+      "path": "$.Orders", "basis": "dominant_candidate", "over": "$.Regions"
+    }
   },
   "warnings": [],
   "config": {"structure": {"dataset_path": "$.Orders", "header_row": null}}

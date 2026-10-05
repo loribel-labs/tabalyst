@@ -119,4 +119,4 @@ configuration files: it only replaces the installed package.
 
 ## Next step
 
-[Create your first report](report/getting-started.md).
+[Create your first report](first-report.md).

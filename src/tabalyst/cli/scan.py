@@ -87,6 +87,8 @@ def _print_batch_result(
                         err=True,
                     )
 
+    for source, warning in batch.plan.warnings:
+        typer.echo(f"Warning [{source}]: {warning}", err=True)
     for success in batch.successes:
         if success.result.status == "partial":
             _print_partial(success)

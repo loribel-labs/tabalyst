@@ -33,6 +33,12 @@ tabalyst report --help
   an output that overwrites a source and existing outputs stop the batch.
   `--force` allows replacing outputs, never sources. Files are written
   atomically.
+- **Options by format.** `--delimiter` and `--encoding` read CSV files;
+  `--collection` and `--all-collections` choose among the collections of a JSON
+  file or the tables of a workbook. On a file that cannot use an option, the
+  option is ignored and a warning says so, such as `--delimiter is ignored:
+  sales.xlsx is not a CSV file.` Each command page has a table of the options
+  by format.
 - **Failures.** A failed file does not stop the others; the command returns a
   non-zero exit code at the end.
 - **Progress.** Progress and diagnostics use standard error. They are off

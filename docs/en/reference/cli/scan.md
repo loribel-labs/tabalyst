@@ -1,5 +1,5 @@
 ---
-title: tabalyst scan
+title: "CLI: tabalyst scan"
 description: Every option of tabalyst scan and examples for CSV, JSON, JSONL and Excel files, including how to choose a JSON collection or an Excel table with --collection.
 ---
 
@@ -16,21 +16,49 @@ files](../../scan/files.md) for what a scan analyzes.
 
 ## Options
 
+`INPUT...` is required: one or more files or non-recursive glob patterns. The
+table at the end of this section shows which options each kind of file uses.
+
+### Options for every format
+
 | Option | Description |
 | --- | --- |
-| `INPUT...` | One or more files or non-recursive glob patterns (required) |
 | `-o`, `--output PATH` | Scan filename ending in `.json`, for a single input. Not with `-d` |
 | `-d`, `--output-dir PATH` | Folder for standalone scans named `<stem>.scan.json` |
 | `-c`, `--config PATH` | JSON [configuration file](../configuration.md); repeat to merge several, in order |
-| `--collection TEXT` | JSON: the array to analyze, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable, one dataset each. Excel: the sheet or table, such as `Costs`, `Sales.Orders` or `'$["Q1 2026"]'`; once. See [Choosing a collection or a table](index.md#collection) |
-| `--delimiter TEXT` | One-character CSV delimiter, instead of the detected one |
-| `--encoding TEXT` | CSV text encoding, instead of the detected one |
 | `-f`, `--force` | Replace existing scan files |
 | `-q`, `--quiet` | Suppress success messages; warnings and errors remain |
 | `-v`, `--verbose` | Show the format, encoding, delimiter or table, status, diagnostics and duration |
 | `--no-progress` | Disable the progress line |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default |
 | `--help` | Show the options and exit |
+
+### Options for CSV files
+
+| Option | Description |
+| --- | --- |
+| `--delimiter TEXT` | One-character delimiter, instead of the detected one |
+| `--encoding TEXT` | Text encoding, instead of the detected one |
+
+### Option for JSON and Excel files
+
+| Option | Description |
+| --- | --- |
+| `--collection TEXT` | The part of the file to analyze. JSON: an array, such as `data.items` or `'$.data.items[]'`; `.` is the root array; repeatable, one dataset each. Excel: a sheet or table, such as `Costs`, `Sales.Orders` or `'$["Q1 2026"]'`; once. See [Choosing a collection or a table](index.md#collection) |
+
+A JSONL file has one dataset, its lines, so it has no collection to choose.
+
+### Options by format
+
+| Option | CSV | JSON | JSONL | Excel |
+| --- | :---: | :---: | :---: | :---: |
+| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers` | yes | yes | yes | yes |
+| `--delimiter`, `--encoding` | yes | - | - | - |
+| `--collection` | - | yes, repeatable | - | yes, once |
+
+An option that a kind of file cannot use is ignored, with a warning, and the
+scan is still made: `scan sales.xlsx --delimiter ";"` prints
+`Warning [sales.xlsx]: --delimiter is ignored: sales.xlsx is not a CSV file.`
 
 ## Examples
 
@@ -47,7 +75,7 @@ tabalyst scan orders.json
 
 ```console
 tabalyst scan orders.json --collection customers
-tabalyst scan orders.json --collection "$.customers[]" --collection "$.products[]"
+tabalyst scan orders.json --collection customers --collection products
 ```
 
 When several arrays are equally plausible, `scan` stops with exit code `2` and

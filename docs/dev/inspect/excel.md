@@ -328,8 +328,9 @@ smoke test only, no dedicated project tests.
 
 **Follow-up in `tabalyst-studio`, not done here.** Add `inspect/excel` and
 `report/excel` to the sidebar order (`src/routeMiddleware.ts`), and the five pages
-`reference/cli/{report,scan,inspect,sample,cache}` (`reference/cli.md` became
-`reference/cli/index.md`, same URL). The website only
+`reference/cli/{report,scan,inspect,sample,cache}` and
+`reference/python-api/{report,scan,inspect,sample}` (`reference/cli.md` and
+`reference/python-api.md` became `index.md` in a folder, same URLs). The website only
 advertises what the README documents, and the README now documents Excel:
 update the feature list when a release carries it. The demo it copies,
 `examples/output/insurance-customers/`, is regenerated (profile revision 11).

@@ -47,7 +47,7 @@ HTML works without a network connection or a CDN.
 
 ## Pages
 
-- [Create your first report](getting-started.md): a five-minute
+- [Create your first report](../get-started/first-report.md): a five-minute
   tutorial on a small CSV file.
 - [Report CSV files](csv.md): names, batches, safe behavior and
   options.

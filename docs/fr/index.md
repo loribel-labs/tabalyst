@@ -34,11 +34,11 @@ anglais.** Les liens ci-dessous mènent aux pages anglaises.
 
 ## Pour commencer
 
-- [Install Tabalyst](https://docs.tabalyst.com/install/) : installer ou mettre à
+- [Install Tabalyst](https://docs.tabalyst.com/get-started/install/) : installer ou mettre à
   jour Tabalyst.
-- [Create your first report](https://docs.tabalyst.com/report/getting-started/) :
+- [Create your first report](https://docs.tabalyst.com/get-started/first-report/) :
   un premier rapport pas à pas.
-- [Examples and demos](https://docs.tabalyst.com/examples/) : un rapport terminé
+- [Examples and demos](https://docs.tabalyst.com/get-started/examples/) : un rapport terminé
   à parcourir.
 
 ## Référence

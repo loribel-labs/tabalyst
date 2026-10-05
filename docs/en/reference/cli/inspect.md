@@ -1,5 +1,5 @@
 ---
-title: tabalyst inspect
+title: "CLI: tabalyst inspect"
 description: Every option of tabalyst inspect and examples for JSON, JSONL and Excel files, including the ready-to-run report commands it prints when several collections or tables are possible.
 ---
 

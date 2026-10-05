@@ -19,9 +19,11 @@ provides:
 ## The workflow
 
 ```text
-CSV, JSON, JSONL or Excel -> Scan -> scan document -> Report -> HTML report and JSON profile
-                      ^
-        Inspect (JSON, JSONL and Excel sources: which collection or table, how to flatten)
+CSV, JSON, JSONL or Excel
+  -> Scan -> scan document -> Report -> HTML report and JSON profile
+        ^
+        Inspect (JSON, JSONL and Excel sources only):
+        which collection or table, how to flatten
 ```
 
 - **Scan** reads the file once, as a stream, and records what it finds about
