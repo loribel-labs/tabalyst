@@ -1,6 +1,6 @@
 ---
 title: Release notes
-description: What changed in each Tabalyst release, from 0.1.0 to 0.6.0 - new commands, compatibility changes and experimental JSON format revisions.
+description: What changed in each Tabalyst release, from 0.1.0 to 0.6.1 - new commands, compatibility changes and experimental JSON format revisions.
 ---
 
 Tabalyst is in beta. Interfaces and JSON formats may change between releases;
@@ -10,6 +10,25 @@ changelog: [profile](../report/profile-changelog.md),
 [Inspect](../inspect/format-changelog.md). The full release notes of
 each version are on
 [GitHub](https://github.com/loribel-labs/tabalyst/tree/main/docs/dev/releases).
+
+## 0.6.1
+
+Makes the choice of a table or collection easier, and reorganizes the
+documentation.
+
+- When a JSON file or workbook has several equally plausible collections,
+  `report`, `scan` and `inspect` print one command per choice, ready to copy:
+  `tabalyst report shop.xlsx --collection Costs`. The short form of
+  `--collection` is used whenever the name is plain.
+- `tabalyst report --all-collections` reports every visible collection of a
+  JSON file or workbook, as `<name>.<collection>.html` and `.json`. `-d` is
+  optional for one file and required for several.
+- An option that a kind of file cannot use, such as `--delimiter` on a workbook,
+  is ignored with a warning.
+- The report header says "Report" and the report links to the documentation.
+- The documentation has a page per command in the command line reference and
+  per area in the Python API reference, and the first pages moved under
+  `get-started/` (the old addresses redirect). No JSON format changed.
 
 ## 0.6.0
 
