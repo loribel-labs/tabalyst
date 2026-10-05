@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 11,
-  "generated_at": "2026-10-05T20:57:15.675807Z",
-  "processing_seconds": 0.0992,
+  "generated_at": "2026-10-05T21:36:37.419184Z",
+  "processing_seconds": 0.0834,
   "source": {
     "filename": "sales.xlsx",
     "format": "excel",

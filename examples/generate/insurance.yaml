@@ -1,0 +1,36 @@
+# Planning fixture for Generate lot 1. The full Insurance example arrives in lot 6.
+definition_version: 1
+id: insurance
+defaults:
+  seed: 20260916
+  as_of_date: '2026-09-16'
+schemas:
+  customers:
+    columns:
+      - name: id_client
+        type: string
+        generate:
+          kind: sequence
+          prefix: C
+          width: 6
+datasets:
+  - id: insurance-principal
+    schema: customers
+    rows: 200000
+    source: principal
+  - id: insurance-ontario
+    schema: customers
+    rows: 25000
+    source: ontario
+  - id: insurance-quebec
+    schema: customers
+    rows: 50000
+    source: quebec
+  - id: insurance-combined
+    combine:
+      inputs: [insurance-principal, insurance-ontario, insurance-quebec]
+      source_column: filiale
+anomaly_profiles:
+  - id: dirty_realistic
+    targets: [insurance-combined]
+    operations: []

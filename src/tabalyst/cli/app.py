@@ -10,6 +10,7 @@ import typer
 
 from tabalyst import __version__
 from tabalyst.cli.cache import cache_app
+from tabalyst.cli.generate import generate_command
 from tabalyst.cli.inspect import inspect_command
 from tabalyst.cli.report import report_command
 from tabalyst.cli.sample import sample_command
@@ -45,6 +46,7 @@ def root(
 
 
 app.command("inspect")(inspect_command)
+app.command("generate")(generate_command)
 app.command("report")(report_command)
 app.command("sample")(sample_command)
 app.command("scan")(scan_command)
