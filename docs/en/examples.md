@@ -22,6 +22,7 @@ Tabalyst produces before running it on your own files.
 | `insurance-customers.csv` | 3,000 fictional customers and contracts, 34 columns | A realistic CSV report, with `--details` column pages |
 | `orders.json` | 60 customers with nested addresses, tags and orders | A JSON report on the one collection `$.customers[]` that Inspect finds |
 | `web-events.jsonl` | 300 events with nested `user` and `device` objects, plus three bad lines | A partial JSONL report: the bad lines are excluded and counted |
+| `sales.xlsx` | A workbook of 120 fictional orders under two title lines, a five-row `Regions` sheet and a note | An Excel report on the sheet `$.Orders` that Inspect selects over `$.Regions` |
 
 Email addresses use reserved `.example` domains, and all people and identifiers
 are fictional.
@@ -37,6 +38,7 @@ tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --
 tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
 tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
 tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/report.html --config examples/config.json --force
+tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
 ```
 
 Each output folder holds an HTML report, a JSON profile and a cumulative
@@ -47,4 +49,5 @@ Each output folder holds an HTML report, a JSON profile and a cumulative
 
 - [Create your first report](report/getting-started.md) with a file of your own.
 - [Report JSON and JSONL files](report/json.md) to understand the
-  `orders.json` and `web-events.jsonl` examples.
+  `orders.json` and `web-events.jsonl` examples, and
+  [Report Excel workbooks](report/excel.md) for `sales.xlsx`.

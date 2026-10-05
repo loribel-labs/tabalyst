@@ -158,6 +158,17 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   `persistence.py` writes and reads the visible file and the automatic cache;
   `resolution.py` resolves the configuration of a source by layers and is
   called by Scan and Report (`resolve_interpretation()`, `check_result()`).
+  `excel_inspect/` is the Excel kind (`inspect_workbook()`: one candidate per
+  sheet and per named table, header detection, the selection rule of JSON
+  with table row counts). The shell is shared; `InspectDocument` reads
+  `detection` and `config` by `inspect.kind`. The contract and the lots X-1 to X-4
+  are in `docs/dev/inspect/excel.md`.
+- `scanner/readers/excel_reader.py`: reads the one sheet or named table that
+  `excel.dataset_path` names, with typed values and the shape of a CSV table
+  (dataset `rows`, `Column` fields), so the report and the project store
+  treat it like CSV. `excel_common.py` opens workbooks with calamine, bounds
+  the memory of a sheet from the zip directory and hashes the file;
+  `excel_table.py` is the header rule that Inspect and the reader share.
 - `cli/app.py`: root command registration and global options.
 - `cli/inspect.py`, `cli/report.py`, `cli/sample.py`, `cli/scan.py`: thin command adapters and
   error/diagnostic presentation over the services.

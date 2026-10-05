@@ -28,6 +28,14 @@ one. See the [Inspect format](format.md) for the current structure.
 ## Revision 1
 
 - First Inspect format, kind `json`, for `.json`, `.jsonl` and `.ndjson` sources.
+- Kind `excel`, for `.xlsx` and `.xlsm` workbooks, added without changing the
+  revision: `source.format` can be `excel`; `detection` lists the sheets and
+  named tables (`workbook`, `candidates` with `kind`, `sheet`, `table`,
+  `visible`, `range`, `header_row`), and `config` holds `structure.dataset_path`
+  (`$.Sheet` or `$.Sheet.Table`) and `structure.header_row`. New warning codes:
+  `blocks_not_split`, `duplicate_headers`, `blank_headers`, `merged_cells` and
+  `multi_level_header`. A Tabalyst that does not know the kind refuses the
+  file, naming the kinds it reads.
 - Sections `inspect`, `source`, `detection`, `warnings` and `config`; the part
   you edit is `config`, with `structure.dataset_path`, `flatten` (`enabled`,
   `separator`, `max_depth`), `arrays.mode` and `errors.policy`.

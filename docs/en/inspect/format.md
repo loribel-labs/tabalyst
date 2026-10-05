@@ -6,10 +6,12 @@ description: Structure of the Inspect file written by tabalyst inspect, with its
 `tabalyst inspect data.json` writes `data.json-inspect.json` beside the source:
 a JSON document that says how Tabalyst understands the source and holds the
 rules to read it. This page describes format `tabalyst.inspect`, version
-`0.1.0a`, revision `1`, kind `json`. The format is **experimental**: it can
+`0.1.0a`, revision `1`, kinds `json` and `excel`. The format is **experimental**: it can
 change incompatibly between releases. Changes are listed in the
 [Inspect format changelog](format-changelog.md). For the commands, see
-[Inspect JSON and JSONL files](json.md).
+[Inspect JSON and JSONL files](json.md) and [Inspect Excel workbooks](excel.md).
+The kind `json` is described first; [the kind `excel`](#inspect-files-of-workbooks-kind-excel)
+follows the same top level with its own `detection` and `config`.
 
 ## Top level
 
@@ -61,12 +63,12 @@ inspections write the same file except `inspect.generated_at`.
 
 | Key | Meaning |
 | --- | --- |
-| `inspect.kind` | The kind of Inspect, `json` for JSON, JSONL and NDJSON sources. |
+| `inspect.kind` | The kind of Inspect: `json` for JSON, JSONL and NDJSON sources, `excel` for workbooks. |
 | `inspect.tabalyst_version` | The version of Tabalyst that wrote the file. |
 | `inspect.generated_at` | UTC time of the inspection, the only value that varies. |
 | `inspect.note` | A reminder to edit only `config`. |
 | `source.name` | File name of the source, with its extension. |
-| `source.format` | `json`, or `jsonl` for `.jsonl` and `.ndjson` files. |
+| `source.format` | `json`, `jsonl` for `.jsonl` and `.ndjson` files, or `excel` for `.xlsx` and `.xlsm` files. |
 | `source.size_bytes` | Bytes read. |
 | `source.sha256` | SHA-256 of every byte read. |
 
@@ -206,9 +208,118 @@ file with an automatic choice.
 
 ## Stored copy
 
-When a JSON source has no Inspect file and nothing on the command line or in a
+When a JSON source or a workbook has no Inspect file and nothing on the command line or in a
 `--config` file names its collection, `tabalyst scan` and `tabalyst report`
 inspect it and keep a copy of the result in Tabalyst's local storage, next to
 the stored scan. The copy is rebuilt whenever the source content, the format
-version, the version of Tabalyst or the discovery depth differ. It is
+version, the version of Tabalyst or the discovery depth (JSON) or header search (Excel)
+differ. It is
 disposable and is never read when an Inspect file exists beside the source.
+
+## Inspect files of workbooks (kind `excel`)
+
+`tabalyst inspect sales.xlsx` writes `sales.xlsx-inspect.json` with the same
+top level, the same zones and the same reading rules as above. Only
+`inspect.kind` (`excel`), `source.format` (`excel`), `detection` and `config`
+differ.
+
+```json
+{
+  "format": "tabalyst.inspect",
+  "format_version": "0.1.0a",
+  "format_revision": 1,
+  "inspect": {"kind": "excel", "tabalyst_version": "0.5.1", "generated_at": "2026-10-04T22:36:19Z", "note": "..."},
+  "source": {"name": "sales.xlsx", "format": "excel", "size_bytes": 13344, "sha256": "35657227..."},
+  "detection": {
+    "scope": {"structure": "complete", "header_scan_rows": 50},
+    "workbook": {"sheets": 3, "tables": 0},
+    "candidates": [
+      {
+        "path": "$.Orders", "kind": "sheet", "sheet": "Orders", "visible": true,
+        "range": "A4:I124", "header_row": 4, "elements": 120, "eligible": true,
+        "observation": {"columns": 9, "column_names": ["order_id", "..."], "blank_rows": 0, "merged_ranges": 0}
+      },
+      {"path": "$.Notes", "kind": "sheet", "sheet": "Notes", "visible": true,
+       "elements": 0, "eligible": false, "ineligible_reason": "no_header"}
+    ],
+    "selection": {"path": "$.Orders", "basis": "dominant_candidate", "over": "$.Regions"}
+  },
+  "warnings": [],
+  "config": {"structure": {"dataset_path": "$.Orders", "header_row": null}}
+}
+```
+
+### `detection` of a workbook
+
+| Key | Meaning |
+| --- | --- |
+| `scope.structure` | Always `complete`: every sheet and table is read. |
+| `scope.header_scan_rows` | Rows searched for the header of a sheet, from its first filled row (50). |
+| `scope.candidates` | `truncated` when more than 100 candidates were found. Absent otherwise. |
+| `workbook` | The number of `sheets` and of named `tables`. |
+| `candidates` | The sheets and named tables, in workbook order; the tables of a sheet follow it. |
+| `selection` | The table proposed, or none. |
+
+| Key of a candidate | Meaning |
+| --- | --- |
+| `path` | `$.Sheet` for a sheet, `$.Sheet.Table` for a named table; a name that is not a plain identifier is quoted, `$["Q1 2026"]`. |
+| `kind` | `sheet` or `table`. |
+| `sheet`, `table` | The names; `table` only for a named table. |
+| `visible` | `false` for a hidden sheet, and for the tables on it. |
+| `range` | A1 range of the header and the data, such as `A4:I124`. Absent without a table. |
+| `header_row` | The 1-based sheet row of the header. Absent without a table. |
+| `elements` | Filled data rows; `0` for a candidate with none. |
+| `eligible` | `true` when the candidate has a header and at least one data row. |
+| `ineligible_reason` | Only when not eligible: `no_cells`, `no_header`, `no_data_rows` or `has_tables`. |
+| `observation` | `columns`, `column_names` (the first 100), `blank_rows` among the data and `merged_ranges` in the table. Absent without a table. |
+
+A sheet that holds named tables is not eligible (`has_tables`): its tables
+are. `selection.basis` takes the values of the JSON kind that make sense for a
+table: `only_eligible_candidate`, `dominant_candidate` (the largest eligible
+table has at least 10 times the data rows of the next one, given in
+`selection.over`), `ambiguous`, `no_eligible_candidate` and
+`candidates_truncated`. Hidden sheets compete only when no visible table is
+eligible. Sheet names play no part, and a tie never selects.
+
+### Warnings of a workbook
+
+The entries have the keys of the JSON kind. `ambiguous_collections`,
+`no_collection` (`reason` `no_eligible_table`), `candidates_truncated`,
+`candidate_not_eligible`, `candidate_not_eligible_truncated`,
+`configured_path_not_found` and `source_name_mismatch` are raised as for
+JSON. Five codes are specific to workbooks, all at level `warning`, with the
+`path` of the table and a `count`:
+
+| Code | When |
+| --- | --- |
+| `blocks_not_split` | Blank rows lie among the data of a sheet; `count` of blank rows. |
+| `duplicate_headers` | The header repeats names; `count` of repeated names. |
+| `blank_headers` | The header leaves cells empty; `count` of empty cells. |
+| `merged_cells` | Merged ranges lie in the data; `count` of ranges. |
+| `multi_level_header` | Merged cells lie on the header row; `count` of ranges. |
+
+### `config` of a workbook
+
+| Key | Type | Default when omitted | Written by Inspect |
+| --- | --- | --- | --- |
+| `structure.dataset_path` | string or `null` | `null`: not decided | The selection, or `null` |
+| `structure.header_row` | integer or `null` | `null`: the detected row | `null` |
+
+- `structure.dataset_path` is an absolute path with the workbook as root and one
+  or two keys: `$.Sales` for a sheet, `$.Sales.Orders` for a named table of that
+  sheet. Equal paths in different spellings are the same path
+  (`$["Sales"]["Orders"]` is `$.Sales.Orders`). A path that ends with `[]`,
+  has three keys or does not start with `$` is refused.
+- `structure.header_row` is a 1-based row number (an integer from 1; a string, a
+  boolean or `0` is refused) that replaces the detected header row of a sheet.
+  It does not apply to a named table. A new file takes it from `scan.excel.header_row`
+  of a `--config` file, and writes `null` when there is none.
+- `flatten`, `arrays` and `errors` do not exist for a workbook, and an unknown key
+  is an error that names it, as in the JSON kind.
+
+`tabalyst scan` and `tabalyst report` apply `config` as the settings
+`excel.dataset_path` and `excel.header_row` of the
+[scan configuration](../reference/configuration.md#scan-settings). An Inspect
+file written for another kind than the source, such as a JSON Inspect file
+beside a workbook, is not replaced silently: `tabalyst inspect --force` replaces
+it.

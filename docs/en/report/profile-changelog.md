@@ -8,7 +8,7 @@ The generated `report.json` identifies its contract with two independent fields:
 ```json
 {
   "format_version": "0.1.0a",
-  "format_revision": 10
+  "format_revision": 11
 }
 ```
 
@@ -192,3 +192,15 @@ none of the last 5,000.
   `$` for the rest of the document. The structure of `datasets` does not change.
 - Column `path` and `name` of JSON fields are joined with
   `config.scan.json.flatten.separator`.
+
+## Revision 11
+
+- `source.format` can be `excel`, for `.xlsx` and `.xlsm` workbooks. The report
+  analyzes one table of the workbook, a dataset `rows` whose columns are the
+  cells of its header, as for a CSV file.
+- `source.encoding` is `null` for a workbook, which has no text encoding. It
+  stays a string for CSV, JSON and JSONL sources. `source.delimiter` is `null`,
+  as for JSON.
+- `config.scan` gains `excel` (`dataset_path`, `header_row`), which selects the
+  table of a workbook.
+

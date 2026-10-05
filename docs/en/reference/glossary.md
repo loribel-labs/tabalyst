@@ -56,7 +56,7 @@ Keep these exactly as written in every language:
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
-| record | enregistrement | One CSV row, one element of a JSON collection or one object line of a JSONL file |
+| record | enregistrement | One CSV row, one element of a JSON collection, one object line of a JSONL file or one data row of an Excel table |
 | collection | collection | A JSON array whose elements are analyzed as records; a JSONL file is one collection, `$[]` |
 | field | champ | A CSV column or a path inside JSON records, such as `orders[].amount` |
 | detector | détecteur | A rule that recognizes a kind of value, such as email addresses or dates |
@@ -67,10 +67,14 @@ Keep these exactly as written in every language:
 | diagnostic | diagnostic | A technical event of a scan, such as an excluded record or a reached limit |
 | configuration layer | couche de configuration | One level of settings: defaults, each configuration file, then options |
 | JSONL | JSONL | A file with one JSON object per line, ending in `.jsonl` or `.ndjson` |
-| inspect, Tabalyst Inspect | inspection, Tabalyst Inspect | The step that reads a JSON or JSONL source, finds its collection and writes the Inspect file; the command is `tabalyst inspect` |
+| workbook | classeur | An Excel file, `.xlsx` or `.xlsm`, with one or more sheets |
+| sheet | feuille | One tab of a workbook; a candidate table of its own unless it holds named tables |
+| named table | tableau nommé | An Excel table (list object) defined in a sheet, with its own header and range |
+| header row | ligne d'en-tête | The row of a sheet whose cells name the columns, detected or set by `excel.header_row` |
+| inspect, Tabalyst Inspect | inspection, Tabalyst Inspect | The step that reads a JSON, JSONL or Excel source, finds its collection or table and writes the Inspect file; the command is `tabalyst inspect` |
 | Inspect file | fichier Inspect | The `<source>-inspect.json` file beside a source, with the detection and the `config` you may edit |
 | detection | détection | The section of an Inspect file that describes what Inspect found |
-| candidate collection | collection candidate | An array that Inspect could analyze as the dataset of a source |
+| candidate collection | collection candidate | An array, or for a workbook a sheet or named table, that Inspect could analyze as the dataset of a source |
 | eligible candidate | candidat éligible | A candidate collection that has at least one element, all of them objects |
 | selection | sélection | The collection Inspect proposes, or none |
 | ambiguous selection, unresolved selection | sélection ambiguë, sélection non résolue | Several collections are equally plausible, or none is usable, so nothing is selected and `tabalyst scan` and `tabalyst report` stop |

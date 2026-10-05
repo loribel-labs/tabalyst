@@ -1,5 +1,44 @@
 # Development progress
 
+## 2026-10-04 (Excel review fixes)
+
+- Fixed five findings of the review of the Excel lots (corrupt sheets in
+  Inspect, `header_row` seed, Excel lock files in patterns, hash of the parsed
+  bytes, Inspect file of another kind), with tests in
+  `tests/inspect/test_excel_review.py`.
+
+## 2026-10-04 (Excel lot X-4)
+
+- Documented Excel support for the public site and the README (new Inspect and
+  Report pages, formats, configuration, limits), added the `sales.xlsx` demo,
+  regenerated all demos. Report profile revision 11 (`encoding` null for
+  workbooks). A stored scan of an older format is now replaced by the shared
+  cache instead of stopping `report`. Details in `docs/dev/inspect/excel.md`.
+
+## 2026-10-04 (Excel lot X-3)
+
+- `scan` and `report` read `.xlsx` and `.xlsm` workbooks: typed Excel reader,
+  `scan.excel` settings, resolution layers and detection cache shared with the
+  JSON parcours, `--collection` for a sheet or table. Scan format revision 6.
+  Public docs and changelogs are lot X-4; details in
+  `docs/dev/inspect/excel.md`.
+
+## 2026-10-04 (Excel lot X-2)
+
+- Added Excel Inspect (`tabalyst inspect` on `.xlsx` and `.xlsm`): kind `excel`,
+  one candidate per sheet and per named table, header detection, selection
+  with the JSON rules, warnings, visible file and re-inspection. Provisional
+  parameters on synthetic workbooks; details in `docs/dev/inspect/excel.md`.
+  Scan and report of workbooks are lots X-3 and X-4; the public docs and
+  format changelog follow in X-4.
+
+## 2026-10-04 (Excel lot X-1)
+
+- Excel support framed in `docs/dev/inspect/excel.md` (cases, decisions X-1 to
+  X-3, lots X-1 to X-4). Lot X-1 added the `python-calamine` dependency and
+  measured its reading cost and behavior; results are in section "Lot X-1" of
+  that page. No product behavior changes yet.
+
 ## 2026-10-01 (external test root)
 
 - Test, benchmark and screenshot evidence now lives in

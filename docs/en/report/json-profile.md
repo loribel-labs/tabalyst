@@ -121,15 +121,16 @@ A shortened profile for a five-row `orders.csv`:
 | Field | Content |
 | --- | --- |
 | `filename` | File name, without folder |
-| `format` | `csv`, `json` or `jsonl` |
+| `format` | `csv`, `json`, `jsonl` or `excel` |
 | `size_bytes` | File size in bytes |
 | `sha256` | SHA-256 hash of the file, to check that two profiles describe the same file |
-| `encoding` | Text encoding used to read the file |
-| `delimiter` | Field delimiter used to read the file; `null` for JSON files |
+| `encoding` | Text encoding used to read the file; `null` for an Excel workbook |
+| `delimiter` | Field delimiter used to read the file; `null` for JSON, JSONL and Excel files |
 
 ## `datasets`
 
-A CSV file has one dataset, `rows`, whose records are the rows of the file. A
+A CSV file has one dataset, `rows`, whose records are the rows of the file;
+so has an Excel workbook, whose rows are those of the table analyzed. A
 JSON file has one dataset per collection analyzed, such as `$.customers[]`,
 usually one: the collection selected by [Inspect](../inspect/json.md)
 or named with `--collection`. A JSONL file has one dataset, `$[]`. Reports
