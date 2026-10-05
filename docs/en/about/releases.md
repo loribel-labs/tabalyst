@@ -1,6 +1,6 @@
 ---
 title: Release notes
-description: What changed in each Tabalyst release, from 0.1.0 to 0.5.1 - new commands, compatibility changes and experimental JSON format revisions.
+description: What changed in each Tabalyst release, from 0.1.0 to 0.6.0 - new commands, compatibility changes and experimental JSON format revisions.
 ---
 
 Tabalyst is in beta. Interfaces and JSON formats may change between releases;
@@ -10,6 +10,19 @@ changelog: [profile](../report/profile-changelog.md),
 [Inspect](../inspect/format-changelog.md). The full release notes of
 each version are on
 [GitHub](https://github.com/loribel-labs/tabalyst/tree/main/docs/dev/releases).
+
+## 0.6.0
+
+Adds Excel workbooks and relicenses the code under MPL-2.0.
+
+- `tabalyst inspect`, `scan` and `report` read `.xlsx` and `.xlsm` workbooks.
+  Inspect lists the sheets and named tables as candidates and selects one when
+  it is clearly the largest; `dataset_path` (`$.Sheet` or `$.Sheet.Table`) and
+  `header_row` choose the table.
+- Profile format revision 11 and scan format revision 6: stored scans of an
+  older revision are replaced by `tabalyst scan` and `tabalyst report`. The
+  Inspect format gains the `excel` kind without a revision change.
+- The code is now licensed under MPL-2.0; the documentation stays CC BY 4.0.
 
 ## 0.5.1
 

@@ -1,13 +1,13 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 11,
-  "generated_at": "2026-10-05T02:37:11.528291Z",
-  "processing_seconds": 0.0932,
+  "generated_at": "2026-10-05T04:07:36.441759Z",
+  "processing_seconds": 0.0956,
   "source": {
     "filename": "sales.xlsx",
     "format": "excel",
-    "size_bytes": 13344,
-    "sha256": "35657227524f5b3e307d9651673388b031f12c87046a5c12481d5d9e2bc84d2b",
+    "size_bytes": 17717,
+    "sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
     "encoding": null,
     "delimiter": null
   },
