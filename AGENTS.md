@@ -58,7 +58,9 @@ not yet required. Record format changes in the relevant changelogs.
   `excel_inspect/` is the Excel kind (sheets and named tables as candidates);
   its contract is `docs/dev/inspect/excel.md`. Its contract is
   `docs/dev/inspect/design.md`; its tests in `tests/inspect/` are enabled lot by
-  lot.
+  lot. `choices.py` holds what the command line says about collections: the
+  `--collection` short forms, the commands to copy when a source is ambiguous
+  and the file slugs of `report --all-collections`.
 - `src/tabalyst/scanner/readers/excel_*.py`: the Excel reader, the workbook
   helpers (`excel_common.py`) and the header rule shared by Inspect and the reader
   (`excel_table.py`).

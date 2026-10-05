@@ -22,7 +22,7 @@ pass `force=True` when replacement is intended.
 | Function | Returns |
 | --- | --- |
 | `tabalyst.analyze(csv_path, report_path, separator=None, encoding=None, config_path=None, force=False, details=False)` | The JSON-serializable profile of one CSV file, after writing its report |
-| `tabalyst.generate_reports(input_specs, *, output=None, output_dir=None, separator=None, encoding=None, config_path=None, force=False, details=False, from_scan=False, workers=None)` | The batch result: `plan`, `successes`, `failures` and `succeeded` |
+| `tabalyst.generate_reports(input_specs, *, output=None, output_dir=None, separator=None, encoding=None, config_path=None, force=False, details=False, from_scan=False, workers=None, collections=None, all_collections=False)` | The batch result: `plan`, `successes`, `failures` and `succeeded` |
 | `tabalyst.analyze_csv(path, config=None, workers=None)` | A `ReportProfile` model, without writing files |
 | `tabalyst.analyze_scan(scan_path, config_path=None)` | A `ReportProfile` built from a scan document |
 | `tabalyst.render_report(profile)` | The HTML of a report, as a string |
@@ -35,6 +35,11 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 `generate_reports()` accepts CSV, JSON, JSONL and Excel sources, and scan documents
 with `from_scan=True`. `config_path` is one configuration file or a sequence of
 files merged in order. `workers` is the number of analysis processes.
+`collections` are absolute JSON collection paths or the one Excel table to
+analyze, as `--collection` gives them; `all_collections=True` reports every
+visible collection of each JSON file or workbook, one report per collection,
+named `<stem>.<collection-slug>.html` (it needs `output_dir` with several inputs,
+and excludes `output`, `collections` and `from_scan`).
 
 ## Scans
 
@@ -87,7 +92,7 @@ sample = tabalyst.sample_csv("customers.csv", method="random", rows=1000, seed=4
 
 ## Related pages
 
-- [Command line (CLI)](cli.md), for the same operations as commands.
+- [Command line (CLI)](cli/index.md), for the same operations as commands.
 - [Configuration](configuration.md), for the files that `config_path` reads and
   the `ScanConfig` settings.
 - [Scan CSV and JSON files](../scan/files.md) and

@@ -37,6 +37,7 @@ changes often: update it before each new test.
 | One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 | One JSONL file | `tabalyst report events.jsonl` | `events.report.html` beside the source |
 | One Excel workbook | `tabalyst report sales.xlsx` | `sales.report.html` beside the source |
+| Every table of a workbook | `tabalyst report shop.xlsx --all-collections` | `shop.costs.html`, `shop.sales.html`, ... beside the source |
 | From a scan document | `tabalyst report --scan data.scan.json` | `data.html` beside the scan |
 
 The simplest command keeps the source filename:
@@ -105,9 +106,17 @@ tabalyst report sales.xlsx
 
 Cells keep their Excel type, and dates are read as dates. A workbook with one
 table needs nothing else. When several sheets or tables are equally plausible,
-Tabalyst stops and lists them instead of choosing: pass `--collection Costs` (or
-`'$.Sales.Orders'` for a named table), or see [Tabalyst Inspect](#tabalyst-inspect).
-Older `.xls` files are not read: save them as `.xlsx`.
+Tabalyst stops and prints one command per table to copy and run, such as
+`tabalyst report shop.xlsx --collection Costs` (or `Sales.Orders` for a named
+table), or see [Tabalyst Inspect](#tabalyst-inspect). To report every table at
+once, use `--all-collections`:
+
+```console
+tabalyst report shop.xlsx --all-collections -d reports
+```
+
+This writes `shop.costs.html` and `shop.costs.json` for each table, named after
+the file and the sheet. Older `.xls` files are not read: save them as `.xlsx`.
 
 ### Multiple files
 

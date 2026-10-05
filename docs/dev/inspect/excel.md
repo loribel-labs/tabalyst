@@ -305,8 +305,31 @@ smoke test only, no dedicated project tests.
   source (`_read_visible`), as `tabalyst inspect` already did.
 - Tests: `tests/inspect/test_excel_review.py`.
 
+**Choosing a table from the command line (2026-10-05).**
+
+- `scan` and `report` print the commands to copy, as `inspect` did: one per
+  eligible candidate when the detection is `ambiguous`, in the short form of
+  `--collection` (`Costs`, `Sales.Orders`) when it expands back to the same path,
+  else the quoted absolute path (`'$["Sales Q1"]'`). The library error is
+  `UndecidedCollection` (a `ConfigurationError`, so exit 2 and the same message);
+  each command adds its own lines (`scan` has no `--all-collections` line).
+  `inspect` uses the same helper, and calls a workbook candidate a table.
+- `report --all-collections` (JSON and Excel): `-d` is optional for one input and
+  required for several; not with `-o`, `--collection` or `--scan`. Planning runs
+  the automatic detection (`detect_collections`, cached like Scan's) and makes
+  one job per visible eligible candidate, named `<stem>.<slug>.html` and
+  `.json`; hidden sheets are left out with a warning (they stay chosen with
+  `--collection`). The slug is the keys of the path joined by `-`, lower case,
+  accents removed, other characters `-`, numbered `-2` on equal slugs,
+  `collection-N` when nothing is left, `root` for `$[]`. A source with nothing to
+  report fails alone (exit 2); CSV and JSONL keep their usual names in the same
+  batch. The visible Inspect file is ignored by the listing, and a job's
+  collection outranks it, with the usual notice.
+
 **Follow-up in `tabalyst-studio`, not done here.** Add `inspect/excel` and
-`report/excel` to the sidebar order (`src/routeMiddleware.ts`). The website only
+`report/excel` to the sidebar order (`src/routeMiddleware.ts`), and the five pages
+`reference/cli/{report,scan,inspect,sample,cache}` (`reference/cli.md` became
+`reference/cli/index.md`, same URL). The website only
 advertises what the README documents, and the README now documents Excel:
 update the feature list when a release carries it. The demo it copies,
 `examples/output/insurance-customers/`, is regenerated (profile revision 11).

@@ -103,7 +103,7 @@ tabalyst report data.csv --workers 4
 
 Files of 16 MiB or more are analyzed by several worker processes with the same
 result; `--workers 1` keeps one process. All options are in the
-[command line reference](../reference/cli.md#tabalyst-report), and the
+[command line reference](../reference/cli/report.md), and the
 analysis settings in the [configuration reference](../reference/configuration.md).
 
 ## Reuse a scan

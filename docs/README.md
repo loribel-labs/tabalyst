@@ -26,7 +26,7 @@ the reference of its JSON format with its changelog.
 | `inspect/` | Tabalyst Inspect: overview, JSON guide, Inspect format |
 | `scan/` | Tabalyst Scan: overview, guide, scan format, query caches |
 | `sample/` | Tabalyst Sample (one page) |
-| `reference/` | Command line, Python API, configuration, execution history, glossary |
+| `reference/` | Command line (`cli/`: general page and one page per command with every option and examples), Python API, configuration, execution history, glossary |
 | `about/` | Concepts, known limitations, release notes, contributing and issues |
 
 To add a page, create it in the folder of its tool with a one-sentence

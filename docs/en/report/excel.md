@@ -32,9 +32,41 @@ tabalyst report shop.xlsx --collection '$.Sales.Orders'
 
 `Costs` is a sheet, `$.Sales.Orders` the named table `Orders` of the sheet
 `Sales`. A sheet name that is not a plain identifier is quoted:
-`'$["Q1 2026"]'`. [Inspect Excel workbooks](../inspect/excel.md) explains how the
-table is chosen, how to list the candidates with `tabalyst inspect`, and how to
-set the header row when the detection is wrong.
+`'$["Q1 2026"]'`. The command that stops lists one ready-to-run command per
+table, so you only copy the one you want and run it again:
+
+```text
+Choose the table to analyze:
+  tabalyst report shop.xlsx --collection Costs
+  tabalyst report shop.xlsx --collection '$["Sales Q1"]'
+Or report every table: tabalyst report shop.xlsx --all-collections
+```
+
+`tabalyst inspect shop.xlsx` prints the same lines. [Inspect Excel
+workbooks](../inspect/excel.md) explains how the table is chosen and how to set
+the header row when the detection is wrong.
+
+## Every table of a workbook
+
+To report all the tables in one command, add `--all-collections`:
+
+```console
+tabalyst report shop.xlsx --all-collections
+tabalyst report shop.xlsx --all-collections -d reports
+```
+
+Each table gets its own pair of files, named `<file>.<collection-slug>`:
+`shop.costs.html` and `shop.costs.json` for the sheet `Costs`, and
+`shop.sales-q1.html` and `shop.sales-q1.json` for `Sales Q1` (lower case, without
+accents, every other character a hyphen). A named table of a sheet gives
+`shop.sales-orders.html`. Empty sheets, sheets without a header and hidden sheets
+are left out, the last with a warning: report one with `--collection`.
+
+`-d` chooses the folder and is optional for one workbook, which writes beside the
+source; with several files it is required. `--all-collections` cannot be used
+with `-o`, `--collection` or `--scan`, and existing files stop the command unless
+you pass `--force`. See [tabalyst report](../reference/cli/report.md) for every
+option.
 
 ## Columns
 

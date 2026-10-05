@@ -5,7 +5,10 @@ description: Reference pages of Tabalyst - command line, Python API, configurati
 
 Reference pages describe exactly what Tabalyst accepts and produces.
 
-- [Command line (CLI)](cli.md): every command, option and exit code.
+- [Command line (CLI)](cli/index.md): the shared conventions and one page per
+  command ([report](cli/report.md), [scan](cli/scan.md),
+  [inspect](cli/inspect.md), [sample](cli/sample.md), [cache](cli/cache.md))
+  with every option, examples and exit codes.
 - [Python API](python-api.md): the public functions and their
   arguments.
 - [Configuration](configuration.md): the JSON configuration file and every

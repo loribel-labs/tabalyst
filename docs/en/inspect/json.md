@@ -61,17 +61,17 @@ Candidates:
   $.customers[] (2 elements)
   $.orders[] (2 elements)
 Pass --collection, or run `tabalyst inspect shop.json` and set config.structure.dataset_path in the file it writes.
-```
-
-`tabalyst inspect shop.json` lists one ready-to-run `report` command per
-collection. `scan` takes the same `--collection` option, and a short form such
-as `--collection orders` stands for `$.orders[]`:
-
-```text
 Choose the collection to analyze:
-  tabalyst report shop.json --collection '$.customers[]'
-  tabalyst report shop.json --collection '$.orders[]'
+  tabalyst report shop.json --collection customers
+  tabalyst report shop.json --collection orders
+Or report every collection: tabalyst report shop.json --all-collections
 ```
+
+`report` and `scan` print one ready-to-run command per collection, and so does
+`tabalyst inspect shop.json`. A short form such as `--collection orders` stands
+for `$.orders[]`, and the commands use it whenever the name is plain.
+`--all-collections` reports each collection, as `shop.customers.html` and
+`shop.orders.html` with their `.json` profiles.
 
 To make the choice stick for `report` too, open `shop.json-inspect.json` and
 set the collection in `config`:
