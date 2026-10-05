@@ -65,4 +65,4 @@ in PowerShell.
 | `0` | Success, even when nothing was found to remove |
 | `4` | The source file named in the command has no Tabalyst project |
 
-See [Command line (CLI)](../reference/cli.md) for all commands.
+See [Command line (CLI)](../reference/cli/cache.md) for all commands.

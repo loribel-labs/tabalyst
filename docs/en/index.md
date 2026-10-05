@@ -41,7 +41,7 @@ documentation describes the latest release published on PyPI.
 | Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
-| Find a command or an option | [Command line (CLI)](reference/cli.md) |
+| Find a command or an option | [Command line (CLI)](reference/cli/index.md) |
 | Use Tabalyst from Python | [Python API](reference/python-api.md) |
 | Read a generated JSON file in a script | [JSON profile](report/json-profile.md), [scan format](scan/format.md), [Inspect format](inspect/format.md) |
 | Know what is not supported yet | [Known limitations](about/limitations.md) |
@@ -63,7 +63,7 @@ documentation describes the latest release published on PyPI.
   [changelog](scan/format-changelog.md) and
   [query caches](scan/cache.md).
 - **Tabalyst Sample**: [Sample CSV files](sample/index.md).
-- **Reference**: [command line](reference/cli.md),
+- **Reference**: [command line](reference/cli/index.md),
   [Python API](reference/python-api.md),
   [configuration](reference/configuration.md),
   [execution history](reference/history.md) and the

@@ -51,6 +51,15 @@ tabalyst report data.json --collection products
 tabalyst report data.json --collection '$.catalog.products[]'
 ```
 
+The command that stops lists one ready-to-run command per collection. To report
+all of them in one command, use `--all-collections`, which writes
+`data.<collection>.html` and `data.<collection>.json` for each array (add `-d` to
+choose the folder):
+
+```console
+tabalyst report data.json --all-collections -d reports
+```
+
 A collection is written as a path, `$.catalog.products[]`, or in the short
 form without `$` and `[]`, `catalog.products`: the keys that lead to the array.
 The root array of a file is `$[]`, or `.` in the short form. A key made of

@@ -17,6 +17,7 @@ from tabalyst.inspect_service import (
     InspectResult,
     generate_inspections,
 )
+from tabalyst.inspector.choices import choice_lines
 
 _BASES = {
     "root_array": "the root array",
@@ -50,16 +51,12 @@ def _choices(success: InspectResult) -> list[str]:
     detection = success.document.detection
     if detection.selection.basis != "ambiguous":
         return []
-    source = str(success.source)
-    if " " in source:
-        source = f'"{source}"'
-    lines = ["Choose the collection to analyze:"]
-    lines.extend(
-        f"  tabalyst report {source} --collection '{candidate.path}'"
-        for candidate in detection.candidates
-        if candidate.eligible
+    return choice_lines(
+        "report",
+        success.source,
+        [candidate.path for candidate in detection.candidates if candidate.eligible],
+        noun="table" if success.document.inspect.kind == "excel" else "collection",
     )
-    return lines
 
 
 def _print_success(success: InspectResult, *, verbose: bool) -> None:

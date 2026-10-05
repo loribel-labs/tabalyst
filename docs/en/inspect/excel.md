@@ -87,22 +87,22 @@ Candidates:
   $.Sales (8 rows)
   $.Costs (5 rows)
 Pass --collection with a sheet or table path such as '$.Sheet', or run `tabalyst inspect shop.xlsx` and set config.structure.dataset_path in the file it writes.
+Choose the table to analyze:
+  tabalyst report shop.xlsx --collection Sales
+  tabalyst report shop.xlsx --collection Costs
+Or report every table: tabalyst report shop.xlsx --all-collections
 ```
 
-`tabalyst inspect shop.xlsx` lists one ready-to-run command per table:
-
-```text
-Choose the collection to analyze:
-  tabalyst report shop.xlsx --collection '$.Sales'
-  tabalyst report shop.xlsx --collection '$.Costs'
-```
-
-`scan` takes the same `--collection` option. A workbook is read one table at a
-time: pass the option once. The table is written as a path (`'$.Costs'`,
-`'$.Costs.Orders'`) or in the short form, the name alone (`--collection Costs`).
-A sheet name that is not a plain identifier needs the quoted path
-(`'$["Q1 2026"]'`). To make the choice stick, open `shop.xlsx-inspect.json` and
-set it in `config`:
+`report` and `scan` print one ready-to-run command per table, and so does
+`tabalyst inspect shop.xlsx`: copy the one you want and run it. The commands use
+the short form, the name alone (`--collection Costs`, or `--collection
+Sales.Orders` for a named table), whenever the name is plain. A sheet name that
+is not a plain identifier needs the quoted path (`'$["Q1 2026"]'`), which the
+commands print as it must be typed. A workbook is read one table at a time: pass
+`--collection` once, or use `tabalyst report --all-collections` to report every
+table, one pair of files per table (see [Report Excel
+workbooks](../report/excel.md#every-table-of-a-workbook)). To make the choice
+stick, open `shop.xlsx-inspect.json` and set it in `config`:
 
 ```json
 "config": {

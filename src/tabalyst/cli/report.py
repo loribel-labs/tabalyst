@@ -16,6 +16,7 @@ from tabalyst.cli.terminal import (
     batch_exit_code,
     collection_paths,
     error_exit_code,
+    error_text,
 )
 from tabalyst.errors import TabalystError
 from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_reports
@@ -70,6 +71,8 @@ def _print_batch_result(
                         details.append(f"delimiter {source['delimiter']!r}")
                     typer.echo("  " + " | ".join(details), err=True)
 
+    for source, warning in batch.plan.warnings:
+        typer.echo(f"Warning [{source}]: {warning}", err=True)
     for success in batch.successes:
         for warning in success.warnings:
             typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
@@ -81,7 +84,10 @@ def _print_batch_result(
                 err=True,
             )
     for failure in batch.failures:
-        typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'report')}",
+            err=True,
+        )
 
     if len(batch.plan.jobs) > 1 and (not quiet or batch.failures):
         typer.echo(
@@ -96,8 +102,8 @@ def report_command(
         typer.Argument(
             metavar="INPUT...",
             help=(
-                "One or more CSV or JSON files, or scan documents with --scan, "
-                "or non-recursive glob patterns."
+                "One or more CSV, JSON, JSONL or Excel (.xlsx, .xlsm) files, or "
+                "scan documents with --scan, or non-recursive glob patterns."
             ),
         ),
     ],
@@ -114,7 +120,10 @@ def report_command(
         typer.Option(
             "--output-dir",
             "-d",
-            help="Directory for reports named after their source files.",
+            help=(
+                "Directory for reports named after their source files; "
+                "required by --all-collections with several inputs."
+            ),
         ),
     ] = None,
     delimiter: Annotated[
@@ -133,6 +142,17 @@ def report_command(
         list[str] | None,
         typer.Option("--collection", help=COLLECTION_HELP),
     ] = None,
+    all_collections: Annotated[
+        bool,
+        typer.Option(
+            "--all-collections",
+            help=(
+                "Report every visible collection of a JSON file or Excel "
+                "workbook, as <name>.<collection>.html and .json; needs -d "
+                "with several inputs."
+            ),
+        ),
+    ] = False,
     from_scan: Annotated[
         bool,
         typer.Option(
@@ -202,9 +222,10 @@ def report_command(
             on_progress=progress,
             from_scan=from_scan,
             workers=workers,
+            all_collections=all_collections,
         )
     except TabalystError as exc:
-        typer.echo(f"Error: {exc}", err=True)
+        typer.echo(f"Error: {error_text(exc, 'report')}", err=True)
         raise typer.Exit(error_exit_code(exc)) from exc
 
     _print_batch_result(batch, quiet=quiet, verbose=verbose)

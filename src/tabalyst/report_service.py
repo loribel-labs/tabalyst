@@ -9,10 +9,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from tabalyst.batch import path_key, plan_outputs, validate_outputs
+from tabalyst.batch import (
+    output_directory,
+    path_key,
+    plan_outputs,
+    resolve_input_specs,
+    validate_outputs,
+)
 from tabalyst.config import load_config_layers, settings_from_layer
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
 from tabalyst.execution_log import EXECUTION_LOG_NAME
+from tabalyst.inspector.choices import collection_slug
+from tabalyst.inspector.models import ExcelCandidate, InspectDocument
+from tabalyst.inspector.resolution import detect_collections
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
@@ -40,6 +49,9 @@ class ReportJob:
     # Why a scan document cannot be reported, found while planning: the job
     # fails without stopping the batch.
     error: TabalystError | None = None
+    # The collection this job reports, set by ``all_collections``: it outranks
+    # ``collections`` and the Inspect file, like ``--collection``.
+    collection: str | None = None
 
     @property
     def profile_output(self) -> Path:
@@ -53,6 +65,9 @@ class ReportJob:
 @dataclass(frozen=True)
 class ReportPlan:
     jobs: tuple[ReportJob, ...]
+    # What planning left out or could not do, as (source, sentence): the hidden
+    # sheets that ``all_collections`` skips.
+    warnings: tuple[tuple[Path, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -91,6 +106,127 @@ def report_name(source: Path) -> str:
     return f"{source.stem}.html"
 
 
+def collection_report_name(source: Path, slug: str) -> str:
+    """``shop.costs.html`` for the collection ``costs`` of ``shop.xlsx``."""
+    return f"{source.stem}.{slug}.html"
+
+
+def _reportable(document: InspectDocument) -> tuple[list[str], list[str]]:
+    """The paths of the collections that ``all_collections`` reports, and the
+    hidden sheets it leaves out: the eligible candidates, visible ones only."""
+    reported: list[str] = []
+    hidden: list[str] = []
+    for candidate in document.detection.candidates:
+        if not candidate.eligible:
+            continue
+        if isinstance(candidate, ExcelCandidate) and not candidate.visible:
+            hidden.append(candidate.path)
+        else:
+            reported.append(candidate.path)
+    return reported, hidden
+
+
+def _nothing_to_report(source: Path, hidden: Sequence[str]) -> ConfigurationError:
+    if hidden:
+        return ConfigurationError(
+            f"{source.name} has no visible sheet or table to report; its hidden "
+            f"sheets are not reported by --all-collections ({', '.join(hidden)}). "
+            "Choose one with --collection. Nothing was analyzed."
+        )
+    noun = "table" if source_format_of(source) == "excel" else "collection"
+    return ConfigurationError(
+        f"No supported {noun} was found in {source.name}, so there is nothing to "
+        "report. `tabalyst inspect` explains what the file holds. Nothing was "
+        "analyzed."
+    )
+
+
+def _collection_jobs(
+    source: Path, directory: Path, scan_layer: dict
+) -> tuple[list[ReportJob], list[tuple[Path, str]]]:
+    """One job per collection of a JSON file or workbook, named
+    ``<stem>.<slug>``; a source with one dataset keeps its usual name.
+
+    A source that cannot be inspected, or holds nothing to report, gives one
+    job that fails alone."""
+    usual = directory / report_name(source)
+    if source_format_of(source) not in ("json", "excel"):
+        return [ReportJob(source=source, output=usual)], []
+    try:
+        document, notices = detect_collections(source, scan_layer=scan_layer)
+    except TabalystError as exc:
+        return [ReportJob(source=source, output=usual, error=exc)], []
+    paths, hidden = _reportable(document)
+    warnings = [(source, notice) for notice in notices]
+    if not paths:
+        failure = _nothing_to_report(source, hidden)
+        return [ReportJob(source=source, output=usual, error=failure)], warnings
+    warnings.extend(
+        (source, f"hidden sheet {path} is not reported; choose it with --collection.")
+        for path in hidden
+    )
+    if document.detection.scope.candidates == "truncated":
+        warnings.append(
+            (
+                source,
+                (
+                    "more sheets, tables or collections than the detection lists; "
+                    "only the listed ones are reported."
+                ),
+            )
+        )
+    used: set[str] = set()
+    jobs = []
+    for position, path in enumerate(paths, start=1):
+        base = collection_slug(path, position)
+        slug, number = base, 1
+        while slug in used:
+            number += 1
+            slug = f"{base}-{number}"
+        used.add(slug)
+        jobs.append(
+            ReportJob(
+                source=source,
+                output=directory / collection_report_name(source, slug),
+                collection=path,
+            )
+        )
+    return jobs, warnings
+
+
+def _plan_all_collections(
+    input_specs: Sequence[str | Path],
+    *,
+    output: str | Path | None,
+    output_dir: str | Path | None,
+    scan_layer: dict,
+) -> tuple[tuple[ReportJob, ...], tuple[tuple[Path, str], ...]]:
+    if output is not None:
+        raise ConfigurationError(
+            "--output cannot be used with --all-collections: each collection "
+            "gets its own file, named after the source and the collection. Use "
+            "--output-dir to choose the folder."
+        )
+    sources = resolve_input_specs(input_specs)
+    if len(sources) > 1 and output_dir is None:
+        raise ConfigurationError(
+            "--all-collections needs --output-dir (-d) with several inputs, so "
+            "that the reports of every file land in one folder."
+        )
+    destination = output_directory(output_dir)
+    jobs: list[ReportJob] = []
+    warnings: list[tuple[Path, str]] = []
+    for source in sources:
+        found, notes = _collection_jobs(
+            source,
+            destination if destination is not None else source.parent,
+            scan_layer,
+        )
+        jobs.extend(found)
+        warnings.extend(notes)
+    return tuple(jobs), tuple(warnings)
+
+
 def build_report_plan(
     input_specs: Sequence[str | Path],
     *,
@@ -98,13 +234,28 @@ def build_report_plan(
     output_dir: str | Path | None = None,
     force: bool = False,
     from_scan: bool = False,
+    all_collections: bool = False,
+    scan_layer: dict | None = None,
 ) -> ReportPlan:
     """Resolve all report paths and reject the whole batch on unsafe plans.
 
     With ``from_scan``, the inputs are scan documents: reports are named after
     the source each one records, and must not replace that source either. A
     document that cannot be read is named after its own file and fails alone.
+
+    With ``all_collections``, a JSON file or workbook is inspected (with
+    ``scan_layer``, the ``scan`` section of the configuration) and gets one job
+    per visible, eligible collection, named ``<stem>.<slug>.html``.
     """
+    if all_collections:
+        jobs, warnings = _plan_all_collections(
+            input_specs,
+            output=output,
+            output_dir=output_dir,
+            scan_layer=scan_layer or {},
+        )
+        _validate_report_plan(jobs, force=force)
+        return ReportPlan(jobs=jobs, warnings=warnings)
     names: dict[str, str | TabalystError] = {}
 
     def recorded(scan_path: Path) -> str | TabalystError:
@@ -185,6 +336,7 @@ def generate_reports(
     on_progress: ProgressCallback | None = None,
     from_scan: bool = False,
     workers: int | None = None,
+    all_collections: bool = False,
 ) -> BatchReportResult:
     """Plan and execute one or more reports without depending on the CLI.
 
@@ -195,6 +347,8 @@ def generate_reports(
     (absolute paths such as ``$.products[]``) choose the JSON collections to
     analyze, over the Inspect file and the configuration.
     Set ``details=True`` to write a standalone HTML page for each column.
+    ``all_collections`` reports every visible collection of each JSON file or
+    workbook, one pair of files per collection (see ``build_report_plan``).
     """
     if from_scan and (separator is not None or encoding is not None):
         raise ConfigurationError(
@@ -211,14 +365,26 @@ def generate_reports(
             "--collection cannot be used with --scan: the scan document records "
             "which collection it analyzed."
         )
+    if all_collections and from_scan:
+        raise ConfigurationError(
+            "--all-collections cannot be used with --scan: a scan document "
+            "records the one collection it analyzed."
+        )
+    if all_collections and collections:
+        raise ConfigurationError(
+            "--collection and --all-collections cannot be used together: "
+            "choose one collection, or report all of them."
+        )
+    config_paths = _config_paths(config_path)
     plan = build_report_plan(
         input_specs,
         output=output,
         output_dir=output_dir,
         force=force,
         from_scan=from_scan,
+        all_collections=all_collections,
+        scan_layer=load_config_layers(config_paths)[1] if all_collections else None,
     )
-    config_paths = _config_paths(config_path)
     if from_scan:
         top_level, scan_layer = load_config_layers(config_paths)
         settings = settings_from_layer(top_level)
@@ -277,7 +443,7 @@ def generate_reports(
                     scan_layer=report_scan_layer,
                     separator=separator,
                     encoding=encoding,
-                    collections=collections,
+                    collections=[job.collection] if job.collection else collections,
                 )
         except TabalystError as exc:
             failures.append(ReportFailure(job=job, error=exc))

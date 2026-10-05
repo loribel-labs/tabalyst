@@ -133,8 +133,9 @@ def test_ambiguous_selection_lists_a_report_command_per_collection(tmp_path):
 
     assert "Choose the collection to analyze:" in result.output
     assert "tabalyst report" in result.output
-    assert "--collection '$.a[]'" in result.output
-    assert "--collection '$.b[]'" in result.output
+    assert "--collection a" in result.output
+    assert "--collection b" in result.output
+    assert "--all-collections" in result.output
 
 
 def test_report_takes_a_collection_by_path_or_by_name(tmp_path):
@@ -243,7 +244,8 @@ def test_generate_scans_resolves_json_like_the_command(tmp_path):
 
     assert [item.job.source for item in batch.successes] == [shop]
     assert [item.result.datasets[0].id for item in batch.successes] == ["$.customers[]"]
-    assert [type(item.error) for item in batch.failures] == [ConfigurationError]
+    assert len(batch.failures) == 1
+    assert isinstance(batch.failures[0].error, ConfigurationError)
     assert not (tmp_path / "scans" / "two.scan.json").exists()
 
 

@@ -10,8 +10,13 @@ from typing import ClassVar
 import typer
 
 from tabalyst.errors import ConfigurationError, InputError, TabalystError
+from tabalyst.inspector.choices import (
+    UndecidedCollection,
+    choice_lines,
+    expand_collection,
+)
 from tabalyst.progress import ProgressEvent, ProgressPhase
-from tabalyst.scanner.paths import ITEMS, format_absolute, parse_path
+from tabalyst.scanner.readers.excel_common import EXCEL_SUFFIXES
 
 COLLECTION_HELP = (
     "JSON collection: an array path such as '$.data.items[]', or its short "
@@ -21,27 +26,26 @@ COLLECTION_HELP = (
 
 
 def collection_paths(values: list[str] | None) -> list[str] | None:
-    """``--collection`` values as absolute paths. Without the leading ``$``, the
-    value is the keys leading to the array, so ``data.items`` is
-    ``$.data.items[]``, and ``.`` is the root array, ``$[]``; a collection is always an array, so ``[]`` is implied."""
+    """``--collection`` values as absolute paths (see ``expand_collection``)."""
     if values is None:
         return None
     paths = []
     for value in values:
-        if value.startswith("$"):
-            paths.append(value)
-            continue
-        if value == ".":
-            paths.append(format_absolute((ITEMS,)))
-            continue
         try:
-            path = parse_path(value, numeric_keys=True)
+            paths.append(expand_collection(value))
         except ValueError as exc:
             raise typer.BadParameter(str(exc), param_hint="--collection") from exc
-        if not path or path[-1] != ITEMS:
-            path = (*path, ITEMS)
-        paths.append(format_absolute(path))
     return paths
+
+
+def error_text(error: TabalystError, command: str) -> str:
+    """The message of an error, with the commands to copy when a source has
+    several equally plausible collections."""
+    if isinstance(error, UndecidedCollection) and error.eligible:
+        noun = "table" if error.source.suffix.lower() in EXCEL_SUFFIXES else "collection"
+        lines = choice_lines(command, error.source, error.eligible, noun=noun)
+        return "\n".join([str(error), *lines])
+    return str(error)
 
 
 def error_exit_code(error: TabalystError) -> int:

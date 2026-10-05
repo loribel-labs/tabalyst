@@ -90,6 +90,16 @@ def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
     return sources
 
 
+def output_directory(output_dir: str | Path | None) -> Path | None:
+    """``--output-dir`` as a path, refused when it is an existing file."""
+    if output_dir is None:
+        return None
+    destination = Path(output_dir)
+    if destination.exists() and not destination.is_dir():
+        raise ReportError(f"Output directory path is a file: {destination}")
+    return destination
+
+
 def plan_outputs(
     input_specs: Sequence[str | Path],
     *,
@@ -108,9 +118,7 @@ def plan_outputs(
     if output is not None and len(sources) != 1:
         raise ConfigurationError("--output can only be used with one input file.")
 
-    destination = Path(output_dir) if output_dir is not None else None
-    if destination is not None and destination.exists() and not destination.is_dir():
-        raise ReportError(f"Output directory path is a file: {destination}")
+    destination = output_directory(output_dir)
     return [
         (
             source,

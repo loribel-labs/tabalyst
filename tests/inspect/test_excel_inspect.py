@@ -558,5 +558,6 @@ def test_the_command_lists_the_choices_of_an_ambiguous_workbook(tmp_path):
     output = result.output
     assert "Selection: none" in output
     assert "$.Sales (8 elements)" in output
-    assert "--collection '$.Costs'" in output
+    assert f"tabalyst report {path} --collection Costs" in output
+    assert f"tabalyst report {path} --all-collections" in output
     assert (tmp_path / "cli.xlsx-inspect.json").is_file()

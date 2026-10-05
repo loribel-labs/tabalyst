@@ -20,6 +20,7 @@ from typing import Any, Literal
 
 from tabalyst.config import merge_settings
 from tabalyst.errors import ConfigurationError
+from tabalyst.inspector.choices import UndecidedCollection
 from tabalyst.inspector.excel_inspect import inspect_workbook
 from tabalyst.inspector.excel_inspect import parameters as excel_parameters
 from tabalyst.inspector.json_inspect import inspect_source
@@ -181,6 +182,30 @@ def resolve_interpretation(
         recorded_sha256=None if visible is None else visible.recorded_sha256,
         source_sha256=source_sha256,
     )
+
+
+def detect_collections(
+    source: str | Path,
+    *,
+    scan_layer: dict[str, Any] | None = None,
+    location: StorageLocation | None = None,
+) -> tuple[InspectDocument, tuple[str, ...]]:
+    """The automatic detection of a JSON or Excel source: every candidate
+    collection, whatever the selection, and the notices to print.
+
+    It is the detection ``resolve_interpretation`` makes, cached the same way,
+    and ignores the visible Inspect file and the collection that a
+    configuration file names: it lists what the source holds.
+    """
+    source = Path(source)
+    source_format = source_format_of(source)
+    if source_format not in ("json", "excel"):
+        raise ValueError(f"{source.name} has no collections to detect.")
+    layer = scan_layer or {}
+    if source_format == "excel":
+        layer = _without_collections(layer)
+    document, _, notices, _ = _detect(source, layer, location, None)
+    return document, notices
 
 
 def check_result(interpretation: Interpretation, result: ScanResult) -> tuple[str, ...]:
@@ -423,7 +448,7 @@ def _suspension(
     visible: VisibleInspect | None,
     detected: InspectDocument | None,
     notices: Sequence[str] = (),
-) -> ConfigurationError:
+) -> UndecidedCollection:
     if visible is not None:
         candidates = visible.candidates
         basis = visible.selection_basis
@@ -469,7 +494,15 @@ def _suspension(
         )
     # What was found out on the way, such as a cache that could not be written.
     lines.extend(notices)
-    return ConfigurationError("\n".join(lines))
+    return UndecidedCollection(
+        "\n".join(lines), source=source, eligible=_choices(basis, eligible)
+    )
+
+
+def _choices(basis: str | None, eligible: Sequence[CandidateSummary]) -> list[str]:
+    """What the user can choose from: only when the detection found several
+    equally plausible candidates."""
+    return [item.path for item in eligible] if basis == "ambiguous" else []
 
 
 def _excel_suspension(
@@ -479,7 +512,7 @@ def _excel_suspension(
     eligible: Sequence[CandidateSummary],
     visible: VisibleInspect | None,
     notices: Sequence[str],
-) -> ConfigurationError:
+) -> UndecidedCollection:
     if basis == "ambiguous":
         why = f"{len(eligible)} tables of {source.name} are equally plausible."
     elif basis == "candidates_truncated":
@@ -511,7 +544,9 @@ def _excel_suspension(
             "config.structure.dataset_path in the file it writes."
         )
     lines.extend(notices)
-    return ConfigurationError("\n".join(lines))
+    return UndecidedCollection(
+        "\n".join(lines), source=source, eligible=_choices(basis, eligible)
+    )
 
 
 _REASONS = {

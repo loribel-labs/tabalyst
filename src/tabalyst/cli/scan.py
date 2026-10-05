@@ -16,6 +16,7 @@ from tabalyst.cli.terminal import (
     batch_exit_code,
     collection_paths,
     error_exit_code,
+    error_text,
 )
 from tabalyst.errors import TabalystError
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
@@ -92,7 +93,10 @@ def _print_batch_result(
         for warning in success.warnings:
             typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
     for failure in batch.failures:
-        typer.echo(f"Error [{failure.job.source}]: {failure.error}", err=True)
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
+            err=True,
+        )
 
     if len(batch.plan.jobs) > 1 and (not quiet or batch.failures):
         typer.echo(
@@ -198,7 +202,7 @@ def scan_command(
             project_storage=True,
         )
     except TabalystError as exc:
-        typer.echo(f"Error: {exc}", err=True)
+        typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
         raise typer.Exit(error_exit_code(exc)) from exc
 
     _print_batch_result(batch, quiet=quiet, verbose=verbose)
