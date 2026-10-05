@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Streaming JSON reader with its own path stack (design sections 5.2, 6, 14).
 
 The reader consumes ``ijson`` basic events, which carry no path prefixes: it

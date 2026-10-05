@@ -41,4 +41,4 @@ Writing rules are in the "Documentation" section of
 [glossary](en/reference/glossary.md).
 
 The contents of `en/` and `fr/` are licensed under CC BY 4.0 (see
-[`LICENSE`](LICENSE)); the rest of the repository is MIT.
+[`LICENSE`](LICENSE)); the rest of the repository is MPL-2.0.

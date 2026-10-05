@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Persistence and resolution beyond the contract (lot JI-6).
 
 Cases the contract tests do not pin: the cache and the search depth, a cache

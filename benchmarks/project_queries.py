@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Private d3 measurements in fresh processes, synthetic data only.
 
 python benchmarks/project_queries.py --case csv --rows 1000000 --root artifacts/d3-csv --repeat 2

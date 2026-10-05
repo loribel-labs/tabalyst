@@ -80,6 +80,11 @@ Use the existing patterns and keep changes focused. Preserve user changes alread
 present in the working tree. Use `apply_patch` for manual edits and avoid unrelated
 refactors.
 
+Every source file (`.py`, `.js`, `.cjs`, `.css` under `src/`, `tests/`,
+`benchmarks/`, `scripts/`) starts with the MPL-2.0 header. Run
+`python scripts/license_headers.py` after adding files; `tests/test_license_headers.py`
+fails when a header is missing.
+
 Never create test, benchmark or screenshot output inside the checkout (an
 `artifacts/` or `pytest-*` folder there breaks Obsidian). Always use the sibling
 `D:\GIT\tabalyst.test\artifacts` (see `docs/dev/architecture.md`).
@@ -148,7 +153,7 @@ Writing rules for `docs/en/`:
 
 When a user-facing behavior changes, update the matching page in `docs/en/`.
 The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
-(`docs/LICENSE`); the code stays MIT.
+(`docs/LICENSE`); the code stays MPL-2.0.
 
 ## Versioning
 

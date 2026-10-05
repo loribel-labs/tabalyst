@@ -1,3 +1,7 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 // Usage: node tests/browser/report.cjs report.html report.json [playwright module]
 const { chromium } = require(process.argv[4] || 'playwright');
 const assert = require('node:assert/strict');

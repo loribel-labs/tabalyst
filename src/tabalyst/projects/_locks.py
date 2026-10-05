@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """OS-backed local workspace locks, independent of lock-file existence/PIDs.
 
 POSIX uses flock; Windows uses LockFileEx over one byte, including shared

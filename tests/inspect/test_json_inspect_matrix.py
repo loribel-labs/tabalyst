@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect: end-to-end cases of the specification matrix (lot JI-8).
 
 Design section 16.3 maps every case of the minimal matrix (specification 10.2)

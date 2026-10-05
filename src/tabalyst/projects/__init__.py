@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Project storage: identity, location, ``project.json`` and freshness.
 
 Internal for now: not part of the public ``tabalyst`` API. See

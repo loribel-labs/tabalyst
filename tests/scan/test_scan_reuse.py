@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """Scan contract: a report built from a scan document (lot 5c, O12).
 
 ``tabalyst report --scan data.scan.json`` builds the report from the document

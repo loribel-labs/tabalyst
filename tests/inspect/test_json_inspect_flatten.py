@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """JSON Inspect contract: flatten, arrays, types and value states (lot JI-3).
 
 Design section 7. ``flatten.max_depth`` keeps a container whole at the limit,

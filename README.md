@@ -467,6 +467,6 @@ Please report defects and feature requests through the
 
 ## License
 
-Tabalyst is released under the [MIT License](LICENSE).
+Tabalyst is released under the [Mozilla Public License 2.0](LICENSE).
 
 Created by Gregory Borelli — Catalyseur Numérique.

@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 """``inspect_source``: read one JSON source and describe it (design inspect 8).
 
 Reads and writes nothing else: no file, no cache. Persistence and the
