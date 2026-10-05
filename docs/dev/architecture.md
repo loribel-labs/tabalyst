@@ -321,7 +321,7 @@ compatibility layer or migration system is planned during the current alpha.
 
 Tabalyst Scan replaced the pandas engine with a streaming, bounded-memory
 engine for CSV and JSON (lot 5c removed the pandas engine). Its contract is [scan/design.md](scan/design.md) and
-its lots are in [scan/plan.md](scan/plan.md). `tabalyst.scanner` provides
+its lot plan is kept in the private maintainer repository. `tabalyst.scanner` provides
 `scan()`, `ScanConfig` and `ScanResult`; since lot 4, the `tabalyst scan`
 command and the top-level `tabalyst.scan()` and `tabalyst.generate_scans()`
 expose it, and the `scan` section of configuration files configures it. Since
