@@ -70,8 +70,9 @@ Read `README.md`, `docs/dev/architecture.md` and the relevant configuration or
 format changelog (`docs/en/report/`, `docs/en/scan/` or `docs/en/inspect/`) before changing shared behavior.
 
 Tabalyst Scan, the future core analysis engine (`src/tabalyst/scanner/`), is
-built in lots. Before working on it, read `docs/dev/scan/plan.md` (lots,
-status, models, sessions) and `docs/dev/scan/design.md` (the contract). Its
+built in lots. Before working on it, read `docs/dev/scan/design.md` (the contract).
+The lot plan, status and sessions live in the private `tabalyst-gb` repository
+(`IN-PROGRESS/tabalyst-scan-plan.md`). Its
 contract tests in `tests/scan/` are enabled lot by lot.
 
 ## Development workflow
@@ -101,7 +102,9 @@ regression check described in `docs/dev/architecture.md` at desktop and mobile s
 After every project modification, regenerate the public demos using the commands
 in `examples/README.md`. Use the `insurance-customers` output for browser checks.
 
-Update `docs/dev/progress.md` for meaningful work. Update
+Progress logs and work-in-progress requests are kept in the private
+`tabalyst-gb` repository (`IN-PROGRESS/`), not here; record meaningful work
+there. Update
 `docs/en/report/profile-changelog.md` only when the JSON structure or
 semantics change. Update release notes in `docs/dev/releases/` for release
 milestones.

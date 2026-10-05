@@ -159,7 +159,7 @@ typed; accepted digits are ASCII digits.
 ## Priority 1 catalogue (lot 3b)
 
 Each family writes its entries here before implementing them, in its own
-session (plan.md, lot 3b):
+session (lot 3b of the Scan plan):
 
 - email and URL;
 - phone numbers (CA, US, FR);

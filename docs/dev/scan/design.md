@@ -7,7 +7,8 @@ specification is maintained privately (`tabalyst-gb`,
 `drafts/2026-09-26-scan/Tabalyst-Scan-Cahier-des-charges.md`); its identifiers
 (`Dxx`, `EFxx`, `ETxx`, `CAxx`, `Oxx`) are reused here for traceability.
 
-The phase plan, sessions and models are in [plan.md](plan.md). The contract
+The phase plan, sessions and models are kept in the private maintainer
+repository. The contract
 tests that make this document executable are in `tests/scan/`.
 
 ## 1. Status of decisions

@@ -7,7 +7,7 @@
 Each test declares the implementation lot that provides its behavior with
 ``@pytest.mark.lot("1a")``. Tests of lots missing from ``ENABLED_LOTS`` are
 skipped, so the suite stays green while the engine is built. Add a lot here
-when its implementation starts; see ``docs/dev/scan/plan.md``.
+when its implementation starts; see the Scan plan of the maintainer.
 
 The expectations follow ``docs/dev/scan/design.md``. Changing one requires
 updating the design document in the same lot.
