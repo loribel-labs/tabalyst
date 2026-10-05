@@ -1,9 +1,9 @@
 ---
 title: Scan CSV and JSON files
-description: Describe every field of a CSV, JSON or JSONL file in a complete JSON scan document with tabalyst scan, in one streaming pass.
+description: Describe every field of a CSV, JSON, JSONL or Excel file in a complete JSON scan document with tabalyst scan, in one streaming pass.
 ---
 
-Use `tabalyst scan` to describe a CSV, JSON or JSONL file in a JSON document: every
+Use `tabalyst scan` to describe a CSV, JSON, JSONL or Excel file in a JSON document: every
 field, its presence, values, statistics, formats and detected meanings, such
 as email addresses, dates or amounts.
 
@@ -22,7 +22,8 @@ structure of the result is described in the
 ## Scan JSON files
 
 Files ending in `.json` are read as JSON, files ending in `.jsonl` or `.ndjson`
-(in any letter case) as JSONL, and every other file as CSV.
+(in any letter case) as JSONL, files ending in `.xlsx` or `.xlsm` as Excel
+workbooks, and every other file as CSV.
 
 ```console
 tabalyst scan orders.json
@@ -62,6 +63,25 @@ warning, with an empty dataset.
 A JSONL source has one dataset, `$[]`: its records are the lines. An invalid
 line, or one that is not an object, is excluded and counted under the default
 `tolerant` policy, and the scan is `partial`.
+
+## Scan Excel workbooks
+
+```console
+tabalyst scan sales.xlsx
+tabalyst scan shop.xlsx --collection Costs
+```
+
+A scan analyzes **one table** of a workbook: a sheet, or a named Excel table. The
+table is chosen as for JSON collections, with [Inspect](../inspect/excel.md),
+which runs by itself when the source has no Inspect file, or with
+`--collection`, once (`Costs`, `'$.Costs'` or `'$.Sales.Orders'`). When several
+tables are equally plausible, the scan stops with exit code `2` and lists them.
+The header row is detected, and `excel.header_row` of the
+[configuration](../reference/configuration.md#scan-settings) or the Inspect file
+sets it. The scan has one dataset, `rows`, of kind `table`, whose fields are the
+columns of the header. Cells keep their Excel type, and dates are read as ISO
+text that the date detector recognizes. The [scan format](format.md#excel-sources)
+records the table read.
 
 ## Choose output locations
 

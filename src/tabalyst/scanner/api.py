@@ -27,6 +27,7 @@ from tabalyst.scanner.models import (
     CollectionScope,
     CsvSourceInfo,
     EngineInfo,
+    ExcelSourceInfo,
     ScanResult,
     Scope,
     SourceInfo,
@@ -40,6 +41,7 @@ from tabalyst.scanner.observations import (
 from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
+from tabalyst.scanner.readers.excel_reader import ExcelReader
 from tabalyst.scanner.readers.json_reader import JsonReader
 from tabalyst.scanner.readers.jsonl_reader import JsonlReader
 from tabalyst.scanner.workers import WorkerPool, worker_count
@@ -55,6 +57,8 @@ def _open_reader(
         return JsonReader(path, config, on_bytes)
     if source_format == "jsonl":
         return JsonlReader(path, config, on_bytes)
+    if source_format == "excel":
+        return ExcelReader(path, config, on_bytes)
     return CsvReader(path, config, on_bytes)
 
 
@@ -172,6 +176,18 @@ def scan(
                 if summary.csv is None
                 else CsvSourceInfo(
                     delimiter=summary.csv.delimiter, header=summary.csv.header
+                )
+            ),
+            excel=(
+                None
+                if summary.excel is None
+                else ExcelSourceInfo(
+                    dataset_path=summary.excel.dataset_path,
+                    sheet=summary.excel.sheet,
+                    table=summary.excel.table,
+                    range=summary.excel.range,
+                    header_row=summary.excel.header_row,
+                    header=summary.excel.header,
                 )
             ),
         ),

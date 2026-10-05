@@ -220,9 +220,9 @@ def validate_database(
             "Analyzed record count mismatch",
         )
         table = None
-        if result.source.csv is not None:
+        if result.source.header is not None:
             table = TableLayout(
-                tuple((Column(i),) for i in range(1, len(result.source.csv.header) + 1))
+                tuple((Column(i),) for i in range(1, len(result.source.header) + 1))
             )
         paths = PathTokens()
         native_counts = {}

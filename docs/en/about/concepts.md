@@ -13,15 +13,15 @@ provides:
 | --- | --- | --- |
 | [Tabalyst Report](../report/index.md) | `tabalyst report` | HTML report and JSON profile |
 | [Tabalyst Scan](../scan/index.md) | `tabalyst scan` | Complete JSON description of every field |
-| [Tabalyst Inspect](../inspect/json.md) | `tabalyst inspect` | Finds how to read a JSON or JSONL file |
+| [Tabalyst Inspect](../inspect/json.md) | `tabalyst inspect` | Finds how to read a JSON, JSONL or Excel file |
 | [Tabalyst Sample](../sample/index.md) | `tabalyst sample` | Smaller CSV files |
 
 ## The workflow
 
 ```text
-CSV, JSON or JSONL -> Scan -> scan document -> Report -> HTML report and JSON profile
+CSV, JSON, JSONL or Excel -> Scan -> scan document -> Report -> HTML report and JSON profile
                       ^
-        Inspect (JSON and JSONL sources: which collection, how to flatten)
+        Inspect (JSON, JSONL and Excel sources: which collection or table, how to flatten)
 ```
 
 - **Scan** reads the file once, as a stream, and records what it finds about
@@ -29,9 +29,9 @@ CSV, JSON or JSONL -> Scan -> scan document -> Report -> HTML report and JSON pr
 - **Report** builds the profile from the scan, then renders the HTML from the
   profile alone. The profile is the canonical result, for scripts and other
   tools.
-- **Inspect** decides how a JSON or JSONL file is read: which array holds the
-  records, how nested objects become columns named by their path, such as
-  `address.city`. Scan and Report run it by themselves when needed, and use
+- **Inspect** decides how a JSON, JSONL or Excel file is read: which array,
+  sheet or table holds the records, and for JSON how nested objects become
+  columns named by their path, such as `address.city`. Scan and Report run it by themselves when needed, and use
   your edits of its file when you made some.
 - **Sample** is independent: it cuts a CSV file down to a manageable size.
 

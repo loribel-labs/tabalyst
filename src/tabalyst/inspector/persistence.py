@@ -28,6 +28,7 @@ from tabalyst.inspector.models import (
     FORMAT_REVISION,
     FORMAT_VERSION,
     DetectionScope,
+    ExcelInspectConfig,
     InspectConfig,
     InspectDocument,
     InspectWarning,
@@ -37,7 +38,7 @@ from tabalyst.projects.location import StorageLocation
 from tabalyst.scanner.paths import Key, parse_path
 
 # The Inspect kinds this Tabalyst reads (design inspect section 1).
-KINDS = ("json",)
+KINDS = ("json", "excel")
 
 
 def inspect_path(source: str | Path) -> Path:
@@ -72,7 +73,7 @@ class VisibleInspect:
 
     path: Path
     kind: str
-    config: InspectConfig
+    config: InspectConfig | ExcelInspectConfig
     recorded_sha256: str | None
     recorded_name: str | None
     candidates: tuple[CandidateSummary, ...]
@@ -131,12 +132,15 @@ def _check_header(path: Path, document: dict[str, Any]) -> str:
     return kind
 
 
-def _read_config(path: Path, document: dict[str, Any]) -> InspectConfig:
+def _read_config(
+    path: Path, document: dict[str, Any], kind: str
+) -> InspectConfig | ExcelInspectConfig:
     config = document.get("config")
     if not isinstance(config, dict):
         raise _invalid(path, "config must be a JSON object")
+    model = ExcelInspectConfig if kind == "excel" else InspectConfig
     try:
-        return InspectConfig.model_validate(config)
+        return model.model_validate(config)
     except ValidationError as exc:
         raise _invalid(path, validation_message(exc, "config")) from exc
 
@@ -178,7 +182,7 @@ def read_visible_inspect(path: Path) -> VisibleInspect:
     """
     document = _load_object(path)
     kind = _check_header(path, document)
-    config = _read_config(path, document)
+    config = _read_config(path, document, kind)
     detection = document.get("detection")
     return VisibleInspect(
         path=path,
@@ -219,6 +223,10 @@ def _cannot_be_judged(path: str, document: InspectDocument) -> bool:
     a scan can check; so is any path when the list was cut. A JSONL source has
     the one dataset ``$[]``, so every path can be judged.
     """
+    if document.source.format == "excel":
+        # Every sheet and table is a candidate, ineligible ones included: only
+        # a cut list cannot tell.
+        return document.detection.scope.candidates == "truncated"
     if document.source.format == "jsonl":
         return False
     scope: DetectionScope = document.detection.scope
@@ -230,15 +238,19 @@ def _cannot_be_judged(path: str, document: InspectDocument) -> bool:
     ) > scope.discovery_max_depth
 
 
-def _not_found_warning(path: str) -> InspectWarning:
-    return InspectWarning(
-        code="configured_path_not_found",
-        level="warning",
-        message=(
+def _not_found_warning(path: str, kind: str) -> InspectWarning:
+    if kind == "excel":
+        message = (
+            f"The configured table {path} is not a sheet or a named table of "
+            "this workbook. Set config.structure.dataset_path to one that exists."
+        )
+    else:
+        message = (
             f"The configured collection {path} is not an array of this source. "
             "Set config.structure.dataset_path to a collection that exists."
-        ),
-        path=path,
+        )
+    return InspectWarning(
+        code="configured_path_not_found", level="warning", message=message, path=path
     )
 
 
@@ -271,6 +283,14 @@ def save_inspection(
         except ConfigurationError:
             if not force:
                 raise
+    if existing is not None and existing.kind != document.inspect.kind:
+        if not force:
+            raise ConfigurationError(
+                f"Inspect file {path} is of kind {existing.kind!r} and this source "
+                f"is inspected as {document.inspect.kind!r}. Replace it with "
+                "`tabalyst inspect --force`."
+            )
+        existing = None
     config: dict[str, Any] | None = None
     written = document
     warnings = list(document.warnings)
@@ -297,7 +317,7 @@ def save_inspection(
                 and chosen not in known
                 and not _cannot_be_judged(chosen, document)
             ):
-                warnings.append(_not_found_warning(chosen))
+                warnings.append(_not_found_warning(chosen, document.inspect.kind))
     written = written.model_copy(update={"warnings": warnings})
     try:
         write_text_atomic(path, inspect_text(written, config=config))

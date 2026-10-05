@@ -46,6 +46,11 @@ from tabalyst.scanner.models import (
 _HASH_CHUNK = 1 << 20
 
 
+class UnsupportedScanDocument(InputError):
+    """A scan document of another format version than this Tabalyst reads. A
+    stored scan in this state is only out of date: the shared cache replaces it."""
+
+
 def read_scan_document(path: Path) -> dict:
     """The JSON object of a scan document, with its format checked."""
     try:
@@ -62,7 +67,7 @@ def read_scan_document(path: Path) -> dict:
         )
     version = (document.get("format_version"), document.get("format_revision"))
     if version != (FORMAT_VERSION, FORMAT_REVISION):
-        raise InputError(
+        raise UnsupportedScanDocument(
             f"Unsupported scan document {path}: format {version[0]} revision "
             f"{version[1]}; this version of Tabalyst reads format "
             f"{FORMAT_VERSION} revision {FORMAT_REVISION}. Run tabalyst scan "

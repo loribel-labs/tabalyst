@@ -10,7 +10,7 @@ fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 5
+  "format_revision": 6
 }
 ```
 
@@ -24,6 +24,20 @@ documentation or corrections that keep the contract.
 Beta revisions may be incompatible. No automatic migration is provided.
 `tabalyst report --scan` reads the current revision only: scan the source
 again to report on an older document.
+
+## Revision 6
+
+- `source.format` can be `excel`, for `.xlsx` and `.xlsm` workbooks. `source.excel`
+  records the table read (`dataset_path`, `sheet`, `table`, `range`,
+  `header_row`, `header`) and is `null` for other sources. `source.encoding` is
+  `null` for a workbook.
+- `config.excel` (`dataset_path`, `header_row`) selects the table of a workbook.
+  Adding it changed `config_sha256` of every configuration, so documents of
+  revision 5 are refused and must be scanned again; a stored scan of an older
+  revision is replaced by `tabalyst scan` and `tabalyst report`.
+- An Excel source has one dataset, `rows`, of kind `table`, with `column`
+  fields as for CSV and typed values: integers, numbers, booleans and strings,
+  dates being ISO text.
 
 ## Revision 5
 

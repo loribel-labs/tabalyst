@@ -38,7 +38,10 @@ def _print_success(success: ScanSuccess, *, verbose: bool) -> None:
     if verbose:
         result = success.result
         typer.echo(f"Format: {result.source.format}", err=True)
-        typer.echo(f"Encoding: {result.source.encoding}", err=True)
+        if result.source.encoding is not None:
+            typer.echo(f"Encoding: {result.source.encoding}", err=True)
+        if result.source.excel is not None:
+            typer.echo(f"Table: {result.source.excel.dataset_path}", err=True)
         if result.source.csv is not None:
             typer.echo(f"Delimiter: {result.source.csv.delimiter!r}", err=True)
         typer.echo(f"Status: {result.status}", err=True)

@@ -21,7 +21,7 @@ def _describe(result: dict) -> str:
     datasets = result["datasets"]
     rows = sum(dataset["summary"]["row_count"] for dataset in datasets)
     columns = sum(dataset["summary"]["column_count"] for dataset in datasets)
-    if result["source"]["format"] == "csv":
+    if result["source"]["format"] in ("csv", "excel"):
         return f"{rows:,} rows and {columns} columns"
     noun = "dataset" if len(datasets) == 1 else "datasets"
     return f"{rows:,} records and {columns} fields in {len(datasets)} {noun}"
@@ -35,7 +35,8 @@ def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
         history = success.job.execution_output.resolve()
         typer.echo(f"Execution history: {history}", err=True)
         source = success.result["source"]
-        typer.echo(f"Encoding: {source['encoding']}", err=True)
+        if source["encoding"] is not None:
+            typer.echo(f"Encoding: {source['encoding']}", err=True)
         if source["delimiter"] is not None:
             typer.echo(f"Delimiter: {source['delimiter']!r}", err=True)
 
@@ -58,7 +59,9 @@ def _print_batch_result(
                 )
                 if verbose:
                     source = success.result["source"]
-                    details = [_describe(success.result), source["encoding"]]
+                    details = [_describe(success.result)]
+                    if source["encoding"] is not None:
+                        details.append(source["encoding"])
                     if source["delimiter"] is not None:
                         details.append(f"delimiter {source['delimiter']!r}")
                     typer.echo("  " + " | ".join(details), err=True)

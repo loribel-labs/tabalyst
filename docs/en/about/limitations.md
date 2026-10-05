@@ -9,11 +9,28 @@ published release lifts them.
 
 ## Input
 
-- **CSV, JSON and JSONL only.** `tabalyst report` and `tabalyst scan` read CSV,
-  JSON and JSONL files (`.jsonl`, `.ndjson`); `tabalyst inspect` reads JSON and
-  JSONL files; `tabalyst sample` reads CSV files only. Excel workbooks, XML,
+- **CSV, JSON, JSONL and Excel only.** `tabalyst report` and `tabalyst scan`
+  read CSV, JSON, JSONL (`.jsonl`, `.ndjson`) and Excel (`.xlsx`, `.xlsm`) files;
+  `tabalyst inspect` reads JSON, JSONL and Excel files; `tabalyst sample` reads
+  CSV files only. The older `.xls`, `.xlsb` and `.ods` spreadsheets, XML,
   GeoJSON, compressed JSON, Parquet and databases are not supported; export
-  them to CSV first.
+  them to CSV, or save a spreadsheet as `.xlsx`, first.
+- **One table per Excel workbook.** Tabalyst analyzes the one sheet or named
+  table that [Inspect](../inspect/excel.md) selects. When several are equally
+  plausible, `scan` and `report` stop until you choose one with `--collection` or
+  in the Inspect file. Blocks of a sheet separated by blank rows are not split
+  into several tables, and total or note rows under the data count as records.
+  The header is found in the first 50 rows of a sheet, by a rule measured on
+  synthetic workbooks only; set `excel.header_row` when it picks the wrong row.
+- **Excel cells.** Excel has one number type, so a whole number is read as an
+  integer, even in a column of decimals. Dates are read as ISO text that the
+  date detector recognizes, and a formula as its last calculated value. A real
+  error cell (`#DIV/0!`) and a formula that was never calculated read as empty
+  cells and cannot be counted. Merged cells keep their value in the top-left
+  cell only, and a header on two levels is read as its last row. A workbook is
+  read sheet by sheet into memory, about 0.9 byte per byte of sheet XML: a
+  sheet above 1 GiB of XML is refused, and a million rows of eight columns takes
+  about 4 seconds and 360 MB to read. Password-protected workbooks are refused.
 - **One collection per JSON source by default.** Tabalyst analyzes the one
   collection of records that [Inspect](../inspect/json.md) selects.
   When several arrays are equally plausible, `scan` and `report` stop until you
@@ -36,7 +53,7 @@ a tenth of the time of a scan.
 - **No array explosion, no JSONPath.** Arrays never add records
   (`arrays.mode` is `preserve`), and collection paths use a limited syntax: keys
   from the root, ending with `[]`.
-- **Inspect is for JSON and JSONL.** `tabalyst inspect` refuses CSV files.
+- **Inspect is for JSON, JSONL and Excel.** `tabalyst inspect` refuses CSV files.
 - **JSON reports show scalar fields.** A JSON report lists the fields holding
   strings, numbers, booleans or nulls; the structure of objects and arrays
   (nesting, array lengths) appears only in `tabalyst scan` results. A record

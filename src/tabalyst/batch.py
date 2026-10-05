@@ -23,6 +23,12 @@ def is_inspect_name(name: str) -> bool:
     return name.endswith(INSPECT_SUFFIX)
 
 
+def is_lock_name(name: str) -> bool:
+    """Whether a file name is that of an owner (lock) file such as the ``~$book.xlsx``
+    that Excel keeps beside a workbook that is open: never a source."""
+    return name.startswith("~$")
+
+
 def path_key(path: Path) -> str:
     """Identity of a path for comparisons, whatever its spelling and case."""
     return os.path.normcase(str(path.resolve()))
@@ -31,8 +37,9 @@ def path_key(path: Path) -> str:
 def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
     """Resolve explicit files and shell-independent, non-recursive glob patterns.
 
-    A pattern skips the Inspect files it matches; an explicit path to one is
-    refused (design inspect 12.1).
+    A pattern skips the Inspect files and the Excel lock files (``~$*``) it
+    matches; an explicit path to an Inspect file is refused (design inspect
+    12.1).
     """
     if not input_specs:
         raise ConfigurationError("At least one input file is required.")
@@ -50,7 +57,9 @@ def resolve_input_specs(input_specs: Sequence[str | Path]) -> list[Path]:
                 (
                     Path(match)
                     for match in glob.glob(text)
-                    if Path(match).is_file() and not is_inspect_name(Path(match).name)
+                    if Path(match).is_file()
+                    and not is_inspect_name(Path(match).name)
+                    and not is_lock_name(Path(match).name)
                 ),
                 key=path_key,
             )

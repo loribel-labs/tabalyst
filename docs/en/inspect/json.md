@@ -25,8 +25,9 @@ describe what Inspect found; Tabalyst replaces them each time it inspects. The
 structure of the file is in the [Inspect format](format.md).
 
 `tabalyst inspect` accepts files ending in `.json`, `.jsonl` and `.ndjson`, or
-non-recursive patterns, and nothing else: a CSV file is refused with exit code
-`2`. It never modifies the source.
+non-recursive patterns, and, for workbooks, `.xlsx` and `.xlsm`
+(see [Inspect Excel workbooks](excel.md)). Nothing else is accepted: a CSV file
+is refused with exit code `2`. It never modifies the source.
 
 ## Inspect is optional
 
