@@ -10,6 +10,7 @@ examples/
 |   |-- basic.csv
 |   |-- insurance-customers.csv
 |   |-- orders.json
+|   |-- sales.xlsx
 |   `-- web-events.jsonl
 `-- output/
     |-- basic/
@@ -22,6 +23,10 @@ examples/
     |   |-- report/ (34 standalone column pages with --details)
     |   `-- executions.json
     |-- orders/
+    |   |-- report.html
+    |   |-- report.json
+    |   `-- executions.json
+    |-- sales/
     |   |-- report.html
     |   |-- report.json
     |   `-- executions.json
@@ -42,7 +47,13 @@ nested `user` and `device` objects, tags arrays, null values and an optional
 field that appears late, plus three bad lines (a truncated record, a line that
 is not JSON and a JSON array instead of an object). Its report is partial on
 purpose: the three lines are excluded and counted, the 300 events are analyzed.
-Its people and identifiers are fictional.
+Its people and identifiers are fictional. `sales.xlsx` is a synthetic Excel
+workbook: a sheet `Orders` of 120 fictional orders under two title lines, a
+five-row `Regions` lookup sheet and a `Notes` sheet. Inspect selects `$.Orders`,
+which has more than ten times the rows of `$.Regions`, so the report needs no
+choice. The workbook is written by `make_sales_workbook.py`, with the same
+bytes on every run; it needs `pip install xlsxwriter` and is only to run when the
+input itself must be regenerated.
 
 From the repository root, regenerate the outputs with:
 
@@ -51,6 +62,7 @@ tabalyst report examples/input/basic.csv -o examples/output/basic/report.html --
 tabalyst report examples/input/insurance-customers.csv -o examples/output/insurance-customers/report.html --config examples/config.json --details --force
 tabalyst report examples/input/orders.json -o examples/output/orders/report.html --config examples/config.json --force
 tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/report.html --config examples/config.json --force
+tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
 ```
 
 Every output folder is independent and contains its own HTML report, canonical
