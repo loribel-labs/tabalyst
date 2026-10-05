@@ -75,6 +75,18 @@ documentation describes the latest release published on PyPI.
 
 ## For AI assistants
 
+To get help from an AI assistant, paste this prompt into a chat that can read
+web pages:
+
+```text
+Read the complete Tabalyst documentation at
+https://docs.tabalyst.com/llms-full.txt, then help me use Tabalyst well.
+Ask me what my data looks like and what I want to learn from it, then suggest
+the right commands and options. Base your answers only on that documentation.
+```
+
+If the assistant cannot open links, paste the content of the file instead.
+
 This site publishes plain-text versions of its pages:
 
 - [llms.txt](https://docs.tabalyst.com/llms.txt) lists every page with a

@@ -70,6 +70,7 @@ code,pre{font-family:var(--f-mono)}
 .side{position:sticky;top:0;align-self:flex-start;flex:0 0 var(--side);width:var(--side);height:100dvh;background:var(--s0);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:24px 14px 18px}
 .brand{display:inline-flex;align-items:center;gap:10px;font:600 22px/1 var(--f-display);letter-spacing:.01em;color:var(--text);padding:0 8px;margin-bottom:34px}
 .brand svg{width:28px;height:28px;flex:none}
+.brand .sub{font-weight:400;color:var(--text-3);margin-left:.4em}
 .side-label{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin:0 10px 10px}
 .side-group{font:500 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--d3);margin:16px 10px 6px}
 :root[data-theme="light"] .side-group{color:var(--text-3)}

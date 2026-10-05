@@ -54,7 +54,7 @@
 <a class="skip" href="#{{ views[0].px if views else '' }}content">Skip to report</a>
 <div class="shell">
   <aside class="side" aria-label="Report navigation">
-    <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}<span class="word">Tabalyst</span></a>
+    <a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}<span class="word">Tabalyst<span class="sub">Report</span></span></a>
     <p class="side-label">Explore the report</p>
     {% if views | length > 1 %}<label class="side-label ds-label" for="ds-select">Dataset</label><select id="ds-select" class="ds-select">{% for v in views %}<option value="{{ loop.index0 }}">{{ v.ds.id }}</option>{% endfor %}</select>{% endif %}
     {% for v in views %}{% set ds = v.ds %}{% set px = v.px %}{% set numeric_columns = v.numeric_columns %}{% set date_columns = v.date_columns %}{% set string_columns = v.string_columns %}{% set detector_rows = v.detector_rows %}{% set variant_rows = v.variant_rows %}{% set has_limits = v.has_limits %}
@@ -106,7 +106,7 @@
     </main>
     </div>
     {% endfor %}
-    <footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}Tabalyst<span class="ver">v{{ tabalyst_version }}</span></a><p>Local-first CSV profiling and analysis.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>© {{ report.generated_at.year }} Gregory Borelli · Catalyseur Numérique</span><span>Report generated locally by Tabalyst</span></div></div></footer>
+    <footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">{{ logo() }}Tabalyst<span class="ver">v{{ tabalyst_version }}</span></a><p>Local-first CSV profiling and analysis.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer>
   </div>
 </div>
 <script>{{ report_js | safe }}</script>
