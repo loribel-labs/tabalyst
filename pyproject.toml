@@ -39,6 +39,7 @@ dependencies = [
     "jinja2>=3.1",
     "platformdirs>=4",
     "pydantic>=2.11",
+    "python-calamine>=0.8",
     "typer>=0.12",
 ]
 
@@ -48,6 +49,7 @@ dev = [
     "pytest>=8",
     "pytest-cov>=6",
     "ruff>=0.11",
+    "xlsxwriter>=3",
 ]
 
 [project.scripts]
