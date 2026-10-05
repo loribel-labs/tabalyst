@@ -137,3 +137,23 @@ def test_default_scan_does_not_modify_existing_duckdb_generation(tmp_path, monke
         assert location.shared_scan_path(source).is_file()
         assert read_project(location, first.project_id).generation.id == first.generation.id
         assert location.scan_path(first.project_id, first.generation.id).exists()
+
+
+def test_a_stored_scan_of_an_older_format_is_replaced_not_refused(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("TABALYST_HOME", str(tmp_path / "storage"))
+    source = tmp_path / "data.csv"
+    source.write_text("id,city\n1,Paris\n", encoding="utf-8")
+    location = StorageLocation.local()
+    assert runner.invoke(app, ["scan", str(source)]).exit_code == 0
+    scan_path = location.shared_scan_path(source)
+    document = json.loads(scan_path.read_text(encoding="utf-8"))
+    document["format_revision"] -= 1
+    scan_path.write_text(json.dumps(document), encoding="utf-8")
+
+    report = runner.invoke(app, ["report", str(source)])
+
+    assert report.exit_code == 0, report.output
+    stored = json.loads(scan_path.read_text(encoding="utf-8"))
+    assert stored["format_revision"] == document["format_revision"] + 1
