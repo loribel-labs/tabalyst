@@ -17,6 +17,7 @@ from tabalyst.scanner.config import (
     resolve_config_defaults,
 )
 from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.readers.excel_common import EXCEL_SUFFIXES
 
 JSONL_SUFFIXES = frozenset({".jsonl", ".ndjson"})
 
@@ -33,6 +34,8 @@ def source_format_of(path: Path) -> SourceFormat:
     suffix = path.suffix.lower()
     if suffix == ".json":
         return "json"
+    if suffix in EXCEL_SUFFIXES:
+        return "excel"
     return "jsonl" if suffix in JSONL_SUFFIXES else "csv"
 
 

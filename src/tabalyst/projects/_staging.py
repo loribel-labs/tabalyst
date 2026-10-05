@@ -184,10 +184,10 @@ class _Sink:
     def finalize(self, connection, result: ScanResult) -> None:
         self.records.flush()
         self.observations.flush()
-        if result.source.csv is not None:
+        if result.source.header is not None:
             expected = (
                 ROOT,
-                *((Column(i),) for i in range(1, len(result.source.csv.header) + 1)),
+                *((Column(i),) for i in range(1, len(result.source.header) + 1)),
             )
             for layout in self.layouts.values():
                 if layout.paths != expected:
@@ -362,12 +362,12 @@ def build_staging(
         connection.execute(SCHEMA)
         connection.execute(INGESTION)
         if value_limit is None:
-            sink = _Sink(connection, effective, csv=source_format_of(path) == "csv")
+            sink = _Sink(connection, effective, csv=source_format_of(path) in ("csv", "excel"))
         else:
             from tabalyst.projects._bounded_values import BoundedSink
 
             sink = BoundedSink(
-                connection, effective, csv=source_format_of(path) == "csv", limit=value_limit
+                connection, effective, csv=source_format_of(path) in ("csv", "excel"), limit=value_limit
             )
         result = scan(
             path,

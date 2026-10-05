@@ -22,7 +22,7 @@ from tabalyst.progress import (
     emit_progress,
 )
 from tabalyst.scanner import ScanResult, scan
-from tabalyst.scanner.config import scan_config_from_layer
+from tabalyst.scanner.config import json_collection_paths, scan_config_from_layer
 from tabalyst.scanner.identity import source_format_of
 from tabalyst.service import ConfigPath, _config_paths
 
@@ -138,7 +138,10 @@ def generate_scans(
     config_paths = _config_paths(config_path)
     _, scan_layer = load_config_layers(config_paths)
     config = scan_config_from_layer(
-        scan_layer, delimiter=delimiter, encoding=encoding, collections=collections
+        scan_layer,
+        delimiter=delimiter,
+        encoding=encoding,
+        collections=json_collection_paths(collections),
     )
     plan = build_scan_plan(
         input_specs,
