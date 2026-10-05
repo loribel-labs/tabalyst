@@ -32,7 +32,7 @@ result = tabalyst.analyze("customers.csv", "customers.html", separator=";")
 reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
-`generate_reports()` accepts CSV, JSON and JSONL sources, and scan documents
+`generate_reports()` accepts CSV, JSON, JSONL and Excel sources, and scan documents
 with `from_scan=True`. `config_path` is one configuration file or a sequence of
 files merged in order. `workers` is the number of analysis processes.
 
@@ -41,11 +41,14 @@ files merged in order. `workers` is the number of analysis processes.
 | Function | Returns |
 | --- | --- |
 | `tabalyst.scan(source, *, config=None, workers=None, ...)` | A `ScanResult`, without writing anything. It does not read an Inspect file |
-| `tabalyst.generate_scans(input_specs, *, output=None, output_dir=None, config_path=None, delimiter=None, encoding=None, collections=None, force=False, workers=None, project_storage=False)` | The batch result. Writes one standalone `.scan.json` per source and applies Inspect to JSON and JSONL sources |
+| `tabalyst.generate_scans(input_specs, *, output=None, output_dir=None, config_path=None, delimiter=None, encoding=None, collections=None, force=False, workers=None, project_storage=False)` | The batch result. Writes one standalone `.scan.json` per source and applies Inspect to JSON, JSONL and Excel sources |
 
 ```python
 scan = tabalyst.scan("orders.json")
 scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
+sheet = tabalyst.scan(
+    "sales.xlsx", config=tabalyst.ScanConfig(excel={"dataset_path": "$.Orders"})
+)
 ```
 
 Pass `config=tabalyst.ScanConfig(...)` to `scan()` to change its settings, and
@@ -62,6 +65,7 @@ storage instead of standalone documents.
 ```python
 inspection = tabalyst.inspect("orders.json")
 inspections = tabalyst.generate_inspections(["data/*.json", "logs/*.jsonl"])
+workbook = tabalyst.inspect("sales.xlsx")
 ```
 
 `inspect()` raises the error of the inspection, where `generate_inspections()`

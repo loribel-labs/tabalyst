@@ -8,11 +8,11 @@ données structurées inconnues. Installez-la une fois et utilisez ses outils en
 ligne de commande ou depuis Python :
 
 - **[Tabalyst Report](https://docs.tabalyst.com/report/)** transforme un fichier
-  CSV, JSON ou JSONL en rapport HTML interactif et en profil JSON.
+  CSV, JSON, JSONL ou Excel en rapport HTML interactif et en profil JSON.
 - **[Tabalyst Scan](https://docs.tabalyst.com/scan/)** décrit chaque champ d'un
   fichier dans un seul document JSON.
 - **[Tabalyst Inspect](https://docs.tabalyst.com/inspect/)** trouve comment lire
-  un fichier JSON ou JSONL.
+  un fichier JSON, JSONL ou Excel.
 - **[Tabalyst Sample](https://docs.tabalyst.com/sample/)** crée des fichiers CSV
   plus petits.
 

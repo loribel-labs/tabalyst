@@ -8,8 +8,8 @@ with structured data.
 Its first tool is **Tabalyst Report**. The current CSV implementation,
 **Tabalyst CSV Report**, analyzes a CSV file and produces both a structured JSON
 profile and a self-contained interactive HTML report.
-**Tabalyst Scan** describes CSV, JSON and JSONL files in a scan document,
-**Tabalyst Inspect** finds how to read a JSON or JSONL file, and
+**Tabalyst Scan** describes CSV, JSON, JSONL and Excel files in a scan document,
+**Tabalyst Inspect** finds how to read a JSON, JSONL or Excel file, and
 **Tabalyst Sample** creates smaller CSV files.
 
 Tabalyst is in beta. Its interfaces may still change while
@@ -36,6 +36,7 @@ changes often: update it before each new test.
 | Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
 | One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 | One JSONL file | `tabalyst report events.jsonl` | `events.report.html` beside the source |
+| One Excel workbook | `tabalyst report sales.xlsx` | `sales.report.html` beside the source |
 | From a scan document | `tabalyst report --scan data.scan.json` | `data.html` beside the scan |
 
 The simplest command keeps the source filename:
@@ -91,6 +92,22 @@ not valid JSON or not an object is excluded and counted, and the report is
 partial. When a JSON file holds several arrays that are equally plausible,
 Tabalyst stops and lists them instead of choosing: see
 [Tabalyst Inspect](#tabalyst-inspect).
+
+### Excel workbooks
+
+An `.xlsx` or `.xlsm` workbook gets a report too, named `<stem>.report.html`. The
+report analyzes one table, a sheet or a named Excel table, and its columns are
+the cells of the header, which Tabalyst finds even under a title:
+
+```console
+tabalyst report sales.xlsx
+```
+
+Cells keep their Excel type, and dates are read as dates. A workbook with one
+table needs nothing else. When several sheets or tables are equally plausible,
+Tabalyst stops and lists them instead of choosing: pass `--collection Costs` (or
+`'$.Sales.Orders'` for a named table), or see [Tabalyst Inspect](#tabalyst-inspect).
+Older `.xls` files are not read: save them as `.xlsx`.
 
 ### Multiple files
 
@@ -211,9 +228,10 @@ require `--force`, and an input file is never overwritten.
 
 ## Tabalyst Inspect
 
-A JSON file can hold several arrays. **Tabalyst Inspect** reads a JSON, JSONL
-or NDJSON file once, finds which array holds the records and writes its answer
-in `<source>-inspect.json` beside the source:
+A JSON file can hold several arrays, and an Excel workbook several sheets.
+**Tabalyst Inspect** reads a JSON, JSONL, NDJSON or Excel file once, finds which
+array, sheet or table holds the records and writes its answer in
+`<source>-inspect.json` beside the source:
 
 ```console
 tabalyst inspect orders.json
@@ -239,14 +257,32 @@ Inspect file, or pass `--collection` (`--collection customers` or
 [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
 and the [Inspect format](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/format.md).
 
+For a workbook, Inspect lists the sheets and named tables, proposes one and
+writes the same kind of file:
+
+```console
+tabalyst inspect sales.xlsx
+```
+
+```text
+Inspect: sales.xlsx-inspect.json
+Selection: $.Orders (much larger than $.Regions)
+```
+
+Its `config` holds `structure.dataset_path` (`$.Orders` for a sheet,
+`$.Orders.Table1` for a named table) and `structure.header_row`, to set the header
+row when the detection picks the wrong one. See
+[Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md).
+
 ## Tabalyst Scan
 
-Describe every field of a CSV, JSON or JSONL file in one JSON document:
+Describe every field of a CSV, JSON, JSONL or Excel file in one JSON document:
 
 ```console
 tabalyst scan customers.csv
 tabalyst scan orders.json --collection "$.customers[]"
 tabalyst scan events.jsonl
+tabalyst scan sales.xlsx --collection Orders
 ```
 
 Without `-o` or `-d`, the scan is a reusable `scan.json` under Tabalyst's local
@@ -266,7 +302,7 @@ chooses their number, `--workers 1` keeps one process.
 
 `tabalyst report customers.csv` reuses the verified stored scan when the
 source content and requested scan settings are current, and so does a report on
-a JSON or JSONL file. It creates a scan when none exists and atomically replaces
+a JSON, JSONL or Excel file. It creates a scan when none exists and atomically replaces
 a stale one. The source check uses the SHA-256 of the whole content, and a scan
 written by another version of Tabalyst is replaced. Existing DuckDB projects from 0.4.3 are left
 untouched.
@@ -343,7 +379,7 @@ scan = tabalyst.scan("orders.json")
 scans = tabalyst.generate_scans(["data/*.json"], output_dir="scans")
 
 inspection = tabalyst.inspect("orders.json")
-inspections = tabalyst.generate_inspections(["data/*.json", "logs/*.jsonl"])
+inspections = tabalyst.generate_inspections(["data/*.json", "logs/*.jsonl", "*.xlsx"])
 reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 ```
 
@@ -352,9 +388,9 @@ reports = tabalyst.generate_reports(["scans/*.scan.json"], from_scan=True)
 `scan()` returns a scan result without writing anything, at the level of the
 engine: it does not read an Inspect file. `generate_scans()` writes one
 standalone `.scan.json` document per source by default, and applies Inspect to
-JSON and JSONL sources. Pass `project_storage=True` to use the command's
-scan-only storage. `inspect()` writes the Inspect file of one JSON or JSONL
-source and returns its path and document; `generate_inspections()` does it for
+JSON, JSONL and Excel sources. Pass `project_storage=True` to use the command's
+scan-only storage. `inspect()` writes the Inspect file of one JSON, JSONL or
+Excel source and returns its path and document; `generate_inspections()` does it for
 several sources. `from_scan=True`
 builds reports from standalone scan documents.
 Expected failures derive from `tabalyst.TabalystError`.
@@ -401,6 +437,10 @@ will require later work. Inspect reads a JSON or JSONL source once from start to
 end, with little memory; on the synthetic benchmarks it took roughly a tenth of the
 time of a scan, a ratio that depends on the data.
 
+An Excel workbook is read by sheet into memory (about 0.9 byte per byte of sheet
+XML), so a sheet of a million rows of eight columns takes about 4 seconds and
+360 MB to read. A sheet above 1 GiB of XML is refused.
+
 ## Examples and development
 
 The repository includes small and synthetic public examples under `examples/`.
@@ -418,6 +458,7 @@ Additional documentation:
 - [Architecture](https://github.com/loribel-labs/tabalyst/blob/main/docs/dev/architecture.md)
 - [Configuration](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/reference/configuration.md)
 - [Inspect JSON and JSONL files](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/json.md)
+- [Inspect Excel workbooks](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/inspect/excel.md)
 - [Documentation site](https://docs.tabalyst.com/)
 - [Release procedure](https://github.com/loribel-labs/tabalyst/blob/main/RELEASING.md)
 

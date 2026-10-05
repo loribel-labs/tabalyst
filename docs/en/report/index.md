@@ -1,9 +1,9 @@
 ---
 title: Tabalyst Report
-description: Overview of Tabalyst Report, the tool that turns a CSV, JSON or JSONL file into an interactive HTML report and a JSON profile, with commands, outputs and options.
+description: Overview of Tabalyst Report, the tool that turns a CSV, JSON, JSONL or Excel file into an interactive HTML report and a JSON profile, with commands, outputs and options.
 ---
 
-**Tabalyst Report** analyzes a CSV, JSON or JSONL file and produces an
+**Tabalyst Report** analyzes a CSV, JSON, JSONL or Excel file and produces an
 interactive, self-contained HTML report and a JSON profile of the same
 analysis. It reads the file once, as a stream, on your computer.
 
@@ -25,6 +25,7 @@ modified or sent anywhere.
 | Several files, one directory | `tabalyst report *.csv -d reports/` | The directory `reports/` |
 | One JSON file | `tabalyst report data.json` | `data.report.html` beside the source |
 | One JSONL file | `tabalyst report events.jsonl` | `events.report.html` beside the source |
+| One Excel workbook | `tabalyst report sales.xlsx` | `sales.report.html` beside the source |
 | One page per column | `tabalyst report data.csv --details` | The folder `data/` beside the report |
 | From a scan document | `tabalyst report --scan data.scan.json` | `data.html` beside the scan |
 
@@ -52,6 +53,8 @@ HTML works without a network connection or a CDN.
   options.
 - [Report JSON and JSONL files](json.md): JSON and JSONL sources, one
   collection of records per report.
+- [Report Excel workbooks](excel.md): `.xlsx` and `.xlsm` sources, one table
+  per report.
 - [JSON profile](json-profile.md): the structure of the generated `.json` file,
   and its [changelog](profile-changelog.md).
 - [Execution history](../reference/history.md): the `executions.json`

@@ -1,16 +1,16 @@
 ---
 title: Tabalyst documentation
-description: Documentation of Tabalyst 0.5.1, the open-source, local-first toolkit that turns CSV, JSON and JSONL files into reports, JSON profiles, scans and samples.
+description: Documentation of Tabalyst 0.5.1, the open-source, local-first toolkit that turns CSV, JSON, JSONL and Excel files into reports, JSON profiles, scans and samples.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
 structured data. Install it once and use its tools from the command line or
 from Python:
 
-- **[Tabalyst Report](report/index.md)** turns a CSV, JSON or JSONL file into an interactive HTML
-  report and a JSON profile.
+- **[Tabalyst Report](report/index.md)** turns a CSV, JSON, JSONL or Excel file into an interactive
+  HTML report and a JSON profile.
 - **[Tabalyst Scan](scan/index.md)** describes every field of a file in one JSON document.
-- **[Tabalyst Inspect](inspect/index.md)** finds how to read a JSON or JSONL file.
+- **[Tabalyst Inspect](inspect/index.md)** finds how to read a JSON, JSONL or Excel file.
 - **[Tabalyst Sample](sample/index.md)** creates smaller CSV files.
 
 ```console
@@ -35,7 +35,9 @@ documentation describes the latest release published on PyPI.
 | See a finished report | [Examples and demos](examples.md) |
 | Report one or many CSV files | [Report CSV files](report/csv.md) |
 | Report a JSON or JSONL file | [Report JSON and JSONL files](report/json.md) |
+| Report an Excel workbook | [Report Excel workbooks](report/excel.md) |
 | Choose which array of a JSON file is analyzed | [Inspect JSON and JSONL files](inspect/json.md) |
+| Choose which sheet or table of a workbook is analyzed | [Inspect Excel workbooks](inspect/excel.md) |
 | Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
@@ -50,11 +52,11 @@ documentation describes the latest release published on PyPI.
 - **Get started**: [install](install.md),
   [first report](report/getting-started.md) and
   [examples and demos](examples.md).
-- **Tabalyst Report**: [overview](report/index.md), [CSV](report/csv.md) and
-  [JSON](report/json.md) guides, the [JSON profile](report/json-profile.md) and
+- **Tabalyst Report**: [overview](report/index.md), [CSV](report/csv.md),
+  [JSON](report/json.md) and [Excel](report/excel.md) guides, the [JSON profile](report/json-profile.md) and
   its [changelog](report/profile-changelog.md).
 - **Tabalyst Inspect**: [overview](inspect/index.md), the
-  [JSON guide](inspect/json.md), the [Inspect format](inspect/format.md) and its
+  [JSON](inspect/json.md) and [Excel](inspect/excel.md) guides, the [Inspect format](inspect/format.md) and its
   [changelog](inspect/format-changelog.md).
 - **Tabalyst Scan**: [overview](scan/index.md), the
   [guide](scan/files.md), the [scan format](scan/format.md), its
