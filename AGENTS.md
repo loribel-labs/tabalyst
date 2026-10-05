@@ -87,8 +87,8 @@ Every source file (`.py`, `.js`, `.cjs`, `.css` under `src/`, `tests/`,
 fails when a header is missing.
 
 Never create test, benchmark or screenshot output inside the checkout (an
-`artifacts/` or `pytest-*` folder there breaks Obsidian). Always use the sibling
-`D:\GIT\tabalyst.test\artifacts` (see `docs/dev/architecture.md`).
+`artifacts/` or `pytest-*` folder there breaks Obsidian). Always use the external root
+`D:\GIT.test\tabalyst\artifacts` (see `docs/dev/architecture.md`).
 
 After Python changes:
 
