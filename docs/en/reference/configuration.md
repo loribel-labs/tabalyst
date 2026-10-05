@@ -205,6 +205,7 @@ object of each configuration file. The complete object with its defaults is:
     "json": {"collections": null, "discovery_max_depth": 3,
              "flatten": {"enabled": true, "separator": ".", "max_depth": null},
              "arrays": {"mode": "preserve"}},
+    "excel": {"dataset_path": null, "header_row": null},
     "errors": {"policy": null, "max_locations": 10},
     "values": {
       "null_markers": [],
@@ -247,7 +248,8 @@ From lowest to highest priority: built-in defaults, for a JSON source with no
 Inspect file the collection that [Inspect](../inspect/json.md)
 detects, the `scan` object of each `--config` file in the order given, the
 `config` of the [Inspect file](../inspect/format.md#config) beside the source, then
-`--delimiter`, `--encoding` and `--collection`.
+`--delimiter`, `--encoding` and `--collection`. For a workbook, the layers are
+the same with `excel.dataset_path` in place of `json.collections`.
 
 - Objects merge key by key, including `detectors.<id>`: a file that sets
   `{"detectors": {"number": {"enabled": false}}}` keeps the other number
@@ -275,7 +277,18 @@ configuration and the version of Tabalyst are all the same.
   when it cannot select one. Only `tabalyst.scan()` turns `null` into automatic
   discovery of every array. For a JSONL file it is `null` or `["$[]"]`. A file
   that lists `json.collections` is shared by sources of every format, so it is
-  ignored for JSONL sources in a mixed batch.
+  ignored for JSONL and Excel sources in a mixed batch.
+- `excel.dataset_path`: for Excel files (`.xlsx`, `.xlsm`), the table to read: a
+  sheet, `"$.Sales"`, or a named table of a sheet, `"$.Sales.Orders"`. A name that
+  is not a plain identifier is quoted, `"$[\"Q1 2026\"]"`. It is stored in canonical
+  spelling. `null` means that no table is named: `tabalyst scan` and
+  `tabalyst report` then use the table that
+  [Inspect](../inspect/excel.md) selects, or stop with exit code `2` when it
+  cannot select one. `tabalyst.scan()` has no automatic mode: a workbook without
+  `excel.dataset_path` is an error.
+- `excel.header_row`: the 1-based row of a sheet that holds the header, instead
+  of the detected one; `null` (default) detects it in the first 50 rows. A strict
+  integer from 1.
 - `json.discovery_max_depth`: how deep Inspect, and automatic discovery, look
   for arrays under a root object.
 - `json.flatten`: how nested objects become fields. `enabled` (default `true`),
@@ -305,6 +318,8 @@ configuration and the version of Tabalyst are all the same.
 The `json.collections`, `json.flatten`, `json.arrays` and `errors.policy`
 settings are the ones an [Inspect file](../inspect/format.md#config) edits, under
 the names `structure.dataset_path`, `flatten`, `arrays` and `errors.policy`.
+For a workbook, they are `excel.dataset_path` and `excel.header_row`, under the
+names `structure.dataset_path` and `structure.header_row`.
 
 ### Values and missing values
 

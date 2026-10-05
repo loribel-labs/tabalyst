@@ -1,0 +1,3726 @@
+{
+  "format_version": "0.1.0a",
+  "format_revision": 11,
+  "generated_at": "2026-10-05T02:37:11.528291Z",
+  "processing_seconds": 0.0932,
+  "source": {
+    "filename": "sales.xlsx",
+    "format": "excel",
+    "size_bytes": 13344,
+    "sha256": "35657227524f5b3e307d9651673388b031f12c87046a5c12481d5d9e2bc84d2b",
+    "encoding": null,
+    "delimiter": null
+  },
+  "config": {
+    "string_analysis": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255,
+      "length_distribution_max_length": 50,
+      "examples_per_length": 10
+    },
+    "value_examples": {
+      "full_distribution_max_distinct": 50,
+      "short_text_max_length": 20,
+      "short_text_percentile": 0.95,
+      "short_text_result_size": 20,
+      "long_text_result_size": 20,
+      "long_text_truncate_at": 30,
+      "truncation_suffix": "...",
+      "inline_display_size": 3
+    },
+    "scan": {
+      "csv": {
+        "encoding": "utf-8-sig",
+        "delimiter": ","
+      },
+      "json": {
+        "collections": null,
+        "discovery_max_depth": 3,
+        "flatten": {
+          "enabled": true,
+          "separator": ".",
+          "max_depth": null
+        },
+        "arrays": {
+          "mode": "preserve"
+        }
+      },
+      "excel": {
+        "dataset_path": "$.Orders",
+        "header_row": null
+      },
+      "errors": {
+        "policy": "strict",
+        "max_locations": 10
+      },
+      "values": {
+        "null_markers": [
+          "N/A",
+          "NULL"
+        ],
+        "null_markers_case_sensitive": true,
+        "missing": [
+          "absent",
+          "null",
+          "empty",
+          "blank",
+          "marker"
+        ]
+      },
+      "normalization": {
+        "nfc": true,
+        "trim": true,
+        "collapse_whitespace": true,
+        "casefold": true,
+        "strip_accents": true
+      },
+      "limits": {
+        "max_fields": 10000,
+        "max_depth": 64,
+        "max_record_observations": 100000,
+        "max_line_bytes": 16777216,
+        "max_distinct_per_field": 100000,
+        "max_tracked_values": 2000000,
+        "max_stored_value_length": 1000,
+        "max_listed_frequencies": 100,
+        "max_samples": 100,
+        "max_variant_groups": 100,
+        "max_variants_per_group": 20,
+        "max_evidence_examples": 10,
+        "max_tracked_records": 2000000,
+        "max_listed_records": 10
+      },
+      "records": {
+        "preview": 20,
+        "duplicates": true
+      },
+      "types": {
+        "minimum_confidence": 0.95
+      },
+      "detection": {
+        "minimum_share": 0.95,
+        "warmup_values": 10000,
+        "probe_interval": 100,
+        "rare_share": 0.001
+      },
+      "detectors": {
+        "number": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "date": {
+          "enabled": true,
+          "orders": [
+            "YMD",
+            "MDY",
+            "DMY"
+          ],
+          "separators": [
+            "-",
+            "/",
+            "."
+          ],
+          "ambiguous_order": null,
+          "month_languages": [
+            "en",
+            "fr"
+          ]
+        },
+        "boolean": {
+          "enabled": true,
+          "pairs": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ],
+            [
+              "y",
+              "n"
+            ],
+            [
+              "oui",
+              "non"
+            ],
+            [
+              "vrai",
+              "faux"
+            ]
+          ]
+        },
+        "enumeration": {
+          "enabled": true,
+          "minimum_values": 500,
+          "maximum_distinct": 49,
+          "case_sensitive": true
+        },
+        "email": {
+          "enabled": true,
+          "max_tracked_domains": 10000,
+          "max_listed_domains": 20
+        },
+        "url": {
+          "enabled": true,
+          "schemes": [
+            "http",
+            "https",
+            "ftp"
+          ],
+          "www": true,
+          "max_tracked_hosts": 10000,
+          "max_listed_hosts": 20
+        },
+        "phone": {
+          "enabled": true,
+          "regions": [
+            "nanp",
+            "fr"
+          ]
+        },
+        "postal_code": {
+          "enabled": true,
+          "regions": [
+            "ca",
+            "us"
+          ]
+        },
+        "currency": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "percentage": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null
+        },
+        "quantity": {
+          "enabled": true,
+          "conventions": [
+            "dot",
+            "comma"
+          ],
+          "ambiguous_convention": null,
+          "max_tracked_units": 10000,
+          "max_listed_units": 20
+        },
+        "uuid": {
+          "enabled": true
+        },
+        "ip_address": {
+          "enabled": true,
+          "versions": [
+            "ipv4",
+            "ipv6"
+          ]
+        }
+      },
+      "patterns": [],
+      "exposure": {
+        "sensitive_values": "mask"
+      },
+      "random_seed": 42
+    }
+  },
+  "datasets": [
+    {
+      "id": "rows",
+      "kind": "table",
+      "summary": {
+        "row_count": 120,
+        "column_count": 9,
+        "cell_count": 1080,
+        "missing_count": 13,
+        "missing_percent": 1.2,
+        "trim_count": 0,
+        "collapse_internal_whitespace_count": 0,
+        "duplicate_row_count": 0,
+        "duplicate_row_status": "complete",
+        "empty_row_count": 0,
+        "empty_column_count": 0,
+        "constant_column_count": 0,
+        "with_issues_column_count": 1,
+        "numeric_column_count": 2,
+        "date_column_count": 1,
+        "string_column_count": 5,
+        "inferred_type_counts": {
+          "text": 5,
+          "date": 1,
+          "integer": 1,
+          "number": 1,
+          "boolean": 1
+        },
+        "inferred_type_percents": {
+          "text": 55.56,
+          "date": 11.11,
+          "integer": 11.11,
+          "number": 11.11,
+          "boolean": 11.11
+        },
+        "semantic_type_counts": {
+          "none": 7,
+          "date": 1,
+          "email": 1
+        },
+        "semantic_type_percents": {
+          "none": 77.78,
+          "date": 11.11,
+          "email": 11.11
+        }
+      },
+      "date_summary": {
+        "present_count": 120,
+        "valid_count": 120,
+        "ambiguous_count": 0,
+        "ambiguous_percent": 0.0,
+        "invalid_date_count": 0,
+        "not_date_count": 0,
+        "maximum_column_ambiguous_count": 0,
+        "columns": []
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "name": "order_id",
+          "path": "order_id",
+          "position": 1,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 120,
+                "changed_percent": 100.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 120,
+          "examples": [
+            "SO-0001",
+            "SO-0002",
+            "SO-0003"
+          ],
+          "value_profile": {
+            "selection": "diverse_sample",
+            "sampled_distinct_count": 100,
+            "values": [
+              {
+                "value": "SO-0001",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0002",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0003",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0005",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0014",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0019",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0021",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0023",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0038",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0041",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0054",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0066",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0067",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0072",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0086",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0090",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0104",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0108",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0118",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "SO-0120",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 120,
+            "minimum_length": 7,
+            "maximum_length": 7,
+            "mean_length": 7.0,
+            "median_length": 7.0,
+            "distinct_length_count": 1,
+            "fixed_length": 7,
+            "length_distribution": [
+              {
+                "length": 7,
+                "count": 120,
+                "percent": 100.0,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "SO-0001",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0002",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0003",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0004",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0005",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0006",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0007",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0008",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0009",
+                    "count": 1
+                  },
+                  {
+                    "value": "SO-0010",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "SO-0001"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "SO-0001",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "SO-0120",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 120,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 7,
+              "max_length": 7,
+              "mean_length": 7,
+              "median_length": 7,
+              "length_histogram": [
+                {
+                  "length": 7,
+                  "count": 120
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_2",
+          "name": "order_date",
+          "path": "order_date",
+          "position": 2,
+          "inferred_type": "date",
+          "type_counts": {
+            "date": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 75,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 75,
+          "examples": [
+            "2026-01-03",
+            "2026-01-05",
+            "2026-01-07"
+          ],
+          "value_profile": {
+            "selection": "random_sample",
+            "sampled_distinct_count": 75,
+            "values": [
+              {
+                "value": "2026-01-03",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-05",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-07",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-13",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-21",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-01-29",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-08",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-14",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-02-26",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-06",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-16",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-03-30",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-07",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-09",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-15",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-04-27",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-13",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-17",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-19",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "2026-05-23",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "date",
+          "exposure": null,
+          "date_profile": {
+            "status": "valid",
+            "present_count": 120,
+            "valid_count": 120,
+            "valid_percent": 100.0,
+            "ambiguous_count": 0,
+            "ambiguous_percent": 0.0,
+            "invalid_date_count": 0,
+            "invalid_date_percent": 0.0,
+            "not_date_count": 0,
+            "not_date_percent": 0.0,
+            "resolved_ambiguous_order": null,
+            "ambiguous_order_source": null,
+            "ambiguity_evidence": {
+              "DMY": 0,
+              "MDY": 0
+            },
+            "formats": [
+              {
+                "format": "YYYY-MM-DD",
+                "order": "YMD",
+                "separator": "-",
+                "count": 120,
+                "percent": 100.0,
+                "iso": true
+              }
+            ],
+            "format_count": 1,
+            "breakdown": [
+              {
+                "label": "YYYY-MM-DD",
+                "category": "valid",
+                "count": 120,
+                "percent": 100.0
+              },
+              {
+                "label": "Invalid date",
+                "category": "invalid",
+                "count": 0,
+                "percent": 0.0
+              },
+              {
+                "label": "Not a date",
+                "category": "not_date",
+                "count": 0,
+                "percent": 0.0
+              }
+            ]
+          },
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "date",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 120,
+              "matched_count": 120,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [
+                {
+                  "format": "YYYY-MM-DD",
+                  "count": 120,
+                  "percent": 100.0
+                }
+              ],
+              "coverage": {
+                "eligible": 120,
+                "tested": 120,
+                "matched": 120,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "2026-01-03",
+                  "2026-01-05",
+                  "2026-01-07",
+                  "2026-01-09",
+                  "2026-01-11",
+                  "2026-01-13",
+                  "2026-01-15",
+                  "2026-01-17",
+                  "2026-01-19",
+                  "2026-01-21"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "ambiguity": {
+                  "count": 0,
+                  "candidates": [],
+                  "evidence": {
+                    "DMY": 0,
+                    "MDY": 0
+                  },
+                  "resolution": null
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "2026-01-03",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "2026-04-01",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 120
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 10,
+              "max_length": 10,
+              "mean_length": 10,
+              "median_length": 10,
+              "length_histogram": [
+                {
+                  "length": 10,
+                  "count": 120
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": {
+              "count": 120,
+              "ambiguous": 0,
+              "kinds": [
+                {
+                  "kind": "date",
+                  "count": 120,
+                  "min": "2026-01-01",
+                  "max": "2026-05-29",
+                  "years": [
+                    {
+                      "year": 2026,
+                      "count": 120
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "column_3",
+          "name": "customer",
+          "path": "customer",
+          "position": 3,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 120,
+                "changed_percent": 100.0,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 48,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 48,
+          "examples": [
+            "Emma Laurent",
+            "Hugo Laurent",
+            "Ana Martin"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 48,
+            "values": [
+              {
+                "value": "Emma Laurent",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Laurent",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "Ana Martin",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Bernard",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Laurent",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Martin",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "David Bernard",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Emma Martin",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Farid Bernard",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Gaelle Moreau",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Martin",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "Ana Dubois",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Michel",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Moreau",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Simon",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Laurent",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "David Michel",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "David Simon",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Gaelle Dubois",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "Ana Bernard",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Ana Laurent",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Ana Simon",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Dubois",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Martin",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "David Dubois",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "David Laurent",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Emma Bernard",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Emma Michel",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Emma Moreau",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Emma Simon",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Farid Dubois",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Farid Martin",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Farid Michel",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Gaelle Laurent",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Gaelle Martin",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Bernard",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Michel",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Simon",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "Bruno Dubois",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Bernard",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Michel",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Moreau",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Chloe Simon",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "David Moreau",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Emma Dubois",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Farid Laurent",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Gaelle Simon",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "Hugo Dubois",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 120,
+            "minimum_length": 9,
+            "maximum_length": 14,
+            "mean_length": 11.84,
+            "median_length": 12.0,
+            "distinct_length_count": 6,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 9,
+                "count": 2,
+                "percent": 1.67,
+                "relative_percent": 4.35,
+                "examples": [
+                  {
+                    "value": "Ana Simon",
+                    "count": 2
+                  }
+                ]
+              },
+              {
+                "length": 10,
+                "count": 11,
+                "percent": 9.17,
+                "relative_percent": 23.91,
+                "examples": [
+                  {
+                    "value": "Ana Martin",
+                    "count": 4
+                  },
+                  {
+                    "value": "Ana Dubois",
+                    "count": 3
+                  },
+                  {
+                    "value": "Emma Simon",
+                    "count": 2
+                  },
+                  {
+                    "value": "Hugo Simon",
+                    "count": 2
+                  }
+                ]
+              },
+              {
+                "length": 11,
+                "count": 27,
+                "percent": 22.5,
+                "relative_percent": 58.7,
+                "examples": [
+                  {
+                    "value": "Emma Martin",
+                    "count": 4
+                  },
+                  {
+                    "value": "Hugo Martin",
+                    "count": 4
+                  },
+                  {
+                    "value": "Bruno Simon",
+                    "count": 3
+                  },
+                  {
+                    "value": "David Simon",
+                    "count": 3
+                  },
+                  {
+                    "value": "Ana Bernard",
+                    "count": 2
+                  },
+                  {
+                    "value": "Ana Laurent",
+                    "count": 2
+                  },
+                  {
+                    "value": "Emma Michel",
+                    "count": 2
+                  },
+                  {
+                    "value": "Emma Moreau",
+                    "count": 2
+                  },
+                  {
+                    "value": "Hugo Michel",
+                    "count": 2
+                  },
+                  {
+                    "value": "Chloe Simon",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 12,
+                "count": 46,
+                "percent": 38.33,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "Emma Laurent",
+                    "count": 6
+                  },
+                  {
+                    "value": "Hugo Laurent",
+                    "count": 6
+                  },
+                  {
+                    "value": "Bruno Martin",
+                    "count": 4
+                  },
+                  {
+                    "value": "Bruno Michel",
+                    "count": 3
+                  },
+                  {
+                    "value": "Bruno Moreau",
+                    "count": 3
+                  },
+                  {
+                    "value": "David Michel",
+                    "count": 3
+                  },
+                  {
+                    "value": "Chloe Dubois",
+                    "count": 2
+                  },
+                  {
+                    "value": "Chloe Martin",
+                    "count": 2
+                  },
+                  {
+                    "value": "David Dubois",
+                    "count": 2
+                  },
+                  {
+                    "value": "Emma Bernard",
+                    "count": 2
+                  }
+                ]
+              },
+              {
+                "length": 13,
+                "count": 32,
+                "percent": 26.67,
+                "relative_percent": 69.57,
+                "examples": [
+                  {
+                    "value": "Bruno Bernard",
+                    "count": 4
+                  },
+                  {
+                    "value": "Bruno Laurent",
+                    "count": 4
+                  },
+                  {
+                    "value": "David Bernard",
+                    "count": 4
+                  },
+                  {
+                    "value": "Farid Bernard",
+                    "count": 4
+                  },
+                  {
+                    "value": "Gaelle Moreau",
+                    "count": 4
+                  },
+                  {
+                    "value": "Chloe Laurent",
+                    "count": 3
+                  },
+                  {
+                    "value": "Gaelle Dubois",
+                    "count": 3
+                  },
+                  {
+                    "value": "David Laurent",
+                    "count": 2
+                  },
+                  {
+                    "value": "Gaelle Martin",
+                    "count": 2
+                  },
+                  {
+                    "value": "Chloe Bernard",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 14,
+                "count": 2,
+                "percent": 1.67,
+                "relative_percent": 4.35,
+                "examples": [
+                  {
+                    "value": "Gaelle Laurent",
+                    "count": 2
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "Emma Laurent",
+              "Bruno Bernard",
+              "Emma Martin"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "Bruno Martin",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Gaelle Dubois",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 120,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 9,
+              "max_length": 14,
+              "mean_length": 11.841666666666667,
+              "median_length": 12,
+              "length_histogram": [
+                {
+                  "length": 9,
+                  "count": 2
+                },
+                {
+                  "length": 10,
+                  "count": 11
+                },
+                {
+                  "length": 11,
+                  "count": 27
+                },
+                {
+                  "length": 12,
+                  "count": 46
+                },
+                {
+                  "length": 13,
+                  "count": 32
+                },
+                {
+                  "length": 14,
+                  "count": 2
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_4",
+          "name": "email",
+          "path": "email",
+          "position": 4,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 120,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 120,
+          "examples": [
+            "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "aaaa.aaaaaa99@aaaa.aaaaaaa"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 25,
+            "values": [
+              {
+                "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 21,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 17,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 12,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 11,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaa99@aaaa.aaaaaaa",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaa999@aaaa.aaaaaaa",
+                "count": 6,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaa999@aaaa.aaaaaaa",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaaa999@aaaa.aaaaaaa",
+                "count": 4,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaaa999@aaaa.aaaaaaa",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                "count": 3,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaa999@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaa999@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaa.aaaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaa.aaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaa.aaaaa99@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaa.aaaaaa999@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": "email",
+          "exposure": "mask",
+          "date_profile": null,
+          "string_profile": {
+            "status": "medium",
+            "present_count": 120,
+            "minimum_length": 24,
+            "maximum_length": 29,
+            "mean_length": 26.94,
+            "median_length": 27.0,
+            "distinct_length_count": 6,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 24,
+                "count": 2,
+                "percent": 1.67,
+                "relative_percent": 4.88,
+                "examples": [
+                  {
+                    "value": "aaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 2
+                  }
+                ]
+              },
+              {
+                "length": 25,
+                "count": 10,
+                "percent": 8.33,
+                "relative_percent": 24.39,
+                "examples": [
+                  {
+                    "value": "aaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 6
+                  },
+                  {
+                    "value": "aaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 2
+                  },
+                  {
+                    "value": "aaa.aaaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  },
+                  {
+                    "value": "aaaaa.aaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 26,
+                "count": 27,
+                "percent": 22.5,
+                "relative_percent": 65.85,
+                "examples": [
+                  {
+                    "value": "aaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 12
+                  },
+                  {
+                    "value": "aaaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 6
+                  },
+                  {
+                    "value": "aaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 3
+                  },
+                  {
+                    "value": "aaaa.aaaaa999@aaaa.aaaaaaa",
+                    "count": 2
+                  },
+                  {
+                    "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                    "count": 2
+                  },
+                  {
+                    "value": "aaa.aaaaaa999@aaaa.aaaaaaa",
+                    "count": 1
+                  },
+                  {
+                    "value": "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 27,
+                "count": 41,
+                "percent": 34.17,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 21
+                  },
+                  {
+                    "value": "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 11
+                  },
+                  {
+                    "value": "aaaa.aaaaaa999@aaaa.aaaaaaa",
+                    "count": 4
+                  },
+                  {
+                    "value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                    "count": 3
+                  },
+                  {
+                    "value": "aaaaaa.aaaaa99@aaaa.aaaaaaa",
+                    "count": 1
+                  },
+                  {
+                    "value": "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              },
+              {
+                "length": 28,
+                "count": 34,
+                "percent": 28.33,
+                "relative_percent": 82.93,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 17
+                  },
+                  {
+                    "value": "aaaaaa.aaaaaa99@aaaa.aaaaaaa",
+                    "count": 7
+                  },
+                  {
+                    "value": "aaaaa.aaaaaa999@aaaa.aaaaaaa",
+                    "count": 6
+                  },
+                  {
+                    "value": "aaaa.aaaaaaa999@aaaa.aaaaaaa",
+                    "count": 4
+                  }
+                ]
+              },
+              {
+                "length": 29,
+                "count": 6,
+                "percent": 5.0,
+                "relative_percent": 14.63,
+                "examples": [
+                  {
+                    "value": "aaaaa.aaaaaaa999@aaaa.aaaaaaa",
+                    "count": 3
+                  },
+                  {
+                    "value": "aaaaaa.aaaaaaa99@aaaa.aaaaaaa",
+                    "count": 2
+                  },
+                  {
+                    "value": "aaaaaa.aaaaaa999@aaaa.aaaaaaa",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+              "aaaa.aaaaaa99@aaaa.aaaaaaa"
+            ]
+          },
+          "numeric": null,
+          "detectors": [
+            {
+              "id": "email",
+              "status": "complete",
+              "primary": true,
+              "eligible_count": 120,
+              "matched_count": 120,
+              "matched_percent": 100.0,
+              "ambiguous_count": 0,
+              "invalid_count": 0,
+              "formats": [],
+              "coverage": {
+                "eligible": 120,
+                "tested": 120,
+                "matched": 120,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 0,
+                "not_tested": 0,
+                "share_tested": 1.0,
+                "share_eligible": 1.0
+              },
+              "evidence": {
+                "matched": [
+                  "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+                  "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+                  "aaa.aaaaaaa9@aaaa.aaaaaaa",
+                  "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+                  "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
+                  "aaaaa.aaaaa9@aaaa.aaaaaaa",
+                  "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
+                ],
+                "ambiguous": [],
+                "invalid": [],
+                "not_matched": []
+              },
+              "details": {
+                "domains": {
+                  "status": "complete",
+                  "value": {
+                    "distinct": 1,
+                    "listed": [
+                      {
+                        "value": "aaaa.aaaaaaa",
+                        "count": 120
+                      }
+                    ],
+                    "truncated": false
+                  }
+                }
+              },
+              "adaptive": null
+            }
+          ],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "aaaaaa.aaaaaa999@aaaa.aaaaaaa",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 120,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 24,
+              "max_length": 29,
+              "mean_length": 26.941666666666666,
+              "median_length": 27,
+              "length_histogram": [
+                {
+                  "length": 24,
+                  "count": 2
+                },
+                {
+                  "length": 25,
+                  "count": 10
+                },
+                {
+                  "length": 26,
+                  "count": 27
+                },
+                {
+                  "length": 27,
+                  "count": 41
+                },
+                {
+                  "length": 28,
+                  "count": 34
+                },
+                {
+                  "length": 29,
+                  "count": 6
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_5",
+          "name": "region",
+          "path": "region",
+          "position": 5,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 120,
+                "changed_percent": 100.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 5,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 5,
+          "examples": [
+            "West",
+            "Center",
+            "East"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 5,
+            "values": [
+              {
+                "value": "West",
+                "count": 28,
+                "truncated": false
+              },
+              {
+                "value": "Center",
+                "count": 24,
+                "truncated": false
+              },
+              {
+                "value": "East",
+                "count": 24,
+                "truncated": false
+              },
+              {
+                "value": "North",
+                "count": 22,
+                "truncated": false
+              },
+              {
+                "value": "South",
+                "count": 22,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "short",
+            "present_count": 120,
+            "minimum_length": 4,
+            "maximum_length": 6,
+            "mean_length": 4.77,
+            "median_length": 5.0,
+            "distinct_length_count": 3,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 4,
+                "count": 52,
+                "percent": 43.33,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "West",
+                    "count": 28
+                  },
+                  {
+                    "value": "East",
+                    "count": 24
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 44,
+                "percent": 36.67,
+                "relative_percent": 84.62,
+                "examples": [
+                  {
+                    "value": "North",
+                    "count": 22
+                  },
+                  {
+                    "value": "South",
+                    "count": 22
+                  }
+                ]
+              },
+              {
+                "length": 6,
+                "count": 24,
+                "percent": 20.0,
+                "relative_percent": 46.15,
+                "examples": [
+                  {
+                    "value": "Center",
+                    "count": 24
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "West",
+              "North",
+              "Center"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "South",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "Center",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 120,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 4,
+              "max_length": 6,
+              "mean_length": 4.766666666666667,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 4,
+                  "count": 52
+                },
+                {
+                  "length": 5,
+                  "count": 44
+                },
+                {
+                  "length": 6,
+                  "count": 24
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_6",
+          "name": "channel",
+          "path": "channel",
+          "position": 6,
+          "inferred_type": "text",
+          "type_counts": {
+            "text": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 3,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": 0,
+            "variant_group_status": "complete",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 3,
+          "examples": [
+            "web",
+            "store",
+            "phone"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 3,
+            "values": [
+              {
+                "value": "web",
+                "count": 45,
+                "truncated": false
+              },
+              {
+                "value": "store",
+                "count": 41,
+                "truncated": false
+              },
+              {
+                "value": "phone",
+                "count": 34,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": {
+            "status": "very_short",
+            "present_count": 120,
+            "minimum_length": 3,
+            "maximum_length": 5,
+            "mean_length": 4.25,
+            "median_length": 5.0,
+            "distinct_length_count": 2,
+            "fixed_length": null,
+            "length_distribution": [
+              {
+                "length": 3,
+                "count": 45,
+                "percent": 37.5,
+                "relative_percent": 60.0,
+                "examples": [
+                  {
+                    "value": "web",
+                    "count": 45
+                  }
+                ]
+              },
+              {
+                "length": 5,
+                "count": 75,
+                "percent": 62.5,
+                "relative_percent": 100.0,
+                "examples": [
+                  {
+                    "value": "store",
+                    "count": 41
+                  },
+                  {
+                    "value": "phone",
+                    "count": 34
+                  }
+                ]
+              }
+            ],
+            "representative_examples": [
+              "store",
+              "web"
+            ]
+          },
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "string": 120
+            },
+            "strings": {
+              "count": 120,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 120
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "web",
+              "type": "string",
+              "record": 1
+            },
+            "last": {
+              "value": "phone",
+              "type": "string",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 120,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": {
+              "count": 120,
+              "min_length": 3,
+              "max_length": 5,
+              "mean_length": 4.25,
+              "median_length": 5,
+              "length_histogram": [
+                {
+                  "length": 3,
+                  "count": 45
+                },
+                {
+                  "length": 5,
+                  "count": 75
+                }
+              ]
+            },
+            "numeric": null,
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_7",
+          "name": "quantity",
+          "path": "quantity",
+          "position": 7,
+          "inferred_type": "integer",
+          "type_counts": {
+            "integer": 120
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 12,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 12,
+          "examples": [
+            "7",
+            "1",
+            "11"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 12,
+            "values": [
+              {
+                "value": "7",
+                "count": 14,
+                "truncated": false
+              },
+              {
+                "value": "1",
+                "count": 12,
+                "truncated": false
+              },
+              {
+                "value": "11",
+                "count": 12,
+                "truncated": false
+              },
+              {
+                "value": "9",
+                "count": 12,
+                "truncated": false
+              },
+              {
+                "value": "10",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "2",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "3",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "5",
+                "count": 10,
+                "truncated": false
+              },
+              {
+                "value": "12",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "4",
+                "count": 9,
+                "truncated": false
+              },
+              {
+                "value": "8",
+                "count": 7,
+                "truncated": false
+              },
+              {
+                "value": "6",
+                "count": 5,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 1.0,
+            "maximum": 12.0,
+            "range": 11.0,
+            "mean": 6.5,
+            "median": 7.0
+          },
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "integer": 120
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "4",
+              "type": "integer",
+              "record": 1
+            },
+            "last": {
+              "value": "1",
+              "type": "integer",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 120,
+              "native_count": 120,
+              "text_count": 0,
+              "min": 1,
+              "max": 12,
+              "sum": 780,
+              "mean": 6.5,
+              "population_variance": 12.5,
+              "population_std": 3.5355339059327378,
+              "positive": 120,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 7
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_8",
+          "name": "unit_price",
+          "path": "unit_price",
+          "position": 8,
+          "inferred_type": "number",
+          "type_counts": {
+            "integer": 2,
+            "number": 118
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 0,
+          "missing_percent": 0.0,
+          "with_issues": false,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 119,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 119,
+          "examples": [
+            "23.69",
+            "100.44",
+            "101.24"
+          ],
+          "value_profile": {
+            "selection": "random_sample",
+            "sampled_distinct_count": 100,
+            "values": [
+              {
+                "value": "23.69",
+                "count": 2,
+                "truncated": false
+              },
+              {
+                "value": "100.44",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "101.24",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "117.68",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "126.14",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "138.54",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "144.42",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "146.76",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "159.17",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "161",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "163.9",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "170.66",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "35.98",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "40.97",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "45.89",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "48.25",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "63.21",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "70.87",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "80.3",
+                "count": 1,
+                "truncated": false
+              },
+              {
+                "value": "84.66",
+                "count": 1,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": {
+            "minimum": 8.36,
+            "maximum": 179.19,
+            "range": 170.82999999999998,
+            "mean": 98.19983333333333,
+            "median": 105.87
+          },
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 120,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "integer": 2,
+              "number": 118
+            },
+            "strings": {
+              "count": 0,
+              "empty": 0,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 0,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 0,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "28.56",
+              "type": "number",
+              "record": 1
+            },
+            "last": {
+              "value": "111.3",
+              "type": "number",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": {
+              "count": 120,
+              "native_count": 120,
+              "text_count": 0,
+              "min": 8.36,
+              "max": 179.19,
+              "sum": 11783.98,
+              "mean": 98.19983333333333,
+              "population_variance": 2110.1568916388887,
+              "population_std": 45.936444046518105,
+              "positive": 120,
+              "negative": 0,
+              "zero": 0,
+              "integral_decimals": 0,
+              "median": {
+                "status": "complete",
+                "value": 105.87
+              }
+            },
+            "booleans": null,
+            "temporal": null
+          }
+        },
+        {
+          "id": "column_9",
+          "name": "paid",
+          "path": "paid",
+          "position": 9,
+          "inferred_type": "boolean",
+          "type_counts": {
+            "boolean": 107
+          },
+          "type_confidence": 1.0,
+          "type_error_count": 0,
+          "type_error_percent": 0.0,
+          "missing_count": 13,
+          "missing_percent": 10.83,
+          "with_issues": true,
+          "normalization": {
+            "trim_count": 0,
+            "trim_percent": 0.0,
+            "collapse_internal_whitespace_count": 0,
+            "collapse_internal_whitespace_percent": 0.0,
+            "stages": [
+              {
+                "stage": "raw",
+                "enabled": true,
+                "changed_count": null,
+                "changed_percent": null,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "nfc",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "trim",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "collapse_whitespace",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "casefold",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              },
+              {
+                "stage": "strip_accents",
+                "enabled": true,
+                "changed_count": 0,
+                "changed_percent": 0.0,
+                "distinct_count": 2,
+                "distinct_status": "complete"
+              }
+            ],
+            "variant_group_count": null,
+            "variant_group_status": "not_applicable",
+            "variant_groups": [],
+            "variant_groups_truncated": false
+          },
+          "distinct_count": 2,
+          "examples": [
+            "true",
+            "false"
+          ],
+          "value_profile": {
+            "selection": "complete",
+            "sampled_distinct_count": 2,
+            "values": [
+              {
+                "value": "true",
+                "count": 92,
+                "truncated": false
+              },
+              {
+                "value": "false",
+                "count": 15,
+                "truncated": false
+              }
+            ]
+          },
+          "semantic_type": null,
+          "exposure": null,
+          "date_profile": null,
+          "string_profile": null,
+          "numeric": null,
+          "detectors": [],
+          "scan_details": {
+            "first_record": 1,
+            "occurrences": 120,
+            "value_count": 107,
+            "presence": {
+              "parent_type": "object",
+              "parent_count": 120,
+              "present": 120,
+              "absent": 0
+            },
+            "native_types": {
+              "boolean": 107,
+              "string": 13
+            },
+            "strings": {
+              "count": 13,
+              "empty": 13,
+              "blank": 0,
+              "marker": 0,
+              "content": 0
+            },
+            "missing": {
+              "count": 13,
+              "definition": [
+                "absent",
+                "null",
+                "empty",
+                "blank",
+                "marker"
+              ],
+              "components": {
+                "absent": 0,
+                "null": 0,
+                "empty": 13,
+                "blank": 0,
+                "marker": 0
+              }
+            },
+            "first": {
+              "value": "false",
+              "type": "boolean",
+              "record": 1
+            },
+            "last": {
+              "value": "true",
+              "type": "boolean",
+              "record": 120
+            },
+            "string_characteristics": {
+              "non_ascii": 0,
+              "with_line_breaks": 0,
+              "with_control_characters": 0,
+              "with_surrounding_whitespace": 0,
+              "with_repeated_whitespace": 0,
+              "uppercase": 0,
+              "lowercase": 0,
+              "mixed_case": 0,
+              "no_letters": 0
+            },
+            "string_lengths": null,
+            "numeric": null,
+            "booleans": {
+              "true": 92,
+              "false": 15
+            },
+            "temporal": null
+          }
+        }
+      ],
+      "issues": [
+        {
+          "code": "missing_values",
+          "severity": "warning",
+          "message": "Missing cells",
+          "count": 13,
+          "column_ids": [
+            "column_9"
+          ],
+          "row_numbers": [
+            9,
+            18,
+            27,
+            36,
+            45,
+            54,
+            63,
+            72,
+            81,
+            90
+          ]
+        },
+        {
+          "code": "trimmed_cells",
+          "severity": "info",
+          "message": "Cells changed by trimming surrounding whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        },
+        {
+          "code": "collapsed_whitespace",
+          "severity": "info",
+          "message": "Cells changed by collapsing repeated internal whitespace",
+          "count": 0,
+          "column_ids": [],
+          "row_numbers": []
+        }
+      ],
+      "preview": [
+        {
+          "row_number": 1,
+          "values": [
+            "SO-0001",
+            "2026-01-03",
+            "Bruno Martin",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "South",
+            "web",
+            "4",
+            "28.56",
+            "false"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 2,
+          "values": [
+            "SO-0002",
+            "2026-01-05",
+            "Bruno Laurent",
+            "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "East",
+            "web",
+            "1",
+            "20.49",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 3,
+          "values": [
+            "SO-0003",
+            "2026-01-07",
+            "Ana Laurent",
+            "aaa.aaaaaaa9@aaaa.aaaaaaa",
+            "West",
+            "phone",
+            "11",
+            "127.43",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 4,
+          "values": [
+            "SO-0004",
+            "2026-01-09",
+            "Hugo Laurent",
+            "aaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "South",
+            "web",
+            "3",
+            "126.87",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 5,
+          "values": [
+            "SO-0005",
+            "2026-01-11",
+            "Chloe Bernard",
+            "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "South",
+            "web",
+            "2",
+            "70.87",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 6,
+          "values": [
+            "SO-0006",
+            "2026-01-13",
+            "Farid Laurent",
+            "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
+            "South",
+            "web",
+            "12",
+            "84.86",
+            "false"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 7,
+          "values": [
+            "SO-0007",
+            "2026-01-15",
+            "Gaelle Martin",
+            "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "Center",
+            "store",
+            "11",
+            "112.86",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 8,
+          "values": [
+            "SO-0008",
+            "2026-01-17",
+            "David Simon",
+            "aaaaa.aaaaa9@aaaa.aaaaaaa",
+            "North",
+            "web",
+            "11",
+            "44.11",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 9,
+          "values": [
+            "SO-0009",
+            "2026-01-19",
+            "Bruno Michel",
+            "aaaaa.aaaaaa9@aaaa.aaaaaaa",
+            "West",
+            "web",
+            "7",
+            "52.92",
+            ""
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 10,
+          "values": [
+            "SO-0010",
+            "2026-01-21",
+            "Farid Bernard",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "South",
+            "store",
+            "4",
+            "121.95",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 11,
+          "values": [
+            "SO-0011",
+            "2026-01-23",
+            "Bruno Laurent",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "West",
+            "phone",
+            "12",
+            "47.09",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 12,
+          "values": [
+            "SO-0012",
+            "2026-01-25",
+            "Emma Simon",
+            "aaaa.aaaaa99@aaaa.aaaaaaa",
+            "Center",
+            "web",
+            "11",
+            "61.07",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 13,
+          "values": [
+            "SO-0013",
+            "2026-01-27",
+            "Ana Bernard",
+            "aaa.aaaaaaa99@aaaa.aaaaaaa",
+            "North",
+            "store",
+            "7",
+            "51.12",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 14,
+          "values": [
+            "SO-0014",
+            "2026-01-29",
+            "Farid Bernard",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "East",
+            "store",
+            "11",
+            "84.76",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 15,
+          "values": [
+            "SO-0015",
+            "2026-01-31",
+            "David Simon",
+            "aaaaa.aaaaa99@aaaa.aaaaaaa",
+            "Center",
+            "phone",
+            "5",
+            "135.47",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 16,
+          "values": [
+            "SO-0016",
+            "2026-02-02",
+            "Gaelle Dubois",
+            "aaaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "West",
+            "web",
+            "9",
+            "90.86",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 17,
+          "values": [
+            "SO-0017",
+            "2026-02-04",
+            "Bruno Bernard",
+            "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "West",
+            "phone",
+            "7",
+            "108.97",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 18,
+          "values": [
+            "SO-0018",
+            "2026-02-06",
+            "Hugo Laurent",
+            "aaaa.aaaaaaa99@aaaa.aaaaaaa",
+            "South",
+            "phone",
+            "1",
+            "123.73",
+            ""
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 19,
+          "values": [
+            "SO-0019",
+            "2026-02-08",
+            "Bruno Simon",
+            "aaaaa.aaaaa99@aaaa.aaaaaaa",
+            "Center",
+            "store",
+            "11",
+            "63.87",
+            "true"
+          ],
+          "absent": []
+        },
+        {
+          "row_number": 20,
+          "values": [
+            "SO-0020",
+            "2026-02-10",
+            "Chloe Moreau",
+            "aaaaa.aaaaaa99@aaaa.aaaaaaa",
+            "North",
+            "phone",
+            "12",
+            "50.36",
+            "true"
+          ],
+          "absent": []
+        }
+      ],
+      "limits": {
+        "measures": [],
+        "untracked_observations": 0,
+        "depth_truncated_observations": 0,
+        "diagnostics": []
+      },
+      "structure": null
+    }
+  ]
+}

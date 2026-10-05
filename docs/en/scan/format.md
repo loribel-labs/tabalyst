@@ -6,7 +6,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 `tabalyst scan data.csv` writes a reusable `scan.json` by default;
 `-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
 describe every field of the source. This page describes format
-`tabalyst.scan`, version `0.1.0a`, revision `5`. The format is
+`tabalyst.scan`, version `0.1.0a`, revision `6`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](format-changelog.md).
@@ -17,7 +17,7 @@ the [scan format changelog](format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.1.0a",
-  "format_revision": 5,
+  "format_revision": 6,
   "engine": {
     "version": "0.5.0",
     "normalization_version": 1,
@@ -55,8 +55,10 @@ the [scan format changelog](format-changelog.md).
   records were excluded under the `tolerant` error policy. A file that cannot
   be read produces no document.
 - `source`: the file as read. `size_bytes` and `sha256` cover every byte read.
-  `encoding` is the CSV encoding, or `utf-8` or `utf-8-sig` for JSON. `csv` is
-  `null` for JSON sources.
+  `encoding` is the CSV encoding, or `utf-8` or `utf-8-sig` for JSON, and
+  `null` for an Excel workbook. `csv` is `null` for sources that are not CSV.
+  `excel` is `null` unless the source is a workbook: it gives the table read,
+  as described [below](#excel-sources).
 - `config`: the complete effective configuration, with every default, as in
   the `scan` section of a [configuration file](../reference/configuration.md#scan-settings).
   `config_sha256` is the SHA-256 of its canonical JSON (sorted keys, no
@@ -64,12 +66,39 @@ the [scan format changelog](format-changelog.md).
 - `scope`: records read, analyzed and excluded, with exclusions counted by
   reason (`width_mismatch`, `duplicate_key`, `record_too_large`, and for JSONL
   `invalid_line`, `not_object` and `line_too_long`).
-  `collections` is `null` for CSV and JSONL; for JSON it gives the `mode` (`auto` or
-  `explicit`) and the `requested` collection paths.
+  `collections` is `null` for CSV, JSONL and Excel; for JSON it gives the `mode`
+  (`auto` or `explicit`) and the `requested` collection paths.
+
+## Excel sources
+
+A workbook is read one table at a time, the one `config.excel.dataset_path`
+names. `source.excel` records which:
+
+```json
+"excel": {
+  "dataset_path": "$.Orders",
+  "sheet": "Orders",
+  "table": null,
+  "range": "A4:I124",
+  "header_row": 4,
+  "header": ["order_id", "order_date", "customer"]
+}
+```
+
+`dataset_path` is `$.Sheet` or `$.Sheet.Table`; `table` is the name of a named
+table, or `null` for a sheet. `range` is the A1 range of the header and the data
+actually read, `header_row` the 1-based sheet row of the header, and `header` the
+header cells, which name the fields. The records are the filled rows under the
+header, with `location.line` the 1-based sheet row. Values keep their Excel
+type: whole numbers are `integer`, other numbers `number`, booleans `boolean`;
+dates and times are `string` values in ISO 8601 that the date detector
+recognizes. `config.excel` holds `dataset_path` and `header_row`, and takes part
+in `config_sha256`.
 
 ## Datasets
 
-A CSV source has one dataset, `rows`. A JSON source has one dataset per
+A CSV source has one dataset, `rows`, and so has an Excel source: its table.
+A JSON source has one dataset per
 collection of records, and one `document` dataset when its root is not an
 array and the collections were discovered automatically (`mode` `auto`). A
 JSONL source has one dataset, `$[]`. The commands choose the collection with
@@ -96,7 +125,7 @@ collections.
 }
 ```
 
-- `kind`: `table` (CSV), `collection` or `document` (JSON).
+- `kind`: `table` (CSV and Excel), `collection` or `document` (JSON).
 - `record_count`: analyzed records; `record_types`: records per JSON type.
 - `structure`: the number of distinct field paths, and what the `max_fields`
   and `max_depth` limits left out.

@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 5
+FORMAT_REVISION = 6
 
 
 class ScanModel(BaseModel):
@@ -500,14 +500,35 @@ class CsvSourceInfo(ScanModel):
     header: list[str]
 
 
+class ExcelSourceInfo(ScanModel):
+    """The table read from a workbook: where it is and what its header says."""
+
+    dataset_path: str
+    sheet: str
+    table: str | None
+    # A1 range of the header and the data, and the 1-based header row.
+    range: str
+    header_row: int
+    header: list[str]
+
+
 class SourceInfo(ScanModel):
-    format: Literal["csv", "json", "jsonl"]
+    format: Literal["csv", "json", "jsonl", "excel"]
     name: str
     size_bytes: int
     modified_at: datetime
     sha256: str
     encoding: str | None
     csv: CsvSourceInfo | None
+    excel: ExcelSourceInfo | None = None
+
+    @property
+    def header(self) -> list[str] | None:
+        """The column names of a tabular source (CSV or Excel), ``None`` for a
+        JSON source."""
+        if self.csv is not None:
+            return self.csv.header
+        return None if self.excel is None else self.excel.header
 
 
 class CollectionScope(ScanModel):

@@ -16,6 +16,8 @@ from typing import Any, Literal
 
 from tabalyst.config import merge_settings
 from tabalyst.errors import ConfigurationError
+from tabalyst.inspector.excel_inspect import inspect_workbook
+from tabalyst.inspector.excel_inspect import parameters as excel_parameters
 from tabalyst.inspector.json_inspect import inspect_source
 from tabalyst.inspector.models import InspectDocument
 from tabalyst.inspector.persistence import (
@@ -36,6 +38,7 @@ from tabalyst.scanner.config import (
 )
 from tabalyst.scanner.identity import source_format_of
 from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.paths import Items, format_absolute, parse_path
 
 # Where the Inspect layer came from.
 Origin = Literal["visible", "cache", "automatic", "none"]
@@ -90,10 +93,17 @@ def resolve_interpretation(
     source = Path(source)
     source_format = source_format_of(source)
     layer = scan_layer or {}
-    if source_format == "jsonl":
+    excel = source_format == "excel"
+    if source_format in ("jsonl", "excel"):
         # A configuration file is shared by sources of every format, and its
-        # collections name JSON ones: a JSONL source has the one dataset ``$[]``.
+        # collections name JSON ones: a JSONL source has the one dataset ``$[]``
+        # and a workbook names its table in ``excel.dataset_path``.
         layer = _without_collections(layer)
+    if excel:
+        table = _excel_table(collections)
+        collections = None
+    else:
+        table = None
     visible: VisibleInspect | None = None
     detected: InspectDocument | None = None
     origin: Origin = "none"
@@ -102,9 +112,11 @@ def resolve_interpretation(
     if source_format != "csv":
         file = inspect_path(source)
         if file.exists() or file.is_symlink():
-            visible = read_visible_inspect(file)
+            visible = _read_visible(file, source_format)
             origin = "visible"
-        elif source_format == "json" and not _decided(layer, collections):
+        elif source_format in ("json", "excel") and not _decided(
+            layer, collections, table, source_format
+        ):
             detected, origin, note, source_sha256 = _detect(
                 source, layer, location, source_sha256
             )
@@ -112,9 +124,16 @@ def resolve_interpretation(
 
     detected_layer: dict[str, Any] = {}
     if detected is not None and detected.config.structure.dataset_path is not None:
-        detected_layer = {"json": {"collections": [detected.config.structure.dataset_path]}}
+        chosen_path = detected.config.structure.dataset_path
+        detected_layer = (
+            {"excel": {"dataset_path": chosen_path}}
+            if excel
+            else {"json": {"collections": [chosen_path]}}
+        )
     visible_layer = {} if visible is None else visible.config.to_scan_layer()
     merged = merge_settings(merge_settings(detected_layer, layer), visible_layer)
+    if table is not None:
+        merged = merge_settings(merged, {"excel": {"dataset_path": table}})
     config = scan_config_from_layer(
         merged, delimiter=delimiter, encoding=encoding, collections=collections
     )
@@ -126,19 +145,28 @@ def resolve_interpretation(
         config = _implicit_dataset(config)
 
     collection_origin = _collection_origin(
-        collections, visible_layer, layer, detected_layer
+        collections or table, visible_layer, layer, detected_layer, source_format
     )
     if visible is not None and collection_origin == "command_line":
         chosen = visible.config.structure.dataset_path
-        if (
-            "collections" in visible_layer.get("json", {})
+        overridden = (
+            "dataset_path" in visible_layer.get("excel", {})
+            and config.excel.dataset_path != chosen
+            if excel
+            else "collections" in visible_layer.get("json", {})
             and config.json_.collections != [chosen]
-        ):
+        )
+        if overridden:
             notices.append(
                 f"--collection overrides config.structure.dataset_path "
                 f"({chosen}) of {visible.path.name}."
             )
-    if source_format == "json" and config.json_.collections is None:
+    undecided = (
+        config.excel.dataset_path is None
+        if excel
+        else source_format == "json" and config.json_.collections is None
+    )
+    if undecided:
         raise _suspension(source, config, visible, detected, notices)
     return Interpretation(
         config=config,
@@ -199,7 +227,7 @@ def inspect_notice(source: Path, result: ScanResult) -> str | None:
     if source_format == "csv" or not (file.is_file() or file.is_symlink()):
         return None
     try:
-        visible = read_visible_inspect(file)
+        visible = _read_visible(file, source_format)
         recorded = result.config.model_dump(mode="json", by_alias=True)
         wanted = scan_config_from_layer(
             merge_settings(recorded, visible.config.to_scan_layer())
@@ -218,6 +246,20 @@ def inspect_notice(source: Path, result: ScanResult) -> str | None:
     )
 
 
+def _read_visible(file: Path, source_format: str) -> VisibleInspect:
+    """The visible Inspect file of a source, refused when it was written for
+    another kind of source: its ``config`` would be read with the wrong rules."""
+    visible = read_visible_inspect(file)
+    expected = "excel" if source_format == "excel" else "json"
+    if visible.kind != expected:
+        raise ConfigurationError(
+            f"Invalid Inspect file {file}: it is of kind {visible.kind!r}, but "
+            f"{file.name.removesuffix('-inspect.json')} is read as {expected!r}. "
+            "Replace it with `tabalyst inspect --force`."
+        )
+    return visible
+
+
 def _implicit_dataset(config: ScanConfig) -> ScanConfig:
     """``$[]`` is the only dataset of a JSONL source: whether it was written or
     not, the rules applied are the same, so they hash the same."""
@@ -230,25 +272,59 @@ def _name(path: Path | None) -> str:
     return "its config" if path is None else path.name
 
 
+def _chosen(layer: dict[str, Any], source_format: str) -> Any:
+    """What a layer says about the collection: ``json.collections`` for JSON
+    sources, ``excel.dataset_path`` for workbooks."""
+    if source_format == "excel":
+        return layer.get("excel", {}).get("dataset_path")
+    return layer.get("json", {}).get("collections")
+
+
 def _collection_origin(
-    collections: Sequence[str] | None,
+    collections: Sequence[str] | str | None,
     visible_layer: dict[str, Any],
     layer: dict[str, Any],
     detected_layer: dict[str, Any],
+    source_format: str,
 ) -> CollectionOrigin:
     if collections:
         return "command_line"
-    if visible_layer.get("json", {}).get("collections"):
+    if _chosen(visible_layer, source_format):
         return "visible"
-    if layer.get("json", {}).get("collections"):
+    if _chosen(layer, source_format):
         return "config_file"
     return "detected" if detected_layer else "none"
 
 
-def _decided(layer: dict[str, Any], collections: Sequence[str] | None) -> bool:
+def _decided(
+    layer: dict[str, Any],
+    collections: Sequence[str] | None,
+    table: str | None,
+    source_format: str,
+) -> bool:
     """Whether the command line or a configuration file already names the
     collections: the detection could only propose a path that they outrank."""
-    return bool(collections) or bool(layer.get("json", {}).get("collections"))
+    return bool(collections) or bool(table) or bool(_chosen(layer, source_format))
+
+
+def _excel_table(collections: Sequence[str] | None) -> str | None:
+    """The table named by ``--collection`` for a workbook.
+
+    The command line expands ``Sales`` to the JSON path ``$.Sales[]``; a table
+    is not an array, so a trailing ``[]`` is dropped."""
+    if not collections:
+        return None
+    if len(collections) > 1:
+        raise ConfigurationError(
+            "A workbook is read one table at a time: pass --collection once."
+        )
+    try:
+        path = parse_path(collections[0])
+    except ValueError as exc:
+        raise ConfigurationError(f"Invalid --collection {collections[0]!r}: {exc}") from exc
+    if path and path[-1] == Items():
+        path = path[:-1]
+    return format_absolute(path)
 
 
 def _without_collections(layer: dict[str, Any]) -> dict[str, Any]:
@@ -287,16 +363,32 @@ def _detect(
     base = scan_config_from_layer(layer)
     location = location or StorageLocation.local()
     cached = read_inspect_cache(location.shared_inspect_path(source))
-    if cached is not None and (
-        cached.detection.scope.discovery_max_depth == base.json_.discovery_max_depth
-    ):
+    excel = source_format_of(source) == "excel"
+    if cached is not None and _same_search(cached, base, excel=excel):
         matches, source_sha256 = _describes(source, cached, source_sha256)
         if matches:
             return cached, "cache", (), source_sha256
-    document = inspect_source(source, scan_config=base)
+    document = (
+        inspect_workbook(source) if excel else inspect_source(source, scan_config=base)
+    )
     note = write_inspect_cache(location, source, document)
     # The pass hashed every byte it read: that is the hash of the content.
     return document, "automatic", () if note is None else (note,), document.source.sha256
+
+
+def _same_search(cached: InspectDocument, base: ScanConfig, *, excel: bool) -> bool:
+    """Whether a cached detection searched the way this run would: the kind of
+    the source, and the depth (JSON) or the header rows (Excel) it looked at."""
+    detection = cached.detection
+    if excel:
+        return (
+            cached.inspect.kind == "excel"
+            and detection.scope.header_scan_rows == excel_parameters.HEADER_SCAN_ROWS
+        )
+    return (
+        cached.inspect.kind == "json"
+        and detection.scope.discovery_max_depth == base.json_.discovery_max_depth
+    )
 
 
 def _describes(
@@ -340,6 +432,8 @@ def _suspension(
         basis = detected.detection.selection.basis
     eligible = [item for item in candidates if item.ineligible_reason is None]
     depth = config.json_.discovery_max_depth
+    if source_format_of(source) == "excel":
+        return _excel_suspension(source, candidates, basis, eligible, visible, notices)
     if basis == "ambiguous":
         why = f"{len(eligible)} collections of {source.name} are equally plausible."
     elif basis == "candidates_truncated":
@@ -374,13 +468,62 @@ def _suspension(
     return ConfigurationError("\n".join(lines))
 
 
-def _describe(item: CandidateSummary) -> str:
+def _excel_suspension(
+    source: Path,
+    candidates: Sequence[CandidateSummary],
+    basis: str | None,
+    eligible: Sequence[CandidateSummary],
+    visible: VisibleInspect | None,
+    notices: Sequence[str],
+) -> ConfigurationError:
+    if basis == "ambiguous":
+        why = f"{len(eligible)} tables of {source.name} are equally plausible."
+    elif basis == "candidates_truncated":
+        why = (
+            f"{source.name} holds more sheets and tables than the detection "
+            "lists, so none stood out."
+        )
+    elif basis == "no_eligible_candidate" or not candidates:
+        why = (
+            f"No supported table was found in {source.name}: no sheet has a "
+            "recognizable header followed by data rows, and it has no named "
+            "table with data."
+        )
+    else:
+        why = f"No table is selected for {source.name}."
+    lines = [f"{why} Nothing was analyzed."]
+    if candidates:
+        lines.append("Candidates:")
+        lines.extend(f"  {_describe(item, 'row')}" for item in candidates)
+    if visible is not None:
+        lines.append(
+            f"Set config.structure.dataset_path in {visible.path} to the "
+            "table to analyze, or pass --collection."
+        )
+    else:
+        lines.append(
+            f"Pass --collection with a sheet or table path such as '$.Sheet', or "
+            f"run `tabalyst inspect {source.name}` and set "
+            "config.structure.dataset_path in the file it writes."
+        )
+    lines.extend(notices)
+    return ConfigurationError("\n".join(lines))
+
+
+_REASONS = {
+    "empty": ", empty",
+    "non_object_elements": ", not objects",
+    "no_cells": ", empty",
+    "no_header": ", no header row",
+    "no_data_rows": ", no data row",
+    "has_tables": ", its tables are listed on their own",
+}
+
+
+def _describe(item: CandidateSummary, noun: str = "element") -> str:
     count = (
         ""
         if item.elements is None
-        else f" ({item.elements:,} element{'' if item.elements == 1 else 's'})"
+        else f" ({item.elements:,} {noun}{'' if item.elements == 1 else 's'})"
     )
-    reason = {"empty": ", empty", "non_object_elements": ", not objects"}.get(
-        item.ineligible_reason or "", ""
-    )
-    return f"{item.path}{count}{reason}"
+    return f"{item.path}{count}{_REASONS.get(item.ineligible_reason or '', '')}"

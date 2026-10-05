@@ -1,10 +1,10 @@
 ---
 title: Tabalyst Scan
-description: Overview of Tabalyst Scan, the analysis engine that describes every field of a CSV, JSON or JSONL file in one JSON document, with commands and pages.
+description: Overview of Tabalyst Scan, the analysis engine that describes every field of a CSV, JSON, JSONL or Excel file in one JSON document, with commands and pages.
 ---
 
-**Tabalyst Scan** is the analysis engine of Tabalyst. It reads a CSV, JSON or
-JSONL file once, as a stream, and describes every field in one JSON document:
+**Tabalyst Scan** is the analysis engine of Tabalyst. It reads a CSV, JSON,
+JSONL or Excel file once and describes every field in one JSON document:
 presence, native types, missing values, frequencies, exact statistics,
 normalization variants, technical type and the result of every detector.
 
@@ -12,6 +12,7 @@ normalization variants, technical type and the result of every detector.
 tabalyst scan customers.csv
 tabalyst scan orders.json --collection "$.customers[]"
 tabalyst scan events.jsonl
+tabalyst scan sales.xlsx
 ```
 
 Without `-o` or `-d`, the scan is stored for reuse in Tabalyst's local storage.
@@ -29,12 +30,12 @@ are written atomically: an interrupted scan never leaves a partial file.
 
 ## Pages
 
-- [Scan CSV and JSON files](files.md): commands, JSON and JSONL sources,
-  reuse, settings and the Python API.
+- [Scan CSV and JSON files](files.md): commands, JSON, JSONL and Excel
+  sources, reuse, settings and the Python API.
 - [Scan format](format.md): the structure of the scan document, and its
   [changelog](format-changelog.md).
 - [Manage query caches](cache.md): `tabalyst cache info` and
   `tabalyst cache clean`.
 - [Configuration](../reference/configuration.md): the `scan` settings.
 - [Tabalyst Inspect](../inspect/json.md): how JSON sources are
-  read before a scan.
+  read before a scan, and [for workbooks](../inspect/excel.md).

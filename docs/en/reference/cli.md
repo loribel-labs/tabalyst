@@ -8,9 +8,9 @@ same ones.
 
 | Command | Purpose | Guide |
 | --- | --- | --- |
-| `tabalyst report` | HTML report and JSON profile of CSV, JSON or JSONL files | [Tabalyst Report](../report/index.md) |
+| `tabalyst report` | HTML report and JSON profile of CSV, JSON, JSONL or Excel files | [Tabalyst Report](../report/index.md) |
 | `tabalyst scan` | Complete JSON description of every field | [Tabalyst Scan](../scan/files.md) |
-| `tabalyst inspect` | Find how to read a JSON or JSONL file | [Tabalyst Inspect](../inspect/json.md) |
+| `tabalyst inspect` | Find how to read a JSON, JSONL or Excel file | [Tabalyst Inspect](../inspect/json.md) |
 | `tabalyst sample` | Smaller CSV file from a larger one | [Tabalyst Sample](../sample/index.md) |
 | `tabalyst cache` | Inspect and clean disposable query caches | [Query caches](../scan/cache.md) |
 
@@ -47,7 +47,7 @@ tabalyst report --help
 | --- | --- |
 | `0` | Success |
 | `1` | Analysis or output failure |
-| `2` | Invalid configuration or command, or a JSON source whose collection must be chosen (see [Inspect](../inspect/json.md)) |
+| `2` | Invalid configuration or command, or a JSON or Excel source whose collection or table must be chosen (see [Inspect](../inspect/json.md) and [Inspect Excel workbooks](../inspect/excel.md)) |
 | `4` | Input error: missing, unreadable or invalid source |
 
 When a batch has several kinds of failure, `1` wins over `2`, which wins over
@@ -59,7 +59,7 @@ When a batch has several kinds of failure, `1` wins over `2`, which wins over
 tabalyst report INPUT... [OPTIONS]
 ```
 
-Analyzes CSV, JSON or JSONL files and writes an HTML report and a JSON profile.
+Analyzes CSV, JSON, JSONL or Excel files and writes an HTML report and a JSON profile.
 With `--scan`, the inputs are scan documents.
 
 | Option | Description |
@@ -69,7 +69,7 @@ With `--scan`, the inputs are scan documents.
 | `--delimiter TEXT` | One-character CSV delimiter |
 | `--encoding TEXT` | CSV text encoding |
 | `-c`, `--config PATH` | JSON configuration file |
-| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; `.` is the root array; repeatable. Not with `--scan` |
+| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; `.` is the root array; repeatable. For a workbook, the table to read: a sheet or table path such as `$.Sales` or `$.Sales.Orders`, or its short form `Sales`; once. Not with `--scan` |
 | `--scan` | Build reports from `.scan.json` documents without reading the sources |
 | `-f`, `--force` | Replace existing report artifacts |
 | `--details`, `--no-details` | One standalone HTML page per column (off by default) |
@@ -84,7 +84,7 @@ With `--scan`, the inputs are scan documents.
 tabalyst scan INPUT... [OPTIONS]
 ```
 
-Describes CSV, JSON or JSONL files. Without `-o` or `-d`, the scan is stored for
+Describes CSV, JSON, JSONL or Excel files. Without `-o` or `-d`, the scan is stored for
 reuse; with them, a standalone `<stem>.scan.json` is written.
 
 | Option | Description |
@@ -92,7 +92,7 @@ reuse; with them, a standalone `<stem>.scan.json` is written.
 | `-o`, `--output PATH` | Scan filename ending in `.json`, for a single input |
 | `-d`, `--output-dir PATH` | Directory for scans named after their sources |
 | `-c`, `--config PATH` | JSON configuration file; repeat to merge several, in order |
-| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; `.` is the root array; repeatable |
+| `--collection TEXT` | JSON collection: an array path such as `$.data.items[]`, or its short form `data.items`; `.` is the root array; repeatable. For a workbook, the table to read, such as `$.Sales` or `Sales`; once |
 | `--delimiter TEXT` | One-character CSV delimiter |
 | `--encoding TEXT` | CSV text encoding |
 | `-f`, `--force` | Replace existing scan files |
@@ -107,8 +107,9 @@ reuse; with them, a standalone `<stem>.scan.json` is written.
 tabalyst inspect INPUT... [OPTIONS]
 ```
 
-Reads JSON, JSONL or NDJSON files once and writes `<source>-inspect.json` beside
-each source. CSV files are refused with exit code `2`.
+Reads JSON, JSONL, NDJSON or Excel (`.xlsx`, `.xlsm`) files once and writes
+`<source>-inspect.json` beside each source. CSV files, and the spreadsheet
+formats `.xls`, `.xlsb` and `.ods`, are refused with exit code `2`.
 
 | Option | Description |
 | --- | --- |
@@ -116,7 +117,7 @@ each source. CSV files are refused with exit code `2`.
 | `--reset-config` | Replace the `config` of an existing Inspect file by the detected one |
 | `-f`, `--force` | Replace an existing Inspect file that cannot be kept |
 | `-q`, `--quiet` | Suppress success messages |
-| `-v`, `--verbose` | List every candidate collection |
+| `-v`, `--verbose` | List every candidate collection, sheet or table |
 | `--no-progress` | Disable progress |
 
 ## tabalyst sample

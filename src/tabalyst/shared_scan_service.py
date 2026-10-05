@@ -13,7 +13,12 @@ from tabalyst.config import merge_settings
 from tabalyst.errors import InputError, ReportError
 from tabalyst.projects._locks import workspace_writer
 from tabalyst.projects.location import StorageLocation
-from tabalyst.scan_reuse import SourceState, compare_source, load_scan
+from tabalyst.scan_reuse import (
+    SourceState,
+    UnsupportedScanDocument,
+    compare_source,
+    load_scan,
+)
 from tabalyst.scan_service import scan_document
 from tabalyst.scanner import ScanConfig, ScanResult, scan
 from tabalyst.scanner.config import config_sha256, scan_config_from_layer
@@ -58,8 +63,16 @@ def current_scan(
     path = location.shared_scan_path(source)
     with workspace_writer(location):
         effective = config
+        stored = None
         if path.exists() and not refresh:
-            result = load_scan(path)
+            try:
+                stored = load_scan(path)
+            except UnsupportedScanDocument:
+                # Written by a release with another scan format: out of date,
+                # so scanned again like any stale cache.
+                stored = None
+        if stored is not None:
+            result = stored
             if result.source.name != source.name:
                 raise InputError("Stored scan source binding differs from the requested file")
             if config_sha256(result.config) != result.config_sha256:

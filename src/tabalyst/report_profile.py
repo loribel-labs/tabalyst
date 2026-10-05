@@ -831,7 +831,7 @@ def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResul
     """The fields shown as columns: every CSV column; the JSON fields holding
     scalar values or nulls, containers being structure (design 16.4), except
     the containers kept whole at the flatten limit, which are complex columns."""
-    if result.source.csv is not None:
+    if result.source.header is not None:
         return list(dataset.fields)
     limit = result.config.json_.flatten.depth_limit()
     return [
@@ -845,13 +845,13 @@ def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResul
 def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
     """The report profile of a scan: one dataset per scan dataset holding at
     least one column. ``config.scan`` must be the configuration of the scan."""
-    csv = result.source.csv
-    if csv is not None:
-        width = len(csv.header)
+    header = result.source.header
+    if header is not None:
+        width = len(header)
         if len(result.datasets[0].fields) != width:
             # Untracked columns would be missing from every column-based count.
             raise ConfigurationError(
-                f"The report needs every column: the CSV has {width} columns but "
+                f"The report needs every column: the table has {width} columns but "
                 f"scan.limits.max_fields is {config.scan.limits.max_fields}. "
                 "Raise scan.limits.max_fields."
             )
@@ -863,7 +863,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
         # A source without scalar values still shows its first dataset.
         selected = selected[:1]
     for dataset, fields in selected:
-        if fields or csv is not None or len(selected) == 1:
+        if fields or header is not None or len(selected) == 1:
             datasets.append(
                 build_dataset(
                     result,
@@ -881,8 +881,10 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
             format=source.format,
             size_bytes=source.size_bytes,
             sha256=source.sha256,
-            encoding=source.encoding or config.scan.csv.encoding,
-            delimiter=csv.delimiter if csv is not None else None,
+            encoding=source.encoding,
+            delimiter=(
+                result.source.csv.delimiter if result.source.csv is not None else None
+            ),
         ),
         config=config,
         datasets=datasets,
@@ -895,13 +897,13 @@ def build_dataset(
     fields: list[FieldResult],
     config: ReportConfig,
 ) -> DatasetProfile:
-    csv = result.source.csv
+    tabular = result.source.header is not None
     row_count = dataset.record_count
     columns = [
         build_column(
             field,
-            position=field.path[0].column if csv is not None else position,
-            name=field.name if csv is not None else field.display,
+            position=field.path[0].column if tabular else position,
+            name=field.name if tabular else field.display,
             config=config,
         )
         for position, field in enumerate(fields, start=1)
@@ -1033,11 +1035,11 @@ def build_dataset(
         date_ambiguous_count,
         [column.id for column in ambiguous_columns],
     )
-    header_counts = Counter(csv.header if csv is not None else ())
+    header_counts = Counter(result.source.header or ())
     bad_headers = [
         column.id
         for column in columns
-        if csv is not None
+        if tabular
         and (not column.name.strip() or header_counts[column.name] > 1)
     ]
     add_issue(
@@ -1128,7 +1130,7 @@ def build_dataset(
         ),
         structure=(
             None
-            if csv is not None
+            if tabular
             else build_structure(dataset, {field.id for field in fields})
         ),
     )

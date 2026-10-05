@@ -116,7 +116,10 @@ def inspect_command(
         list[str],
         typer.Argument(
             metavar="INPUT...",
-            help="One or more JSON, JSONL or NDJSON files, or non-recursive glob patterns.",
+            help=(
+                "One or more JSON, JSONL, NDJSON or Excel (.xlsx, .xlsm) files, "
+                "or non-recursive glob patterns."
+            ),
         ),
     ],
     config: Annotated[
@@ -155,7 +158,7 @@ def inspect_command(
         typer.Option("--no-progress", help="Disable interactive progress."),
     ] = False,
 ) -> None:
-    """Describe JSON and JSONL files and propose how to read them."""
+    """Describe JSON, JSONL and Excel files and propose how to read them."""
     if quiet and verbose:
         raise typer.BadParameter("--quiet and --verbose cannot be used together.")
 
