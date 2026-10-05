@@ -8,6 +8,7 @@ from pathlib import Path
 from tabalyst.batch import resolve_input_specs, validate_outputs
 from tabalyst.config import load_config_layers
 from tabalyst.errors import ConfigurationError, TabalystError
+from tabalyst.inspector.excel_inspect import inspect_workbook
 from tabalyst.inspector.json_inspect import inspect_source
 from tabalyst.inspector.models import InspectDocument
 from tabalyst.inspector.persistence import (
@@ -22,9 +23,13 @@ from tabalyst.progress import (
     emit_progress,
 )
 from tabalyst.scanner.config import scan_config_from_layer
+from tabalyst.scanner.readers.excel_common import (
+    EXCEL_SUFFIXES,
+    UNSUPPORTED_SPREADSHEET_SUFFIXES,
+)
 from tabalyst.service import ConfigPath, _config_paths
 
-INSPECTABLE_SUFFIXES = (".json", ".jsonl", ".ndjson")
+INSPECTABLE_SUFFIXES = (".json", ".jsonl", ".ndjson", *EXCEL_SUFFIXES)
 
 
 @dataclass(frozen=True)
@@ -88,10 +93,17 @@ def build_inspect_plan(
     """
     sources = resolve_input_specs(input_specs)
     for source in sources:
-        if source.suffix.lower() not in INSPECTABLE_SUFFIXES:
+        suffix = source.suffix.lower()
+        if suffix in UNSUPPORTED_SPREADSHEET_SUFFIXES:
             raise ConfigurationError(
-                "Tabalyst Inspect reads .json, .jsonl and .ndjson files; "
-                f"there is no Inspect for {source.name}."
+                f"Tabalyst Inspect reads Excel workbooks as .xlsx and .xlsm; "
+                f"{suffix} files such as {source.name} are not read yet. Save "
+                "the workbook as .xlsx."
+            )
+        if suffix not in INSPECTABLE_SUFFIXES:
+            raise ConfigurationError(
+                "Tabalyst Inspect reads .json, .jsonl, .ndjson, .xlsx and .xlsm "
+                f"files; there is no Inspect for {source.name}."
             )
     jobs = tuple(InspectJob(source, inspect_path(source)) for source in sources)
     validate_outputs(
@@ -151,7 +163,14 @@ def generate_inspections(
                 # An Inspect file that cannot be kept stops the job before the
                 # source is read, not after.
                 read_visible_inspect(job.output)
-            document = inspect_source(job.source, scan_config=seed, on_progress=forward)
+            if job.source.suffix.lower() in EXCEL_SUFFIXES:
+                document = inspect_workbook(
+                    job.source, scan_config=seed, on_progress=forward
+                )
+            else:
+                document = inspect_source(
+                    job.source, scan_config=seed, on_progress=forward
+                )
             emit_progress(
                 on_progress,
                 job.source,
