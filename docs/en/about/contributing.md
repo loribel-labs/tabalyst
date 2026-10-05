@@ -23,4 +23,4 @@ The package is on [PyPI](https://pypi.org/project/tabalyst/).
 The Tabalyst code is released under the Mozilla Public License 2.0 (MPL-2.0). The contents of this
 documentation are licensed under CC BY 4.0.
 
-Created by Gregory Borelli, Catalyseur Numérique.
+Created by Gregory Borelli. Open source project by Loribel Labs.

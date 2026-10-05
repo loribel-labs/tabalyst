@@ -92,12 +92,13 @@ def test_footer_includes_version_copyright_and_official_links(tmp_path):
 
     assert f"v{tabalyst_version()}" in html
     assert "Gregory Borelli" in html
-    assert "Catalyseur Numérique" in html
-    assert f"© {profile.generated_at.year} Gregory Borelli" in html
+    assert "Loribel Labs" in html
+    assert "Tabalyst © 2026 Gregory Borelli · MPL-2.0" in html
     assert html.count('href="https://tabalyst.com/"') == 3
     assert html.count('aria-label="Tabalyst official website"') == 2
     assert 'href="https://github.com/loribel-labs/tabalyst"' in html
-    assert html.count('target="_blank" rel="noopener noreferrer"') == 4
+    assert 'href="https://docs.tabalyst.com/"' in html
+    assert html.count('target="_blank" rel="noopener noreferrer"') == 5
 
 
 def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):

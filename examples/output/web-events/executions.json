@@ -119,6 +119,40 @@
         "dirty": true,
         "state": "3b95e9c6+working"
       }
+    },
+    {
+      "timestamp": "2026-10-05T06:36:52.460742Z",
+      "tabalyst_version": "0.6.0",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.3611,
+      "total_seconds": 0.4194,
+      "git": {
+        "available": true,
+        "commit": "fd7f2799809470540979bae35060de9af13a3ff1",
+        "dirty": true,
+        "state": "fd7f2799+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-05T06:41:12.486342Z",
+      "tabalyst_version": "0.6.0",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.3165,
+      "total_seconds": 0.3871,
+      "git": {
+        "available": true,
+        "commit": "fd7f2799809470540979bae35060de9af13a3ff1",
+        "dirty": true,
+        "state": "fd7f2799+working"
+      }
     }
   ]
 }

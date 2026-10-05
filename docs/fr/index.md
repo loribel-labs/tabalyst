@@ -52,4 +52,20 @@ anglais.** Les liens ci-dessous mènent aux pages anglaises.
 - [Known limitations](https://docs.tabalyst.com/about/limitations/) : ce que
   Tabalyst ne fait pas encore.
 
+## Pour les assistants IA
+
+Pour être aidé par un assistant IA, collez ce prompt dans un chat capable de
+lire des pages web (la documentation est en anglais) :
+
+```text
+Read the complete Tabalyst documentation at
+https://docs.tabalyst.com/llms-full.txt, then help me use Tabalyst well.
+Ask me what my data looks like and what I want to learn from it, then suggest
+the right commands and options. Base your answers only on that documentation.
+```
+
+Si l'assistant ne peut pas ouvrir de liens, collez plutôt le contenu du fichier.
+Le site publie aussi [llms.txt](https://docs.tabalyst.com/llms.txt), la liste
+des pages avec une description d'une ligne.
+
 Le site tabalyst.com est disponible en français : [tabalyst.com/fr/](https://tabalyst.com/fr/).
