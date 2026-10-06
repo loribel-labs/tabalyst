@@ -22,7 +22,7 @@ follows the same top level with its own `detection` and `config`.
   "format_revision": 1,
   "inspect": {
     "kind": "json",
-    "tabalyst_version": "0.6.1",
+    "tabalyst_version": "0.6.2",
     "generated_at": "2026-10-06T12:00:00Z",
     "note": "Edit only the \"config\" section. ..."
   },
@@ -230,7 +230,7 @@ differ.
   "format_revision": 1,
   "inspect": {
     "kind": "excel",
-    "tabalyst_version": "0.6.1",
+    "tabalyst_version": "0.6.2",
     "generated_at": "2026-10-06T12:00:00Z",
     "note": "..."
   },

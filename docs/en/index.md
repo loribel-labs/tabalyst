@@ -1,6 +1,6 @@
 ---
 title: Tabalyst documentation
-description: Documentation of Tabalyst 0.6.1, the open-source, local-first toolkit that turns CSV, JSON, JSONL and Excel files into reports, JSON profiles, scans and samples.
+description: Documentation of Tabalyst 0.6.2, the open-source toolkit for reports, scans, samples and synthetic CSV generation.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
@@ -11,7 +11,8 @@ from Python:
   HTML report and a JSON profile.
 - **[Tabalyst Scan](scan/index.md)** describes every field of a file in one JSON document.
 - **[Tabalyst Inspect](inspect/index.md)** finds how to read a JSON, JSONL or Excel file.
-- **[Tabalyst Sample](sample/index.md)** creates smaller CSV files.
+- **[Tabalyst Sample](sample/index.md)** samples CSV files to create smaller datasets.
+- **[Tabalyst Generate](generate/index.md)** creates synthetic CSV datasets.
 
 ```console
 pip install --upgrade tabalyst
@@ -40,6 +41,7 @@ documentation describes the latest release published on PyPI.
 | Choose which sheet or table of a workbook is analyzed | [Inspect Excel workbooks](inspect/excel.md) |
 | Describe every field of a file as JSON | [Scan CSV and JSON files](scan/files.md) |
 | Cut a large CSV down | [Sample CSV files](sample/index.md) |
+| Create synthetic CSV data | [Tabalyst Generate](generate/index.md) |
 | Change delimiter, encoding or detection | [Configuration](reference/configuration.md) |
 | Find a command or an option | [Command line (CLI)](reference/cli/index.md) |
 | Use Tabalyst from Python | [Python API](reference/python-api/index.md) |
@@ -63,6 +65,8 @@ documentation describes the latest release published on PyPI.
   [changelog](scan/format-changelog.md) and
   [query caches](scan/cache.md).
 - **Tabalyst Sample**: [Sample CSV files](sample/index.md).
+- **Tabalyst Generate**: [overview and examples](generate/index.md) and
+  [CLI options](reference/cli/generate.md).
 - **[Reference](reference/index.md)**: [command line](reference/cli/index.md),
   [Python API](reference/python-api/index.md),
   [configuration](reference/configuration.md),
