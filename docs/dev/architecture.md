@@ -4,9 +4,10 @@ Iteration 1 implements `CSV -> report.json -> report.html` with a single global
 JSON file. Its column summaries stay inside that file. The format is experimental;
 breaking changes are expected while iterating.
 
-During the `0.1.0aX` application series, profiles use `format_version: "0.1.0a"`.
-The integer `format_revision` increases for each meaningful structural or semantic
-change. See the [format changelog](../en/reference/profile-format-changelog.md).
+Report profiles use `format_version: "0.2.0"` and start at
+`format_revision: 1`. The integer revision increases for each meaningful
+structural or semantic change. See the
+[JSON profile changelog](../en/report/profile-changelog.md).
 
 ## Boundaries
 
@@ -16,7 +17,7 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (revision 10: one
+- `models.py`: Pydantic models of the report profile (format 0.2.0, revision 1: one
   profile per dataset in `datasets`, with its limits and, for JSON, its
   structure; column scan evidence is retained for standalone detail pages).
 - `config.py`: validated settings, loaded from optional JSON configuration files.

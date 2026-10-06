@@ -10,9 +10,11 @@ CSV/JSON -> Scan -> global JSON profile -> interactive HTML report
 ```
 
 Tabalyst is presented as beta until its first stable 1.0 release. The JSON
-format remains experimental during beta. Its historical `0.1.0a` format
-identifier is retained; breaking changes are allowed and migration support is
-not yet required. Record format changes in the relevant changelogs.
+format remains experimental during beta. The Report profile starts a new
+`0.2.0` format family at revision 1; Scan and Inspect also start at `0.2.0`
+revision 1.
+Breaking changes are allowed and migration
+support is not yet required. Record format changes in the relevant changelogs.
 
 ## Source of truth
 
@@ -180,8 +182,8 @@ The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
 
 - Application versions use PEP 440, for example `0.1.0a1`.
 - Git release tags use the matching `v` prefix, for example `v0.1.0a1`.
-- The existing JSON format family uses `format_version: "0.1.0a"` and a monotonic
-  `format_revision`.
+- The Report JSON profile, Scan document and Inspect file each use
+  `format_version: "0.2.0"` and their own monotonic `format_revision`.
 - `executions.json` has its own `schema_version`.
 
 Never create a commit, tag, push or release unless the user explicitly requests it.

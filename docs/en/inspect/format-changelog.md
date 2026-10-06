@@ -1,48 +1,29 @@
 ---
 title: Inspect format changelog
-description: How an Inspect file written by tabalyst inspect identifies its format, and the changes of each format revision.
+description: Current format version and revisions of the JSON file written by tabalyst inspect.
 ---
 
-An Inspect file written by `tabalyst inspect` identifies its contract with
-three fields:
+An Inspect file written by `tabalyst inspect` identifies its experimental
+contract with three fields:
 
 ```json
 {
   "format": "tabalyst.inspect",
-  "format_version": "0.1.0a",
+  "format_version": "0.2.0",
   "format_revision": 1
 }
 ```
 
-`format` names the kind of document; the [scan format](../scan/format-changelog.md)
-and the [JSON profile](../report/profile-changelog.md) have their own changelogs.
-`format_version` names the experimental compatibility family, `0.1.0a` retained
-during beta. `format_revision` is a monotonic integer incremented for each
-meaningful structural or semantic change. It does not change for documentation
-or for corrections that keep the contract.
+`format` identifies the document kind. `format_version` names the compatibility
+family, and `format_revision` increases for meaningful structural or semantic
+changes within it. [Scan](../scan/format-changelog.md) and the
+[JSON profile](../report/profile-changelog.md) have their own versions and
+changelogs. Beta revisions may be incompatible; automatic migration is not
+provided. Tabalyst refuses a file of another version, and
+`tabalyst inspect --force` writes a new one.
 
-Beta revisions may be incompatible. No automatic migration is provided: Tabalyst
-refuses a file of another version, and `tabalyst inspect --force` writes a new
-one. See the [Inspect format](format.md) for the current structure.
+## Version 0.2.0, revision 1 — 2026-10-06
 
-## Revision 1
-
-- First Inspect format, kind `json`, for `.json`, `.jsonl` and `.ndjson` sources.
-- Kind `excel`, for `.xlsx` and `.xlsm` workbooks, added without changing the
-  revision: `source.format` can be `excel`; `detection` lists the sheets and
-  named tables (`workbook`, `candidates` with `kind`, `sheet`, `table`,
-  `visible`, `range`, `header_row`), and `config` holds `structure.dataset_path`
-  (`$.Sheet` or `$.Sheet.Table`) and `structure.header_row`. New warning codes:
-  `blocks_not_split`, `duplicate_headers`, `blank_headers`, `merged_cells` and
-  `multi_level_header`. A Tabalyst that does not know the kind refuses the
-  file, naming the kinds it reads.
-- Sections `inspect`, `source`, `detection`, `warnings` and `config`; the part
-  you edit is `config`, with `structure.dataset_path`, `flatten` (`enabled`,
-  `separator`, `max_depth`), `arrays.mode` and `errors.policy`.
-- `detection` records the whole-source candidates and the bounded observation of
-  their first records, with its scope, the selection and its basis. There is no
-  confidence score.
-- `warnings` codes: `ambiguous_collections`, `no_collection`,
-  `candidates_truncated`, `candidate_not_eligible`,
-  `candidate_not_eligible_truncated`, `invalid_lines`, `non_object_lines`,
-  `configured_path_not_found` and `source_name_mismatch`.
+This is the starting point for the current [Inspect format](format.md). It
+describes the `json` and `excel` kinds, their source identity, detection,
+warnings and editable configuration.

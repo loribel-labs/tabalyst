@@ -28,7 +28,7 @@ from tabalyst.scanner.config import ErrorPolicy, FlattenSettings, canonical_exce
 from tabalyst.scanner.paths import Items, format_absolute, parse_path
 
 FORMAT = "tabalyst.inspect"
-FORMAT_VERSION = "0.1.0a"
+FORMAT_VERSION = "0.2.0"
 FORMAT_REVISION = 1
 NOTE = (
     'Edit only the "config" section. Tabalyst replaces every other section each '
@@ -394,7 +394,7 @@ class InspectDocument(InspectModel):
     ``detection`` and ``config`` belong to the kind named by ``inspect.kind``."""
 
     format: Literal["tabalyst.inspect"] = FORMAT
-    format_version: Literal["0.1.0a"] = FORMAT_VERSION
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
     format_revision: Literal[1] = FORMAT_REVISION
     inspect: InspectInfo
     source: InspectSource

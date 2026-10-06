@@ -22,8 +22,8 @@ def test_csv_source_is_one_table_dataset_with_positional_fields(tmp_path):
     result = run_scan(source)
 
     assert result["format"] == "tabalyst.scan"
-    assert result["format_version"] == "0.1.0a"
-    assert result["format_revision"] == 6
+    assert result["format_version"] == "0.2.0"
+    assert result["format_revision"] == 1
     assert result["status"] == "complete"
     assert result["source"]["format"] == "csv"
     assert result["source"]["name"] == "people.csv"

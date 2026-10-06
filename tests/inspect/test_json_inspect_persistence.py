@@ -207,6 +207,7 @@ BROKEN = {
     "unknown key": lambda d: d["config"].update(surprise=1),
     "unsupported mode": lambda d: d["config"]["arrays"].update(mode="explode"),
     "unsupported revision": lambda d: d.update(format_revision=999),
+    "unsupported version": lambda d: d.update(format_version="0.1.0a"),
     "other format": lambda d: d.update(format="tabalyst.scan"),
     "unknown kind": lambda d: d["inspect"].update(kind="csv"),
 }

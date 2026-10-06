@@ -21,8 +21,8 @@ from tabalyst.scanner.observations import DatasetKind, NativeType
 T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
-FORMAT_VERSION = "0.1.0a"
-FORMAT_REVISION = 6
+FORMAT_VERSION = "0.2.0"
+FORMAT_REVISION = 1
 
 
 class ScanModel(BaseModel):
@@ -550,7 +550,7 @@ class Scope(ScanModel):
 
 class ScanResult(ScanModel):
     format: Literal["tabalyst.scan"] = FORMAT
-    format_version: Literal["0.1.0a"] = FORMAT_VERSION
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
     format_revision: int = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]

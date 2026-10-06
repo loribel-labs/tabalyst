@@ -1291,16 +1291,16 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 ```json
 {
   "format": "tabalyst.scan",
-  "format_version": "0.1.0a",
-  "format_revision": 5,
-  "engine": {"version": "0.4.0", "normalization_version": 1,
+  "format_version": "0.2.0",
+  "format_revision": 1,
+  "engine": {"version": "0.6.1", "normalization_version": 1,
              "detectors": {"number": 1, "date": 1, "boolean": 1,
                            "enumeration": 1, "email": 1, "url": 1,
                            "phone": 1, "postal_code": 1, "currency": 1,
                            "percentage": 1, "quantity": 1, "uuid": 1,
                            "ip_address": 1}},
   "status": "complete",
-  "started_at": "2026-09-26T22:00:00Z",
+  "started_at": "2026-10-06T12:00:00Z",
   "duration_seconds": 0.012,
   "source": {"format": "json", "name": "orders.json", "size_bytes": 312,
              "modified_at": "2026-09-26T21:58:00Z", "sha256": "...",
@@ -1324,7 +1324,8 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
   CSV, `{record, element}` for JSON.
 
 The format follows the repository convention: `format_version` names the
-alpha family and `format_revision` increases for each meaningful change. Its
+experimental compatibility family and `format_revision` increases for each
+meaningful change. Its
 changelog is `docs/en/scan/format-changelog.md` (lot 4).
 
 ### 16.2 Datasets and fields

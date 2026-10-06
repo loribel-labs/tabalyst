@@ -12,7 +12,7 @@ Tabalyst results from scripts or other tools.
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.1.0a`, revision `10`.
+format `0.2.0`, revision `1`.
 
 ## Example
 
@@ -20,9 +20,9 @@ A shortened profile for a five-row `orders.csv`:
 
 ```json
 {
-  "format_version": "0.1.0a",
-  "format_revision": 10,
-  "generated_at": "2026-09-25T22:25:07.873024Z",
+  "format_version": "0.2.0",
+  "format_revision": 1,
+  "generated_at": "2026-10-06T12:00:00Z",
   "processing_seconds": 0.0098,
   "source": {
     "filename": "orders.csv",
@@ -110,7 +110,7 @@ A shortened profile for a five-row `orders.csv`:
 
 | Field | Type | Content |
 | --- | --- | --- |
-| `format_version` | string | Experimental format family, `"0.1.0a"`, retained during beta |
+| `format_version` | string | Experimental format family, `"0.2.0"` |
 | `format_revision` | integer | Revision within the family, increased for each structural or semantic change |
 | `generated_at` | string | UTC date and time of the analysis (ISO 8601) |
 | `processing_seconds` | number | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
@@ -356,12 +356,12 @@ Each item of `fields` has:
 
 ## Versioning
 
-- `format_version` names the experimental format family. It stays `"0.1.0a"`
-  during beta.
+- `format_version` names the experimental format family. The current value is
+  `"0.2.0"`.
 - `format_revision` increases for each structural or semantic change. It does
   not change for report styling or performance improvements.
 - Revisions can be incompatible, and no migration is provided. See the
-  [profile format changelog](profile-changelog.md).
+  [JSON profile changelog](profile-changelog.md).
 
 The profile contains values from the source file, in `examples`,
 `value_profile` and `preview`; only sensitive columns are masked. Share it as

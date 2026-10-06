@@ -6,7 +6,7 @@ description: Structure of the Inspect file written by tabalyst inspect, with its
 `tabalyst inspect data.json` writes `data.json-inspect.json` beside the source:
 a JSON document that says how Tabalyst understands the source and holds the
 rules to read it. This page describes format `tabalyst.inspect`, version
-`0.1.0a`, revision `1`, kinds `json` and `excel`. The format is **experimental**: it can
+`0.2.0`, revision `1`, kinds `json` and `excel`. The format is **experimental**: it can
 change incompatibly between releases. Changes are listed in the
 [Inspect format changelog](format-changelog.md). For the commands, see
 [Inspect JSON and JSONL files](json.md) and [Inspect Excel workbooks](excel.md).
@@ -18,12 +18,12 @@ follows the same top level with its own `detection` and `config`.
 ```json
 {
   "format": "tabalyst.inspect",
-  "format_version": "0.1.0a",
+  "format_version": "0.2.0",
   "format_revision": 1,
   "inspect": {
     "kind": "json",
-    "tabalyst_version": "0.5.0",
-    "generated_at": "2026-10-01T05:34:13Z",
+    "tabalyst_version": "0.6.1",
+    "generated_at": "2026-10-06T12:00:00Z",
     "note": "Edit only the \"config\" section. ..."
   },
   "source": {
@@ -226,12 +226,12 @@ differ.
 ```json
 {
   "format": "tabalyst.inspect",
-  "format_version": "0.1.0a",
+  "format_version": "0.2.0",
   "format_revision": 1,
   "inspect": {
     "kind": "excel",
-    "tabalyst_version": "0.5.1",
-    "generated_at": "2026-10-04T22:36:19Z",
+    "tabalyst_version": "0.6.1",
+    "generated_at": "2026-10-06T12:00:00Z",
     "note": "..."
   },
   "source": {

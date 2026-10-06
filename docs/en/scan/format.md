@@ -6,7 +6,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 `tabalyst scan data.csv` writes a reusable `scan.json` by default;
 `-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
 describe every field of the source. This page describes format
-`tabalyst.scan`, version `0.1.0a`, revision `6`. The format is
+`tabalyst.scan`, version `0.2.0`, revision `1`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](format-changelog.md).
@@ -16,15 +16,15 @@ the [scan format changelog](format-changelog.md).
 ```json
 {
   "format": "tabalyst.scan",
-  "format_version": "0.1.0a",
-  "format_revision": 6,
+  "format_version": "0.2.0",
+  "format_revision": 1,
   "engine": {
-    "version": "0.5.0",
+    "version": "0.6.1",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },
   "status": "complete",
-  "started_at": "2026-09-27T05:06:41.369888Z",
+  "started_at": "2026-10-06T12:00:00Z",
   "duration_seconds": 0.0023,
   "source": {
     "format": "csv",
