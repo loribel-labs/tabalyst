@@ -53,7 +53,7 @@ def _models():
 def test_zones_and_their_order(document):
     assert list(document) == ZONES
     assert document["format"] == "tabalyst.inspect"
-    assert document["format_version"] == "0.1.0a"
+    assert document["format_version"] == "0.2.0"
     assert document["format_revision"] == 1
     assert list(document["inspect"]) == ["kind", "tabalyst_version", "generated_at", "note"]
     assert document["inspect"]["kind"] == "json"

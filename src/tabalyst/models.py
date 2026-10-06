@@ -420,8 +420,8 @@ class DatasetProfile(ResultModel):
 
 
 class ReportProfile(ResultModel):
-    format_version: Literal["0.1.0a"] = "0.1.0a"
-    format_revision: Literal[11] = 11
+    format_version: Literal["0.2.0"] = "0.2.0"
+    format_revision: Literal[1] = 1
     generated_at: datetime
     processing_seconds: FiniteFloat
     source: SourceInfo

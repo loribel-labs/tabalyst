@@ -210,7 +210,7 @@ def test_csv_options_cannot_be_combined_with_scan(tmp_path):
                     "format_revision": 1,
                 }
             ),
-            "revision 1",
+            "0.1.0a revision 1",
         ),
     ],
 )
