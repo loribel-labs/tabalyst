@@ -47,6 +47,10 @@ HTML works without a network connection or a CDN.
 
 ## Pages
 
+- [Read the report](read-report.md): interpret every HTML section, its
+  tables, indicators and limits.
+- [Types and patterns](../reference/types-and-patterns/index.md): shared
+  types and detectors, with a dedicated [pattern catalog](../reference/types-and-patterns/patterns.md).
 - [Create your first report](../get-started/first-report.md): a five-minute
   tutorial on a small CSV file.
 - [Report CSV files](csv.md): names, batches, safe behavior and

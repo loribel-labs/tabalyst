@@ -13,6 +13,9 @@ Reference pages describe exactly what Tabalyst accepts and produces.
   arguments.
 - [Configuration](configuration.md): the JSON configuration file and every
   `scan` setting.
+- [Types and patterns](types-and-patterns/index.md): native, inferred and
+  semantic [types](types-and-patterns/types.md), plus built-in and configurable
+  [patterns](types-and-patterns/patterns.md) shared by Scan and Report.
 - [Execution history](history.md): the `executions.json` file written next to each report.
 - [Glossary](glossary.md): the terms used in the documentation and the report.
 
