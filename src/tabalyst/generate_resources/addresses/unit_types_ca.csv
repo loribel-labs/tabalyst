@@ -1,0 +1,12 @@
+unit_type,language,abbreviation,weight
+appartement,fr,app.,100
+unité,fr,unité,70
+bureau,fr,bur.,50
+suite,fr,suite,40
+étage,fr,ét.,25
+local,fr,local,20
+Apartment,en,Apt.,100
+Unit,en,Unit,70
+Suite,en,Ste.,50
+Floor,en,Fl.,25
+Office,en,Ofc.,20

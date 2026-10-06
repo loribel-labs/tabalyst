@@ -1,0 +1,20 @@
+definition_version: 1
+id: common-reference-smoke
+defaults: {seed: 42, as_of_date: '2026-10-05'}
+datasets:
+  - id: contacts
+    rows: 100
+    columns:
+      - {name: id, type: string, generate: {kind: sequence, prefix: C, width: 4}}
+      - {name: first_name, type: string, generate: {kind: common, provider: person, group: person, field: first_name, profile: mixed}}
+      - {name: family_name, type: string, generate: {kind: common, provider: person, group: person, field: family_name, profile: mixed}}
+      - {name: sex, type: string, generate: {kind: common, provider: person, group: person, field: sex, profile: mixed}}
+      - {name: person_language, type: string, generate: {kind: common, provider: person, group: person, field: language, profile: mixed}}
+      - {name: street, type: string, generate: {kind: common, provider: address, group: address, field: street}}
+      - {name: unit, type: string, generate: {kind: common, provider: address, group: address, field: unit}}
+      - {name: city, type: string, generate: {kind: common, provider: address, group: address, field: city}}
+      - {name: city_id, type: string, generate: {kind: common, provider: address, group: address, field: city_id}}
+      - {name: province_code, type: string, generate: {kind: common, provider: address, group: address, field: province_code}}
+      - {name: postal_code, type: string, generate: {kind: common, provider: address, group: address, field: postal_code}}
+      - {name: email, type: string, depends_on: [first_name, family_name, province_code, person_language], generate: {kind: common, provider: contact, group: contact, field: email, first: first_name, last: family_name, province: province_code, language: person_language}}
+      - {name: phone, type: string, depends_on: [first_name, family_name, province_code, person_language], generate: {kind: common, provider: contact, group: contact, field: phone, first: first_name, last: family_name, province: province_code, language: person_language}}

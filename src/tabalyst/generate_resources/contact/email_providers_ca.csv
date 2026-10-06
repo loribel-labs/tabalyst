@@ -1,0 +1,10 @@
+provider_id,production_domain,safe_domain,language_profile,weight
+gmail,gmail.com,gmail.example,multilingual,400
+outlook,outlook.com,outlook.example,multilingual,180
+hotmail,hotmail.com,hotmail.example,multilingual,150
+yahoo,yahoo.ca,yahoo.example,en,90
+icloud,icloud.com,icloud.example,multilingual,80
+videotron,videotron.ca,videotron.example,fr,40
+proton,proton.me,proton.example,multilingual,30
+bell,bell.net,bell.example,bilingual,20
+rogers,rogers.com,rogers.example,en,10

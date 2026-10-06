@@ -3,3 +3,4 @@ include README.md
 include examples/README.md
 include examples/config.json
 recursive-include examples/input *.csv
+recursive-include src/tabalyst/generate_resources *.csv *.md

@@ -6,18 +6,27 @@
 
 from __future__ import annotations
 
+import csv
+import json
 import os
 import shutil
 import tempfile
 from collections.abc import Callable
+from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import date
 from importlib.resources import files
 from pathlib import Path
 
+from tabalyst import __version__
 from tabalyst.batch import apply_default_file_mode, path_key, validate_outputs
 from tabalyst.errors import ConfigurationError, InputError, ReportError
+from tabalyst.generate_csv import write_csv
 from tabalyst.generate_definition import GenerateDefinition, load_generate_definition
+from tabalyst.generate_insurance import SCHEMAS as INSURANCE_SCHEMAS
+from tabalyst.generate_insurance import InsuranceProvider
+from tabalyst.generate_references import SCHEMAS, CommonReferences
+from tabalyst.generate_values import generate_rows
 
 
 @dataclass(frozen=True)
@@ -144,7 +153,10 @@ def build_generate_plan(
                 GenerateArtifact(name, "summary", Path(f"{prefix}.summary.json")),
             ))
     protected = [definition.source]
-    # Future packaged resources are added to this list at definition resolution.
+    protected.extend(Path(str(files("tabalyst").joinpath("generate_resources", *name.split("/"))))
+                     for name in SCHEMAS)
+    protected.extend(Path(str(files("tabalyst").joinpath("generate_resources", "insurance", name)))
+                     for name in INSURANCE_SCHEMAS)
     validate_outputs(
         ((definition.source, artifact.path) for artifact in artifacts),
         sources=protected,
@@ -163,11 +175,13 @@ def build_generate_plan(
 def _publish_artifacts(
     plan: GeneratePlan,
     writer: Callable[[GenerateArtifact, Path], None],
+    anomaly_counts: dict[str, int] | None = None,
 ) -> GenerateResult:
     """Stage all files then replace finals, restoring earlier files on failure."""
     validate_outputs(
         ((plan.definition.source, artifact.path) for artifact in plan.artifacts),
-        sources=[plan.definition.source], force=plan.force, label="Generate",
+        sources=[plan.definition.source, *(Path(str(files("tabalyst").joinpath("generate_resources", *name.split("/")))) for name in SCHEMAS)],
+        force=plan.force, label="Generate",
     )
     stages: dict[Path, Path] = {}
     backups: dict[Path, Path] = {}
@@ -192,7 +206,8 @@ def _publish_artifacts(
         # created target when force was not selected.
         validate_outputs(
             ((plan.definition.source, artifact.path) for artifact in plan.artifacts),
-            sources=[plan.definition.source], force=plan.force, label="Generate",
+            sources=[plan.definition.source, *(Path(str(files("tabalyst").joinpath("generate_resources", *name.split("/")))) for name in SCHEMAS)],
+        force=plan.force, label="Generate",
         )
         publishing = True
         for artifact in plan.artifacts:
@@ -237,13 +252,116 @@ def _publish_artifacts(
                 path.unlink(missing_ok=True)
     return GenerateResult(
         tuple(artifact.path for artifact in plan.artifacts),
-        dict(plan.rows), {},
+        dict(plan.rows), dict(anomaly_counts or {}),
     )
 
 
 def generate_datasets(plan: GeneratePlan) -> GenerateResult:
-    """Execute a plan once its value generators are implemented in lot 2."""
-    raise ConfigurationError(
-        "Generate execution is not available in lot 1; the definition and "
-        "all output paths can be validated with build_generate_plan()."
-    )
+    """Generate clean datasets, shared entities and ordered combines."""
+    from tabalyst.generate_anomalies import inject_anomalies
+
+    datasets = {dataset["id"]: dataset for dataset in plan.definition.datasets}
+    supported = {"constant", "sequence", "choice", "integer", "decimal",
+                 "boolean", "date", "datetime", "text", "reference",
+                 "relative_date", "conditional", "common", "insurance"}
+    for dataset in (*plan.definition.entities, *datasets.values()):
+        if "combine" in dataset:
+            continue
+        columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
+        for column in columns:
+            if column["generate"]["kind"] not in supported:
+                raise ConfigurationError(f"Column {column['name']!r} requires a later Generate lot.")
+    references = CommonReferences() if any(
+        column["generate"]["kind"] in {"common", "insurance"}
+        for dataset in (*plan.definition.entities, *datasets.values()) if "combine" not in dataset
+        for column in (dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"])
+    ) else None
+    insurance = InsuranceProvider(references) if any(
+        column["generate"]["kind"] == "insurance"
+        for dataset in datasets.values() if "combine" not in dataset
+        for column in (dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"])
+    ) else None
+    pools = {
+        entity["id"]: list(generate_rows(
+            f"entity:{entity['id']}", entity["columns"], entity["count"],
+            plan.seed, plan.as_of_date, references=references,
+            cohorts=plan.definition.cohorts,
+        )) for entity in plan.definition.entities
+    }
+    staged_clean: dict[str, Path] = {}
+    staged_changes: dict[str, Path] = {}
+    summaries: dict[str, dict] = {}
+    anomaly_counts: dict[str, int] = {}
+    profiles = {profile["id"]: profile for profile in plan.definition.anomaly_profiles}
+    delimiter = plan.definition.csv.get("delimiter", ",")
+
+    def combined_rows(dataset: dict):
+        with ExitStack() as stack:
+            for input_id in dataset["combine"]["inputs"]:
+                stream = stack.enter_context(staged_clean[input_id].open(
+                    "r", encoding="utf-8", newline="",
+                ))
+                reader = csv.DictReader(stream, delimiter=delimiter)
+                for row in reader:
+                    if dataset["combine"].get("source_column"):
+                        row[dataset["combine"]["source_column"]] = (
+                            datasets[input_id].get("source", input_id)
+                        )
+                    yield row
+
+    def writer(artifact: GenerateArtifact, stage: Path) -> None:
+        dataset = datasets[artifact.dataset_id]
+        if artifact.kind == "altered":
+            descriptor, name = tempfile.mkstemp(dir=stage.parent, prefix=".generate-changes-", suffix=".tmp")
+            os.close(descriptor)
+            journal = Path(name)
+            staged_changes[artifact.dataset_id] = journal
+            summary = inject_anomalies(
+                staged_clean[artifact.dataset_id], stage, journal,
+                dataset=artifact.dataset_id, profile=profiles[plan.anomaly_profile],
+                seed=plan.seed, count=plan.rows[artifact.dataset_id], delimiter=delimiter,
+            )
+            summary.update({
+                "definition_id": plan.definition.id,
+                "definition_version": 1,
+                "tabalyst_version": __version__,
+                "as_of_date": plan.as_of_date,
+            })
+            summaries[artifact.dataset_id] = summary
+            anomaly_counts[artifact.dataset_id] = summary["changed_cells"]
+            return
+        if artifact.kind == "changes":
+            shutil.copyfile(staged_changes[artifact.dataset_id], stage)
+            return
+        if artifact.kind == "summary":
+            stage.write_text(json.dumps(summaries[artifact.dataset_id],
+                                        ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            return
+        if "combine" in dataset:
+            first = datasets[dataset["combine"]["inputs"][0]]
+            columns = first.get("columns") or plan.definition.schemas[first["schema"]]["columns"]
+            headers = [column["name"] for column in columns]
+            if dataset["combine"].get("source_column"):
+                headers.append(dataset["combine"]["source_column"])
+            rows = combined_rows(dataset)
+        else:
+            columns = dataset.get("columns") or plan.definition.schemas[dataset["schema"]]["columns"]
+            headers = [column["name"] for column in columns]
+            rows = generate_rows(
+                artifact.dataset_id, columns, plan.rows[artifact.dataset_id],
+                plan.seed, plan.as_of_date, pools, references,
+                cohorts=plan.definition.cohorts, fixed_cohort=dataset.get("cohort"),
+                source=dataset.get("source"),
+                insurance_provider=insurance,
+            )
+        count = write_csv(
+            stage, headers, rows, delimiter=delimiter,
+        )
+        if count != plan.rows[artifact.dataset_id]:
+            raise ReportError(f"Generated row count differs for {artifact.dataset_id}")
+        staged_clean[artifact.dataset_id] = stage
+    try:
+        return _publish_artifacts(plan, writer, anomaly_counts)
+    finally:
+        for journal in staged_changes.values():
+            journal.unlink(missing_ok=True)

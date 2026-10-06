@@ -1,0 +1,46 @@
+# Development fixture for clean cohorts and traced anomalies (lot 4).
+definition_version: 1
+id: cohorts-anomalies
+defaults:
+  seed: 19
+  as_of_date: '2026-09-30'
+cohorts:
+  - id: current
+    weight: 3
+    formats:
+      status: {active: Active}
+  - id: legacy
+    weight: 1
+    formats:
+      status: {active: ACT}
+entities:
+  - id: accounts
+    count: 5
+    generator: company
+    columns:
+      - name: account_id
+        type: string
+        generate: {kind: sequence, prefix: A}
+datasets:
+  - id: contacts
+    rows: 40
+    columns:
+      - name: contact_id
+        type: string
+        generate: {kind: sequence, prefix: C}
+      - name: account_id
+        type: string
+        generate: {kind: reference, entity: accounts, field: account_id}
+      - name: status
+        type: string
+        generate: {kind: constant, value: active}
+      - name: email
+        type: string
+        generate: {kind: sequence, prefix: user}
+anomaly_profiles:
+  - id: dirty
+    targets: [contacts]
+    operations:
+      - {kind: set_missing, column: email, rate: 0.25}
+      - {kind: duplicate, column: contact_id, rate: 0.25}
+      - {kind: format, column: status, value: lower, rate: 1}

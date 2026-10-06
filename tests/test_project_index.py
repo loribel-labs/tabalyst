@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -138,9 +139,10 @@ def test_moved_source_has_no_project(location, source, tmp_path):
 
 
 def test_rebuild_keeps_the_most_recent_project_of_a_path(location, source):
-    older = create_project(location, source)
-    newer = create_project(location, source)
-    assert older.project_id < newer.project_id
+    first = datetime(2026, 1, 1, tzinfo=UTC)
+    older = create_project(location, source, now=first)
+    newer = create_project(location, source, now=first + timedelta(seconds=1))
+    assert older.created_at < newer.created_at
     location.index_path.unlink()
 
     assert rebuild_index(location).projects == {

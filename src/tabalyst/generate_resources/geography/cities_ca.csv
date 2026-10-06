@@ -1,0 +1,72 @@
+city_id,city_name,province_code,region,language_profile,weight
+montreal,Montréal,QC,Montréal,fr,1000
+quebec,Québec,QC,Capitale-Nationale,fr,650
+laval,Laval,QC,Laval,fr,420
+gatineau,Gatineau,QC,Outaouais,fr,340
+longueuil,Longueuil,QC,Montérégie,fr,320
+sherbrooke,Sherbrooke,QC,Estrie,fr,280
+levis,Lévis,QC,Chaudière-Appalaches,fr,250
+saguenay,Saguenay,QC,Saguenay-Lac-Saint-Jean,fr,240
+trois_rivieres,Trois-Rivières,QC,Mauricie,fr,230
+terrebonne,Terrebonne,QC,Lanaudière,fr,210
+saint_jean_sur_richelieu,Saint-Jean-sur-Richelieu,QC,Montérégie,fr,190
+brossard,Brossard,QC,Montérégie,bilingual,180
+repentigny,Repentigny,QC,Lanaudière,fr,170
+drummondville,Drummondville,QC,Centre-du-Québec,fr,160
+saint_jerome,Saint-Jérôme,QC,Laurentides,fr,150
+granby,Granby,QC,Montérégie,fr,140
+blainville,Blainville,QC,Laurentides,fr,130
+saint_hyacinthe,Saint-Hyacinthe,QC,Montérégie,fr,120
+shawinigan,Shawinigan,QC,Mauricie,fr,110
+dollard_des_ormeaux,Dollard-des-Ormeaux,QC,Montréal,bilingual,100
+rimouski,Rimouski,QC,Bas-Saint-Laurent,fr,100
+chateauguay,Châteauguay,QC,Montérégie,bilingual,95
+victoriaville,Victoriaville,QC,Centre-du-Québec,fr,90
+rouyn_noranda,Rouyn-Noranda,QC,Abitibi-Témiscamingue,fr,85
+salaberry_de_valleyfield,Salaberry-de-Valleyfield,QC,Montérégie,fr,80
+sorel_tracy,Sorel-Tracy,QC,Montérégie,fr,75
+joliette,Joliette,QC,Lanaudière,fr,70
+mirabel,Mirabel,QC,Laurentides,fr,68
+mascouche,Mascouche,QC,Lanaudière,fr,66
+vaudreuil_dorion,Vaudreuil-Dorion,QC,Montérégie,bilingual,64
+alma,Alma,QC,Saguenay-Lac-Saint-Jean,fr,62
+sept_iles,Sept-Îles,QC,Côte-Nord,fr,60
+riviere_du_loup,Rivière-du-Loup,QC,Bas-Saint-Laurent,fr,58
+val_dor,Val-d'Or,QC,Abitibi-Témiscamingue,fr,56
+la_tuque,La Tuque,QC,Mauricie,fr,54
+baie_comeau,Baie-Comeau,QC,Côte-Nord,fr,52
+magog,Magog,QC,Estrie,fr,50
+sainte_julie,Sainte-Julie,QC,Montérégie,fr,48
+beloeil,Beloeil,QC,Montérégie,fr,46
+gaspe,Gaspé,QC,Gaspésie-Îles-de-la-Madeleine,fr,44
+toronto,Toronto,ON,Grand Toronto,en,1000
+ottawa,Ottawa,ON,Est de l'Ontario,bilingual,700
+mississauga,Mississauga,ON,Grand Toronto,en,500
+brampton,Brampton,ON,Grand Toronto,en,450
+hamilton,Hamilton,ON,Sud de l'Ontario,en,380
+london,London,ON,Sud-Ouest de l'Ontario,en,320
+waterloo,Waterloo,ON,Sud-Ouest de l'Ontario,en,220
+sudbury,Grand Sudbury,ON,Nord de l'Ontario,bilingual,180
+vancouver,Vancouver,BC,Lower Mainland,en,1000
+victoria,Victoria,BC,Île de Vancouver,en,420
+surrey,Surrey,BC,Lower Mainland,en,500
+kelowna,Kelowna,BC,Okanagan,en,260
+prince_george,Prince George,BC,Colombie-Britannique centrale,en,160
+calgary,Calgary,AB,Sud de l'Alberta,en,1000
+edmonton,Edmonton,AB,Alberta centrale,en,900
+red_deer,Red Deer,AB,Alberta centrale,en,220
+lethbridge,Lethbridge,AB,Sud de l'Alberta,en,180
+winnipeg,Winnipeg,MB,Région de Winnipeg,en,1000
+brandon,Brandon,MB,Sud-Ouest du Manitoba,en,180
+saskatoon,Saskatoon,SK,Saskatchewan centrale,en,800
+regina,Regina,SK,Sud de la Saskatchewan,en,700
+fredericton,Fredericton,NB,Rivière Saint-Jean,bilingual,300
+moncton,Moncton,NB,Sud-Est du Nouveau-Brunswick,bilingual,500
+saint_john,Saint John,NB,Baie de Fundy,en,350
+halifax,Halifax,NS,Halifax,en,1000
+sydney,Sydney,NS,Cap-Breton,en,180
+charlottetown,Charlottetown,PE,Queens,en,1000
+st_johns,St. John's,NL,Avalon,en,1000
+whitehorse,Whitehorse,YT,Sud du Yukon,en,1000
+yellowknife,Yellowknife,NT,Slave Nord,multilingual,1000
+iqaluit,Iqaluit,NU,Qikiqtaaluk,multilingual,1000

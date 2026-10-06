@@ -1,8 +1,8 @@
 {
   "format_version": "0.1.0a",
   "format_revision": 11,
-  "generated_at": "2026-10-05T21:36:36.827307Z",
-  "processing_seconds": 0.3325,
+  "generated_at": "2026-10-06T11:45:27.358822Z",
+  "processing_seconds": 0.3279,
   "source": {
     "filename": "web-events.jsonl",
     "format": "jsonl",

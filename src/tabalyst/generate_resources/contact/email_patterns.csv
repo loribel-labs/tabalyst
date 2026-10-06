@@ -1,0 +1,12 @@
+pattern_id,template,weight,min_digits,max_digits
+first_dot_last,{first}.{last},260,0,0
+first_last,{first}_{last},110,0,0
+firstlast,{first}{last},160,0,0
+first_initial_last,{first_initial}{last},120,0,0
+first_last_initial,{first}{last_initial},60,0,0
+last_dot_first,{last}.{first},70,0,0
+first_digits,{first}{digits},130,2,4
+short_first_digits,{first:3}{digits},110,2,4
+initials_digits,{first_initial}{last_initial}{digits},40,2,4
+last_digits,{last}{digits},70,2,4
+first_hyphen_last,{first}-{last},30,0,0
