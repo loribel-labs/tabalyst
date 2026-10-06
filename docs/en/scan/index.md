@@ -30,6 +30,8 @@ are written atomically: an interrupted scan never leaves a partial file.
 
 ## Pages
 
+- [Types and patterns](../reference/types-and-patterns/index.md): native,
+  inferred and semantic types, plus every recognized pattern.
 - [Scan CSV and JSON files](files.md): commands, JSON, JSONL and Excel
   sources, reuse, settings and the Python API.
 - [Scan format](format.md): the structure of the scan document, and its
