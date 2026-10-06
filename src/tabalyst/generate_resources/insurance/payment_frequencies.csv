@@ -1,0 +1,5 @@
+frequency,label_fr,installments_per_year,weight
+mensuelle,Mensuelle,12,650
+trimestrielle,Trimestrielle,4,90
+semestrielle,Semestrielle,2,40
+annuelle,Annuelle,1,220

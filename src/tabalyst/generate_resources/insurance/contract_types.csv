@@ -1,0 +1,5 @@
+contract_type,label_fr,annual_premium_min,annual_premium_max,claim_probability,claim_amount_min,claim_amount_max,weight
+auto,Automobile,120.00,2600.00,0.2200,250.00,50000.00,450
+habitation,Habitation,250.00,3500.00,0.1200,500.00,150000.00,300
+vie,Vie,150.00,5000.00,0.0150,10000.00,500000.00,120
+voyage,Voyage,40.00,800.00,0.0800,100.00,25000.00,130

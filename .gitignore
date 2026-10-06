@@ -223,5 +223,6 @@ __marimo__/
 /report.html
 /reports/
 /artifacts/
+/examples/generate/output/
 /benchmarks/data/
 .claude/launch.json

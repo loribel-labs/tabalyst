@@ -1,0 +1,13 @@
+filiale,contract_type,weight
+principal,auto,400
+principal,habitation,300
+principal,vie,120
+principal,voyage,180
+ontario,auto,450
+ontario,habitation,260
+ontario,vie,140
+ontario,voyage,150
+quebec,auto,420
+quebec,habitation,330
+quebec,vie,120
+quebec,voyage,130

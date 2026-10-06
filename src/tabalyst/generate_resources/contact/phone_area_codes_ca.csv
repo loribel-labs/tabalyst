@@ -1,0 +1,14 @@
+area_code,province_code,coverage,weight
+200,QC,synthetic,1
+201,ON,synthetic,1
+202,BC,synthetic,1
+203,AB,synthetic,1
+204,NB,synthetic,1
+205,NS,synthetic,1
+206,MB,synthetic,1
+207,SK,synthetic,1
+208,NL,synthetic,1
+209,PE,synthetic,1
+210,YT,synthetic,1
+211,NT,synthetic,1
+212,NU,synthetic,1

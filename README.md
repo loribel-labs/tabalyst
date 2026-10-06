@@ -10,7 +10,9 @@ Its first tool is **Tabalyst Report**. The current CSV implementation,
 profile and a self-contained interactive HTML report.
 **Tabalyst Scan** describes CSV, JSON, JSONL and Excel files in a scan document,
 **Tabalyst Inspect** finds how to read a JSON, JSONL or Excel file, and
-**Tabalyst Sample** creates smaller CSV files.
+**Tabalyst Sample** creates smaller CSV files. The development checkout also
+contains **Tabalyst Generate** for synthetic CSV datasets; it has not yet been
+published as a release.
 
 Tabalyst is in beta. Its interfaces may still change while
 the shared toolkit architecture is being established.
@@ -234,6 +236,34 @@ tabalyst sample customers.csv --sample-method stratified --field province --rows
 Sampling reads CSV records as a stream. Random and stratified sampling keep
 only the requested sample, plus stratum counts, in memory. Existing outputs
 require `--force`, and an input file is never overwritten.
+
+## Tabalyst Generate (development checkout)
+
+Generate synthetic CSV data from a versioned YAML definition. This command is
+implemented in the development checkout and is not in the latest published
+release. The packaged `crm` example writes one contacts file; `insurance`
+writes three branch files and a combined file:
+
+```console
+tabalyst generate --example crm -o crm-contacts.csv
+tabalyst generate --example insurance --rows 3000 -d insurance-output/
+tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
+```
+
+You can pass `examples/generate/input/crm.yaml` or
+`examples/generate/input/insurance.yaml` instead of `--example`. A selected anomaly
+profile writes an altered CSV, a cell change log and a summary beside the
+untouched clean CSV. Insurance's profile changes only the combined file.
+`--rows 3000` apportions 2,182, 273 and 545 rows to the three branches.
+Existing outputs require `--force`.
+
+Run `python examples/generate/generate_examples.py` to generate every YAML
+from `examples/generate/input/` into ignored local output folders.
+
+Insurance preserves the 33 source columns and the combined `filiale` column of
+the existing public demo, but its generated rows are different. The branch date
+and identifier formats are preserved; `filiale` is the last column in the new
+combined CSV. The current public demo and report remain unchanged.
 
 ## Tabalyst Inspect
 

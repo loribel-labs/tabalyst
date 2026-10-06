@@ -1,0 +1,14 @@
+province_code,province_name_fr,province_name_en,country_code,language_profile,weight
+QC,Québec,Quebec,CA,fr,800
+ON,Ontario,Ontario,CA,en,80
+BC,Colombie-Britannique,British Columbia,CA,en,30
+AB,Alberta,Alberta,CA,en,30
+NB,Nouveau-Brunswick,New Brunswick,CA,bilingual,20
+NS,Nouvelle-Écosse,Nova Scotia,CA,en,10
+MB,Manitoba,Manitoba,CA,en,10
+SK,Saskatchewan,Saskatchewan,CA,en,10
+NL,Terre-Neuve-et-Labrador,Newfoundland and Labrador,CA,en,4
+PE,Île-du-Prince-Édouard,Prince Edward Island,CA,en,2
+YT,Yukon,Yukon,CA,en,1
+NT,Territoires du Nord-Ouest,Northwest Territories,CA,multilingual,1
+NU,Nunavut,Nunavut,CA,multilingual,2

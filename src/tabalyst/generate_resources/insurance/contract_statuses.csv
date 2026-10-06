@@ -1,0 +1,5 @@
+status,label_fr,date_end_policy,weight
+actif,Actif,optional_future,760
+suspendu,Suspendu,optional_future,60
+expiré,Expiré,required_past,130
+résilié,Résilié,required_past,50

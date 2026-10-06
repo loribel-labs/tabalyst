@@ -59,7 +59,13 @@ change. See the [format changelog](../en/reference/profile-format-changelog.md).
   validation for Generate. `generate_service.py` resolves overrides, apportions
   rows, plans every artifact and owns staging and best-effort publication.
   `generate_csv.py` is the UTF-8/LF streaming writer adapted from the Generate
-  prototype. Lot 1 exposes planning; value generation begins in lot 2.
+  prototype. `generate_values.py` evaluates elementary and dependent columns,
+  with shared entity pools and stable random streams. Lot 3 adds relations and
+  staged `combine` output. Lot 4 adds clean weighted cohorts and a separate
+  measured anomaly pass in `generate_anomalies.py`, preserving the clean CSV.
+  `generate_insurance.py` loads and validates packaged Insurance tables and
+  generates one coherent 33-field branch row per request; the shared CSV
+  writer and combine pass produce its three branch files and union.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`

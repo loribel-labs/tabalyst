@@ -1,0 +1,109 @@
+street_name,language_profile,scope,source_type,weight
+des Érables,fr,generic,synthetic,100
+du Ruisseau,fr,generic,synthetic,98
+des Mélèzes,fr,generic,synthetic,96
+du Lac,fr,generic,synthetic,94
+des Pins,fr,generic,synthetic,92
+des Bouleaux,fr,generic,synthetic,90
+des Lilas,fr,generic,synthetic,88
+des Cèdres,fr,generic,synthetic,86
+des Peupliers,fr,generic,synthetic,84
+du Moulin,fr,generic,synthetic,82
+des Champs,fr,generic,synthetic,80
+du Belvédère,fr,generic,synthetic,78
+de la Rivière,fr,generic,synthetic,76
+du Boisé,fr,generic,synthetic,74
+du Parc,fr,generic,synthetic,72
+des Prairies,fr,generic,synthetic,70
+des Sommets,fr,generic,synthetic,68
+des Vents,fr,generic,synthetic,66
+du Havre,fr,generic,synthetic,64
+des Pionniers,fr,generic,synthetic,62
+de la Clairière,fr,generic,synthetic,60
+de l'Aube,fr,generic,synthetic,58
+du Versant,fr,generic,synthetic,56
+des Laurentides,fr,generic,synthetic,54
+de la Colline,fr,generic,synthetic,52
+du Rocher,fr,generic,synthetic,50
+des Cascades,fr,generic,synthetic,48
+du Marais,fr,generic,synthetic,46
+des Hirondelles,fr,generic,synthetic,44
+des Geais-Bleus,fr,generic,synthetic,42
+des Tulipes,fr,generic,synthetic,40
+des Trilliums,fr,generic,synthetic,38
+des Frênes,fr,generic,synthetic,36
+des Chênes,fr,generic,synthetic,34
+des Sapins,fr,generic,synthetic,32
+des Épinettes,fr,generic,synthetic,30
+des Ormes,fr,generic,synthetic,29
+des Saules,fr,generic,synthetic,28
+de la Pinède,fr,generic,synthetic,27
+de l'Anse,fr,generic,synthetic,26
+du Cap,fr,generic,synthetic,25
+de la Falaise,fr,generic,synthetic,24
+du Plateau,fr,generic,synthetic,23
+de la Vallée,fr,generic,synthetic,22
+de la Traverse,fr,generic,synthetic,21
+du Domaine,fr,generic,synthetic,20
+de la Gare,fr,generic,synthetic,19
+du Marché,fr,generic,synthetic,18
+de l'Église,fr,generic,synthetic,17
+de l'École,fr,generic,synthetic,16
+du Vieux-Pont,fr,generic,synthetic,15
+des Trois-Lacs,fr,generic,synthetic,14
+de la Grande-Allée,fr,generic,synthetic,13
+du Petit-Bois,fr,generic,synthetic,12
+des Deux-Rivières,fr,generic,synthetic,11
+de la Côte-Verte,fr,generic,synthetic,10
+du Soleil-Levant,fr,generic,synthetic,9
+des Jardins,fr,generic,synthetic,8
+de la Source,fr,generic,synthetic,7
+du Sentier,fr,generic,synthetic,6
+Maple,en,generic,synthetic,100
+Cedar,en,generic,synthetic,98
+Pine,en,generic,synthetic,96
+Oak,en,generic,synthetic,94
+Birch,en,generic,synthetic,92
+Willow,en,generic,synthetic,90
+Lakeview,en,generic,synthetic,88
+Riverside,en,generic,synthetic,86
+Meadow,en,generic,synthetic,84
+Forest,en,generic,synthetic,82
+Hillcrest,en,generic,synthetic,80
+Sunset,en,generic,synthetic,78
+Highland,en,generic,synthetic,76
+Valleyview,en,generic,synthetic,74
+Parkside,en,generic,synthetic,72
+Brookside,en,generic,synthetic,70
+Spring,en,generic,synthetic,68
+Kingfisher,en,generic,synthetic,66
+Bluebird,en,generic,synthetic,64
+Garden,en,generic,synthetic,62
+Orchard,en,generic,synthetic,60
+Harbour,en,generic,synthetic,58
+Mountainview,en,generic,synthetic,56
+Greenfield,en,generic,synthetic,54
+Westwood,en,generic,synthetic,52
+Eastwood,en,generic,synthetic,50
+Northgate,en,generic,synthetic,48
+Southridge,en,generic,synthetic,46
+Lakeshore,en,generic,synthetic,44
+Fairview,en,generic,synthetic,42
+Rosewood,en,generic,synthetic,40
+Stonebridge,en,generic,synthetic,38
+Mill,en,generic,synthetic,36
+Station,en,generic,synthetic,34
+Market,en,generic,synthetic,32
+Church,en,generic,synthetic,30
+School,en,generic,synthetic,28
+Railway,en,generic,synthetic,26
+Clearwater,en,generic,synthetic,24
+Silverwood,en,generic,synthetic,22
+Redwood,en,generic,synthetic,20
+Foxglove,en,generic,synthetic,18
+Heather,en,generic,synthetic,16
+Morningstar,en,generic,synthetic,14
+Evergreen,en,generic,synthetic,12
+Woodland,en,generic,synthetic,10
+Seabreeze,en,generic,synthetic,8
+Rockyview,en,generic,synthetic,6

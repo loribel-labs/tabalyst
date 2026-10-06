@@ -60,7 +60,7 @@ tabalyst = "tabalyst.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "generate_examples/*.yaml"]
+tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "generate_examples/*.yaml", "generate_resources/**/*.csv", "generate_resources/*.md"]
 
 [project.urls]
 Homepage = "https://github.com/loribel-labs/tabalyst"

@@ -1,0 +1,9 @@
+direction,language,abbreviation,position,weight
+Nord,fr,N,suffix,100
+Sud,fr,S,suffix,90
+Est,fr,E,suffix,80
+Ouest,fr,O,suffix,110
+North,en,N,suffix,100
+South,en,S,suffix,90
+East,en,E,suffix,80
+West,en,W,suffix,110
