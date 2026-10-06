@@ -1,9 +1,9 @@
 ---
 title: Command line (CLI)
-description: The tabalyst commands (report, scan, inspect, sample, cache) and the conventions they share - inputs, wildcards, outputs, choosing a collection or table, progress and exit codes.
+description: The tabalyst commands (report, scan, inspect, sample, generate, cache) and their shared conventions.
 ---
 
-The `tabalyst` command has five subcommands. `python -m tabalyst` accepts the
+The `tabalyst` command has six subcommands. `python -m tabalyst` accepts the
 same ones. Each has its own page with every option and examples.
 
 | Command | Purpose | Options and examples |
@@ -13,6 +13,7 @@ same ones. Each has its own page with every option and examples.
 | `tabalyst inspect` | Find how to read a JSON, JSONL or Excel file | [tabalyst inspect](inspect.md) |
 | `tabalyst sample` | Smaller CSV file from a larger one | [tabalyst sample](sample.md) |
 | `tabalyst cache` | Inspect and clean disposable query caches | [tabalyst cache](cache.md) |
+| `tabalyst generate` | Synthetic CSV datasets from YAML | [tabalyst generate](generate.md) |
 
 ```console
 tabalyst --version
@@ -22,10 +23,12 @@ tabalyst report --help
 
 ## Conventions
 
-- **Inputs.** Every command except `cache` takes one or more files or
+- **Inputs.** `report`, `scan`, `inspect` and `sample` take one or more files or
   non-recursive glob patterns, such as `*.csv`. Tabalyst expands wildcards
   itself, so they behave the same in PowerShell, `cmd` and POSIX shells. It
   does not search subfolders.
+- **Generate inputs.** `generate` takes one YAML definition or `--example`.
+  It requires `-o` or `-d`; see its [command reference](generate.md).
 - **Outputs.** `-o` names one output file and accepts a single input. `-d`
   names an output directory and accepts one or many inputs. They are mutually
   exclusive.

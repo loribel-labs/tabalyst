@@ -1,6 +1,6 @@
 ---
 title: Documentation de Tabalyst
-description: Présentation en français de Tabalyst 0.6.1, ses outils et ses entrées et sorties, avec des liens vers la documentation détaillée, publiée uniquement en anglais pendant la bêta.
+description: Présentation en français de Tabalyst 0.6.2, ses outils et ses entrées et sorties, avec des liens vers la documentation détaillée, publiée uniquement en anglais pendant la bêta.
 ---
 
 Tabalyst est une boîte à outils open source, locale d'abord, pour comprendre des
@@ -14,7 +14,9 @@ ligne de commande ou depuis Python :
 - **[Tabalyst Inspect](https://docs.tabalyst.com/inspect/)** trouve comment lire
   un fichier JSON, JSONL ou Excel.
 - **[Tabalyst Sample](https://docs.tabalyst.com/sample/)** crée des fichiers CSV
-  plus petits.
+  plus petits par échantillonnage.
+- **[Tabalyst Generate](https://docs.tabalyst.com/generate/)** crée des jeux de
+  données CSV synthétiques.
 
 ```console
 pip install --upgrade tabalyst

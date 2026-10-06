@@ -1,7 +1,13 @@
 ---
 title: Release notes
-description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.6.1.
+description: A short summary of what changed in each Tabalyst release from 0.1.x to 0.6.2.
 ---
+
+## 0.6.2
+
+Adds [Tabalyst Generate](../generate/index.md) for synthetic CSV datasets from
+YAML definitions, with packaged CRM and insurance examples and optional logged
+anomaly variants.
 
 ## 0.6.1
 

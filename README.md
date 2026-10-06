@@ -10,9 +10,8 @@ Its first tool is **Tabalyst Report**. The current CSV implementation,
 profile and a self-contained interactive HTML report.
 **Tabalyst Scan** describes CSV, JSON, JSONL and Excel files in a scan document,
 **Tabalyst Inspect** finds how to read a JSON, JSONL or Excel file, and
-**Tabalyst Sample** creates smaller CSV files. The development checkout also
-contains **Tabalyst Generate** for synthetic CSV datasets; it has not yet been
-published as a release.
+**Tabalyst Sample** creates smaller CSV files by sampling, and **Tabalyst
+Generate** creates synthetic CSV datasets.
 
 Tabalyst is in beta. Its interfaces may still change while
 the shared toolkit architecture is being established.
@@ -237,11 +236,10 @@ Sampling reads CSV records as a stream. Random and stratified sampling keep
 only the requested sample, plus stratum counts, in memory. Existing outputs
 require `--force`, and an input file is never overwritten.
 
-## Tabalyst Generate (development checkout)
+## Tabalyst Generate
 
-Generate synthetic CSV data from a versioned YAML definition. This command is
-implemented in the development checkout and is not in the latest published
-release. The packaged `crm` example writes one contacts file; `insurance`
+Generate synthetic CSV data from a versioned YAML definition. The packaged
+`crm` example writes one contacts file; `insurance`
 writes three branch files and a combined file:
 
 ```console

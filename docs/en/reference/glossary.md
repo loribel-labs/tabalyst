@@ -11,7 +11,7 @@ source language; the French terms below are used when Tabalyst is translated, fo
 Keep these exactly as written in every language:
 
 - the product names `Tabalyst`, `Tabalyst Report`, `Tabalyst CSV Report`,
-  `Tabalyst Scan` and `Tabalyst Inspect`;
+  `Tabalyst Scan`, `Tabalyst Inspect` and `Tabalyst Generate`;
 - commands and options, such as `tabalyst report`, `-o`, `--output-dir` or
   `--config`;
 - JSON keys and values, such as `format_version`, `with_issues` or `mixed`;
