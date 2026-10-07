@@ -4,8 +4,9 @@ Iteration 1 implements `CSV -> report.json -> report.html` with a single global
 JSON file. Its column summaries stay inside that file. The format is experimental;
 breaking changes are expected while iterating.
 
-Report profiles use `format_version: "0.2.0"` and start at
-`format_revision: 1`. The integer revision increases for each meaningful
+Report profiles use `format_version: "0.2.0"` and started at
+`format_revision: 1` (published); the structure of revision 2, a superset of the
+Scan document, is not published yet. The integer revision increases for each meaningful
 structural or semantic change. See the
 [JSON profile changelog](../en/report/profile-changelog.md).
 
@@ -17,9 +18,15 @@ structural or semantic change. See the
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   top-level presentation settings and the `scan` configuration.
-- `models.py`: Pydantic models of the report profile (format 0.2.0, revision 1: one
-  profile per dataset in `datasets`, with its limits and, for JSON, its
-  structure; column scan evidence is retained for standalone detail pages).
+- `models.py`: Pydantic models of the report document (`tabalyst.report`, format
+  0.2.0, revision 2): the Scan base at its own paths and a `report` block with
+  one projection per dataset (summary, columns, issues, preview, limits and, for
+  JSON, structure). The facts of the Scan are not copied into the columns.
+- `scan_document.py`: the common loader of the Scan base, read from a Scan or a
+  Report (`load_document`, `load_base`), its capabilities and the identity of the
+  base (`facts_sha256`).
+- `report_schema.py`: the JSON Schema of the Report, beside the Scan's
+  (`scanner/schema.py`); `python scripts/scan_schema.py` writes both.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
   `load_config_layers()` validates every file completely (top-level settings and
   the `scan` section), rejects the settings moved to `scan` with their new

@@ -76,9 +76,9 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
         tmp_path / "configured.html",
         config_path=config,
     )
-    assert configured["source"]["delimiter"] == ";"
+    assert configured["source"]["csv"]["delimiter"] == ";"
     assert configured["source"]["encoding"] == "cp1252"
-    assert configured["datasets"][0]["preview"][0]["values"][0] == "Montréal"
+    assert configured["report"]["datasets"][0]["preview"][0]["values"][0] == "Montréal"
 
     explicit_source = tmp_path / "explicit.csv"
     explicit_source.write_text("city|value\nQuébec|2\n", encoding="utf-8")
@@ -89,7 +89,7 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
         encoding="utf-8",
         config_path=config,
     )
-    assert explicit["source"]["delimiter"] == "|"
+    assert explicit["source"]["csv"]["delimiter"] == "|"
     assert explicit["source"]["encoding"] == "utf-8"
 
 

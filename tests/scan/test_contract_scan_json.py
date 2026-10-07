@@ -209,7 +209,7 @@ def _id_samples(base) -> dict:
 @pytest.mark.scan_json_lot("0")
 def test_A03_missing_rate_counts_empty_values_over_the_value_slots(tmp_path):
     profile = analyze_csv(_rates_csv(tmp_path))
-    rows = profile.datasets[0]
+    rows = profile.report.datasets[0]
     amount = _column(rows, "amount")
 
     assert (amount.missing_count, amount.missing_percent) == (2, 9.09)  # 2 / 22
@@ -222,7 +222,7 @@ def test_A03_missing_rate_counts_empty_values_over_the_value_slots(tmp_path):
 
 @pytest.mark.scan_json_lot("0")
 def test_A03_type_error_rate_counts_outside_values_over_the_typed_population(tmp_path):
-    amount = _column(analyze_csv(_rates_csv(tmp_path)).datasets[0], "amount")
+    amount = _column(analyze_csv(_rates_csv(tmp_path)).report.datasets[0], "amount")
 
     # 1 value outside the integer family among 20 values: the 2 empty values
     # are not in the population, so it is 5.0, not 1 / 22.
@@ -232,7 +232,7 @@ def test_A03_type_error_rate_counts_outside_values_over_the_typed_population(tmp
 
 @pytest.mark.scan_json_lot("0")
 def test_A03_normalization_rates_count_changed_content_over_all_value_slots(tmp_path):
-    name = _column(analyze_csv(_rates_csv(tmp_path)).datasets[0], "name")
+    name = _column(analyze_csv(_rates_csv(tmp_path)).report.datasets[0], "name")
 
     # 3 trimmed and 2 collapsed content values, over the 22 slots of the
     # column (the 3 empty cells included): 13.64 and 9.09.
@@ -251,7 +251,7 @@ def test_A03_json_slots_add_the_objects_where_the_field_is_absent(tmp_path):
         "records.json",
         [{"a": 1, "b": 2}, {"a": 3}, {"a": 4, "b": None}, {"a": 5, "b": 6}],
     )
-    dataset_profile = analyze_csv(source).datasets[0]
+    dataset_profile = analyze_csv(source).report.datasets[0]
     b = _column(dataset_profile, "b")
 
     # 3 occurrences + 1 absent = 4 slots; null and absent are missing: 2 / 4.
@@ -270,7 +270,7 @@ def test_A03_scan_shares_are_fractions_and_report_percents_are_0_to_100(tmp_path
 
     detector = next(
         item
-        for item in _column(analyze_csv(source).datasets[0], "email").detectors
+        for item in _column(analyze_csv(source).report.datasets[0], "email").detectors
         if item.id == "email"
     )
     assert detector.matched_percent == 50.0  # a percentage, 0 to 100
@@ -297,7 +297,7 @@ def test_A03_rates_are_documented_with_their_denominators():
 @pytest.mark.scan_json_lot("1b")
 def test_A04_report_columns_hold_no_copy_of_scan_facts(tmp_path):
     profile = analyze_csv(_rates_csv(tmp_path))
-    column = _column(profile.datasets[0], "amount")
+    column = _column(profile.report.datasets[0], "amount")
 
     # The Report reads the statistics where the Scan keeps them.
     for copy in ("scan_details", "numeric", "string_profile", "date_profile"):

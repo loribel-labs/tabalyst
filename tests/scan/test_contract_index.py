@@ -16,8 +16,12 @@ from pathlib import Path
 from scan_json_gate import ENABLED_LOTS, KNOWN_LOTS
 
 HERE = Path(__file__).parent
-FILES = ("test_contract_scan_json.py", "test_contract_bottomk.py")
-REQUIRED = [f"A0{n}" for n in range(1, 7)] + [f"B{n:02d}" for n in range(1, 14)]
+FILES = (
+    "test_contract_scan_json.py",
+    "test_contract_bottomk.py",
+    "test_report_document.py",
+)
+REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14"] + [f"B{n:02d}" for n in range(1, 14)]
 
 
 def _declared() -> dict[str, list[str | None]]:

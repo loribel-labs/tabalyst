@@ -196,7 +196,7 @@ def test_report_command_on_a_jsonl_source(tmp_path):
     report = json.loads((tmp_path / "events.report.json").read_text(encoding="utf-8"))
     assert (tmp_path / "events.report.html").exists()
     assert report["source"]["format"] == "jsonl"
-    dataset_profile = report["datasets"][0]
+    dataset_profile = report["report"]["datasets"][0]
     assert dataset_profile["id"] == "$[]"
     assert dataset_profile["summary"]["row_count"] == 2
     issues = {item["code"]: item for item in dataset_profile["issues"]}

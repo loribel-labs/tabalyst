@@ -9,13 +9,23 @@ import unicodedata
 from collections import defaultdict
 from importlib.resources import files
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Environment, StrictUndefined
 from markupsafe import Markup, escape
 
 from tabalyst._version import get_version
+from tabalyst.errors import InputError
 from tabalyst.models import ColumnProfile, DatasetProfile, ReportProfile
-from tabalyst.report_profile import REPORT_SAMPLE_SIZE
+from tabalyst.report_config import ReportConfig
+from tabalyst.report_profile import (
+    REPORT_SAMPLE_SIZE,
+    build_scan_details,
+    build_views,
+)
+from tabalyst.scan_document import load_report
+from tabalyst.scan_reuse import read_json_document
+from tabalyst.scanner.models import FieldResult
 
 # Plain names of the scan measures a limit can stop (design 8 and 11).
 MEASURE_LABELS = {
@@ -75,17 +85,76 @@ def breakable(name: str) -> Markup:
 
 
 def load_profile(path: str | Path) -> ReportProfile:
-    """Validate and load the experimental JSON profile format."""
-    return ReportProfile.model_validate_json(Path(path).read_text(encoding="utf-8"))
+    """Validate and load a report document (format ``tabalyst.report``)."""
+    document = read_json_document(Path(path))
+    if not isinstance(document, dict):
+        raise InputError(f"Not a report: {path}.")
+    return load_report(document, Path(path))
+
+
+class ColumnView:
+    """A column projection with the views of the base facts that the pages
+    read (``numeric``, ``date_profile``, ``string_profile``, ``scan_details``).
+
+    The document stores the facts once, in its base; these are computed from
+    them when a page is rendered. Other attributes are the projection's.
+    """
+
+    def __init__(
+        self, column: ColumnProfile, field: FieldResult, config: ReportConfig
+    ) -> None:
+        self._column = column
+        views = build_views(field, column.inferred_type, config)
+        self.numeric = views.numeric
+        self.date_profile = views.date_profile
+        self.string_profile = views.string_profile
+        self.scan_details = build_scan_details(field)
+
+    # ``Any``: the attribute of a pydantic projection, whatever its type.
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._column, name)
+
+
+class DatasetView:
+    """A dataset projection whose columns are ``ColumnView`` objects."""
+
+    def __init__(self, dataset: DatasetProfile, columns: list[ColumnView]) -> None:
+        self._dataset = dataset
+        self.columns = columns
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._dataset, name)
+
+
+def dataset_views(profile: ReportProfile) -> list[DatasetView]:
+    """The projections of a report with the views of its base."""
+    config = ReportConfig(
+        **profile.report.config.model_dump(), scan=profile.config
+    )
+    fields = {
+        (dataset.id, field.id): field
+        for dataset in profile.datasets
+        for field in dataset.fields
+    }
+    return [
+        DatasetView(
+            dataset,
+            [
+                ColumnView(column, fields[dataset.id, column.id], config)
+                for column in dataset.columns
+            ],
+        )
+        for dataset in profile.report.datasets
+    ]
 
 
 def column_pages(
     profile: ReportProfile, report_path: Path
-) -> list[tuple[Path, DatasetProfile, ColumnProfile]]:
+) -> list[tuple[Path, DatasetView, ColumnView]]:
     """Name standalone column pages in source order, across all datasets."""
     pages = []
     number = 0
-    for dataset in profile.datasets:
+    for dataset in dataset_views(profile):
         for column in dataset.columns:
             number += 1
             plain = unicodedata.normalize("NFKD", column.name).encode("ascii", "ignore").decode()
@@ -123,7 +192,8 @@ def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str],
         lambda: "var(--ok)",
         {"enumeration": "var(--d2)", "date": "var(--d1)", "none": "var(--d3)"},
     )
-    several = len(profile.datasets) > 1
+    datasets = dataset_views(profile)
+    several = len(datasets) > 1
     views = [
         {
             "ds": dataset,
@@ -151,15 +221,15 @@ def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str],
                 or dataset.limits.depth_truncated_observations
             ),
         }
-        for index, dataset in enumerate(profile.datasets, start=1)
+        for index, dataset in enumerate(datasets, start=1)
     ]
     return template.render(
         report=profile,
         views=views,
         tabalyst_version=get_version(),
         sample_size=REPORT_SAMPLE_SIZE,
-        source_stem=Path(profile.source.filename).stem,
-        source_suffix=Path(profile.source.filename).suffix,
+        source_stem=Path(profile.source.name).stem,
+        source_suffix=Path(profile.source.name).suffix,
         type_colors=type_colors,
         semantic_colors=semantic_colors,
         measure_labels=MEASURE_LABELS,
@@ -172,8 +242,8 @@ def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str],
 
 def render_column_report(
     profile: ReportProfile,
-    dataset: DatasetProfile,
-    column: ColumnProfile,
+    dataset: DatasetView,
+    column: ColumnView,
     report_href: str,
 ) -> str:
     """Render a self-contained page from one serialized column profile."""

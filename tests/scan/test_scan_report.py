@@ -17,7 +17,7 @@ from scan_helpers import write_text
 
 from tabalyst import ConfigurationError
 from tabalyst.report_config import ReportConfig, resolve_report_config
-from tabalyst.reporting import render_report
+from tabalyst.reporting import dataset_views, render_report
 from tabalyst.scanner.readers import csv_reader
 from tabalyst.service import analyze_csv
 
@@ -67,7 +67,7 @@ def _config(**scan) -> ReportConfig:
 def _dataset(source, config=None):
     """The report of a CSV source and its only dataset."""
     report = analyze_csv(source, config)
-    (dataset,) = report.datasets
+    (dataset,) = report.report.datasets
     return report, dataset
 
 
@@ -102,7 +102,7 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
 
     profile_report, profile = _dataset(source)
 
-    dates = profile.columns[0].date_profile
+    dates = dataset_views(profile_report)[0].columns[0].date_profile
     assert dates.ambiguous_count == 1
     assert dates.resolved_ambiguous_order is None
     assert dates.ambiguous_order_source is None
@@ -118,11 +118,11 @@ def test_ambiguous_dates_are_never_resolved_from_column_evidence(tmp_path):
 def test_configured_order_resolves_ambiguous_dates(tmp_path):
     source = write_text(tmp_path, "dates.csv", "day\n01/02/2026\n13/02/2026\n")
 
-    _profile_report, profile = _dataset(
+    profile_report, profile = _dataset(
         source, _config(detectors={"date": {"ambiguous_order": "DMY"}})
     )
 
-    dates = profile.columns[0].date_profile
+    dates = dataset_views(profile_report)[0].columns[0].date_profile
     assert (dates.valid_count, dates.ambiguous_count) == (2, 0)
     assert (dates.resolved_ambiguous_order, dates.ambiguous_order_source) == (
         "DMY",
@@ -173,8 +173,9 @@ def test_limited_measures_are_reported_not_invented(tmp_path):
 
     for column in profile.columns:
         assert column.distinct_count is None
-    assert profile.columns[0].numeric.minimum == 0
-    assert profile.columns[0].numeric.median is None
+    numeric = dataset_views(profile_report)[0].columns[0].numeric
+    assert numeric.minimum == 0
+    assert numeric.median is None
     assert _issues(profile)["limited_measures"].column_ids == ["column_1", "column_2"]
     assert "limited" in render_report(profile_report)
 

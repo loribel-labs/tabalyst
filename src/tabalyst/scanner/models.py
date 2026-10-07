@@ -233,9 +233,14 @@ class SampleHash(ScanModel):
 class Samples(ScanModel):
     """Distinct values with their counts. ``bottom_k`` is the selection of lot
     2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,
-    as hexadecimal digits) are absent."""
+    as hexadecimal digits) are absent.
+
+    ``kept`` values are listed out of the ``of`` the scan sampled: a Scan has
+    ``kept == of``; a Report keeps fewer (design 19.4) and says so here."""
 
     selection: Literal["all", "uniform_distinct", "first_seen", "bottom_k"]
+    kept: int
+    of: int
     listed: list[ValueCount]
     k: int | None = None
     hash: SampleHash | None = None

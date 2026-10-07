@@ -37,8 +37,8 @@ def _profile(tmp_path, data=CUSTOMERS, **flatten):
     source = write_json(tmp_path, "data.json", data)
     scan = {"json": {"collections": ["$[]"], "flatten": flatten}}
     profile = analyze_csv(source, ReportConfig.model_validate({"scan": scan}))
-    assert [item.id for item in profile.datasets] == ["$[]"]
-    return profile.datasets[0]
+    assert [item.id for item in profile.report.datasets] == ["$[]"]
+    return profile.report.datasets[0]
 
 
 def _columns(profile):

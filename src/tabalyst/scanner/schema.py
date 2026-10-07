@@ -26,6 +26,22 @@ EXTENSION_NAMESPACES = {
 _CONSTANTS = ("status", "format", "format_version", "format_revision")
 
 
+def finalize_schema(schema: dict[str, Any], constants: dict[str, Any]) -> None:
+    """Make the constants of the format required, and drop empty ``required``
+    lists. ``constants`` pins members of the root (``format_revision``)."""
+    nodes = [schema, *schema["$defs"].values()]
+    for node in nodes:
+        properties = node.get("properties", {})
+        required = node.setdefault("required", [])
+        for name in _CONSTANTS:
+            if name in properties and name not in required:
+                required.append(name)
+        if not required:
+            del node["required"]
+    for name, value in constants.items():
+        schema["properties"][name] = {"const": value}
+
+
 def scan_schema() -> dict[str, Any]:
     """The schema of the base document.
 
@@ -38,16 +54,7 @@ def scan_schema() -> dict[str, Any]:
     schema["description"] = (
         f"Base document {FORMAT}, format {FORMAT_VERSION} revision {FORMAT_REVISION}."
     )
-    nodes = [schema, *schema["$defs"].values()]
-    for node in nodes:
-        properties = node.get("properties", {})
-        required = node.setdefault("required", [])
-        for name in _CONSTANTS:
-            if name in properties and name not in required:
-                required.append(name)
-        if not required:
-            del node["required"]
-    schema["properties"]["format_revision"] = {"const": FORMAT_REVISION}
+    finalize_schema(schema, {"format_revision": FORMAT_REVISION})
     for name, description in EXTENSION_NAMESPACES.items():
         schema["properties"][name] = {"description": description}
     return schema

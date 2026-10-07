@@ -113,8 +113,12 @@ Scans a file and builds its profile without writing anything.
 tabalyst.analyze_csv(path, config=None, on_progress=None, workers=None)
 ```
 
-Returns a `ReportProfile` model. `config` is a `tabalyst.ReportConfig`; its
-`scan` setting is a `tabalyst.ScanConfig`.
+Returns a `ReportProfile` model: the [JSON profile](../../report/json-profile.md)
+as a Python object. The scan base is at its root (`profile.datasets` are the
+scan datasets, `profile.source` the source) and the report's own data is under
+`profile.report`: `profile.report.datasets` holds the summary and the columns
+of each dataset. `config` is a `tabalyst.ReportConfig`; its `scan` setting is a
+`tabalyst.ScanConfig`.
 
 ## tabalyst.analyze_scan()
 

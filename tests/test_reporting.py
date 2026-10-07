@@ -15,6 +15,7 @@ from tabalyst.execution_log import tabalyst_version
 from tabalyst.reporting import (
     breakable,
     column_pages,
+    dataset_views,
     format_number,
     format_seconds,
     format_size,
@@ -71,7 +72,7 @@ def test_csv_content_cannot_inject_markup(tmp_path):
     assert payload not in html
     assert "<img src=x" not in html
     assert "&lt;script&gt;" in html
-    assert profile.datasets[0].preview[0].values[0] == payload
+    assert profile.report.datasets[0].preview[0].values[0] == payload
 
 
 def test_header_only_report_is_renderable(tmp_path):
@@ -151,7 +152,7 @@ def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):
 
     parser = Cells()
     parser.feed(render_report(profile))
-    expected = str(profile.datasets[0].columns[0].numeric.minimum)
+    expected = str(dataset_views(profile)[0].columns[0].numeric.minimum)
     assert any(cell["data-v"] == expected for cell in parser.values)
     assert any(
         cell["data-v"] == "33.33"
@@ -249,7 +250,7 @@ def test_json_datasets_get_distinct_numbered_column_pages(tmp_path):
 
     pages = sorted((tmp_path / "report").glob("col-*.html"))
     profile = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
-    assert len(pages) == sum(len(dataset["columns"]) for dataset in profile["datasets"])
+    assert len(pages) == sum(len(dataset["columns"]) for dataset in profile["report"]["datasets"])
     assert [int(page.name.split("-")[1]) for page in pages] == list(
         range(1, len(pages) + 1)
     )
@@ -261,8 +262,9 @@ def test_scan_evidence_keeps_sensitive_values_masked(tmp_path):
     source.write_text("email\nalice@example.org\nbob@example.org\n", encoding="utf-8")
 
     profile = analyze_csv(source)
-    column = profile.datasets[0].columns[0]
-    html = render_column_report(profile, profile.datasets[0], column, "../report.html")
+    dataset = dataset_views(profile)[0]
+    column = dataset.columns[0]
+    html = render_column_report(profile, dataset, column, "../report.html")
 
     assert column.exposure == "mask"
     assert "alice@example.org" not in profile.model_dump_json()
@@ -278,7 +280,7 @@ def test_enumeration_keeps_all_values_above_general_display_limit(tmp_path):
         scan={"detectors": {"enumeration": {"minimum_values": 1}}},
     )
 
-    column = analyze_csv(source, config).datasets[0].columns[0]
+    column = analyze_csv(source, config).report.datasets[0].columns[0]
 
     assert column.semantic_type == "enumeration"
     assert column.value_profile.selection == "complete"
