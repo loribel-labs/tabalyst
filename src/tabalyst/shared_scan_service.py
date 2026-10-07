@@ -72,8 +72,9 @@ def current_scan(
             try:
                 stored = load_scan(path)
             except UnsupportedScanDocument:
-                # Written by a release with another scan format: out of date,
-                # so scanned again like any stale cache.
+                # Another scan format, or a document that no longer satisfies
+                # the model: out of date, so scanned again like any stale
+                # cache.
                 stored = None
         if stored is not None:
             result = stored

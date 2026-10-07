@@ -5,7 +5,15 @@
 """Scan contract: values, frequencies, limits and statistics (lot 2a)."""
 
 import pytest
-from scan_helpers import dataset, field, run_scan, write_json, write_text
+from scan_helpers import (
+    complete_cardinality,
+    dataset,
+    field,
+    limited_cardinality,
+    run_scan,
+    write_json,
+    write_text,
+)
 
 pytestmark = pytest.mark.lot("2a")
 
@@ -26,7 +34,7 @@ def test_frequencies_keep_native_types_apart(tmp_path):
 
     code = field(dataset(run_scan(source), "$[]"), "code")
 
-    assert code["values"]["cardinality"] == {"status": "complete", "value": 3}
+    assert code["values"]["cardinality"] == complete_cardinality(3)
     frequencies = code["values"]["frequencies"]
     assert frequencies["status"] == "complete"
     assert frequencies["value"]["distinct"] == 3
@@ -113,17 +121,14 @@ def test_distinct_limit_publishes_only_a_proven_bound(tmp_path):
         dataset(run_scan(source, limits={"max_distinct_per_field": 6}), "rows"), "v"
     )
 
-    assert limited["values"]["cardinality"] == {
-        "status": "limited",
-        "reason": "distinct_limit",
-        "limit": 5,
-        "lower_bound": 6,
-    }
+    assert limited["values"]["cardinality"] == limited_cardinality(
+        "distinct_limit", 5, 6, 6, reached=5, overflow=6
+    )
     assert limited["values"]["frequencies"]["status"] == "limited"
     assert limited["presence"]["present"] == 6
     assert limited["values"]["count"] == 6
     assert limited["string_lengths"]["status"] == "complete"
-    assert exact["values"]["cardinality"] == {"status": "complete", "value": 6}
+    assert exact["values"]["cardinality"] == complete_cardinality(6)
 
 
 def test_long_values_never_become_false_exact_identities(tmp_path):
@@ -137,14 +142,11 @@ def test_long_values_never_become_false_exact_identities(tmp_path):
     )
     exact = field(dataset(run_scan(source), "rows"), "v")
 
-    assert limited["values"]["cardinality"] == {
-        "status": "limited",
-        "reason": "value_too_long",
-        "limit": 10,
-        "lower_bound": 2,
-    }
+    assert limited["values"]["cardinality"] == limited_cardinality(
+        "value_too_long", 10, 2, 3
+    )
     assert limited["values"]["count"] == 3
-    assert exact["values"]["cardinality"] == {"status": "complete", "value": 3}
+    assert exact["values"]["cardinality"] == complete_cardinality(3)
 
 
 def test_measures_without_values_are_not_applicable(tmp_path):
@@ -171,7 +173,7 @@ def test_listings_use_analytical_values_and_cardinality_stays_raw(tmp_path):
         dataset(run_scan(source, limits={"max_listed_frequencies": 2}), "rows"), "city"
     )
 
-    assert city["values"]["cardinality"] == {"status": "complete", "value": 4}
+    assert city["values"]["cardinality"] == complete_cardinality(4)
     frequencies = city["values"]["frequencies"]["value"]
     assert frequencies["distinct"] == 3
     assert frequencies["truncated"] is True
@@ -192,7 +194,7 @@ def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
     ]
     released = field(
         dataset(
-            run_scan(source, limits={"max_samples": 3, "max_distinct_per_field": 2}),
+            run_scan(source, limits={"max_samples": 3, "max_distinct_per_field": 3}),
             "rows",
         ),
         "v",
@@ -245,10 +247,10 @@ def test_global_budget_releases_the_largest_table(tmp_path):
     # Row 3 stores the 9th value with three tables of 3: the tie releases c.
     # Row 6 stores the 9th value again: a, with 6 values, is the largest.
     a, b, c = (field(rows_result, name) for name in "abc")
-    budget = {"status": "limited", "reason": "global_budget", "limit": 8}
-    assert c["values"]["cardinality"] == dict(budget, lower_bound=3)
-    assert a["values"]["cardinality"] == dict(budget, lower_bound=6)
-    assert b["values"]["cardinality"] == {"status": "complete", "value": 3}
+    # No record is named: the limit that stopped them is not their own.
+    assert c["values"]["cardinality"] == limited_cardinality("global_budget", 8, 3, 6)
+    assert a["values"]["cardinality"] == limited_cardinality("global_budget", 8, 6, 6)
+    assert b["values"]["cardinality"] == complete_cardinality(3)
     assert c["values"]["samples"]["selection"] == "first_seen"
     assert c["string_lengths"]["value"]["count"] == 6
     codes = {item["code"]: item for item in result["diagnostics"]}
@@ -316,7 +318,7 @@ def test_numbers_beyond_exact_arithmetic_are_limited(tmp_path, value):
     v = field(dataset(run_scan(source), "$[]"), "v")
 
     assert v["numeric"] == {"status": "limited", "reason": "precision", "limit": 200}
-    assert v["values"]["cardinality"] == {"status": "complete", "value": 2}
+    assert v["values"]["cardinality"] == complete_cardinality(2)
 
 
 def test_string_characteristics_follow_their_definitions(tmp_path):
@@ -395,8 +397,5 @@ def test_global_budget_ties_follow_field_discovery(tmp_path):
 
     # c gets its first value before b, but b is discovered first. Row 3
     # stores the 4th value with two tables of 2: the tie releases c.
-    assert field(rows, "b")["values"]["cardinality"] == {
-        "status": "complete",
-        "value": 2,
-    }
+    assert field(rows, "b")["values"]["cardinality"] == complete_cardinality(2)
     assert field(rows, "c")["values"]["cardinality"]["reason"] == "global_budget"

@@ -51,8 +51,10 @@ _HASH_CHUNK = 1 << 20
 
 
 class UnsupportedScanDocument(InputError):
-    """A scan document of another format version than this Tabalyst reads. A
-    stored scan in this state is only out of date: the shared cache replaces it."""
+    """A scan document this Tabalyst cannot read: another format version, or a
+    document of the current revision that does not satisfy its model (the
+    revision in progress changes before its release). A stored scan in this
+    state is only out of date: the shared cache replaces it."""
 
 
 def read_scan_document(path: Path) -> dict:
@@ -95,8 +97,10 @@ def load_scan(path: Path) -> ScanResult:
     try:
         return ScanResult.model_validate(document)
     except ValidationError as exc:
-        raise InputError(
-            f"Invalid scan document {path}: {validation_message(exc)}"
+        raise UnsupportedScanDocument(
+            f"Invalid scan document {path}: {validation_message(exc)}. If it "
+            "was written by an earlier build of this version, run tabalyst "
+            "scan again."
         ) from exc
 
 

@@ -24,10 +24,14 @@ import heapq
 import random
 import zlib
 from collections import Counter
+from collections.abc import Sequence
 from decimal import Decimal
 from functools import reduce
 from itertools import islice
 from operator import or_
+from typing import Any
+
+from pydantic import BaseModel
 
 from tabalyst.scanner.config import ScanConfig, exact_share
 from tabalyst.scanner.detectors.registry import (
@@ -39,6 +43,8 @@ from tabalyst.scanner.exposure import SHOW, ExposureGate
 from tabalyst.scanner.measures import ValueMeasures, canonical_text
 from tabalyst.scanner.models import (
     BooleanCounts,
+    CardinalityComplete,
+    CardinalityLimited,
     Complete,
     Disabled,
     Frequencies,
@@ -59,6 +65,9 @@ from tabalyst.scanner.technical import technical_type
 # Distinct values a streamed field gathers before processing them: the batch
 # is also its memoization, so memory stays bounded.
 BATCH_SIZE = 4_096
+# Domain of the distinct counts of the table: raw values, decoded and before any
+# normalization stage (design 21).
+ORIGINAL_DOMAIN = "original"
 _TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
 _NO_VALUES = NotApplicable(reason="no_values")
 _WITHHELD = Disabled()
@@ -159,8 +168,10 @@ class ValueTracker:
         "last_record",
         "last_type",
         "last_value",
+        "overflow",
         "pending",
         "processor",
+        "reached",
         "remote",
         "scalars",
         "sequence",
@@ -182,6 +193,10 @@ class ValueTracker:
         self.true = 0
         self.false = 0
         self.sequence = sequence
+        # Records where the table reached ``max_distinct_per_field`` distinct
+        # values, and where one more was proven (design 9.1).
+        self.reached: int | None = None
+        self.overflow: int | None = None
         # Whether a value other than a string was seen.
         self.scalars = False
         # Strings of columns that are not values (``add_column``), by category.
@@ -229,8 +244,12 @@ class ValueTracker:
         budget = context.budget
         budget.tracked += 1
         if self.distinct > context.max_distinct:
-            self.release("distinct_limit", context.max_distinct, self.distinct)
+            self.release(
+                "distinct_limit", context.max_distinct, self.distinct, record
+            )
         else:
+            if self.distinct == context.max_distinct:
+                self.reached = record
             budget.enforce()
 
     def add_column(self, values, start: int, strings) -> tuple[int, int, int]:
@@ -269,7 +288,7 @@ class ValueTracker:
                         found[_CATEGORIES.index(category)] += target.pop(key)
                 fresh = content
             if table is not None and fresh:
-                self._admit(fresh)
+                self._admit(fresh, values, start)
         category = strings.category
         if self.first is None:
             for offset, value in enumerate(values):
@@ -287,18 +306,23 @@ class ValueTracker:
             self.flush()
         return found[0], found[1], found[2]
 
-    def _admit(self, fresh: list[str]) -> None:
+    def _admit(self, fresh: list[str], values: Sequence[str], start: int) -> None:
         """New distinct strings counted into the complete table, in first-seen
         order: the first one too long or beyond ``max_distinct_per_field``
-        releases the table, as if the strings had been added one by one."""
+        releases the table, as if the strings had been added one by one.
+
+        ``values`` are the strings of the records from ``start``; the record of
+        a string is only looked up when the table reaches its limit or
+        overflows, once per field."""
         context = self.context
         longest = context.max_stored_length
-        if (
-            max(map(len, fresh)) <= longest
-            and self.distinct + len(fresh) <= context.max_distinct
-        ):
+        limit = context.max_distinct
+        if max(map(len, fresh)) <= longest and self.distinct + len(fresh) <= limit:
+            before = self.distinct
             self.distinct += len(fresh)
             context.budget.tracked += len(fresh)
+            if before < limit == self.distinct:
+                self.reached = start + values.index(fresh[limit - before - 1])
             return
         for key in fresh:
             if len(key) > longest:
@@ -306,12 +330,20 @@ class ValueTracker:
                 return
             self.distinct += 1
             context.budget.tracked += 1
-            if self.distinct > context.max_distinct:
-                self.release("distinct_limit", context.max_distinct, self.distinct)
+            if self.distinct == limit:
+                self.reached = start + values.index(key)
+            elif self.distinct > limit:
+                self.release(
+                    "distinct_limit", limit, self.distinct, start + values.index(key)
+                )
                 return
 
-    def release(self, reason: str, limit: int, lower_bound: int) -> None:
+    def release(
+        self, reason: str, limit: int, lower_bound: int, record: int | None = None
+    ) -> None:
         """Process the stored values with their counts, then stream.
+
+        ``record`` is where the limit was proven, for ``distinct_limit``.
 
         The table may already hold values counted after the one that released
         it (``add_column``): processing them now, with their counts, gives the
@@ -319,6 +351,8 @@ class ValueTracker:
         """
         table = self.table
         budget = self.context.budget
+        if reason == "distinct_limit":
+            self.overflow = record
         budget.tracked -= self.distinct
         del budget.live[self.sequence]
         self.table = None
@@ -359,6 +393,38 @@ class ValueTracker:
             )
         else:
             self._local().process(keys, counts, scalars=self.scalars)
+
+    def cardinality(
+        self, block: BaseModel | dict[str, Any], value_count: int
+    ) -> BaseModel | dict[str, Any]:
+        """The cardinality block of the field, qualified: its domain (original
+        values), its identity accuracy and, once limited, the certain maximum
+        (``value_count``) and where tracking stopped (design 9.1).
+
+        ``block`` is a model, or plain data when a worker process computed it.
+        """
+        data = block if isinstance(block, dict) else block.model_dump()
+        status = data["status"]
+        if status == "complete":
+            return CardinalityComplete(
+                value=data["value"],
+                accuracy="exact",
+                domain=ORIGINAL_DOMAIN,
+                identity_accuracy="exact",
+            )
+        if status != "limited":
+            return block
+        distinct_limit = data["reason"] == "distinct_limit"
+        return CardinalityLimited(
+            reason=data["reason"],
+            limit=data["limit"],
+            lower_bound=data.get("lower_bound"),
+            domain=ORIGINAL_DOMAIN,
+            identity_accuracy="exact",
+            upper_bound=value_count,
+            threshold_reached_at_record=self.reached if distinct_limit else None,
+            overflow_detected_at_record=self.overflow if distinct_limit else None,
+        )
 
     def _ends(self) -> tuple:
         """First and last values, and native boolean counts."""

@@ -483,7 +483,20 @@ envelope. The JSON layout is summarized in section 16.
 - Values are output as `{value, type, ...}`, where `value` is always the
   canonical text of the analytical value (a JSON string) and `type` its native
   type.
-- `values.cardinality`: envelope, exact raw distinct count.
+- `values.cardinality`: envelope, exact distinct count of the original values
+  (raw, decoded, before any normalization stage: section 21). It carries
+  qualifiers (lot 1a): `complete` has `accuracy` (`exact`), `domain`
+  (`original`) and `identity_accuracy` (`exact`: values are compared whole).
+  `limited` has `domain`, `identity_accuracy`, `upper_bound` (the certain
+  maximum, `values.count`) and, for the reason `distinct_limit` only,
+  `threshold_reached_at_record` (the record of the T-th distinct value) and
+  `overflow_detected_at_record` (the record of the (T + 1)th, which proves the
+  overflow). Records are numbered like `first_record`: a record with several
+  occurrences of the field counts once, and the number does not depend on the
+  reader (batches of CSV columns or one value at a time) or on the workers. A
+  member that is unknown is absent, never `null`. `estimate` is reserved for
+  the KMV estimate (18.5). The other envelopes keep their members; a
+  `complete` envelope without `accuracy` is exact for its declared population.
 - `values.frequencies`: envelope whose value is `{distinct, listed, truncated}`.
   `distinct` counts distinct analytical values (`(type, analytical text)`),
   which may be fewer than the raw cardinality. `listed` holds the
@@ -494,7 +507,8 @@ envelope. The JSON layout is summarized in section 16.
   `distinct`. When the table is released, the envelope is `limited` without
   `lower_bound`: raw distinct values do not prove analytical ones.
 - `values.samples`: a plain object `{selection, listed}` with up to
-  `limits.max_samples` distinct analytical values, with `selection` set to
+  `limits.max_samples` (K, 10,000 by default, section 18.2) distinct analytical
+  values, with `selection` set to
   `all` (every distinct value), `uniform_distinct` (sample of the complete
   table drawn with `random.Random(random_seed)`) or `first_seen` (first
   distinct values, used when the table is released), listed as
@@ -758,7 +772,7 @@ run in this order; each can be disabled:
 | `max_tracked_values` | 2,000,000 per scan | 500,000,000 | Global budget: the largest table is released first (ties: most recently discovered field); reason `global_budget`; warning `global_budget`. |
 | `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. |
 | `max_listed_frequencies` | 100 | 100,000 | Output truncation only. |
-| `max_samples` | 100 (10,000 from lot 1a, as the size K of the bottom-k sample, section 18.2) | 10,000 (raised at lot 1a) | Output size only. |
+| `max_samples` | 10,000 (100 before lot 1a), as the size K of the sample, section 18.2 | 100,000 (10,000 before lot 1a) | Output size only. |
 | `max_variant_groups` | 100 | 100,000 | Output truncation only. |
 | `max_variants_per_group` | 20 | 10,000 | Output truncation only. |
 | `max_evidence_examples` | 10 | 1,000 | Detector evidence size only. |
@@ -767,14 +781,18 @@ run in this order; each can be disabled:
 
 - Defaults are starting values, not validated budgets. Phase 6 revisits them
   with measurements. In the Scan and JSON work, `max_distinct_per_field`
-  keeps its default and `max_samples` becomes the size K of the bottom-k sample,
-  default 10,000 (O28, section 18.2), once lot 1a implements it.
+  keeps its default and `max_samples` is the size K of the sample, default
+  10,000 since lot 1a (O28, section 18.2).
 - Degradation is one measure at a time; counters, normalization change counts,
   numeric and string statistics and detector coverage continue after a table is
   released (ET08).
 - Hard caps are the protected core configuration: a user value above a cap is
   rejected before the scan starts (CA13).
-- `max_distinct_per_field` must not exceed `max_tracked_values`.
+- `max_distinct_per_field` must not exceed `max_tracked_values`, and an
+  explicit `max_samples` must not exceed `max_distinct_per_field`. A
+  `max_samples` that is not set takes the lower of its default and
+  `max_distinct_per_field`; the document records the value in force, and so
+  does `config_sha256`.
 - Discovery order for budget ties is the order in which fields are registered
   across the datasets of the scan (declared CSV columns in header order), not
   the order of their first values.
@@ -1254,7 +1272,7 @@ settings from it (section 16.4).
       "max_fields": 10000, "max_depth": 64, "max_record_observations": 100000,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
-      "max_samples": 100, "max_variant_groups": 100,
+      "max_samples": 10000, "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
@@ -1646,6 +1664,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-01 | JI-7 | Section 16.3: with no `-o` or `-d`, the scan of a JSON, JSONL or NDJSON source goes to the shared storage like a CSV's. Sources of these formats are read with the configuration resolved by Inspect (inspect design 11). |
 | 2026-10-06 | SJ-0 | Principles 1 and 7; decisions O22 (amended) and O26 to O33; section 9.11 (rates); section 16.1 (`run`); sections 18 to 21. | Scan and JSON work, lot 0: the contract and its tests before the code. Proposed until the maintainer accepts the baselines. |
 | 2026-10-07 | SJ-0 | Section 19.4b: settings by tool, new Report setting `value_examples.kept_per_column` (default 100). | Keeps the Scan sample size K and the Report sample size apart in the configuration; keeps the examples of the Report unchanged. |
+| 2026-10-07 | SJ-1a | Sections 9.1, 11, 15, 18.2, 18.9, new 19.7: qualified `values.cardinality` (`domain`, `accuracy`, `identity_accuracy`, `upper_bound`, records of the limit), K = `max_samples` at 10,000 with cap 100,000 and the K and T rule, reserved `bottom_k` members, JSON Schema and validator; the Report works on at most 100 sample values. | Lot 1a of the Scan and JSON work. Dedicated cardinality models keep the other envelopes unchanged (maintainer decision of 2026-10-07). |
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -1669,7 +1688,7 @@ the bottom-k sample, are two settings of `scan.limits` (the base configuration,
 | Setting | Meaning | Default |
 | --- | --- | --- |
 | `max_distinct_per_field` (T) | Distinct values kept in the exact table | 100,000 (unchanged) |
-| `max_samples` (K) | Size of the bottom-k sample the Scan keeps, in its output | 10,000 from lot 1a (100 until then); its hard cap is raised accordingly |
+| `max_samples` (K) | Size of the sample the Scan keeps, in its output (the bottom-k sample from lot 2b) | 10,000 since lot 1a (100 before); hard cap 100,000 |
 
 `max_samples` is the existing parameter, evolved rather than doubled by a new
 one: it was the size of the sample in the output and it still is. K cannot
@@ -1686,6 +1705,19 @@ measure changes. The first value beyond T proves overflow
 their exact counts (all of them were tracked from their first occurrence), and
 the bottom-k continues on every later occurrence. A table that stays under T
 keeps its sample as `all`, or reduced to its K best when it holds more than K.
+
+Lot 1a delivers the setting: the default is 10,000, the cap is 100,000, an
+explicit K above T is a configuration error, and a K that is not set follows a
+lower T (a scan that lowers T alone keeps working, with K = T). Until lot 2b
+the engine still draws the sample as before (`all`, `uniform_distinct` or
+`first_seen`), with K entries instead of 100. The Report does not read K: it
+works on at most 100 values of the sample (`REPORT_SAMPLE_SIZE`, 19.4b), the
+whole sample when it has no more, a seeded draw otherwise, or its first values
+when the sample is `first_seen`. Its examples are those of K = 100 except for
+sensitive fields of a released table (the masks of the first K values merge
+after the draw) and for fields of 10,000 to 100,000 distinct values (a draw of
+a draw). Reading the whole sample made the Report quadratic: 0.6 s for 3,000
+rows at K = 100, 25 s at K = 1,000.
 
 The first version of this decision (O28, 2026-10-06) set T = K = 10,000. The
 baseline of lot 0 showed that it saves memory (715 to 536 MB on the reference
@@ -1786,7 +1818,13 @@ first pass of the realistic dataset regresses by more than 20% against the
 lot 0 baseline on the same machine, or the worst-width dataset (30 columns
 including 5 unique identifiers) by more than 35%.
 
-### 18.9 Output (provisional, settled at lots 1a and 2b)
+### 18.9 Output (cardinality settled at lot 1a, samples at lot 2b)
+
+`values.cardinality` is described in 9.1. `values.samples` has the reserved
+selection `bottom_k` and the optional members `k`, `hash` (`algorithm`,
+`version`, `bits`, `seed`) and `threshold`, absent until lot 2b. The strata of
+lengths (18.7) have no member yet; their name and layout are settled at lot 3a.
+The rest of this section is provisional:
 
 `values.samples` of an overflowed field has `selection: "bottom_k"`; `listed`
 holds the whole sample (K entries, K being `limits.max_samples`, ascending
@@ -1875,6 +1913,27 @@ release 0.6.2, which published revision 1). The work changes it in place; each
 lot updates `docs/en/scan/format-changelog.md` and the Report changelog; the
 revision increases once, when the release is made. No adapter reads older
 documents.
+
+### 19.7 Schema and validation of the base (lot 1a)
+
+The JSON Schema of the base document is generated from the result models
+(`tabalyst.scanner.schema.scan_schema()`) and committed as
+`src/tabalyst/schemas/tabalyst.scan.schema.json`; a test fails when the file is
+out of date (`python scripts/scan_schema.py` rewrites it). It describes what a
+reader accepts (validation mode: models that omit unknown members cannot be
+described in serialization mode), requires the constants of the format, pins
+the revision and declares the namespaces `derived`, `observations`, `analyses`
+and `report` of the extensions with an open schema, so that `additionalProperties:
+false` does not stop a reader of the base from recognizing a Report; the schema
+of the Report (lot 1b) validates their content.
+
+`tabalyst.scanner.validation.check_scan(result)` returns the violated
+invariants between fields, which a schema cannot express: presence and native
+types adding up, string categories, `values.count`, missing components, bounds
+and records of the cardinality, listings against `values.count` and
+`max_samples`, histogram and numeric sums, detector coverage, scope and source
+shape against the datasets, and `config_sha256` against `config`. A scan the
+engine produced has none.
 
 ## 20. Second pass and the rule of costly operations (O31)
 

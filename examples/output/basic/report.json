@@ -1,8 +1,8 @@
 {
   "format_version": "0.2.0",
   "format_revision": 1,
-  "generated_at": "2026-10-06T13:12:43.704262Z",
-  "processing_seconds": 0.0217,
+  "generated_at": "2026-10-07T05:08:20.809665Z",
+  "processing_seconds": 0.0244,
   "source": {
     "filename": "basic.csv",
     "format": "csv",

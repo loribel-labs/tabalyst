@@ -90,8 +90,12 @@ per length in its String analysis tooltip.
 - `full_distribution_max_distinct`: through this limit, every present distinct
   value and its occurrence count are retained in JSON. At `50`, the
   distribution is still complete; at `51`, Tabalyst selects values among a
-  reproducible sample of the distinct values, whose size is
-  `scan.limits.max_samples` and whose seed is `scan.random_seed`.
+  reproducible sample of at most 100 distinct values: the scan sample
+  (`scan.limits.max_samples`, drawn with `scan.random_seed`) when it has no
+  more than 100, otherwise 100 of its values chosen with the same seed, or its
+  first 100 when the scan sample is the first distinct values seen. A larger
+  `scan.limits.max_samples` therefore does not change the examples of the
+  report.
 - `short_text_max_length` and `short_text_percentile`: a column is considered
   short text when this percentile of its sampled lengths does not exceed the
   configured length.
@@ -223,7 +227,7 @@ object of each configuration file. The complete object with its defaults is:
       "max_line_bytes": 16777216,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
-      "max_samples": 100, "max_variant_groups": 100,
+      "max_samples": 10000, "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
@@ -356,15 +360,28 @@ rejected before the scan starts.
 | `max_tracked_values` | 2,000,000 | 500,000,000 | Distinct values stored for the whole scan; the largest field is released first. |
 | `max_stored_value_length` | 1,000 | 1,000,000 | Longer values are counted, not stored. |
 | `max_listed_frequencies` | 100 | 100,000 | Most frequent values listed per field. |
-| `max_samples` | 100 | 10,000 | Sample values listed per field. |
+| `max_samples` | 10,000 | 100,000 | Size of the sample of distinct values the scan keeps per field, with their exact counts. |
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
 | `max_variants_per_group` | 20 | 10,000 | Variants listed per group. |
 | `max_evidence_examples` | 10 | 1,000 | Example values per detector state. |
 | `max_tracked_records` | 2,000,000 | 500,000,000 | Distinct records stored for the whole scan to find duplicates, about 80 bytes each; later records are still compared with the stored ones, so duplicate counts become lower bounds. |
 | `max_listed_records` | 10 | 10,000 | Record numbers listed per records block. |
 
-`max_distinct_per_field` cannot exceed `max_tracked_values`. Counters,
-statistics and detector coverage stay exact after a limit is reached.
+`max_distinct_per_field` cannot exceed `max_tracked_values`, and
+`max_samples` cannot exceed `max_distinct_per_field`: a sample is drawn from the
+distinct values that were tracked. When `max_samples` is not set, it is
+10,000 or `max_distinct_per_field` when that is lower; the scan document
+records the value in force. Counters, statistics and detector coverage stay
+exact after a limit is reached.
+
+The two settings have different jobs, and they are not the settings of the
+report:
+
+| Setting | Tool | Meaning |
+| --- | --- | --- |
+| `scan.limits.max_distinct_per_field` | Scan, and Report through the scan it runs | Distinct values counted exactly; beyond it the cardinality is `limited` |
+| `scan.limits.max_samples` | Scan | Size of the sample of distinct values kept in the scan document |
+| `value_examples.*` | Report | What the report shows and how it picks examples from the scan sample (at most 100 values) |
 
 ### Records
 
