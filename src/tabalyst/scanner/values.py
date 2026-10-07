@@ -853,9 +853,9 @@ class ValueProcessor:
             # Raw distinct values do not prove normalized ones: no bound.
             unproven = Limited(reason=limited.reason, limit=limited.limit)
             frequencies = unproven
-            samples = Samples(
-                selection="first_seen",
-                listed=_listing(gate.typed_counts(self.samples.items()).items()),
+            samples = _sample(
+                "first_seen",
+                _listing(gate.typed_counts(self.samples.items()).items()),
             )
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             variant_groups = unproven if measures.lengths else _NO_VALUES
@@ -1038,6 +1038,13 @@ def _listing(items) -> list[ValueCount]:
     ]
 
 
+def _sample(selection: str, listed: list[ValueCount]) -> Samples:
+    """A scan sample: it lists everything it sampled (``kept == of``)."""
+    return Samples(
+        selection=selection, kept=len(listed), of=len(listed), listed=listed
+    )
+
+
 def _samples(
     analytical: dict[tuple[str, str], int],
     exposed: dict[tuple[str, str], int],
@@ -1048,14 +1055,12 @@ def _samples(
     order. Hidden values keep the selection of the analytical values."""
     if analytical and not exposed:
         selection = "all" if len(analytical) <= size else "uniform_distinct"
-        return Samples(selection=selection, listed=[])
+        return _sample(selection, [])
     items = list(exposed.items())
     if len(items) <= size:
-        return Samples(selection="all", listed=_listing(items))
+        return _sample("all", _listing(items))
     chosen = sorted(random.Random(seed).sample(range(len(items)), size))
-    return Samples(
-        selection="uniform_distinct", listed=_listing(items[i] for i in chosen)
-    )
+    return _sample("uniform_distinct", _listing(items[i] for i in chosen))
 
 
 def no_values(context: ValueContext) -> dict:
@@ -1065,7 +1070,7 @@ def no_values(context: ValueContext) -> dict:
     return {
         "cardinality": _NO_VALUES,
         "frequencies": _NO_VALUES,
-        "samples": Samples(selection="all", listed=[]),
+        "samples": _sample("all", []),
         "first": None,
         "last": None,
         "string_characteristics": ValueMeasures().string_characteristics(),

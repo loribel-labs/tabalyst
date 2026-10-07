@@ -57,29 +57,44 @@ class UnsupportedScanDocument(InputError):
     state is only out of date: the shared cache replaces it."""
 
 
-def read_scan_document(path: Path) -> dict:
-    """The JSON object of a scan document, with its format checked."""
+def read_json_document(path: Path) -> object:
+    """The parsed JSON of a Tabalyst document file."""
     try:
-        document = json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except OSError as exc:
-        raise InputError(f"Cannot read scan document {path}: {exc}") from exc
+        raise InputError(f"Cannot read document {path}: {exc}") from exc
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise InputError(
-            f"Not a scan document: {path} is not valid UTF-8 JSON ({exc})."
+            f"Not a Tabalyst document: {path} is not valid UTF-8 JSON ({exc})."
         ) from exc
+
+
+def check_scan_document(document: object, where: Path | str) -> dict:
+    """``document`` as a scan document of the current format, or an error."""
+    if isinstance(document, dict) and document.get("format") == "tabalyst.report":
+        raise InputError(
+            f"{where} is a Report, not a scan document: a Report keeps fewer "
+            "sample values than its Scan and cannot be reported again. Use the "
+            "scan document (tabalyst scan), or run tabalyst report on the source."
+        )
     if not isinstance(document, dict) or document.get("format") != FORMAT:
         raise InputError(
-            f"Not a scan document: {path}. Write one with tabalyst scan."
+            f"Not a scan document: {where}. Write one with tabalyst scan."
         )
     version = (document.get("format_version"), document.get("format_revision"))
     if version != (FORMAT_VERSION, FORMAT_REVISION):
         raise UnsupportedScanDocument(
-            f"Unsupported scan document {path}: format {version[0]} revision "
+            f"Unsupported scan document {where}: format {version[0]} revision "
             f"{version[1]}; this version of Tabalyst reads format "
             f"{FORMAT_VERSION} revision {FORMAT_REVISION}. Run tabalyst scan "
             "again."
         )
     return document
+
+
+def read_scan_document(path: Path) -> dict:
+    """The JSON object of a scan document, with its format checked."""
+    return check_scan_document(read_json_document(path), path)
 
 
 def source_name(document: dict) -> str:
@@ -91,17 +106,21 @@ def source_name(document: dict) -> str:
     return name
 
 
-def load_scan(path: Path) -> ScanResult:
-    """The scan result of a scan document."""
-    document = read_scan_document(path)
+def scan_from_document(document: dict, where: Path | str) -> ScanResult:
+    """The scan result of the JSON object of a scan document."""
     try:
         return ScanResult.model_validate(document)
     except ValidationError as exc:
         raise UnsupportedScanDocument(
-            f"Invalid scan document {path}: {validation_message(exc)}. If it "
+            f"Invalid scan document {where}: {validation_message(exc)}. If it "
             "was written by an earlier build of this version, run tabalyst "
             "scan again."
         ) from exc
+
+
+def load_scan(path: Path) -> ScanResult:
+    """The scan result of a scan document."""
+    return scan_from_document(read_scan_document(path), path)
 
 
 def source_path(scan_path: Path, result: ScanResult) -> Path:

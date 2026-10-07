@@ -196,7 +196,7 @@ def test_report_with_no_file_inspects_automatically_and_continues(tmp_path, stor
     result, out = _report(tmp_path, source)
 
     assert result.exit_code == 0, result.output
-    assert [item["id"] for item in _profile(out, source)["datasets"]] == ["$.results[]"]
+    assert [item["id"] for item in _profile(out, source)["report"]["datasets"]] == ["$.results[]"]
     assert storage.shared_inspect_path(source).is_file()
     assert not _visible(source).exists()
 
@@ -213,7 +213,7 @@ def test_scan_and_report_apply_the_same_interpretation(tmp_path, storage):
     assert [item["id"] for item in _scan_document(storage, source)["datasets"]] == [
         "$.customers[]"
     ]
-    assert [item["id"] for item in _profile(out, source)["datasets"]] == ["$.customers[]"]
+    assert [item["id"] for item in _profile(out, source)["report"]["datasets"]] == ["$.customers[]"]
 
 
 def test_a_dominant_collection_needs_no_choice(tmp_path):
@@ -223,7 +223,7 @@ def test_a_dominant_collection_needs_no_choice(tmp_path):
     result, out = _report(tmp_path, source)
 
     assert result.exit_code == 0, result.output
-    assert [item["id"] for item in _profile(out, source)["datasets"]] == ["$.results[]"]
+    assert [item["id"] for item in _profile(out, source)["report"]["datasets"]] == ["$.results[]"]
 
 
 # Ambiguity (CA-09, CA-10, EF-16, EF-17) --------------------------------------------
@@ -254,7 +254,7 @@ def test_the_user_resolves_the_ambiguity_in_the_file(tmp_path, storage):
     result, out = _report(tmp_path, source)
 
     assert result.exit_code == 0, result.output
-    assert [item["id"] for item in _profile(out, source)["datasets"]] == ["$.b[]"]
+    assert [item["id"] for item in _profile(out, source)["report"]["datasets"]] == ["$.b[]"]
 
 
 def test_the_command_line_resolves_the_ambiguity(tmp_path, storage):
@@ -294,7 +294,7 @@ def test_a_depth_limit_set_in_the_file_reaches_the_report(tmp_path):
     result, out = _report(tmp_path, source)
 
     assert result.exit_code == 0, result.output
-    names = [item["name"] for item in _profile(out, source)["datasets"][0]["columns"]]
+    names = [item["name"] for item in _profile(out, source)["report"]["datasets"][0]["columns"]]
     assert "address" in names
     assert "address.city" not in names
 
@@ -316,8 +316,8 @@ def test_a_root_array_runs_the_whole_cycle_with_the_visible_choices(tmp_path):
 
     assert result.exit_code == 0, result.output
     profile = _profile(out, source)
-    assert len(profile["datasets"]) == 1
-    names = [item["name"] for item in profile["datasets"][0]["columns"]]
+    assert len(profile["report"]["datasets"]) == 1
+    names = [item["name"] for item in profile["report"]["datasets"][0]["columns"]]
     assert "address" in names
     assert "address.city" not in names
 

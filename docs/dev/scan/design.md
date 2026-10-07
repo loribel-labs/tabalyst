@@ -506,7 +506,8 @@ envelope. The JSON layout is summarized in section 16.
   not a limitation of the measure: `truncated` says the listing is shorter than
   `distinct`. When the table is released, the envelope is `limited` without
   `lower_bound`: raw distinct values do not prove analytical ones.
-- `values.samples`: a plain object `{selection, listed}` with up to
+- `values.samples`: a plain object `{selection, kept, of, listed}` (`kept`
+  listed values out of the `of` the scan sampled, section 19.4) with up to
   `limits.max_samples` (K, 10,000 by default, section 18.2) distinct analytical
   values, with `selection` set to
   `all` (every distinct value), `uniform_distinct` (sample of the complete
@@ -1665,6 +1666,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-06 | SJ-0 | Principles 1 and 7; decisions O22 (amended) and O26 to O33; section 9.11 (rates); section 16.1 (`run`); sections 18 to 21. | Scan and JSON work, lot 0: the contract and its tests before the code. Proposed until the maintainer accepts the baselines. |
 | 2026-10-07 | SJ-0 | Section 19.4b: settings by tool, new Report setting `value_examples.kept_per_column` (default 100). | Keeps the Scan sample size K and the Report sample size apart in the configuration; keeps the examples of the Report unchanged. |
 | 2026-10-07 | SJ-1a | Sections 9.1, 11, 15, 18.2, 18.9, new 19.7: qualified `values.cardinality` (`domain`, `accuracy`, `identity_accuracy`, `upper_bound`, records of the limit), K = `max_samples` at 10,000 with cap 100,000 and the K and T rule, reserved `bottom_k` members, JSON Schema and validator; the Report works on at most 100 sample values. | Lot 1a of the Scan and JSON work. Dedicated cardinality models keep the other envelopes unchanged (maintainer decision of 2026-10-07). |
+| 2026-10-07 | SJ-1b | Sections 9.1, 19.1 to 19.7: `values.samples` has `kept` and `of`; the Report is a `tabalyst.report` document (revision 2) with the base at its paths, the `report` block (`generated_at`, `generator`, `processing_seconds`, `config`, `base_scan`, `datasets`), reduced samples declared, the loader `load_document` and `load_base`, `facts_sha256`, the Report JSON Schema. | Scan and JSON work, lot 1b: Report as a superset of the Scan and the common loader. |
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -1842,36 +1844,62 @@ threshold of a sensitive field are not exposed. `values.cardinality` gains
 `tabalyst.scan` is the base document. `tabalyst.report` is a superset: the
 base at the same paths (`engine`, `status`, `run`, `source`, `config`,
 `config_sha256`, `scope`, `datasets`, `diagnostics`), plus a `report` block
-and, later, `analyses` (second-pass results). The current Report profile has
-no `format` field; the new one identifies itself with
-`format: "tabalyst.report"` and has its own `format_revision`, with a
-reference to the revision of its base.
+and, later, `analyses` (second-pass results). The Report profile of
+revision 1 had no `format` field; the document of revision 2 identifies itself
+with `format: "tabalyst.report"` and has its own `format_revision` (2), with a
+reference to the revision of its base in `report.base_scan` (19.5). The root
+holds the base at its own paths, so `format` and `format_revision` are the only
+members of the root whose value is the Report's and not the base's.
 
 ### 19.2 Common loader
 
-`tabalyst.scan_document.load_base(path_or_document) -> ScanResult` reads the
-base from a Scan or a Report and ignores `report` and `analyses`. It checks
-`format_version` and the base revision like `scan_reuse` (a document of
-another revision is refused, never converted) and exposes the capabilities of
-the document (19.4). Extracting the base of a Report gives the same model and
-the same facts as the Scan it was built from, without rounding, filtering or
-renaming (A02, A11).
+`tabalyst.scan_document.load_document(path_or_dict) -> LoadedDocument` reads a
+Scan or a Report (lot 1b) and returns its `kind`, the `base` (a `ScanResult`),
+the `report` block of a Report and the `capabilities` (`complete_samples`);
+`load_base()` returns the base alone. The `report` block and the namespaces
+`derived`, `observations` and `analyses` are not part of the base. The
+loader checks `format_version` and the revision like `scan_reuse` (a document
+of another revision is refused with a request to run again, never converted;
+for a Report, its own revision and that of its `base_scan`), and that the base
+matches the identity the Report declares (`source_sha256`, `config_sha256`,
+`facts_sha256`). `require_complete_samples(purpose)` is what a planner calls:
+it refuses a document whose samples are not complete (19.4). Extracting the base
+of a Report gives the same model and the same facts as the Scan it was built
+from, without rounding, filtering or renaming, except the reduced samples
+(A02, A11). A Report is not an input of `tabalyst report --scan`: that command
+reads scan documents only and says so.
 
 ### 19.3 The `report` block
 
-It holds the generation date, the generator version, the presentation
-configuration (`report.config`; `config` stays the Scan configuration) and the
-projections by dataset and field identifier. No statistic is stored twice:
-the copies `scan_details`, `numeric`, `string_profile` and `date_profile` of
-the current columns disappear, and the pages read the base (A04).
+It holds the generation date (`generated_at`), the generator (`name`,
+`version`), `processing_seconds`, the presentation configuration (`report.config`:
+`string_analysis` and `value_examples`; `config` stays the Scan configuration),
+`base_scan` (19.5) and the projections `report.datasets`, one per dataset
+shown, identified by the dataset `id`, with columns identified by the field `id`.
+No statistic is stored twice: the copies `scan_details`, `numeric`,
+`string_profile` and `date_profile` of the columns are removed and the pages
+read the base (A04). Until lot 1c the pages still read them through views
+(`reporting.ColumnView`) that `reporting.py` computes from the base when it
+renders; the other projections (`summary`, `issues`, `preview`, `limits`,
+`structure`, the normalization and detector blocks of a column) are unchanged.
+The Python model is `ReportProfile` (the document): `profile.datasets` are the
+scan datasets and `profile.report.datasets` the projections.
 
 ### 19.4 Reduced samples (O27)
 
 A Report keeps fewer sample values than its base: by default the 100 smallest
 priorities of each field (`value_examples.kept_per_column`, 19.4b), an exact and deterministic subset of the Scan's, with
-the same exact counters. It declares `kept` and `of`. The capabilities of the
-loader say whether the samples are complete; a planner refuses a document
-whose samples are not, so a Report is never an input to replan. The
+the same exact counters. It declares `kept` and `of` in each `values.samples` (a Scan has them equal:
+`of` is the size of the sample the Scan listed, `kept` the number listed here,
+`selection` still the Scan's). Lot 1b keeps what the Report already used
+(`report_sample`: up to `REPORT_SAMPLE_SIZE` = 100 values, the first ones of a
+`first_seen` or `bottom_k` sample, a seeded draw otherwise), which becomes the
+setting of 19.4b at lot 1c. The capabilities of the loader say whether the
+samples are complete (`kept == of` everywhere); a planner refuses a document
+whose samples are not, so a Report is never an input to replan. The invariants
+of `check_scan` apply to a reduced base: `kept` is the length of the listing and
+at most `of`, `of` at most `max_samples`, and the sum of the counts of an `all`
+sample equals `values.count` only when nothing was dropped. The
 computation (planner, second pass, patterns) reads the Scan, in memory or from
 the cache. A Report can be sent alone and rendered without the source (A10).
 
@@ -1900,16 +1928,20 @@ when lot 1a changes `max_samples` and lot 1c changes the Report.
 
 ### 19.5 Identity of the base
 
-`base_scan` identifies the base a document stands on: the existing scan
-identity (source SHA-256, configuration hash, engine version, format version
-and revision) and a hash of the facts without `run` and without the contents
-of the samples, so a change of presentation or of sample size does not change
-it. Provisional until lot 1b.
+`report.base_scan` identifies the base a Report stands on: `format`,
+`format_version` and `format_revision` of the Scan base, `engine_version`,
+`source_sha256`, `config_sha256` (the existing scan identity) and
+`facts_sha256`, the SHA-256 of the canonical JSON of the base without `run` and
+without `listed` and `kept` of each sample, so a change of presentation or of
+sample size does not change it. A Report and the Scan it comes from have the
+same `facts_sha256` (`scan_document.facts_sha256`). The Scan2 document (lot 7a)
+will carry the same block at its root.
 
 ### 19.6 Format revisions (O30)
 
-The revision in progress is not published (the Scan is at revision 2 since
-release 0.6.2, which published revision 1). The work changes it in place; each
+The revision in progress is not published (release 0.6.2 published revision 1
+of the Scan and of the Report; the Scan is at revision 2 and the Report at
+revision 2 since lot 1b, which changed the structure of the Report). The work changes it in place; each
 lot updates `docs/en/scan/format-changelog.md` and the Report changelog; the
 revision increases once, when the release is made. No adapter reads older
 documents.
@@ -1925,7 +1957,13 @@ described in serialization mode), requires the constants of the format, pins
 the revision and declares the namespaces `derived`, `observations`, `analyses`
 and `report` of the extensions with an open schema, so that `additionalProperties:
 false` does not stop a reader of the base from recognizing a Report; the schema
-of the Report (lot 1b) validates their content.
+of the Report validates their content. Lot 1b adds it:
+`tabalyst.report_schema.report_schema()`, committed as
+`src/tabalyst/schemas/tabalyst.report.schema.json` and guarded like the other
+(`python scripts/scan_schema.py` writes both). It requires the `report` block
+and keeps `derived`, `observations` and `analyses` open. The base of a Report,
+with the `format` and `format_revision` of its `base_scan`, satisfies the Scan
+schema; the Report schema fixes the Report's own `format_revision` (2).
 
 `tabalyst.scanner.validation.check_scan(result)` returns the violated
 invariants between fields, which a schema cannot express: presence and native

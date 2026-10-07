@@ -296,7 +296,7 @@ def test_report_reads_a_simple_workbook_without_any_inspect(tmp_path):
     assert result.exit_code == 0, result.output
     profile = json.loads((tmp_path / "simple.report.json").read_text(encoding="utf-8"))
     assert profile["source"]["format"] == "excel"
-    dataset = profile["datasets"][0]
+    dataset = profile["report"]["datasets"][0]
     assert (dataset["summary"]["row_count"], dataset["summary"]["column_count"]) == (
         6,
         5,

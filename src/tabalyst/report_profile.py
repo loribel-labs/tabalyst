@@ -20,14 +20,18 @@ import math
 import random
 import re
 from collections import Counter
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from itertools import combinations, islice
 
 from pydantic import BaseModel
 
+from tabalyst._version import __version__
+from tabalyst.config import PresentationSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.models import (
     ArrayProfile,
+    BaseScan,
     ColumnProfile,
     DatasetDateColumnSummary,
     DatasetDateSummary,
@@ -48,9 +52,10 @@ from tabalyst.models import (
     NormalizationStats,
     NumericStats,
     PreviewRow,
+    ReportBlock,
+    ReportGenerator,
     ReportProfile,
     ScanFieldDetails,
-    SourceInfo,
     StringLengthDistribution,
     StringLengthExample,
     StringProfile,
@@ -61,6 +66,7 @@ from tabalyst.models import (
     VariantGroup,
 )
 from tabalyst.report_config import ReportConfig
+from tabalyst.scan_document import facts_sha256
 from tabalyst.scanner.engine import has_limited_measure
 from tabalyst.scanner.models import (
     Complete,
@@ -298,15 +304,16 @@ REPORT_SAMPLE_SIZE = 100
 
 
 def report_sample(field: FieldResult, seed: int) -> list[ValueCount]:
-    """The values of the scan sample of ``field`` that the report uses: all of
-    them up to ``REPORT_SAMPLE_SIZE``, otherwise the first ones of a ``first_seen``
-    sample or a seeded draw, so a scan of any sample size gives the same
-    examples."""
+    """The values of the scan sample of ``field`` that the report uses and
+    keeps in its base: all of them up to ``REPORT_SAMPLE_SIZE``, otherwise the
+    first ones of a ``first_seen`` or ``bottom_k`` sample (the smallest
+    priorities, design 19.4) or a seeded draw, so a scan of any sample size
+    gives the same examples."""
     samples = field.values.samples
     listed = samples.listed
     if len(listed) <= REPORT_SAMPLE_SIZE:
         return listed
-    if samples.selection == "first_seen":
+    if samples.selection in ("first_seen", "bottom_k"):
         return listed[:REPORT_SAMPLE_SIZE]
     chosen = sorted(random.Random(seed).sample(range(len(listed)), REPORT_SAMPLE_SIZE))
     return [listed[position] for position in chosen]
@@ -619,9 +626,32 @@ def value_slots(field: FieldResult) -> int:
     return field.occurrences + (field.presence.absent or 0)
 
 
+@dataclass(frozen=True)
+class ColumnViews:
+    """What the report computes from the facts of a field and does not store:
+    the document keeps the facts, these are read from the base (design 19.3)."""
+
+    numeric: NumericStats | None
+    date_profile: DateProfile | None
+    string_profile: StringProfile | None
+
+
+def build_views(
+    field: FieldResult,
+    inferred_type: str,
+    config: ReportConfig,
+    sample: list[ValueCount] | None = None,
+) -> ColumnViews:
+    return ColumnViews(
+        numeric=build_numeric(field, inferred_type),
+        date_profile=build_date_profile(field),
+        string_profile=build_string_profile(field, inferred_type, config, sample),
+    )
+
+
 def build_column(
     field: FieldResult, *, position: int, name: str, config: ReportConfig
-) -> ColumnProfile:
+) -> tuple[ColumnProfile, ColumnViews]:
     row_count = value_slots(field)
     technical = field.technical_type
     inferred = technical.type
@@ -633,14 +663,15 @@ def build_column(
         # Containers kept whole at the flatten limit: no scalar family.
         inferred = "complex"
         type_counts = complex_counts
-    date_profile = build_date_profile(field)
     sample = report_sample(field, config.scan.random_seed)
+    views = build_views(field, inferred, config, sample)
+    date_profile = views.date_profile
     value_profile = build_value_profile(
         field, inferred_type=inferred, position=position, config=config, sample=sample
     )
     missing = field.missing.count
     outside = technical.outside_count
-    return ColumnProfile(
+    column = ColumnProfile(
         id=field.id,
         name=name,
         path=field.display,
@@ -668,34 +699,32 @@ def build_column(
         value_profile=value_profile,
         semantic_type=semantic_type(field),
         exposure=field.exposure,
-        date_profile=date_profile,
-        string_profile=build_string_profile(field, inferred, config, sample),
-        numeric=build_numeric(field, inferred),
         detectors=build_detectors(field),
-        scan_details=ScanFieldDetails(
-            first_record=field.first_record,
-            occurrences=field.occurrences,
-            value_count=field.values.count,
-            presence=field.presence,
-            native_types=dict(field.native_types),
-            strings=field.strings,
-            missing=field.missing,
-            first=field.values.first,
-            last=field.values.last,
-            string_characteristics=field.string_characteristics,
-            string_lengths=(
-                field.string_lengths.value
-                if isinstance(field.string_lengths, Complete)
-                else None
-            ),
-            numeric=field.numeric.value if isinstance(field.numeric, Complete) else None,
-            booleans=(
-                field.booleans.value if isinstance(field.booleans, Complete) else None
-            ),
-            temporal=(
-                field.temporal.value if isinstance(field.temporal, Complete) else None
-            ),
+    )
+    return column, views
+
+
+def build_scan_details(field: FieldResult) -> ScanFieldDetails:
+    """The facts of a field that the column pages show, read from the base."""
+    return ScanFieldDetails(
+        first_record=field.first_record,
+        occurrences=field.occurrences,
+        value_count=field.values.count,
+        presence=field.presence,
+        native_types=dict(field.native_types),
+        strings=field.strings,
+        missing=field.missing,
+        first=field.values.first,
+        last=field.values.last,
+        string_characteristics=field.string_characteristics,
+        string_lengths=(
+            field.string_lengths.value
+            if isinstance(field.string_lengths, Complete)
+            else None
         ),
+        numeric=field.numeric.value if isinstance(field.numeric, Complete) else None,
+        booleans=field.booleans.value if isinstance(field.booleans, Complete) else None,
+        temporal=field.temporal.value if isinstance(field.temporal, Complete) else None,
     )
 
 
@@ -908,23 +937,56 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
                     config,
                 )
             )
-    source = result.source
+    base = report_base(result)
     return ReportProfile(
-        generated_at=datetime.now(UTC),
-        processing_seconds=result.run.duration_seconds,
-        source=SourceInfo(
-            filename=source.name,
-            format=source.format,
-            size_bytes=source.size_bytes,
-            sha256=source.sha256,
-            encoding=source.encoding,
-            delimiter=(
-                result.source.csv.delimiter if result.source.csv is not None else None
+        engine=base.engine,
+        status=base.status,
+        run=base.run,
+        source=base.source,
+        config=base.config,
+        config_sha256=base.config_sha256,
+        scope=base.scope,
+        datasets=base.datasets,
+        diagnostics=base.diagnostics,
+        report=ReportBlock(
+            generated_at=datetime.now(UTC),
+            generator=ReportGenerator(version=__version__),
+            processing_seconds=result.run.duration_seconds,
+            config=PresentationSettings.model_validate(
+                config.model_dump(exclude={"scan"})
             ),
+            base_scan=BaseScan(
+                format=base.format,
+                format_version=base.format_version,
+                format_revision=base.format_revision,
+                engine_version=base.engine.version,
+                source_sha256=base.source.sha256,
+                config_sha256=base.config_sha256,
+                facts_sha256=facts_sha256(result),
+            ),
+            datasets=datasets,
         ),
-        config=config,
-        datasets=datasets,
     )
+
+
+def report_base(result: ScanResult) -> ScanResult:
+    """The base a Report holds: the scan, with the sample of each field reduced
+    to what the report uses (``report_sample``), its size declared by ``kept``
+    and ``of`` (design 19.4). Everything else is the scan's, unchanged."""
+    seed = result.config.random_seed
+    datasets = []
+    for dataset in result.datasets:
+        fields = []
+        for field in dataset.fields:
+            samples = field.values.samples
+            kept = report_sample(field, seed)
+            if len(kept) < len(samples.listed):
+                reduced = samples.model_copy(update={"kept": len(kept), "listed": kept})
+                values = field.values.model_copy(update={"samples": reduced})
+                field = field.model_copy(update={"values": values})
+            fields.append(field)
+        datasets.append(dataset.model_copy(update={"fields": fields}))
+    return result.model_copy(update={"datasets": datasets})
 
 
 def build_dataset(
@@ -935,7 +997,7 @@ def build_dataset(
 ) -> DatasetProfile:
     tabular = result.source.header is not None
     row_count = dataset.record_count
-    columns = [
+    built = [
         build_column(
             field,
             position=field.path[0].column if tabular else position,
@@ -944,6 +1006,8 @@ def build_dataset(
         )
         for position, field in enumerate(fields, start=1)
     ]
+    columns = [column for column, _ in built]
+    views = [view for _, view in built]
     cell_count = sum(value_slots(field) for field in fields)
     missing_count = sum(column.missing_count for column in columns)
     trim_count = sum(column.normalization.trim_count for column in columns)
@@ -953,12 +1017,17 @@ def build_dataset(
     empty = [column.id for column in columns if column.inferred_type == "empty"]
     constant = [column.id for column in columns if column.distinct_count == 1]
     mixed = [column.id for column in columns if column.inferred_type == "mixed"]
-    numeric_columns = [column for column in columns if column.numeric is not None]
-    date_columns = [column for column in columns if column.date_profile is not None]
-    string_columns = [column for column in columns if column.string_profile is not None]
-    date_profiles = [column.date_profile for column in date_columns]
+    numeric_columns = [view for view in views if view.numeric is not None]
+    date_pairs = [
+        (column, view.date_profile)
+        for column, view in zip(columns, views, strict=True)
+        if view.date_profile is not None
+    ]
+    date_columns = [column for column, _ in date_pairs]
+    string_columns = [view for view in views if view.string_profile is not None]
+    date_profiles = [profile for _, profile in date_pairs]
     ambiguous_columns = [
-        column for column in date_columns if column.date_profile.ambiguous_count
+        column for column, profile in date_pairs if profile.ambiguous_count
     ]
     inferred_type_counts = Counter(column.inferred_type for column in columns)
     semantic_type_counts = Counter(column.semantic_type or "none" for column in columns)
@@ -1144,13 +1213,14 @@ def build_dataset(
                         column_id=column.id,
                         name=column.name,
                         position=column.position,
-                        ambiguous_count=column.date_profile.ambiguous_count,
+                        ambiguous_count=profile.ambiguous_count,
                         relative_ambiguous_percent=percent(
-                            column.date_profile.ambiguous_count,
+                            profile.ambiguous_count,
                             maximum_column_ambiguous_count,
                         ),
                     )
-                    for column in ambiguous_columns
+                    for column, profile in date_pairs
+                    if profile.ambiguous_count
                 ],
             )
             if date_columns

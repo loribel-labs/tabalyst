@@ -1,6 +1,6 @@
 ---
 title: JSON profile
-description: Structure of the JSON profile written by tabalyst report, with its top-level fields, column profiles, issue codes and format versioning.
+description: Structure of the JSON profile written by tabalyst report, a Scan document with a report block, with its fields, column projections, issue codes and format versioning.
 ---
 
 Each `tabalyst report` run writes a JSON profile next to the HTML report, with
@@ -10,9 +10,16 @@ never replaces the source. The profile holds the
 complete analysis result; the HTML report is rendered from it. Use it to read
 Tabalyst results from scripts or other tools.
 
+The profile is a [scan document](../scan/format.md) with an added `report`
+block. Everything the scan measured stays where the scan puts it, at the same
+paths (`datasets[].fields[]`, `source`, `config`, `scope`, `diagnostics`), and
+the `report` block adds what the report presents: its settings, the summary
+of each dataset and the projections of its columns. A tool that reads scan
+documents reads the profile too: see [Reading the base](#reading-the-base).
+
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.2.0`, revision `1`.
+format `0.2.0`, revision `2`.
 
 ## Example
 
@@ -20,89 +27,103 @@ A shortened profile for a five-row `orders.csv`:
 
 ```json
 {
+  "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 1,
-  "generated_at": "2026-10-06T12:00:00Z",
-  "processing_seconds": 0.0098,
+  "format_revision": 2,
+  "engine": { "...": "versions of the engine and the detectors" },
+  "status": "complete",
+  "run": { "...": "start, duration and timings of the scan" },
   "source": {
-    "filename": "orders.csv",
     "format": "csv",
+    "name": "orders.csv",
     "size_bytes": 274,
     "sha256": "7d426449...",
     "encoding": "utf-8-sig",
-    "delimiter": ","
+    "csv": { "delimiter": ",", "...": "header, quote, BOM, line ending" }
   },
-  "config": { "...": "effective report and scan settings" },
+  "config": { "...": "the effective scan settings" },
+  "config_sha256": "e3b0c442...",
+  "scope": { "records_read": 5, "records_analyzed": 5 },
   "datasets": [
     {
       "id": "rows",
       "kind": "table",
-      "summary": {
-        "row_count": 5,
-        "column_count": 6,
-        "missing_count": 2,
-        "duplicate_row_count": 1,
-        "with_issues_column_count": 2
-      },
-      "date_summary": { "...": "present when a column contains dates" },
-      "columns": [
-        {
-          "id": "column_3",
-          "name": "amount",
-          "path": "amount",
-          "position": 3,
-          "inferred_type": "mixed",
-          "type_counts": { "number": 3, "text": 1 },
-          "type_confidence": 0.75,
-          "missing_count": 1,
-          "missing_percent": 20.0,
-          "with_issues": true,
-          "distinct_count": 3,
-          "examples": ["25.00", "12.50", "not available"],
-          "semantic_type": null,
-          "detectors": [
-            {
-              "id": "number",
-              "status": "complete",
-              "primary": false,
-              "eligible_count": 4,
-              "matched_count": 3,
-              "matched_percent": 75.0,
-              "ambiguous_count": 0,
-              "invalid_count": 0,
-              "formats": []
-            }
-          ]
-        }
-      ],
-      "issues": [
-        {
-          "code": "duplicate_rows",
-          "severity": "warning",
-          "message": "Duplicate rows beyond their first occurrence",
-          "count": 1,
-          "column_ids": [],
-          "row_numbers": [4]
-        }
-      ],
-      "preview": [
-        {
-          "row_number": 1,
-          "values": [
-            "001", "Alice", "12.50", "2026-01-01", "true", "First order"
-          ],
-          "absent": []
-        }
-      ],
-      "limits": {
-        "measures": [],
-        "untracked_observations": 0,
-        "depth_truncated_observations": 0,
-        "diagnostics": []
-      },
-      "structure": null
+      "record_count": 5,
+      "fields": [ { "id": "column_3", "display": "amount", "...": "facts" } ]
     }
-  ]
+  ],
+  "diagnostics": [],
+  "report": {
+    "generated_at": "2026-10-06T12:00:00Z",
+    "generator": { "name": "tabalyst", "version": "0.6.2" },
+    "processing_seconds": 0.0098,
+    "config": { "string_analysis": {}, "value_examples": {} },
+    "base_scan": {
+      "format": "tabalyst.scan",
+      "format_version": "0.2.0",
+      "format_revision": 2,
+      "engine_version": "0.6.2",
+      "source_sha256": "7d426449...",
+      "config_sha256": "e3b0c442...",
+      "facts_sha256": "91ab0c55..."
+    },
+    "datasets": [
+      {
+        "id": "rows",
+        "kind": "table",
+        "summary": {
+          "row_count": 5,
+          "column_count": 6,
+          "missing_count": 2,
+          "duplicate_row_count": 1,
+          "with_issues_column_count": 2
+        },
+        "date_summary": { "...": "present when a column contains dates" },
+        "columns": [
+          {
+            "id": "column_3",
+            "name": "amount",
+            "path": "amount",
+            "position": 3,
+            "inferred_type": "mixed",
+            "type_counts": { "number": 3, "text": 1 },
+            "type_confidence": 0.75,
+            "missing_count": 1,
+            "missing_percent": 20.0,
+            "with_issues": true,
+            "distinct_count": 3,
+            "examples": ["25.00", "12.50", "not available"],
+            "semantic_type": null,
+            "detectors": []
+          }
+        ],
+        "issues": [
+          {
+            "code": "duplicate_rows",
+            "severity": "warning",
+            "message": "Duplicate rows beyond their first occurrence",
+            "count": 1,
+            "column_ids": [],
+            "row_numbers": [4]
+          }
+        ],
+        "preview": [
+          {
+            "row_number": 1,
+            "values": ["001", "Alice", "12.50", "2026-01-01", "true", "First"],
+            "absent": []
+          }
+        ],
+        "limits": {
+          "measures": [],
+          "untracked_observations": 0,
+          "depth_truncated_observations": 0,
+          "diagnostics": []
+        },
+        "structure": null
+      }
+    ]
+  }
 }
 ```
 
@@ -110,28 +131,62 @@ A shortened profile for a five-row `orders.csv`:
 
 | Field | Type | Content |
 | --- | --- | --- |
+| `format` | string | `"tabalyst.report"`; a scan document has `"tabalyst.scan"` |
 | `format_version` | string | Experimental format family, `"0.2.0"` |
-| `format_revision` | integer | Revision within the family, increased for each structural or semantic change |
-| `generated_at` | string | UTC date and time of the analysis (ISO 8601) |
-| `processing_seconds` | number | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
-| `source` | object | The analyzed file (see below) |
-| `config` | object | The effective settings, after merging defaults, the configuration files and command options: `string_analysis`, `value_examples` and `scan`, the complete scan configuration; for a report built from a scan document, `scan` is the configuration recorded in it. See the [configuration](../reference/configuration.md) |
-| `datasets` | array | One profile per dataset of the file (see below) |
+| `format_revision` | integer | Revision of the report within the family, increased for each structural or semantic change |
+| `engine`, `status`, `run`, `source`, `config`, `config_sha256`, `scope`, `diagnostics` | | The scan base, as in a [scan document](../scan/format.md). `config` is the effective scan configuration, the one recorded in the scan document for a report built with `--scan`. `source` is the file the scan read |
+| `datasets` | array | The scan datasets, with their records and fields: the measured facts. The samples of the fields are reduced (see [Reduced samples](#reduced-samples)) |
+| `report` | object | What the report adds (see below) |
 
-## `source`
+## `report`
 
 | Field | Content |
 | --- | --- |
-| `filename` | File name, without folder |
-| `format` | `csv`, `json`, `jsonl` or `excel` |
-| `size_bytes` | File size in bytes |
-| `sha256` | SHA-256 hash of the file, to check that two profiles describe the same file |
-| `encoding` | Text encoding used to read the file; `null` for an Excel workbook |
-| `delimiter` | Field delimiter used to read the file; `null` for JSON, JSONL and Excel files |
+| `generated_at` | UTC date and time of the report (ISO 8601) |
+| `generator` | `name` (`tabalyst`) and `version` of the Tabalyst that wrote the report |
+| `processing_seconds` | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
+| `config` | The presentation settings: `string_analysis` and `value_examples`. The analysis settings are the root `config`. See the [configuration](../reference/configuration.md) |
+| `base_scan` | The identity of the scan base the report holds (see below) |
+| `datasets` | One projection per dataset shown, identified by the dataset `id` (see below) |
 
-## `datasets`
+A change of the presentation settings changes `report.config` and nothing
+else: it never starts a new scan.
 
-A CSV file has one dataset, `rows`, whose records are the rows of the file;
+## `base_scan`
+
+| Field | Content |
+| --- | --- |
+| `format`, `format_version`, `format_revision` | The format of the scan base, `tabalyst.scan` at its own revision: the root `format_revision` is the report's |
+| `engine_version` | Version of the engine that scanned |
+| `source_sha256`, `config_sha256` | SHA-256 of the source file and of the scan configuration |
+| `facts_sha256` | SHA-256 of the facts of the base: the document without `run` and without the contents of the samples. A report and the scan it comes from have the same value, whatever their presentation settings or sample sizes |
+
+## Reading the base
+
+`tabalyst.scan_document.load_base(path)` reads a scan document or a report and
+returns the same `ScanResult` model: for a report it ignores `report`, and it
+refuses a document whose base is not at the current revision or does not match
+its `base_scan`. `load_document(path)` also says whether the file is a scan or
+a report and what it can still be used for. A report can be sent alone: it is
+read and rendered without the scan or the source.
+
+## Reduced samples
+
+The report keeps fewer sample values than the scan: at most 100 distinct
+values per field, a subset of the scan's with the same exact counts. Each
+`values.samples` block says how many it lists, `kept`, out of how many the scan
+sampled, `of`. A scan has `kept` equal to `of`.
+
+A report with `kept` below `of` renders and is read like any scan base, but it
+cannot be the input of a computation that reads samples: use the scan
+document of the source for it.
+
+## `report.datasets`
+
+The projections of the scan datasets, in the order the report shows them. They
+are summaries and choices of presentation computed from the facts of
+`datasets[].fields[]`: a column here has the `id` of the scan field it
+presents. A CSV file has one dataset, `rows`, whose records are the rows of the file;
 so has an Excel workbook, whose rows are those of the table analyzed. A
 JSON file has one dataset per collection analyzed, such as `$.customers[]`,
 usually one: the collection selected by [Inspect](../inspect/json.md)
@@ -202,20 +257,26 @@ Each column profile always contains:
 | `semantic_type` | `date` for date columns, otherwise the id of the scan's primary interpretation, such as `enumeration`, `email`, `phone` or `postal_code`, or `null` |
 | `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and `preview`; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
-| `scan_details` | Bounded field evidence retained from the exposed Scan result: presence, native types, missing breakdown, first and last values, string characteristics and lengths, numeric statistics, boolean counts and temporal ranges. See below |
 
 `value_profile.selection` is `complete` when all available frequencies are
 listed. A primary `enumeration` keeps this complete list even above
 `value_examples.full_distribution_max_distinct`, if the Scan frequency measure
 is complete. Otherwise the profile uses a bounded diverse or random sample.
 
-Depending on the column, these objects are also present (otherwise `null`):
+The statistics of a column are not repeated here: a column page and the HTML
+report read them where the scan keeps them, in the field of `datasets` with the
+same `id`.
 
-| Field | Present for | Content |
-| --- | --- | --- |
-| `numeric` | `integer` and `number` columns with finite values | `minimum`, `maximum`, `range`, `mean`, `median` (`null` when a scan limit stopped it), over every number of the column, including decimal commas such as `12,5` |
-| `date_profile` | Columns containing date values, whatever their type | Valid, ambiguous and invalid counts, detected formats and their breakdown, and `ambiguity_evidence`: the number of unambiguous values per day-month order (`DMY`, `MDY`), shown but never applied. `resolved_ambiguous_order` is set only by `scan.detectors.date.ambiguous_order` |
-| `string_profile` | `text` columns | Length statistics, length distribution and representative examples |
+| Statistics | Where |
+| --- | --- |
+| Numbers: `minimum`, `maximum`, `mean`, `median` (limited when a scan limit stopped it) | `numeric` of the field |
+| Dates: valid, ambiguous and invalid counts, formats and ambiguity evidence | the `date` entry of `detectors` of the field, and `temporal` |
+| Text: length statistics and distribution | `string_lengths` of the field |
+| Presence, native types, missing breakdown, first and last values | `presence`, `native_types`, `missing` and `values` of the field |
+
+The report shows ambiguous dates as the scan found them: the evidence per
+day-month order (`DMY`, `MDY`) is shown and never applied, and the order is
+resolved only by `scan.detectors.date.ambiguous_order`.
 
 ## `normalization`
 
@@ -265,16 +326,6 @@ as well as failed ones.
 | `evidence` | Bounded exposed examples for matched, ambiguous, invalid and not matched values; `null` for a failed detector |
 | `details` | Detector-specific, exposure-controlled Scan metadata |
 | `adaptive` | Adaptive detection skip and probe metadata, when applicable |
-
-## `scan_details`
-
-The standalone column pages use these Scan facts when present. `first` and
-`last` retain the record number and scalar type; their values, detector
-evidence and detector details use the same `mask`, `hide` or `show` policy as
-the rest of the profile. `string_lengths`, `numeric`, `booleans` and `temporal`
-are `null` when the corresponding Scan measure is unavailable. The complete
-Scan document has other fields and statuses; `scan_details` is a bounded
-selection, not a copy of the Scan document.
 
 ## `issues`
 
@@ -364,5 +415,6 @@ Each item of `fields` has:
   [JSON profile changelog](profile-changelog.md).
 
 The profile contains values from the source file, in `examples`,
-`value_profile` and `preview`; only sensitive columns are masked. Share it as
+`value_profile` and `preview` of the report and in the samples of the base;
+only sensitive columns are masked. Share it as
 you would share the data.

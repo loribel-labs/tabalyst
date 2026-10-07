@@ -2,9 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Serializable report profile (revision 10), independent from presentation.
+"""Serializable report document (format ``tabalyst.report``, revision 2).
 
-Built from a Tabalyst Scan result by ``report_profile.py``.
+The document is the Scan base at the same paths, plus a ``report`` block with
+the generation data, the presentation settings and the projections by dataset
+and field identifier. Built from a Tabalyst Scan result by ``report_profile.py``.
 """
 
 from datetime import datetime
@@ -12,14 +14,20 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, FiniteFloat
 
-from tabalyst.report_config import ReportConfig
+from tabalyst.config import PresentationSettings
+from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.models import (
     Adaptive,
     BooleanCounts,
     Coverage,
+    DatasetResult,
+    Diagnostic,
+    EngineInfo,
     Evidence,
     Missing,
     Presence,
+    RunInfo,
+    Scope,
     StringCategories,
     StringCharacteristics,
     StringLengths,
@@ -27,21 +35,15 @@ from tabalyst.scanner.models import (
     ValueAt,
 )
 from tabalyst.scanner.models import NumericStats as ScanNumericStats
+from tabalyst.scanner.models import SourceInfo as ScanSource
+
+FORMAT = "tabalyst.report"
+FORMAT_VERSION = "0.2.0"
+FORMAT_REVISION = 2
 
 
 class ResultModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
-
-
-class SourceInfo(ResultModel):
-    filename: str
-    format: Literal["csv", "json", "jsonl", "excel"]
-    size_bytes: int
-    sha256: str
-    # Null for an Excel workbook, which has no text encoding.
-    encoding: str | None
-    # Null for JSON, JSONL and Excel sources.
-    delimiter: str | None
 
 
 class NumericStats(ResultModel):
@@ -202,7 +204,8 @@ class DetectorProfile(ResultModel):
 
 
 class ScanFieldDetails(ResultModel):
-    """Useful bounded field evidence retained from the exposed Scan document."""
+    """Facts of a scan field that the column pages show. A view computed from
+    the base when a page is rendered: the document does not store it."""
 
     first_record: int | None
     occurrences: int
@@ -245,12 +248,8 @@ class ColumnProfile(ResultModel):
     semantic_type: str | None = None
     # How the values of a sensitive column are exposed, null otherwise.
     exposure: Literal["mask", "hide", "show"] | None = None
-    date_profile: DateProfile | None = None
-    string_profile: StringProfile | None = None
-    numeric: NumericStats | None = None
     # Detectors that recognized values, in scan order; failed ones included.
     detectors: list[DetectorProfile] = []
-    scan_details: ScanFieldDetails | None = None
 
 
 class DatasetSummary(ResultModel):
@@ -419,11 +418,57 @@ class DatasetProfile(ResultModel):
     structure: DatasetStructure | None = None
 
 
-class ReportProfile(ResultModel):
-    format_version: Literal["0.2.0"] = "0.2.0"
-    format_revision: Literal[1] = 1
+class ReportGenerator(ResultModel):
+    name: Literal["tabalyst"] = "tabalyst"
+    version: str
+
+
+class BaseScan(ResultModel):
+    """The base a Report stands on (design 19.5): the identity of the Scan it
+    holds, so that the base can be recognized, compared and extracted."""
+
+    format: Literal["tabalyst.scan"]
+    format_version: Literal["0.2.0"]
+    format_revision: int
+    engine_version: str
+    source_sha256: str
+    config_sha256: str
+    # SHA-256 of the facts: the base without ``run`` and without the contents
+    # of the samples, so that a Report has the identity of its Scan whatever
+    # its presentation settings or the sample values it kept.
+    facts_sha256: str
+
+
+class ReportBlock(ResultModel):
+    """What a Report adds to the Scan base."""
+
     generated_at: datetime
+    generator: ReportGenerator
     processing_seconds: FiniteFloat
-    source: SourceInfo
-    config: ReportConfig
+    # Presentation only; the Scan configuration is the root ``config``.
+    config: PresentationSettings
+    base_scan: BaseScan
+    # One projection per dataset shown, identified by the dataset ``id``; its
+    # columns are identified by the field ``id``.
     datasets: list[DatasetProfile]
+
+
+class ReportProfile(ResultModel):
+    """The Report document: the Scan base, then the ``report`` block."""
+
+    # Plain names of the fields of the base, as in a Scan document.
+    model_config = ConfigDict(extra="forbid", serialize_by_alias=True)
+
+    format: Literal["tabalyst.report"] = FORMAT
+    format_version: Literal["0.2.0"] = FORMAT_VERSION
+    format_revision: Literal[2] = FORMAT_REVISION
+    engine: EngineInfo
+    status: Literal["complete", "partial"]
+    run: RunInfo
+    source: ScanSource
+    config: ScanConfig
+    config_sha256: str
+    scope: Scope
+    datasets: list[DatasetResult]
+    diagnostics: list[Diagnostic]
+    report: ReportBlock

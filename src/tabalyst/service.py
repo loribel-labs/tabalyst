@@ -79,7 +79,7 @@ def analyze_csv(
     emit_progress(on_progress, source, ProgressPhase.ANALYZING)
     # The profile records the rules the scan applied, defaults resolved.
     profile = build_profile(result, config.model_copy(update={"scan": result.config}))
-    profile.processing_seconds = round(perf_counter() - started, 4)
+    profile.report.processing_seconds = round(perf_counter() - started, 4)
     return profile
 
 
@@ -103,7 +103,7 @@ def _profile_from_scan(
     )
     profile = build_profile(result, config)
     # The scan and the report: as long as a report of the source itself.
-    profile.processing_seconds = round(
+    profile.report.processing_seconds = round(
         result.run.duration_seconds + perf_counter() - started, 4
     )
     return profile, checked
@@ -279,7 +279,7 @@ def _analyze_resolved(
         emit_progress(on_progress, source, ProgressPhase.ANALYZING)
         effective_config = config.model_copy(update={"scan": shared.result.config})
         profile = build_profile(shared.result, effective_config)
-        profile.processing_seconds = round(
+        profile.report.processing_seconds = round(
             shared.result.run.duration_seconds + perf_counter() - started, 4
         )
         warnings += shared.warnings

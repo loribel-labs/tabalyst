@@ -32,7 +32,7 @@ async function openFilter(page, table, index) {
 
 (async () => {
   const report = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
-  const profile = report.datasets[0];
+  const profile = report.report.datasets[0];
   const browser = await chromium.launch({
     headless: true,
     channel: process.env.TABALYST_BROWSER || 'msedge',

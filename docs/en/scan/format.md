@@ -311,7 +311,10 @@ is a set of examples, not a statistic: its counts are exact for its values and
 do not describe the other values of the field. `max_samples` cannot exceed
 `max_distinct_per_field`; when it is not set it follows a lower
 `max_distinct_per_field`. The selection `bottom_k`, with the members `k`,
-`hash` and `threshold`, is reserved for a later revision.
+`hash` and `threshold`, is reserved for a later revision. `kept` is the number
+of values listed and `of` the number the scan sampled: a scan writes both equal.
+A [report](../report/json-profile.md#reduced-samples) that holds the scan as its
+base keeps fewer values and says so with `kept` below `of`.
 
 ## JSON Schema
 
@@ -319,7 +322,9 @@ The package contains the JSON Schema of the scan document,
 `tabalyst/schemas/tabalyst.scan.schema.json`, also available from
 `tabalyst.scanner.schema.scan_schema()`. It describes the base document and
 accepts the namespaces `derived`, `observations`, `analyses` and `report`,
-which extensions of the base may add. Rules that link several members, such as
+which extensions of the base may add. The package also has the schema of the
+report, `tabalyst/schemas/tabalyst.report.schema.json`
+(`tabalyst.report_schema.report_schema()`). Rules that link several members, such as
 a count that must equal the sum of its parts, are checked by
 `tabalyst.scanner.validation.check_scan()`, which returns the violated
 invariants.

@@ -23,7 +23,7 @@ from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_r
 
 
 def _describe(result: dict) -> str:
-    datasets = result["datasets"]
+    datasets = result["report"]["datasets"]
     rows = sum(dataset["summary"]["row_count"] for dataset in datasets)
     columns = sum(dataset["summary"]["column_count"] for dataset in datasets)
     if result["source"]["format"] in ("csv", "excel"):
@@ -42,8 +42,8 @@ def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
         source = success.result["source"]
         if source["encoding"] is not None:
             typer.echo(f"Encoding: {source['encoding']}", err=True)
-        if source["delimiter"] is not None:
-            typer.echo(f"Delimiter: {source['delimiter']!r}", err=True)
+        if source["csv"] is not None:
+            typer.echo(f"Delimiter: {source['csv']['delimiter']!r}", err=True)
 
 
 def _print_batch_result(
@@ -67,8 +67,8 @@ def _print_batch_result(
                     details = [_describe(success.result)]
                     if source["encoding"] is not None:
                         details.append(source["encoding"])
-                    if source["delimiter"] is not None:
-                        details.append(f"delimiter {source['delimiter']!r}")
+                    if source["csv"] is not None:
+                        details.append(f"delimiter {source['csv']['delimiter']!r}")
                     typer.echo("  " + " | ".join(details), err=True)
 
     for source, warning in batch.plan.warnings:

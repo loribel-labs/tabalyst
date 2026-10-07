@@ -206,6 +206,8 @@ def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
     assert sampled[1]["values"]["samples"] == samples
     assert released["values"]["samples"] == {
         "selection": "first_seen",
+        "kept": 3,
+        "of": 3,
         "listed": [
             {"value": "v0", "type": "string", "count": 5},
             {"value": "v1", "type": "string", "count": 5},

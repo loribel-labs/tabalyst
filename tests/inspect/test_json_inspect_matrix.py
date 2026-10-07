@@ -65,8 +65,8 @@ def test_jsonl_with_nested_objects_and_a_bad_line_reports_partially(tmp_path):
     assert result.exit_code == 0, result.output
     profile = _profile(out, source)
     assert profile["source"]["format"] == "jsonl"
-    assert [item["id"] for item in profile["datasets"]] == ["$[]"]
-    dataset = profile["datasets"][0]
+    assert [item["id"] for item in profile["report"]["datasets"]] == ["$[]"]
+    dataset = profile["report"]["datasets"][0]
     assert dataset["summary"]["row_count"] == 2
     excluded = [item for item in dataset["issues"] if item["code"] == "excluded_records"]
     assert [(item["count"], item["row_numbers"]) for item in excluded] == [(2, [2, 4])]

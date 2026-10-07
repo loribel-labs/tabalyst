@@ -161,12 +161,21 @@ def _check_listings(
                 f"{where}.values.frequencies: more analytical than raw distinct values"
             )
     samples = field.values.samples
-    if len(samples.listed) > result.config.limits.max_samples:
+    if samples.kept != len(samples.listed) or samples.kept > samples.of:
+        problems.append(f"{where}.values.samples: kept does not match the listing")
+    if samples.of > result.config.limits.max_samples:
         problems.append(f"{where}.values.samples: longer than max_samples")
     if any(item.count < 1 or item.count > count for item in samples.listed):
         problems.append(f"{where}.values.samples: a count is out of range")
     listed_total = sum(item.count for item in samples.listed)
-    if samples.selection == "all" and samples.listed and listed_total != count:
+    # A Report keeps fewer values than the scan sampled (kept < of).
+    complete = samples.kept == samples.of
+    if (
+        samples.selection == "all"
+        and complete
+        and samples.listed
+        and listed_total != count
+    ):
         problems.append(
             f"{where}.values.samples: all counts must add up to values.count"
         )

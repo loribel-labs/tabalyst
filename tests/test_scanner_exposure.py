@@ -162,6 +162,8 @@ def test_gate_applies_in_streaming_mode(tmp_path):
     assert field["values"]["frequencies"]["status"] == "limited"
     assert field["values"]["samples"] == {
         "selection": "first_seen",
+        "kept": 1,
+        "of": 1,
         "listed": [{"value": "A-99", "type": "string", "count": 3}],
     }
     assert field["values"]["last"]["value"] == "A-99"
@@ -182,7 +184,12 @@ def test_hide_keeps_counts_only(tmp_path):
         "listed": [],
         "truncated": True,
     }
-    assert values["samples"] == {"selection": "all", "listed": []}
+    assert values["samples"] == {
+        "selection": "all",
+        "kept": 0,
+        "of": 0,
+        "listed": [],
+    }
     groups = field["normalization"]["variant_groups"]["value"]
     assert groups == {"groups": 1, "listed": [], "truncated": True}
     coverage = _detector(field, "pattern:secret")["coverage"]

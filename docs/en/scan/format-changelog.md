@@ -46,3 +46,6 @@ Also in revision 2, before its release:
   and `threshold`: reserved, never written yet.
 - The JSON Schema of the document and a validator of its invariants are part of
   the package (see [Scan format](format.md#json-schema)).
+- `values.samples` has `kept` and `of`: the number of values it lists and the
+  number the scan sampled. A scan has both equal; a
+  [report](../report/json-profile.md#reduced-samples) keeps fewer.

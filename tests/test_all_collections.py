@@ -186,9 +186,9 @@ def test_every_table_of_a_workbook_gets_its_own_report(tmp_path):
         "shop.sales-q1.json",
     ]
     costs = json.loads((tmp_path / "shop.costs.json").read_text(encoding="utf-8"))
-    assert costs["datasets"][0]["summary"]["row_count"] == 4
+    assert costs["report"]["datasets"][0]["summary"]["row_count"] == 4
     sales = json.loads((tmp_path / "shop.sales-q1.json").read_text(encoding="utf-8"))
-    assert sales["datasets"][0]["summary"]["row_count"] == 5
+    assert sales["report"]["datasets"][0]["summary"]["row_count"] == 5
 
 
 def test_the_output_directory_is_optional_for_one_file_and_honored(tmp_path):

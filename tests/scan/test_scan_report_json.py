@@ -47,16 +47,17 @@ def _config(**scan) -> ReportConfig:
 
 
 def _datasets(profile) -> dict:
-    return {dataset.id: dataset for dataset in profile.datasets}
+    return {dataset.id: dataset for dataset in profile.report.datasets}
 
 
 def test_json_profile_lists_one_dataset_per_scan_dataset(tmp_path):
     profile = analyze_csv(_orders(tmp_path))
 
     assert profile.format_version == "0.2.0"
-    assert profile.format_revision == 1
+    assert profile.format == "tabalyst.report"
+    assert profile.format_revision == 2
     assert profile.source.format == "json"
-    assert profile.source.delimiter is None
+    assert profile.source.csv is None
     datasets = _datasets(profile)
     assert list(datasets) == ["$", "$.customers[]"]
     assert datasets["$"].kind == "document"
@@ -104,7 +105,7 @@ def test_json_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
 
     profile = analyze_csv(source, _config(errors={"policy": "tolerant"}))
 
-    (dataset,) = profile.datasets
+    (dataset,) = profile.report.datasets
     assert dataset.summary.row_count == 2
     issue = {issue.code: issue for issue in dataset.issues}["excluded_records"]
     assert (issue.count, issue.row_numbers) == (1, [2])
@@ -116,7 +117,7 @@ def test_detectors_are_listed_per_column(tmp_path):
 
     profile = analyze_csv(source)
 
-    email, day = profile.datasets[0].columns
+    email, day = profile.report.datasets[0].columns
     (detector,) = email.detectors
     assert (detector.id, detector.status, detector.primary) == ("email", "complete", True)
     assert (detector.eligible_count, detector.matched_count) == (3, 3)
@@ -132,7 +133,7 @@ def test_detectors_are_listed_per_column(tmp_path):
 def test_detectors_without_matches_are_not_listed(tmp_path):
     source = write_text(tmp_path, "names.csv", "name\nAnn\nBob\n")
 
-    column = analyze_csv(source).datasets[0].columns[0]
+    column = analyze_csv(source).report.datasets[0].columns[0]
 
     assert column.detectors == []
     assert 'id="detectors"' not in render_report(analyze_csv(source))
@@ -170,7 +171,7 @@ def test_report_command_names_json_outputs_apart_from_the_source(tmp_path):
     assert json.loads(source.read_text(encoding="utf-8")) == ORDERS
     profile = json.loads((tmp_path / "orders.report.json").read_text(encoding="utf-8"))
     assert profile["source"]["format"] == "json"
-    assert [item["id"] for item in profile["datasets"]] == ["$.customers[]"]
+    assert [item["id"] for item in profile["report"]["datasets"]] == ["$.customers[]"]
     assert (tmp_path / "orders.report.html").exists()
 
 
@@ -180,6 +181,6 @@ def test_json_without_scalar_values_is_reportable(tmp_path, text):
 
     profile = analyze_csv(source)
 
-    (dataset,) = profile.datasets
+    (dataset,) = profile.report.datasets
     assert dataset.columns == []
     assert "<html" in render_report(profile)

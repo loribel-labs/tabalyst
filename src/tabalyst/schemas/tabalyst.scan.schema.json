@@ -3196,7 +3196,7 @@
     },
     "Samples": {
       "additionalProperties": false,
-      "description": "Distinct values with their counts. ``bottom_k`` is the selection of lot\n2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,\nas hexadecimal digits) are absent.",
+      "description": "Distinct values with their counts. ``bottom_k`` is the selection of lot\n2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,\nas hexadecimal digits) are absent.\n\n``kept`` values are listed out of the ``of`` the scan sampled: a Scan has\n``kept == of``; a Report keeps fewer (design 19.4) and says so here.",
       "properties": {
         "selection": {
           "enum": [
@@ -3207,6 +3207,14 @@
           ],
           "title": "Selection",
           "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
         },
         "listed": {
           "items": {
@@ -3253,6 +3261,8 @@
       },
       "required": [
         "selection",
+        "kept",
+        "of",
         "listed"
       ],
       "title": "Samples",

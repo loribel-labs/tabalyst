@@ -24,7 +24,7 @@ def _datasets(name: str, **limits) -> list[dict]:
     scan = {"limits": limits, "exposure": {"sensitive_values": "show"}}
     config = ReportConfig.model_validate({"scan": scan})
     profile = analyze_csv(INPUT / name, config=config, workers=1)
-    return profile.model_dump(mode="json")["datasets"]
+    return profile.model_dump(mode="json")["report"]["datasets"]
 
 
 def test_the_report_sample_is_one_hundred_values():

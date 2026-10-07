@@ -30,7 +30,7 @@ def _config(**scan) -> ReportConfig:
 
 def _column(profile, name):
     return next(
-        column for column in profile.datasets[0].columns if column.name == name
+        column for column in profile.report.datasets[0].columns if column.name == name
     )
 
 
@@ -89,7 +89,7 @@ def test_variant_groups_list_raw_spellings_and_raise_an_issue(tmp_path):
         "montreal",
         "MONTREAL",
     }
-    issues = {issue.code: issue for issue in profile.datasets[0].issues}
+    issues = {issue.code: issue for issue in profile.report.datasets[0].issues}
     assert issues["variant_groups"].count == 1
     assert issues["variant_groups"].severity == "info"
     html = render_report(profile)
@@ -119,10 +119,10 @@ def test_limited_measures_name_their_field_measure_and_setting(tmp_path):
 
     profile = analyze_csv(source, _config(limits={"max_distinct_per_field": 10}))
 
-    limits = profile.datasets[0].limits
+    limits = profile.report.datasets[0].limits
     measures = {measure.measure: measure for measure in limits.measures}
     cardinality = measures["values.cardinality"]
-    assert cardinality.column_id == profile.datasets[0].columns[0].id
+    assert cardinality.column_id == profile.report.datasets[0].columns[0].id
     assert cardinality.path == "id"
     assert cardinality.reason == "distinct_limit"
     assert cardinality.limit == 10
@@ -141,7 +141,7 @@ def test_limits_section_is_absent_when_nothing_is_limited(tmp_path):
 
     profile = analyze_csv(source)
 
-    limits = profile.datasets[0].limits
+    limits = profile.report.datasets[0].limits
     assert limits.measures == []
     assert limits.diagnostics == []
     assert limits.untracked_observations == 0
@@ -156,7 +156,7 @@ def test_structural_limits_and_diagnostics_of_a_json_dataset(tmp_path):
         source, _config(limits={"max_depth": 2, "max_fields": 3})
     )
 
-    limits = profile.datasets[0].limits
+    limits = profile.report.datasets[0].limits
     paths = next(item for item in limits.measures if item.measure == "structure.paths")
     assert paths.column_id is None
     assert paths.path is None
@@ -169,8 +169,8 @@ def test_structural_limits_and_diagnostics_of_a_json_dataset(tmp_path):
     depth = next(item for item in limits.diagnostics if item.code == "depth_limit")
     assert depth.level == "warning"
     assert depth.locations[0].record == 1
-    assert profile.datasets[0].structure.path_status == "limited"
-    assert profile.datasets[0].structure.path_count is None
+    assert profile.report.datasets[0].structure.path_status == "limited"
+    assert profile.report.datasets[0].structure.path_count is None
 
 
 def test_excluded_records_appear_as_diagnostics(tmp_path):
@@ -178,7 +178,7 @@ def test_excluded_records_appear_as_diagnostics(tmp_path):
 
     profile = analyze_csv(source, _config(errors={"policy": "tolerant"}))
 
-    [diagnostic] = profile.datasets[0].limits.diagnostics
+    [diagnostic] = profile.report.datasets[0].limits.diagnostics
     assert diagnostic.code == "csv_width_mismatch"
     assert diagnostic.level == "error"
     assert diagnostic.locations[0].record == 2
@@ -198,7 +198,7 @@ def test_json_structure_lists_containers_presence_and_arrays(tmp_path):
 
     profile = analyze_csv(source)
 
-    datasets = {dataset.id: dataset for dataset in profile.datasets}
+    datasets = {dataset.id: dataset for dataset in profile.report.datasets}
     customers = datasets["$.customers[]"].structure
     assert customers.record_types == {"object": 3}
     assert customers.path_status == "complete"
@@ -240,5 +240,5 @@ def test_csv_sources_have_no_structure_section(tmp_path):
 
     profile = analyze_csv(source)
 
-    assert profile.datasets[0].structure is None
+    assert profile.report.datasets[0].structure is None
     assert 'id="structure"' not in render_report(profile)

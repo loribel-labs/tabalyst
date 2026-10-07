@@ -226,7 +226,7 @@ def test_untracked_fields_are_not_previewed(tmp_path):
 
 def _report(source, **scan):
     profile = analyze_csv(source, ReportConfig.model_validate({"scan": scan}))
-    return profile, profile.datasets[0]
+    return profile, profile.report.datasets[0]
 
 
 def test_report_shows_a_limited_duplicate_count_as_a_lower_bound(tmp_path):

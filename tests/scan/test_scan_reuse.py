@@ -48,11 +48,13 @@ def _report(*arguments):
 
 
 def _comparable(profile: dict) -> dict:
-    return {
+    # What varies between runs: the scan's ``run`` and the report's own timing.
+    report = {
         key: value
-        for key, value in profile.items()
+        for key, value in profile["report"].items()
         if key not in {"generated_at", "processing_seconds"}
     }
+    return {**{k: v for k, v in profile.items() if k != "run"}, "report": report}
 
 
 def _config(tmp_path, name, document):
@@ -76,7 +78,7 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     reused = json.loads((tmp_path / "data.json").read_text(encoding="utf-8"))
     expected = json.loads(direct.with_suffix(".json").read_text(encoding="utf-8"))
     assert _comparable(reused) == _comparable(expected)
-    assert reused["datasets"][0]["summary"]["duplicate_row_count"] == 1
+    assert reused["report"]["datasets"][0]["summary"]["duplicate_row_count"] == 1
     assert (tmp_path / "data.html").exists()
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))
     assert history["executions"][0]["source_file"] == "data.csv"
@@ -91,7 +93,7 @@ def test_report_from_a_scan_includes_the_scan_duration(tmp_path):
 
     profile = analyze_scan(scan_document)
 
-    assert 12.5 < profile.processing_seconds < 17.5
+    assert 12.5 < profile.report.processing_seconds < 17.5
     assert _report("--scan", scan_document).exit_code == 0
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))
     entry = history["executions"][0]
@@ -108,8 +110,8 @@ def test_report_from_a_scan_never_reads_the_source(tmp_path, monkeypatch):
     monkeypatch.setattr(csv_reader.CsvReader, "__iter__", refuse)
     profile = analyze_scan(scan_document)
 
-    assert profile.datasets[0].summary.row_count == 3
-    assert profile.config.scan.records.preview == 10
+    assert profile.report.datasets[0].summary.row_count == 3
+    assert profile.config.records.preview == 10
 
 
 def test_a_missing_source_is_accepted(tmp_path):
@@ -119,8 +121,8 @@ def test_a_missing_source_is_accepted(tmp_path):
 
     profile = analyze_scan(scan_document)
 
-    assert profile.source.filename == "data.csv"
-    assert profile.datasets[0].preview[0].values == ["1", "aaa@aaaaaaa.aaa", "Paris"]
+    assert profile.source.name == "data.csv"
+    assert profile.report.datasets[0].preview[0].values == ["1", "aaa@aaaaaaa.aaa", "Paris"]
 
 
 def test_a_source_of_another_size_is_stale(tmp_path):
@@ -153,7 +155,7 @@ def test_a_touched_source_with_the_same_content_is_fresh(tmp_path):
     stat = source.stat()
     os.utime(source, (stat.st_atime, stat.st_mtime + 10))
 
-    assert analyze_scan(scan_document).datasets[0].summary.row_count == 3
+    assert analyze_scan(scan_document).report.datasets[0].summary.row_count == 3
 
 
 def test_other_scan_settings_in_the_configuration_are_stale(tmp_path):
@@ -169,9 +171,9 @@ def test_other_scan_settings_in_the_configuration_are_stale(tmp_path):
 
     assert result.exit_code == 2
     assert "Stale scan" in result.stderr
-    assert analyze_scan(scan_document, same).datasets[0].summary.row_count == 3
+    assert analyze_scan(scan_document, same).report.datasets[0].summary.row_count == 3
     profile = analyze_scan(scan_document, presentation)
-    assert profile.config.value_examples.inline_display_size == 1
+    assert profile.report.config.value_examples.inline_display_size == 1
 
 
 def test_scan_settings_of_the_document_apply(tmp_path):
@@ -181,8 +183,8 @@ def test_scan_settings_of_the_document_apply(tmp_path):
 
     profile = analyze_scan(scan_document)
 
-    assert profile.source.delimiter == ";"
-    assert profile.config.scan.csv.delimiter == ";"
+    assert profile.source.csv.delimiter == ";"
+    assert profile.config.csv.delimiter == ";"
 
 
 def test_csv_options_cannot_be_combined_with_scan(tmp_path):
