@@ -3947,7 +3947,7 @@
     },
     "PresentationSettings": {
       "additionalProperties": false,
-      "description": "Report presentation settings, at the top level of configuration files.",
+      "description": "Report presentation settings: the ``report`` object of configuration\nfiles.",
       "properties": {
         "string_analysis": {
           "$ref": "#/$defs/StringAnalysisConfig"
@@ -5290,8 +5290,15 @@
     },
     "ValueExamplesSettings": {
       "additionalProperties": false,
-      "description": "How the report represents the values of a column. The candidates of a\nsample are at most ``REPORT_SAMPLE_SIZE`` values of the scan sample\n(``scan.limits.max_samples``, drawn with ``scan.random_seed``).",
+      "description": "How the report represents the values of a column. The candidates of its\nexamples are the ``kept_per_column`` smallest priorities of the scan sample\n(``scan.limits.max_samples``), or a draw seeded by ``scan.random_seed`` when\nthe sample has no priorities.",
       "properties": {
+        "kept_per_column": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Kept Per Column",
+          "type": "integer"
+        },
         "full_distribution_max_distinct": {
           "default": 50,
           "minimum": 1,

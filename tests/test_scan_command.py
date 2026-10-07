@@ -222,7 +222,7 @@ def test_scan_configuration_files_merge_in_order(tmp_path):
     first = _config(
         tmp_path / "first.json",
         {
-            "value_examples": {"inline_display_size": 5},
+            "report": {"value_examples": {"inline_display_size": 5}},
             "scan": {
                 "values": {"null_markers": ["N/A", "NULL"]},
                 "detectors": {"number": {"conventions": ["dot"]}},
@@ -287,12 +287,15 @@ def test_invalid_configuration_names_file_and_key(tmp_path, document, message):
 def test_report_ignores_a_valid_scan_section(tmp_path):
     config = _config(
         tmp_path / "config.json",
-        {"value_examples": {"inline_display_size": 4}, "scan": {"csv": {"delimiter": ";"}}},
+        {
+            "report": {"value_examples": {"inline_display_size": 4}},
+            "scan": {"csv": {"delimiter": ";"}},
+        },
     )
 
     report_config = load_config([config])
 
-    assert report_config.value_examples.inline_display_size == 4
+    assert report_config.report.value_examples.inline_display_size == 4
     assert report_config.csv.delimiter == ","
     assert resolve_scan_config([config]).csv.delimiter == ";"
 

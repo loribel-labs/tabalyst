@@ -1,21 +1,24 @@
 {
-  "string_analysis": {
-    "very_short_max_length": 5,
-    "short_max_length": 20,
-    "medium_max_length": 50,
-    "long_max_length": 255,
-    "length_distribution_max_length": 50,
-    "examples_per_length": 10
-  },
-  "value_examples": {
-    "full_distribution_max_distinct": 50,
-    "short_text_max_length": 20,
-    "short_text_percentile": 0.95,
-    "short_text_result_size": 20,
-    "long_text_result_size": 20,
-    "long_text_truncate_at": 30,
-    "truncation_suffix": "...",
-    "inline_display_size": 3
+  "report": {
+    "string_analysis": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255,
+      "length_distribution_max_length": 50,
+      "examples_per_length": 10
+    },
+    "value_examples": {
+      "kept_per_column": 100,
+      "full_distribution_max_distinct": 50,
+      "short_text_max_length": 20,
+      "short_text_percentile": 0.95,
+      "short_text_result_size": 20,
+      "long_text_result_size": 20,
+      "long_text_truncate_at": 30,
+      "truncation_suffix": "...",
+      "inline_display_size": 3
+    }
   },
   "scan": {
     "csv": {
@@ -23,8 +26,17 @@
       "delimiter": ","
     },
     "values": {
-      "null_markers": ["N/A", "NULL"],
-      "missing": ["absent", "null", "empty", "blank", "marker"]
+      "null_markers": [
+        "N/A",
+        "NULL"
+      ],
+      "missing": [
+        "absent",
+        "null",
+        "empty",
+        "blank",
+        "marker"
+      ]
     },
     "normalization": {
       "trim": true,
@@ -35,8 +47,16 @@
     },
     "detectors": {
       "date": {
-        "orders": ["YMD", "MDY", "DMY"],
-        "separators": ["-", "/", "."],
+        "orders": [
+          "YMD",
+          "MDY",
+          "DMY"
+        ],
+        "separators": [
+          "-",
+          "/",
+          "."
+        ],
         "ambiguous_order": null
       },
       "enumeration": {

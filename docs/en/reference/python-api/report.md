@@ -117,8 +117,10 @@ Returns a `ReportProfile` model: the [JSON profile](../../report/json-profile.md
 as a Python object. The scan base is at its root (`profile.datasets` are the
 scan datasets, `profile.source` the source) and the report's own data is under
 `profile.report`: `profile.report.datasets` holds the summary and the columns
-of each dataset. `config` is a `tabalyst.ReportConfig`; its `scan` setting is a
-`tabalyst.ScanConfig`.
+of each dataset. `config` is a `tabalyst.ReportConfig`: the presentation settings
+of the [`report` object](../configuration.md#report-settings) (`string_analysis`,
+`value_examples`) and its `scan` setting, a `tabalyst.ScanConfig`, for example
+`ReportConfig(value_examples={"kept_per_column": 50}, scan=...)`.
 
 ## tabalyst.analyze_scan()
 

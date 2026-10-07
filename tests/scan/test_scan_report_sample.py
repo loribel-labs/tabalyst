@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 
 from tabalyst import ReportConfig, analyze_csv
-from tabalyst.report_profile import REPORT_SAMPLE_SIZE
 
 pytestmark = pytest.mark.scan_json_lot("1a")
 
@@ -27,8 +26,8 @@ def _datasets(name: str, **limits) -> list[dict]:
     return profile.model_dump(mode="json")["report"]["datasets"]
 
 
-def test_the_report_sample_is_one_hundred_values():
-    assert REPORT_SAMPLE_SIZE == 100
+def test_the_report_keeps_one_hundred_sample_values_per_column_by_default():
+    assert ReportConfig().value_examples.kept_per_column == 100
 
 
 @pytest.mark.parametrize("name", ["insurance-customers.csv", "orders.json"])

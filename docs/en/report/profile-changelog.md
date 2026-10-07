@@ -37,8 +37,8 @@ The profile becomes a superset of the Scan document: it has `format:
 
 - The report's own data moves under `report`: `generated_at`,
   `processing_seconds`, the presentation settings (`report.config`, with only
-  `string_analysis` and `value_examples`; the root `config` is the scan
-  configuration), `base_scan` (identity of the base) and the projections
+  `string_analysis` and `value_examples`, the `report` object of the
+  configuration files; the root `config` is the scan configuration), `base_scan` (identity of the base) and the projections
   (`report.datasets`, with the summary, columns, issues, preview, limits and
   structure of each dataset). The root `datasets` are the scan datasets.
 - `source` is the scan's: `filename` becomes `name`, `delimiter` is
@@ -46,4 +46,6 @@ The profile becomes a superset of the Scan document: it has `format:
 - The column copies of scan facts are removed: `scan_details`, `numeric`,
   `string_profile` and `date_profile`. They are read from the fields of the
   base.
-- The samples of the base are reduced and declare `kept` and `of`.
+- The samples of the base are reduced and declare `kept` and `of`. How many
+  values the report keeps per column is a presentation setting,
+  `report.config.value_examples.kept_per_column` (1 to 1,000, 100 by default).

@@ -17,19 +17,24 @@ structural or semantic change. See the
   empty and incomplete records) come from the `records` block of each scan
   dataset. No file access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
-  top-level presentation settings and the `scan` configuration.
+  presentation settings (the `report` object of the files) and the `scan`
+  configuration.
 - `models.py`: Pydantic models of the report document (`tabalyst.report`, format
   0.2.0, revision 2): the Scan base at its own paths and a `report` block with
   one projection per dataset (summary, columns, issues, preview, limits and, for
   JSON, structure). The facts of the Scan are not copied into the columns.
+- `report_views.py`: what the pages read, computed at render time and never
+  serialized: `ColumnView` (a column projection with the canonical Scan `field`
+  and the derived `numeric`, `date_profile` and `string_profile`) and
+  `DatasetView`.
 - `scan_document.py`: the common loader of the Scan base, read from a Scan or a
   Report (`load_document`, `load_base`), its capabilities and the identity of the
   base (`facts_sha256`).
 - `report_schema.py`: the JSON Schema of the Report, beside the Scan's
   (`scanner/schema.py`); `python scripts/scan_schema.py` writes both.
 - `config.py`: validated settings, loaded from optional JSON configuration files.
-  `load_config_layers()` validates every file completely (top-level settings and
-  the `scan` section), rejects the settings moved to `scan` with their new
+  `load_config_layers()` validates every file completely (the top-level `csv`, the
+  `report` and `scan` objects), rejects the settings moved with their new
   location, and merges files in order; each command resolves its own settings
   from the merged layers.
 - `service.py`: public `analyze(...)` orchestration plus the reusable

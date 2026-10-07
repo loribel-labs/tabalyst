@@ -172,8 +172,9 @@ read and rendered without the scan or the source.
 
 ## Reduced samples
 
-The report keeps fewer sample values than the scan: at most 100 distinct
-values per field, a subset of the scan's with the same exact counts. Each
+The report keeps fewer sample values than the scan: at most
+`report.config.value_examples.kept_per_column` distinct values per field (100 by
+default), a subset of the scan's with the same exact counts. Each
 `values.samples` block says how many it lists, `kept`, out of how many the scan
 sampled, `of`. A scan has `kept` equal to `of`.
 
@@ -260,7 +261,7 @@ Each column profile always contains:
 
 `value_profile.selection` is `complete` when all available frequencies are
 listed. A primary `enumeration` keeps this complete list even above
-`value_examples.full_distribution_max_distinct`, if the Scan frequency measure
+`report.config.value_examples.full_distribution_max_distinct`, if the Scan frequency measure
 is complete. Otherwise the profile uses a bounded diverse or random sample.
 
 The statistics of a column are not repeated here: a column page and the HTML

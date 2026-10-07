@@ -1324,9 +1324,9 @@ Configuration files (lot 4, maintainer decision):
 
 - No file is discovered automatically: `tabalyst.json` is a conventional name
   passed with `--config`, so `report` and `sample` keep their behavior.
-- One file serves every command: report and sample settings at the top level,
-  scan settings in the `scan` object. The scan does not inherit the top-level
-  `csv` settings.
+- One file serves every command: one object per tool (`scan`, `report`) and,
+  at the top level, the `csv` settings of `sample`. The scan does not inherit
+  the top-level `csv` settings.
 - Every command validates each whole file, the `scan` object included, so a
   mistake in another command's section never passes silently. Errors name the
   file and the dotted key, such as `scan.limits.max_fields`.
@@ -1493,9 +1493,9 @@ the maintainer in lot 5a:
   since lot 5c they are the `records` block of the scan (section 9.10),
   bounded by `limits.max_tracked_records`.
 - **Configuration.** Every analysis setting of the report, CSV reading
-  included, comes from `scan`. The top level keeps the presentation settings
-  (`string_analysis`, `value_examples`; `preview_rows` until lot 5c moved it
-  to `scan.records.preview`) and `csv` for
+  included, comes from `scan`. The `report` object keeps the presentation
+  settings (`string_analysis`, `value_examples`; since lot 1c of the Scan and
+  JSON work, they were at the top level before) and the top level `csv` serves
   `tabalyst sample`. Former report settings are rejected with their new
   location; a top-level `csv` value that differs from `scan.csv` is an error
   for the report, since the file would otherwise be read differently than
@@ -1667,6 +1667,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-07 | SJ-0 | Section 19.4b: settings by tool, new Report setting `value_examples.kept_per_column` (default 100). | Keeps the Scan sample size K and the Report sample size apart in the configuration; keeps the examples of the Report unchanged. |
 | 2026-10-07 | SJ-1a | Sections 9.1, 11, 15, 18.2, 18.9, new 19.7: qualified `values.cardinality` (`domain`, `accuracy`, `identity_accuracy`, `upper_bound`, records of the limit), K = `max_samples` at 10,000 with cap 100,000 and the K and T rule, reserved `bottom_k` members, JSON Schema and validator; the Report works on at most 100 sample values. | Lot 1a of the Scan and JSON work. Dedicated cardinality models keep the other envelopes unchanged (maintainer decision of 2026-10-07). |
 | 2026-10-07 | SJ-1b | Sections 9.1, 19.1 to 19.7: `values.samples` has `kept` and `of`; the Report is a `tabalyst.report` document (revision 2) with the base at its paths, the `report` block (`generated_at`, `generator`, `processing_seconds`, `config`, `base_scan`, `datasets`), reduced samples declared, the loader `load_document` and `load_base`, `facts_sha256`, the Report JSON Schema. | Scan and JSON work, lot 1b: Report as a superset of the Scan and the common loader. |
+| 2026-10-07 | SJ-1c | Sections 15, 19.3, 19.4, 19.4b: the `report` object of the configuration (`string_analysis`, `value_examples` moved from the top level), `report.value_examples.kept_per_column` (1 to 1,000, default 100) replaces `REPORT_SAMPLE_SIZE`, the pages read the base through `tabalyst.report_views` (`ColumnView` with the canonical `field`, `DatasetView`), `ScanFieldDetails` removed. | Scan and JSON work, lot 1c: projections and templates of the Report from the base. Maintainer decision of 2026-10-07 on the `report` object. |
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -1713,7 +1714,7 @@ explicit K above T is a configuration error, and a K that is not set follows a
 lower T (a scan that lowers T alone keeps working, with K = T). Until lot 2b
 the engine still draws the sample as before (`all`, `uniform_distinct` or
 `first_seen`), with K entries instead of 100. The Report does not read K: it
-works on at most 100 values of the sample (`REPORT_SAMPLE_SIZE`, 19.4b), the
+works on at most 100 values of the sample (`value_examples.kept_per_column`, 19.4b), the
 whole sample when it has no more, a seeded draw otherwise, or its first values
 when the sample is `first_seen`. Its examples are those of K = 100 except for
 sensitive fields of a released table (the masks of the first K values merge
@@ -1878,10 +1879,16 @@ It holds the generation date (`generated_at`), the generator (`name`,
 shown, identified by the dataset `id`, with columns identified by the field `id`.
 No statistic is stored twice: the copies `scan_details`, `numeric`,
 `string_profile` and `date_profile` of the columns are removed and the pages
-read the base (A04). Until lot 1c the pages still read them through views
-(`reporting.ColumnView`) that `reporting.py` computes from the base when it
-renders; the other projections (`summary`, `issues`, `preview`, `limits`,
-`structure`, the normalization and detector blocks of a column) are unchanged.
+read the base (A04). Since lot 1c the pages read it through the views of
+`tabalyst.report_views`, computed when a page is rendered and never stored:
+`ColumnView` is the column projection plus its canonical `field` (the Scan
+field, read as the Scan wrote it: the column page reads presence, first and last
+values, categories, lengths, numeric, boolean and temporal facts from it) and the
+three figures the pages derive (`numeric`, `date_profile`, `string_profile`:
+percentages, length classes, examples by length). `DatasetView` is the dataset
+projection with `ColumnView` columns. The other projections (`summary`,
+`issues`, `preview`, `limits`, `structure`, the normalization and detector
+blocks of a column) are unchanged and stored.
 The Python model is `ReportProfile` (the document): `profile.datasets` are the
 scan datasets and `profile.report.datasets` the projections.
 
@@ -1892,9 +1899,9 @@ priorities of each field (`value_examples.kept_per_column`, 19.4b), an exact and
 the same exact counters. It declares `kept` and `of` in each `values.samples` (a Scan has them equal:
 `of` is the size of the sample the Scan listed, `kept` the number listed here,
 `selection` still the Scan's). Lot 1b keeps what the Report already used
-(`report_sample`: up to `REPORT_SAMPLE_SIZE` = 100 values, the first ones of a
-`first_seen` or `bottom_k` sample, a seeded draw otherwise), which becomes the
-setting of 19.4b at lot 1c. The capabilities of the loader say whether the
+(`report_sample`: up to `kept_per_column` values, 100 by default, the first ones
+of a `first_seen` or `bottom_k` sample, a seeded draw otherwise); lot 1c made
+it the setting of 19.4b. The capabilities of the loader say whether the
 samples are complete (`kept == of` everywhere); a planner refuses a document
 whose samples are not, so a Report is never an input to replan. The invariants
 of `check_scan` apply to a reduced base: `kept` is the length of the listing and
@@ -1906,25 +1913,33 @@ the cache. A Report can be sent alone and rendered without the source (A10).
 ### 19.4b Settings by tool
 
 One configuration file serves every command (section 15): the `scan` object
-holds what Scan measures and keeps, the top level holds what Report presents.
+holds what Scan measures and keeps, the `report` object holds what Report
+presents, and the top-level `csv` settings serve `tabalyst sample`.
 Names are never reused across the two, so a number is read for one tool only:
 
 | Setting | Where | Tool | Meaning | Default |
 | --- | --- | --- | --- | --- |
 | `scan.limits.max_distinct_per_field` (T) | `scan` | Scan, and Report through the scan it runs | Distinct values kept in the exact table | 100,000 |
 | `scan.limits.max_samples` (K) | `scan` | Scan | Size of the bottom-k sample kept in the Scan document | 10,000 |
-| `value_examples.kept_per_column` | top level | Report | Sample values kept per column in the Report document: the smallest priorities of the K of the base, so an exact subset (19.4); at most K, and a Report built from a Scan with a smaller K keeps all of it and declares `kept` and `of` | 100 |
-| `value_examples.*_result_size`, `inline_display_size`, `full_distribution_max_distinct` | top level | Report | What the HTML shows and how examples are chosen | unchanged |
+| `report.value_examples.kept_per_column` | `report` | Report | Sample values kept per column in the Report document: the smallest priorities of the K of the base, so an exact subset (19.4); at most K, and a Report built from a Scan with a smaller K keeps all of it and declares `kept` and `of` | 100 |
+| `report.value_examples.*_result_size`, `inline_display_size`, `full_distribution_max_distinct` | `report` | Report | What the HTML shows and how examples are chosen | unchanged |
 
-`value_examples.kept_per_column` replaces the role that `max_samples` had for
+`report.value_examples.kept_per_column` (1 to 1,000) replaces the role that `max_samples` had for
 the Report (the candidate pool of its examples, `candidate_sample_size` before
 `max_samples`): 100 is the former default of `max_samples`, so the examples of a
 Report do not move when K becomes 10,000. It is presentation: changing it never
 invalidates a Scan document or starts a scan (A14), whereas a change of
 `scan.limits.*` changes `config_sha256`. The Report document records the Scan
-configuration in `config` and the presentation in `report.config` (19.3).
-`docs/en/reference/configuration.md` gets a table of these settings by tool
-when lot 1a changes `max_samples` and lot 1c changes the Report.
+configuration in `config` and the presentation in `report.config` (19.3), which
+has the shape of the `report` object of the file. The upper bound of 1,000 is
+the cost of the Report: choosing diverse examples compares the candidates
+pairwise: measured at lot 1c on the 34 columns and 3,000 rows of the insurance
+demo, a report from a scan takes 1.2 s at 100, 3.3 s at 300 and 28 s at 1,000. Other presentation settings of
+the old top level (`string_analysis`, `value_examples`) are refused with their
+new place, like the settings that moved to `scan`. The Python `ReportConfig`
+stays flat (presentation settings then `scan`): only the file has a `report`
+object. `docs/en/reference/configuration.md` has the table of these settings by
+tool.
 
 ### 19.5 Identity of the base
 

@@ -6,8 +6,8 @@
 
 The report is built on Tabalyst Scan: every analysis setting, CSV reading
 included, comes from the ``scan`` object of the configuration files. The
-top-level settings only shape the presentation (preview, string lengths,
-value examples).
+``report`` object only shapes the presentation (string lengths, value
+examples).
 """
 
 from collections.abc import Iterable
@@ -17,6 +17,7 @@ from pydantic import Field
 
 from tabalyst.config import (
     PresentationSettings,
+    SettingsFile,
     load_config_layers,
     settings_from_layer,
 )
@@ -25,7 +26,22 @@ from tabalyst.scanner.config import ScanConfig, scan_config_from_layer
 
 
 class ReportConfig(PresentationSettings):
+    """The settings of one report: its presentation, then the scan it stands
+    on. Flat, unlike the configuration file, which has a ``report`` object."""
+
     scan: ScanConfig = Field(default_factory=ScanConfig)
+
+    @classmethod
+    def from_presentation(
+        cls, presentation: PresentationSettings, scan: ScanConfig
+    ) -> "ReportConfig":
+        """The presentation settings, then the scan configuration they go with."""
+        return cls(**presentation.model_dump(), scan=scan)
+
+    @classmethod
+    def from_settings(cls, settings: SettingsFile, scan: ScanConfig) -> "ReportConfig":
+        """The report settings of a configuration file and a scan configuration."""
+        return cls.from_presentation(settings.report, scan)
 
 
 def _check_csv_settings(
@@ -57,8 +73,8 @@ def resolve_report_config(
 ) -> ReportConfig:
     """Resolve the report settings of the configuration layers.
 
-    Presentation settings come from the top level of each file, the scan
-    settings from its ``scan`` object, with the explicit CSV options on top
+    Presentation settings come from the ``report`` object of each file, the
+    scan settings from its ``scan`` object, with the explicit CSV options on top
     (design section 15).
     """
     top_level, scan_layer = load_config_layers(paths)
@@ -70,7 +86,4 @@ def resolve_report_config(
         if value is not None
     }
     _check_csv_settings(top_level, scan, overridden)
-    return ReportConfig(
-        **settings.model_dump(exclude={"csv"}),
-        scan=scan,
-    )
+    return ReportConfig.from_settings(settings, scan)

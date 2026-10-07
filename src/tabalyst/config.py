@@ -4,10 +4,11 @@
 
 """Experimental configuration. Later files override earlier settings.
 
-A configuration file holds report and sample settings at the top level
-(``SettingsFile``) and scan settings in its ``scan`` object. The report is
-built on Tabalyst Scan, so its analysis settings live in ``scan`` too
-(``tabalyst.report_config``).
+A configuration file has one object per tool: ``scan`` (what Scan measures
+and keeps), ``report`` (what the report presents) and, at the top level, the
+``csv`` settings of ``tabalyst sample`` (``SettingsFile``). The report is built
+on Tabalyst Scan, so its analysis settings live in ``scan``, never in
+``report`` (``tabalyst.report_config``).
 """
 
 import codecs
@@ -26,6 +27,8 @@ from pydantic import (
 )
 
 from tabalyst.errors import ConfigurationError
+
+KEPT_PER_COLUMN_MAX = 1000
 
 
 class CsvConfig(BaseModel):
@@ -54,12 +57,18 @@ class CsvConfig(BaseModel):
 
 
 class ValueExamplesSettings(BaseModel):
-    """How the report represents the values of a column. The candidates of a
-    sample are at most ``REPORT_SAMPLE_SIZE`` values of the scan sample
-    (``scan.limits.max_samples``, drawn with ``scan.random_seed``)."""
+    """How the report represents the values of a column. The candidates of its
+    examples are the ``kept_per_column`` smallest priorities of the scan sample
+    (``scan.limits.max_samples``), or a draw seeded by ``scan.random_seed`` when
+    the sample has no priorities."""
 
     model_config = ConfigDict(extra="forbid")
 
+    # Sample values kept per column in the report document. Presentation: it
+    # never changes the scan, so a scan is not run again when it changes. The
+    # upper bound keeps the report fast: choosing diverse examples compares
+    # the candidates pairwise (1,000 candidates took about 28 s on 34 columns).
+    kept_per_column: int = Field(default=100, ge=1, le=KEPT_PER_COLUMN_MAX)
     full_distribution_max_distinct: int = Field(default=50, ge=1)
     short_text_max_length: int = Field(default=20, ge=1)
     short_text_percentile: float = Field(default=0.95, gt=0, le=1)
@@ -98,7 +107,8 @@ class StringAnalysisConfig(BaseModel):
 
 
 class PresentationSettings(BaseModel):
-    """Report presentation settings, at the top level of configuration files."""
+    """Report presentation settings: the ``report`` object of configuration
+    files."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -108,16 +118,21 @@ class PresentationSettings(BaseModel):
     )
 
 
-class SettingsFile(PresentationSettings):
-    """Top-level settings of a configuration file, besides its ``scan`` object:
-    ``csv`` for ``tabalyst sample``, the others for the report presentation."""
+class SettingsFile(BaseModel):
+    """Settings of a configuration file besides its ``scan`` object: ``csv``
+    for ``tabalyst sample`` and the ``report`` presentation settings."""
+
+    model_config = ConfigDict(extra="forbid")
 
     csv: CsvConfig = Field(default_factory=CsvConfig)
+    report: PresentationSettings = Field(default_factory=PresentationSettings)
 
 
-# Report settings moved to the ``scan`` object when the report moved onto
-# Tabalyst Scan (profile revision 3; ``preview_rows`` in revision 5, when the
-# preview became part of the scan), with their new location.
+# Settings that moved, with their new location. The analysis settings moved to
+# the ``scan`` object when the report moved onto Tabalyst Scan (profile revision
+# 3; ``preview_rows`` in revision 5, when the preview became part of the scan);
+# the presentation settings moved to the ``report`` object (revision 2 of the
+# report document). Specific paths come first: the first match is reported.
 MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("missing_values",): "scan.values.null_markers and scan.values.missing",
     ("normalization",): "scan.normalization",
@@ -127,6 +142,8 @@ MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("value_examples", "candidate_sample_size"): "scan.limits.max_samples",
     ("value_examples", "random_seed"): "scan.random_seed",
     ("preview_rows",): "scan.records.preview",
+    ("string_analysis",): "report.string_analysis",
+    ("value_examples",): "report.value_examples",
 }
 
 
@@ -138,11 +155,14 @@ def _moved_setting(document: dict) -> str | None:
                 break
             node = node[key]
         else:
-            return (
-                f"{'.'.join(path)} moved to {target}: the report is built on "
-                "Tabalyst Scan and reads its analysis settings from the scan "
-                "object"
+            reason = (
+                "the report is built on Tabalyst Scan and reads its analysis "
+                "settings from the scan object"
+                if target.startswith("scan.")
+                else "the presentation settings of the report are in the "
+                "report object"
             )
+            return f"{'.'.join(path)} moved to {target}: {reason}"
     return None
 
 
