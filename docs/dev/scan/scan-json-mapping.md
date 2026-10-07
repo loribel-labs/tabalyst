@@ -1,0 +1,94 @@
+# Scan and JSON work: mapping
+
+Reference table of the Scan and JSON work (lot 0, 2026-10-06). It compares the
+requirements of the specification with the code at commit `0acf126` (Tabalyst
+0.6.2 published, Scan format 0.2.0 revision 2 not yet published). Identifiers
+`Dxx`, `BK`, `PERF` and the others are those of the specification; the
+decisions that settle them are `O26` to `O33` in [design.md](design.md). The
+lot plan itself is kept privately; the lot names below are the ones the
+contract tests use (`tests/scan/test_contract_*.py`).
+
+Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
+
+## Requirements, code today and lots
+
+| Requirement | Today | Status | Lot |
+| --- | --- | --- | --- |
+| First pass fast and bounded in memory (D01, PERF-05) | Bounded tables, global value and record budgets, batches, workers (design 11, 13) | Done, guarded by the baselines | all |
+| Exact counts, presence, lengths histogram, numeric statistics | Exact, no Welford (design 9.1 to 9.5) | Done | |
+| Four rates and their denominators (A03) | `report_profile.py`, now documented in design 9.11 and pinned by tests | Done | 0 |
+| Run instrumentation (PERF-01) | `run`: `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `finalize`, `other`), `workers`, `peak_memory_bytes` | Modify: add planning, second pass, serialization, render | 6a, 7a, 5 |
+| Diagnostic counters of the sampler (PERF-02, PERF-03) | None | Add, optional and cheap | 2b |
+| Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound`, `estimate` | 1a, 2b |
+| Tracking limit T and sample size K separate (O28) | `max_distinct_per_field` 100,000 (kept as T); `max_samples` 100 becomes K, default 10,000 | Modify | 1a |
+| Bottom-k of distinct values (D04, D05, BK) | `values.samples` is `all`, `uniform_distinct` or `first_seen`, biased towards the start once the table is released | Add, replaces the biased selections | 2a, 2b |
+| KMV estimate (7.3) | None | Add | 2a, 2b |
+| Original domain (D25, O32) | Listings and samples use the analytical value (NFC, trim, collapse) | Modify | 2b, 4a |
+| Long texts (D06) | A value above `max_stored_value_length` releases the table (`value_too_long`) | Modify: small bottom-k with previews | 2c |
+| Global memory budget (MEM) | `max_tracked_values`, `max_tracked_records` | Modify: sub-budgets, requested and effective sizes | 2c |
+| Samples by length (D07) | Exact length histogram | Add the samples; histogram Done | 3a |
+| Row sample start, middle, end (D12) | `records.preview`: first rows only | Modify | 3b |
+| Pattern inference (D08) | Declarative patterns and shape signatures as detectors | Add inference on samples | 4a |
+| Exhaustive pattern validation (D08) | None | Add | 7c |
+| Observations, quality, limits (section 16) | Report issues only; scan has diagnostics | Add shared blocks | 4b |
+| Adaptive normalization (16.1) | Stage cardinalities derived from the raw table | Modify: no false exhaustiveness | 4b |
+| Report as a superset of the Scan (D18, D20, D21, O29) | Separate profile with copies of facts and no `format` field | Modify | 1b, 1c |
+| Common loader (A02, A11) | `scan_reuse.load_scan` reads Scan documents only | Add | 1b |
+| Reduced Report samples (O27) | Not applicable yet; the Report draws its examples from `scan.limits.max_samples` (100) | Add, with the Report setting `value_examples.kept_per_column` (design 19.4b) | 1b, 1c, 5 |
+| Cache identity (CACHE) | Source SHA-256, configuration hash, engine version (`scanner/identity.py`) | Done, extended for the second pass | 7a |
+| Planner (D11) | None | Add | 6a, 6b |
+| Second pass, histograms, medians (D02, D09, D10, D22) | None | Add | 7a |
+| Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Add | 7b |
+| Relationships (D13, D14) | None | Add | 8a, 8b |
+| Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
+| Explore access (D24) | Private DuckDB layer `projects/` | Modify, frozen then adapted | 1d |
+| HTML from JSON alone (D19, F01) | `render_report` reads the profile | Modify with the new sections | 1c, 5 |
+| Atomic writes (5.4, F05) | `write_text_atomic` | Done | |
+| Exposure after calculation (VAL-06) | `mask`, `hide`, `show` gate at finalization | Done, extended to samples | 2b |
+| Large integers in the HTML (F06, Q6) | Not decided | Decide before stability | 5 |
+
+## Instrumentation names
+
+The specification names (PERF-01) against the fields available today:
+
+| Specification | Today |
+| --- | --- |
+| `total_seconds` | Not recorded by the scan; the command total is measured by the baseline script |
+| `pass1_seconds` | `run.duration_seconds` |
+| `read_parse_seconds` | `run.timings.reading` (hashing included) |
+| `scan_core_seconds`, `detectors_seconds` | Together in `run.timings.analysis`; with workers it is the time the main process spends on it, waiting included |
+| `post_processing_seconds` | `run.timings.finalize` |
+| `planning_seconds`, `pass2_seconds` | Later lots |
+| `serialization_seconds`, `render_seconds` | Not recorded in the document, which cannot know its own write time; the command summary reports them |
+
+`timings` parts add up to `duration_seconds`; they are wall-clock seconds of
+the main process and are never summed with worker time.
+
+## Consumers of the Scan model
+
+| Consumer | Reads | Concern for the work |
+| --- | --- | --- |
+| `scanner/` (engine, values, measures, workers, records, structure) | Builds the models | Hot path: guarded by the baselines |
+| `report_profile.py`, `models.py` (profile) | `ScanResult` fields | Copies of facts to remove (1b, 1c); the rates keep their meaning |
+| `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Move to the base (1c); browser check at desktop and mobile |
+| `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
+| `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity |
+| `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |
+| `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Frozen, then adapted once the model is stable (1d) |
+| `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9, 10a) |
+| `cli/scan.py`, `cli/` | Options, output | `--deep`, `--plan`, `--yes` (6b, 7a) |
+| `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
+| `tests/scan/`, `tests/test_reporting.py`, `tests/browser/report.cjs` | Everything above | Contract tests gated by lot |
+
+## Ambiguities resolved in lot 0
+
+- The r2 work is committed (`0acf126`), not only staged.
+- Release 0.6.2 is published (PyPI and tag `v0.6.2` on `7add824`). Revision 2
+  of the Scan format is unpublished; the Report profile is still at revision 1.
+- The `execution` block of the specification is the `run` block (O33).
+- The specification calls the Report a superset of the Scan; with reduced
+  samples (O27) it stays autonomous for rendering but is not a valid input to
+  replan.
+- "Read-only" baseline: the `csv-read` floor (PERF-04) and `report --scan`
+  from a Scan document, which touches no source.
+- T (`max_distinct_per_field`, 100,000, unchanged) and K (`max_samples`, 10,000) are separate settings (O28, amended 2026-10-07).

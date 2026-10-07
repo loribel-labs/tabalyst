@@ -342,3 +342,13 @@ document (`--scan`). Since lot 6, it processes distinct values in batches
 and hands the values of large sources to worker processes
 (`scanner/workers.py`), plain subprocesses of the running interpreter, with
 the same results (design section 13).
+
+The Scan and JSON work (bottom-k samplers, Report as a superset of the Scan,
+second pass) is specified in [scan/design.md](scan/design.md) sections 18 to
+21 and mapped to the code in [scan/scan-json-mapping.md](scan/scan-json-mapping.md);
+its baselines are in [scan/benchmarks.md](scan/benchmarks.md) and measured by
+`benchmarks/scan_json_baseline.py`. Its contract tests (`tests/scan/test_contract_*.py`)
+carry `@pytest.mark.scan_json_lot("<lot>")`: a test of a lot missing from
+`SCAN_JSON_ENABLED_LOTS` in `tests/scan/conftest.py` is a strict expected failure,
+so the lot that delivers the behavior must enable it. Lot `0` tests describe
+current behavior and guard it.
