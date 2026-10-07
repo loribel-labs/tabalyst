@@ -33,9 +33,9 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Exhaustive pattern validation (D08) | None | Add | 7c |
 | Observations, quality, limits (section 16) | Report issues only; scan has diagnostics | Add shared blocks | 4b |
 | Adaptive normalization (16.1) | Stage cardinalities derived from the raw table | Modify: no false exhaustiveness | 4b |
-| Report as a superset of the Scan (D18, D20, D21, O29) | Done at 1b: `tabalyst.report` document, the Scan base at its paths plus the `report` block; copies of facts removed (the pages read them through views until 1c) | Done (1b), pages on the base at 1c | 1b, 1c |
+| Report as a superset of the Scan (D18, D20, D21, O29) | Done at 1b: `tabalyst.report` document, the Scan base at its paths plus the `report` block; copies of facts removed (the pages read them through views until 1c) | Done (1b), pages on the base (1c) | 1b, 1c |
 | Common loader (A02, A11) | Done at 1b: `scan_document.load_document` and `load_base` read a Scan or a Report (`scan_reuse.load_scan` still reads Scan documents) | Done | 1b |
-| Reduced Report samples (O27) | Done at 1b: `values.samples` has `kept` and `of`; the Report keeps the 100 values it uses (the constant becomes `report.value_examples.kept_per_column` at 1c) | Add the setting (design 19.4b) | 1b, 1c, 5 |
+| Reduced Report samples (O27) | Done at 1b: `values.samples` has `kept` and `of`; the Report keeps the 100 values it uses | Done at 1c: `report.value_examples.kept_per_column` (design 19.4b) | 1b, 1c, 5 |
 | Cache identity (CACHE) | Source SHA-256, configuration hash, engine version (`scanner/identity.py`) | Done, extended for the second pass | 7a |
 | Planner (D11) | None | Add | 6a, 6b |
 | Second pass, histograms, medians (D02, D09, D10, D22) | None | Add | 7a |
@@ -71,7 +71,7 @@ the main process and are never summed with worker time.
 | --- | --- | --- |
 | `scanner/` (engine, values, measures, workers, records, structure) | Builds the models | Hot path: guarded by the baselines |
 | `report_profile.py`, `models.py` (profile) | `ScanResult` fields | Copies of facts to remove (1b, 1c); the rates keep their meaning |
-| `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Move to the base (1c); browser check at desktop and mobile |
+| `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Done at 1c: the pages read the base through `report_views` (`ColumnView.field`); HTML identical to 1b; browser check at desktop and mobile |
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity |
 | `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |

@@ -408,18 +408,20 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
     first.write_text(
         json.dumps(
             {
-                "value_examples": {
-                    "full_distribution_max_distinct": 25,
-                    "short_text_result_size": 8,
+                "report": {
+                    "value_examples": {
+                        "full_distribution_max_distinct": 25,
+                        "short_text_result_size": 8,
+                    }
                 }
             }
         )
     )
     second.write_text(
-        json.dumps({"value_examples": {"full_distribution_max_distinct": 40}})
+        json.dumps({"report": {"value_examples": {"full_distribution_max_distinct": 40}}})
     )
 
-    config = load_config([first, second])
+    config = load_config([first, second]).report
 
     assert config.value_examples.full_distribution_max_distinct == 40
     assert config.value_examples.short_text_result_size == 8
@@ -432,8 +434,10 @@ def test_nested_configuration_sections_merge_recursively(tmp_path):
         '{"unexpected": true}',
         "[1, 2]",
         '{"csv": {"delimiter": "||"}}',
-        '{"string_analysis": {"short_max_length": 3}}',
-        '{"value_examples": {"inline_display_size": 0}}',
+        '{"report": {"string_analysis": {"short_max_length": 3}}}',
+        '{"report": {"value_examples": {"inline_display_size": 0}}}',
+        '{"string_analysis": {"short_max_length": 30}}',
+        '{"value_examples": {"inline_display_size": 4}}',
     ],
 )
 def test_invalid_config_is_rejected(tmp_path, content):

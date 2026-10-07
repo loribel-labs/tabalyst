@@ -18,23 +18,14 @@ from tabalyst.config import PresentationSettings
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.models import (
     Adaptive,
-    BooleanCounts,
     Coverage,
     DatasetResult,
     Diagnostic,
     EngineInfo,
     Evidence,
-    Missing,
-    Presence,
     RunInfo,
     Scope,
-    StringCategories,
-    StringCharacteristics,
-    StringLengths,
-    TemporalStats,
-    ValueAt,
 )
-from tabalyst.scanner.models import NumericStats as ScanNumericStats
 from tabalyst.scanner.models import SourceInfo as ScanSource
 
 FORMAT = "tabalyst.report"
@@ -44,15 +35,6 @@ FORMAT_REVISION = 2
 
 class ResultModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
-
-
-class NumericStats(ResultModel):
-    minimum: FiniteFloat
-    maximum: FiniteFloat
-    range: FiniteFloat
-    mean: FiniteFloat
-    # Null when the scan limited the median (its frequency table was released).
-    median: FiniteFloat | None
 
 
 MeasureStatus = Literal["complete", "limited", "not_applicable", "disabled", "failed"]
@@ -104,69 +86,6 @@ class NormalizationStats(ResultModel):
     variant_groups_truncated: bool
 
 
-class DateFormatCount(ResultModel):
-    format: str
-    # Null for formats that are not numeric dates (month names, times).
-    order: Literal["YMD", "MDY", "DMY"] | None
-    separator: str | None
-    count: int
-    percent: float
-    iso: bool = False
-
-
-class DateBreakdownItem(ResultModel):
-    label: str
-    category: Literal["valid", "ambiguous", "invalid", "not_date"]
-    count: int
-    percent: float
-
-
-class DateProfile(ResultModel):
-    status: Literal["valid", "multiple_formats", "mixed", "ambiguous", "invalid"]
-    present_count: int
-    valid_count: int
-    valid_percent: float
-    ambiguous_count: int
-    ambiguous_percent: float
-    invalid_date_count: int
-    invalid_date_percent: float
-    not_date_count: int
-    not_date_percent: float
-    resolved_ambiguous_order: Literal["MDY", "DMY"] | None = None
-    ambiguous_order_source: Literal["config"] | None = None
-    # Unambiguous values per day-month order, exposed and never applied.
-    ambiguity_evidence: dict[str, int]
-    formats: list[DateFormatCount]
-    format_count: int
-    breakdown: list[DateBreakdownItem]
-
-
-class StringLengthExample(ResultModel):
-    value: str
-    count: int
-
-
-class StringLengthDistribution(ResultModel):
-    length: int
-    count: int
-    percent: float
-    relative_percent: float
-    examples: list[StringLengthExample]
-
-
-class StringProfile(ResultModel):
-    status: Literal["very_short", "short", "medium", "long", "very_long"]
-    present_count: int
-    minimum_length: int
-    maximum_length: int
-    mean_length: FiniteFloat
-    median_length: FiniteFloat
-    distinct_length_count: int
-    fixed_length: int | None = None
-    length_distribution: list[StringLengthDistribution]
-    representative_examples: list[str]
-
-
 class ValueOccurrence(ResultModel):
     value: str
     count: int
@@ -201,26 +120,6 @@ class DetectorProfile(ResultModel):
     evidence: Evidence | None = None
     details: dict[str, Any] = {}
     adaptive: Adaptive | None = None
-
-
-class ScanFieldDetails(ResultModel):
-    """Facts of a scan field that the column pages show. A view computed from
-    the base when a page is rendered: the document does not store it."""
-
-    first_record: int | None
-    occurrences: int
-    value_count: int
-    presence: Presence
-    native_types: dict[str, int]
-    strings: StringCategories
-    missing: Missing
-    first: ValueAt | None
-    last: ValueAt | None
-    string_characteristics: StringCharacteristics
-    string_lengths: StringLengths | None
-    numeric: ScanNumericStats | None
-    booleans: BooleanCounts | None
-    temporal: TemporalStats | None
 
 
 class ColumnProfile(ResultModel):

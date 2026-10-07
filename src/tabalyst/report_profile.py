@@ -39,9 +39,6 @@ from tabalyst.models import (
     DatasetProfile,
     DatasetStructure,
     DatasetSummary,
-    DateBreakdownItem,
-    DateFormatCount,
-    DateProfile,
     DetectorFormat,
     DetectorProfile,
     DiagnosticLocation,
@@ -50,15 +47,10 @@ from tabalyst.models import (
     MeasureLimit,
     NormalizationStage,
     NormalizationStats,
-    NumericStats,
     PreviewRow,
     ReportBlock,
     ReportGenerator,
     ReportProfile,
-    ScanFieldDetails,
-    StringLengthDistribution,
-    StringLengthExample,
-    StringProfile,
     StructureField,
     ValueOccurrence,
     ValueProfile,
@@ -66,6 +58,15 @@ from tabalyst.models import (
     VariantGroup,
 )
 from tabalyst.report_config import ReportConfig
+from tabalyst.report_views import (
+    DateBreakdownItem,
+    DateFormatCount,
+    DateProfile,
+    NumericStats,
+    StringLengthDistribution,
+    StringLengthExample,
+    StringProfile,
+)
 from tabalyst.scan_document import facts_sha256
 from tabalyst.scanner.engine import has_limited_measure
 from tabalyst.scanner.models import (
@@ -296,26 +297,19 @@ def _listed_values(field: FieldResult) -> tuple[list[ValueCount], bool]:
     return frequencies.value.listed, not frequencies.value.truncated
 
 
-# Distinct values of a scan sample that the report draws its examples from. The
-# scan keeps ``scan.limits.max_samples`` of them; the report works on this many,
-# whatever that size, so its examples and its time do not depend on it. It
-# becomes a presentation setting with the Report sample of lot 1c.
-REPORT_SAMPLE_SIZE = 100
-
-
-def report_sample(field: FieldResult, seed: int) -> list[ValueCount]:
+def report_sample(field: FieldResult, seed: int, size: int) -> list[ValueCount]:
     """The values of the scan sample of ``field`` that the report uses and
-    keeps in its base: all of them up to ``REPORT_SAMPLE_SIZE``, otherwise the
-    first ones of a ``first_seen`` or ``bottom_k`` sample (the smallest
-    priorities, design 19.4) or a seeded draw, so a scan of any sample size
-    gives the same examples."""
+    keeps in its base: all of them up to ``size`` (``kept_per_column``),
+    otherwise the first ones of a ``first_seen`` or ``bottom_k`` sample (the
+    smallest priorities, design 19.4) or a seeded draw, so a scan of any sample
+    size gives the same examples."""
     samples = field.values.samples
     listed = samples.listed
-    if len(listed) <= REPORT_SAMPLE_SIZE:
+    if len(listed) <= size:
         return listed
     if samples.selection in ("first_seen", "bottom_k"):
-        return listed[:REPORT_SAMPLE_SIZE]
-    chosen = sorted(random.Random(seed).sample(range(len(listed)), REPORT_SAMPLE_SIZE))
+        return listed[:size]
+    chosen = sorted(random.Random(seed).sample(range(len(listed)), size))
     return [listed[position] for position in chosen]
 
 
@@ -331,8 +325,8 @@ def build_value_profile(
 
     Every value when the listing is complete and short enough; otherwise a
     selection among the report sample (``report_sample``), at most
-    ``REPORT_SAMPLE_SIZE`` distinct values of the scan sample. ``sample`` is
-    that report sample when the caller already drew it.
+    ``value_examples.kept_per_column`` distinct values of the scan sample.
+    ``sample`` is that report sample when the caller already drew it.
     """
     settings = config.value_examples
     listed, complete = _listed_values(field)
@@ -349,7 +343,9 @@ def build_value_profile(
         )
 
     if sample is None:
-        sample = report_sample(field, config.scan.random_seed)
+        sample = report_sample(
+            field, config.scan.random_seed, settings.kept_per_column
+        )
     counts = {item.value: item.count for item in sample}
     population = sorted(counts)
     counts.update((item.value, item.count) for item in listed)
@@ -442,7 +438,13 @@ def build_string_profile(
         listed, _ = _listed_values(field)
         pool = {item.value: item.count for item in listed}
         for item in sorted(
-            sample if sample is not None else report_sample(field, config.scan.random_seed),
+            sample
+            if sample is not None
+            else report_sample(
+                field,
+                config.scan.random_seed,
+                config.value_examples.kept_per_column,
+            ),
             key=lambda item: (-item.count, item.value),
         ):
             pool.setdefault(item.value, item.count)
@@ -663,7 +665,9 @@ def build_column(
         # Containers kept whole at the flatten limit: no scalar family.
         inferred = "complex"
         type_counts = complex_counts
-    sample = report_sample(field, config.scan.random_seed)
+    sample = report_sample(
+        field, config.scan.random_seed, config.value_examples.kept_per_column
+    )
     views = build_views(field, inferred, config, sample)
     date_profile = views.date_profile
     value_profile = build_value_profile(
@@ -702,30 +706,6 @@ def build_column(
         detectors=build_detectors(field),
     )
     return column, views
-
-
-def build_scan_details(field: FieldResult) -> ScanFieldDetails:
-    """The facts of a field that the column pages show, read from the base."""
-    return ScanFieldDetails(
-        first_record=field.first_record,
-        occurrences=field.occurrences,
-        value_count=field.values.count,
-        presence=field.presence,
-        native_types=dict(field.native_types),
-        strings=field.strings,
-        missing=field.missing,
-        first=field.values.first,
-        last=field.values.last,
-        string_characteristics=field.string_characteristics,
-        string_lengths=(
-            field.string_lengths.value
-            if isinstance(field.string_lengths, Complete)
-            else None
-        ),
-        numeric=field.numeric.value if isinstance(field.numeric, Complete) else None,
-        booleans=field.booleans.value if isinstance(field.booleans, Complete) else None,
-        temporal=field.temporal.value if isinstance(field.temporal, Complete) else None,
-    )
 
 
 def _preview(records: Records, fields: list[FieldResult]) -> list[PreviewRow]:
@@ -937,7 +917,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
                     config,
                 )
             )
-    base = report_base(result)
+    base = report_base(result, config.value_examples.kept_per_column)
     return ReportProfile(
         engine=base.engine,
         status=base.status,
@@ -969,9 +949,9 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
     )
 
 
-def report_base(result: ScanResult) -> ScanResult:
+def report_base(result: ScanResult, size: int) -> ScanResult:
     """The base a Report holds: the scan, with the sample of each field reduced
-    to what the report uses (``report_sample``), its size declared by ``kept``
+    to ``size`` values at most (``report_sample``), its size declared by ``kept``
     and ``of`` (design 19.4). Everything else is the scan's, unchanged."""
     seed = result.config.random_seed
     datasets = []
@@ -979,7 +959,7 @@ def report_base(result: ScanResult) -> ScanResult:
         fields = []
         for field in dataset.fields:
             samples = field.values.samples
-            kept = report_sample(field, seed)
+            kept = report_sample(field, seed, size)
             if len(kept) < len(samples.listed):
                 reduced = samples.model_copy(update={"kept": len(kept), "listed": kept})
                 values = field.values.model_copy(update={"samples": reduced})

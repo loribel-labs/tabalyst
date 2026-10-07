@@ -156,7 +156,7 @@ def test_A14_a_presentation_change_does_not_scan_again(tmp_path, monkeypatch):
     source = write_text(tmp_path, "data.csv", CSV)
     plain = write_json(tmp_path, "plain.json", {})
     presented = write_json(
-        tmp_path, "presented.json", {"value_examples": {"inline_display_size": 1}}
+        tmp_path, "presented.json", {"report": {"value_examples": {"inline_display_size": 1}}}
     )
     first = generate_reports(
         [source], output=tmp_path / "a" / "data.html", config_path=plain, force=True
@@ -191,7 +191,7 @@ def test_A14_a_presentation_change_leaves_the_scan_file_untouched(tmp_path):
     scan_file = tmp_path / "scans" / "data.scan.json"
     before = scan_file.read_bytes()
     presented = write_json(
-        tmp_path, "presented.json", {"value_examples": {"inline_display_size": 1}}
+        tmp_path, "presented.json", {"report": {"value_examples": {"inline_display_size": 1}}}
     )
 
     batch = generate_reports(

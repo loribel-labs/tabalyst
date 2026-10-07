@@ -66,7 +66,10 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     config = _config(
         tmp_path,
         "config.json",
-        {"value_examples": {"inline_display_size": 2}, "scan": {"records": {"preview": 2}}},
+        {
+            "report": {"value_examples": {"inline_display_size": 2}},
+            "scan": {"records": {"preview": 2}},
+        },
     )
     scan_document = _scan(source, "--config", config)
     direct = tmp_path / "direct" / "data.html"
@@ -164,7 +167,9 @@ def test_other_scan_settings_in_the_configuration_are_stale(tmp_path):
     other = _config(tmp_path, "other.json", {"scan": {"limits": {"max_samples": 5}}})
     same = _config(tmp_path, "same.json", {"scan": {"random_seed": 42}})
     presentation = _config(
-        tmp_path, "presentation.json", {"value_examples": {"inline_display_size": 1}}
+        tmp_path,
+        "presentation.json",
+        {"report": {"value_examples": {"inline_display_size": 1}}},
     )
 
     result = _report("--scan", scan_document, "--config", other)

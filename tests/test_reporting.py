@@ -233,9 +233,9 @@ def test_column_page_shows_all_stored_enum_values_and_escapes_them(tmp_path):
     assert "open" in html and "closed" in html
     assert "&lt;b&gt;bad&lt;/b&gt;" in html
     assert "<b>bad</b>" not in html
-    assert column.scan_details.value_count == 3
-    assert column.scan_details.first.value == "open"
-    assert column.scan_details.last.value == "<b>bad</b>"
+    assert column.field.values.count == 3
+    assert column.field.values.first.value == "open"
+    assert column.field.values.last.value == "<b>bad</b>"
 
 
 def test_json_datasets_get_distinct_numbered_column_pages(tmp_path):
@@ -269,7 +269,7 @@ def test_scan_evidence_keeps_sensitive_values_masked(tmp_path):
     assert column.exposure == "mask"
     assert "alice@example.org" not in profile.model_dump_json()
     assert "alice@example.org" not in html
-    assert column.scan_details.first.value != "alice@example.org"
+    assert column.field.values.first.value != "alice@example.org"
 
 
 def test_enumeration_keeps_all_values_above_general_display_limit(tmp_path):

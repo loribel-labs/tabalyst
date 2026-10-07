@@ -9,14 +9,16 @@ the files passed with `--config`, and the Python API those passed with
 `config_path`; no file is loaded automatically. `tabalyst.json` is only a
 conventional name.
 
-One file can configure every command. The `scan` object holds the analysis
-settings, read by `tabalyst scan` and `tabalyst report`, described in
-[Scan settings](#scan-settings). The top level holds the presentation settings
-of the report and the CSV settings of `tabalyst sample`:
+One file can configure every command, with one object per tool. The `scan`
+object holds the analysis settings, read by `tabalyst scan` and
+`tabalyst report`, described in [Scan settings](#scan-settings). The `report`
+object holds the presentation settings of the report, described in
+[Report settings](#report-settings). The top-level `csv` object holds the CSV
+settings of `tabalyst sample`:
 
 ```json
 {
-  "string_analysis": {"examples_per_length": 5},
+  "report": {"string_analysis": {"examples_per_length": 5}},
   "csv": {"delimiter": ";"},
   "scan": {
     "csv": {"delimiter": ";"},
@@ -35,27 +37,31 @@ override.
 
 The report is built on Tabalyst Scan: it reuses a current stored scan when
 possible, or reads the CSV with the effective `scan` settings, then presents
-the result with the settings below.
+the result with the settings of the `report` object below. They only shape the
+presentation: changing them never scans the source again.
 
 ```json
 {
-  "string_analysis": {
-    "very_short_max_length": 5,
-    "short_max_length": 20,
-    "medium_max_length": 50,
-    "long_max_length": 255,
-    "length_distribution_max_length": 50,
-    "examples_per_length": 10
-  },
-  "value_examples": {
-    "full_distribution_max_distinct": 50,
-    "short_text_max_length": 20,
-    "short_text_percentile": 0.95,
-    "short_text_result_size": 20,
-    "long_text_result_size": 20,
-    "long_text_truncate_at": 30,
-    "truncation_suffix": "...",
-    "inline_display_size": 3
+  "report": {
+    "string_analysis": {
+      "very_short_max_length": 5,
+      "short_max_length": 20,
+      "medium_max_length": 50,
+      "long_max_length": 255,
+      "length_distribution_max_length": 50,
+      "examples_per_length": 10
+    },
+    "value_examples": {
+      "kept_per_column": 100,
+      "full_distribution_max_distinct": 50,
+      "short_text_max_length": 20,
+      "short_text_percentile": 0.95,
+      "short_text_result_size": 20,
+      "long_text_result_size": 20,
+      "long_text_truncate_at": 30,
+      "truncation_suffix": "...",
+      "inline_display_size": 3
+    }
   }
 }
 ```
@@ -87,15 +93,21 @@ per length in its String analysis tooltip.
 
 ### Examples and value profiles
 
+- `kept_per_column`: how many values of the scan sample the report keeps and
+  draws its examples from, from 1 to 1,000 (default `100`). The report keeps
+  the whole scan sample when it has no more values, otherwise this many of its
+  values: the first ones when the scan sample is the first distinct values seen,
+  or values chosen with `scan.random_seed`. The report declares how many it
+  kept and how many the scan listed in `values.samples` (`kept` and `of`). A
+  larger `scan.limits.max_samples` therefore does not change the examples of the
+  report. Choosing diverse examples compares the values with
+  each other, so the time grows faster than the number: on the 34 columns of
+  the insurance example, a report from a scan takes about 1 second at 100
+  values, 3 seconds at 300 and 30 seconds at 1,000, the maximum.
 - `full_distribution_max_distinct`: through this limit, every present distinct
   value and its occurrence count are retained in JSON. At `50`, the
   distribution is still complete; at `51`, Tabalyst selects values among a
-  reproducible sample of at most 100 distinct values: the scan sample
-  (`scan.limits.max_samples`, drawn with `scan.random_seed`) when it has no
-  more than 100, otherwise 100 of its values chosen with the same seed, or its
-  first 100 when the scan sample is the first distinct values seen. A larger
-  `scan.limits.max_samples` therefore does not change the examples of the
-  report.
+  reproducible sample of at most `kept_per_column` distinct values.
 - `short_text_max_length` and `short_text_percentile`: a column is considered
   short text when this percentile of its sampled lengths does not exceed the
   configured length.
@@ -165,9 +177,10 @@ settings recorded in the document. Its configuration files still give the
 presentation settings; settings given in their `scan` object must have the
 values recorded in the document, otherwise the report stops with an error (see [Report from a scan](../scan/files.md#report-from-a-scan)).
 
-### Settings moved to `scan`
+### Settings that moved
 
-These top-level settings are rejected with a message naming their new location:
+These top-level settings are rejected with a message naming their new location.
+The analysis settings moved to `scan`, the presentation settings to `report`:
 
 | Former setting | New location |
 | --- | --- |
@@ -180,6 +193,8 @@ These top-level settings are rejected with a message naming their new location:
 | `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
 | `value_examples.random_seed` | `scan.random_seed` |
 | `preview_rows` | `scan.records.preview`, now up to 1,000 |
+| `string_analysis` | `report.string_analysis` |
+| `value_examples` (other than the two below) | `report.value_examples` |
 
 ## Sample settings
 
@@ -381,7 +396,8 @@ report:
 | --- | --- | --- |
 | `scan.limits.max_distinct_per_field` | Scan, and Report through the scan it runs | Distinct values counted exactly; beyond it the cardinality is `limited` |
 | `scan.limits.max_samples` | Scan | Size of the sample of distinct values kept in the scan document |
-| `value_examples.*` | Report | What the report shows and how it picks examples from the scan sample (at most 100 values) |
+| `report.value_examples.kept_per_column` | Report | Sample values the report keeps per column, at most 1,000 (default 100): the smallest priorities of the scan sample, so a subset of it |
+| `report.value_examples.*` | Report | What the report shows and how it picks examples from the values it kept |
 
 ### Records
 

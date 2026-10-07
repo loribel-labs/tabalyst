@@ -14,7 +14,7 @@ from typing import Any
 from urllib.parse import quote
 
 from tabalyst.config import (
-    PresentationSettings,
+    SettingsFile,
     load_config_layers,
     settings_from_layer,
 )
@@ -86,7 +86,7 @@ def analyze_csv(
 def _profile_from_scan(
     scan_path: Path,
     result: ScanResult,
-    settings: PresentationSettings,
+    settings: SettingsFile,
     scan_layer: dict,
     on_progress: ProgressCallback | None,
     *,
@@ -97,10 +97,7 @@ def _profile_from_scan(
     check_config(scan_path, result, scan_layer)
     checked = check_source(scan_path, result)
     emit_progress(on_progress, scan_path, ProgressPhase.ANALYZING)
-    config = ReportConfig(
-        **settings.model_dump(exclude={"csv"}),
-        scan=result.config,
-    )
+    config = ReportConfig.from_settings(settings, result.config)
     profile = build_profile(result, config)
     # The scan and the report: as long as a report of the source itself.
     profile.report.processing_seconds = round(
@@ -305,7 +302,7 @@ def _analyze_resolved(
 def _report_scan_resolved(
     scan_path: Path,
     report: Path,
-    settings: PresentationSettings,
+    settings: SettingsFile,
     scan_layer: dict,
     config_paths: list[Path],
     *,

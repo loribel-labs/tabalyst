@@ -168,7 +168,7 @@ def test_A02_report_base_equals_the_scan_base(tmp_path):
     assert load_base(scan_file).format == "tabalyst.scan"
 
 
-@pytest.mark.scan_json_lot("2b")
+@pytest.mark.scan_json_lot("1c")
 def test_A02_report_keeps_a_declared_subset_of_the_scan_sample(tmp_path):
     from tabalyst.scan_document import load_base
 
@@ -178,7 +178,7 @@ def test_A02_report_keeps_a_declared_subset_of_the_scan_sample(tmp_path):
         tmp_path,
         "tabalyst.json",
         {
-            "value_examples": {"kept_per_column": 5},
+            "report": {"value_examples": {"kept_per_column": 5}},
             "scan": {"limits": {"max_distinct_per_field": 30, "max_samples": 20}},
         },
     )
