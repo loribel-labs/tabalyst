@@ -89,6 +89,8 @@ class ProgressPrinter:
         message = f"[{event.index}/{event.total}] {event.source.name} - {label}"
         if event.bytes_read is not None and event.bytes_total:
             message += f" {100 * event.bytes_read // event.bytes_total}%"
+        if event.duration_seconds is not None:
+            message += f" - {event.duration_seconds:.2f}s"
         padded = message.ljust(self._width)
         finished = event.phase in {ProgressPhase.COMPLETE, ProgressPhase.FAILED}
         typer.echo(f"\r{padded}", nl=finished, err=True)

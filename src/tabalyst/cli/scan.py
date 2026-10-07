@@ -51,7 +51,7 @@ def _print_success(success: ScanSuccess, *, verbose: bool) -> None:
             typer.echo(f"Delimiter: {result.source.csv.delimiter!r}", err=True)
         typer.echo(f"Status: {result.status}", err=True)
         typer.echo(f"Diagnostics: {len(result.diagnostics)}", err=True)
-        typer.echo(f"Duration: {result.duration_seconds:.2f} s", err=True)
+        typer.echo(f"Duration: {result.run.duration_seconds:.2f} s", err=True)
 
 
 def _print_partial(success: ScanSuccess) -> None:

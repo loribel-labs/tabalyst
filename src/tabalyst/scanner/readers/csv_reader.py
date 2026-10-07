@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import io
+from collections import Counter
 from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 
@@ -57,6 +58,13 @@ class CsvReader:
             raise RuntimeError("The CSV source has not been read completely")
         return self._summary
 
+    def _starts_with_bom(self) -> bool:
+        try:
+            with self.path.open("rb") as raw:
+                return raw.read(3) == b"\xef\xbb\xbf"
+        except OSError:
+            return False
+
     def __iter__(self) -> Iterator[StreamItem]:
         try:
             raw = self.path.open("rb")
@@ -66,7 +74,10 @@ class CsvReader:
         text = io.TextIOWrapper(
             io.BufferedReader(stream), encoding=self.encoding, newline=""
         )
-        reader = csv.reader(_lines(text), delimiter=self.delimiter, strict=True)
+        endings: Counter[str] = Counter()
+        reader = csv.reader(
+            _lines(text, endings), delimiter=self.delimiter, strict=True
+        )
         try:
             try:
                 header = next(reader, None)
@@ -87,6 +98,8 @@ class CsvReader:
             except OSError as exc:
                 raise InputError(f"Cannot read CSV file {self.path}: {exc}") from exc
             stream.drain()
+            lines = reader.line_num
+            bom = self._starts_with_bom()
         finally:
             text.close()
         self._summary = SourceSummary(
@@ -94,7 +107,13 @@ class CsvReader:
             bytes_read=stream.bytes_read,
             sha256=stream.hexdigest(),
             encoding=self.encoding,
-            csv=CsvSummary(delimiter=self.delimiter, header=header),
+            csv=CsvSummary(
+                delimiter=self.delimiter,
+                header=header,
+                lines=lines,
+                bom=bom,
+                line_ending=_line_ending(endings),
+            ),
         )
 
     def _records(self, reader, header: list[str]) -> Iterator[StreamItem]:
@@ -162,8 +181,18 @@ class CsvReader:
             yield RecordBatch(DATASET, index - len(rows) + 1, rows, lines)
 
 
-def _lines(text: Iterable[str]) -> Iterator[str]:
+def _line_ending(endings: Counter[str]) -> str | None:
+    if not endings:
+        return None
+    return next(iter(endings)) if len(endings) == 1 else "mixed"
+
+
+def _lines(text: Iterable[str], endings: Counter[str]) -> Iterator[str]:
     for number, line in enumerate(text, start=1):
+        if line.endswith("\n"):
+            endings["crlf" if line.endswith("\r\n") else "lf"] += 1
+        elif line.endswith("\r"):
+            endings["cr"] += 1
         if "\0" in line:
             raise InputError(
                 f"CSV contains NUL characters near physical line {number}; "

@@ -546,7 +546,7 @@ def test_compiled_and_python_backends_give_the_same_result(tmp_path, monkeypatch
     python = run_scan(source)
 
     for result in (compiled, python):
-        del result["started_at"], result["duration_seconds"]
+        del result["run"]
     assert python == compiled
 
 

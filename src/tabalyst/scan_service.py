@@ -255,7 +255,12 @@ def generate_scans(
         else:
             successes.append(ScanSuccess(job=completed_job, result=result, warnings=warnings))
             emit_progress(
-                on_progress, job.source, ProgressPhase.COMPLETE, index=index, total=total
+                on_progress,
+                job.source,
+                ProgressPhase.COMPLETE,
+                index=index,
+                total=total,
+                duration_seconds=result.run.duration_seconds,
             )
 
     return BatchScanResult(

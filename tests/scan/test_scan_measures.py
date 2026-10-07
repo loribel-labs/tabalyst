@@ -253,9 +253,24 @@ def test_global_budget_releases_the_largest_table(tmp_path):
     assert c["string_lengths"]["value"]["count"] == 6
     codes = {item["code"]: item for item in result["diagnostics"]}
     assert codes["global_budget"]["count"] == 2
-    assert codes["measures_limited"]["count"] == 2
-    assert codes["measures_limited"]["dataset"] == "rows"
-    assert "limited: a, c." in codes["measures_limited"]["message"]
+    limited = [
+        item for item in result["diagnostics"] if item["code"] == "measures_limited"
+    ]
+    assert {item["field"]: item["details"] for item in limited} == {
+        a["id"]: {
+            "measures": {
+                "values.cardinality": "global_budget",
+                "normalization.variant_groups": "global_budget",
+            }
+        },
+        c["id"]: {
+            "measures": {
+                "values.cardinality": "global_budget",
+                "normalization.variant_groups": "global_budget",
+            }
+        },
+    }
+    assert {item["dataset"] for item in limited} == {"rows"}
 
 
 def test_native_json_numbers_and_booleans(tmp_path):

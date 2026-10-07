@@ -36,7 +36,7 @@ from tabalyst.scanner.records import PathTokens, record_digest
 
 def semantic(result):
     return result.model_dump(
-        mode="json", by_alias=True, exclude={"started_at", "duration_seconds"}
+        mode="json", by_alias=True, exclude={"run"}
     )
 
 

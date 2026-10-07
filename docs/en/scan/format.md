@@ -6,7 +6,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 `tabalyst scan data.csv` writes a reusable `scan.json` by default;
 `-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
 describe every field of the source. This page describes format
-`tabalyst.scan`, version `0.2.0`, revision `1`. The format is
+`tabalyst.scan`, version `0.2.0`, revision `2`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](format-changelog.md).
@@ -17,15 +17,25 @@ the [scan format changelog](format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 1,
+  "format_revision": 2,
   "engine": {
     "version": "0.6.2",
     "normalization_version": 1,
     "detectors": {"number": 1, "date": 1, "email": 1, "...": 1}
   },
   "status": "complete",
-  "started_at": "2026-10-06T12:00:00Z",
-  "duration_seconds": 0.0023,
+  "run": {
+    "started_at": "2026-10-06T12:00:00Z",
+    "duration_seconds": 0.0023,
+    "timings": {
+      "reading": 0.0009,
+      "analysis": 0.001,
+      "finalize": 0.0003,
+      "other": 0.0001
+    },
+    "workers": 1,
+    "peak_memory_bytes": 58720256
+  },
   "source": {
     "format": "csv",
     "name": "orders.csv",
@@ -33,7 +43,25 @@ the [scan format changelog](format-changelog.md).
     "modified_at": "2026-09-27T05:06:40.930099Z",
     "sha256": "fe7a56e5...",
     "encoding": "utf-8-sig",
-    "csv": {"delimiter": ",", "header": ["id", "amount", "email"]}
+    "shape": {
+      "lines": 4,
+      "records": 3,
+      "columns": 3,
+      "fields": 3,
+      "datasets": 1,
+      "cells": 9,
+      "missing_cells": 0,
+      "records_with_missing": 0,
+      "empty_records": 0,
+      "duplicate_records": 0
+    },
+    "csv": {
+      "delimiter": ",",
+      "quote": "\"",
+      "header": ["id", "amount", "email"],
+      "bom": true,
+      "line_ending": "lf"
+    }
   },
   "config": {"...": "effective scan configuration"},
   "config_sha256": "030617af...",
@@ -54,10 +82,29 @@ the [scan format changelog](format-changelog.md).
 - `status`: `complete` when every record in scope was analyzed, `partial` when
   records were excluded under the `tolerant` error policy. A file that cannot
   be read produces no document.
+- `run`: what varies from one run to the next on the same source, kept apart
+  from the description of the data. `started_at` and `duration_seconds` give
+  the time and the processing time. `timings` splits the duration in seconds:
+  `reading` (reading and parsing the source, hashing included), `analysis`
+  (analysis of the values; with several workers, the time the main process
+  spends on it, waiting included), `finalize` (final computation of the
+  datasets) and `other` (setup and assembly of the result); the four parts add
+  up to `duration_seconds`. `workers` is the number of processes that analyzed
+  values (1 in the main process). `peak_memory_bytes` is the peak memory of the
+  main process, workers excluded, when the scan ended: it covers the whole
+  process and is `null` when the platform does not report it.
 - `source`: the file as read. `size_bytes` and `sha256` cover every byte read.
   `encoding` is the CSV encoding, or `utf-8` or `utf-8-sig` for JSON, and
-  `null` for an Excel workbook. `csv` is `null` for sources that are not CSV.
-  `excel` is `null` unless the source is a workbook: it gives the table read,
+  `null` for an Excel workbook. `shape` gives its global size: `lines`
+  (physical lines of a CSV file, header and multi-line cells included, `null`
+  for other formats), `records` analyzed, `columns` of a CSV or Excel table
+  (`null` for JSON and JSONL), `fields` and `datasets` found, and `cells`
+  (`records` times `columns`, `null` for JSON and JSONL), `missing_cells`,
+  `records_with_missing`, `empty_records` and `duplicate_records` (`null` when
+  a count is limited or disabled), summed over the datasets. `csv` is `null` for sources that are not CSV.
+  `csv` also gives the `quote` character, whether the file starts with a UTF-8
+  byte order mark (`bom`) and its `line_ending` (`lf`, `crlf`, `cr`, `mixed`, or
+  `null` without any line break). `excel` is `null` unless the source is a workbook: it gives the table read,
   as described [below](#excel-sources).
 - `config`: the complete effective configuration, with every default, as in
   the `scan` section of a [configuration file](../reference/configuration.md#scan-settings).
@@ -300,9 +347,15 @@ date range is itself a value. Counts are never masked.
   "dataset": "rows",
   "field": null,
   "detector": null,
+  "details": {},
   "locations": [{"record": 2, "line": 3}, {"record": 3, "line": 4}]
 }
 ```
+
+`measures_limited` has one diagnostic per field (`field` is the field
+identifier), with `details.measures` mapping each limited measure, such as
+`values.cardinality`, to its reason; its `count` is the number of limited
+measures. `details` is empty for the other codes.
 
 Diagnostics describe technical events, not data quality: excluded records,
 reached limits (`field_limit`, `depth_limit`, `measures_limited`,

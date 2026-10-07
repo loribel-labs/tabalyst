@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Callable, Iterable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
@@ -30,11 +31,15 @@ from tabalyst.scanner.identity import source_format_of
 from tabalyst.scanner.models import (
     CollectionScope,
     CsvSourceInfo,
+    DatasetResult,
     EngineInfo,
     ExcelSourceInfo,
+    RunInfo,
     ScanResult,
     Scope,
     SourceInfo,
+    SourceShape,
+    Timings,
 )
 from tabalyst.scanner.observations import (
     DatasetOpened,
@@ -98,6 +103,75 @@ def _observed(
         yield item
 
 
+def _duplicate_records(datasets: list[DatasetResult]) -> int | None:
+    """Duplicate records of every dataset, or ``None`` when one count is
+    limited or disabled."""
+    counts = [dataset.records.duplicates.count for dataset in datasets]
+    if any(count.status != "complete" for count in counts):
+        return None
+    return sum(count.value for count in counts)
+
+
+def _peak_memory_bytes() -> int | None:
+    """Peak memory of this process so far, or ``None`` when unavailable."""
+    try:
+        import resource
+    except ImportError:
+        pass
+    else:
+        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # Kibibytes on Linux, bytes on macOS.
+        return peak if sys.platform == "darwin" else peak * 1024
+    if sys.platform != "win32":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class Counters(ctypes.Structure):
+        _fields_ = (
+            ("cb", wintypes.DWORD),
+            ("PageFaultCount", wintypes.DWORD),
+            ("PeakWorkingSetSize", ctypes.c_size_t),
+            ("WorkingSetSize", ctypes.c_size_t),
+            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+            ("PagefileUsage", ctypes.c_size_t),
+            ("PeakPagefileUsage", ctypes.c_size_t),
+        )
+
+    counters = Counters()
+    counters.cb = ctypes.sizeof(Counters)
+    kernel32 = ctypes.WinDLL("kernel32")
+    psapi = ctypes.WinDLL("psapi")
+    kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    psapi.GetProcessMemoryInfo.argtypes = (
+        wintypes.HANDLE,
+        ctypes.POINTER(Counters),
+        wintypes.DWORD,
+    )
+    ok = psapi.GetProcessMemoryInfo(
+        kernel32.GetCurrentProcess(), ctypes.byref(counters), counters.cb
+    )
+    return int(counters.PeakWorkingSetSize) if ok else None
+
+
+def _timed(items: Iterable[StreamItem], spent: list[float]) -> Iterator[StreamItem]:
+    """Items as read, adding to ``spent[0]`` the time the source took to
+    produce them."""
+    iterator = iter(items)
+    while True:
+        started = perf_counter()
+        try:
+            item = next(iterator)
+        except StopIteration:
+            spent[0] += perf_counter() - started
+            return
+        spent[0] += perf_counter() - started
+        yield item
+
+
 def scan(
     source: str | Path,
     *,
@@ -150,15 +224,29 @@ def scan(
         pool = WorkerPool(config.model_dump_json(by_alias=True), count)
         if pool.start():
             engine.values.pool = pool
+    reading = [0.0]
     try:
-        engine.consume(reader if on_record is None else _observed(reader, on_record))
+        consume_started = perf_counter()
+        timed = _timed(reader, reading)
+        engine.consume(timed if on_record is None else _observed(timed, on_record))
+        analysis = perf_counter() - consume_started - reading[0]
+        finalize_started = perf_counter()
         datasets = engine.finalize()
+        finalize = perf_counter() - finalize_started
     finally:
         if engine.values.pool is not None:
             engine.values.pool.close()
     summary = reader.summary()
 
     excluded = engine.records_excluded
+    header = (
+        summary.csv.header
+        if summary.csv is not None
+        else None if summary.excel is None else summary.excel.header
+    )
+    columns = None if header is None else len(header)
+    analyzed = engine.records_analyzed
+    duration = perf_counter() - start
     result = ScanResult(
         engine=EngineInfo(
             version=__version__,
@@ -166,8 +254,20 @@ def scan(
             detectors=detectors.versions(),
         ),
         status="partial" if excluded else "complete",
-        started_at=started_at,
-        duration_seconds=round(perf_counter() - start, 6),
+        run=RunInfo(
+            started_at=started_at,
+            duration_seconds=round(duration, 6),
+            timings=Timings(
+                reading=round(reading[0], 6),
+                analysis=round(analysis, 6),
+                finalize=round(finalize, 6),
+                other=round(
+                    max(0.0, duration - reading[0] - analysis - finalize), 6
+                ),
+            ),
+            workers=1 if engine.values.pool is None else count,
+            peak_memory_bytes=_peak_memory_bytes(),
+        ),
         source=SourceInfo(
             format=summary.format,
             name=path.name,
@@ -175,11 +275,35 @@ def scan(
             modified_at=datetime.fromtimestamp(stat.st_mtime, UTC),
             sha256=summary.sha256,
             encoding=summary.encoding,
+            shape=SourceShape(
+                lines=None if summary.csv is None else summary.csv.lines,
+                records=analyzed,
+                columns=columns,
+                fields=sum(len(dataset.fields) for dataset in datasets),
+                datasets=len(datasets),
+                cells=None if columns is None else analyzed * columns,
+                missing_cells=sum(
+                    field.missing.count
+                    for dataset in datasets
+                    for field in dataset.fields
+                ),
+                records_with_missing=sum(
+                    dataset.records.with_missing.count for dataset in datasets
+                ),
+                empty_records=sum(
+                    dataset.records.empty.count for dataset in datasets
+                ),
+                duplicate_records=_duplicate_records(datasets),
+            ),
             csv=(
                 None
                 if summary.csv is None
                 else CsvSourceInfo(
-                    delimiter=summary.csv.delimiter, header=summary.csv.header
+                    delimiter=summary.csv.delimiter,
+                    quote=summary.csv.quote,
+                    header=summary.csv.header,
+                    bom=summary.csv.bom,
+                    line_ending=summary.csv.line_ending,
                 )
             ),
             excel=(

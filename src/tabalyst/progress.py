@@ -29,6 +29,8 @@ class ProgressEvent:
     # Reading progress of sources that report it: bytes read and file size.
     bytes_read: int | None = None
     bytes_total: int | None = None
+    # Processing time of the file, on completion of sources that report it.
+    duration_seconds: float | None = None
 
 
 ProgressCallback = Callable[[ProgressEvent], None]
@@ -44,6 +46,7 @@ def emit_progress(
     detail: str | None = None,
     bytes_read: int | None = None,
     bytes_total: int | None = None,
+    duration_seconds: float | None = None,
 ) -> None:
     if callback is not None:
         callback(
@@ -55,6 +58,7 @@ def emit_progress(
                 detail=detail,
                 bytes_read=bytes_read,
                 bytes_total=bytes_total,
+                duration_seconds=duration_seconds,
             )
         )
 

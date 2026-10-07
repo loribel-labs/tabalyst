@@ -104,7 +104,7 @@ def _profile_from_scan(
     profile = build_profile(result, config)
     # The scan and the report: as long as a report of the source itself.
     profile.processing_seconds = round(
-        result.duration_seconds + perf_counter() - started, 4
+        result.run.duration_seconds + perf_counter() - started, 4
     )
     return profile, checked
 
@@ -280,7 +280,7 @@ def _analyze_resolved(
         effective_config = config.model_copy(update={"scan": shared.result.config})
         profile = build_profile(shared.result, effective_config)
         profile.processing_seconds = round(
-            shared.result.duration_seconds + perf_counter() - started, 4
+            shared.result.run.duration_seconds + perf_counter() - started, 4
         )
         warnings += shared.warnings
     except InputError:
@@ -344,7 +344,7 @@ def _report_scan_resolved(
         force=force,
         details=details,
         # The total covers the scan too, as ``processing_seconds`` does.
-        started=started - result.duration_seconds,
+        started=started - result.run.duration_seconds,
         on_progress=on_progress,
     )
     warnings = [

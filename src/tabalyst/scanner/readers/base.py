@@ -19,6 +19,14 @@ from tabalyst.scanner.observations import StreamItem
 class CsvSummary:
     delimiter: str
     header: list[str]
+    # Physical lines of the file, the header and the line breaks inside quoted
+    # cells included.
+    lines: int = 0
+    quote: str = '"'
+    # Whether the file starts with a UTF-8 byte order mark.
+    bom: bool = False
+    # "lf", "crlf", "cr", "mixed", or None without any line break.
+    line_ending: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

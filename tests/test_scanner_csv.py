@@ -51,9 +51,42 @@ def test_byte_order_mark_is_hashed_but_not_part_of_the_header(tmp_path):
 
     result = _scan(path)
 
-    assert result["source"]["csv"] == {"delimiter": ",", "header": ["nom", "ville"]}
+    assert result["source"]["csv"] == {
+        "delimiter": ",",
+        "quote": '"',
+        "header": ["nom", "ville"],
+        "bom": True,
+        "line_ending": "lf",
+    }
     assert result["source"]["sha256"] == hashlib.sha256(content).hexdigest()
     assert _field(result, "ville")["strings"]["content"] == 1
+
+
+def test_source_shape_and_csv_line_endings(tmp_path):
+    path = _write(tmp_path, b'a,b\r\n1,"x\r\ny"\r\n,\r\n1,"x\r\ny"\r\n')
+
+    result = _scan(path)
+
+    source = result["source"]
+    assert source["csv"]["line_ending"] == "crlf"
+    assert source["csv"]["bom"] is False
+    assert source["shape"] == {
+        "lines": 6,
+        "records": 3,
+        "columns": 2,
+        "fields": 2,
+        "datasets": 1,
+        "cells": 6,
+        "missing_cells": 2,
+        "records_with_missing": 1,
+        "empty_records": 1,
+        "duplicate_records": 1,
+    }
+    run = result["run"]
+    assert run["workers"] == 1
+    assert sum(run["timings"].values()) == pytest.approx(
+        run["duration_seconds"], abs=1e-4
+    )
 
 
 def test_locations_use_the_first_physical_line_of_multiline_records(tmp_path):

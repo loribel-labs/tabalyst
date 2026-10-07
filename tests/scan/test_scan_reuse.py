@@ -86,7 +86,7 @@ def test_report_from_a_scan_includes_the_scan_duration(tmp_path):
     source = write_text(tmp_path, "data.csv", ROWS)
     scan_document = _scan(source)
     document = json.loads(scan_document.read_text(encoding="utf-8"))
-    document["duration_seconds"] = 12.5
+    document["run"]["duration_seconds"] = 12.5
     scan_document.write_text(json.dumps(document), encoding="utf-8")
 
     profile = analyze_scan(scan_document)

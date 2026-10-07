@@ -67,9 +67,8 @@ def test_scan_json_is_the_document_tabalyst_scan_writes(location, source):
     written = json.loads(outcome.scan_path.read_text("utf-8"))
     direct = json.loads(scan_document(scan(source)))
     for document in (written, direct):
-        document.pop("duration_seconds", None)
+        document.pop("run", None)
         document.pop("engine", None)
-        document.pop("started_at", None)
     assert written == direct
 
 

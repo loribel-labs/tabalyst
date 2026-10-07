@@ -18,6 +18,7 @@ class _Group:
         "code",
         "count",
         "dataset",
+        "details",
         "detector",
         "field",
         "index",
@@ -26,7 +27,9 @@ class _Group:
         "message",
     )
 
-    def __init__(self, index, code, level, message, dataset, field, detector) -> None:
+    def __init__(
+        self, index, code, level, message, dataset, field, detector, details
+    ) -> None:
         self.index = index
         self.code = code
         self.level = level
@@ -34,6 +37,7 @@ class _Group:
         self.dataset = dataset
         self.field = field
         self.detector = detector
+        self.details = details
         self.count = 0
         self.locations: list[dict[str, int]] = []
 
@@ -57,13 +61,21 @@ class DiagnosticCollector:
         detector: str | None = None,
         location: dict[str, int] | None = None,
         count: int = 1,
+        details: dict[str, object] | None = None,
     ) -> int:
         """Record ``count`` events and return the index of their diagnostic."""
         key = (code, dataset, field, detector)
         group = self._groups.get(key)
         if group is None:
             group = self._groups[key] = _Group(
-                len(self._groups), code, level, message, dataset, field, detector
+                len(self._groups),
+                code,
+                level,
+                message,
+                dataset,
+                field,
+                detector,
+                {} if details is None else details,
             )
         group.count += count
         if location is not None and len(group.locations) < self.max_locations:
@@ -80,6 +92,7 @@ class DiagnosticCollector:
                 dataset=group.dataset,
                 field=group.field,
                 detector=group.detector,
+                details=group.details,
                 locations=group.locations,
             )
             for group in self._groups.values()
