@@ -148,13 +148,13 @@ def test_masked_groups_with_equal_masked_keys_merge(tmp_path):
 
 
 def test_gate_applies_in_streaming_mode(tmp_path):
-    source = _write(tmp_path, "code\nS-11\nS-22\nS-11\n")
+    source = _write(tmp_path, "code\nS-11\nS-22\nS-33\nS-11\n")
 
     field = _field(
         _scan(
             source,
             patterns=[SECRET],
-            limits={"max_distinct_per_field": 1},
+            limits={"max_distinct_per_field": 2},
         ),
         "code",
     )

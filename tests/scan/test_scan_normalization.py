@@ -5,7 +5,15 @@
 """Scan contract: normalization version 1 and variant groups (lot 2b)."""
 
 import pytest
-from scan_helpers import dataset, field, run_scan, stages, write_json, write_text
+from scan_helpers import (
+    complete_cardinality,
+    dataset,
+    field,
+    run_scan,
+    stages,
+    write_json,
+    write_text,
+)
 
 pytestmark = pytest.mark.lot("2b")
 
@@ -73,7 +81,7 @@ def test_variants_are_grouped_while_raw_values_are_preserved(tmp_path):
         "  Québec  ": 1,
         DECOMPOSED_QUEBEC: 1,
     }
-    assert province["values"]["cardinality"] == _cardinality(6)
+    assert province["values"]["cardinality"] == complete_cardinality(6)
 
 
 def test_disabled_stage_no_longer_influences_results(tmp_path):
@@ -133,7 +141,11 @@ def test_streaming_after_release_gives_the_same_change_counters(tmp_path):
     assert _changed(streaming) == _changed(default)
     assert _changed(default)["collapse_whitespace"] == 3
     released = stages(streaming)
-    assert released["raw"]["cardinality"] == streaming["values"]["cardinality"]
+    # The raw stage counts the same values as the field, without its qualifiers.
+    raw = streaming["values"]["cardinality"]
+    assert released["raw"]["cardinality"] == {
+        key: raw[key] for key in ("status", "reason", "limit", "lower_bound")
+    }
     for stage in ("nfc", "trim", "collapse_whitespace", "casefold", "strip_accents"):
         assert released[stage]["cardinality"] == {
             "status": "limited",

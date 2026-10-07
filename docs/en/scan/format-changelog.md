@@ -32,3 +32,17 @@ datasets, fields, detectors, record facts, limits and diagnostics.
 Adds `run` (start, duration, timings, workers, peak memory), `source.shape`
 (global size of the source), the CSV `quote`, `bom` and `line_ending`, and
 diagnostic `details`; `measures_limited` is one diagnostic per field.
+
+Also in revision 2, before its release:
+
+- `values.cardinality` names its `domain` (`original`), its `accuracy` and its
+  `identity_accuracy`. A limited count adds `upper_bound` and, for the reason
+  `distinct_limit`, `threshold_reached_at_record` and
+  `overflow_detected_at_record`.
+- `scan.limits.max_samples` is the size of the sample the scan keeps per field:
+  10,000 by default (100 before), at most 100,000 and at most
+  `max_distinct_per_field`. The effective value is in `config`.
+- `values.samples.selection` may be `bottom_k`, with the members `k`, `hash`
+  and `threshold`: reserved, never written yet.
+- The JSON Schema of the document and a validator of its invariants are part of
+  the package (see [Scan format](format.md#json-schema)).

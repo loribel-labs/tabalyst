@@ -15,6 +15,7 @@ from markupsafe import Markup, escape
 
 from tabalyst._version import get_version
 from tabalyst.models import ColumnProfile, DatasetProfile, ReportProfile
+from tabalyst.report_profile import REPORT_SAMPLE_SIZE
 
 # Plain names of the scan measures a limit can stop (design 8 and 11).
 MEASURE_LABELS = {
@@ -156,6 +157,7 @@ def render_report(profile: ReportProfile, *, column_links: dict[tuple[str, str],
         report=profile,
         views=views,
         tabalyst_version=get_version(),
+        sample_size=REPORT_SAMPLE_SIZE,
         source_stem=Path(profile.source.filename).stem,
         source_suffix=Path(profile.source.filename).suffix,
         type_colors=type_colors,

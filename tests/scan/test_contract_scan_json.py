@@ -397,3 +397,44 @@ def _rates_csv(tmp_path) -> Path:
 
 def _column(dataset_profile, name):
     return next(column for column in dataset_profile.columns if column.name == name)
+
+
+@pytest.mark.scan_json_lot("1a")
+def test_a_stored_scan_that_no_longer_satisfies_the_model_is_scanned_again(tmp_path):
+    from tabalyst.projects.location import StorageLocation
+    from tabalyst.shared_scan_service import current_scan
+
+    source = write_text(tmp_path, "data.csv", "id\n1\n2\n")
+    location = StorageLocation.local()
+    first = current_scan(source, ScanConfig(), location=location, workers=1)
+    data = json.loads(first.path.read_text(encoding="utf-8"))
+    # A document of the current revision written before a member became
+    # required (the revision in progress is not published yet).
+    del data["datasets"][0]["fields"][0]["values"]["cardinality"]["accuracy"]
+    first.path.write_text(json.dumps(data), encoding="utf-8")
+
+    second = current_scan(source, ScanConfig(), location=location, workers=1)
+
+    assert second.reused is False
+    stored = json.loads(second.path.read_text(encoding="utf-8"))
+    assert stored["datasets"][0]["fields"][0]["values"]["cardinality"]["accuracy"] == (
+        "exact"
+    )
+
+
+@pytest.mark.scan_json_lot("1a")
+def test_a_scan_file_that_no_longer_satisfies_the_model_asks_for_a_new_scan(tmp_path):
+    source = write_text(tmp_path, "data.csv", "id\n1\n2\n")
+    generate_scans([source], output_dir=tmp_path / "scans", force=True)
+    document = tmp_path / "scans" / "data.scan.json"
+    data = json.loads(document.read_text(encoding="utf-8"))
+    del data["datasets"][0]["fields"][0]["values"]["cardinality"]["domain"]
+    document.write_text(json.dumps(data), encoding="utf-8")
+
+    outcome = generate_reports(
+        [document], output_dir=tmp_path / "reports", from_scan=True, force=True
+    )
+
+    assert outcome.succeeded is False
+    (failure,) = outcome.failures
+    assert "run tabalyst scan again" in str(failure.error)

@@ -48,7 +48,7 @@ HARD_CAPS: dict[str, int] = {
     "max_tracked_values": 500_000_000,
     "max_stored_value_length": 1_000_000,
     "max_listed_frequencies": 100_000,
-    "max_samples": 10_000,
+    "max_samples": 100_000,
     "max_variant_groups": 100_000,
     "max_variants_per_group": 10_000,
     "max_evidence_examples": 1_000,
@@ -261,6 +261,9 @@ def _limit(default: int, name: str, minimum: int = 1):
     return Field(default=default, ge=minimum, le=HARD_CAPS[name])
 
 
+DEFAULT_MAX_SAMPLES = 10_000
+
+
 class LimitSettings(_Settings):
     max_fields: int = _limit(10_000, "max_fields")
     max_depth: int = _limit(64, "max_depth")
@@ -271,7 +274,9 @@ class LimitSettings(_Settings):
     max_tracked_values: int = _limit(2_000_000, "max_tracked_values")
     max_stored_value_length: int = _limit(1_000, "max_stored_value_length")
     max_listed_frequencies: int = _limit(100, "max_listed_frequencies", 0)
-    max_samples: int = _limit(100, "max_samples", 0)
+    # K, the size of the sample kept per field. Left unset it follows T when T
+    # is lower than the default (design 18.2).
+    max_samples: int = _limit(DEFAULT_MAX_SAMPLES, "max_samples", 0)
     max_variant_groups: int = _limit(100, "max_variant_groups", 0)
     max_variants_per_group: int = _limit(20, "max_variants_per_group", 0)
     max_evidence_examples: int = _limit(10, "max_evidence_examples", 0)
@@ -282,6 +287,12 @@ class LimitSettings(_Settings):
     def distinct_within_global_budget(self):
         if self.max_distinct_per_field > self.max_tracked_values:
             raise ValueError("max_distinct_per_field cannot exceed max_tracked_values")
+        if self.max_samples > self.max_distinct_per_field:
+            if "max_samples" in self.model_fields_set:
+                raise ValueError("max_samples cannot exceed max_distinct_per_field")
+            # The sample is drawn from the exact table: a lower tracking limit
+            # lowers the default sample size with it.
+            self.max_samples = self.max_distinct_per_field
         return self
 
 

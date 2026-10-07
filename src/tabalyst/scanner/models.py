@@ -37,6 +37,16 @@ class Complete(ScanModel, Generic[T]):
     value: T
 
 
+# ``Any``: a serialized model is a plain dict whose values are JSON data.
+def _omit_none(data: dict[str, Any], names: tuple[str, ...]) -> dict[str, Any]:
+    """Drop the optional members that carry no information (absent is not
+    ``null``: the contract names them only when they are known)."""
+    for name in names:
+        if data.get(name, 0) is None:
+            del data[name]
+    return data
+
+
 class Limited(ScanModel):
     status: Literal["limited"] = "limited"
     reason: str
@@ -45,10 +55,7 @@ class Limited(ScanModel):
 
     @model_serializer(mode="wrap")
     def _omit_unproven_bound(self, handler) -> dict[str, Any]:
-        data = handler(self)
-        if data.get("lower_bound") is None:
-            data.pop("lower_bound", None)
-        return data
+        return _omit_none(handler(self), ("lower_bound",))
 
 
 class NotApplicable(ScanModel):
@@ -75,6 +82,65 @@ def measure(value_type: Any) -> Any:
 
 
 IntMeasure = measure(int)
+
+# Accuracy of a value or of the identity of the values it counts (design 18.1):
+# ``exact``, ``estimated`` by a named method, ``fingerprint_based`` (equality of
+# a digest, not of the whole value) or ``unknown``.
+Accuracy = Literal["exact", "estimated", "fingerprint_based", "unknown"]
+
+
+class CardinalityEstimate(ScanModel):
+    """Reserved for the KMV estimate (design 18.5, lot 2b): never written yet."""
+
+    method: Literal["kmv"]
+    value: float
+    relative_standard_error: float
+    k: int
+    theta_hex: str
+
+
+class CardinalityComplete(Complete[int]):
+    """Exact distinct count of the original values (design 9.1)."""
+
+    accuracy: Accuracy
+    domain: str
+    identity_accuracy: Accuracy
+
+
+class CardinalityLimited(Limited):
+    """Distinct count that stopped being tracked (design 9.1).
+
+    ``upper_bound`` is the certain maximum (the analyzed values);
+    ``threshold_reached_at_record`` and ``overflow_detected_at_record`` are the
+    records where the table reached its limit T and where T + 1 values were
+    proven, for the reason ``distinct_limit`` only.
+    """
+
+    domain: str
+    identity_accuracy: Accuracy
+    upper_bound: int | None = None
+    threshold_reached_at_record: int | None = None
+    overflow_detected_at_record: int | None = None
+    estimate: CardinalityEstimate | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            (
+                "lower_bound",
+                "upper_bound",
+                "threshold_reached_at_record",
+                "overflow_detected_at_record",
+                "estimate",
+            ),
+        )
+
+
+Cardinality = Annotated[
+    CardinalityComplete | CardinalityLimited | NotApplicable | Disabled | Failed,
+    Field(discriminator="status"),
+]
 
 
 # Paths ------------------------------------------------------------------------
@@ -155,14 +221,34 @@ class Frequencies(ScanModel):
     truncated: bool
 
 
+class SampleHash(ScanModel):
+    """Priority function of a bottom-k sample (design 18.3): reserved."""
+
+    algorithm: str
+    version: int
+    bits: int
+    seed: int
+
+
 class Samples(ScanModel):
-    selection: Literal["all", "uniform_distinct", "first_seen"]
+    """Distinct values with their counts. ``bottom_k`` is the selection of lot
+    2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,
+    as hexadecimal digits) are absent."""
+
+    selection: Literal["all", "uniform_distinct", "first_seen", "bottom_k"]
     listed: list[ValueCount]
+    k: int | None = None
+    hash: SampleHash | None = None
+    threshold: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_bottom_k(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("k", "hash", "threshold"))
 
 
 class FieldValues(ScanModel):
     count: int
-    cardinality: IntMeasure
+    cardinality: Cardinality
     frequencies: measure(Frequencies)
     samples: Samples
     first: ValueAt | None

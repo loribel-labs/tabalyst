@@ -290,18 +290,42 @@ def _listed_values(field: FieldResult) -> tuple[list[ValueCount], bool]:
     return frequencies.value.listed, not frequencies.value.truncated
 
 
+# Distinct values of a scan sample that the report draws its examples from. The
+# scan keeps ``scan.limits.max_samples`` of them; the report works on this many,
+# whatever that size, so its examples and its time do not depend on it. It
+# becomes a presentation setting with the Report sample of lot 1c.
+REPORT_SAMPLE_SIZE = 100
+
+
+def report_sample(field: FieldResult, seed: int) -> list[ValueCount]:
+    """The values of the scan sample of ``field`` that the report uses: all of
+    them up to ``REPORT_SAMPLE_SIZE``, otherwise the first ones of a ``first_seen``
+    sample or a seeded draw, so a scan of any sample size gives the same
+    examples."""
+    samples = field.values.samples
+    listed = samples.listed
+    if len(listed) <= REPORT_SAMPLE_SIZE:
+        return listed
+    if samples.selection == "first_seen":
+        return listed[:REPORT_SAMPLE_SIZE]
+    chosen = sorted(random.Random(seed).sample(range(len(listed)), REPORT_SAMPLE_SIZE))
+    return [listed[position] for position in chosen]
+
+
 def build_value_profile(
     field: FieldResult,
     *,
     inferred_type: str,
     position: int,
     config: ReportConfig,
+    sample: list[ValueCount] | None = None,
 ) -> ValueProfile:
     """Bounded, reproducible value representation.
 
     Every value when the listing is complete and short enough; otherwise a
-    selection among the scan samples, which are a uniform sample of the
-    distinct values drawn with ``scan.random_seed``.
+    selection among the report sample (``report_sample``), at most
+    ``REPORT_SAMPLE_SIZE`` distinct values of the scan sample. ``sample`` is
+    that report sample when the caller already drew it.
     """
     settings = config.value_examples
     listed, complete = _listed_values(field)
@@ -317,14 +341,16 @@ def build_value_profile(
             ],
         )
 
-    counts = {item.value: item.count for item in field.values.samples.listed}
+    if sample is None:
+        sample = report_sample(field, config.scan.random_seed)
+    counts = {item.value: item.count for item in sample}
     population = sorted(counts)
     counts.update((item.value, item.count) for item in listed)
     candidates = random.Random(config.scan.random_seed + position).sample(
         population, len(population)
     )
     frequent_items = listed or sorted(
-        field.values.samples.listed, key=lambda item: (-item.count, item.value)
+        sample, key=lambda item: (-item.count, item.value)
     )
     frequent = [item.value for item in frequent_items[: settings.inline_display_size]]
     lengths = sorted(len(value) for value in candidates)
@@ -380,10 +406,14 @@ def build_value_profile(
 
 
 def build_string_profile(
-    field: FieldResult, inferred_type: str, config: ReportConfig
+    field: FieldResult,
+    inferred_type: str,
+    config: ReportConfig,
+    sample: list[ValueCount] | None = None,
 ) -> StringProfile | None:
     """Length classes and exact length counts; examples per length come from
-    the listed frequencies, then the samples."""
+    the listed frequencies, then the report sample (``sample`` when the caller
+    already drew it)."""
     measure = field.string_lengths
     if inferred_type != "text" or measure.status != "complete" or not measure.value.count:
         return None
@@ -405,7 +435,8 @@ def build_string_profile(
         listed, _ = _listed_values(field)
         pool = {item.value: item.count for item in listed}
         for item in sorted(
-            field.values.samples.listed, key=lambda item: (-item.count, item.value)
+            sample if sample is not None else report_sample(field, config.scan.random_seed),
+            key=lambda item: (-item.count, item.value),
         ):
             pool.setdefault(item.value, item.count)
         examples: dict[int, list[StringLengthExample]] = {}
@@ -603,8 +634,9 @@ def build_column(
         inferred = "complex"
         type_counts = complex_counts
     date_profile = build_date_profile(field)
+    sample = report_sample(field, config.scan.random_seed)
     value_profile = build_value_profile(
-        field, inferred_type=inferred, position=position, config=config
+        field, inferred_type=inferred, position=position, config=config, sample=sample
     )
     missing = field.missing.count
     outside = technical.outside_count
@@ -637,7 +669,7 @@ def build_column(
         semantic_type=semantic_type(field),
         exposure=field.exposure,
         date_profile=date_profile,
-        string_profile=build_string_profile(field, inferred, config),
+        string_profile=build_string_profile(field, inferred, config, sample),
         numeric=build_numeric(field, inferred),
         detectors=build_detectors(field),
         scan_details=ScanFieldDetails(

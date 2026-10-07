@@ -203,6 +203,7 @@ def test_complete_queries_recover_released_tables_without_mutating_scan(
     full_limits = config.limits.model_dump()
     full_limits.update(
         max_distinct_per_field=1000,
+        max_samples=1000,
         max_tracked_values=10000,
         max_stored_value_length=10000,
         max_listed_frequencies=1000,

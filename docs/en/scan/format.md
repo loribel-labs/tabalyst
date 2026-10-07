@@ -272,6 +272,58 @@ envelope with a `status`:
 A scan can be `complete` while some of its measures are `limited`: the scan
 status is about records, the envelope about one measure.
 
+## Distinct values and samples
+
+`values.cardinality` counts the distinct values of a field in the original
+domain: the values as decoded, before any normalization stage, so `00123`,
+`123` and ` 123 ` are three values. It is an envelope with more members than
+the others:
+
+```json
+{"status": "complete", "value": 3, "accuracy": "exact",
+ "domain": "original", "identity_accuracy": "exact"}
+{"status": "limited", "reason": "distinct_limit", "limit": 100000,
+ "lower_bound": 100001, "domain": "original",
+ "identity_accuracy": "exact", "upper_bound": 250000,
+ "threshold_reached_at_record": 100000,
+ "overflow_detected_at_record": 100001}
+```
+
+- `domain`: what is counted. `original` is the only domain a scan writes.
+- `accuracy` of a `complete` count is `exact`. A `complete` envelope without
+  `accuracy`, as in the other measures, is exact for its declared population.
+- `identity_accuracy`: how two values are told apart. `exact` means that equal
+  values are compared whole, never by a digest.
+- `upper_bound`: the certain maximum of a `limited` count, the number of
+  analyzed values of the field (`values.count`).
+- `threshold_reached_at_record` and `overflow_detected_at_record`: for the
+  reason `distinct_limit`, the records (numbered like `first_record`) where the
+  table reached `scan.limits.max_distinct_per_field` distinct values and where
+  one more was proven. A record with several values of the field counts once.
+  They are absent for the other reasons and when a member is unknown: an
+  absent member is never `null` and never zero.
+
+`values.samples` lists distinct values with their exact counts: all of them
+when the field has at most `scan.limits.max_samples` (10,000 by default),
+otherwise that many, drawn with `scan.random_seed` (`uniform_distinct`) or the
+first distinct values seen when the table was released (`first_seen`). A sample
+is a set of examples, not a statistic: its counts are exact for its values and
+do not describe the other values of the field. `max_samples` cannot exceed
+`max_distinct_per_field`; when it is not set it follows a lower
+`max_distinct_per_field`. The selection `bottom_k`, with the members `k`,
+`hash` and `threshold`, is reserved for a later revision.
+
+## JSON Schema
+
+The package contains the JSON Schema of the scan document,
+`tabalyst/schemas/tabalyst.scan.schema.json`, also available from
+`tabalyst.scanner.schema.scan_schema()`. It describes the base document and
+accepts the namespaces `derived`, `observations`, `analyses` and `report`,
+which extensions of the base may add. Rules that link several members, such as
+a count that must equal the sum of its parts, are checked by
+`tabalyst.scanner.validation.check_scan()`, which returns the violated
+invariants.
+
 ## Detectors
 
 ```json

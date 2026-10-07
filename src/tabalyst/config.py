@@ -55,8 +55,8 @@ class CsvConfig(BaseModel):
 
 class ValueExamplesSettings(BaseModel):
     """How the report represents the values of a column. The candidates of a
-    sample are the scan samples (``scan.limits.max_samples``, drawn with
-    ``scan.random_seed``)."""
+    sample are at most ``REPORT_SAMPLE_SIZE`` values of the scan sample
+    (``scan.limits.max_samples``, drawn with ``scan.random_seed``)."""
 
     model_config = ConfigDict(extra="forbid")
 

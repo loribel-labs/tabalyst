@@ -19,8 +19,9 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Four rates and their denominators (A03) | `report_profile.py`, now documented in design 9.11 and pinned by tests | Done | 0 |
 | Run instrumentation (PERF-01) | `run`: `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `finalize`, `other`), `workers`, `peak_memory_bytes` | Modify: add planning, second pass, serialization, render | 6a, 7a, 5 |
 | Diagnostic counters of the sampler (PERF-02, PERF-03) | None | Add, optional and cheap | 2b |
-| Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound`, `estimate` | 1a, 2b |
-| Tracking limit T and sample size K separate (O28) | `max_distinct_per_field` 100,000 (kept as T); `max_samples` 100 becomes K, default 10,000 | Modify | 1a |
+| Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound` (Done at 1a); `estimate` (2b, reserved at 1a) | 1a, 2b |
+| Tracking limit T and sample size K separate (O28) | `max_distinct_per_field` 100,000 (kept as T); `max_samples` 100 becomes K, default 10,000 (Done at 1a, cap 100,000, K at most T) | Modify | 1a |
+| JSON Schema of the base and validator of invariants (20.3, A01) | None | Done at 1a: `scanner/schema.py`, `scanner/validation.py`, committed `schemas/tabalyst.scan.schema.json` (design 19.7) | 1a |
 | Bottom-k of distinct values (D04, D05, BK) | `values.samples` is `all`, `uniform_distinct` or `first_seen`, biased towards the start once the table is released | Add, replaces the biased selections | 2a, 2b |
 | KMV estimate (7.3) | None | Add | 2a, 2b |
 | Original domain (D25, O32) | Listings and samples use the analytical value (NFC, trim, collapse) | Modify | 2b, 4a |
