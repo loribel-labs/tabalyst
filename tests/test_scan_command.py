@@ -312,8 +312,7 @@ def test_configuration_file_must_hold_a_json_object(tmp_path):
 
 def _scan_document(path: Path) -> dict:
     document = json.loads(path.read_text(encoding="utf-8"))
-    document.pop("started_at")
-    document.pop("duration_seconds")
+    document.pop("run")
     return document
 
 

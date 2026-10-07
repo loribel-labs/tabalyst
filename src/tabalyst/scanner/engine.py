@@ -30,21 +30,25 @@ from tabalyst.scanner.records import RecordContext
 from tabalyst.scanner.structure import DatasetState
 from tabalyst.scanner.values import ValueContext
 
-# Fields named in the message of a ``measures_limited`` warning.
-LISTED_LIMITED_FIELDS = 10
+
+def limited_measures(field: FieldResult) -> dict[str, str]:
+    """The limited measures of a field, by location, with their reason."""
+    # Variant groups are limited only with the raw table today; listed so a
+    # later limit of their own cannot be missed.
+    measures = {
+        "values.cardinality": field.values.cardinality,
+        "numeric": field.numeric,
+        "normalization.variant_groups": field.normalization.variant_groups,
+    }
+    return {
+        location: measure.reason
+        for location, measure in measures.items()
+        if measure.status == "limited"
+    }
 
 
 def has_limited_measure(field: FieldResult) -> bool:
-    # Variant groups are limited only with the raw table today; listed so a
-    # later limit of their own cannot be missed.
-    return any(
-        measure.status == "limited"
-        for measure in (
-            field.values.cardinality,
-            field.numeric,
-            field.normalization.variant_groups,
-        )
-    )
+    return bool(limited_measures(field))
 
 
 class ScanEngine:
@@ -179,19 +183,18 @@ class ScanEngine:
                 count=records.untracked,
             )
         for result in results:
-            limited = [
-                field.display for field in result.fields if has_limited_measure(field)
-            ]
-            if limited:
-                named = ", ".join(limited[:LISTED_LIMITED_FIELDS])
-                if len(limited) > LISTED_LIMITED_FIELDS:
-                    named += f" and {len(limited) - LISTED_LIMITED_FIELDS} more"
-                self.diagnostics.add(
-                    "measures_limited",
-                    "warning",
-                    f"Some measures of {len(limited)} field(s) are limited: "
-                    f"{named}. The status of each measure gives its reason.",
-                    dataset=result.id,
-                    count=len(limited),
-                )
+            for field in result.fields:
+                limited = limited_measures(field)
+                if limited:
+                    self.diagnostics.add(
+                        "measures_limited",
+                        "warning",
+                        f"Some measures of {field.display} are limited: "
+                        f"{', '.join(limited)}. The status of each measure "
+                        "gives its reason.",
+                        dataset=result.id,
+                        field=field.id,
+                        count=len(limited),
+                        details={"measures": limited},
+                    )
         return results

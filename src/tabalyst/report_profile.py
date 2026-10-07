@@ -879,7 +879,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
     source = result.source
     return ReportProfile(
         generated_at=datetime.now(UTC),
-        processing_seconds=result.duration_seconds,
+        processing_seconds=result.run.duration_seconds,
         source=SourceInfo(
             filename=source.name,
             format=source.format,

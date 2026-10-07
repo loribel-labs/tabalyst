@@ -10,7 +10,7 @@ contract with three fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 1
+  "format_revision": 2
 }
 ```
 
@@ -26,3 +26,9 @@ version only: scan the source again to use an older document.
 This is the starting point for the current [Scan format](format.md). It
 describes CSV, JSON, JSONL and Excel sources, their effective configuration,
 datasets, fields, detectors, record facts, limits and diagnostics.
+
+## Version 0.2.0, revision 2
+
+Adds `run` (start, duration, timings, workers, peak memory), `source.shape`
+(global size of the source), the CSV `quote`, `bom` and `line_ending`, and
+diagnostic `details`; `measures_limited` is one diagnostic per field.

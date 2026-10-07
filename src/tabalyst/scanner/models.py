@@ -22,7 +22,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 1
+FORMAT_REVISION = 2
 
 
 class ScanModel(BaseModel):
@@ -490,6 +490,8 @@ class Diagnostic(ScanModel):
     dataset: str | None
     field: str | None
     detector: str | None
+    # Facts of the event, by code (for example the limited measures of a field).
+    details: dict[str, Any]
     locations: list[dict[str, int]]
 
 
@@ -501,7 +503,12 @@ class EngineInfo(ScanModel):
 
 class CsvSourceInfo(ScanModel):
     delimiter: str
+    quote: str
     header: list[str]
+    # Whether the file starts with a UTF-8 byte order mark.
+    bom: bool
+    # "lf", "crlf", "cr", "mixed", or null when the file has no line break.
+    line_ending: Literal["lf", "crlf", "cr", "mixed"] | None
 
 
 class ExcelSourceInfo(ScanModel):
@@ -516,6 +523,31 @@ class ExcelSourceInfo(ScanModel):
     header: list[str]
 
 
+class SourceShape(ScanModel):
+    """Global size of the source, whatever the dataset."""
+
+    # Physical lines of a CSV file (header and multi-line cells included);
+    # null for the other formats.
+    lines: int | None
+    # Analyzed records, all datasets together.
+    records: int
+    # Columns of a tabular source (CSV or Excel); null for JSON and JSONL.
+    columns: int | None
+    # Fields discovered, all datasets together.
+    fields: int
+    datasets: int
+    # Analyzed records times columns; null when the source is not tabular.
+    cells: int | None
+    # Cells with a missing value, all fields together (see ``values.missing``).
+    missing_cells: int
+    # Records with at least one missing value, empty records and records
+    # equal to an earlier one (null when the count is limited or disabled),
+    # all datasets together.
+    records_with_missing: int
+    empty_records: int
+    duplicate_records: int | None
+
+
 class SourceInfo(ScanModel):
     format: Literal["csv", "json", "jsonl", "excel"]
     name: str
@@ -523,6 +555,7 @@ class SourceInfo(ScanModel):
     modified_at: datetime
     sha256: str
     encoding: str | None
+    shape: SourceShape
     csv: CsvSourceInfo | None
     excel: ExcelSourceInfo | None = None
 
@@ -548,14 +581,42 @@ class Scope(ScanModel):
     exclusions: dict[str, int]
 
 
+class Timings(ScanModel):
+    """Where ``RunInfo.duration_seconds`` went; the four parts add up to it."""
+
+    # Reading and parsing the source, hashing included.
+    reading: float
+    # Analysis of the values, record callbacks included. With several workers,
+    # the time the main process spends on it, waiting for workers included.
+    analysis: float
+    # Final computation of the datasets.
+    finalize: float
+    # Setup (workers, detectors) and the assembly of the result.
+    other: float
+
+
+class RunInfo(ScanModel):
+    """What varies from one run to the next on the same source: it is not part
+    of the description of the data."""
+
+    started_at: datetime
+    duration_seconds: float
+    timings: Timings
+    # Processes that analyzed values: 1 when the scan ran in the main process.
+    workers: int
+    # Peak memory of the main process (workers excluded) when the scan ended,
+    # in bytes; null when the platform does not report it. It covers the whole
+    # process, so it includes earlier work in the same process.
+    peak_memory_bytes: int | None
+
+
 class ScanResult(ScanModel):
     format: Literal["tabalyst.scan"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
     format_revision: int = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]
-    started_at: datetime
-    duration_seconds: float
+    run: RunInfo
     source: SourceInfo
     config: ScanConfig
     config_sha256: str

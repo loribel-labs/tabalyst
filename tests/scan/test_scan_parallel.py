@@ -51,8 +51,7 @@ def _rows(count: int) -> str:
 def _document(source, workers: int, **settings) -> dict:
     result = scan(source, config=ScanConfig.model_validate(settings), workers=workers)
     document = result.model_dump(mode="json")
-    document.pop("started_at")
-    document.pop("duration_seconds")
+    document.pop("run")
     return document
 
 
