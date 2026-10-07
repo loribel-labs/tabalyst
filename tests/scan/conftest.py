@@ -14,12 +14,25 @@ updating the design document in the same lot.
 """
 
 import pytest
+from scan_json_gate import ENABLED_LOTS as SCAN_JSON_ENABLED_LOTS
+
+# Contract tests of the Scan and JSON work (plan 2026-10-06) are gated by
+# ``scan_json_gate.py``, kept apart from the lots below because their names
+# overlap: a test of a lot that is not enabled is a strict expected failure.
 
 ENABLED_LOTS: set[str] = {"1a", "1b", "2a", "2b", "3a", "3b", "5a", "5b", "5c", "5d", "6"}
 
 
 def pytest_collection_modifyitems(config, items):
     for item in items:
+        sj_marker = item.get_closest_marker("scan_json_lot")
+        if sj_marker is not None and sj_marker.args[0] not in SCAN_JSON_ENABLED_LOTS:
+            item.add_marker(
+                pytest.mark.xfail(
+                    strict=True,
+                    reason=f"Scan and JSON lot {sj_marker.args[0]} is not implemented yet",
+                )
+            )
         marker = item.get_closest_marker("lot")
         if marker is not None and marker.args[0] not in ENABLED_LOTS:
             item.add_marker(

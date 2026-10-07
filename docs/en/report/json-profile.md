@@ -192,8 +192,8 @@ Each column profile always contains:
 | `inferred_type` | `empty`, `complex`, `boolean`, `integer`, `number`, `date`, `text` or `mixed`. A column of dates is `date` even with several formats or ambiguous values. `complex` is a JSON column whose present values are all objects or arrays kept whole at the flatten limit; `type_counts` then counts `object` and `array` |
 | `type_counts` | Number of present values of each type |
 | `type_confidence` | Share of present values accepted by the inferred type, from 0 to 1. For `mixed` columns, the share of the largest type family; `null` for `empty` columns |
-| `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns |
-| `missing_count`, `missing_percent` | Missing cells; for JSON, also the objects where the field is absent |
+| `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns. The percentage is over the analyzable (non-missing) values of the column |
+| `missing_count`, `missing_percent` | Missing cells; for JSON, also the objects where the field is absent. The percentage is over the cells of the column (the rows of a CSV; for JSON, the occurrences of the field plus the objects where it is absent) |
 | `with_issues` | `true` when the column has missing values, its type is `mixed` or it holds ambiguous dates |
 | `normalization` | Values changed by each normalization stage and the variant groups (see below); missing cells are not counted |
 | `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
@@ -224,8 +224,8 @@ values are never changed.
 
 | Field | Content |
 | --- | --- |
-| `trim_count`, `trim_percent` | Values changed by trimming surrounding whitespace |
-| `collapse_internal_whitespace_count`, `collapse_internal_whitespace_percent` | Values changed by collapsing repeated internal whitespace |
+| `trim_count`, `trim_percent` | Values changed by trimming surrounding whitespace. The percentage is over all the cells of the column, missing ones included, so it is lower than the share among text values |
+| `collapse_internal_whitespace_count`, `collapse_internal_whitespace_percent` | Values changed by collapsing repeated internal whitespace, counted after trimming; same denominator as `trim_percent` |
 | `stages` | One item per stage, in order: `raw`, `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` (see below) |
 | `variant_group_count` | Normalized values written in at least two raw ways; `null` unless `variant_group_status` is `complete` |
 | `variant_group_status` | `complete`, `limited` when a scan limit stopped the count, or `not_applicable` without text values |

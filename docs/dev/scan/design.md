@@ -7,6 +7,11 @@ specification is maintained privately (`tabalyst-gb`,
 `drafts/2026-09-26-scan/Tabalyst-Scan-Cahier-des-charges.md`); its identifiers
 (`Dxx`, `EFxx`, `ETxx`, `CAxx`, `Oxx`) are reused here for traceability.
 
+Sections 18 to 21 (2026-10-06) add the contract of the Scan and JSON work:
+bottom-k samplers, the shared Scan and Report document, the second pass and the
+original value domain. They are Proposed until the maintainer accepts the
+baselines of lot 0.
+
 The phase plan, sessions and models are kept in the private maintainer
 repository. The contract
 tests that make this document executable are in `tests/scan/`.
@@ -53,16 +58,26 @@ lot, with the reason recorded in section 17.
 | O19 | Performance targets | Baseline recorded in `benchmarks.md`; targets decided in phase 6. | Deferred to 6 | 13 |
 | O20 | Costly exact measures, external storage | Out of the first phases; exact medians only when derivable. | Deferred to 7 | 9.4 |
 | O21 | Dynamic plugins | Internal registry only; no external loading. | Deferred to 7 | 12.1 |
-| O22 | Approximations | Outside the contract. Any approximation requires a new explicit decision. | Accepted (specification) | 8 |
+| O22 | Approximations | Outside the contract. Any approximation requires a new explicit decision. Amended by O26: approximations are admitted when named. | Accepted (specification); amended 2026-10-06 | 8, 18.1 |
 | O23 | Adaptive detection | Adaptive detectors that react to none of the first `detection.warmup_values` distinct values of a field (default 10,000) skip its later values, except probes; skipped values are `not_tested`, never guessed. `number` and `date` are never skipped. Sensitive detectors are skipped like the others for now (open point in section 13). | Accepted 2026-09-28 (lot 6) | 12.2, 13 |
 | O24 | Rare detectors | Adaptive detectors that react to at most `detection.rare_share` of the warm-up values (default 0.001) and to none of its second half are skipped too; a rare sensitive detector without a match never is. Probes that react more often than the warm-up allowed raise `detector_skipped_reacted`. | Proposed 2026-09-28 (lot 6) | 12.3, 13 |
 | O25 | Batch and parallel execution | Distinct values are processed in batches, detector by detector; CSV records arrive as batches of rows read column by column; large sources hand the values of each field to one worker process. Results never depend on batches or workers (principle 6). | Proposed 2026-09-28 (lot 6) | 6, 13 |
+| O26 | Named approximations | An estimate (KMV cardinality, quantiles rebuilt from bins) may be published when it carries `accuracy: "estimated"`, its method and its parameters. It never uses the status `complete`. Principle 1 is amended accordingly. | Proposed 2026-10-06 (Scan and JSON lot 0) | 2, 18.1 |
+| O27 | Report with a reduced sample | The Scan keeps the complete bottom-k sample of each field; the Report keeps fewer values (default 100, the smallest priorities, so an exact subset of the Scan's) with the same exact counters, and declares `kept` and `of`. A Report is not a valid input to replan an analysis. Amends the rule that the Report is a strict superset of the Scan. | Proposed 2026-10-06 | 19.4 |
+| O28 | Tracking limit and sample size | The exact tracking limit T (`limits.max_distinct_per_field`, default unchanged at 100,000) and the bottom-k size K (`limits.max_samples`, default 10,000, at most T) are separate settings. Amended 2026-10-07: the first version set T = K = 10,000. | Proposed 2026-10-06, amended 2026-10-07 | 18.2 |
+| O29 | Report as a document family | `format: "tabalyst.report"` is a superset of the Scan: the base keeps its paths, a common loader reads the base from a Scan or a Report, and the Report adds `report` and `analyses`. | Proposed 2026-10-06 | 19 |
+| O30 | One format revision per release | The unpublished revision in progress absorbs the format changes of the work; each lot updates the changelog; the revision increases once, at the release. | Proposed 2026-10-06 | 19.6 |
+| O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
+| O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
+| O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
 
 ## 2. Principles
 
-1. **Complete and exact, or explicitly limited.** Every record in the analyzed
-   scope is read. A measure is either exact for its declared population or
-   carries a non-`complete` status. No estimate is ever presented as a value.
+1. **Complete and exact, or explicitly limited or estimated.** Every record in
+   the analyzed scope is read. A measure is either exact for its declared
+   population (`complete`) or carries another status. An estimate is never
+   presented as an exact value: it is published only with `accuracy:
+   "estimated"`, its method and its parameters (O26).
 2. **Facts, not verdicts.** The scan records observations, interpretations and
    their evidence. Quality judgments, issues and presentation choices belong to
    consumers such as the report.
@@ -74,6 +89,11 @@ lot, with the reason recorded in section 17.
    tracked fields, not on the number of records.
 6. **Same results whatever the internal strategy.** Execution modes and caches
    (section 13) change speed, never results.
+7. **Smart by default, explicit when costly.** An automatic mode runs an extra
+   operation only when its benefit is established and its cost is low, under
+   deterministic budgets (section 20.2). Forcing a costly operation shows its
+   estimate and asks first. The API never prompts. No long operation runs
+   silently.
 
 ## 3. Package, public API and models
 
@@ -652,6 +672,30 @@ Each dataset has a `records` block of record-level facts (section 16.2):
   booleans of a sensitive field are masked, or their cell is `null` under
   `hide`; nulls and non-content strings stay as read.
 
+### 9.11 Rates of the report (A03)
+
+The report derives four rates per column from scan counters, with
+`percent(count, total) = round(100 * count / total, 2)`, and `0.0` when the
+total is zero. They are views, not collectors: nothing is recomputed from the
+source. Report rates are percentages from 0 to 100; scan shares
+(`share_eligible`, `share_tested`, `confidence`) are fractions from 0 to 1.
+
+`value_slots` of a field is `occurrences + presence.absent` (`absent` counts
+as 0 where it is null): the records of the dataset for a CSV column, plus the
+parent objects where a JSON member is absent, so a null and an absent member
+both occupy a slot.
+
+| Rate | Count | Denominator | Notes |
+| --- | --- | --- | --- |
+| `missing_percent` (column) | `missing.count` | `value_slots` | Missing under `values.missing`: absent, null, empty, blank and markers by default. |
+| `missing_percent` (dataset summary) | sum of `missing.count` | `cell_count`, the sum of the `value_slots` of the columns | N x C for a CSV. |
+| `type_error_percent` | `technical_type.outside_count` | `values.count` | The typed population: missing values are not in it. `null` when the column is `mixed`. |
+| `trim_percent` | `changed` of the `trim` stage | `value_slots` | `changed` counts `content` strings only, over every slot, so empty and null cells lower the rate: it understates the share among content strings. Kept as it is. |
+| `collapse_internal_whitespace_percent` | `changed` of `collapse_whitespace` | `value_slots` | Same remark; `changed` is counted after the trim stage. |
+
+Their meaning and units are a contract: a change needs a new name or a
+declared revision. `tests/scan/test_contract_scan_json.py` (A03) pins them.
+
 ## 10. Normalization version 1 (D15, D16, EF33-EF38, O08)
 
 Normalization applies to `content` strings only, never to the source. Stages
@@ -714,7 +758,7 @@ run in this order; each can be disabled:
 | `max_tracked_values` | 2,000,000 per scan | 500,000,000 | Global budget: the largest table is released first (ties: most recently discovered field); reason `global_budget`; warning `global_budget`. |
 | `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. |
 | `max_listed_frequencies` | 100 | 100,000 | Output truncation only. |
-| `max_samples` | 100 | 10,000 | Output size only. |
+| `max_samples` | 100 (10,000 from lot 1a, as the size K of the bottom-k sample, section 18.2) | 10,000 (raised at lot 1a) | Output size only. |
 | `max_variant_groups` | 100 | 100,000 | Output truncation only. |
 | `max_variants_per_group` | 20 | 10,000 | Output truncation only. |
 | `max_evidence_examples` | 10 | 1,000 | Detector evidence size only. |
@@ -722,7 +766,9 @@ run in this order; each can be disabled:
 | `max_listed_records` | 10 | 10,000 | Output truncation of the record listings only. |
 
 - Defaults are starting values, not validated budgets. Phase 6 revisits them
-  with measurements.
+  with measurements. In the Scan and JSON work, `max_distinct_per_field`
+  keeps its default and `max_samples` becomes the size K of the bottom-k sample,
+  default 10,000 (O28, section 18.2), once lot 1a implements it.
 - Degradation is one measure at a time; counters, normalization change counts,
   numeric and string statistics and detector coverage continue after a table is
   released (ET08).
@@ -1300,8 +1346,10 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
                            "percentage": 1, "quantity": 1, "uuid": 1,
                            "ip_address": 1}},
   "status": "complete",
-  "started_at": "2026-10-06T12:00:00Z",
-  "duration_seconds": 0.012,
+  "run": {"started_at": "2026-10-06T12:00:00Z", "duration_seconds": 0.012,
+          "timings": {"reading": 0.004, "analysis": 0.006, "finalize": 0.002,
+                      "other": 0.0},
+          "workers": 1, "peak_memory_bytes": 52428800},
   "source": {"format": "json", "name": "orders.json", "size_bytes": 312,
              "modified_at": "2026-09-26T21:58:00Z", "sha256": "...",
              "encoding": "utf-8", "csv": null},
@@ -1315,6 +1363,11 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 }
 ```
 
+- `run` holds what varies between runs on the same source (O33): the four
+  `timings` add up to `duration_seconds`; `workers` is the number of processes
+  that analyzed values; `peak_memory_bytes` is that of the main process, null
+  when the platform does not report it. It is not part of the description of
+  the data, so two scans of one source differ by it alone.
 - `source.csv` is `{"delimiter": ",", "header": [...]}` for CSV sources and
   `null` otherwise; `source.size_bytes` is the number of bytes read and hashed.
 - `scope.collections` describes JSON collection selection and is `null` for
@@ -1591,3 +1644,291 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-09-30 | JI-2 | Decision O12 amended and section 16.6: the SHA-256 always decides for a present source (no modification-time shortcut); another engine version warns. Section 15 and 16.1 (format revision 5): `json.flatten`, `json.arrays`, nullable `errors.policy`, the document records the resolved configuration, collection paths in canonical spelling. | Inspect design DP-D and DP-10 (scan identity), lot JI-2. |
 | 2026-09-30 | JI-4 | Section 5.3: JSONL sources, read as the dataset `$[]`; `limits.max_line_bytes`; `source.format` `jsonl`. |
 | 2026-10-01 | JI-7 | Section 16.3: with no `-o` or `-d`, the scan of a JSON, JSONL or NDJSON source goes to the shared storage like a CSV's. Sources of these formats are read with the configuration resolved by Inspect (inspect design 11). |
+| 2026-10-06 | SJ-0 | Principles 1 and 7; decisions O22 (amended) and O26 to O33; section 9.11 (rates); section 16.1 (`run`); sections 18 to 21. | Scan and JSON work, lot 0: the contract and its tests before the code. Proposed until the maintainer accepts the baselines. |
+| 2026-10-07 | SJ-0 | Section 19.4b: settings by tool, new Report setting `value_examples.kept_per_column` (default 100). | Keeps the Scan sample size K and the Report sample size apart in the configuration; keeps the examples of the Report unchanged. |
+| 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
+
+## 18. Bottom-k samplers (O26, O28)
+
+### 18.1 Named approximations (O26)
+
+Principle 1 admits an estimate when it is named. An estimate carries
+`accuracy: "estimated"`, its `method` and its `parameters`, and never the
+status `complete`. Accuracy values: `exact`, `estimated`, `fingerprint_based`
+(equality of a digest, not of the full value) and `unknown`. Two approximations
+are planned: the KMV estimate of a cardinality (18.5) and quantiles rebuilt
+from histogram bins (second pass). Everything the Scan already measures stays
+exact for its population.
+
+### 18.2 Tracking limit and sample size (O28)
+
+T, the number of distinct original values tracked exactly, and K, the size of
+the bottom-k sample, are two settings of `scan.limits` (the base configuration,
+`ScanConfig` in `scanner/config.py`, with their hard caps in `HARD_CAPS`):
+
+| Setting | Meaning | Default |
+| --- | --- | --- |
+| `max_distinct_per_field` (T) | Distinct values kept in the exact table | 100,000 (unchanged) |
+| `max_samples` (K) | Size of the bottom-k sample the Scan keeps, in its output | 10,000 from lot 1a (100 until then); its hard cap is raised accordingly |
+
+`max_samples` is the existing parameter, evolved rather than doubled by a new
+one: it was the size of the sample in the output and it still is. K cannot
+exceed T (configuration error, as `max_distinct_per_field` cannot exceed
+`max_tracked_values`). The default K is a starting value: lot 1a measures the
+weight of the Scan with K entries per column (estimated at 6 to 7 MB for the
+reference file, against 1.3 MB today) and the quality of pattern inference,
+and may lower it; a KMV error of about 3% already serves planning at
+K = 1,000.
+
+Up to T distinct values the table is exact, as today, and no existing exact
+measure changes. The first value beyond T proves overflow
+(`lower_bound = T + 1`): the K best entries of the T + 1 seen are kept with
+their exact counts (all of them were tracked from their first occurrence), and
+the bottom-k continues on every later occurrence. A table that stays under T
+keeps its sample as `all`, or reduced to its K best when it holds more than K.
+
+The first version of this decision (O28, 2026-10-06) set T = K = 10,000. The
+baseline of lot 0 showed that it saves memory (715 to 536 MB on the reference
+file) and no time, while it makes columns of 10,000 to 100,000 distinct values,
+and the identifiers of every file of fewer than 100,000 rows, lose their exact
+cardinality, complete frequencies and exact median until a second pass that
+`tabalyst scan` never starts by itself. The maintainer therefore kept T and
+separated it from K, on 2026-10-07. Lowering T remains possible if the global
+memory budget (lot 2c) requires it, with a recorded reason.
+
+### 18.3 Module `tabalyst.scanner.bottomk` (lot 2a)
+
+The selection mechanism is isolated from the product metadata (specification
+section 7). A key is `(native type, canonical original text)` (section 21), so
+the string `"123"` and the integer `123` stay distinct.
+
+| Name | Contract |
+| --- | --- |
+| `HASH_VERSION`, `HASH_BITS` | Version of the priority function and its width (128). |
+| `priority(key, *, seed=0) -> int` | Stable priority in `[0, 2**128)`, from the full key and the seed; never the builtin `hash()`. |
+| `BottomKSampler(k, *, seed=0, priority=None)` | `priority` replaces the function in tests (injected collisions). |
+| `BottomKSampler.from_exact(k, counts, *, seed=0, priority=None, overflow_at_occurrence=None)` | The sample of an exact table of `counts` (key to exact count) that holds more than K keys: the K best, with their counts. The engine uses it at the overflow of its table of T keys (18.2); the result equals streaming the same keys. |
+| `.add(key, count=1)` | One or `count` occurrences. |
+| `.entries()` | `Entry(key, priority, count)` ordered by `(priority, key)` ascending. |
+| `.occurrences` | Occurrences added. |
+| `.distinct_exact` | True while no overflow happened and no entry was dropped. |
+| `.overflow_at_occurrence` | 1-based occurrence number of the first occurrence of the (K + 1)th distinct key, else `None`. |
+| `.threshold` | Largest priority of the sample once it is full after an overflow, else `None`. |
+| `.reduce(k)` | Keeps the smaller priorities; a larger `k` raises `ValueError`; entries dropped make `distinct_exact` false. |
+| `.kmv()` | `KmvEstimate` or `None` (18.5). |
+
+Rules (BK-01 to BK-07, tests B01 to B06 and B09):
+
+- The priority depends only on the key and the seed. Equal priorities are
+  ordered by the complete key, ascending. Distinct keys are never merged.
+- Every distinct key is kept, with its count, until K is exceeded. The first
+  overflow keeps the K best of the K + 1 keys, with their counts.
+- An occurrence of a retained key increments its count. An unretained key
+  enters only if its priority is below the threshold, and then replaces the
+  worst entry.
+- The threshold never increases. A key that left never comes back, so a key of
+  the final sample was admitted at its first occurrence and never left: its
+  count is the exact count of the whole stream.
+- The sample is a function of the set of distinct keys, not of their order
+  (B03), of the seed and of K.
+- K can shrink to the smaller priorities; it cannot grow, because values
+  rejected earlier are lost (B09).
+
+### 18.4 Counters
+
+Counts of retained keys are exact (`count_accuracy: "exact"`) when the key
+identity is exact. They are not a top-N and not a frequency table: the most
+frequent value can be absent. Proportions among sampled distinct values are
+not proportions of rows.
+
+### 18.5 KMV estimate (lot 2a)
+
+After an overflow, with `K > 2` and a valid sample, `KmvEstimate` gives
+`estimate = (K - 1) / theta`, where `theta = threshold / 2**128`;
+`relative_standard_error = 1 / sqrt(K - 2)`; `k`; `theta_hex` (the threshold
+as 32 hexadecimal digits, since a 128-bit integer is not a safe JSON number).
+`kmv_estimate(threshold=..., k=...)` raises `ValueError` for `k < 3`, a
+threshold of 0 or one at or above `2**128`. No estimate is made while the
+domain is exact. The estimate serves planning; it is not a count of
+duplicates or a proof of uniqueness. Certain bounds (`lower_bound`,
+`upper_bound`) stay separate from the statistical interval, and an estimate
+may be published with a version clamped to them, with the raw value kept.
+Test B13 controls the error distribution over several datasets and seeds, with
+a tolerant fixed-seed check, never a bound per seed.
+
+### 18.6 Long texts (lot 2c)
+
+`tabalyst.scanner.longtext.LongTextSampler(k, *, preview_chars, seed=0)` keeps
+a small bottom-k of long texts. The priority comes from the full content; an
+entry stores `digest` (full-content digest, hexadecimal), `preview` (cut on a
+code point, so valid UTF-8), `truncated`, `original_length_chars`,
+`original_length_bytes`, `count` and `identity_accuracy: "fingerprint_based"`.
+Two texts with the same prefix are two entries (B07, B08). A preview does not
+certify the pattern or alphabet of the whole text.
+
+### 18.7 Length strata (lot 3a)
+
+`tabalyst.scanner.lengthsample.LengthStrataSampler(per_length_k, max_lengths)`
+keeps a bottom-k per tracked length, with a bounded number of lengths. A
+length is tracked from its first occurrence while a place is free; others are
+summed in `other` (`lengths`, `occurrences`) and `limited` is true (B11).
+`drop(length)` is the hook of the memory budget; a dropped length that returns
+is admitted late: its stratum has `count_accuracy: "partial"` and
+`tracking_started_at_occurrence` after its first occurrence, and no frequency
+of it is announced as exact (B12). Names are provisional until lot 3a.
+
+### 18.8 Hash choice and refusal threshold
+
+The function is chosen at lot 2a after measuring candidates (BLAKE2b 128 bits
+and other fast functions) on batches of distinct values. It is versioned
+(`HASH_VERSION`); a golden-value test pins it. A candidate is refused when the
+first pass of the realistic dataset regresses by more than 20% against the
+lot 0 baseline on the same machine, or the worst-width dataset (30 columns
+including 5 unique identifiers) by more than 35%.
+
+### 18.9 Output (provisional, settled at lots 1a and 2b)
+
+`values.samples` of an overflowed field has `selection: "bottom_k"`; `listed`
+holds the whole sample (K entries, K being `limits.max_samples`, ascending
+priority) in the Scan; each entry has `value`, `type`, `count`,
+`count_accuracy` and `identity_accuracy`; the block names `k`, the hash
+(`algorithm`, `version`, `bits`, `seed`) and the `threshold`. The priority and
+threshold of a sensitive field are not exposed. `values.cardinality` gains
+`domain`, `accuracy`, `identity_accuracy`, `upper_bound`,
+`threshold_reached_at_record`, `overflow_detected_at_record` and `estimate`.
+
+## 19. Scan and Report as one document family (O27, O29, O30)
+
+### 19.1 Identity
+
+`tabalyst.scan` is the base document. `tabalyst.report` is a superset: the
+base at the same paths (`engine`, `status`, `run`, `source`, `config`,
+`config_sha256`, `scope`, `datasets`, `diagnostics`), plus a `report` block
+and, later, `analyses` (second-pass results). The current Report profile has
+no `format` field; the new one identifies itself with
+`format: "tabalyst.report"` and has its own `format_revision`, with a
+reference to the revision of its base.
+
+### 19.2 Common loader
+
+`tabalyst.scan_document.load_base(path_or_document) -> ScanResult` reads the
+base from a Scan or a Report and ignores `report` and `analyses`. It checks
+`format_version` and the base revision like `scan_reuse` (a document of
+another revision is refused, never converted) and exposes the capabilities of
+the document (19.4). Extracting the base of a Report gives the same model and
+the same facts as the Scan it was built from, without rounding, filtering or
+renaming (A02, A11).
+
+### 19.3 The `report` block
+
+It holds the generation date, the generator version, the presentation
+configuration (`report.config`; `config` stays the Scan configuration) and the
+projections by dataset and field identifier. No statistic is stored twice:
+the copies `scan_details`, `numeric`, `string_profile` and `date_profile` of
+the current columns disappear, and the pages read the base (A04).
+
+### 19.4 Reduced samples (O27)
+
+A Report keeps fewer sample values than its base: by default the 100 smallest
+priorities of each field (`value_examples.kept_per_column`, 19.4b), an exact and deterministic subset of the Scan's, with
+the same exact counters. It declares `kept` and `of`. The capabilities of the
+loader say whether the samples are complete; a planner refuses a document
+whose samples are not, so a Report is never an input to replan. The
+computation (planner, second pass, patterns) reads the Scan, in memory or from
+the cache. A Report can be sent alone and rendered without the source (A10).
+
+### 19.4b Settings by tool
+
+One configuration file serves every command (section 15): the `scan` object
+holds what Scan measures and keeps, the top level holds what Report presents.
+Names are never reused across the two, so a number is read for one tool only:
+
+| Setting | Where | Tool | Meaning | Default |
+| --- | --- | --- | --- | --- |
+| `scan.limits.max_distinct_per_field` (T) | `scan` | Scan, and Report through the scan it runs | Distinct values kept in the exact table | 100,000 |
+| `scan.limits.max_samples` (K) | `scan` | Scan | Size of the bottom-k sample kept in the Scan document | 10,000 |
+| `value_examples.kept_per_column` | top level | Report | Sample values kept per column in the Report document: the smallest priorities of the K of the base, so an exact subset (19.4); at most K, and a Report built from a Scan with a smaller K keeps all of it and declares `kept` and `of` | 100 |
+| `value_examples.*_result_size`, `inline_display_size`, `full_distribution_max_distinct` | top level | Report | What the HTML shows and how examples are chosen | unchanged |
+
+`value_examples.kept_per_column` replaces the role that `max_samples` had for
+the Report (the candidate pool of its examples, `candidate_sample_size` before
+`max_samples`): 100 is the former default of `max_samples`, so the examples of a
+Report do not move when K becomes 10,000. It is presentation: changing it never
+invalidates a Scan document or starts a scan (A14), whereas a change of
+`scan.limits.*` changes `config_sha256`. The Report document records the Scan
+configuration in `config` and the presentation in `report.config` (19.3).
+`docs/en/reference/configuration.md` gets a table of these settings by tool
+when lot 1a changes `max_samples` and lot 1c changes the Report.
+
+### 19.5 Identity of the base
+
+`base_scan` identifies the base a document stands on: the existing scan
+identity (source SHA-256, configuration hash, engine version, format version
+and revision) and a hash of the facts without `run` and without the contents
+of the samples, so a change of presentation or of sample size does not change
+it. Provisional until lot 1b.
+
+### 19.6 Format revisions (O30)
+
+The revision in progress is not published (the Scan is at revision 2 since
+release 0.6.2, which published revision 1). The work changes it in place; each
+lot updates `docs/en/scan/format-changelog.md` and the Report changelog; the
+revision increases once, when the release is made. No adapter reads older
+documents.
+
+## 20. Second pass and the rule of costly operations (O31)
+
+### 20.1 Commands
+
+| Command | Behavior |
+| --- | --- |
+| `tabalyst scan` | First pass only. Never automatic. |
+| `tabalyst scan --deep` | Forces the second pass. With a valid Scan in the cache (source, configuration, engine), one pass; otherwise the first pass, then the second if the planner keeps analyses: at most two passes. Writes `<stem>.deep.json`. |
+| `tabalyst scan --plan` | Shows the plan without running it. |
+| `tabalyst report` | The planner decides whether a second pass has a benefit and a low cost, and what it holds. It names what it added or left out, and why. |
+| `tabalyst report --deep` | Forces the second pass. |
+
+The Python API is `tabalyst.scan(..., deep=True)`; it never prompts.
+`deep.mode` (`auto`, `off`, `force`) is a configuration setting for scripts
+and CI, with no command-line option to skip the second pass.
+
+### 20.2 Deterministic budgets
+
+Automatic selection uses deterministic quantities: memory in bytes, cells to
+process and number of columns, never measured time, so the same file gives the
+same plan on any machine. Estimated time only feeds messages. Thresholds are
+calibrated at lot 6b on the baselines and recorded here.
+
+### 20.3 Confirmation
+
+Forcing an operation whose estimate passes the thresholds (several minutes, or
+memory beyond the budget) shows the estimate and asks before starting; a batch
+asks once, with the total. Outside an interactive terminal nothing is asked:
+the command stops with an exit code and a message unless `--yes` is given.
+`--force` keeps its meaning (overwrite an output). The API returns the plan
+with `requires_confirmation` and the estimate, and executes only with an
+explicit parameter.
+
+### 20.4 Second-pass document
+
+`<stem>.deep.json` is separate and written atomically; the Scan is not
+rewritten. It carries the identity of its base (19.5), the plan, the execution
+and the analyses, each with its own envelope. A change of source, schema or
+configuration invalidates it (A09). A Report embeds what it needs under
+`analyses`.
+
+## 21. Original value domain (O32)
+
+Bottom-k, patterns and smart sampling rest on original values, decoded but
+before NFC, trim, whitespace collapse, casefold and accent removal: `00123`,
+`123` and ` 123 ` are three values. The detectors, the frequency listings, the
+lengths and the statistics keep the analytical value of section 10, and every
+block names its domain (`original` or the versioned normalization pipeline), so
+two populations are never confused (`telephone`: the original cardinality and
+the diversity of the exposed shapes are different things).
+
+Exposure applies after the calculation (12.8). A masked or hidden sample cannot
+give back the originals to a process outside the scan; the document declares
+that capability as missing, and the second pass reads the source when it needs
+them. Structural patterns can be computed before exposure and kept without
+keeping the value.
