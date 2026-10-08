@@ -31,6 +31,7 @@ the [scan format changelog](format-changelog.md).
       "reading": 0.0009,
       "analysis": 0.001,
       "finalize": 0.0003,
+      "derived": 0.0,
       "other": 0.0001
     },
     "workers": 1,
@@ -88,7 +89,8 @@ the [scan format changelog](format-changelog.md).
   `reading` (reading and parsing the source, hashing included), `analysis`
   (analysis of the values; with several workers, the time the main process
   spends on it, waiting included), `finalize` (final computation of the
-  datasets) and `other` (setup and assembly of the result); the four parts add
+  datasets), `derived` (the [inferred patterns](#inferred-patterns)) and
+  `other` (setup and assembly of the result); the five parts add
   up to `duration_seconds`. `workers` is the number of processes that analyzed
   values (1 in the main process). `peak_memory_bytes` is the peak memory of the
   main process, workers excluded, when the scan ended: it covers the whole
@@ -557,13 +559,126 @@ sample entries make it large (about 10 MB for 90,000 entries). Set
 [configuration](../reference/configuration.md#output-settings) to indent it,
 with each sample entry on one line. The content is the same.
 
+## Inferred patterns
+
+After a scan reads the whole source, it infers the structural patterns of each
+text field from the samples it kept, without reading the source again. They are
+written in the top-level `derived.patterns` member, one entry per field, and
+they are not the [configured patterns](../reference/configuration.md#patterns),
+which are detectors. A pattern here is a shape, such as two capitals followed by
+four digits, found among the distinct values of a field: the discovery of a
+structure, not a rule that the data must follow.
+
+```json
+{
+  "derived": {
+    "patterns": {
+      "grammar": {"name": "tabalyst.pattern", "version": 1},
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "status": "complete",
+          "population": {
+            "source": "samples", "selection": "all", "complete": true,
+            "available": 3000, "distinct": 3000,
+            "excluded": {
+              "long_text_occurrences": 0, "non_string_values": 0,
+              "empty_values": 0, "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1", "role": "principal",
+              "signature": [
+                {"kind": "literal", "text": "CLI", "min": 1, "max": 1},
+                {"kind": "literal", "text": "-", "min": 1, "max": 2},
+                {"kind": "digit_ascii", "min": 7, "max": 8}
+              ],
+              "render": "'CLI''-'{1,2}9{7,8}",
+              "lengths": {"min": 11, "max": 13},
+              "generalization": 0, "merged_structures": 1,
+              "coverage": {
+                "distinct": 2178, "share": 0.726, "basis": "all_distinct"
+              },
+              "confidence": {"method": "laplace_share", "value": 0.7257},
+              "examples": [0, 1, 2]
+            }
+          ],
+          "other": {"distinct": 0, "share": 0.0, "structures": 0},
+          "overlaps": [],
+          "limits": []
+        }
+      ]
+    }
+  }
+}
+```
+
+- `grammar` names the version of the rules that cut a value into tokens and
+  generalize them. A change of the rules raises its `version`.
+- Each field has an entry. `status` is `complete`, or `not_applicable` with a
+  `reason`: `technical_type` (only `text` and `mixed` fields are read),
+  `exposure` (the values of a [sensitive field](#sensitive-values) are masked or
+  hidden, so no pattern is inferred), `samples_withheld`, `long_texts_only`,
+  `no_values` and `too_few_distinct`.
+- `population` is what the inference read: the distinct values of the field's
+  [sample](#distinct-values-and-samples) and its
+  [samples by length](#samples-by-length), once each. `complete` is true when the
+  population is every distinct value of the field: the sample is `all` and
+  nothing was excluded or cut. `available` counts the usable
+  values and `distinct` those that took part. `excluded` counts what did not:
+  the occurrences of [long texts](#long-texts), whose preview never gives the
+  pattern of the whole text (`long_text_occurrences`), and the values that are
+  not strings, are empty, are longer than `scan.pattern_inference.max_value_length`
+  or have more than 32 tokens.
+- A candidate has an `id` (`p1`, `p2`, ...), a `role` (`principal` for the first,
+  the most common, then `secondary`) and a `signature`, the list of its tokens.
+  A token is a class of characters (`digit_ascii`, `upper_ascii`, `lower_ascii`,
+  `letter_unicode` for letters of any script, `alphanumeric` for letters and
+  digits) repeated `min` to `max` times, or a `literal` text. Separators, spaces
+  and signs are always literals. A letter or digit that is the same in at least
+  5 values of a structure is a literal too, so a fixed final `A` and a final
+  capital are different patterns.
+- `render` is a short reading of the signature: `9` for a digit, `X` for a
+  capital, `x` for a lowercase letter, `@` for any letter, `#` for a letter or a
+  digit, a count in braces for longer or variable repeats, and literal letters,
+  digits and spaces between quotes: `XX9999'A'` is two capitals, four digits and
+  the letter A. The `signature` is the reference.
+- `lengths` are the shortest and longest value counted for the candidate.
+  `generalization` is 0 for a structure kept as it is, 1 when letters of
+  different case or script were merged and 2 when letters and digits were;
+  `merged_structures` counts the structures the candidate stands for.
+- `coverage` is the number of distinct values of the population that the
+  candidate takes, and their `share`. Each value counts once, for the most
+  specific candidate that reads it. `basis` is `all_distinct` when the
+  population is every distinct value and `sample` when it is a sample. It is an
+  indicator of discovery on distinct values: it is not the share of the rows of
+  the file, which only a later pass can give. `confidence` is a heuristic, the
+  share damped by the number of values, not a probability.
+- `examples` are ids of entries of the field's sample (see
+  [Distinct values and samples](#distinct-values-and-samples)). A report keeps
+  fewer sample values, so some ids may not be found in it.
+- `other` counts the distinct values that no candidate takes, and the number
+  of structures they have. `overlaps` lists the sets of candidates that read
+  the same values (a candidate with `letter_unicode` or `alphanumeric` tokens
+  can read values of another structure) and how many values each set shares.
+  `limits` says `max_patterns` when more structures were found than
+  `scan.pattern_inference.max_patterns` allows (the smallest were generalized
+  or left in `other`) and `max_values` when the population was cut.
+- `scan.pattern_inference.enabled` set to `false` leaves `derived` out of the
+  document. A [report](../report/json-profile.md) carries the block as it is.
+
 ## JSON Schema
 
 The package contains the JSON Schema of the scan document,
 `tabalyst/schemas/tabalyst.scan.schema.json`, also available from
 `tabalyst.scanner.schema.scan_schema()`. It describes the base document and
-accepts the namespaces `derived`, `observations`, `analyses` and `report`,
-which extensions of the base may add. The package also has the schema of the
+describes `derived` (the [inferred patterns](#inferred-patterns)) and
+accepts the namespaces `observations`, `analyses` and `report`, which
+extensions of the base may add. The package also has the schema of the
 report, `tabalyst/schemas/tabalyst.report.schema.json`
 (`tabalyst.report_schema.report_schema()`). Rules that link several members, such as
 a count that must equal the sum of its parts, are checked by

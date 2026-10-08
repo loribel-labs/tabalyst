@@ -32,6 +32,7 @@ from tabalyst.scanner.models import (
     CollectionScope,
     CsvSourceInfo,
     DatasetResult,
+    Derived,
     EngineInfo,
     ExcelSourceInfo,
     RunCounters,
@@ -50,6 +51,7 @@ from tabalyst.scanner.observations import (
     StreamItem,
 )
 from tabalyst.scanner.paths import format_absolute, parse_path
+from tabalyst.scanner.patterninfer import infer_patterns
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
 from tabalyst.scanner.readers.excel_reader import ExcelReader
@@ -255,6 +257,9 @@ def scan(
         finalize_started = perf_counter()
         datasets = engine.finalize()
         finalize = perf_counter() - finalize_started
+        derived_started = perf_counter()
+        patterns = infer_patterns(datasets, config.pattern_inference)
+        derived = perf_counter() - derived_started
     finally:
         if engine.values.pool is not None:
             engine.values.pool.close()
@@ -283,8 +288,10 @@ def scan(
                 reading=round(reading[0], 6),
                 analysis=round(analysis, 6),
                 finalize=round(finalize, 6),
+                derived=round(derived, 6),
                 other=round(
-                    max(0.0, duration - reading[0] - analysis - finalize), 6
+                    max(0.0, duration - reading[0] - analysis - finalize - derived),
+                    6,
                 ),
             ),
             workers=1 if engine.values.pool is None else count,
@@ -353,6 +360,7 @@ def scan(
         ),
         datasets=datasets,
         diagnostics=engine.diagnostics.finalize(),
+        derived=None if patterns is None else Derived(patterns=patterns),
     )
     emit_progress(on_progress, path, ProgressPhase.COMPLETE)
     return result

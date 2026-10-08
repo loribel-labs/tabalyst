@@ -76,6 +76,12 @@ Also in revision 2, before its release:
   projected field (see [Row sample](format.md#row-sample)). New settings
   `records.sample.rows` (1,000), `edge` (50), `cell_chars` (200) and `max_bytes` (16 MiB).
   `records.preview` is unchanged. A Report keeps the block without its rows.
+- `derived.patterns` (optional): the structural patterns inferred from the
+  samples of each text field, with their signature, rendering, coverage of the
+  distinct values, overlaps and what was excluded (see
+  [Inferred patterns](format.md#inferred-patterns)). New settings
+  `scan.pattern_inference.enabled`, `max_patterns`, `max_value_length` and
+  `min_distinct`. `run.timings` gains `derived`.
 - `run.counters` (optional): the work of the samplers, written by
   `tabalyst scan --counters`.
 - The scan document is written without indentation by default; the new

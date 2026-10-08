@@ -969,7 +969,7 @@ class Scope(ScanModel):
 
 
 class Timings(ScanModel):
-    """Where ``RunInfo.duration_seconds`` went; the four parts add up to it."""
+    """Where ``RunInfo.duration_seconds`` went; the five parts add up to it."""
 
     # Reading and parsing the source, hashing included.
     reading: float
@@ -978,6 +978,8 @@ class Timings(ScanModel):
     analysis: float
     # Final computation of the datasets.
     finalize: float
+    # Analyses derived from the samples (design 18.12).
+    derived: float
     # Setup (workers, detectors) and the assembly of the result.
     other: float
 
@@ -1045,6 +1047,168 @@ class RunInfo(ScanModel):
         return _omit_none(handler(self), ("counters",))
 
 
+# Derived analyses -------------------------------------------------------------
+# Computed after the scan from its samples, never from the source (design 18.12).
+
+PatternTokenKind = Literal[
+    "digit_ascii",
+    "upper_ascii",
+    "lower_ascii",
+    "letter_unicode",
+    "alphanumeric",
+    "literal",
+]
+
+
+class PatternToken(ScanModel):
+    """One token of a pattern signature (design 18.12): a class of characters
+    repeated ``min`` to ``max`` times (characters), or a ``literal`` text
+    repeated ``min`` to ``max`` times."""
+
+    kind: PatternTokenKind
+    text: str | None = None
+    min: int
+    max: int
+
+    @model_serializer(mode="wrap")
+    def _omit_text(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("text",))
+
+
+class PatternLengths(ScanModel):
+    min: int
+    max: int
+
+
+class PatternCoverage(ScanModel):
+    """Distinct values of the inference population that the candidate takes.
+    ``basis`` is ``all_distinct`` when the population is every distinct stored
+    value of the field, ``sample`` when it is a sample: a discovery indicator,
+    never a frequency of the file (specification 10.1)."""
+
+    distinct: int
+    share: float
+    basis: Literal["all_distinct", "sample"]
+
+
+class PatternConfidence(ScanModel):
+    """Heuristic confidence, not a calibrated probability: the share of the
+    candidate damped by its support, ``share * n / (n + 1)``."""
+
+    method: Literal["laplace_share"]
+    value: float
+
+
+class PatternCandidate(ScanModel):
+    """A structural pattern found in the samples of a field (PAT-06).
+
+    ``examples`` are ids of entries of the field's samples. ``generalization``
+    is 0 for the structures as read, 1 when adjacent letters were merged and 2
+    when letters and digits were; ``merged_structures`` counts the structures
+    the candidate stands for."""
+
+    id: str
+    role: Literal["principal", "secondary"]
+    signature: list[PatternToken]
+    render: str
+    lengths: PatternLengths
+    generalization: int
+    merged_structures: int
+    coverage: PatternCoverage
+    confidence: PatternConfidence
+    examples: list[int]
+
+
+class PatternOther(ScanModel):
+    """The values no candidate takes, with the number of structures they have."""
+
+    distinct: int
+    share: float
+    structures: int
+
+
+class PatternOverlap(ScanModel):
+    """Distinct values that match every pattern of ``patterns`` (PAT-08)."""
+
+    patterns: list[str]
+    values: int
+
+
+class PatternExcluded(ScanModel):
+    """What did not take part in the inference. ``long_text_occurrences`` counts
+    occurrences of values too long to be stored (their previews never serve:
+    LONG-05); the others count distinct sampled values."""
+
+    long_text_occurrences: int
+    non_string_values: int
+    empty_values: int
+    too_long_values: int
+    too_complex_values: int
+
+
+class PatternPopulation(ScanModel):
+    """The values the inference read. ``distinct`` took part out of
+    ``available`` usable values (a cap on the population may leave some out)."""
+
+    source: Literal["samples"]
+    selection: Literal["all", "bottom_k"]
+    complete: bool
+    available: int
+    distinct: int
+    excluded: PatternExcluded
+
+
+class FieldPatternsComplete(ScanModel):
+    dataset: str
+    field: str
+    status: Literal["complete"] = "complete"
+    population: PatternPopulation
+    candidates: list[PatternCandidate]
+    other: PatternOther
+    overlaps: list[PatternOverlap]
+    limits: list[Literal["max_patterns", "max_values"]]
+
+
+class FieldPatternsNotApplicable(ScanModel):
+    dataset: str
+    field: str
+    status: Literal["not_applicable"] = "not_applicable"
+    reason: str
+
+
+FieldPatterns = Annotated[
+    FieldPatternsComplete | FieldPatternsNotApplicable,
+    Field(discriminator="status"),
+]
+
+
+class PatternGrammar(ScanModel):
+    """The versioned grammar and generalization rules (PAT-04)."""
+
+    name: str
+    version: int
+
+
+class DerivedPatterns(ScanModel):
+    """Structural patterns inferred from the samples, one entry per field
+    (design 18.12). They are distinct from the configured ``pattern:<id>``
+    detectors."""
+
+    grammar: PatternGrammar
+    domain: Literal["original"]
+    fields: list[FieldPatterns]
+
+
+class Derived(ScanModel):
+    """Analyses computed after the scan from its samples (specification 5.2)."""
+
+    patterns: DerivedPatterns | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_absent(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("patterns",))
+
+
 class ScanResult(ScanModel):
     format: Literal["tabalyst.scan"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
@@ -1058,3 +1222,9 @@ class ScanResult(ScanModel):
     scope: Scope
     datasets: list[DatasetResult]
     diagnostics: list[Diagnostic]
+    # Analyses computed from the samples; absent when none was (design 18.12).
+    derived: Derived | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_derived(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("derived",))

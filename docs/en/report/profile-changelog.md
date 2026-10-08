@@ -49,3 +49,6 @@ The profile becomes a superset of the Scan document: it has `format:
 - The samples of the base are reduced and declare `kept` and `of`. How many
   values the report keeps per column is a presentation setting,
   `report.config.value_examples.kept_per_column` (1 to 1,000, 100 by default).
+- A report carries the optional `derived` member of its scan, the
+  [inferred patterns](../scan/format.md#inferred-patterns), as it is: the
+  reduced samples cannot compute them again.

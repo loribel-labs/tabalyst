@@ -360,6 +360,25 @@ class RecordSettings(_Settings):
     sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
 
 
+MAX_INFERRED_PATTERNS = 64
+MAX_PATTERN_VALUE_LENGTH = 1_000
+
+
+class PatternInferenceSettings(_Settings):
+    """Inference of structural patterns from the samples (design 18.12).
+
+    The inference reads the samples of the finished scan, never the source.
+    ``max_patterns`` bounds the candidates of a field, ``max_value_length`` the
+    stored values that take part (longer ones are counted as excluded) and
+    ``min_distinct`` the distinct values a candidate needs.
+    """
+
+    enabled: bool = True
+    max_patterns: int = Field(default=8, ge=1, le=MAX_INFERRED_PATTERNS)
+    max_value_length: int = Field(default=64, ge=1, le=MAX_PATTERN_VALUE_LENGTH)
+    min_distinct: int = Field(default=2, ge=1, le=1_000)
+
+
 class TypeSettings(_Settings):
     minimum_confidence: float = Field(default=0.95, gt=0.5, le=1)
 
@@ -642,6 +661,9 @@ class ScanConfig(_Settings):
         default_factory=list, max_length=MAX_PATTERNS
     )
     exposure: ExposureSettings = Field(default_factory=ExposureSettings)
+    pattern_inference: PatternInferenceSettings = Field(
+        default_factory=PatternInferenceSettings
+    )
     # The seed of the bottom-k hash (design 18.3) is an unsigned 64-bit integer.
     random_seed: int = Field(default=42, ge=0, lt=2**64)
 

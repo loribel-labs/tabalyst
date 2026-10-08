@@ -139,6 +139,7 @@ A shortened profile for a five-row `orders.csv`:
 | `format_revision` | integer | Revision of the report within the family, increased for each structural or semantic change |
 | `engine`, `status`, `run`, `source`, `config`, `config_sha256`, `scope`, `diagnostics` | | The scan base, as in a [scan document](../scan/format.md). `config` is the effective scan configuration, the one recorded in the scan document for a report built with `--scan`. `source` is the file the scan read |
 | `datasets` | array | The scan datasets, with their records and fields: the measured facts. The samples of the fields are reduced (see [Reduced samples](#reduced-samples)) |
+| `derived` | object | Optional: the [inferred patterns](../scan/format.md#inferred-patterns) of the scan, carried as they are because the reduced samples cannot compute them again |
 | `report` | object | What the report adds (see below) |
 
 ## `report`
