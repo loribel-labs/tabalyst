@@ -5141,12 +5141,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-08T18:49:17.233403Z",
+    "generated_at": "2026-10-08T19:02:34.811321Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0302,
+    "processing_seconds": 0.0301,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

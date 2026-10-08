@@ -81,7 +81,8 @@ Also in revision 2, before its release:
   distinct values, overlaps and what was excluded (see
   [Inferred patterns](format.md#inferred-patterns)). New settings
   `scan.pattern_inference.enabled`, `max_patterns`, `max_value_length` and
-  `min_distinct`. `run.timings` gains `derived`.
+  `min_distinct`. `run.timings` gains `derived`. A field on which the inference
+  raises gets a `failed` entry and a `pattern_inference_failed` error.
 - `run.counters` (optional): the work of the samplers, written by
   `tabalyst scan --counters`.
 - The scan document is written without indentation by default; the new

@@ -14,11 +14,13 @@ from collections.abc import Sequence
 from itertools import groupby
 
 from tabalyst.scanner.config import PatternInferenceSettings
+from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.models import (
     DatasetResult,
     DerivedPatterns,
     FieldPatterns,
     FieldPatternsComplete,
+    FieldPatternsFailed,
     FieldPatternsNotApplicable,
     FieldResult,
     PatternCandidate,
@@ -578,14 +580,43 @@ def _infer(
     )
 
 
+def _infer_isolated(
+    dataset: str,
+    field: FieldResult,
+    settings: PatternInferenceSettings,
+    diagnostics: DiagnosticCollector,
+) -> FieldPatterns:
+    """``infer_field``, with an exception turned into a ``failed`` entry and a
+    ``pattern_inference_failed`` error: a bug in this post-pass must not lose a
+    scan that already read the whole source (as for a detector, CA19)."""
+    try:
+        return infer_field(dataset, field, settings)
+    except Exception as exc:  # noqa: BLE001 - the inference is isolated per field
+        # Only the exception type: its message could quote a value.
+        index = diagnostics.add(
+            "pattern_inference_failed",
+            "error",
+            f"Pattern inference failed on field {field.display} "
+            f"({type(exc).__name__}): its patterns are omitted; other analyses "
+            "continue.",
+            dataset=dataset,
+            field=field.id,
+        )
+        return FieldPatternsFailed(dataset=dataset, field=field.id, diagnostic=index)
+
+
 def infer_patterns(
-    datasets: Sequence[DatasetResult], settings: PatternInferenceSettings
+    datasets: Sequence[DatasetResult],
+    settings: PatternInferenceSettings,
+    diagnostics: DiagnosticCollector,
 ) -> DerivedPatterns | None:
     """The patterns inferred in every field of ``datasets``, or ``None`` when the
     inference is turned off.
 
     One entry per field, in the order of the datasets and fields. The result
-    depends on the samples only, not on how the scan ran (principle 6).
+    depends on the samples only, not on how the scan ran (principle 6). A field
+    on which the inference raises gets a ``failed`` entry and an error in
+    ``diagnostics``; the others are unaffected.
     """
     if not settings.enabled:
         return None
@@ -593,7 +624,7 @@ def infer_patterns(
         grammar=PatternGrammar(name=GRAMMAR_NAME, version=GRAMMAR_VERSION),
         domain="original",
         fields=[
-            infer_field(dataset.id, field, settings)
+            _infer_isolated(dataset.id, field, settings, diagnostics)
             for dataset in datasets
             for field in dataset.fields
         ],

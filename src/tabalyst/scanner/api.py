@@ -258,7 +258,9 @@ def scan(
         datasets = engine.finalize()
         finalize = perf_counter() - finalize_started
         derived_started = perf_counter()
-        patterns = infer_patterns(datasets, config.pattern_inference)
+        patterns = infer_patterns(
+            datasets, config.pattern_inference, engine.diagnostics
+        )
         derived = perf_counter() - derived_started
     finally:
         if engine.values.pool is not None:

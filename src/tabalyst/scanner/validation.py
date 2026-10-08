@@ -17,6 +17,7 @@ from tabalyst.scanner.models import (
     DatasetResult,
     DetectorComplete,
     FieldPatternsComplete,
+    FieldPatternsFailed,
     FieldResult,
     LengthStratum,
     LongTexts,
@@ -572,10 +573,29 @@ def _check_patterns(result: ScanResult, problems: list[str]) -> None:
         )
         return
     for entry in patterns.fields:
-        if isinstance(entry, FieldPatternsComplete):
+        if isinstance(entry, FieldPatternsFailed):
+            _check_failed_patterns(entry, result, problems)
+        elif isinstance(entry, FieldPatternsComplete):
             _check_field_patterns(
                 entry, fields[(entry.dataset, entry.field)], result, problems
             )
+
+
+def _check_failed_patterns(
+    entry: FieldPatternsFailed, result: ScanResult, problems: list[str]
+) -> None:
+    """A failed entry points to the diagnostic that names its field."""
+    where = f"derived.patterns[{entry.dataset}.{entry.field}]"
+    if not 0 <= entry.diagnostic < len(result.diagnostics):
+        problems.append(f"{where}: diagnostic does not exist")
+        return
+    diagnostic = result.diagnostics[entry.diagnostic]
+    if (diagnostic.code, diagnostic.dataset, diagnostic.field) != (
+        "pattern_inference_failed",
+        entry.dataset,
+        entry.field,
+    ):
+        problems.append(f"{where}: diagnostic is not its pattern_inference_failed")
 
 
 def _check_field_patterns(

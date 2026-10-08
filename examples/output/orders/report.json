@@ -17252,12 +17252,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-08T18:49:20.364565Z",
+    "generated_at": "2026-10-08T19:02:37.750721Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1344,
+    "processing_seconds": 0.136,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

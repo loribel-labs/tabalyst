@@ -619,9 +619,13 @@ structure, not a rule that the data must follow.
 
 - `grammar` names the version of the rules that cut a value into tokens and
   generalize them. A change of the rules raises its `version`.
-- Each field has an entry. `status` is `complete`, or `not_applicable` with a
-  `reason`: `technical_type` (only `text` and `mixed` fields are read),
-  `exposure` (the values of a [sensitive field](#sensitive-values) are masked or
+- Each field has an entry. `status` is `complete`, `failed` or
+  `not_applicable` with a `reason`. `failed` means the inference raised on
+  that field (`reason` `inference_error`): `diagnostic` is the index of a
+  `pattern_inference_failed` error in `diagnostics`, which names the field
+  and the exception type, and the other fields and the rest of the scan are
+  unaffected. The reasons of `not_applicable` are: `technical_type` (only
+  `text` and `mixed` fields are read), `exposure` (the values of a [sensitive field](#sensitive-values) are masked or
   hidden, so no pattern is inferred), `samples_withheld`, `long_texts_only`,
   `no_values` and `too_few_distinct`.
 - `population` is what the inference read: the distinct values of the field's
