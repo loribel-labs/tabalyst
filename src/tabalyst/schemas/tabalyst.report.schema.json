@@ -1671,6 +1671,7 @@
             "discriminator": {
               "mapping": {
                 "complete": "#/$defs/FieldPatternsComplete",
+                "failed": "#/$defs/FieldPatternsFailed",
                 "not_applicable": "#/$defs/FieldPatternsNotApplicable"
               },
               "propertyName": "status"
@@ -1681,6 +1682,9 @@
               },
               {
                 "$ref": "#/$defs/FieldPatternsNotApplicable"
+              },
+              {
+                "$ref": "#/$defs/FieldPatternsFailed"
               }
             ]
           },
@@ -2745,6 +2749,44 @@
         "status"
       ],
       "title": "FieldPatternsComplete",
+      "type": "object"
+    },
+    "FieldPatternsFailed": {
+      "additionalProperties": false,
+      "description": "The inference raised on this field: the other fields and analyses are\nunaffected and ``diagnostic`` points to the ``pattern_inference_failed``\nerror (the exception type only: its message could quote a value).",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "failed",
+          "default": "failed",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "const": "inference_error",
+          "default": "inference_error",
+          "title": "Reason",
+          "type": "string"
+        },
+        "diagnostic": {
+          "title": "Diagnostic",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "diagnostic",
+        "status"
+      ],
+      "title": "FieldPatternsFailed",
       "type": "object"
     },
     "FieldPatternsNotApplicable": {

@@ -13015,12 +13015,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-08T18:49:21.296246Z",
+    "generated_at": "2026-10-08T19:02:38.648296Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.3396,
+    "processing_seconds": 0.3241,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

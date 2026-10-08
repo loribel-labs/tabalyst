@@ -352,3 +352,49 @@ def test_a_report_carries_the_patterns_of_its_scan():
     document = json.loads(profile.model_dump_json(by_alias=True))
     assert document["derived"]["patterns"]["grammar"]["version"] == 1
     assert check_scan(base_of(profile)) == []
+
+
+# Failure ---------------------------------------------------------------------
+
+
+def test_a_field_on_which_the_inference_raises_fails_alone(tmp_path, monkeypatch):
+    real = patterninfer._infer
+
+    def failing(dataset, field, *args):
+        if field.display == "ids":
+            raise ValueError("secret-value-123")
+        return real(dataset, field, *args)
+
+    monkeypatch.setattr(patterninfer, "_infer", failing)
+    result = _scan(
+        tmp_path,
+        "ids,codes",
+        [f"ID-{i:03d},{LETTERS[i % 26]}{i:02d}" for i in range(40)],
+    )
+
+    entries = _entries(result)
+    failed = entries["column_1"]
+    assert failed.status == "failed"
+    assert failed.reason == "inference_error"
+    diagnostic = result.diagnostics[failed.diagnostic]
+    assert diagnostic.code == "pattern_inference_failed"
+    assert diagnostic.level == "error"
+    assert (diagnostic.dataset, diagnostic.field) == ("rows", "column_1")
+    assert "ValueError" in diagnostic.message
+    assert "secret-value-123" not in diagnostic.message
+    # The scan and the other field are unaffected.
+    assert result.status == "complete"
+    assert entries["column_2"].status == "complete"
+    assert check_scan(result) == []
+
+
+def test_the_validator_checks_the_diagnostic_of_a_failed_entry(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        patterninfer, "_infer", lambda *args: (_ for _ in ()).throw(KeyError("x"))
+    )
+    result = _scan(tmp_path, "id", [f"ID-{i:03d}" for i in range(40)])
+    document = result.model_dump(mode="json")
+
+    assert check_scan(result) == []
+    document["derived"]["patterns"]["fields"][0]["diagnostic"] = 9
+    assert any("diagnostic" in p for p in check_scan(ScanResult.model_validate(document)))

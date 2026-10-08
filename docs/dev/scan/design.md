@@ -1254,6 +1254,7 @@ never guessed when corruption prevents delimiting them.
 | Global value budget | One `global_budget` warning per scan: `count` is the number of released tables | Same |
 | Duplicate record budget | One `record_budget` warning per scan: `count` is the number of records whose digest was not stored | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
+| Pattern inference exception (18.12) | `derived.patterns` entry `failed` on that field, `pattern_inference_failed` error, other analyses continue | Same |
 | Skipped detector reacting on a probe (section 13) | `detector_skipped_reacted` warning per field and detector: `count` is the number of occurrences that reacted; for a rare detector, only when probes reacted more often than its warm-up | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
@@ -1705,7 +1706,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-3a | Sections 18.1, 18.4, 18.7, 18.9, 18.10: samples by length (`values.samples.by_length`, `LengthStrataSampler`, `OtherLengths`), pool of values shared with the sample by `id`, `partial` accuracy, settings `max_samples_per_length` and `max_length_strata`, the sub-budget of an eighth, counters `strata_fields`, `strata_limited_fields` and `length_model_bytes`, priorities shared between the sample and its strata. | Lot 3a of the Scan and JSON work. Defaults of the plan accepted by the maintainer on 2026-10-08 (disposition `by_length` with shared ids and a pool, static reservation with `drop` as an API only, strata only for a `bottom_k` sample, every stored type, 100 values and 64 lengths, an eighth of the budget, Report without members). |
 | 2026-10-08 | SJ-2c | Section 16.3: scan and report documents are written compact by default; the top-level `output.json_indent` setting indents them with each sample entry on one line (`json_text.dump_json`). `executions.json` and the Inspect file stay indented. | Weight of the Scan (24.9 MB indented, 10.4 MB compact, 13.5 MB indented with one line per entry on `insurance-ontario`); arrays `[value, count]` refused to keep the format self-describing. Maintainer decision of 2026-10-08. |
 | 2026-10-08 | SJ-3b | Sections 9.10, 15 and new 18.11: the row sample (`records.sample`, `RowSampler`, `RowPriority`), first rows, a bottom-k of the interior by a priority of the position and last rows, cells of the same row for every projected field, settings `records.sample` (`rows`, `edge`, `cell_chars`, `max_bytes`), the byte budget, the Report keeping the header only. | Lot 3b of the Scan and JSON work: ROW-01 to ROW-11 and C01 to C06. |
-| 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
+| 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema, a `failed` entry per field with the `pattern_inference_failed` error. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2312,6 +2313,14 @@ not give the originals back, 21), when its sample is withheld
 (`samples_withheld`, `kept < of`), when it has only long texts
 (`long_texts_only`), no usable value (`no_values`) or fewer than
 `min_distinct` of them (`too_few_distinct`). Every field has an entry.
+
+**Failure.** The inference of each field is isolated, as a detector is
+(CA19): an exception on one field gives it a `failed` entry (`reason`
+`inference_error`, `diagnostic` the index of a `pattern_inference_failed`
+error naming the dataset and the field, with the exception type and never
+its message, which could quote a value). The other fields, the other
+analyses and the scan `status` are unaffected, and the scan that read the
+whole source is not lost for a bug of this post-pass.
 
 **Grammar, version 1 (PAT-03, PAT-04).** A value is cut into tokens: a run of
 ASCII digits (`digit_ascii`), a run of ASCII capitals (`upper_ascii`), a run of

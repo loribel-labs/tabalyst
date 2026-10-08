@@ -1176,8 +1176,20 @@ class FieldPatternsNotApplicable(ScanModel):
     reason: str
 
 
+class FieldPatternsFailed(ScanModel):
+    """The inference raised on this field: the other fields and analyses are
+    unaffected and ``diagnostic`` points to the ``pattern_inference_failed``
+    error (the exception type only: its message could quote a value)."""
+
+    dataset: str
+    field: str
+    status: Literal["failed"] = "failed"
+    reason: Literal["inference_error"] = "inference_error"
+    diagnostic: int
+
+
 FieldPatterns = Annotated[
-    FieldPatternsComplete | FieldPatternsNotApplicable,
+    FieldPatternsComplete | FieldPatternsNotApplicable | FieldPatternsFailed,
     Field(discriminator="status"),
 ]
 
