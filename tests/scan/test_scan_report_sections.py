@@ -113,8 +113,10 @@ def test_variant_groups_of_a_sensitive_column_are_masked(tmp_path):
 
 
 def test_limited_measures_name_their_field_measure_and_setting(tmp_path):
+    # A spelling that trimming changes: without one, no stage changes anything
+    # and the variant groups are exact (design 10), not limited.
     source = write_text(
-        tmp_path, "ids.csv", "id\n" + "".join(f"v{i}\n" for i in range(12))
+        tmp_path, "ids.csv", "id\n" + "".join(f"v{i}\n" for i in range(12)) + '" v0"\n'
     )
 
     profile = analyze_csv(source, _config(limits={"max_distinct_per_field": 10}))

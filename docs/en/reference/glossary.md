@@ -34,6 +34,8 @@ Keep these exactly as written in every language:
 | missing value | valeur manquante | An empty value or a configured missing marker |
 | issue | anomalie | A detected data quality problem |
 | with issues | avec anomalies | A column with missing values, ambiguous dates or of inferred type `mixed` |
+| observation | observation | A finding of a scan about the data, with a status: informational, candidate anomaly or confirmed issue |
+| limit | limite | What a scan could not establish, such as a count stopped by a scan limit; never a defect of the data |
 | value normalization | normalisation des valeurs | Cleaning applied before analysis, such as whitespace trimming |
 | type inference | inférence de type | How Tabalyst decides the type of a column |
 | inferred type | type inféré | The type deduced from the values of a column |

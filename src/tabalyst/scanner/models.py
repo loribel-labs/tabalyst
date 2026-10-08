@@ -505,12 +505,26 @@ StageName = Literal[
 
 class NormalizationStage(ScanModel):
     """``changed`` and ``cardinality`` are ``null`` for a disabled stage and
-    ``changed`` for ``raw``."""
+    ``changed`` for ``raw``.
+
+    ``equals`` names the stage whose output this one received (the previous
+    enabled stage, or ``raw``) when ``changed`` is 0: no occurrence was
+    modified, so the distinct values are the same and so is ``cardinality``,
+    complete or limited (design 10). A limited stage that changed something
+    has no ``equals``: its count is not derived from the raw table (D13).
+    ``cardinality`` of a limited stage never carries the estimate or the upper
+    bound of ``values.cardinality``, which is where to read them.
+    """
 
     stage: StageName
     enabled: bool
     changed: int | None
     cardinality: IntMeasure | None
+    equals: StageName | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_equals(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("equals",))
 
 
 class Variant(ScanModel):
@@ -978,7 +992,7 @@ class Timings(ScanModel):
     analysis: float
     # Final computation of the datasets.
     finalize: float
-    # Analyses derived from the samples (design 18.12).
+    # Analyses derived from the samples and the observations (design 18.12, 18.13).
     derived: float
     # Setup (workers, detectors) and the assembly of the result.
     other: float
@@ -1221,6 +1235,139 @@ class Derived(ScanModel):
         return _omit_none(handler(self), ("patterns",))
 
 
+# Observations, quality issues and limits -------------------------------------
+
+ObservationStatus = Literal["informational", "candidate_anomaly", "confirmed_issue"]
+ObservationCategory = Literal[
+    "presence", "records", "types", "dates", "normalization", "names", "values", "patterns"
+]
+# What ``count`` counts, out of ``of`` when the population has a known size.
+ObservationPopulation = Literal[
+    "value_slots",
+    "content_strings",
+    "occurrences",
+    "records",
+    "distinct_values",
+    "groups",
+    "columns",
+]
+ObservationAccuracy = Literal["exact", "lower_bound", "sample"]
+
+
+def _omit_empty(data: dict[str, Any], names: tuple[str, ...]) -> dict[str, Any]:
+    """Drop the optional members that are ``None`` or an empty list."""
+    for name in names:
+        if name in data and data[name] in (None, []):
+            del data[name]
+    return data
+
+
+class Observation(ScanModel):
+    """A finding about the data (QUAL-02), computed from the facts of the scan
+    by the versioned ``rule`` and never from values.
+
+    ``status`` says how much to trust it: ``informational`` is a remark that
+    may be perfectly valid, ``candidate_anomaly`` a signal that a rule cannot
+    confirm, ``confirmed_issue`` a defect by the structure of the source.
+    ``dataset`` and ``field`` locate it (both absent for the whole scan);
+    ``records`` lists the first record indices, ``patterns`` the inferred
+    patterns, ``diagnostics`` the diagnostics and ``limited_by`` the limits
+    that stop its count from being exact.
+    """
+
+    id: str
+    rule: str
+    category: ObservationCategory
+    status: ObservationStatus
+    dataset: str | None = None
+    field: str | None = None
+    population: ObservationPopulation
+    count: int
+    of: int | None = None
+    accuracy: ObservationAccuracy
+    records: list[int] = Field(default_factory=list)
+    patterns: list[str] = Field(default_factory=list)
+    diagnostics: list[int] = Field(default_factory=list)
+    limited_by: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_empty(
+            handler(self),
+            (
+                "dataset",
+                "field",
+                "of",
+                "records",
+                "patterns",
+                "diagnostics",
+                "limited_by",
+            ),
+        )
+
+
+class Limit(ScanModel):
+    """What the scan could not establish (QUAL-04): a measure stopped by a
+    limit, a sample that was cut or withheld, a structure that was truncated.
+    A limit is never a defect of the data. ``measure`` is the location in the
+    dataset or field; ``diagnostic`` points to the error of a failed analysis.
+    """
+
+    id: str
+    dataset: str | None = None
+    field: str | None = None
+    measure: str
+    reason: str
+    limit: int | None = None
+    lower_bound: int | None = None
+    diagnostic: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_empty(
+            handler(self),
+            ("dataset", "field", "limit", "lower_bound", "diagnostic"),
+        )
+
+
+class QualitySummary(ScanModel):
+    """What was found, whole scan (``dataset`` absent) or one dataset, counted
+    before ``scan.observations.max_items`` cuts the lists. ``has_observations``
+    is any observation, ``has_quality_issues`` a candidate anomaly or a
+    confirmed issue, ``has_limits`` any limit; they stand for the counts."""
+
+    dataset: str | None = None
+    informational: int
+    candidate_anomalies: int
+    confirmed_issues: int
+    limits: int
+    has_observations: bool
+    has_quality_issues: bool
+    has_limits: bool
+
+    @model_serializer(mode="wrap")
+    def _omit_dataset(self, handler) -> dict[str, Any]:
+        return _omit_empty(handler(self), ("dataset",))
+
+
+class Observations(ScanModel):
+    """Findings of the scan on the data and on itself (design 18.13), derived
+    from the facts and from ``derived``, without reading the source.
+
+    ``items`` hold the confirmed issues first, then the candidate anomalies,
+    then the informational remarks; ``limits`` are apart. At most
+    ``scan.observations.max_items`` of each are listed and ``truncated`` says
+    that the summaries count more.
+    """
+
+    version: int
+    truncated: bool
+    summary: QualitySummary
+    datasets: list[QualitySummary]
+    items: list[Observation]
+    limits: list[Limit]
+
+
 class ScanResult(ScanModel):
     format: Literal["tabalyst.scan"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
@@ -1236,7 +1383,11 @@ class ScanResult(ScanModel):
     diagnostics: list[Diagnostic]
     # Analyses computed from the samples; absent when none was (design 18.12).
     derived: Derived | None = None
+    # Findings, quality issues and limits; absent when
+    # ``scan.observations.enabled`` is false, or when their computation failed
+    # (the ``observations_failed`` diagnostic, design 18.13).
+    observations: Observations | None = None
 
     @model_serializer(mode="wrap")
     def _omit_derived(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("derived",))
+        return _omit_none(handler(self), ("derived", "observations"))

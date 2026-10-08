@@ -22,8 +22,9 @@ FILES = (
     "test_report_document.py",
     "test_contract_rowsample.py",
     "test_contract_patterns.py",
+    "test_contract_quality.py",
 )
-REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10"]
+REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10", "D13"]
 
 
 def _declared() -> dict[str, list[str | None]]:

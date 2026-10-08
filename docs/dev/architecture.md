@@ -401,3 +401,11 @@ projected field (design 18.11). `RowSampler` lives in `RecordFacts`, in the scan
 finished scan (design 18.12): the token grammar, the linear matcher, the candidates and their exclusive
 classification. `scan()` calls it once after `finalize`, the output is `ScanResult.derived.patterns`, which the
 Report carries and `facts_sha256` leaves out; `validation.py` checks it.
+
+`scanner/quality.py` (lot 4b) turns the facts of the finished scan and `derived.patterns` into the observations,
+quality issues and limits of `ScanResult.observations` (design 18.13): 13 rules with a fixed category and status,
+the limits apart, summaries with the three flags, and the cut to `scan.observations.max_items`. `scan()` calls it
+once, after the patterns, with the source and the scope already built; an exception becomes an
+`observations_failed` error and leaves the block out. Its walker of `limited` envelopes is shared with the Report
+(`build_limits`), and the Report carries the block as it is. The adaptive normalization is in `values.py`
+(`_normalization`): a stage that changed nothing takes the count of its input (design 10).

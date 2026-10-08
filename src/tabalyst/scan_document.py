@@ -71,9 +71,9 @@ class LoadedDocument:
 
 def facts_sha256(base: ScanResult) -> str:
     """SHA-256 of the facts of a base: without ``run``, which varies between
-    runs, without ``derived``, which is computed from the facts, and without the
-    contents of the samples and of their strata, whose size depends on the
-    document and not on the data (design 19.5)."""
+    runs, without ``derived`` and ``observations``, which are computed from the
+    facts, and without the contents of the samples and of their strata, whose
+    size depends on the document and not on the data (design 19.5)."""
     # ``Any``: a serialized model is a plain dict whose values are JSON data.
     # Excluded before serializing: a Scan holds up to ``max_samples`` values per
     # field, which would be written only to be dropped.
@@ -83,6 +83,7 @@ def facts_sha256(base: ScanResult) -> str:
         exclude={
             "run": True,
             "derived": True,
+            "observations": True,
             "datasets": {
                 "__all__": {
                     "records": {"sample": {"rows": True, "kept": True}},
@@ -150,6 +151,7 @@ def base_of(profile: ReportProfile) -> ScanResult:
         datasets=profile.datasets,
         diagnostics=profile.diagnostics,
         derived=profile.derived,
+        observations=profile.observations,
     )
 
 

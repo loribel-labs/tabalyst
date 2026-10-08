@@ -2701,6 +2701,91 @@
       "title": "LengthStratum",
       "type": "object"
     },
+    "Limit": {
+      "additionalProperties": false,
+      "description": "What the scan could not establish (QUAL-04): a measure stopped by a\nlimit, a sample that was cut or withheld, a structure that was truncated.\nA limit is never a defect of the data. ``measure`` is the location in the\ndataset or field; ``diagnostic`` points to the error of a failed analysis.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "measure": {
+          "title": "Measure",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "diagnostic": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diagnostic"
+        }
+      },
+      "required": [
+        "id",
+        "measure",
+        "reason"
+      ],
+      "title": "Limit",
+      "type": "object"
+    },
     "LimitSettings": {
       "additionalProperties": false,
       "properties": {
@@ -3211,7 +3296,7 @@
     },
     "NormalizationStage": {
       "additionalProperties": false,
-      "description": "``changed`` and ``cardinality`` are ``null`` for a disabled stage and\n``changed`` for ``raw``.",
+      "description": "``changed`` and ``cardinality`` are ``null`` for a disabled stage and\n``changed`` for ``raw``.\n\n``equals`` names the stage whose output this one received (the previous\nenabled stage, or ``raw``) when ``changed`` is 0: no occurrence was\nmodified, so the distinct values are the same and so is ``cardinality``,\ncomplete or limited (design 10). A limited stage that changed something\nhas no ``equals``: its count is not derived from the raw table (D13).\n``cardinality`` of a limited stage never carries the estimate or the upper\nbound of ``values.cardinality``, which is where to read them.",
       "properties": {
         "stage": {
           "enum": [
@@ -3276,6 +3361,26 @@
             }
           ],
           "title": "Cardinality"
+        },
+        "equals": {
+          "anyOf": [
+            {
+              "enum": [
+                "raw",
+                "nfc",
+                "trim",
+                "collapse_whitespace",
+                "casefold",
+                "strip_accents"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equals"
         }
       },
       "required": [
@@ -3494,6 +3599,212 @@
         "median"
       ],
       "title": "NumericStats",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "description": "A finding about the data (QUAL-02), computed from the facts of the scan\nby the versioned ``rule`` and never from values.\n\n``status`` says how much to trust it: ``informational`` is a remark that\nmay be perfectly valid, ``candidate_anomaly`` a signal that a rule cannot\nconfirm, ``confirmed_issue`` a defect by the structure of the source.\n``dataset`` and ``field`` locate it (both absent for the whole scan);\n``records`` lists the first record indices, ``patterns`` the inferred\npatterns, ``diagnostics`` the diagnostics and ``limited_by`` the limits\nthat stop its count from being exact.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "presence",
+            "records",
+            "types",
+            "dates",
+            "normalization",
+            "names",
+            "values",
+            "patterns"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "informational",
+            "candidate_anomaly",
+            "confirmed_issue"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "population": {
+          "enum": [
+            "value_slots",
+            "content_strings",
+            "occurrences",
+            "records",
+            "distinct_values",
+            "groups",
+            "columns"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Of"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "sample"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "records": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Records",
+          "type": "array"
+        },
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "limited_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limited By",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "rule",
+        "category",
+        "status",
+        "population",
+        "count",
+        "accuracy"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "ObservationSettings": {
+      "additionalProperties": false,
+      "description": "Observations, quality issues and limits derived from the finished scan\n(design 18.13). ``max_items`` bounds the observations and, separately, the\nlimits that are listed; the summaries count them all.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_items": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Max Items",
+          "type": "integer"
+        }
+      },
+      "title": "ObservationSettings",
+      "type": "object"
+    },
+    "Observations": {
+      "additionalProperties": false,
+      "description": "Findings of the scan on the data and on itself (design 18.13), derived\nfrom the facts and from ``derived``, without reading the source.\n\n``items`` hold the confirmed issues first, then the candidate anomalies,\nthen the informational remarks; ``limits`` are apart. At most\n``scan.observations.max_items`` of each are listed and ``truncated`` says\nthat the summaries count more.",
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "summary": {
+          "$ref": "#/$defs/QualitySummary"
+        },
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/QualitySummary"
+          },
+          "title": "Datasets",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "$ref": "#/$defs/Limit"
+          },
+          "title": "Limits",
+          "type": "array"
+        }
+      },
+      "required": [
+        "version",
+        "truncated",
+        "summary",
+        "datasets",
+        "items",
+        "limits"
+      ],
+      "title": "Observations",
       "type": "object"
     },
     "PatternCandidate": {
@@ -4087,6 +4398,63 @@
         "values"
       ],
       "title": "PreviewRecord",
+      "type": "object"
+    },
+    "QualitySummary": {
+      "additionalProperties": false,
+      "description": "What was found, whole scan (``dataset`` absent) or one dataset, counted\nbefore ``scan.observations.max_items`` cuts the lists. ``has_observations``\nis any observation, ``has_quality_issues`` a candidate anomaly or a\nconfirmed issue, ``has_limits`` any limit; they stand for the counts.",
+      "properties": {
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "informational": {
+          "title": "Informational",
+          "type": "integer"
+        },
+        "candidate_anomalies": {
+          "title": "Candidate Anomalies",
+          "type": "integer"
+        },
+        "confirmed_issues": {
+          "title": "Confirmed Issues",
+          "type": "integer"
+        },
+        "limits": {
+          "title": "Limits",
+          "type": "integer"
+        },
+        "has_observations": {
+          "title": "Has Observations",
+          "type": "boolean"
+        },
+        "has_quality_issues": {
+          "title": "Has Quality Issues",
+          "type": "boolean"
+        },
+        "has_limits": {
+          "title": "Has Limits",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "informational",
+        "candidate_anomalies",
+        "confirmed_issues",
+        "limits",
+        "has_observations",
+        "has_quality_issues",
+        "has_limits"
+      ],
+      "title": "QualitySummary",
       "type": "object"
     },
     "QuantitySettings": {
@@ -4917,6 +5285,9 @@
         },
         "pattern_inference": {
           "$ref": "#/$defs/PatternInferenceSettings"
+        },
+        "observations": {
+          "$ref": "#/$defs/ObservationSettings"
         },
         "random_seed": {
           "default": 42,
@@ -5841,7 +6212,15 @@
       "default": null
     },
     "observations": {
-      "description": "Findings about the data."
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Observations"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "analyses": {
       "description": "Results of the second pass."

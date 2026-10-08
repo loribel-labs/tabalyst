@@ -52,3 +52,6 @@ The profile becomes a superset of the Scan document: it has `format:
 - A report carries the optional `derived` member of its scan, the
   [inferred patterns](../scan/format.md#inferred-patterns), as it is: the
   reduced samples cannot compute them again.
+- A report carries the optional `observations` member of its scan, the
+  [observations and limits](../scan/format.md#observations-and-limits), as it
+  is. The `issues` and `with_issues` of the columns are unchanged.

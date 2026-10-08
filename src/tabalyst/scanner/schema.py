@@ -16,9 +16,9 @@ from tabalyst.scanner.models import FORMAT, FORMAT_REVISION, FORMAT_VERSION, Sca
 SCHEMA_FILE = "tabalyst.scan.schema.json"
 # Members of the root that extensions of the base may add: the base reader
 # ignores them and the schema of their owner validates them (design 19.1).
-# ``derived`` is not one: its blocks are part of the base model.
+# ``derived`` and ``observations`` are not: their blocks are part of the base
+# model.
 EXTENSION_NAMESPACES = {
-    "observations": "Findings about the data.",
     "analyses": "Results of the second pass.",
     "report": "What a Report adds to the base: generation and presentation.",
 }

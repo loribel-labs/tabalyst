@@ -26,6 +26,7 @@ from tabalyst.scanner.detectors.registry import (
     DetectorSet,
     default_registry,
 )
+from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.engine import ScanEngine
 from tabalyst.scanner.identity import source_format_of
 from tabalyst.scanner.models import (
@@ -33,8 +34,10 @@ from tabalyst.scanner.models import (
     CsvSourceInfo,
     DatasetResult,
     Derived,
+    DerivedPatterns,
     EngineInfo,
     ExcelSourceInfo,
+    Observations,
     RunCounters,
     RunInfo,
     SamplingCounters,
@@ -52,6 +55,7 @@ from tabalyst.scanner.observations import (
 )
 from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.patterninfer import infer_patterns
+from tabalyst.scanner.quality import build_observations
 from tabalyst.scanner.readers.base import Reader
 from tabalyst.scanner.readers.csv_reader import CsvReader
 from tabalyst.scanner.readers.excel_reader import ExcelReader
@@ -177,6 +181,42 @@ def _peak_memory_bytes() -> int | None:
     return int(counters.PeakWorkingSetSize) if ok else None
 
 
+def _observations(
+    datasets: list[DatasetResult],
+    diagnostics: DiagnosticCollector,
+    scope: Scope,
+    source: SourceInfo,
+    config: ScanConfig,
+    patterns: DerivedPatterns | None,
+) -> Observations | None:
+    """The observations of the scan, or ``None`` when they are turned off.
+
+    Isolated like the inference of patterns: a bug in this post-pass raises an
+    ``observations_failed`` error and leaves the block out, it must not lose a
+    scan that already read the whole source.
+    """
+    if not config.observations.enabled:
+        return None
+    try:
+        return build_observations(
+            datasets=datasets,
+            diagnostics=diagnostics.finalize(),
+            scope=scope,
+            source=source,
+            config=config,
+            patterns=patterns,
+        )
+    except Exception as exc:  # noqa: BLE001 - the post-pass is isolated
+        # Only the exception type: its message could quote a value.
+        diagnostics.add(
+            "observations_failed",
+            "error",
+            f"Observations failed ({type(exc).__name__}): the observations, "
+            "quality issues and limits are omitted; the scan is complete.",
+        )
+        return None
+
+
 def _timed(items: Iterable[StreamItem], spent: list[float]) -> Iterator[StreamItem]:
     """Items as read, adding to ``spent[0]`` the time the source took to
     produce them."""
@@ -275,6 +315,67 @@ def scan(
     )
     columns = None if header is None else len(header)
     analyzed = engine.records_analyzed
+    source_info = SourceInfo(
+        format=summary.format,
+        name=path.name,
+        size_bytes=summary.bytes_read,
+        modified_at=datetime.fromtimestamp(stat.st_mtime, UTC),
+        sha256=summary.sha256,
+        encoding=summary.encoding,
+        shape=SourceShape(
+            lines=None if summary.csv is None else summary.csv.lines,
+            records=analyzed,
+            columns=columns,
+            fields=sum(len(dataset.fields) for dataset in datasets),
+            datasets=len(datasets),
+            cells=None if columns is None else analyzed * columns,
+            missing_cells=sum(
+                field.missing.count
+                for dataset in datasets
+                for field in dataset.fields
+            ),
+            records_with_missing=sum(
+                dataset.records.with_missing.count for dataset in datasets
+            ),
+            empty_records=sum(dataset.records.empty.count for dataset in datasets),
+            duplicate_records=_duplicate_records(datasets),
+        ),
+        csv=(
+            None
+            if summary.csv is None
+            else CsvSourceInfo(
+                delimiter=summary.csv.delimiter,
+                quote=summary.csv.quote,
+                header=summary.csv.header,
+                bom=summary.csv.bom,
+                line_ending=summary.csv.line_ending,
+            )
+        ),
+        excel=(
+            None
+            if summary.excel is None
+            else ExcelSourceInfo(
+                dataset_path=summary.excel.dataset_path,
+                sheet=summary.excel.sheet,
+                table=summary.excel.table,
+                range=summary.excel.range,
+                header_row=summary.excel.header_row,
+                header=summary.excel.header,
+            )
+        ),
+    )
+    scope = Scope(
+        collections=_collection_scope(summary.format, config),
+        records_read=engine.records_analyzed + excluded,
+        records_analyzed=engine.records_analyzed,
+        records_excluded=excluded,
+        exclusions=dict(engine.exclusions),
+    )
+    observations_started = perf_counter()
+    observations = _observations(
+        datasets, engine.diagnostics, scope, source_info, config, patterns
+    )
+    derived += perf_counter() - observations_started
     duration = perf_counter() - start
     result = ScanResult(
         engine=EngineInfo(
@@ -300,69 +401,14 @@ def scan(
             peak_memory_bytes=_peak_memory_bytes(),
             counters=_run_counters(engine) if counters else None,
         ),
-        source=SourceInfo(
-            format=summary.format,
-            name=path.name,
-            size_bytes=summary.bytes_read,
-            modified_at=datetime.fromtimestamp(stat.st_mtime, UTC),
-            sha256=summary.sha256,
-            encoding=summary.encoding,
-            shape=SourceShape(
-                lines=None if summary.csv is None else summary.csv.lines,
-                records=analyzed,
-                columns=columns,
-                fields=sum(len(dataset.fields) for dataset in datasets),
-                datasets=len(datasets),
-                cells=None if columns is None else analyzed * columns,
-                missing_cells=sum(
-                    field.missing.count
-                    for dataset in datasets
-                    for field in dataset.fields
-                ),
-                records_with_missing=sum(
-                    dataset.records.with_missing.count for dataset in datasets
-                ),
-                empty_records=sum(
-                    dataset.records.empty.count for dataset in datasets
-                ),
-                duplicate_records=_duplicate_records(datasets),
-            ),
-            csv=(
-                None
-                if summary.csv is None
-                else CsvSourceInfo(
-                    delimiter=summary.csv.delimiter,
-                    quote=summary.csv.quote,
-                    header=summary.csv.header,
-                    bom=summary.csv.bom,
-                    line_ending=summary.csv.line_ending,
-                )
-            ),
-            excel=(
-                None
-                if summary.excel is None
-                else ExcelSourceInfo(
-                    dataset_path=summary.excel.dataset_path,
-                    sheet=summary.excel.sheet,
-                    table=summary.excel.table,
-                    range=summary.excel.range,
-                    header_row=summary.excel.header_row,
-                    header=summary.excel.header,
-                )
-            ),
-        ),
+        source=source_info,
         config=config,
         config_sha256=config_sha256(config),
-        scope=Scope(
-            collections=_collection_scope(summary.format, config),
-            records_read=engine.records_analyzed + excluded,
-            records_analyzed=engine.records_analyzed,
-            records_excluded=excluded,
-            exclusions=dict(engine.exclusions),
-        ),
+        scope=scope,
         datasets=datasets,
         diagnostics=engine.diagnostics.finalize(),
         derived=None if patterns is None else Derived(patterns=patterns),
+        observations=observations,
     )
     emit_progress(on_progress, path, ProgressPhase.COMPLETE)
     return result

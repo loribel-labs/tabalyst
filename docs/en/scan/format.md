@@ -89,7 +89,8 @@ the [scan format changelog](format-changelog.md).
   `reading` (reading and parsing the source, hashing included), `analysis`
   (analysis of the values; with several workers, the time the main process
   spends on it, waiting included), `finalize` (final computation of the
-  datasets), `derived` (the [inferred patterns](#inferred-patterns)) and
+  datasets), `derived` (the [inferred patterns](#inferred-patterns) and the
+  [observations](#observations-and-limits)) and
   `other` (setup and assembly of the result); the five parts add
   up to `duration_seconds`. `workers` is the number of processes that analyzed
   values (1 in the main process). `peak_memory_bytes` is the peak memory of the
@@ -295,7 +296,7 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 | `values` | Analyzable values: `count`, `cardinality`, `frequencies`, `samples`, `first` and `last`. |
 | `string_characteristics`, `string_lengths` | Case, non-ASCII characters, line breaks and whitespace; length statistics and histogram. |
 | `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. |
-| `normalization` | For each normalization stage, how many values it changed and the distinct values left, plus groups of variants that normalize to the same value. |
+| `normalization` | For each normalization stage, how many values it changed and the distinct values left, plus groups of variants that normalize to the same value (see [Normalization stages](#normalization-stages)). |
 | `technical_type` | `integer`, `number`, `date`, `boolean`, `text`, `mixed` or `empty`, with `confidence`, `counts` and `outside_count`. |
 | `detectors` | One result per detector, described below. |
 | `interpretations` | `candidates`, the detectors that matched at least 95% of the values, and `primary`, the only candidate when there is exactly one. |
@@ -675,14 +676,112 @@ structure, not a rule that the data must follow.
 - `scan.pattern_inference.enabled` set to `false` leaves `derived` out of the
   document. A [report](../report/json-profile.md) carries the block as it is.
 
+## Normalization stages
+
+`normalization.stages` lists `raw` and then each stage in order (`nfc`, `trim`,
+`collapse_whitespace`, `casefold`, `strip_accents`). Each has `enabled`,
+`changed` (the values the stage modified, given the output of the previous
+enabled stage; `null` for `raw` and disabled stages) and `cardinality` (the
+distinct values after the stage, in a [measure envelope](#measure-envelopes)).
+
+A stage with `changed` 0 modified nothing, so it leaves the distinct values as
+it found them. It then has `equals`, the name of the stage it takes the count
+from (the previous enabled stage, or `raw`), and its `cardinality` is that
+stage's: exact when that one is, and `limited` with the same reason, limit and
+`lower_bound` when the table of distinct values was released. The estimate and
+the upper bound of the raw count are only in `values.cardinality`. `changed` is
+counted over the whole scan, so this holds even when the table was dropped
+before the end.
+
+A stage that changed something after the table was released has a `limited`
+count without a bound and no `equals`: its distinct values cannot be rebuilt
+from values that were dropped. A later stage that changed nothing takes that
+count. When no enabled stage changed any string, `variant_groups` is complete
+and empty even if the table was released, since no spelling can be grouped with
+another.
+
+## Observations and limits
+
+After the scan, Tabalyst turns its facts into findings, written in the
+top-level `observations` member. They are computed from the counts and the
+inferred patterns, without reading the source, and they hold no value, only
+counts and references (fields, records, diagnostics, patterns).
+
+```json
+{
+  "observations": {
+    "version": 1,
+    "truncated": false,
+    "summary": {
+      "informational": 19,
+      "candidate_anomalies": 24,
+      "confirmed_issues": 0,
+      "limits": 7,
+      "has_observations": true,
+      "has_quality_issues": true,
+      "has_limits": true
+    },
+    "datasets": [{"dataset": "rows", "...": "same as summary"}],
+    "items": [
+      {
+        "id": "o1", "rule": "duplicate_rows", "category": "records",
+        "status": "candidate_anomaly", "dataset": "rows",
+        "population": "records", "count": 8, "of": 3000,
+        "accuracy": "exact", "records": [1521, 1814]
+      }
+    ],
+    "limits": [
+      {
+        "id": "l1", "dataset": "rows", "field": "column_19",
+        "measure": "values.samples", "reason": "exposure"
+      }
+    ]
+  }
+}
+```
+
+- An **observation** has a `rule`, a `category` and a `status`. `informational`
+  is a remark that can be perfectly valid, such as a column that is mostly
+  empty. `candidate_anomaly` is a signal that no rule can confirm, such as a
+  rare pattern or duplicate rows. `confirmed_issue` is a defect by the
+  structure of the source, such as excluded records or blank column names.
+  `population` says what `count` counts out of `of`; `accuracy` is `exact`,
+  `lower_bound` (a limit stops the count from being exact, and `limited_by`
+  names it) or `sample`.
+- The rules of version 1 are `excluded_records`, `ambiguous_header`,
+  `duplicate_rows`, `mixed_types`, `type_outliers`, `ambiguous_dates`,
+  `variant_groups`, `minority_pattern`, `missing_values`, `empty_column`,
+  `constant_column`, `trimmed_cells` and `collapsed_whitespace`. A rule applies
+  to a field, a dataset or the whole scan (no `dataset`). Their thresholds are
+  constants of the version.
+- A **limit** is what the scan could not establish: a measure stopped by a
+  scan limit (`values.cardinality`, `records.duplicates.count`), a sample cut
+  by the memory budget or withheld by exposure, a truncated structure, or an
+  inference that failed. It is never a defect of the data, so it is listed
+  apart from the observations. A stage that repeats the limit of its input is
+  not listed again.
+- `summary` and `datasets` (one per dataset) count the findings and give three
+  flags: `has_observations` (any observation), `has_quality_issues` (a
+  candidate anomaly or a confirmed issue) and `has_limits`. They are per scan
+  and per dataset; for a field, read the items.
+- `items` are sorted by status (confirmed issues first), then by dataset and
+  field, and at most `scan.observations.max_items` (1,000) of them and of the
+  limits are listed. `truncated` says a list is shorter than its count; the
+  counts of `summary` are complete.
+- `scan.observations.enabled` set to `false` leaves the member out. If the
+  computation fails, the member is left out too and an `observations_failed`
+  error in `diagnostics` says so; the scan is complete. A
+  [report](../report/json-profile.md) carries the member as it is; its
+  `issues` are unchanged.
+
 ## JSON Schema
 
 The package contains the JSON Schema of the scan document,
 `tabalyst/schemas/tabalyst.scan.schema.json`, also available from
 `tabalyst.scanner.schema.scan_schema()`. It describes the base document and
 describes `derived` (the [inferred patterns](#inferred-patterns)) and
-accepts the namespaces `observations`, `analyses` and `report`, which
-extensions of the base may add. The package also has the schema of the
+`observations` (the [observations](#observations-and-limits)) and accepts
+the namespaces `analyses` and `report`, which extensions of the base may add. The package also has the schema of the
 report, `tabalyst/schemas/tabalyst.report.schema.json`
 (`tabalyst.report_schema.report_schema()`). Rules that link several members, such as
 a count that must equal the sum of its parts, are checked by
@@ -777,7 +876,8 @@ measures. `details` is empty for the other codes.
 Diagnostics describe technical events, not data quality: excluded records,
 reached limits (`field_limit`, `depth_limit`, `measures_limited`,
 `global_budget`, `record_budget`, `sample_budget`), collections not found and
-detector failures. `level` is
+detector failures, and the failure of a post-scan analysis
+(`pattern_inference_failed`, `observations_failed`). `level` is
 `error` or `warning`. `count` is always complete; `locations` lists at most
 `errors.max_locations` places, with `record` and `line` for CSV and JSONL,
 `record` and `element` for JSON. For JSONL, `line` is the physical line number,

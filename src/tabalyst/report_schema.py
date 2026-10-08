@@ -14,7 +14,7 @@ from tabalyst.scanner.schema import EXTENSION_NAMESPACES, finalize_schema
 
 SCHEMA_FILE = "tabalyst.report.schema.json"
 # Extension namespaces of the base that a Report does not use yet: open.
-_OPEN_NAMESPACES = ("observations", "analyses")
+_OPEN_NAMESPACES = ("analyses",)
 
 
 def report_schema() -> dict[str, Any]:
