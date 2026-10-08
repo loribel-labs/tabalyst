@@ -83,6 +83,18 @@ Also in revision 2, before its release:
   `scan.pattern_inference.enabled`, `max_patterns`, `max_value_length` and
   `min_distinct`. `run.timings` gains `derived`. A field on which the inference
   raises gets a `failed` entry and a `pattern_inference_failed` error.
+- `observations` (optional): the findings of the scan about the data, apart
+  from its limits, with a status (`informational`, `candidate_anomaly`,
+  `confirmed_issue`), summaries and the flags `has_observations`,
+  `has_quality_issues` and `has_limits` (see
+  [Observations and limits](format.md#observations-and-limits)). New settings
+  `scan.observations.enabled` and `max_items`. `run.timings.derived` includes
+  them. A failure raises an `observations_failed` error and leaves the member
+  out.
+- A normalization stage that changed nothing has `equals`, the stage whose
+  count it takes, and keeps that count even when the table of distinct values
+  was released; `variant_groups` is complete and empty when no stage changed
+  any string (see [Normalization stages](format.md#normalization-stages)).
 - `run.counters` (optional): the work of the samplers, written by
   `tabalyst scan --counters`.
 - The scan document is written without indentation by default; the new

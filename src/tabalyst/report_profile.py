@@ -24,8 +24,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from itertools import combinations, islice
 
-from pydantic import BaseModel
-
 from tabalyst._version import __version__
 from tabalyst.config import PresentationSettings
 from tabalyst.errors import ConfigurationError
@@ -83,25 +81,17 @@ from tabalyst.scanner.models import (
     ScanResult,
     ValueCount,
 )
+from tabalyst.scanner.quality import (
+    ANALYTICAL_STAGES,
+    EXCLUSION_CODES,
+    limited_envelopes,
+)
 
 # Row numbers listed by an issue.
 LISTED_ROWS = 10
-# Diagnostics of records excluded under the tolerant error policy.
-EXCLUSION_CODES = frozenset(
-    {
-        "csv_width_mismatch",
-        "record_too_large",
-        "json_duplicate_key",
-        "jsonl_invalid_line",
-        "jsonl_record_not_object",
-        "jsonl_line_too_long",
-    }
-)
 CONTAINER_TYPES = frozenset({"object", "array"})
 # Separator of the values an items path takes in one record of the preview.
 PREVIEW_SEPARATOR = ", "
-# Stages whose output is the analytical value (design section 10).
-ANALYTICAL_STAGES = ("nfc", "trim", "collapse_whitespace")
 # Interpretations that repeat the technical type.
 TECHNICAL_INTERPRETATIONS = frozenset({"number", "boolean"})
 DATE_ORDERS = frozenset({"YMD", "MDY", "DMY"})
@@ -744,25 +734,6 @@ def _preview(records: Records, fields: list[FieldResult]) -> list[PreviewRow]:
 # Limits and structure -------------------------------------------------------
 
 
-def _limited_measures(model: object, location: str):
-    """Every ``limited`` envelope under a scan model, with its location. The
-    ``value`` of a complete envelope is left out of locations; list items are
-    named by their stage or id."""
-    if isinstance(model, Limited):
-        yield location, model
-    elif isinstance(model, BaseModel):
-        for name in type(model).model_fields:
-            if isinstance(model, Complete):
-                inner = location
-            else:
-                inner = f"{location}.{name}" if location else name
-            yield from _limited_measures(getattr(model, name), inner)
-    elif isinstance(model, list):
-        for index, item in enumerate(model):
-            label = getattr(item, "stage", None) or getattr(item, "id", None)
-            yield from _limited_measures(item, f"{location}.{label or index}")
-
-
 def build_limits(
     result: ScanResult, dataset: DatasetResult, columns: dict[str, str]
 ) -> DatasetLimits:
@@ -780,7 +751,7 @@ def build_limits(
             lower_bound=measure.lower_bound,
         )
         for part in ("structure", "records")
-        for location, measure in _limited_measures(getattr(dataset, part), part)
+        for location, measure in limited_envelopes(getattr(dataset, part), part)
     ]
     measures += [
         MeasureLimit(
@@ -792,7 +763,7 @@ def build_limits(
             lower_bound=measure.lower_bound,
         )
         for field in dataset.fields
-        for location, measure in _limited_measures(field, "")
+        for location, measure in limited_envelopes(field, "")
     ]
     diagnostics = [
         DiagnosticProfile(
@@ -935,6 +906,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
         datasets=base.datasets,
         diagnostics=base.diagnostics,
         derived=base.derived,
+        observations=base.observations,
         report=ReportBlock(
             generated_at=datetime.now(UTC),
             generator=ReportGenerator(version=__version__),

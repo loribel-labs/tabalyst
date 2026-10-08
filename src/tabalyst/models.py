@@ -24,6 +24,7 @@ from tabalyst.scanner.models import (
     Diagnostic,
     EngineInfo,
     Evidence,
+    Observations,
     RunInfo,
     Scope,
 )
@@ -374,11 +375,14 @@ class ReportProfile(ResultModel):
     # The ``derived`` block of the Scan, carried as it is: a Report keeps fewer
     # sample values and cannot compute it again (design 19.3).
     derived: Derived | None = None
+    # Likewise the ``observations`` block, computed by the Scan from its facts.
+    observations: Observations | None = None
     report: ReportBlock
 
     @model_serializer(mode="wrap")
     def _omit_derived(self, handler) -> dict[str, Any]:
         data = handler(self)
-        if data.get("derived", 0) is None:
-            del data["derived"]
+        for name in ("derived", "observations"):
+            if data.get(name, 0) is None:
+                del data[name]
         return data

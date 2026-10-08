@@ -262,20 +262,17 @@ def test_global_budget_releases_the_largest_table(tmp_path):
     limited = [
         item for item in result["diagnostics"] if item["code"] == "measures_limited"
     ]
+    # No string changed under any stage, so there is no group of variants, even
+    # without the table (D13): that measure is exact, not limited.
     assert {item["field"]: item["details"] for item in limited} == {
-        a["id"]: {
-            "measures": {
-                "values.cardinality": "global_budget",
-                "normalization.variant_groups": "global_budget",
-            }
-        },
-        c["id"]: {
-            "measures": {
-                "values.cardinality": "global_budget",
-                "normalization.variant_groups": "global_budget",
-            }
-        },
+        a["id"]: {"measures": {"values.cardinality": "global_budget"}},
+        c["id"]: {"measures": {"values.cardinality": "global_budget"}},
     }
+    for released in (a, c):
+        assert released["normalization"]["variant_groups"] == {
+            "status": "complete",
+            "value": {"groups": 0, "listed": [], "truncated": False},
+        }
     assert {item["dataset"] for item in limited} == {"rows"}
 
 

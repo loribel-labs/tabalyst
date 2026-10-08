@@ -21,10 +21,14 @@ from tabalyst.scanner.models import (
     FieldResult,
     LengthStratum,
     LongTexts,
+    Observation,
+    Observations,
+    QualitySummary,
     RowSample,
     SampleEntry,
     ScanResult,
 )
+from tabalyst.scanner.normalization import STAGES
 from tabalyst.scanner.patterninfer import (
     EXAMPLES,
     GRAMMAR_NAME,
@@ -33,6 +37,7 @@ from tabalyst.scanner.patterninfer import (
     matches,
     render_signature,
 )
+from tabalyst.scanner.quality import OBSERVATIONS_VERSION, RULES
 from tabalyst.scanner.rowsample import (
     ROW_HASH_ALGORITHM,
     ROW_HASH_BITS,
@@ -53,6 +58,7 @@ def check_scan(result: ScanResult) -> list[str]:
     for dataset in result.datasets:
         _check_dataset(dataset, result, problems)
     _check_patterns(result, problems)
+    _check_observations(result, problems)
     return problems
 
 
@@ -230,6 +236,7 @@ def _check_field(
     if field.missing.count != expected:
         problems.append(f"{where}.missing: count must add up the defined components")
     _check_cardinality(field, where, problems)
+    _check_normalization(field, where, problems)
     _check_listings(field, where, result, problems)
     _check_statistics(field, where, problems)
     for detector in field.detectors:
@@ -261,6 +268,53 @@ def _check_cardinality(field: FieldResult, where: str, problems: list[str]) -> N
                 )
         elif reached is not None or overflow is not None:
             problems.append(f"{where}: records are only known for distinct_limit")
+
+
+def _check_normalization(field: FieldResult, where: str, problems: list[str]) -> None:
+    """The stages in order and the ``equals`` rule: a stage that changed nothing
+    takes the count of its input, and only such a stage does (design 10)."""
+    where = f"{where}.normalization"
+    stages = field.normalization.stages
+    if [stage.stage for stage in stages] != ["raw", *STAGES]:
+        problems.append(f"{where}.stages: must be raw then the stages in order")
+        return
+    raw = stages[0].cardinality
+    cardinality = field.values.cardinality
+    if raw is None or raw.status != cardinality.status:
+        problems.append(f"{where}.stages[raw]: must have the status of the cardinality")
+    elif isinstance(raw, Complete) and raw.value != cardinality.value:
+        problems.append(f"{where}.stages[raw]: must have the cardinality's value")
+    previous = stages[0]
+    changes = []
+    for stage in stages[1:]:
+        label = f"{where}.stages[{stage.stage}]"
+        if not stage.enabled:
+            if (stage.changed, stage.cardinality, stage.equals) != (None, None, None):
+                problems.append(f"{label}: a disabled stage has no counts")
+            continue
+        if stage.changed is None or not 0 <= stage.changed <= field.strings.content:
+            problems.append(f"{label}: changed is out of range")
+            continue
+        changes.append(stage.changed)
+        takes = (
+            stage.changed == 0
+            and previous.cardinality is not None
+            and previous.cardinality.status in ("complete", "limited")
+        )
+        if (stage.equals is not None) != takes:
+            problems.append(
+                f"{label}: equals goes with a stage that changed nothing"
+            )
+        elif takes and (
+            stage.equals != previous.stage or stage.cardinality != previous.cardinality
+        ):
+            problems.append(
+                f"{label}: a stage that changed nothing has the count of {previous.stage}"
+            )
+        previous = stage
+    groups = field.normalization.variant_groups
+    if isinstance(groups, Complete) and not any(changes) and groups.value.groups:
+        problems.append(f"{where}.variant_groups: no stage changed a string")
 
 
 def _check_listings(
@@ -686,3 +740,227 @@ def _check_field_patterns(
             or overlap.values < 1
         ):
             problems.append(f"{where}.overlaps: invalid entry {overlap.patterns}")
+
+
+_STATUS_RANK = {"confirmed_issue": 0, "candidate_anomaly": 1, "informational": 2}
+
+
+def _check_observations(result: ScanResult, problems: list[str]) -> None:
+    """The observations: ids, references, the summaries and their flags, and the
+    counts that the facts give again (design 18.13)."""
+    block = result.observations
+    settings = result.config.observations
+    if block is None:
+        if settings.enabled and not any(
+            diagnostic.code == "observations_failed" for diagnostic in result.diagnostics
+        ):
+            problems.append(
+                "observations: missing although scan.observations.enabled is set"
+            )
+        return
+    if not settings.enabled:
+        problems.append("observations: present although scan.observations is disabled")
+        return
+    if block.version != OBSERVATIONS_VERSION:
+        problems.append("observations.version: not the version of these rules")
+    datasets = {dataset.id: dataset for dataset in result.datasets}
+    if [summary.dataset for summary in block.datasets] != list(datasets):
+        problems.append("observations.datasets: one summary per dataset, in order")
+        return
+    if block.summary.dataset is not None:
+        problems.append("observations.summary: the whole scan has no dataset")
+    _check_summaries(block.summary, block.datasets, problems)
+    maximum = settings.max_items
+    if len(block.items) > maximum or len(block.limits) > maximum:
+        problems.append("observations: more items than scan.observations.max_items")
+    expected_limits = block.summary.limits
+    expected_items = (
+        block.summary.informational
+        + block.summary.candidate_anomalies
+        + block.summary.confirmed_issues
+    )
+    complete = (
+        len(block.items) == expected_items and len(block.limits) == expected_limits
+    )
+    if block.truncated == complete:
+        problems.append("observations.truncated: must say whether the lists are cut")
+    if [item.id for item in block.items] != [
+        f"o{number}" for number in range(1, len(block.items) + 1)
+    ]:
+        problems.append("observations.items: ids must be o1, o2, ... in order")
+    if [limit.id for limit in block.limits] != [
+        f"l{number}" for number in range(1, len(block.limits) + 1)
+    ]:
+        problems.append("observations.limits: ids must be l1, l2, ... in order")
+    ranks = [
+        _STATUS_RANK[RULES[item.rule][1]] for item in block.items if item.rule in RULES
+    ]
+    if ranks != sorted(ranks):
+        problems.append("observations.items: confirmed issues, candidates, remarks")
+    for limit in block.limits:
+        _check_reference(
+            limit.dataset, limit.field, datasets, f"limits[{limit.id}]", problems
+        )
+        if limit.diagnostic is not None and not (
+            0 <= limit.diagnostic < len(result.diagnostics)
+        ):
+            problems.append(f"observations.limits[{limit.id}]: diagnostic does not exist")
+    for item in block.items:
+        _check_observation(item, result, datasets, expected_limits, problems)
+    if complete:
+        _check_recount(block, problems)
+        _check_facts(block, result, datasets, problems)
+
+
+def _check_summaries(
+    summary: QualitySummary, datasets: list[QualitySummary], problems: list[str]
+) -> None:
+    for where, entry in [("summary", summary)] + [
+        (f"datasets[{item.dataset}]", item) for item in datasets
+    ]:
+        issues = entry.candidate_anomalies + entry.confirmed_issues
+        if (
+            entry.has_observations != bool(entry.informational + issues)
+            or entry.has_quality_issues != bool(issues)
+            or entry.has_limits != bool(entry.limits)
+        ):
+            problems.append(f"observations.{where}: flags must follow the counts")
+    for name in ("informational", "candidate_anomalies", "confirmed_issues", "limits"):
+        if getattr(summary, name) < sum(getattr(item, name) for item in datasets):
+            problems.append(f"observations.summary.{name}: less than the datasets add up")
+
+
+def _check_reference(
+    dataset: str | None,
+    field_id: str | None,
+    datasets: dict[str, DatasetResult],
+    where: str,
+    problems: list[str],
+) -> None:
+    if dataset is None:
+        if field_id is not None:
+            problems.append(f"observations.{where}: a field needs its dataset")
+    elif dataset not in datasets:
+        problems.append(f"observations.{where}: unknown dataset")
+    elif field_id is not None and field_id not in {
+        field.id for field in datasets[dataset].fields
+    }:
+        problems.append(f"observations.{where}: unknown field")
+
+
+def _check_observation(
+    item: Observation,
+    result: ScanResult,
+    datasets: dict[str, DatasetResult],
+    limits: int,
+    problems: list[str],
+) -> None:
+    where = f"items[{item.id}]"
+    if item.rule not in RULES:
+        problems.append(f"observations.{where}: unknown rule {item.rule}")
+        return
+    if (item.category, item.status) != RULES[item.rule]:
+        problems.append(f"observations.{where}: category and status follow the rule")
+    _check_reference(item.dataset, item.field, datasets, where, problems)
+    if item.count < 1 or (item.of is not None and item.count > item.of):
+        problems.append(f"observations.{where}: count is out of range")
+    if len(item.records) > result.config.limits.max_listed_records:
+        problems.append(f"observations.{where}: more records than max_listed_records")
+    if any(not 0 <= index < len(result.diagnostics) for index in item.diagnostics):
+        problems.append(f"observations.{where}: diagnostic does not exist")
+    known = {f"l{number}" for number in range(1, limits + 1)}
+    if not known.issuperset(item.limited_by):
+        problems.append(f"observations.{where}: limited_by names no limit")
+    if item.patterns:
+        entries = {
+            (entry.dataset, entry.field): entry
+            for entry in (
+                result.derived.patterns.fields
+                if result.derived is not None and result.derived.patterns is not None
+                else ()
+            )
+        }
+        entry = entries.get((item.dataset, item.field))
+        ids = (
+            {candidate.id for candidate in entry.candidates}
+            if isinstance(entry, FieldPatternsComplete)
+            else set()
+        )
+        if not ids.issuperset(item.patterns):
+            problems.append(f"observations.{where}: patterns names no candidate")
+
+
+def _check_recount(block: Observations, problems: list[str]) -> None:
+    """The listed items agree with the summaries they were counted into."""
+    for summary in [block.summary, *block.datasets]:
+        chosen = [
+            item
+            for item in block.items
+            if summary.dataset is None or item.dataset == summary.dataset
+        ]
+        counts = {
+            status: sum(1 for item in chosen if item.status == status)
+            for status in _STATUS_RANK
+        }
+        listed = sum(
+            1
+            for limit in block.limits
+            if summary.dataset is None or limit.dataset == summary.dataset
+        )
+        if (
+            counts["informational"],
+            counts["candidate_anomaly"],
+            counts["confirmed_issue"],
+            listed,
+        ) != (
+            summary.informational,
+            summary.candidate_anomalies,
+            summary.confirmed_issues,
+            summary.limits,
+        ):
+            problems.append(
+                f"observations.summary[{summary.dataset}]: counts differ from the items"
+            )
+
+
+def _check_facts(
+    block: Observations,
+    result: ScanResult,
+    datasets: dict[str, DatasetResult],
+    problems: list[str],
+) -> None:
+    """The counts the facts of the scan give again, for the rules that are one
+    counter (QUAL-02: an observation names its source)."""
+    for item in block.items:
+        where = f"observations.items[{item.id}]"
+        expected: int | None = None
+        if item.rule == "excluded_records":
+            expected = result.scope.records_excluded
+        elif item.dataset in datasets:
+            dataset = datasets[item.dataset]
+            fields = {field.id: field for field in dataset.fields}
+            field = fields.get(item.field) if item.field is not None else None
+            if item.rule == "duplicate_rows":
+                count = dataset.records.duplicates.count
+                expected = (
+                    count.value
+                    if isinstance(count, Complete)
+                    else getattr(count, "lower_bound", None)
+                )
+            elif field is not None and item.rule == "missing_values":
+                expected = field.missing.count
+            elif field is not None and item.rule in (
+                "trimmed_cells",
+                "collapsed_whitespace",
+            ):
+                stage = "trim" if item.rule == "trimmed_cells" else "collapse_whitespace"
+                expected = next(
+                    (
+                        entry.changed
+                        for entry in field.normalization.stages
+                        if entry.stage == stage
+                    ),
+                    None,
+                )
+        if expected is not None and item.count != expected:
+            problems.append(f"{where}: count differs from the facts ({expected})")

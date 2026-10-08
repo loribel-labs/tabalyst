@@ -70,6 +70,7 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O34 | Observations and adaptive normalization | `observations` sits beside `derived` in the base: observations of versioned rules (`informational`, `candidate_anomaly`, `confirmed_issue`) apart from the limits of the scan, with `has_observations`, `has_quality_issues` and `has_limits`. A normalization stage that changed nothing takes the count of its input (`equals`), even after the table was released. | Accepted 2026-10-08 (maintainer, lot 4b) | 10, 18.13 |
 
 ## 2. Principles
 
@@ -754,6 +755,20 @@ run in this order; each can be disabled:
   and limit and no `lower_bound`, since raw distinct values do not prove
   normalized ones. Without values they are `not_applicable` (`no_values`) and
   `changed` is 0.
+- **Adaptive stage count (lot 4b, NORM-03, NORM-05, NORM-06, D13).** A stage
+  whose `changed` is 0 modified no occurrence, so it is the identity on the
+  distinct values: its `cardinality` is that of the previous enabled stage
+  (`raw` for the first), complete or limited with the same reason, limit and
+  bound, and `equals` names that stage. The test is the exact counter, which
+  covers the whole scan and not the part read before the table was released.
+  A stage with `changed > 0` after the release keeps a `limited` count with no
+  bound and no `equals`: its distinct values cannot be rebuilt from a table
+  that was dropped, and a later stage that changed nothing takes that count.
+  Nothing is written as unchanged because no effect was seen early. A stage
+  never carries the estimate or the upper bound of the raw count: they are in
+  `values.cardinality`. A numeric column falls under the same rule (NORM-04):
+  no text stage changes its values. No calculation is skipped by it, since the
+  stages run at finalization only.
 - `variant_groups`: envelope over `content` strings whose value is
   `{groups, listed, truncated}`. `groups` counts the comparison keys with at
   least two distinct raw variants; `listed` holds the
@@ -765,7 +780,9 @@ run in this order; each can be disabled:
   listing is shorter. Both limits truncate output only, like
   `max_listed_frequencies`. The envelope is `limited` like stage
   cardinalities when the table is released, and `not_applicable`
-  (`no_values`) without `content` strings.
+  (`no_values`) without `content` strings. When no enabled stage changed any
+  string, it is exact and empty even after the release: every comparison key
+  is its own raw string, so no key has two variants.
 - A group is an analytical equivalence under these rules, not proof of business
   identity.
 - `normalization.version` is `1`. Any change to these definitions increments it.
@@ -1255,6 +1272,7 @@ never guessed when corruption prevents delimiting them.
 | Duplicate record budget | One `record_budget` warning per scan: `count` is the number of records whose digest was not stored | Same |
 | Detector exception | Detector `failed` on that field, `detector_failed` error, other analyses continue | Same |
 | Pattern inference exception (18.12) | `derived.patterns` entry `failed` on that field, `pattern_inference_failed` error, other analyses continue | Same |
+| Observations exception (18.13) | `observations` absent, `observations_failed` error (the exception type only), scan complete | Same |
 | Skipped detector reacting on a probe (section 13) | `detector_skipped_reacted` warning per field and detector: `count` is the number of occurrences that reacted; for a rare detector, only when probes reacted more often than its warm-up | Same |
 
 - Scan `status` is `complete` when every record in the requested scope was
@@ -1339,6 +1357,7 @@ settings from it (section 16.4).
     "exposure": {"sensitive_values": "mask"},
     "pattern_inference": {"enabled": true, "max_patterns": 8,
                           "max_value_length": 64, "min_distinct": 2},
+    "observations": {"enabled": true, "max_items": 1000},
     "random_seed": 42
   }
 }
@@ -1412,8 +1431,8 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 ```
 
 - `run` holds what varies between runs on the same source (O33): the
-  `timings` (reading, analysis, finalize, derived analyses of 18.12 and
-  other) add up to `duration_seconds`; `workers` is the number of processes
+  `timings` (reading, analysis, finalize, derived analyses of 18.12 and the
+  observations of 18.13, and other) add up to `duration_seconds`; `workers` is the number of processes
   that analyzed values; `peak_memory_bytes` is that of the main process, null
   when the platform does not report it; `counters` (lot 2c, 18.4) is written only
   when asked for. It is not part of the description of the data, so two scans
@@ -1707,6 +1726,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-2c | Section 16.3: scan and report documents are written compact by default; the top-level `output.json_indent` setting indents them with each sample entry on one line (`json_text.dump_json`). `executions.json` and the Inspect file stay indented. | Weight of the Scan (24.9 MB indented, 10.4 MB compact, 13.5 MB indented with one line per entry on `insurance-ontario`); arrays `[value, count]` refused to keep the format self-describing. Maintainer decision of 2026-10-08. |
 | 2026-10-08 | SJ-3b | Sections 9.10, 15 and new 18.11: the row sample (`records.sample`, `RowSampler`, `RowPriority`), first rows, a bottom-k of the interior by a priority of the position and last rows, cells of the same row for every projected field, settings `records.sample` (`rows`, `edge`, `cell_chars`, `max_bytes`), the byte budget, the Report keeping the header only. | Lot 3b of the Scan and JSON work: ROW-01 to ROW-11 and C01 to C06. |
 | 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema, a `failed` entry per field with the `pattern_inference_failed` error. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
+| 2026-10-08 | SJ-4b | New section 18.13 and decision O34, notes in 10, 12 (diagnostics), 15, 16.1, 19.2 and 19.7: `observations` in the base model beside `derived` (`scanner/quality.py`), observations of 13 versioned rules with a status (`informational`, `candidate_anomaly`, `confirmed_issue`), limits apart, summaries and the flags `has_observations`, `has_quality_issues`, `has_limits` for the scan and each dataset, settings `scan.observations` (`enabled`, `max_items`), left out of `facts_sha256` and carried by the Report; normalization stages gain `equals` (a stage that changed nothing takes the count of its input after the table was released) and `variant_groups` is exact and empty when no stage changed anything. | The exact `changed` counters prove what the dropped table cannot; QUAL-01 to QUAL-05 and D13. Maintainer decisions of lot 4b (flags at scan and dataset level, statuses of version 1, no severity, the stage keeps the envelope of its input without the estimate, thresholds as constants of the rule version, the Report keeps its issues until lot 5). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2388,6 +2408,120 @@ checks it: one entry per field, the render of each signature, the sums, the
 shares, the overlaps and, when the samples are complete, that every example
 exists and matches its signature.
 
+### 18.13 Observations, quality issues and limits (lot 4b, D18, QUAL-01 to QUAL-05, O34)
+
+After the scan and its derived patterns, `tabalyst.scanner.quality.build_observations`
+turns the facts into findings. It reads the finished datasets, the scope, the
+source and `derived.patterns`; it never reads the source and writes no value,
+only counts and references (fields, records, diagnostics, patterns). The result
+is `ScanResult.observations`, built by `scan()` and counted in
+`run.timings.derived`; `scan.observations.enabled` set to false leaves it out.
+The block is part of the base model, so a Scan with it reads back, a Report
+carries it as it is (its base keeps fewer values and cannot compute it) and
+`facts_sha256` leaves it out. Its version (`observations.version`, 1) names the
+rules and their constants: a change of a rule, a threshold or a status raises it.
+
+**Three concepts (QUAL-01).** An *observation* is a finding about the data. A
+*quality issue* is an observation that may be a defect: a `candidate_anomaly` or
+a `confirmed_issue`. A *limit* is what the scan could not establish; it is never
+a defect of the data (QUAL-04) and is listed apart.
+
+**Observation (QUAL-02).** `{id, rule, category, status, dataset?, field?,
+population, count, of?, accuracy, records?, patterns?, diagnostics?,
+limited_by?}`. `id` is `o1`, `o2`, ... in the order of the listing. `rule`
+names the rule, whose `category` and `status` are fixed by the version of the
+rules. `population` says what `count` counts out of `of`: `value_slots`
+(occurrences plus absent members, 9.11), `content_strings`, `occurrences`
+(values of the field), `records`, `distinct_values`, `groups` or `columns`.
+`accuracy` is `exact`, `lower_bound` (a count that a limit stops from being
+exact; `limited_by` lists the limits) or `sample` (a count over sampled
+distinct values). `records` lists the first record indices (at most
+`limits.max_listed_records`), `diagnostics` the indices of the diagnostics that
+explain it and `patterns` the inferred pattern candidates it is about. Members
+that carry nothing are absent.
+
+**Rules, version 1.** A field rule applies to each field; a dataset rule to each
+dataset; `excluded_records` to the whole scan (`dataset` absent).
+
+| Rule | Status | Category | `count` of `of` |
+| --- | --- | --- | --- |
+| `excluded_records` | `confirmed_issue` | `records` | records excluded of records read; `records`, `diagnostics` from the exclusion diagnostics |
+| `ambiguous_header` | `confirmed_issue` | `names` | columns that share a blank or repeated header name (tabular sources) |
+| `duplicate_rows` | `candidate_anomaly` | `records` | `records.duplicates.count` of the records; `lower_bound` when that count is limited |
+| `mixed_types` | `candidate_anomaly` | `types` | values outside the closest technical type of a `mixed` field, of its values |
+| `type_outliers` | `candidate_anomaly` | `types` | `technical_type.outside_count` of the values, for a field that is not `text` or `mixed` |
+| `ambiguous_dates` | `candidate_anomaly` | `dates` | ambiguous date values of the date values (ambiguous ones included) |
+| `variant_groups` | `candidate_anomaly` | `normalization` | groups of raw spellings that normalization compares as equal (complete only) |
+| `minority_pattern` | `candidate_anomaly` | `patterns` | distinct values of the minority candidates of the distinct values read |
+| `missing_values` | `informational` | `presence` | `missing.count` of the value slots (not for an empty column) |
+| `empty_column` | `informational` | `presence` | all the value slots, for a field of technical type `empty` |
+| `constant_column` | `informational` | `values` | values of a field of at least two values with one exact analytical distinct value |
+| `trimmed_cells` | `informational` | `normalization` | `changed` of the `trim` stage of the content strings |
+| `collapsed_whitespace` | `informational` | `normalization` | `changed` of the `collapse_whitespace` stage of the content strings |
+
+A column that is 85 % empty is a remark and not an issue (QUAL-03): absence
+becomes an issue only through an explicit presence rule, which the Scan does not
+have yet; the statuses above are the ones the facts alone can justify. A
+`minority_pattern` is a field whose principal pattern covers at least 80 % of
+the distinct values read (`PRINCIPAL_MIN_SHARE`) and that has secondary
+candidates covering at most 5 % each (`MINORITY_MAX_SHARE`); it counts those
+candidates, is `exact` when the inference read every distinct value
+(`coverage.basis` `all_distinct`) and `sample` otherwise, and names the limits
+of the inference (`max_patterns`, `max_values`) in `limited_by`. It is a
+heuristic over distinct values, not over occurrences, and says "worth a look",
+never "an error". Counts that a limit made unsafe are never invented: a
+`constant_column` needs an exact distinct count and a limited one gives none; a
+limited `variant_groups` gives none. There is no `severity` in version 1:
+priority is the status, and weights belong to the smart sampling (lot 10a).
+
+**Listing.** The items are sorted by status (confirmed issues, candidate
+anomalies, remarks), then by generation order (datasets, then fields, in the
+order of the document), numbered after the sort and cut to
+`scan.observations.max_items` (1,000; 100,000 at most). The limits are cut to
+the same number. `truncated` says that a list is shorter than its count; the
+summaries count before the cut, and a `limited_by` may then name a limit that is
+not listed (its identifier is still the one of the full numbering).
+
+**Summaries (QUAL-01).** `observations.summary` (the whole scan, no `dataset`)
+and `observations.datasets` (one per dataset, in order) hold `informational`,
+`candidate_anomalies`, `confirmed_issues` and `limits`, and the flags derived
+from them: `has_observations` (any observation), `has_quality_issues` (a
+candidate anomaly or a confirmed issue) and `has_limits`. A scan-wide
+observation counts in `summary` only. The flags are per scan and per dataset; a
+consumer that needs them per field reads the items (`field`).
+
+**Limits (QUAL-04).** `{id, dataset?, field?, measure, reason, limit?,
+lower_bound?, diagnostic?}`, `id` is `l1`, ... in generation order. `measure` is
+the location in the dataset or field. Sources: every `limited` envelope of the
+structure, the records and the field (a normalization stage that repeats the
+count of its input, and the `raw` stage that repeats `values.cardinality`, are
+not listed again); the sample reduced by the memory budget
+(`values.samples`, `.long_texts`, `.by_length`, `records.sample`, reason
+`memory_budget`); the strata of lengths that hit `max_length_strata`; a sample
+that exposure withheld (`exposure`); `records.sample.fields` and
+`structure.depth_truncated_observations` (`max_fields`, `max_depth`); and the
+pattern inference of a field: `max_patterns` and `max_values` when they acted,
+`inference_error` with the index of its diagnostic when it failed.
+
+**Failure.** The build is isolated like the pattern inference (CA19): an
+exception leaves `observations` out, raises an `observations_failed` error
+(the exception type only, never the message) and the scan is complete. A
+document without the block and without that diagnostic, while the setting is
+on, is invalid.
+
+**Validation.** `check_scan` verifies the version; one summary per dataset in
+order; the flags against the counts; that the listing is cut exactly when its
+count says so; ids; the status order; the rule, category and status of each
+item; its dataset and field; `count` between 1 and `of`; the references
+(diagnostics, limits, patterns); the summaries against the items when nothing
+was cut; and the counts that one fact gives again (`excluded_records`,
+`duplicate_rows`, `missing_values`, `trimmed_cells`, `collapsed_whitespace`).
+It also verifies the `equals` rule of the normalization stages (section 10).
+
+Not in this lot: cross-column features (REL-01), which belong to the
+relationships (lots 8a and 8b), and the use of the observations by the Report,
+whose `issues` and `with_issues` stay as they are until lot 5.
+
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
 ### 19.1 Identity
@@ -2408,7 +2542,7 @@ members of the root whose value is the Report's and not the base's.
 Scan or a Report (lot 1b) and returns its `kind`, the `base` (a `ScanResult`),
 the `report` block of a Report and the `capabilities` (`complete_samples`);
 `load_base()` returns the base alone. The `report` block and the namespaces
-`derived`, `observations` and `analyses` are not part of the base. The
+`analyses` are not part of the base; `derived` and `observations` are (19.3). The
 loader checks `format_version` and the revision like `scan_reuse` (a document
 of another revision is refused with a request to run again, never converted;
 for a Report, its own revision and that of its `base_scan`), and that the base
@@ -2440,7 +2574,11 @@ projection with `ColumnView` columns. The other projections (`summary`,
 `issues`, `preview`, `limits`, `structure`, the normalization and detector
 blocks of a column) are unchanged and stored.
 The Python model is `ReportProfile` (the document): `profile.datasets` are the
-scan datasets and `profile.report.datasets` the projections.
+scan datasets and `profile.report.datasets` the projections. The `derived` and
+`observations` blocks of the Scan are at the root of the Report, carried as they
+are: the base of a Report keeps fewer values and cannot compute them again. The
+`issues` and `with_issues` of the projections do not read `observations` yet
+(lot 5).
 
 ### 19.4 Reduced samples (O27)
 
@@ -2521,14 +2659,14 @@ The JSON Schema of the base document is generated from the result models
 out of date (`python scripts/scan_schema.py` rewrites it). It describes what a
 reader accepts (validation mode: models that omit unknown members cannot be
 described in serialization mode), requires the constants of the format, pins
-the revision and declares the namespaces `derived`, `observations`, `analyses`
+the revision and declares the namespaces `analyses`
 and `report` of the extensions with an open schema, so that `additionalProperties:
 false` does not stop a reader of the base from recognizing a Report; the schema
 of the Report validates their content. Lot 1b adds it:
 `tabalyst.report_schema.report_schema()`, committed as
 `src/tabalyst/schemas/tabalyst.report.schema.json` and guarded like the other
 (`python scripts/scan_schema.py` writes both). It requires the `report` block
-and keeps `derived`, `observations` and `analyses` open. The base of a Report,
+and keeps `analyses` open. The base of a Report,
 with the `format` and `format_revision` of its `base_scan`, satisfies the Scan
 schema; the Report schema fixes the Report's own `format_revision` (2).
 

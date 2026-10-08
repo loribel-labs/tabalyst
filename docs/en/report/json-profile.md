@@ -140,6 +140,7 @@ A shortened profile for a five-row `orders.csv`:
 | `engine`, `status`, `run`, `source`, `config`, `config_sha256`, `scope`, `diagnostics` | | The scan base, as in a [scan document](../scan/format.md). `config` is the effective scan configuration, the one recorded in the scan document for a report built with `--scan`. `source` is the file the scan read |
 | `datasets` | array | The scan datasets, with their records and fields: the measured facts. The samples of the fields are reduced (see [Reduced samples](#reduced-samples)) |
 | `derived` | object | Optional: the [inferred patterns](../scan/format.md#inferred-patterns) of the scan, carried as they are because the reduced samples cannot compute them again |
+| `observations` | object | Optional: the [observations and limits](../scan/format.md#observations-and-limits) of the scan, carried as they are. The `issues` of the columns do not read them yet |
 | `report` | object | What the report adds (see below) |
 
 ## `report`
@@ -297,7 +298,7 @@ values are never changed.
 | `collapse_internal_whitespace_count`, `collapse_internal_whitespace_percent` | Values changed by collapsing repeated internal whitespace, counted after trimming; same denominator as `trim_percent` |
 | `stages` | One item per stage, in order: `raw`, `nfc`, `trim`, `collapse_whitespace`, `casefold`, `strip_accents` (see below) |
 | `variant_group_count` | Normalized values written in at least two raw ways; `null` unless `variant_group_status` is `complete` |
-| `variant_group_status` | `complete`, `limited` when a scan limit stopped the count, or `not_applicable` without text values |
+| `variant_group_status` | `complete`, `limited` when a scan limit stopped the count and some stage changed a string, or `not_applicable` without text values |
 | `variant_groups` | The largest groups (`scan.limits.max_variant_groups`), each with its comparison `key`, its occurrence `count`, `distinct_count` (raw spellings), `variants` (`value` and `count`, at most `scan.limits.max_variants_per_group`) and `truncated`; masked for a sensitive column, empty when hidden |
 | `variant_groups_truncated` | `true` when more groups exist than are listed |
 
@@ -308,7 +309,7 @@ Each item of `stages` has:
 | `stage` | Stage name; `raw` describes the values as read |
 | `enabled` | `false` when the stage is turned off in `scan.normalization` |
 | `changed_count`, `changed_percent` | Values the stage changed, given the previous enabled stage; `null` for `raw` and disabled stages |
-| `distinct_count` | Distinct values after the stage; `null` unless `distinct_status` is `complete` |
+| `distinct_count` | Distinct values after the stage; `null` unless `distinct_status` is `complete`. A stage that changed nothing has the count of the previous one, also when the scan limited it (see [Normalization stages](../scan/format.md#normalization-stages)) |
 | `distinct_status` | `complete`, `limited`, `not_applicable` (no values) or `disabled` |
 
 A variant group is an analytical equivalence, such as `Montréal`,

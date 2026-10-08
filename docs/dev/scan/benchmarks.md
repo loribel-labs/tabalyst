@@ -529,6 +529,30 @@ very many structures and the generalization ladder tokenizes their values three 
 patterns of a 34-column scan weigh about 27 KB compact (25 KB for `insurance-ontario`), 83 KB
 indented, against 6 MB for the whole indented Scan of the 3,000-row example.
 
+## Observations and adaptive normalization (lot 4b)
+
+The observations are built once after the patterns, from the counters of the finished datasets
+and without the samples, so their cost is a function of the number of fields. The adaptive
+normalization is decided at finalization from counters that exist already. No hot path is
+touched. Compared with the commit of the lot 4a (`647bac6`, a `git worktree` under
+`D:/GIT.test/tabalyst/worktrees/base-4b`), one fresh interpreter per run, alternating, three
+series, medians (script and results under `D:/GIT.test/tabalyst/artifacts/scan-json-lot4b/`):
+
+| File | Scan duration | `finalize` | `derived` (patterns + observations) | Observations alone |
+| --- | ---: | ---: | ---: | ---: |
+| insurance-combined.csv (1 M rows, 34 columns) | 14.16 to 14.18 s (+0.1%) | -2.0% | 0.088 to 0.107 s | 0.011 s |
+| insurance-ontario.csv | 2.36 to 2.31 s (-2.0%) | -0.5% | 0.135 to 0.142 s | 0.006 s |
+| many-lengths-500k.csv | 4.56 to 4.39 s (-3.7%) | -8.6% | 0.455 to 0.475 s | 0.003 s |
+| long-text-60k.csv | 2.75 to 2.64 s (-3.9%) | -2.0% | 0.070 to 0.073 s | 0.002 s |
+| worst-width-1m.csv (30 columns) | 17.77 to 17.64 s (-0.7%) | -2.3% | 0.537 to 0.545 s | 0.009 s |
+
+All differences are inside the dispersion between sessions (about 20%, lot 0) and under the
+threshold of 20%. The first version of the walker of `limited` envelopes entered the lists of
+samples (up to 10,000 entries per field) and cost 0.17 to 0.49 s; it now enters only the stages
+of the normalization, which took the observations from 0.49 s to 0.011 s on the combined file. The
+`observations` member weighs 1.8 to 8 KB compact (6.5 KB for the combined file, with
+16 observations and 24 limits), against 1.3 to 14 MB for the Scan.
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

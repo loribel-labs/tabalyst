@@ -54,6 +54,7 @@ from tabalyst.scanner.models import (
     NormalizationStage,
     NotApplicable,
     Samples,
+    StageName,
     ValueAt,
     ValueCount,
     Variant,
@@ -1059,7 +1060,16 @@ class ValueProcessor:
             samples = sample.samples(gate)
             estimate = sample.estimate(gate)
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
-            variant_groups = unproven if measures.lengths else _NO_VALUES
+            if not measures.lengths:
+                variant_groups = _NO_VALUES
+            elif reduce(or_, measures.changes, 0):
+                variant_groups = unproven
+            else:
+                # No stage modified a string: every comparison key is its own
+                # raw string, so no key has two variants (exact, D13).
+                variant_groups = Complete[VariantGroups](
+                    value=VariantGroups(groups=0, listed=[], truncated=False)
+                )
         results = detectors.results(measures.tallies, report_failure, gate, report_probe)
         # Statistics such as a minimum or a date range are values themselves:
         # a masked or hidden field withholds them (design 12.8).
@@ -1129,15 +1139,33 @@ def _normalization(
             stage="raw", enabled=True, changed=None, cardinality=raw_cardinality
         )
     ]
+    previous = raw_cardinality
+    before: StageName = "raw"
     for i, (stage, enabled) in enumerate(zip(STAGES, normalizer.enabled)):
+        if not enabled:
+            stages.append(
+                NormalizationStage(
+                    stage=stage, enabled=False, changed=None, cardinality=None
+                )
+            )
+            continue
+        # ``changed`` is an exact counter of the whole scan, so a stage that
+        # modified nothing is the identity on the distinct values, whether the
+        # table was released or not: it takes the count of its input, with no
+        # table of its own. A stage that modified something once the table was
+        # released has no count to take (NORM-05, D13).
+        same = changed[i] == 0 and previous.status in ("complete", "limited")
+        current = previous if same else cardinality[i]
         stages.append(
             NormalizationStage(
                 stage=stage,
-                enabled=enabled,
-                changed=changed[i] if enabled else None,
-                cardinality=cardinality[i] if enabled else None,
+                enabled=True,
+                changed=changed[i],
+                cardinality=current,
+                equals=before if same else None,
             )
         )
+        previous, before = current, stage
     return Normalization(version=VERSION, stages=stages, variant_groups=variant_groups)
 
 

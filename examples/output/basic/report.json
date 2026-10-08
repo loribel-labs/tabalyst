@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T18:46:21.381480Z",
-    "duration_seconds": 0.012879,
+    "started_at": "2026-10-08T20:17:28.990277Z",
+    "duration_seconds": 0.01254,
     "timings": {
-      "reading": 0.000445,
-      "analysis": 0.000157,
-      "finalize": 0.011658,
-      "derived": 0.000279,
-      "other": 0.00034
+      "reading": 0.000404,
+      "analysis": 0.000153,
+      "finalize": 0.010936,
+      "derived": 0.00068,
+      "other": 0.000367
     },
     "workers": 1,
-    "peak_memory_bytes": 49942528
+    "peak_memory_bytes": 50515968
   },
   "source": {
     "format": "csv",
@@ -291,9 +291,13 @@
       "max_value_length": 64,
       "min_distinct": 2
     },
+    "observations": {
+      "enabled": true,
+      "max_items": 1000
+    },
     "random_seed": 42
   },
-  "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
+  "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -660,7 +664,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -669,7 +674,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -678,7 +684,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -687,7 +694,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "collapse_whitespace"
               },
               {
                 "stage": "strip_accents",
@@ -696,7 +704,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -1394,7 +1403,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -1403,7 +1413,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -1412,7 +1423,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -1430,7 +1442,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -2132,7 +2145,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -2141,7 +2155,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -2150,7 +2165,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -2159,7 +2175,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "collapse_whitespace"
               },
               {
                 "stage": "strip_accents",
@@ -2168,7 +2185,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -2865,7 +2883,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -2874,7 +2893,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -2883,7 +2903,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -2892,7 +2913,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "collapse_whitespace"
               },
               {
                 "stage": "strip_accents",
@@ -2901,7 +2923,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 4
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -3590,7 +3613,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 2
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -3599,7 +3623,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 2
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -3608,7 +3633,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 2
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -3617,7 +3643,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 2
-                }
+                },
+                "equals": "collapse_whitespace"
               },
               {
                 "stage": "strip_accents",
@@ -3626,7 +3653,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 2
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -4299,7 +4327,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "raw"
               },
               {
                 "stage": "trim",
@@ -4308,7 +4337,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "nfc"
               },
               {
                 "stage": "collapse_whitespace",
@@ -4317,7 +4347,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "trim"
               },
               {
                 "stage": "casefold",
@@ -4335,7 +4366,8 @@
                 "cardinality": {
                   "status": "complete",
                   "value": 3
-                }
+                },
+                "equals": "casefold"
               }
             ],
             "variant_groups": {
@@ -5140,13 +5172,91 @@
       ]
     }
   },
+  "observations": {
+    "version": 1,
+    "truncated": false,
+    "summary": {
+      "informational": 2,
+      "candidate_anomalies": 2,
+      "confirmed_issues": 0,
+      "limits": 0,
+      "has_observations": true,
+      "has_quality_issues": true,
+      "has_limits": false
+    },
+    "datasets": [
+      {
+        "dataset": "rows",
+        "informational": 2,
+        "candidate_anomalies": 2,
+        "confirmed_issues": 0,
+        "limits": 0,
+        "has_observations": true,
+        "has_quality_issues": true,
+        "has_limits": false
+      }
+    ],
+    "items": [
+      {
+        "id": "o1",
+        "rule": "duplicate_rows",
+        "category": "records",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "population": "records",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact",
+        "records": [
+          4
+        ]
+      },
+      {
+        "id": "o2",
+        "rule": "mixed_types",
+        "category": "types",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "field": "column_3",
+        "population": "occurrences",
+        "count": 1,
+        "of": 4,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o3",
+        "rule": "missing_values",
+        "category": "presence",
+        "status": "informational",
+        "dataset": "rows",
+        "field": "column_3",
+        "population": "value_slots",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o4",
+        "rule": "missing_values",
+        "category": "presence",
+        "status": "informational",
+        "dataset": "rows",
+        "field": "column_6",
+        "population": "value_slots",
+        "count": 1,
+        "of": 5,
+        "accuracy": "exact"
+      }
+    ],
+    "limits": []
+  },
   "report": {
-    "generated_at": "2026-10-08T19:02:34.811321Z",
+    "generated_at": "2026-10-08T20:17:29.012544Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0301,
+    "processing_seconds": 0.0385,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -5174,8 +5284,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
-      "facts_sha256": "85fdecfe91cceffd57320a79497dc5e67f221dd957fbfccc8896da8c558b543f"
+      "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
+      "facts_sha256": "20dfca41e20abd6d6265d458fad5207d71dc082afc59b4effc94706f9fb2424d"
     },
     "datasets": [
       {

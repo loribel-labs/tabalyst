@@ -288,6 +288,7 @@ object of each configuration file. The complete object with its defaults is:
       "enabled": true, "max_patterns": 8,
       "max_value_length": 64, "min_distinct": 2
     },
+    "observations": {"enabled": true, "max_items": 1000},
     "random_seed": 42
   }
 }
@@ -556,6 +557,17 @@ not the configured patterns above.
 | `pattern_inference.max_patterns` | 8 | 64 | Most candidate patterns per field; the smallest structures are generalized or counted in `other`. |
 | `pattern_inference.max_value_length` | 64 | 1,000 | Longer values do not take part and are counted as excluded. |
 | `pattern_inference.min_distinct` | 2 | 1,000 | Distinct values a candidate needs. |
+
+### Observations
+
+After a scan, the observations, quality issues and limits of its facts are
+written in `observations` (see
+[Observations and limits](../scan/format.md#observations-and-limits)).
+
+| Setting | Default | Maximum | Meaning |
+| --- | --- | --- | --- |
+| `observations.enabled` | `true` | | `false` leaves `observations` out of the document. |
+| `observations.max_items` | 1,000 | 100,000 | Most observations, and most limits, that are listed; the counts of the summaries stay complete. |
 
 ### Sensitive values and sampling
 

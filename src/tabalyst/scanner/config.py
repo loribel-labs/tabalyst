@@ -379,6 +379,18 @@ class PatternInferenceSettings(_Settings):
     min_distinct: int = Field(default=2, ge=1, le=1_000)
 
 
+MAX_OBSERVATION_ITEMS = 100_000
+
+
+class ObservationSettings(_Settings):
+    """Observations, quality issues and limits derived from the finished scan
+    (design 18.13). ``max_items`` bounds the observations and, separately, the
+    limits that are listed; the summaries count them all."""
+
+    enabled: bool = True
+    max_items: int = Field(default=1_000, ge=1, le=MAX_OBSERVATION_ITEMS)
+
+
 class TypeSettings(_Settings):
     minimum_confidence: float = Field(default=0.95, gt=0.5, le=1)
 
@@ -664,6 +676,7 @@ class ScanConfig(_Settings):
     pattern_inference: PatternInferenceSettings = Field(
         default_factory=PatternInferenceSettings
     )
+    observations: ObservationSettings = Field(default_factory=ObservationSettings)
     # The seed of the bottom-k hash (design 18.3) is an unsigned 64-bit integer.
     random_seed: int = Field(default=42, ge=0, lt=2**64)
 
