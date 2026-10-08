@@ -11,6 +11,7 @@ normalization and future detectors, not only raw reading speed.
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.csv
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.json
     python benchmarks/generate_data.py --rows 1000000 --layout worst-width -o D:/GIT.test/tabalyst/bench/worst-width-1m.csv
+    python benchmarks/generate_data.py --rows 500000 --layout many-lengths -o D:/GIT.test/tabalyst/bench/many-lengths-500k.csv
 
 The ``worst-width`` layout (CSV only) is the stress case of the bottom-k work:
 30 columns, five of them unique identifiers (``id``, ``customer_uuid``,
@@ -20,6 +21,11 @@ The ``long-text`` layout (CSV only) is the stress case of the long text sample:
 two columns of texts from 200 to 8,000 characters (``description``, mostly
 unique and sharing a 400-character prefix; ``summary``, unique) next to
 ordinary short columns.
+
+The ``many-lengths`` layout (CSV only) is the stress case of the samples by
+length: random texts whose lengths vary widely (``name`` 3 to 40 characters,
+``comment`` 10 to 200, ``code`` 6 to 12, ``wide`` 1 to 400, more lengths than
+the 64 a field tracks), a unique ``id`` and a 37-value ``label``.
 """
 
 import argparse
@@ -183,6 +189,26 @@ def _long_text_record(rng: random.Random, index: int) -> dict[str, object]:
     }
 
 
+MANY_LENGTHS_FIELDS = ["name", "comment", "code", "wide", "id", "label"]
+_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789 "
+
+
+def _many_lengths_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record whose text columns have many different lengths."""
+
+    def text(low: int, high: int, alphabet: str = _ALPHABET) -> str:
+        return "".join(rng.choices(alphabet, k=rng.randint(low, high))).strip() or "x"
+
+    return {
+        "name": text(3, 40),
+        "comment": text(10, 200),
+        "code": text(6, 12, "ABCDEF0123456789"),
+        "wide": text(1, 400),
+        "id": f"{index:09d}",
+        "label": f"cat{index % 37}",
+    }
+
+
 def _csv_value(field: str, value: object) -> str:
     if value is None:
         return "N/A"
@@ -196,6 +222,7 @@ def write_csv(path: Path, rows: int, seed: int, layout: str = "standard") -> Non
     fields, build = {
         "worst-width": (WIDE_FIELDS, _wide_record),
         "long-text": (LONG_TEXT_FIELDS, _long_text_record),
+        "many-lengths": (MANY_LENGTHS_FIELDS, _many_lengths_record),
     }.get(layout, (FIELDS, _record))
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
@@ -259,11 +286,12 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--layout",
-        choices=["standard", "worst-width", "long-text"],
+        choices=["standard", "worst-width", "long-text", "many-lengths"],
         default="standard",
         help=(
             "worst-width: 30 columns including 5 unique identifiers; long-text: "
-            "two columns of long texts (CSV only)."
+            "two columns of long texts; many-lengths: texts of many lengths "
+            "(CSV only)."
         ),
     )
     parser.add_argument(
@@ -277,7 +305,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     suffix = args.output.suffix.lower()
     if args.layout != "standard" and suffix != ".csv":
-        parser.error("the worst-width and long-text layouts write CSV only")
+        parser.error("the worst-width, long-text and many-lengths layouts write CSV only")
     if suffix == ".csv":
         write_csv(args.output, args.rows, args.seed, args.layout)
     elif suffix == ".json":

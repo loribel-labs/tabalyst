@@ -17,8 +17,17 @@ from tabalyst.scanner.models import (
     DatasetResult,
     DetectorComplete,
     FieldResult,
+    LengthStratum,
     LongTexts,
+    RowSample,
+    SampleEntry,
     ScanResult,
+)
+from tabalyst.scanner.rowsample import (
+    ROW_HASH_ALGORITHM,
+    ROW_HASH_BITS,
+    ROW_HASH_VERSION,
+    RowPriority,
 )
 
 
@@ -75,8 +84,109 @@ def _check_dataset(
             problems.append(f"{where}.records.{name}: lists more records than counted")
     if len(records.preview) > result.config.records.preview:
         problems.append(f"{where}.records.preview: longer than records.preview")
+    _check_row_sample(dataset, result, where, problems)
     for field in dataset.fields:
         _check_field(field, f"{where}.fields[{field.id}]", result, problems)
+
+
+def _check_row_sample(
+    dataset: DatasetResult, result: ScanResult, where: str, problems: list[str]
+) -> None:
+    """The row sample of a dataset (design 18.11)."""
+    settings = result.config.records.sample
+    sample = dataset.records.sample
+    where = f"{where}.records.sample"
+    if sample is None:
+        if settings.rows:
+            problems.append(f"{where}: missing although records.sample.rows is set")
+        return
+    if not settings.rows:
+        problems.append(f"{where}: present although records.sample.rows is 0")
+        return
+    requested = sample.requested
+    if (requested.rows, requested.edge, requested.middle) != (
+        settings.rows,
+        settings.edge,
+        settings.rows - 2 * settings.edge,
+    ):
+        problems.append(f"{where}.requested: does not match records.sample")
+    if (sample.cell_chars, sample.max_bytes) != (settings.cell_chars, settings.max_bytes):
+        problems.append(f"{where}: cell_chars and max_bytes must match records.sample")
+    if not 0 <= sample.middle_k <= requested.middle:
+        problems.append(f"{where}.middle_k: outside 0 to the requested middle")
+    if sample.reason not in (None, "memory_budget"):
+        problems.append(f"{where}.reason: only memory_budget is known")
+    if sample.middle_k < requested.middle and sample.reason is None:
+        problems.append(f"{where}.reason: a cut middle needs its reason")
+    population = sample.population
+    if population.records != dataset.record_count:
+        problems.append(f"{where}.population: records must equal record_count")
+    if population.interior != max(0, population.records - 2 * requested.edge):
+        problems.append(f"{where}.population: interior must be records - 2 * edge")
+    if sample.bytes > sample.max_bytes:
+        problems.append(f"{where}: bytes exceed max_bytes")
+    field_ids = {field.id for field in dataset.fields}
+    if not set(sample.fields) <= field_ids:
+        problems.append(f"{where}.fields: lists an unknown field")
+    if sample.kept != len(sample.rows) or sample.kept > sample.of:
+        problems.append(f"{where}: kept must equal the rows listed and not exceed of")
+    if sample.complete and sample.of != population.records:
+        problems.append(f"{where}: complete needs every record to be a row")
+    hash_ = sample.hash
+    if (hash_.algorithm, hash_.version, hash_.bits, hash_.seed) != (
+        ROW_HASH_ALGORITHM,
+        ROW_HASH_VERSION,
+        ROW_HASH_BITS,
+        result.config.random_seed,
+    ):
+        problems.append(f"{where}.hash: not the priority function of this engine")
+    elif sample.rows:
+        _check_rows(sample, requested.edge, where, problems)
+
+
+def _check_rows(
+    sample: RowSample, edge: int, where: str, problems: list[str]
+) -> None:
+    fields = set(sample.fields)
+    previous: dict[str, int] = {}
+    order = {"start": 0, "middle": 1, "end": 2}
+    last_group = 0
+    middle: list[int] = []
+    for number, row in enumerate(sample.rows):
+        place = f"{where}.rows[{number}]"
+        origins = row.origins
+        if (
+            not origins
+            or origins != sorted(set(origins), key=order.__getitem__)
+            or (len(origins) > 1 and "middle" in origins)
+        ):
+            problems.append(f"{place}.origins: invalid")
+            continue
+        group = order[origins[0]]
+        if group < last_group:
+            problems.append(f"{place}: rows must be grouped start, middle, end")
+        last_group = max(last_group, group)
+        key = origins[0] if origins != ["start", "end"] else "start"
+        if row.record <= previous.get(key, 0):
+            problems.append(f"{place}.record: positions must ascend in a group")
+        previous[key] = row.record
+        if not set(row.values) <= fields or not set(row.truncated) <= fields:
+            problems.append(f"{place}: cells of a field that is not projected")
+        if origins == ["middle"]:
+            middle.append(row.record)
+    starts = sum("start" in row.origins for row in sample.rows)
+    ends = sum("end" in row.origins for row in sample.rows)
+    if starts > edge or ends > edge or len(middle) > sample.middle_k:
+        problems.append(f"{where}.rows: more rows than a group may hold")
+    if sample.truncated_cells != sum(len(row.truncated) for row in sample.rows):
+        problems.append(f"{where}.truncated_cells: must count the cut cells")
+    if middle:
+        priority = RowPriority(sample.hash.seed)
+        worst = max(priority.at(index) for index in middle)
+        if sample.threshold is not None and int(sample.threshold, 16) != worst:
+            problems.append(f"{where}.threshold: must be the largest middle priority")
+    elif sample.threshold is not None:
+        problems.append(f"{where}.threshold: a sample without middle rows has none")
 
 
 def _check_field(
@@ -185,6 +295,104 @@ def _check_listings(
             f"{where}.values.samples: all counts must add up to values.count"
         )
     _check_sample_members(field, where, problems)
+    _check_by_length(field, expected, result, where, problems)
+
+
+def _check_by_length(
+    field: FieldResult,
+    stored: int,
+    result: ScanResult,
+    where: str,
+    problems: list[str],
+) -> None:
+    """The ``by_length`` block of a sample (design 18.7); ``stored`` is the
+    number of occurrences of the values that fit a sample."""
+    samples = field.values.samples
+    block = samples.by_length
+    if block is None:
+        return
+    where = f"{where}.values.samples.by_length"
+    limits = result.config.limits
+    if samples.selection != "bottom_k":
+        problems.append(f"{where}: only a bottom_k sample has samples by length")
+    if block.per_length_k != limits.max_samples_per_length or (
+        block.max_lengths > limits.max_length_strata
+    ):
+        problems.append(f"{where}: sizes out of the configured limits")
+    if (block.requested_max_lengths is None) != (block.reason is None) or (
+        block.requested_max_lengths is not None
+        and block.requested_max_lengths <= block.max_lengths
+    ):
+        problems.append(
+            f"{where}: requested_max_lengths and reason go together and "
+            "requested_max_lengths exceeds max_lengths"
+        )
+    if block.limited != (block.other is not None or block.max_lengths == 0):
+        problems.append(f"{where}: limited must follow other and max_lengths")
+    if block.tracked != len(block.strata) or block.tracked > block.max_lengths:
+        problems.append(f"{where}: tracked does not match the strata")
+    lengths = [stratum.length for stratum in block.strata]
+    if lengths != sorted(set(lengths)) or any(length < 0 for length in lengths):
+        problems.append(f"{where}: strata must be in ascending distinct lengths")
+    shared = {item.id: item for item in samples.listed}
+    pool = {item.id: item for item in block.listed}
+    if len(pool) != len(block.listed) or shared.keys() & pool.keys():
+        problems.append(f"{where}: pool ids must be new and distinct")
+    members: set[int] = set()
+    for stratum in block.strata:
+        _check_stratum(
+            stratum, shared | pool, block.per_length_k, members, where, problems
+        )
+    if not pool.keys() <= members:
+        problems.append(f"{where}: a value of the pool belongs to no stratum")
+    counted = sum(stratum.occurrences for stratum in block.strata)
+    counted += 0 if block.other is None else block.other.occurrences
+    if block.max_lengths and counted != stored:
+        problems.append(f"{where}: strata and other must add up to the stored values")
+
+
+def _check_stratum(
+    stratum: LengthStratum,
+    entries: dict[int, SampleEntry],
+    per_length_k: int,
+    members: set[int],
+    where: str,
+    problems: list[str],
+) -> None:
+    where = f"{where}.strata[length={stratum.length}]"
+    if stratum.kept != len(stratum.ids) or stratum.kept > stratum.of:
+        problems.append(f"{where}: kept does not match the ids")
+    if stratum.of > per_length_k or stratum.occurrences < 1:
+        problems.append(f"{where}: sizes out of range")
+    if stratum.count_accuracy not in ("exact", "partial"):
+        problems.append(f"{where}: count_accuracy is exact or partial")
+    if (stratum.count_accuracy == "partial") != (
+        stratum.tracking_started_at_occurrence is not None
+    ):
+        problems.append(
+            f"{where}: tracking_started_at_occurrence goes with a partial stratum"
+        )
+    if stratum.selection == "all" and stratum.threshold is not None:
+        problems.append(f"{where}: only a bottom_k stratum has a threshold")
+    total = 0
+    for entry_id in stratum.ids:
+        entry = entries.get(entry_id)
+        if entry is None or entry_id in members:
+            problems.append(f"{where}: id {entry_id} is unknown or listed twice")
+            continue
+        members.add(entry_id)
+        total += entry.count
+        if len(entry.value) != stratum.length:
+            problems.append(f"{where}: id {entry_id} has another length")
+    if total > stratum.occurrences:
+        problems.append(f"{where}: counts exceed occurrences")
+    if (
+        stratum.selection == "all"
+        and stratum.count_accuracy == "exact"
+        and stratum.kept == stratum.of
+        and total != stratum.occurrences
+    ):
+        problems.append(f"{where}: all counts must add up to occurrences")
 
 
 def _check_sample_members(field: FieldResult, where: str, problems: list[str]) -> None:

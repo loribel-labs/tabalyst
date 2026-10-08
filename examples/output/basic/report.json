@@ -23,16 +23,16 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T12:08:16.331185Z",
-    "duration_seconds": 0.003643,
+    "started_at": "2026-10-08T17:25:22.548596Z",
+    "duration_seconds": 0.01219,
     "timings": {
-      "reading": 0.000437,
-      "analysis": 0.000142,
-      "finalize": 0.002679,
-      "other": 0.000385
+      "reading": 0.00046,
+      "analysis": 0.000151,
+      "finalize": 0.011239,
+      "other": 0.000341
     },
     "workers": 1,
-    "peak_memory_bytes": 49225728
+    "peak_memory_bytes": 49917952
   },
   "source": {
     "format": "csv",
@@ -127,6 +127,8 @@
       "max_samples": 100,
       "max_long_samples": 100,
       "long_preview_chars": 200,
+      "max_samples_per_length": 100,
+      "max_length_strata": 64,
       "max_sample_memory": 536870912,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
@@ -136,7 +138,13 @@
     },
     "records": {
       "preview": 20,
-      "duplicates": true
+      "duplicates": true,
+      "sample": {
+        "rows": 1000,
+        "edge": 50,
+        "cell_chars": 200,
+        "max_bytes": 16777216
+      }
     },
     "types": {
       "minimum_confidence": 0.95
@@ -278,7 +286,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "0f78773bde4aaf8cb2ed10265d70785d7393c102b5e5b4f173fd435b45f1d3a1",
+  "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -440,7 +448,44 @@
               ]
             }
           }
-        ]
+        ],
+        "sample": {
+          "selection": "start_middle_end",
+          "hash": {
+            "algorithm": "blake2b",
+            "version": 1,
+            "bits": 64,
+            "seed": 42
+          },
+          "requested": {
+            "rows": 1000,
+            "edge": 50,
+            "middle": 900
+          },
+          "middle_k": 900,
+          "population": {
+            "records": 5,
+            "interior": 0,
+            "scope": "interior_rows"
+          },
+          "complete": true,
+          "fields": [
+            "column_1",
+            "column_2",
+            "column_3",
+            "column_4",
+            "column_5",
+            "column_6"
+          ],
+          "fields_limited": false,
+          "cell_chars": 200,
+          "truncated_cells": 0,
+          "bytes": 3005,
+          "max_bytes": 16777216,
+          "kept": 0,
+          "of": 5,
+          "rows": []
+        }
       },
       "fields": [
         {
@@ -4796,12 +4841,12 @@
   ],
   "diagnostics": [],
   "report": {
-    "generated_at": "2026-10-08T12:27:39.730486Z",
+    "generated_at": "2026-10-08T17:25:22.571752Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0119,
+    "processing_seconds": 0.0388,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -4829,8 +4874,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "0f78773bde4aaf8cb2ed10265d70785d7393c102b5e5b4f173fd435b45f1d3a1",
-      "facts_sha256": "eeea1e4a1302fb4125a795b23dc39b38bc766b7ba01e22ab810e55b3e851e8bb"
+      "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
+      "facts_sha256": "6dab778ed0b94b05bf5da7437fe624d78a77ad5ac6b096c1faf88b9bc3b5a66e"
     },
     "datasets": [
       {

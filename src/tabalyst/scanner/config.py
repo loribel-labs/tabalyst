@@ -50,6 +50,8 @@ HARD_CAPS: dict[str, int] = {
     "max_listed_frequencies": 100_000,
     "max_samples": 100_000,
     "max_long_samples": 10_000,
+    "max_samples_per_length": 10_000,
+    "max_length_strata": 10_000,
     "long_preview_chars": 1_000_000,
     "max_sample_memory": 1 << 40,
     "max_variant_groups": 100_000,
@@ -268,6 +270,9 @@ DEFAULT_MAX_SAMPLES = 10_000
 # Long texts (design 18.6): at most 100 per field, previewed on 200 characters.
 DEFAULT_MAX_LONG_SAMPLES = 100
 DEFAULT_LONG_PREVIEW_CHARS = 200
+# Samples by length (design 18.7): up to 64 lengths of 100 values each.
+DEFAULT_MAX_SAMPLES_PER_LENGTH = 100
+DEFAULT_MAX_LENGTH_STRATA = 64
 # The model of the bytes the samples of the whole scan may take (design 18.10).
 DEFAULT_MAX_SAMPLE_MEMORY = 512 << 20
 
@@ -293,6 +298,14 @@ class LimitSettings(_Settings):
     long_preview_chars: int = _limit(
         DEFAULT_LONG_PREVIEW_CHARS, "long_preview_chars"
     )
+    # Samples by length (design 18.7): the values kept for each tracked length
+    # (0 turns the samples by length off) and the lengths tracked per field.
+    max_samples_per_length: int = _limit(
+        DEFAULT_MAX_SAMPLES_PER_LENGTH, "max_samples_per_length", 0
+    )
+    max_length_strata: int = _limit(
+        DEFAULT_MAX_LENGTH_STRATA, "max_length_strata", 0
+    )
     # Bytes, by the model of design 18.10, that the samples of the whole scan
     # may reserve; the long texts share a part of it.
     max_sample_memory: int = _limit(
@@ -317,9 +330,34 @@ class LimitSettings(_Settings):
         return self
 
 
+MAX_ROW_SAMPLE_ROWS = 100_000
+MAX_ROW_SAMPLE_CELL_CHARS = 100_000
+
+
+class RowSampleSettings(_Settings):
+    """Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last
+    rows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.
+
+    ``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by
+    the whole scan.
+    """
+
+    rows: int = Field(default=1_000, ge=0, le=MAX_ROW_SAMPLE_ROWS)
+    edge: int = Field(default=50, ge=0, le=MAX_ROW_SAMPLE_ROWS // 2)
+    cell_chars: int = Field(default=200, ge=1, le=MAX_ROW_SAMPLE_CELL_CHARS)
+    max_bytes: int = Field(default=16 << 20, ge=1 << 20, le=1 << 40)
+
+    @model_validator(mode="after")
+    def edges_fit_in_the_sample(self):
+        if self.rows and 2 * self.edge > self.rows:
+            raise ValueError("2 * edge cannot exceed rows")
+        return self
+
+
 class RecordSettings(_Settings):
     preview: int = Field(default=10, ge=0, le=MAX_PREVIEW_RECORDS)
     duplicates: bool = True
+    sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
 
 
 class TypeSettings(_Settings):

@@ -121,3 +121,19 @@ def test_the_commands_follow_the_output_setting(tmp_path, indent):
         text = path.read_text(encoding="utf-8")
         assert json.loads(text)["datasets"]
         assert (text.count("\n") > 100) is indent
+
+
+def test_the_indented_text_writes_the_ids_and_pool_of_the_strata_by_length_on_lines():
+    document = _document()
+    document["datasets"][0]["fields"][0]["values"]["samples"]["by_length"] = {
+        "strata": [{"length": 4, "ids": [3, 8, 11]}, {"length": 5, "ids": []}],
+        "listed": [{"id": 9, "value": "abcd"}],
+    }
+    before = json.loads(json.dumps(document))
+
+    text = dump_json(document, indent=True)
+
+    assert '"ids": [3, 8, 11]' in text and '"ids": []' in text
+    assert '{"id": 9, "value": "abcd"}' in text
+    assert json.loads(text) == before
+    assert document == before  # the placeholders are taken out again

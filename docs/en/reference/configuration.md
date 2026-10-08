@@ -139,6 +139,7 @@ the tooltip lists masked values.
 | Semantic types | `scan.detection.minimum_share` and every detector |
 | Masked values | `scan.exposure.sensitive_values` |
 | Preview | `scan.records.preview` |
+| Row sample (first, middle and last rows) | `scan.records.sample` |
 | Duplicate rows | `scan.records.duplicates` and `scan.limits.max_tracked_records` |
 | Limits and diagnostics | `scan.limits` and `scan.errors` |
 
@@ -262,12 +263,19 @@ object of each configuration file. The complete object with its defaults is:
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
       "max_samples": 10000, "max_long_samples": 100,
-      "long_preview_chars": 200, "max_sample_memory": 536870912,
+      "long_preview_chars": 200, "max_samples_per_length": 100,
+      "max_length_strata": 64, "max_sample_memory": 536870912,
       "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
-    "records": {"preview": 10, "duplicates": true},
+    "records": {
+      "preview": 10, "duplicates": true,
+      "sample": {
+        "rows": 1000, "edge": 50, "cell_chars": 200,
+        "max_bytes": 16777216
+      }
+    },
     "types": {"minimum_confidence": 0.95},
     "detection": {
       "minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
@@ -399,6 +407,8 @@ rejected before the scan starts.
 | `max_samples` | 10,000 | 100,000 | Size of the sample of distinct values the scan keeps per field, with their exact counts. |
 | `max_long_samples` | 100 | 10,000 | Size of the sample of long texts (above `max_stored_value_length`) kept per field; 0 keeps none. |
 | `long_preview_chars` | 200 | 1,000,000 | Characters of a long text kept as a preview. It never exceeds `max_stored_value_length`. |
+| `max_samples_per_length` | 100 | 10,000 | Distinct values kept per tracked length by the [samples by length](../scan/format.md#samples-by-length); 0 turns them off. |
+| `max_length_strata` | 64 | 10,000 | Lengths tracked per field by the samples by length; the others are summed in `other`; 0 turns them off. |
 | `max_sample_memory` | 536,870,912 (512 MiB) | 1,099,511,627,776 | Bytes, by a cost model, that the samples of the whole scan may take; a sample is cut to fit and says so (`requested_k`, `reason`). |
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
 | `max_variants_per_group` | 20 | 10,000 | Variants listed per group. |
@@ -429,6 +439,13 @@ report:
 - `records.duplicates`: set to `false` to skip duplicate detection, which
   stores one digest per distinct record, up to `limits.max_tracked_records`.
   The duplicate count is then `disabled`.
+- `records.sample`: the [row sample](../scan/format.md#row-sample) of each dataset.
+  `rows` is its total size (default 1,000, up to 100,000; 0 turns it off), `edge` the
+  number of first and of last rows (default 50; `2 * edge` cannot exceed `rows`, so the
+  middle has `rows` - 2 * `edge` rows), `cell_chars` the characters kept per cell
+  (default 200) and `max_bytes` the budget, by a cost model, of the rows kept by the
+  whole scan (default 16 MiB, from 1 MiB). A larger sample or wider cells need a larger
+  budget; when it is exceeded the middle shrinks and the document says so.
 
 ### Types and interpretations
 

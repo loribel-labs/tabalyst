@@ -132,6 +132,99 @@
       "title": "BooleanSettings",
       "type": "object"
     },
+    "ByLength": {
+      "additionalProperties": false,
+      "description": "Samples by length of the original text (design 18.7), a stratum for each\nof at most ``max_lengths`` tracked lengths with ``per_length_k`` values each.\n\nA stratum lists the ``id`` of its values; one that is already in the\n``listed`` of ``samples`` is not copied, ``listed`` here holds the others and\nits ids continue the numbering of the sample. ``limited`` says that some\nstored values are in no stratum: ``other`` sums them. ``max_lengths`` is the\nnumber in force, ``requested_max_lengths`` the one asked for when the memory\nbudget (design 18.10) granted fewer.",
+      "properties": {
+        "domain": {
+          "const": "original",
+          "title": "Domain",
+          "type": "string"
+        },
+        "unit": {
+          "const": "characters",
+          "title": "Unit",
+          "type": "string"
+        },
+        "per_length_k": {
+          "title": "Per Length K",
+          "type": "integer"
+        },
+        "max_lengths": {
+          "title": "Max Lengths",
+          "type": "integer"
+        },
+        "requested_max_lengths": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Max Lengths"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "limited": {
+          "title": "Limited",
+          "type": "boolean"
+        },
+        "tracked": {
+          "title": "Tracked",
+          "type": "integer"
+        },
+        "strata": {
+          "items": {
+            "$ref": "#/$defs/LengthStratum"
+          },
+          "title": "Strata",
+          "type": "array"
+        },
+        "other": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LengthOther"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/SampleEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "domain",
+        "unit",
+        "per_length_k",
+        "max_lengths",
+        "limited",
+        "tracked",
+        "strata",
+        "listed"
+      ],
+      "title": "ByLength",
+      "type": "object"
+    },
     "CardinalityComplete": {
       "additionalProperties": false,
       "description": "Exact distinct count of the original values (design 9.1).",
@@ -151,6 +244,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Accuracy",
@@ -165,6 +259,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Identity Accuracy",
@@ -303,6 +398,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Identity Accuracy",
@@ -2306,6 +2402,109 @@
       "title": "LengthCount",
       "type": "object"
     },
+    "LengthOther": {
+      "additionalProperties": false,
+      "description": "What the strata by length do not hold: ``lengths`` distinct lengths that\nare not tracked and the ``occurrences`` counted while they were not\n(design 18.7). The strata and ``other`` add up to every stored value.",
+      "properties": {
+        "lengths": {
+          "title": "Lengths",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "lengths",
+        "occurrences"
+      ],
+      "title": "LengthOther",
+      "type": "object"
+    },
+    "LengthStratum": {
+      "additionalProperties": false,
+      "description": "The values of one length, a bottom-k sample of the originals.\n\n``ids`` number entries of ``samples.listed`` or of ``by_length.listed``;\n``kept`` of the ``of`` values sampled are listed (exposure withholds them).\n``count_accuracy`` is ``exact`` when the length was tracked from its first\noccurrence; ``partial`` when it was admitted late, and then the counts cover\nthe occurrences from ``tracking_started_at_occurrence`` on (LEN-05).\n``selection`` is ``all`` while the stratum dropped no value.",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "partial",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "tracking_started_at_occurrence": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tracking Started At Occurrence"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "length",
+        "selection",
+        "kept",
+        "of",
+        "occurrences",
+        "count_accuracy",
+        "ids"
+      ],
+      "title": "LengthStratum",
+      "type": "object"
+    },
     "LimitSettings": {
       "additionalProperties": false,
       "properties": {
@@ -2384,6 +2583,20 @@
           "maximum": 1000000,
           "minimum": 1,
           "title": "Long Preview Chars",
+          "type": "integer"
+        },
+        "max_samples_per_length": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Samples Per Length",
+          "type": "integer"
+        },
+        "max_length_strata": {
+          "default": 64,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Length Strata",
           "type": "integer"
         },
         "max_sample_memory": {
@@ -2517,6 +2730,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Count Accuracy",
@@ -2527,6 +2741,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Identity Accuracy",
@@ -3407,6 +3622,9 @@
           "default": true,
           "title": "Duplicates",
           "type": "boolean"
+        },
+        "sample": {
+          "$ref": "#/$defs/RowSampleSettings"
         }
       },
       "title": "RecordSettings",
@@ -3430,6 +3648,17 @@
           },
           "title": "Preview",
           "type": "array"
+        },
+        "sample": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RowSample"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3439,6 +3668,206 @@
         "preview"
       ],
       "title": "Records",
+      "type": "object"
+    },
+    "RowPopulation": {
+      "additionalProperties": false,
+      "description": "The records read (``records``) and the ones the middle is drawn from:\npositions ``edge`` + 1 to ``records`` - ``edge``, ``interior`` of them\n(``scope`` names it, ROW-07).",
+      "properties": {
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "interior": {
+          "title": "Interior",
+          "type": "integer"
+        },
+        "scope": {
+          "const": "interior_rows",
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "records",
+        "interior",
+        "scope"
+      ],
+      "title": "RowPopulation",
+      "type": "object"
+    },
+    "RowSample": {
+      "additionalProperties": false,
+      "description": "Common row sample of a dataset: first rows, a bottom-k of the interior\nand last rows, the same cells for every projected field (design 18.11).\n\n``middle_k`` is the size of the middle in force, below ``requested.middle``\nwhen the byte budget cut it (``reason`` is then ``memory_budget``, which\nalso covers start or end rows left out). ``complete`` says that every record\nread is a row. ``threshold`` (16 hexadecimal digits) is the largest priority\nkept in the middle, written once a middle row was dropped. ``fields`` are\nthe projected field ids; ``fields_limited`` says that untracked paths are not\nprojected. ``bytes`` is the modelled size of the rows kept, ``max_bytes`` the\nbudget of the scan. ``kept`` rows are listed out of the ``of`` sampled: a\nReport keeps the header and no row (``kept`` 0).",
+      "properties": {
+        "selection": {
+          "const": "start_middle_end",
+          "title": "Selection",
+          "type": "string"
+        },
+        "hash": {
+          "$ref": "#/$defs/SampleHash"
+        },
+        "requested": {
+          "$ref": "#/$defs/RowSizes"
+        },
+        "middle_k": {
+          "title": "Middle K",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "population": {
+          "$ref": "#/$defs/RowPopulation"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "fields_limited": {
+          "title": "Fields Limited",
+          "type": "boolean"
+        },
+        "cell_chars": {
+          "title": "Cell Chars",
+          "type": "integer"
+        },
+        "truncated_cells": {
+          "title": "Truncated Cells",
+          "type": "integer"
+        },
+        "bytes": {
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "title": "Max Bytes",
+          "type": "integer"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/SampleRow"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "selection",
+        "hash",
+        "requested",
+        "middle_k",
+        "population",
+        "complete",
+        "fields",
+        "fields_limited",
+        "cell_chars",
+        "truncated_cells",
+        "bytes",
+        "max_bytes",
+        "kept",
+        "of",
+        "rows"
+      ],
+      "title": "RowSample",
+      "type": "object"
+    },
+    "RowSampleSettings": {
+      "additionalProperties": false,
+      "description": "Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last\nrows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.\n\n``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by\nthe whole scan.",
+      "properties": {
+        "rows": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "edge": {
+          "default": 50,
+          "maximum": 50000,
+          "minimum": 0,
+          "title": "Edge",
+          "type": "integer"
+        },
+        "cell_chars": {
+          "default": 200,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Cell Chars",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "default": 16777216,
+          "maximum": 1099511627776,
+          "minimum": 1048576,
+          "title": "Max Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "RowSampleSettings",
+      "type": "object"
+    },
+    "RowSizes": {
+      "additionalProperties": false,
+      "description": "Sizes asked for: ``rows`` in all, ``edge`` first and ``edge`` last rows,\nand ``middle`` = ``rows`` - 2 * ``edge`` rows of the interior.",
+      "properties": {
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "edge": {
+          "title": "Edge",
+          "type": "integer"
+        },
+        "middle": {
+          "title": "Middle",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "edge",
+        "middle"
+      ],
+      "title": "RowSizes",
       "type": "object"
     },
     "RunCounters": {
@@ -3539,6 +3968,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Count Accuracy",
@@ -3549,6 +3979,7 @@
             "exact",
             "estimated",
             "fingerprint_based",
+            "partial",
             "unknown"
           ],
           "title": "Identity Accuracy",
@@ -3594,6 +4025,66 @@
         "seed"
       ],
       "title": "SampleHash",
+      "type": "object"
+    },
+    "SampleRow": {
+      "additionalProperties": false,
+      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` has the shape of ``PreviewRecord.values``: canonical text per\nfield id, a list when the path repeats, ``null`` for a JSON null or a hidden\ncell, no key for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
+      "properties": {
+        "record": {
+          "title": "Record",
+          "type": "integer"
+        },
+        "origins": {
+          "items": {
+            "enum": [
+              "start",
+              "middle",
+              "end"
+            ],
+            "type": "string"
+          },
+          "title": "Origins",
+          "type": "array"
+        },
+        "values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Values",
+          "type": "object"
+        },
+        "truncated": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Truncated",
+          "type": "array"
+        }
+      },
+      "required": [
+        "record",
+        "origins",
+        "values"
+      ],
+      "title": "SampleRow",
       "type": "object"
     },
     "Samples": {
@@ -3692,6 +4183,17 @@
             }
           ],
           "default": null
+        },
+        "by_length": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ByLength"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3743,6 +4245,14 @@
           "title": "Reduced Fields",
           "type": "integer"
         },
+        "strata_fields": {
+          "title": "Strata Fields",
+          "type": "integer"
+        },
+        "strata_limited_fields": {
+          "title": "Strata Limited Fields",
+          "type": "integer"
+        },
         "k_effective_min": {
           "anyOf": [
             {
@@ -3774,6 +4284,10 @@
         "long_model_bytes": {
           "title": "Long Model Bytes",
           "type": "integer"
+        },
+        "length_model_bytes": {
+          "title": "Length Model Bytes",
+          "type": "integer"
         }
       },
       "required": [
@@ -3786,8 +4300,11 @@
         "long_bytes_hashed",
         "bottom_k_fields",
         "reduced_fields",
+        "strata_fields",
+        "strata_limited_fields",
         "sample_model_bytes",
-        "long_model_bytes"
+        "long_model_bytes",
+        "length_model_bytes"
       ],
       "title": "SamplingCounters",
       "type": "object"

@@ -20,6 +20,8 @@ SAMPLE_ENTRY_BYTES = 600
 LONG_ENTRY_BYTES = 700
 # The long texts take this share of ``limits.max_sample_memory``.
 LONG_SHARE = 8
+# The samples by length (design 18.7) take the same share again.
+LENGTH_SHARE = 8
 
 
 def sample_entry_bytes(mean_chars: float) -> int:
@@ -66,21 +68,27 @@ _COUNTERS = (
     "long_bytes_hashed",
     "bottom_k_fields",
     "reduced_fields",
+    "strata_fields",
+    "strata_limited_fields",
 )
 
 
 class SampleBudget:
     """``limits.max_sample_memory``: the bytes the samples of the whole scan may
-    reserve, with a sub-budget for the long texts.
+    reserve, with a sub-budget for the long texts and one for the samples by
+    length.
 
-    ``grant_sample`` and ``grant_long`` return the size K a field may have;
-    they are called in the scan process only, in reading order (design 18.10).
+    ``grant_sample``, ``grant_long`` and ``grant_strata`` return the size a
+    field may have; they are called in the scan process only, in reading order
+    (design 18.10).
     A field never takes more than its share of the sample budget, the whole
     budget divided by the fields discovered so far, so one wide source degrades
     every column evenly instead of the late ones first.
     """
 
     __slots__ = (
+        "length_limit",
+        "length_reserved",
         "limit",
         "long_limit",
         "long_reserved",
@@ -89,9 +97,11 @@ class SampleBudget:
 
     def __init__(self, limit: int) -> None:
         self.long_limit = limit // LONG_SHARE
-        self.limit = limit - self.long_limit
+        self.length_limit = limit // LENGTH_SHARE
+        self.limit = limit - self.long_limit - self.length_limit
         self.reserved = 0
         self.long_reserved = 0
+        self.length_reserved = 0
 
     def grant_sample(
         self, requested: int, entries: int | None, mean_chars: float, fields: int
@@ -108,6 +118,29 @@ class SampleBudget:
         room = min(self.limit // max(fields, 1), self.limit - self.reserved)
         granted = min(requested, max(room, 0) // cost)
         self.reserved += min(wanted, granted) * cost
+        return granted
+
+    def grant_strata(
+        self,
+        requested: int,
+        per_length_k: int,
+        entries: int | None,
+        mean_chars: float,
+        fields: int,
+    ) -> int:
+        """The number of lengths a field may track: ``requested`` strata of
+        ``per_length_k`` entries each, at the cost of a full stratum. A complete
+        table holds ``entries`` values at most, which is all it reserves."""
+        cost = per_length_k * sample_entry_bytes(mean_chars)
+        room = min(
+            self.length_limit // max(fields, 1),
+            self.length_limit - self.length_reserved,
+        )
+        granted = min(requested, max(room, 0) // cost)
+        wanted = granted * per_length_k
+        if entries is not None:
+            wanted = min(wanted, entries)
+        self.length_reserved += wanted * sample_entry_bytes(mean_chars)
         return granted
 
     def grant_long(self, requested: int, preview_chars: int) -> int:

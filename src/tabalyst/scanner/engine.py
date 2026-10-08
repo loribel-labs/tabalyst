@@ -32,14 +32,18 @@ from tabalyst.scanner.values import ValueContext
 
 
 def _reduced_samples(results: list[DatasetResult]) -> int:
-    """Fields whose sample, or long text sample, the memory budget cut."""
+    """Fields whose sample, long text sample or samples by length the memory
+    budget cut."""
     count = 0
     for result in results:
         for field in result.fields:
             samples = field.values.samples
             long = samples.long_texts
-            if samples.reason is not None or (
-                long is not None and long.requested_k is not None
+            strata = samples.by_length
+            if (
+                samples.reason is not None
+                or (long is not None and long.requested_k is not None)
+                or (strata is not None and strata.requested_max_lengths is not None)
             ):
                 count += 1
     return count

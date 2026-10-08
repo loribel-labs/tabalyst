@@ -383,3 +383,16 @@ scan process reserves the size of each sample in reading order, whatever the
 number of workers, and the size in force is in the document (`requested_k`,
 `reason`). Batches of rows (CSV) and of streamed values are also bounded by
 size (design 13).
+
+`scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
+of a bounded number of lengths (design 18.7). `ValueSample` starts it when the
+sample becomes a `bottom_k` and feeds it the priorities it computed once for the
+sample; its output is `values.samples.by_length`, whose values are the sample's
+`id`s or a small pool. `memory.py` reserves its share (an eighth of the budget)
+as it does for the long texts.
+
+`scanner/rowsample.py` (lot 3b) is the row sample of a dataset: the first rows, a bottom-k of the interior by a priority
+of the position (`RowPriority`, one hash call for eight rows) and the last rows, with the cells of the same row for every
+projected field (design 18.11). `RowSampler` lives in `RecordFacts`, in the scan process, and takes the CSV batches
+(`add_batch`) as well as single records (`add_record`); its bytes come from a budget shared by the datasets of the scan
+(`records.sample.max_bytes`). Its output is `records.sample`; the Report base keeps the header and no row.

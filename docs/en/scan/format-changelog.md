@@ -64,6 +64,18 @@ Also in revision 2, before its release:
   adds the warning `sample_budget` (see
   [Sample sizes](format.md#sample-sizes-and-the-memory-budget)). A CSV batch of
   rows and a batch of streamed values are also bounded by size.
+- A `bottom_k` sample is completed by `values.samples.by_length`: a small
+  bottom-k of the values of each length, so a rare length stays visible, with
+  the lengths and values beyond the limits summed in `other` (see
+  [Samples by length](format.md#samples-by-length)). New limits:
+  `max_samples_per_length` (100) and `max_length_strata` (64); `count_accuracy`
+  can now be `partial`, for a length tracked after its first occurrence. The
+  warning `sample_budget` and the sizes in force cover them too.
+- Each dataset has a row sample, `records.sample`: the first and last rows and a
+  reproducible choice of rows of the interior, with the cells of the same record for every
+  projected field (see [Row sample](format.md#row-sample)). New settings
+  `records.sample.rows` (1,000), `edge` (50), `cell_chars` (200) and `max_bytes` (16 MiB).
+  `records.preview` is unchanged. A Report keeps the block without its rows.
 - `run.counters` (optional): the work of the samplers, written by
   `tabalyst scan --counters`.
 - The scan document is written without indentation by default; the new

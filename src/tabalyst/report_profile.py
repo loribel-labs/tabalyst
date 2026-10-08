@@ -71,6 +71,7 @@ from tabalyst.scan_document import facts_sha256
 from tabalyst.scanner.bottomk import BottomKSampler
 from tabalyst.scanner.engine import has_limited_measure
 from tabalyst.scanner.models import (
+    ByLength,
     Complete,
     DatasetResult,
     DetectorComplete,
@@ -954,10 +955,22 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
     )
 
 
+def _without_members(block: ByLength) -> ByLength:
+    """The samples by length of the scan without the values of their strata:
+    the ids would point at values the Report does not keep (design 19.4). Each
+    stratum keeps its length, counts and accuracy and says ``kept`` 0."""
+    strata = [
+        stratum.model_copy(update={"kept": 0, "ids": []}) for stratum in block.strata
+    ]
+    return block.model_copy(update={"strata": strata, "listed": []})
+
+
 def report_base(result: ScanResult, size: int) -> ScanResult:
     """The base a Report holds: the scan, with the sample of each field reduced
     to ``size`` values at most (``report_sample``), its size declared by ``kept``
-    and ``of`` (design 19.4). Everything else is the scan's, unchanged."""
+    and ``of`` (design 19.4); the samples by length keep their counts and drop their
+    members, and the row sample drops its rows. Everything else is the scan's,
+    unchanged."""
     seed = result.config.random_seed
     datasets = []
     for dataset in result.datasets:
@@ -965,12 +978,23 @@ def report_base(result: ScanResult, size: int) -> ScanResult:
         for field in dataset.fields:
             samples = field.values.samples
             kept = report_sample(field, seed, size)
+            changes: dict[str, object] = {}
             if len(kept) < len(samples.listed):
-                reduced = samples.model_copy(update={"kept": len(kept), "listed": kept})
+                changes.update(kept=len(kept), listed=kept)
+            if samples.by_length is not None:
+                changes["by_length"] = _without_members(samples.by_length)
+            if changes:
+                reduced = samples.model_copy(update=changes)
                 values = field.values.model_copy(update={"samples": reduced})
                 field = field.model_copy(update={"values": values})
             fields.append(field)
-        datasets.append(dataset.model_copy(update={"fields": fields}))
+        changes = {"fields": fields}
+        sample = dataset.records.sample
+        if sample is not None:
+            # The rows are the Scan's: the Report states what it kept (none).
+            kept = sample.model_copy(update={"kept": 0, "rows": []})
+            changes["records"] = dataset.records.model_copy(update={"sample": kept})
+        datasets.append(dataset.model_copy(update=changes))
     return result.model_copy(update={"datasets": datasets})
 
 

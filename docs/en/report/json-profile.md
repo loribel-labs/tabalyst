@@ -162,7 +162,7 @@ else: it never starts a new scan.
 | `format`, `format_version`, `format_revision` | The format of the scan base, `tabalyst.scan` at its own revision: the root `format_revision` is the report's |
 | `engine_version` | Version of the engine that scanned |
 | `source_sha256`, `config_sha256` | SHA-256 of the source file and of the scan configuration |
-| `facts_sha256` | SHA-256 of the facts of the base: the document without `run` and without the contents of the samples. A report and the scan it comes from have the same value, whatever their presentation settings or sample sizes |
+| `facts_sha256` | SHA-256 of the facts of the base: the document without `run` and without the contents of the samples, of their strata by length and of the row samples. A report and the scan it comes from have the same value, whatever their presentation settings or sample sizes |
 
 ## Reading the base
 
@@ -180,7 +180,9 @@ The report keeps fewer sample values than the scan: at most
 default), the ones of smallest hash priority: a subset of the scan's with the
 same exact counts, and the same whatever the size of the scan sample. Each
 `values.samples` block says how many it lists, `kept`, out of how many the scan
-sampled, `of`. A scan has `kept` equal to `of`.
+sampled, `of`. A scan has `kept` equal to `of`. The
+[samples by length](../scan/format.md#samples-by-length) of a field keep their
+lengths, counts and accuracy, and no values: each stratum has `kept` 0.
 
 A report with `kept` below `of` renders and is read like any scan base, but it
 cannot be the input of a computation that reads samples: use the scan

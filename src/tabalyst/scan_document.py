@@ -71,8 +71,8 @@ class LoadedDocument:
 
 def facts_sha256(base: ScanResult) -> str:
     """SHA-256 of the facts of a base: without ``run``, which varies between
-    runs, and without the contents of the samples, whose size depends on the
-    document and not on the data (design 19.5)."""
+    runs, and without the contents of the samples and of their strata, whose size
+    depends on the document and not on the data (design 19.5)."""
     # ``Any``: a serialized model is a plain dict whose values are JSON data.
     # Excluded before serializing: a Scan holds up to ``max_samples`` values per
     # field, which would be written only to be dropped.
@@ -83,9 +83,19 @@ def facts_sha256(base: ScanResult) -> str:
             "run": True,
             "datasets": {
                 "__all__": {
+                    "records": {"sample": {"rows": True, "kept": True}},
                     "fields": {
                         "__all__": {
-                            "values": {"samples": {"listed": True, "kept": True}}
+                            "values": {
+                                "samples": {
+                                    "listed": True,
+                                    "kept": True,
+                                    "by_length": {
+                                        "listed": True,
+                                        "strata": {"__all__": {"kept": True, "ids": True}},
+                                    },
+                                }
+                            }
                         }
                     }
                 }
@@ -99,8 +109,22 @@ def facts_sha256(base: ScanResult) -> str:
 
 
 def complete_samples(base: ScanResult) -> bool:
+    """Whether the base holds every value its samples and their strata sampled,
+    and every row of its row samples."""
     return all(
+        dataset.records.sample is None
+        or dataset.records.sample.kept == dataset.records.sample.of
+        for dataset in base.datasets
+    ) and all(
         field.values.samples.kept == field.values.samples.of
+        and all(
+            stratum.kept == stratum.of
+            for stratum in (
+                field.values.samples.by_length.strata
+                if field.values.samples.by_length is not None
+                else ()
+            )
+        )
         for dataset in base.datasets
         for field in dataset.fields
     )
