@@ -360,6 +360,61 @@ built from a scan takes 1.8 s instead of 1.4 to 1.6 s (reading and ranking the
 heavier scan). The compact `[value, count]` writing of Q1 is the lever if the
 weight matters.
 
+## Long texts and the memory budget (lot 2c)
+
+Same method as lots 2a and 2b: the working tree against a `git worktree` of the
+base commit (`e16eb51`, lot 2b), alternated in one session, one fresh interpreter
+per run, three series (`benchmarks/scan_json_baseline.py`, tasks `scan` and
+`scan-single`; driver and logs under `D:/GIT.test/tabalyst/artifacts/scan-json-lot2c/`).
+The machine was about twice as slow as in lot 2b (the same base ran 26 s on the
+combined file against 14 s), and it went to sleep during the series, so one run
+of the working tree took 7 hours by the clock and one worst-width run took 50 s
+instead of 24 s. Each series is therefore read as a pair, and the table gives the
+median of the three paired ratios (with the raw pairs, outliers included).
+
+| File | Mode | Paired ratios (with / base - 1) | Median |
+| --- | --- | --- | ---: |
+| insurance-combined.csv | default | -0.6%, +0.2%, -15.1% | -0.6% |
+| worst-width-1m.csv | default | -0.3%, -0.1%, +109% (a 50 s run, noise) | -0.1% |
+| insurance-ontario.csv | default | +0.6%, -3.9%, -4.0% | -3.9% |
+| long-text-60k.csv | default | -2.7%, -6.4%, -1.8% | -2.7% |
+| insurance-combined.csv | 1 process | -0.3%, (clock jump), +0.1% | +0.1% |
+| worst-width-1m.csv | 1 process | +2.0%, +17.9%, +0.7% | +2.0% |
+| insurance-ontario.csv | 1 process | -6.2%, +3.4%, -7.8% | -6.2% |
+| long-text-60k.csv | 1 process | +8.8%, +7.7%, +13.4% | +8.8% |
+
+All medians are under the thresholds of design 18.8 (20% for the realistic file,
+35% for the worst-width file). The cost added to the hot path is one `len` per
+new streamed value, a `max` of the lengths per column batch of a streamed
+field, and counters that move only on admission, hit and compaction. Peak memory
+is unchanged (937 against 938 MB on the combined file); the long-text file falls
+from 757 to 713 MB, since long values no longer wait in 4,096-value batches.
+The long-text file in one process costs +8.8% because the base did not hash its
+long values (60,000 rows, 36,143 and 7,269 long occurrences in two columns; 158 MB
+of text hashed in 43,412 distinct texts).
+
+`long-text-60k.csv` is written by `generate_data.py --layout long-text` (205,679,978
+bytes at 60,000 rows, seed 42): `description` (200 to 8,000 characters, a
+common 400-character prefix, unique for 70% of the rows), `summary` (unique,
+about 200 to 1,000 characters) and four short columns. The scan with the lot
+keeps 100 long texts per column, scans in 5.5 s with workers and reports an
+estimate of 59,297 distinct `summary` values for the 60,000 rows.
+
+**Plateau of memory (PERF-05).** A scan of unique 4,000-character texts took
+memory proportional to the number of rows: 7.7, 14 and 25 MB at 1,500, 3,000 and
+6,000 rows, since a CSV batch held up to 4,096 rows whatever their size and the
+streaming batch up to 4,096 values. Both batches are now closed by size
+(`BATCH_BYTES` and `PENDING_CHARS`, 8 MiB), and
+`test_memory_does_not_grow_with_unique_long_texts` checks that 4 times the rows
+cost no more than 10% memory with small limits.
+
+**Cost model of the samples.** A full bottom-k of 10,000 strings measures 540
+bytes an entry at its peak (380 once compacted), whatever the length of the text,
+since the strings are shared with the table they came from. The model counts 600
+bytes plus two per character of the mean stored value (`memory.sample_entry_bytes`),
+checked against `tracemalloc` by a test; the default budget of 512 MiB covers 34
+columns of 10,000 values of 40 characters each (about 7 MB a column).
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

@@ -15,6 +15,11 @@ normalization and future detectors, not only raw reading speed.
 The ``worst-width`` layout (CSV only) is the stress case of the bottom-k work:
 30 columns, five of them unique identifiers (``id``, ``customer_uuid``,
 ``email``, ``account_number``, ``session_token``).
+
+The ``long-text`` layout (CSV only) is the stress case of the long text sample:
+two columns of texts from 200 to 8,000 characters (``description``, mostly
+unique and sharing a 400-character prefix; ``summary``, unique) next to
+ordinary short columns.
 """
 
 import argparse
@@ -156,6 +161,28 @@ def _wide_record(rng: random.Random, index: int) -> dict[str, object]:
     return record
 
 
+LONG_TEXT_FIELDS = ["id", "category", "status", "title", "summary", "description"]
+_LONG_PREFIX = " ".join(WORDS * 12)[:400]
+
+
+def _long_text_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record with two long text columns: a long ``description`` that shares
+    its first 400 characters and repeats for a third of the rows, and a
+    ``summary``, unique."""
+    words = rng.choices(WORDS, k=1_400)
+    length = rng.choice([200, 800, 1_500, 3_000, 8_000])
+    key = index if rng.random() < 0.7 else rng.randint(1, 5_000)
+    return {
+        "id": index,
+        "category": rng.choice(["claim", "quote", "renewal", "complaint"]),
+        "status": rng.choice(STATUSES),
+        "title": f"Case {index:07d} {rng.choice(WORDS)} {rng.choice(WORDS)}",
+        "summary": f"S{index:07d} " + " ".join(words[: rng.randint(30, 150)]),
+        "description": (_LONG_PREFIX + f" #{key:07d} " + " ".join(words))[:length]
+        + f" #{key:07d}",
+    }
+
+
 def _csv_value(field: str, value: object) -> str:
     if value is None:
         return "N/A"
@@ -166,9 +193,10 @@ def _csv_value(field: str, value: object) -> str:
 
 def write_csv(path: Path, rows: int, seed: int, layout: str = "standard") -> None:
     rng = random.Random(seed)
-    fields, build = (
-        (WIDE_FIELDS, _wide_record) if layout == "worst-width" else (FIELDS, _record)
-    )
+    fields, build = {
+        "worst-width": (WIDE_FIELDS, _wide_record),
+        "long-text": (LONG_TEXT_FIELDS, _long_text_record),
+    }.get(layout, (FIELDS, _record))
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
         writer.writerow(fields)
@@ -231,9 +259,12 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--layout",
-        choices=["standard", "worst-width"],
+        choices=["standard", "worst-width", "long-text"],
         default="standard",
-        help="worst-width: 30 columns including 5 unique identifiers (CSV only).",
+        help=(
+            "worst-width: 30 columns including 5 unique identifiers; long-text: "
+            "two columns of long texts (CSV only)."
+        ),
     )
     parser.add_argument(
         "-o",
@@ -246,7 +277,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     suffix = args.output.suffix.lower()
     if args.layout != "standard" and suffix != ".csv":
-        parser.error("the worst-width layout writes CSV only")
+        parser.error("the worst-width and long-text layouts write CSV only")
     if suffix == ".csv":
         write_csv(args.output, args.rows, args.seed, args.layout)
     elif suffix == ".json":

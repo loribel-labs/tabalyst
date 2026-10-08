@@ -245,30 +245,53 @@ class WorkerPool:
         return min(range(self._count), key=self._load.__getitem__)
 
     def release(
-        self, field: int, keys: list, counts: list, limited, scalars: bool
+        self,
+        field: int,
+        keys: list,
+        counts: list,
+        limited,
+        scalars: bool,
+        grants: tuple[int, int],
     ) -> int:
-        """Start processing a released table; returns the worker of the field."""
+        """Start processing a released table; returns the worker of the field.
+        ``grants`` are the sizes of its sample and of its long texts."""
         index = self._least_loaded()
         limit = (limited.reason, limited.limit, limited.lower_bound)
-        self._send(index, ("release", field, keys, counts, limit, scalars), len(keys))
+        message = ("release", field, keys, counts, limit, scalars, grants)
+        self._send(index, message, len(keys))
         return index
 
     def process(
-        self, index: int, field: int, keys: list, counts: list, scalars: bool
+        self,
+        index: int,
+        field: int,
+        keys: list,
+        counts: list,
+        scalars: bool,
+        long_k: int = 0,
     ) -> None:
-        """A streaming batch of a released field."""
-        self._send(index, ("batch", field, keys, counts, scalars), len(keys))
+        """A streaming batch of a released field; ``long_k`` is the size
+        granted to its long texts when this batch carries the first one."""
+        self._send(index, ("batch", field, keys, counts, scalars, long_k), len(keys))
 
     def finish(self, index: int, field: int, ends: tuple) -> None:
         """Finalize a released field, after its last batch."""
         self._send(index, ("finish", field, ends), 0)
 
     def table(
-        self, field: int, keys: list, counts: list, ends: tuple, scalars: bool
+        self,
+        field: int,
+        keys: list,
+        counts: list,
+        ends: tuple,
+        scalars: bool,
+        sample_k: int | None,
     ) -> int:
-        """Finalize a field from its complete table; returns its worker."""
+        """Finalize a field from its complete table, whose sample has the size
+        ``sample_k`` granted by the memory budget; returns its worker."""
         index = self._least_loaded()
-        self._send(index, ("table", field, keys, counts, ends, scalars), len(keys))
+        message = ("table", field, keys, counts, ends, scalars, sample_k)
+        self._send(index, message, len(keys))
         return index
 
     def result(
@@ -351,7 +374,9 @@ def main() -> None:
     processors: dict[int, ValueProcessor] = {}
     _write(stdout, pickle.dumps(("ready",), pickle.HIGHEST_PROTOCOL))
 
-    def finalize(field: int, processor, table, ends, scalars: bool) -> None:
+    def finalize(
+        field: int, processor, table, ends, scalars: bool, sample_k: int | None = None
+    ) -> None:
         events: list[tuple[str, str, object]] = []
 
         def failure(detector: str, error: str) -> int:
@@ -362,7 +387,7 @@ def main() -> None:
             events.append(("probe", detector, (count, warmup_reactions)))
             return -len(events)
 
-        blocks = processor.finalize(table, ends, failure, probe, scalars)
+        blocks = processor.finalize(table, ends, failure, probe, scalars, sample_k)
         plain = {key: _plain(value) for key, value in blocks.items()}
         reply = pickle.dumps(("done", field, plain, events), pickle.HIGHEST_PROTOCOL)
         _write(stdout, reply)
@@ -371,20 +396,23 @@ def main() -> None:
         while (message := _read(stdin)) is not None:
             kind, field = message[0], message[1]
             if kind == "batch":
-                _, _, keys, counts, scalars = message
+                _, _, keys, counts, scalars, long_k = message
+                if long_k:
+                    processors[field].grant_long(long_k)
                 processors[field].process(keys, counts, scalars=scalars)
             elif kind == "release":
-                _, _, keys, counts, (reason, limit, bound), scalars = message
+                _, _, keys, counts, (reason, limit, bound), scalars, grants = message
                 processor = processors[field] = ValueProcessor(context)
                 limited = Limited(reason=reason, limit=limit, lower_bound=bound)
-                processor.release(keys, counts, limited, scalars)
+                processor.release(keys, counts, limited, scalars, grants)
             elif kind == "finish":
                 _, _, ends = message
                 finalize(field, processors.pop(field), None, ends, False)
             elif kind == "table":
-                _, _, keys, counts, ends, scalars = message
+                _, _, keys, counts, ends, scalars, sample_k = message
                 table = dict(zip(keys, counts, strict=True))
-                finalize(field, ValueProcessor(context), table, ends, scalars)
+                processor = ValueProcessor(context)
+                finalize(field, processor, table, ends, scalars, sample_k)
     except KeyboardInterrupt:
         return
     except BaseException:  # noqa: BLE001 - reported to the scan process

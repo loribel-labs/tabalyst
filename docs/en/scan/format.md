@@ -319,9 +319,14 @@ an `estimate` of the distinct count, from the sample described below:
   `unclamped_value` is the raw estimate, present only when a bound changed it.
 - `theta_hex` is the threshold of the sample (see `threshold` below). It is
   absent for a sensitive field.
-- There is no estimate when a value too long to be sampled (above
-  `scan.limits.max_stored_value_length`) was met, since the sample did not see
-  the whole field.
+- A field with [long texts](#long-texts) has two domains, the stored values and
+  the long texts, which the estimate adds. `parts` gives each one as
+  `{domain, accuracy, value, relative_standard_error, k, theta_hex}`: `accuracy`
+  is `exact` for a domain whose sample dropped nothing (no `k` or `theta_hex`)
+  and `estimated` otherwise. `relative_standard_error` is that of the sum, and
+  `k` and `theta_hex` are then in the parts, not in the estimate itself.
+- There is no estimate when a value fitted no sample because the
+  [memory budget](#sample-sizes-and-the-memory-budget) granted a size of 0.
 
 `values.samples` lists distinct original values with their exact counts, each
 entry as `{id, value, type, count, count_accuracy, identity_accuracy}`:
@@ -354,6 +359,83 @@ entry as `{id, value, type, count, count_accuracy, identity_accuracy}`:
 
 `max_samples` cannot exceed `max_distinct_per_field`; when it is not set it
 follows a lower `max_distinct_per_field`.
+
+### Long texts
+
+A value longer than `scan.limits.max_stored_value_length` (1,000 characters by
+default) is never stored. It is counted and measured like any value, and a small
+sample of such values is written in `values.samples.long_texts`, absent for a
+field that has none:
+
+```json
+"long_texts": {"selection": "bottom_k", "k": 100, "preview_chars": 200,
+               "occurrences": 36143, "kept": 100, "of": 100,
+               "digest": {"algorithm": "blake2b", "bits": 128},
+               "hash": {"algorithm": "blake2b", "version": 1, "bits": 128, "seed": 0},
+               "threshold": "00a1f3...",
+               "listed": [{"id": 0, "digest": "c2f3e568...", "type": "string",
+                           "preview": "data customer contract...", "truncated": true,
+                           "original_length_chars": 1520, "original_length_bytes": 1520,
+                           "count": 2, "count_accuracy": "exact",
+                           "identity_accuracy": "fingerprint_based"}]}
+```
+
+- `occurrences` counts every occurrence of a long value, exactly. The minimum,
+  maximum, total and mean lengths are in `string_lengths`.
+- An entry keeps a `preview` (the first `scan.limits.long_preview_chars`
+  characters, 200 by default, cut on a character), the original lengths in
+  characters and bytes, `truncated` (the preview is shorter than the text) and
+  the `digest` of the complete text. Two texts with the same beginning are two
+  entries. The preview says nothing certain about the pattern or the alphabet of
+  the whole text.
+- `identity_accuracy` is `fingerprint_based`: two texts are the same entry when
+  their 128-bit digests are equal, not when the full texts were compared.
+- `selection`, `k`, `hash` and `threshold` work as for the values: `all` while no
+  text was dropped, then `bottom_k`. The sample holds at most
+  `scan.limits.max_long_samples` texts (100 by default; 0 keeps none, and the
+  occurrences are still counted).
+- The listing of the values (`selection`, `kept`, `of`) describes the values
+  that fit the stored length only.
+- For a sensitive field the block lists nothing (`kept` is 0, `of` is not): a
+  preview and a digest are the value itself.
+
+### Sample sizes and the memory budget
+
+The scan limits the memory its samples may take with a model of their cost, not
+by measuring (`scan.limits.max_sample_memory`, 512 MiB by default). Sizes are
+reserved in the order the source is read, so they are the same for any number of
+workers. A field never takes more than an equal share of the budget, so a source
+with very many columns cuts every column alike. A long text sample takes its
+reservation from an eighth of the budget, first come first served.
+
+When the budget grants less than `scan.limits.max_samples` (or
+`max_long_samples`), the block writes the size in force in `k`, the size asked
+for in `requested_k` and `reason` `memory_budget` (the long texts block has
+`requested_k` only), and a warning `sample_budget` names how many fields were
+cut. A smaller sample is still a bottom-k: its estimate has the larger error of
+its `k`. A size of 0 samples nothing for that field (`kept` and `of` are 0) and
+the field has no estimate. Counts, lengths, statistics and the exact tables are
+not affected. A sample that holds every value of its field (`selection` `all`)
+is never cut.
+
+### Counters of a run
+
+`tabalyst scan --counters` (`tabalyst.scan(..., counters=True)`) adds
+`run.counters.sampling`, the work of the samplers summed over the fields:
+`hashed_keys`, `admitted_keys`, `hit_keys` (occurrences of values already in a
+sample), `rejected_keys`, `evicted_keys`, `long_texts_hashed`,
+`long_bytes_hashed`, `bottom_k_fields`, `reduced_fields`, `k_effective_min`,
+`k_effective_max`, `sample_model_bytes` and `long_model_bytes`. Without the
+option the member is absent. A figure that the scan did not measure is not
+written. Counters describe the run, not the data.
+
+### Writing the document
+
+`tabalyst scan` writes the document without indentation by default, since the
+sample entries make it large (about 10 MB for 90,000 entries). Set
+`output.json_indent` to `true` in the
+[configuration](../reference/configuration.md#output-settings) to indent it,
+with each sample entry on one line. The content is the same.
 
 ## JSON Schema
 
@@ -455,8 +537,8 @@ measures. `details` is empty for the other codes.
 
 Diagnostics describe technical events, not data quality: excluded records,
 reached limits (`field_limit`, `depth_limit`, `measures_limited`,
-`global_budget`, `record_budget`), collections not found and detector
-failures. `level` is
+`global_budget`, `record_budget`, `sample_budget`), collections not found and
+detector failures. `level` is
 `error` or `warning`. `count` is always complete; `locations` lists at most
 `errors.max_locations` places, with `record` and `line` for CSV and JSONL,
 `record` and `element` for JSON. For JSONL, `line` is the physical line number,

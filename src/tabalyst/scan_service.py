@@ -4,7 +4,6 @@
 
 """Reusable planning and batch execution for Tabalyst Scan (design 16.3)."""
 
-import json
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from functools import partial
@@ -16,9 +15,10 @@ from tabalyst.batch import (
     validate_outputs,
     write_text_atomic,
 )
-from tabalyst.config import load_config_layers
+from tabalyst.config import load_config_layers, settings_from_layer
 from tabalyst.errors import InputError, ReportError, TabalystError
 from tabalyst.inspector.resolution import check_result, resolve_interpretation
+from tabalyst.json_text import dump_json
 from tabalyst.option_notices import ignored_options
 from tabalyst.progress import (
     ProgressCallback,
@@ -111,10 +111,10 @@ def build_scan_plan(
     return ScanPlan(jobs=jobs)
 
 
-def scan_document(result: ScanResult) -> str:
-    """The JSON text of a scan result, as written by ``tabalyst scan``."""
-    document = result.model_dump(mode="json", by_alias=True)
-    return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
+def scan_document(result: ScanResult, *, indent: bool = False) -> str:
+    """The JSON text of a scan result, as written by ``tabalyst scan``: compact,
+    or indented with ``indent`` (``output.json_indent``)."""
+    return dump_json(result.model_dump(mode="json", by_alias=True), indent=indent)
 
 
 def generate_scans(
@@ -129,6 +129,7 @@ def generate_scans(
     force: bool = False,
     on_progress: ProgressCallback | None = None,
     workers: int | None = None,
+    counters: bool = False,
     project_storage: bool = False,
 ) -> BatchScanResult:
     """Scan one or more CSV or JSON files and write one scan document each.
@@ -140,10 +141,11 @@ def generate_scans(
     (design inspect 11): a source whose collection cannot be decided fails
     alone. The whole batch is rejected before any scan when an output is
     unsafe; afterwards, a failed source does not stop the others. ``workers``
-    is passed to ``tabalyst.scan()``.
+    and ``counters`` are passed to ``tabalyst.scan()``.
     """
     config_paths = _config_paths(config_path)
-    _, scan_layer = load_config_layers(config_paths)
+    top_level, scan_layer = load_config_layers(config_paths)
+    indent = settings_from_layer(top_level).output.json_indent
     config = scan_config_from_layer(
         scan_layer,
         delimiter=delimiter,
@@ -216,6 +218,8 @@ def generate_scans(
                     job_config,
                     on_progress=forward,
                     workers=workers,
+                    counters=counters,
+                    json_indent=indent,
                     refresh=True,
                     check=check,
                 )
@@ -224,7 +228,11 @@ def generate_scans(
                 warnings += shared.warnings
             else:
                 result = scan(
-                    job.source, config=job_config, on_progress=forward, workers=workers
+                    job.source,
+                    config=job_config,
+                    on_progress=forward,
+                    workers=workers,
+                    counters=counters,
                 )
                 if check is not None:
                     warnings += check(result)
@@ -236,7 +244,7 @@ def generate_scans(
                     total=total,
                 )
                 try:
-                    write_text_atomic(job.output, scan_document(result))
+                    write_text_atomic(job.output, scan_document(result, indent=indent))
                 except OSError as exc:
                     raise ReportError(
                         f"Cannot write scan file {job.output}: {exc}"

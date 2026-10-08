@@ -495,8 +495,8 @@ envelope. The JSON layout is summarized in section 16.
   occurrences of the field counts once, and the number does not depend on the
   reader (batches of CSV columns or one value at a time) or on the workers. A
   member that is unknown is absent, never `null`. `estimate` (lot 2b) is the
-  KMV estimate of 18.5, published for a `limited` count when the sample saw the
-  whole field. The other envelopes keep their members; a
+  KMV estimate of 18.5, published for a `limited` count when the samples saw the
+  whole field (the values and, since lot 2c, the long texts). The other envelopes keep their members; a
   `complete` envelope without `accuracy` is exact for its declared population.
 - `values.frequencies`: envelope whose value is `{distinct, listed, truncated}`.
   `distinct` counts distinct analytical values (`(type, analytical text)`),
@@ -514,10 +514,12 @@ envelope. The JSON layout is summarized in section 16.
   distinct value, in first-seen order, no hash) or `bottom_k` (the K of smallest
   priority, ascending). An entry is `{id, value, type, count, count_accuracy,
   identity_accuracy}`. Counts are exact in every selection. Values longer than
-  `limits.max_stored_value_length` are never sampled; the sample is then a
-  `bottom_k` even when it is small, with no `threshold`, and the cardinality has
-  no estimate. `kept` listed values out of the `of` the scan sampled (section
-  19.4); exposure can make them differ (18.9). Samples are examples, not
+  `limits.max_stored_value_length` are not in the listing: they have their own
+  small sample, the `long_texts` member (section 18.6), and `selection` and `of`
+  describe the listed values only. `kept` listed values out of the `of` the
+  scan sampled (section 19.4); exposure can make them differ (18.9). The size
+  K can be smaller than the configured one when the memory budget cut it
+  (`requested_k`, `reason`, section 18.10). Samples are examples, not
   statistics. The selections `uniform_distinct` and `first_seen` of the first
   revision are gone.
 - `values.first` and `values.last`: `{value, type, record}` for the first and
@@ -775,9 +777,12 @@ run in this order; each can be disabled:
 | `max_record_observations` | 100,000 | 100,000,000 | Record excluded (tolerant) or fatal (strict); `record_too_large`. |
 | `max_distinct_per_field` | 100,000 | 50,000,000 | The raw table is released; cardinality, frequencies, stage cardinalities, variant groups and derived medians become limited with reason `distinct_limit`. |
 | `max_tracked_values` | 2,000,000 per scan | 500,000,000 | Global budget: the largest table is released first (ties: most recently discovered field); reason `global_budget`; warning `global_budget`. |
-| `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. |
+| `max_stored_value_length` | 1,000 characters | 1,000,000 | Longer values are counted but not stored: the first one releases the raw table, and table-based measures of that field become limited with reason `value_too_long`. A small sample of them keeps a preview and a digest (18.6). |
 | `max_listed_frequencies` | 100 | 100,000 | Output truncation only. |
 | `max_samples` | 10,000 (100 before lot 1a), as the size K of the sample, section 18.2 | 100,000 (10,000 before lot 1a) | Output size only. |
+| `max_long_samples` | 100 (0 keeps none) | 10,000 | Size of the sample of long texts per field (18.6); the memory budget can grant less. |
+| `long_preview_chars` | 200 | 1,000,000 | Characters of a long text kept as a preview; never above `max_stored_value_length`. |
+| `max_sample_memory` | 512 MiB | 1 TiB | Bytes, by the cost model of 18.10, that the samples of the whole scan may reserve; a sample is cut to fit, with reason `memory_budget`. |
 | `max_variant_groups` | 100 | 100,000 | Output truncation only. |
 | `max_variants_per_group` | 20 | 10,000 | Output truncation only. |
 | `max_evidence_examples` | 10 | 1,000 | Detector evidence size only. |
@@ -1181,6 +1186,15 @@ this without changing results:
    batch is read column by column only when it cannot exceed the budget
    (stored values plus rows times growing columns), otherwise record by
    record, in reading order.
+
+   Batches are also bounded by size (lot 2c): a CSV batch of rows closes when
+   it has read `readers.csv_reader.BATCH_BYTES` (8 MiB) of the source, checked
+   every 16 rows, and the streaming batch of a field closes when the heavy
+   values it holds (more than `values.HEAVY_LENGTH`, 256 characters) reach
+   `values.PENDING_CHARS` (8 Mi characters). Without it one batch of large
+   cells would take rows times columns times the cell size. A record is never
+   split: the working memory of a scan is at least that of its largest record
+   (MEM-05). No result depends on where a batch ends.
 7. Workers (lot 6, O25). Sources of at least 16 MiB are analyzed with worker
    processes (`scan(workers=...)`, `--workers`), one per spare processor, at
    most 8: the scan process reads, keeps tables, budgets and record facts,
@@ -1277,7 +1291,8 @@ settings from it (section 16.4).
       "max_fields": 10000, "max_depth": 64, "max_record_observations": 100000,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
-      "max_samples": 10000, "max_variant_groups": 100,
+      "max_samples": 10000, "max_long_samples": 100, "long_preview_chars": 200,
+      "max_sample_memory": 536870912, "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
@@ -1389,8 +1404,9 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 - `run` holds what varies between runs on the same source (O33): the four
   `timings` add up to `duration_seconds`; `workers` is the number of processes
   that analyzed values; `peak_memory_bytes` is that of the main process, null
-  when the platform does not report it. It is not part of the description of
-  the data, so two scans of one source differ by it alone.
+  when the platform does not report it; `counters` (lot 2c, 18.4) is written only
+  when asked for. It is not part of the description of the data, so two scans
+  of one source differ by it alone.
 - `source.csv` is `{"delimiter": ",", "header": [...]}` for CSV sources and
   `null` otherwise; `source.size_bytes` is the number of bytes read and hashed.
 - `scope.collections` describes JSON collection selection and is `null` for
@@ -1675,6 +1691,8 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
 | 2026-10-07 | SJ-2a | Sections 18.3 and 18.8: `scanner/bottomk.py` (BLAKE2b 128 bits, `HASH_VERSION` 1, `update`, `retained`, `k`), the location of the sampler state (`ValueProcessor`, in the scan process or the worker of the field), the refusal measures. | Lot 2a of the Scan and JSON work: the sampler isolated from the product and the measured hash choice. |
 | 2026-10-07 | SJ-2b | Sections 9.1, 18.2, 18.3, 18.9, 19.4, 21: the bottom-k in the engine (`scanner/valuesample.py`); `values.samples` of original values, `all` or `bottom_k` (`uniform_distinct` and `first_seen` removed), entries with `id`, `count_accuracy`, `identity_accuracy`, `k`, `hash`, `threshold`; `values.cardinality.estimate` (KMV, held within the certain bounds); exposure after the calculation with `kept < of`; the Report ranks an `all` sample by priority; `random_seed` in [0, 2**64). | Lot 2b of the Scan and JSON work. Maintainer decisions of 2026-10-07 (defaults accepted): `id` is the position in the Scan listing, `kept < of` declares withheld originals, the estimate is clamped with the raw value kept, the seed is bounded. |
+| 2026-10-08 | SJ-2c | Sections 9.1, 11, 13, 16.1, 18.4, 18.6, 18.9, new 18.10: long texts sampled apart (`values.samples.long_texts`, `LongTextSampler`, digest identity `fingerprint_based`), the estimate adds the values and the long texts (`estimate.parts`), settings `max_long_samples`, `long_preview_chars` and `max_sample_memory`, the memory budget of the samples in bytes with requested and effective sizes (`requested_k`, `reason`) and the warning `sample_budget`, batches bounded by size, optional `run.counters`. | Lot 2c of the Scan and JSON work. Defaults of the plan accepted by the maintainer on 2026-10-08 (`selection` describes the listed values only, estimate in two parts, budget in bytes with no floor); the session chose 512 MiB instead of 256 so that a realistic 34-column scan is never cut, and added a fair share per field to first come first served. |
+| 2026-10-08 | SJ-2c | Section 16.3: scan and report documents are written compact by default; the top-level `output.json_indent` setting indents them with each sample entry on one line (`json_text.dump_json`). `executions.json` and the Inspect file stay indented. | Weight of the Scan (24.9 MB indented, 10.4 MB compact, 13.5 MB indented with one line per entry on `insurance-ontario`); arrays `[value, count]` refused to keep the format self-describing. Maintainer decision of 2026-10-08. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -1815,6 +1833,23 @@ identity is exact. They are not a top-N and not a frequency table: the most
 frequent value can be absent. Proportions among sampled distinct values are
 not proportions of rows.
 
+Work counters (PERF-02 and PERF-03, lot 2c). `BottomKSampler.counters` gives
+the priorities computed (`hashed`), the keys that entered the sample
+(`admitted`), the occurrences of keys it already held (`hits`), the keys
+computed and refused (`rejected`) and the keys that left it (`evicted`):
+`hashed = admitted + hits + rejected` for `update_strings`, and `hits` are not
+hashed in `update`. They only move in branches that do work (admission, hit,
+compaction), never per rejected key, so they cost nothing on the hot path and
+are always kept. The long text sampler adds `hashed_texts` and `hashed_bytes`.
+`scan(..., counters=True)` (`tabalyst scan --counters`) writes their sum over
+the fields in `run.counters.sampling`, with the sizes granted (`k_effective_min`,
+`k_effective_max`, `reduced_fields`) and the bytes reserved in the cost model
+(`sample_model_bytes`, `long_model_bytes`); without the request the member is
+absent. A counter that the scan did not measure is not written, never 0: bytes
+hashed are known for the long texts only, and the peak memory is
+`run.peak_memory_bytes` (null when the platform does not report it). Counters
+belong to `run`: they are not facts and do not enter `facts_sha256`.
+
 ### 18.5 KMV estimate (lot 2a)
 
 After an overflow, with `K > 2` and a valid sample, `KmvEstimate` gives
@@ -1833,13 +1868,50 @@ a tolerant fixed-seed check, never a bound per seed.
 
 ### 18.6 Long texts (lot 2c)
 
+A value longer than `limits.max_stored_value_length` (1,000 characters of its
+canonical text) is never stored. It is counted, measured and tested like any
+value, and sampled apart.
+
 `tabalyst.scanner.longtext.LongTextSampler(k, *, preview_chars, seed=0)` keeps
-a small bottom-k of long texts. The priority comes from the full content; an
-entry stores `digest` (full-content digest, hexadecimal), `preview` (cut on a
-code point, so valid UTF-8), `truncated`, `original_length_chars`,
-`original_length_bytes`, `count` and `identity_accuracy: "fingerprint_based"`.
-Two texts with the same prefix are two entries (B07, B08). A preview does not
-certify the pattern or alphabet of the whole text.
+a small bottom-k of long texts (`limits.max_long_samples`, 100 by default; LONG-01
+rules out thousands of descriptions). The text is read once: its digest is
+`digest_of(native_type, text)`, BLAKE2b with a 128-bit digest of
+`native type NUL text` in UTF-8 (lone surrogates kept), independent of the seed,
+and the priority is that of the key `("digest", hexadecimal digest)` through the
+sampler of 18.3, so the sample, its counts, its threshold and its KMV estimate
+come from the same code. An entry stores `digest`, `type`, `preview` (the first
+`preview_chars` code points, so valid UTF-8; `long_preview_chars`, 200 by
+default, never above `max_stored_value_length`), `truncated`,
+`original_length_chars`, `original_length_bytes`, `count` and
+`identity_accuracy: "fingerprint_based"`: two texts are the same entry when their
+128-bit digests are equal. Two texts with the same prefix are two entries (B07,
+B08). The preview and the lengths of an entry are built when it is admitted;
+a text that is not admitted costs one read. Memory is bounded by K entries
+(`LONG_ENTRY_BYTES` plus the preview). A preview does not certify the pattern or
+alphabet of the whole text (LONG-05): a pattern inference must not read it as
+the value.
+
+In the scan a field with long values has `values.samples.long_texts`
+(absent otherwise): `{selection, k, requested_k?, preview_chars, occurrences,
+kept, of, digest: {algorithm, bits}, hash?, threshold?, listed}`.
+`occurrences` counts every occurrence of a long value, exactly (LONG-03: the
+minimum, maximum, total and mean lengths are in `string_lengths`). `selection`
+is `all` until a text was dropped, then `bottom_k` with `hash` and `threshold`.
+Entries are `{id, digest, type, preview, truncated, original_length_chars,
+original_length_bytes, count, count_accuracy, identity_accuracy}`. A field with
+`max_long_samples` 0, or whose size the memory budget cut to 0, still counts the
+occurrences and lists none (`k` 0), and then has no cardinality estimate. A
+sensitive field lists none (`kept` 0): a preview and a digest are the value, and
+its threshold is withheld like the one of the values.
+
+The cardinality estimate of such a field adds two disjoint domains, the stored
+values and the long texts (the split is by length of the original text): each
+is exact while its sampler dropped nothing and a KMV estimate otherwise, and
+`estimate.parts` gives them (`{domain, accuracy, value, relative_standard_error,
+k?, theta_hex?}`). The estimate is their sum, its relative error is
+`sqrt(sum((value_i * error_i)^2)) / sum(value_i)` and, with `parts`, `k` and
+`theta_hex` belong to the parts. It exists once either domain dropped a key.
+The certain bounds of 9.1 still clamp it.
 
 ### 18.7 Length strata (lot 3a)
 
@@ -1893,6 +1965,15 @@ Report can hash its few kept values), and only a field whose sample must be cut
 `values.cardinality` is described in 9.1. The strata of lengths (18.7) have no
 member yet; their name and layout are settled at lot 3a.
 
+`values.samples` also carries `requested_k` and `reason` when the memory budget
+(18.10) granted a size K smaller than `limits.max_samples`: `k` is the size in
+force, `requested_k` the one asked for and `reason` is `memory_budget`. They are
+written only for a `bottom_k` sample that is smaller than asked (an `all`
+sample, which holds every value, was not cut); `k` 0 means no value is sampled
+(`kept` and `of` are 0) and the cardinality has no estimate. The `estimate`
+uses the size in force (`k`). `long_texts` (18.6) is the member of the values
+that are too long to be stored.
+
 `values.samples` (lot 2b):
 
 - `selection` is `all` when the sample holds every distinct original value
@@ -1915,15 +1996,66 @@ member yet; their name and layout are settled at lot 3a.
   (VAL-06). The `threshold` of a sensitive field (mode `mask` or `hide`) is not
   written: it is the priority of one of its values.
 
-`values.cardinality.estimate` is written for a `limited` count when the sampler
-dropped a key and no value was excluded (a value above
-`limits.max_stored_value_length` never enters the sample, so the estimator
-would not have seen the whole field; lot 2c brings those values back with
-their own sampler): `{accuracy: "estimated", method: "kmv", value,
+`values.cardinality.estimate` is written for a `limited` count when a sampler
+dropped a key and every value reached a sample (a value that fits no sample,
+because the memory budget granted a size of 0, would leave the estimator without
+the whole field): `{accuracy: "estimated", method: "kmv", value,
 unclamped_value?, relative_standard_error, k, theta_hex?}`. `value` is the
 estimator held within `[lower_bound, upper_bound]`; `unclamped_value` is the
 raw `(k - 1) / theta`, present only when a bound changed it; `theta_hex` is
-absent for a sensitive field. A complete count has no estimate: it is exact.
+absent for a sensitive field. A field with long texts has `parts` instead of
+`k` and `theta_hex` (18.6). A complete count has no estimate: it is exact.
+
+### 18.10 Memory budget of the samples (lot 2c, MEM-01 to MEM-06)
+
+`limits.max_tracked_values` stays the budget, in values, of the exact tables
+(section 11). The samples have their own budget in bytes,
+`limits.max_sample_memory` (512 MiB by default), because K entries per field is
+5 MB per field at K = 10,000 and a source of a thousand columns would take
+gigabytes. It is a cost model, not a measurement: `memory.sample_entry_bytes`
+(600 bytes of structure, which includes the slack held between two compactions,
+measured at 540 bytes at K = 10,000, plus two bytes per character of the mean
+stored value) and `memory.long_entry_bytes` (700 bytes plus four per preview
+character). A test checks the model against `tracemalloc`.
+
+`memory.SampleBudget` has two sub-budgets: the long texts take an eighth, the
+samples of values the rest (MEM-01: keys, payloads, structure and compaction
+slack of the samplers; the tables, the parser and the pending batches have their
+own limits, 13). Sizes are reserved before the sample is built (MEM-04), in the
+scan process only, in the order the source is read, so they do not depend on the
+workers (principle 6):
+
+- A released table reserves K entries for its field when it is released
+  (`ValueTracker._grants`), at the record where the limit was proven, and the
+  size travels to the field's processor in the `release` message.
+- A complete table reserves its distinct values (at most K) in field order
+  before any worker starts (`ValueTracker.reserve`, called by `ScanEngine.finalize`
+  for every field).
+- Long texts reserve their sample when the first long value of the field is met:
+  at the release if it holds one, otherwise when the streaming batch that holds
+  it is handed over (`long_k` travels with the batch). First come, first served.
+- A field never takes more than the whole sample budget divided by the fields
+  discovered so far: one wide source cuts every column alike instead of the
+  late ones first. The size granted is `min(K, room / cost)`, 0 when not even
+  one entry fits (MEM-06: the sampling of that field stops in a controlled way,
+  the scan goes on, and the counters, lengths and exact tables are not touched).
+
+The requested and the effective sizes are both in the document (MEM-03):
+`values.samples.k` and `requested_k`, `values.samples.long_texts.k` and
+`requested_k`, with `reason` `memory_budget` and the warning `sample_budget`
+(one per scan, with the number of fields cut). Consequences are read from the
+block: a cut sample is a `bottom_k`, its KMV estimate has the error of the size
+in force, and a sample of size 0 has no estimate. No limit is ever lifted by a
+request for an exact result (MEM-06); the exact tables are bounded by T and by
+`max_tracked_values`, and lowering T stays the other way to spend less.
+
+Bounded states (MEM-02): the number of samples (K), their length
+(`max_stored_value_length`, `long_preview_chars`), the long texts (`max_long_samples`) and the
+batches (13) each have a bound. The lengths, patterns and error categories of
+later lots will join this table. The warm-up values of a streamed field are
+bounded by `detection.warmup_values` and by the stored length. A giant record
+(MEM-05) cannot be split: the working memory of the parser is the largest record
+(and, for CSV, the cells of a batch of at most 8 MiB).
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 

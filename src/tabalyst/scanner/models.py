@@ -89,13 +89,32 @@ IntMeasure = measure(int)
 Accuracy = Literal["exact", "estimated", "fingerprint_based", "unknown"]
 
 
+class EstimatePart(ScanModel):
+    """One of the two disjoint domains of an estimate that adds up: the values
+    stored in the sample (``values``) and the long texts (``long_texts``),
+    each exact or estimated by KMV (design 18.6)."""
+
+    domain: Literal["values", "long_texts"]
+    accuracy: Literal["exact", "estimated"]
+    value: float
+    relative_standard_error: float
+    k: int | None = None
+    theta_hex: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("k", "theta_hex"))
+
+
 class CardinalityEstimate(ScanModel):
     """KMV estimate of the distinct original values (design 18.5).
 
     ``value`` is held within the certain bounds of the envelope;
     ``unclamped_value`` is the raw estimator, present only when a bound
     changed it. ``theta_hex`` (the sample threshold) is absent for a sensitive
-    field: it is the priority of one of its values.
+    field: it is the priority of one of its values. A field with long texts
+    has two disjoint domains: ``parts`` gives each (the estimate is their sum)
+    and ``k`` and ``theta_hex`` are then those of the parts.
     """
 
     accuracy: Literal["estimated"] = "estimated"
@@ -103,12 +122,15 @@ class CardinalityEstimate(ScanModel):
     value: float
     unclamped_value: float | None = None
     relative_standard_error: float
-    k: int
+    k: int | None = None
     theta_hex: str | None = None
+    parts: list[EstimatePart] | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("unclamped_value", "theta_hex"))
+        return _omit_none(
+            handler(self), ("unclamped_value", "k", "theta_hex", "parts")
+        )
 
 
 class CardinalityComplete(Complete[int]):
@@ -254,6 +276,56 @@ class SampleHash(ScanModel):
     seed: int
 
 
+class LongTextEntry(ScanModel):
+    """A sampled long text: bounded preview, original sizes and digest of the
+    complete content, which is its identity (design 18.6)."""
+
+    id: int
+    digest: str
+    type: ScalarType
+    preview: str
+    truncated: bool
+    original_length_chars: int
+    original_length_bytes: int
+    count: int
+    count_accuracy: Accuracy
+    identity_accuracy: Accuracy
+
+
+class DigestInfo(ScanModel):
+    """Function that gives a long text its digest (design 18.6)."""
+
+    algorithm: str
+    bits: int
+
+
+class LongTexts(ScanModel):
+    """Sample of the values longer than ``limits.max_stored_value_length``.
+
+    ``occurrences`` counts every occurrence of a long value, exactly. ``of``
+    long texts are sampled, ``kept`` listed (exposure can withhold them). Like
+    ``Samples`` it is ``all`` until a text was dropped, then ``bottom_k``; ``k``
+    is the size granted (design 18.10), ``requested_k`` the one asked for when
+    the budget made it smaller.
+    """
+
+    selection: Literal["all", "bottom_k"]
+    k: int
+    requested_k: int | None = None
+    preview_chars: int
+    occurrences: int
+    kept: int
+    of: int
+    digest: DigestInfo
+    hash: SampleHash | None = None
+    threshold: str | None = None
+    listed: list[LongTextEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("requested_k", "hash", "threshold"))
+
+
 class Samples(ScanModel):
     """Distinct original values with their exact counts (design 18.9).
 
@@ -271,12 +343,22 @@ class Samples(ScanModel):
     of: int
     listed: list[SampleEntry]
     k: int | None = None
+    # The size asked for, written only when the memory budget granted less
+    # (design 18.10); ``reason`` is then ``memory_budget``.
+    requested_k: int | None = None
+    reason: str | None = None
     hash: SampleHash | None = None
     threshold: str | None = None
+    # The values longer than ``limits.max_stored_value_length``, absent when
+    # the field has none (design 18.6).
+    long_texts: LongTexts | None = None
 
     @model_serializer(mode="wrap")
     def _omit_bottom_k(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("k", "hash", "threshold"))
+        return _omit_none(
+            handler(self),
+            ("k", "requested_k", "reason", "hash", "threshold", "long_texts"),
+        )
 
 
 class FieldValues(ScanModel):
@@ -714,6 +796,42 @@ class Timings(ScanModel):
     other: float
 
 
+class SamplingCounters(ScanModel):
+    """Work of the bottom-k samplers over all fields (design 18.4). Counters
+    that the scan could not measure are not written; a count of 0 is a
+    measured zero."""
+
+    # Priorities computed, keys that entered a sample, occurrences of keys it
+    # already held, keys computed and rejected, and keys that left it.
+    hashed_keys: int
+    hit_keys: int
+    admitted_keys: int
+    rejected_keys: int
+    evicted_keys: int
+    # Long texts hashed in full, and their size in UTF-8 bytes.
+    long_texts_hashed: int
+    long_bytes_hashed: int
+    bottom_k_fields: int
+    # Fields whose sample was smaller than asked for (memory budget).
+    reduced_fields: int
+    # Sizes K of the bottom-k samples, among the fields that have one.
+    k_effective_min: int | None = None
+    k_effective_max: int | None = None
+    # Bytes of the cost model reserved for the samples and the long texts.
+    sample_model_bytes: int
+    long_model_bytes: int
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("k_effective_min", "k_effective_max"))
+
+
+class RunCounters(ScanModel):
+    """Optional diagnostic counters of a run (``scan(counters=True)``)."""
+
+    sampling: SamplingCounters
+
+
 class RunInfo(ScanModel):
     """What varies from one run to the next on the same source: it is not part
     of the description of the data."""
@@ -727,6 +845,12 @@ class RunInfo(ScanModel):
     # in bytes; null when the platform does not report it. It covers the whole
     # process, so it includes earlier work in the same process.
     peak_memory_bytes: int | None
+    # Diagnostic counters, written only when asked for.
+    counters: RunCounters | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_counters(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("counters",))
 
 
 class ScanResult(ScanModel):

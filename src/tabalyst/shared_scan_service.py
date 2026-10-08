@@ -47,6 +47,8 @@ def current_scan(
     *,
     location: StorageLocation | None = None,
     workers: int | None = None,
+    counters: bool = False,
+    json_indent: bool = False,
     on_progress=None,
     refresh: bool = False,
     scan_layer: dict | None = None,
@@ -100,10 +102,16 @@ def current_scan(
                     notices = () if check is None else check(result)
                     return SharedScan(result, path, True, notices)
 
-        result = scan(source, config=effective, workers=workers, on_progress=on_progress)
+        result = scan(
+            source,
+            config=effective,
+            workers=workers,
+            counters=counters,
+            on_progress=on_progress,
+        )
         notices = () if check is None else check(result)
         try:
-            write_text_atomic(path, scan_document(result))
+            write_text_atomic(path, scan_document(result, indent=json_indent))
         except OSError as exc:
             raise ReportError(f"Cannot write scan file {path}: {exc}") from exc
         return SharedScan(result, path, False, notices)

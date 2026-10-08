@@ -31,6 +31,20 @@ from tabalyst.scanner.structure import DatasetState
 from tabalyst.scanner.values import ValueContext
 
 
+def _reduced_samples(results: list[DatasetResult]) -> int:
+    """Fields whose sample, or long text sample, the memory budget cut."""
+    count = 0
+    for result in results:
+        for field in result.fields:
+            samples = field.values.samples
+            long = samples.long_texts
+            if samples.reason is not None or (
+                long is not None and long.requested_k is not None
+            ):
+                count += 1
+    return count
+
+
 def limited_measures(field: FieldResult) -> dict[str, str]:
     """The limited measures of a field, by location, with their reason."""
     # Variant groups are limited only with the raw table today; listed so a
@@ -115,15 +129,19 @@ class ScanEngine:
 
     def finalize(self) -> list[DatasetResult]:
         pool = self.values.pool
+        trackers = [
+            field.values
+            for state in self.datasets.values()
+            for field in state.fields.values()
+            if field.values is not None
+        ]
+        # The sample budget is spent in field order, whichever process builds
+        # the samples afterwards (design 18.10).
+        for tracker in trackers:
+            tracker.reserve()
         if pool is not None:
             # Workers finalize every field at once, the largest tables first
             # for balance; results are then taken in field order.
-            trackers = [
-                field.values
-                for state in self.datasets.values()
-                for field in state.fields.values()
-                if field.values is not None
-            ]
             trackers.sort(
                 key=lambda tracker: -len(tracker.table)
                 if tracker.table is not None
@@ -169,6 +187,18 @@ class ScanEngine:
                 "released and their table-based measures are limited with reason "
                 "global_budget. Raise limits.max_tracked_values to keep them.",
                 count=budget.released,
+            )
+        reduced = _reduced_samples(results)
+        if reduced:
+            self.diagnostics.add(
+                "sample_budget",
+                "warning",
+                f"The samples of {reduced} fields were cut to fit "
+                f"limits.max_sample_memory ({limits.max_sample_memory} bytes): "
+                "their sample is smaller than the size asked for and its KMV "
+                "estimate less precise. Raise limits.max_sample_memory to "
+                "keep them.",
+                count=reduced,
             )
         records = self.records.budget
         if records.untracked:

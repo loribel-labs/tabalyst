@@ -31,6 +31,7 @@ table at the end of this section shows which options each kind of file uses.
 | `-v`, `--verbose` | Show the format, encoding, delimiter or table, status, diagnostics and duration |
 | `--no-progress` | Disable the progress line |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default |
+| `--counters` | Add the work counters of the samplers to `run.counters` in the scan document (see [Scan format](../../scan/format.md#counters-of-a-run)). The scan always runs again |
 | `--help` | Show the options and exit |
 
 ### Options for CSV files
@@ -52,7 +53,7 @@ A JSONL file has one dataset, its lines, so it has no collection to choose.
 
 | Option | CSV | JSON | JSONL | Excel |
 | --- | :---: | :---: | :---: | :---: |
-| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers` | yes | yes | yes | yes |
+| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters` | yes | yes | yes | yes |
 | `--delimiter`, `--encoding` | yes | - | - | - |
 | `--collection` | - | yes, repeatable | - | yes, once |
 

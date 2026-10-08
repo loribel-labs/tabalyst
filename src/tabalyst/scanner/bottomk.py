@@ -138,13 +138,17 @@ class BottomKSampler:
     """
 
     __slots__ = (
+        "_admitted",
         "_counts",
         "_custom",
+        "_hashed",
+        "_hits",
         "_limit",
         "_occurrences",
         "_overflow_at",
         "_priorities",
         "_rank",
+        "_rejected",
         "_trigger",
         "k",
         "seed",
@@ -164,6 +168,13 @@ class BottomKSampler:
         self._counts: dict[Key, int] = {}
         self._priorities: dict[Key, int] = {}
         self._occurrences = 0
+        # Counters of the work (design 18.4): priorities computed, keys that
+        # entered the sample, and occurrences of keys it already held. They
+        # only move in branches that already do work, never per rejected key.
+        self._hashed = 0
+        self._admitted = 0
+        self._hits = 0
+        self._rejected = 0
         self._overflow_at: int | None = None
         # Rank of the K-th key at the last compaction, None while nothing was
         # dropped: the domain is exact exactly while it is None.
@@ -195,6 +206,9 @@ class BottomKSampler:
             raise ValueError("counts must be at least 1")
         rank = sampler._rank
         sampler._occurrences = sum(counts.values())
+        sampler._hashed = len(counts)
+        sampler._admitted = min(len(counts), k)
+        sampler._rejected = max(len(counts) - k, 0)
         if len(counts) <= k:
             sampler._counts.update(counts)
             sampler._priorities.update(zip(counts, map(rank, counts)))
@@ -237,6 +251,9 @@ class BottomKSampler:
             raise ValueError("counts must be at least 1")
         sampler = cls(k, seed=seed)
         sampler._occurrences = sum(counts)
+        sampler._hashed = len(texts)
+        sampler._admitted = k
+        sampler._rejected = len(texts) - k
         copy = _prototype(seed).copy
         from_bytes = int.from_bytes
         prefix = _STRING_PREFIX
@@ -278,6 +295,7 @@ class BottomKSampler:
         rank = self._rank
         trigger = self._trigger
         occurrences = self._occurrences
+        hashed = admitted = hits = 0
         limit = self._limit
         limit_priority: float
         if limit is None:
@@ -289,13 +307,16 @@ class BottomKSampler:
                 known = retained.get(key)
                 if known is not None:
                     retained[key] = known + count
+                    hits += 1
                 else:
                     value = rank(key)
+                    hashed += 1
                     if value < limit_priority or (
                         value == limit_priority and key < limit_key
                     ):
                         retained[key] = count
                         priorities[key] = value
+                        admitted += 1
                         if len(retained) >= trigger:
                             limit_priority, limit_key = self._compact(occurrences + 1)
                             trigger = self._trigger
@@ -303,6 +324,10 @@ class BottomKSampler:
         finally:
             # Also when a key raises, so the count matches the keys admitted.
             self._occurrences = occurrences
+            self._hashed += hashed
+            self._admitted += admitted
+            self._hits += hits
+            self._rejected += hashed - admitted
 
     def update_strings(self, texts: Iterable[str], counts: Iterable[int]) -> None:
         """``update`` for distinct keys of the type ``"string"``, given as their
@@ -323,6 +348,7 @@ class BottomKSampler:
         prefix = _STRING_PREFIX
         trigger = self._trigger
         occurrences = self._occurrences
+        hashed = admitted = hits = 0
         limit = self._limit
         limit_priority: float
         if limit is None:
@@ -334,20 +360,27 @@ class BottomKSampler:
                 state = copy()
                 state.update(prefix + text.encode("utf-8", "surrogatepass"))
                 value = from_bytes(state.digest(), "big")
+                hashed += 1
                 if value <= limit_priority:
                     key = ("string", text)
                     known = retained.get(key)
                     if known is not None:
                         retained[key] = known + count
+                        hits += 1
                     elif value < limit_priority or key < limit_key:
                         retained[key] = count
                         priorities[key] = value
+                        admitted += 1
                         if len(retained) >= trigger:
                             limit_priority, limit_key = self._compact(occurrences + 1)
                             trigger = self._trigger
                 occurrences += count
         finally:
             self._occurrences = occurrences
+            self._hashed += hashed
+            self._admitted += admitted
+            self._hits += hits
+            self._rejected += hashed - admitted - hits
 
     def _compact(self, overflow_at: int | None = None) -> tuple[int, Key]:
         """Keep the K best keys (more than K are held) and tighten the
@@ -445,6 +478,28 @@ class BottomKSampler:
         if not 0 < threshold < _SPACE:
             return None
         return kmv_estimate(threshold=threshold, k=self.k)
+
+    @property
+    def counters(self) -> dict[str, int]:
+        """Work counters (design 18.4): priorities computed, keys admitted, hits
+        on retained keys, keys rejected (computed, neither admitted nor already
+        held) and keys evicted (admitted, no longer retained). Hits on keys
+        retained before the hash is computed (``update``) are not hashed."""
+        self._settle()
+        retained = len(self._counts)
+        return {
+            "hashed": self._hashed,
+            "admitted": self._admitted,
+            "hits": self._hits,
+            "rejected": self._rejected,
+            "evicted": self._admitted - retained,
+        }
+
+    def holds(self, key: Key) -> bool:
+        """Whether the sampler holds the key now. Between compactions it also
+        holds keys that a later compaction drops; ``retained`` and ``entries``
+        settle first."""
+        return key in self._counts
 
     @property
     def retained(self) -> int:

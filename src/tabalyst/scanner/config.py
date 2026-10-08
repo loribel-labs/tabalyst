@@ -49,6 +49,9 @@ HARD_CAPS: dict[str, int] = {
     "max_stored_value_length": 1_000_000,
     "max_listed_frequencies": 100_000,
     "max_samples": 100_000,
+    "max_long_samples": 10_000,
+    "long_preview_chars": 1_000_000,
+    "max_sample_memory": 1 << 40,
     "max_variant_groups": 100_000,
     "max_variants_per_group": 10_000,
     "max_evidence_examples": 1_000,
@@ -262,6 +265,11 @@ def _limit(default: int, name: str, minimum: int = 1):
 
 
 DEFAULT_MAX_SAMPLES = 10_000
+# Long texts (design 18.6): at most 100 per field, previewed on 200 characters.
+DEFAULT_MAX_LONG_SAMPLES = 100
+DEFAULT_LONG_PREVIEW_CHARS = 200
+# The model of the bytes the samples of the whole scan may take (design 18.10).
+DEFAULT_MAX_SAMPLE_MEMORY = 512 << 20
 
 
 class LimitSettings(_Settings):
@@ -277,6 +285,19 @@ class LimitSettings(_Settings):
     # K, the size of the sample kept per field. Left unset it follows T when T
     # is lower than the default (design 18.2).
     max_samples: int = _limit(DEFAULT_MAX_SAMPLES, "max_samples", 0)
+    # Long texts (values above max_stored_value_length) keep a small sample of
+    # previews and digests (design 18.6).
+    max_long_samples: int = _limit(
+        DEFAULT_MAX_LONG_SAMPLES, "max_long_samples", 0
+    )
+    long_preview_chars: int = _limit(
+        DEFAULT_LONG_PREVIEW_CHARS, "long_preview_chars"
+    )
+    # Bytes, by the model of design 18.10, that the samples of the whole scan
+    # may reserve; the long texts share a part of it.
+    max_sample_memory: int = _limit(
+        DEFAULT_MAX_SAMPLE_MEMORY, "max_sample_memory"
+    )
     max_variant_groups: int = _limit(100, "max_variant_groups", 0)
     max_variants_per_group: int = _limit(20, "max_variants_per_group", 0)
     max_evidence_examples: int = _limit(10, "max_evidence_examples", 0)

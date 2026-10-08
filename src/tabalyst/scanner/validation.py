@@ -11,11 +11,13 @@ from __future__ import annotations
 from tabalyst.scanner.config import config_sha256
 from tabalyst.scanner.models import (
     CardinalityComplete,
+    CardinalityEstimate,
     CardinalityLimited,
     Complete,
     DatasetResult,
     DetectorComplete,
     FieldResult,
+    LongTexts,
     ScanResult,
 )
 
@@ -170,11 +172,14 @@ def _check_listings(
     listed_total = sum(item.count for item in samples.listed)
     # A Report keeps fewer values than the scan sampled (kept < of).
     complete = samples.kept == samples.of
+    long_texts = samples.long_texts
+    # Long texts are sampled apart: their occurrences are not in the listing.
+    expected = count - (0 if long_texts is None else long_texts.occurrences)
     if (
         samples.selection == "all"
         and complete
         and samples.listed
-        and listed_total != count
+        and listed_total != expected
     ):
         problems.append(
             f"{where}.values.samples: all counts must add up to values.count"
@@ -196,6 +201,15 @@ def _check_sample_members(field: FieldResult, where: str, problems: list[str]) -
             problems.append(f"{where_samples}: more values than k")
     elif samples.k is not None or samples.hash is not None or samples.threshold:
         problems.append(f"{where_samples}: only a bottom_k sample names k and hash")
+    if (samples.requested_k is None) != (samples.reason is None) or (
+        samples.requested_k is not None
+        and (samples.k is None or samples.k >= samples.requested_k)
+    ):
+        problems.append(
+            f"{where_samples}: requested_k and reason go together and requested_k "
+            "exceeds k"
+        )
+    _check_long_texts(field, where, problems)
     cardinality = field.values.cardinality
     estimate = (
         cardinality.estimate if isinstance(cardinality, CardinalityLimited) else None
@@ -203,7 +217,9 @@ def _check_sample_members(field: FieldResult, where: str, problems: list[str]) -
     if estimate is None:
         return
     where_estimate = f"{where}.values.cardinality.estimate"
-    if samples.selection != "bottom_k" or estimate.k != samples.k:
+    if estimate.parts is not None:
+        _check_estimate_parts(estimate, samples.long_texts, where_estimate, problems)
+    elif samples.selection != "bottom_k" or estimate.k != samples.k:
         problems.append(f"{where_estimate}: must come from the bottom_k sample")
     lower = cardinality.lower_bound or 0
     upper = cardinality.upper_bound
@@ -211,6 +227,66 @@ def _check_sample_members(field: FieldResult, where: str, problems: list[str]) -
         problems.append(f"{where_estimate}: value must stay within the certain bounds")
     if estimate.unclamped_value is not None and estimate.value not in (lower, upper):
         problems.append(f"{where_estimate}: unclamped_value only when a bound applied")
+
+
+def _check_estimate_parts(
+    estimate: CardinalityEstimate,
+    long_texts: LongTexts | None,
+    where: str,
+    problems: list[str],
+) -> None:
+    """An estimate of two domains: the values and the long texts (design 18.6)."""
+    if long_texts is None:
+        problems.append(f"{where}: parts need long_texts")
+    if [part.domain for part in estimate.parts] != ["values", "long_texts"]:
+        problems.append(f"{where}: parts must be values then long_texts")
+        return
+    if estimate.k is not None or estimate.theta_hex is not None:
+        problems.append(f"{where}: k and theta_hex belong to the parts")
+    raw = estimate.unclamped_value
+    total = sum(part.value for part in estimate.parts)
+    if abs((estimate.value if raw is None else raw) - total) > 1e-6 * max(total, 1):
+        problems.append(f"{where}: value must be the sum of the parts")
+    for part in estimate.parts:
+        if (part.accuracy == "estimated") != (part.k is not None):
+            problems.append(f"{where}: only an estimated part names k")
+
+
+def _check_long_texts(field: FieldResult, where: str, problems: list[str]) -> None:
+    """The ``long_texts`` block of a sample (design 18.6)."""
+    long_texts = field.values.samples.long_texts
+    if long_texts is None:
+        return
+    where = f"{where}.values.samples.long_texts"
+    ids = [item.id for item in long_texts.listed]
+    if len(set(ids)) != len(ids) or any(entry_id < 0 for entry_id in ids):
+        problems.append(f"{where}: entry ids must be distinct and not negative")
+    digests = [item.digest for item in long_texts.listed]
+    if len(set(digests)) != len(digests):
+        problems.append(f"{where}: digests must be distinct")
+    if long_texts.kept != len(long_texts.listed) or long_texts.kept > long_texts.of:
+        problems.append(f"{where}: kept does not match the listing")
+    if long_texts.of > long_texts.k:
+        problems.append(f"{where}: more texts than k")
+    if long_texts.occurrences < 1 or long_texts.occurrences > field.values.count:
+        problems.append(f"{where}: occurrences out of range")
+    if (long_texts.requested_k is not None) and long_texts.requested_k <= long_texts.k:
+        problems.append(f"{where}: requested_k must exceed k")
+    if (long_texts.selection == "bottom_k") != (long_texts.hash is not None):
+        problems.append(f"{where}: only a bottom_k sample names its hash")
+    if long_texts.selection == "all" and long_texts.threshold is not None:
+        problems.append(f"{where}: only a bottom_k sample has a threshold")
+    listed_total = sum(item.count for item in long_texts.listed)
+    if listed_total > long_texts.occurrences or any(
+        item.count < 1 for item in long_texts.listed
+    ):
+        problems.append(f"{where}: a count is out of range")
+    if (
+        long_texts.selection == "all"
+        and long_texts.kept == long_texts.of
+        and listed_total != long_texts.occurrences
+    ):
+        problems.append(f"{where}: all counts must add up to occurrences")
 
 
 def _check_statistics(field: FieldResult, where: str, problems: list[str]) -> None:

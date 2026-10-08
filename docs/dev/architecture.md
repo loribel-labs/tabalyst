@@ -374,3 +374,12 @@ belongs to `ValueProcessor`, in the scan process or in the worker of the field
 (design 18.3), and the Report ranks an `all` sample with the same hash
 (`report_profile.report_sample`). The choice of its hash is measured by
 `benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).
+
+`scanner/longtext.py` (lot 2c) is the small bottom-k of the values longer than
+`max_stored_value_length`: preview, lengths and a digest of the whole content
+(design 18.6); `ValueSample` routes those values to it. `scanner/memory.py` is
+the memory budget of the samples, in bytes of a cost model (design 18.10): the
+scan process reserves the size of each sample in reading order, whatever the
+number of workers, and the size in force is in the document (`requested_k`,
+`reason`). Batches of rows (CSV) and of streamed values are also bounded by
+size (design 13).

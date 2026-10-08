@@ -88,18 +88,48 @@ def test_other_native_types_are_sampled_by_their_canonical_text():
     ]
 
 
-def test_values_longer_than_the_stored_length_are_excluded_and_counted():
-    sample = ValueSample(2, 42, 4)
-    sample.add(["abc", "toolong", "xyz"], [1, 1, 1], False)
+def test_values_longer_than_the_stored_length_go_to_the_long_texts():
+    sample = ValueSample(2, 42, 4, preview_chars=3)
+    sample.grant_long(5)
+    sample.add(["abc", "toolong", "xyz", "toolong"], [1, 1, 1, 2], False)
 
     block = sample.samples(SHOW)
 
-    # The sample is not the whole domain any more: it says bottom_k, ordered by
-    # priority, and the estimator does not claim to have seen everything.
-    assert sample.excluded == 1
-    assert block.selection == "bottom_k"
-    assert sorted(item.value for item in block.listed) == ["abc", "xyz"]
-    assert block.threshold is None
+    # The listing describes the stored values; the long ones are sampled apart.
+    assert block.selection == "all"
+    assert [item.value for item in block.listed] == ["abc", "xyz"]
+    long = block.long_texts
+    assert long is not None and long.selection == "all"
+    assert (long.occurrences, long.kept, long.of) == (3, 1, 1)
+    (entry,) = long.listed
+    assert (entry.preview, entry.truncated, entry.count) == ("too", True, 3)
+    assert entry.identity_accuracy == "fingerprint_based"
+    assert sample.estimate(SHOW) is None
+
+
+def test_a_long_text_without_a_granted_sample_omits_the_estimate():
+    sample = ValueSample(2, 42, 4)
+    sample.add(["abc", "toolong"], [1, 1], False)
+    sample.add([f"v{n}" for n in range(10)], [1] * 10, False)
+
+    block = sample.samples(SHOW)
+
+    assert sample.omitted
+    assert block.long_texts is not None and block.long_texts.k == 0
+    assert block.long_texts.selection == "bottom_k"
+    assert block.long_texts.kept == block.long_texts.of == 0
+    assert sample.estimate(SHOW) is None
+
+
+def test_a_sample_of_size_zero_omits_every_value():
+    sample = ValueSample(0, 42, 100, requested=5)
+    sample.add(["a", "b"], [1, 1], False)
+
+    block = sample.samples(SHOW)
+
+    assert sample.omitted
+    assert (block.selection, block.kept, block.of, block.k) == ("bottom_k", 0, 0, 0)
+    assert (block.requested_k, block.reason) == (5, "memory_budget")
     assert sample.estimate(SHOW) is None
 
 
@@ -180,8 +210,8 @@ def test_the_kmv_estimate_sits_within_its_error_of_the_true_cardinality(tmp_path
     assert cardinality["lower_bound"] <= estimate["value"] <= cardinality["upper_bound"]
 
 
-def test_no_estimate_is_made_when_a_value_escaped_the_sample(tmp_path):
-    source = _csv(tmp_path, [*_ids(300), "x" * 50])
+def test_the_estimate_adds_the_values_and_the_long_texts(tmp_path):
+    source = _csv(tmp_path, [*_ids(300), "x" * 50, "y" * 50])
 
     values = _values(
         run_scan(
@@ -194,9 +224,21 @@ def test_no_estimate_is_made_when_a_value_escaped_the_sample(tmp_path):
         )
     )
 
-    assert "estimate" not in values["cardinality"]
+    estimate = values["cardinality"]["estimate"]
+    assert estimate["parts"][0]["domain"] == "values"
+    assert estimate["parts"][0]["accuracy"] == "estimated"
+    assert estimate["parts"][1] == {
+        "domain": "long_texts",
+        "accuracy": "exact",
+        "value": 2.0,
+        "relative_standard_error": 0.0,
+    }
+    assert "k" not in estimate and "theta_hex" not in estimate
+    raw = estimate.get("unclamped_value", estimate["value"])
+    assert raw == pytest.approx(sum(part["value"] for part in estimate["parts"]))
     assert values["samples"]["selection"] == "bottom_k"
     assert all(len(item["value"]) <= 20 for item in values["samples"]["listed"])
+    assert values["samples"]["long_texts"]["occurrences"] == 2
 
 
 def test_the_estimate_is_held_within_the_certain_bounds():
