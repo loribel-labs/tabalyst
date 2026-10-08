@@ -23,16 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T17:25:27.321471Z",
-    "duration_seconds": 0.021487,
+    "started_at": "2026-10-08T18:46:26.538422Z",
+    "duration_seconds": 0.023985,
     "timings": {
-      "reading": 0.002687,
-      "analysis": 0.00208,
-      "finalize": 0.016366,
-      "other": 0.000354
+      "reading": 0.01318,
+      "analysis": 0.00222,
+      "finalize": 0.007632,
+      "derived": 0.00057,
+      "other": 0.000383
     },
     "workers": 1,
-    "peak_memory_bytes": 51826688
+    "peak_memory_bytes": 52584448
   },
   "source": {
     "format": "excel",
@@ -288,9 +289,15 @@
     "exposure": {
       "sensitive_values": "mask"
     },
+    "pattern_inference": {
+      "enabled": true,
+      "max_patterns": 8,
+      "max_value_length": 64,
+      "min_distinct": 2
+    },
     "random_seed": 42
   },
-  "config_sha256": "eccbf062dfa231937cf0484c752611f5ac98db88265db9a0b24d037e7462078e",
+  "config_sha256": "08034e2a3206bac75862a9743d0177fa7e7fff668d48bb0f3d344076044196ac",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -8816,13 +8823,332 @@
     }
   ],
   "diagnostics": [],
+  "derived": {
+    "patterns": {
+      "grammar": {
+        "name": "tabalyst.pattern",
+        "version": 1
+      },
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 100,
+            "distinct": 100,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "SO",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 4,
+                  "max": 4
+                }
+              ],
+              "render": "'SO'-9999",
+              "lengths": {
+                "min": 7,
+                "max": 7
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 100,
+                "share": 1.0,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9901
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 48,
+            "distinct": 48,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 5
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{2,5}' 'Xx{4,6}",
+              "lengths": {
+                "min": 9,
+                "max": 14
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 48,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9796
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "status": "not_applicable",
+          "reason": "exposure"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 5,
+            "distinct": 5,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 5
+                }
+              ],
+              "render": "Xx{3,5}",
+              "lengths": {
+                "min": 4,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8333
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 5
+                }
+              ],
+              "render": "x{3,5}",
+              "lengths": {
+                "min": 3,
+                "max": 5
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.75
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_7",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_8",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_9",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-08T17:25:27.397700Z",
+    "generated_at": "2026-10-08T18:49:21.979581Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1094,
+    "processing_seconds": 0.0838,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -8850,8 +9176,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "eccbf062dfa231937cf0484c752611f5ac98db88265db9a0b24d037e7462078e",
-      "facts_sha256": "b55970284ed46b4468e460aa5fb1415612e70dce8c052e9b5753b769e9e54dbd"
+      "config_sha256": "08034e2a3206bac75862a9743d0177fa7e7fff668d48bb0f3d344076044196ac",
+      "facts_sha256": "667e4a3a93ecbc5570daa9080f02dd3ed139ad10e35c24ce323e172add22c822"
     },
     "datasets": [
       {

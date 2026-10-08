@@ -507,6 +507,28 @@ each row takes one line.
 measure (table rows) and 1.02 to 1.37 times (records). The plateau test feeds 5,000 and 40,000
 rows through a sample of 200: the retained memory is the same within 10%.
 
+## Pattern inference (lot 4a)
+
+The inference runs once after `finalize`, reads the samples (at most about 16,000 distinct
+values per field with the default sizes) and never the source, so its cost does not grow with
+the number of rows. It is measured by the scan itself (`run.timings.derived`), in the default
+mode, one fresh interpreter per run, three runs per file (script and log under
+`D:/GIT.test/tabalyst/artifacts/scan-json-lot4a/`). Because the inference runs after the pass,
+it is compared with the duration of the same run and no alternation with a base is needed:
+
+| File | Scan | Inference (3 runs) | Share |
+| --- | ---: | ---: | ---: |
+| insurance-combined.csv (1 M rows, 34 columns) | 16.1 to 16.3 s | 0.09 to 0.10 s | 0.6% |
+| insurance-ontario.csv | 2.3 to 2.5 s | 0.14 to 0.15 s | 6.3% |
+| long-text-60k.csv | 2.8 s | 0.08 s | 2.9% |
+| many-lengths-500k.csv | 4.7 to 4.9 s | 0.43 to 0.54 s | 10.2% |
+
+All shares are under the threshold of 20%. The share is higher on smaller scans (the cost is
+constant and the scan is short) and on `many-lengths-500k.csv`, where the text columns have
+very many structures and the generalization ladder tokenizes their values three times. The
+patterns of a 34-column scan weigh about 27 KB compact (25 KB for `insurance-ontario`), 83 KB
+indented, against 6 MB for the whole indented Scan of the 3,000-row example.
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

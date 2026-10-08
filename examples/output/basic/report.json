@@ -23,16 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T17:25:22.548596Z",
-    "duration_seconds": 0.01219,
+    "started_at": "2026-10-08T18:46:21.381480Z",
+    "duration_seconds": 0.012879,
     "timings": {
-      "reading": 0.00046,
-      "analysis": 0.000151,
-      "finalize": 0.011239,
-      "other": 0.000341
+      "reading": 0.000445,
+      "analysis": 0.000157,
+      "finalize": 0.011658,
+      "derived": 0.000279,
+      "other": 0.00034
     },
     "workers": 1,
-    "peak_memory_bytes": 49917952
+    "peak_memory_bytes": 49942528
   },
   "source": {
     "format": "csv",
@@ -284,9 +285,15 @@
     "exposure": {
       "sensitive_values": "mask"
     },
+    "pattern_inference": {
+      "enabled": true,
+      "max_patterns": 8,
+      "max_value_length": 64,
+      "min_distinct": 2
+    },
     "random_seed": 42
   },
-  "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
+  "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -4840,13 +4847,306 @@
     }
   ],
   "diagnostics": [],
+  "derived": {
+    "patterns": {
+      "grammar": {
+        "name": "tabalyst.pattern",
+        "version": 1
+      },
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 4,
+            "distinct": 4,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "digit_ascii",
+                  "min": 3,
+                  "max": 3
+                }
+              ],
+              "render": "999",
+              "lengths": {
+                "min": 3,
+                "max": 3
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 4,
+            "distinct": 4,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{2,6}",
+              "lengths": {
+                "min": 3,
+                "max": 7
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": ".",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "99.99",
+              "lengths": {
+                "min": 5,
+                "max": 5
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.6667,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.4444
+              },
+              "examples": [
+                0,
+                1
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 1,
+            "share": 0.3333,
+            "structures": 1
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 6
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{4,6}' 'x{5,6}",
+              "lengths": {
+                "min": 11,
+                "max": 14
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.6667,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.4444
+              },
+              "examples": [
+                0,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 1,
+            "share": 0.3333,
+            "structures": 1
+          },
+          "overlaps": [],
+          "limits": []
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-08T17:25:22.571752Z",
+    "generated_at": "2026-10-08T18:49:17.233403Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0388,
+    "processing_seconds": 0.0302,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -4874,8 +5174,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
-      "facts_sha256": "6dab778ed0b94b05bf5da7437fe624d78a77ad5ac6b096c1faf88b9bc3b5a66e"
+      "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
+      "facts_sha256": "85fdecfe91cceffd57320a79497dc5e67f221dd957fbfccc8896da8c558b543f"
     },
     "datasets": [
       {

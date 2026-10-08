@@ -12,7 +12,7 @@ and field identifier. Built from a Tabalyst Scan result by ``report_profile.py``
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, FiniteFloat
+from pydantic import BaseModel, ConfigDict, FiniteFloat, model_serializer
 
 from tabalyst.config import PresentationSettings
 from tabalyst.scanner.config import ScanConfig
@@ -20,6 +20,7 @@ from tabalyst.scanner.models import (
     Adaptive,
     Coverage,
     DatasetResult,
+    Derived,
     Diagnostic,
     EngineInfo,
     Evidence,
@@ -370,4 +371,14 @@ class ReportProfile(ResultModel):
     scope: Scope
     datasets: list[DatasetResult]
     diagnostics: list[Diagnostic]
+    # The ``derived`` block of the Scan, carried as it is: a Report keeps fewer
+    # sample values and cannot compute it again (design 19.3).
+    derived: Derived | None = None
     report: ReportBlock
+
+    @model_serializer(mode="wrap")
+    def _omit_derived(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        if data.get("derived", 0) is None:
+            del data["derived"]
+        return data

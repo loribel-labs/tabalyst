@@ -396,3 +396,8 @@ of the position (`RowPriority`, one hash call for eight rows) and the last rows,
 projected field (design 18.11). `RowSampler` lives in `RecordFacts`, in the scan process, and takes the CSV batches
 (`add_batch`) as well as single records (`add_record`); its bytes come from a budget shared by the datasets of the scan
 (`records.sample.max_bytes`). Its output is `records.sample`; the Report base keeps the header and no row.
+
+`scanner/patterninfer.py` (lot 4a) infers the structural patterns of the text fields from the samples of the
+finished scan (design 18.12): the token grammar, the linear matcher, the candidates and their exclusive
+classification. `scan()` calls it once after `finalize`, the output is `ScanResult.derived.patterns`, which the
+Report carries and `facts_sha256` leaves out; `validation.py` checks it.

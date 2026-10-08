@@ -25,6 +25,7 @@ def test_defaults_serialize_with_the_documented_section_names():
         "detectors",
         "patterns",
         "exposure",
+        "pattern_inference",
         "random_seed",
     ]
     assert document["json"] == {

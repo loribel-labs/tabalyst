@@ -16,12 +16,21 @@ from tabalyst.scanner.models import (
     Complete,
     DatasetResult,
     DetectorComplete,
+    FieldPatternsComplete,
     FieldResult,
     LengthStratum,
     LongTexts,
     RowSample,
     SampleEntry,
     ScanResult,
+)
+from tabalyst.scanner.patterninfer import (
+    EXAMPLES,
+    GRAMMAR_NAME,
+    GRAMMAR_VERSION,
+    compile_signature,
+    matches,
+    render_signature,
 )
 from tabalyst.scanner.rowsample import (
     ROW_HASH_ALGORITHM,
@@ -42,6 +51,7 @@ def check_scan(result: ScanResult) -> list[str]:
     _check_scan(result, problems)
     for dataset in result.datasets:
         _check_dataset(dataset, result, problems)
+    _check_patterns(result, problems)
     return problems
 
 
@@ -538,3 +548,121 @@ def _check_coverage(
     )
     if coverage.tested != parts:
         problems.append(f"{where}.coverage: tested must add up its outcomes")
+
+
+def _check_patterns(result: ScanResult, problems: list[str]) -> None:
+    """The inferred patterns: one entry per field, candidates that reconcile with
+    the population and examples that match their signature (design 18.12)."""
+    if result.derived is None or result.derived.patterns is None:
+        return
+    patterns = result.derived.patterns
+    if (patterns.grammar.name, patterns.grammar.version) != (
+        GRAMMAR_NAME,
+        GRAMMAR_VERSION,
+    ):
+        problems.append("derived.patterns.grammar: not the grammar of this version")
+    fields = {
+        (dataset.id, field.id): field
+        for dataset in result.datasets
+        for field in dataset.fields
+    }
+    if [(entry.dataset, entry.field) for entry in patterns.fields] != list(fields):
+        problems.append(
+            "derived.patterns.fields: one entry per field, in the order of the fields"
+        )
+        return
+    for entry in patterns.fields:
+        if isinstance(entry, FieldPatternsComplete):
+            _check_field_patterns(
+                entry, fields[(entry.dataset, entry.field)], result, problems
+            )
+
+
+def _check_field_patterns(
+    entry: FieldPatternsComplete,
+    field: FieldResult,
+    result: ScanResult,
+    problems: list[str],
+) -> None:
+    where = f"derived.patterns[{entry.dataset}.{entry.field}]"
+    settings = result.config.pattern_inference
+    samples = field.values.samples
+    population = entry.population
+    excluded = population.excluded
+    complete = (
+        samples.selection == "all"
+        and "max_values" not in entry.limits
+        and not (
+            excluded.long_text_occurrences
+            or excluded.non_string_values
+            or excluded.empty_values
+            or excluded.too_long_values
+            or excluded.too_complex_values
+        )
+    )
+    if population.selection != samples.selection or population.complete != complete:
+        problems.append(f"{where}.population: does not describe the field's samples")
+    if population.distinct > population.available:
+        problems.append(f"{where}.population: distinct exceeds available")
+    expected_long = samples.long_texts.occurrences if samples.long_texts else 0
+    if population.excluded.long_text_occurrences != expected_long:
+        problems.append(f"{where}.population.excluded: long_text_occurrences differs")
+    if len(entry.candidates) > settings.max_patterns:
+        problems.append(f"{where}: more candidates than max_patterns")
+    values = {item.id: item.value for item in samples.listed}
+    if samples.by_length is not None:
+        values.update({item.id: item.value for item in samples.by_length.listed})
+    # A Report base keeps fewer values: its examples may name values it dropped.
+    resolvable = samples.kept == samples.of
+    ids = [candidate.id for candidate in entry.candidates]
+    if ids != [f"p{number + 1}" for number in range(len(ids))]:
+        problems.append(f"{where}: candidate ids must be p1, p2, ... in order")
+    total = population.distinct
+    taken = 0
+    for number, candidate in enumerate(entry.candidates):
+        label = f"{where}.candidates[{candidate.id}]"
+        taken += candidate.coverage.distinct
+        if candidate.role != ("principal" if number == 0 else "secondary"):
+            problems.append(f"{label}: only the first candidate is principal")
+        if candidate.render != render_signature(candidate.signature):
+            problems.append(f"{label}: render does not describe the signature")
+        if any(
+            token.min > token.max
+            or token.min < 0
+            or (token.kind == "literal") != (token.text is not None)
+            for token in candidate.signature
+        ):
+            problems.append(f"{label}.signature: invalid token")
+        if candidate.coverage.basis != ("all_distinct" if complete else "sample"):
+            problems.append(f"{label}.coverage: basis must follow the population")
+        share = round(candidate.coverage.distinct / total, 4) if total else 0
+        if candidate.coverage.share != share:
+            problems.append(f"{label}.coverage: share must be distinct / population")
+        if not 0 <= candidate.generalization <= 2:
+            problems.append(f"{label}: generalization must be 0, 1 or 2")
+        if len(candidate.examples) > EXAMPLES or candidate.examples != sorted(
+            candidate.examples
+        ):
+            problems.append(f"{label}: examples are the smallest ids, at most {EXAMPLES}")
+        matcher = compile_signature(candidate.signature)
+        for example in candidate.examples if resolvable else ():
+            value = values.get(example)
+            if value is None:
+                problems.append(f"{label}: example {example} is not a sampled value")
+            elif not matches(matcher, value) or not (
+                candidate.lengths.min <= len(value) <= candidate.lengths.max
+            ):
+                problems.append(f"{label}: example {example} does not match")
+    if taken + entry.other.distinct != total:
+        problems.append(f"{where}: candidates and other must add up to the population")
+    if entry.other.share != (round(entry.other.distinct / total, 4) if total else 0):
+        problems.append(f"{where}.other: share must be distinct / population")
+    known = set(ids)
+    for overlap in entry.overlaps:
+        if (
+            len(overlap.patterns) < 2
+            or not known.issuperset(overlap.patterns)
+            or overlap.patterns != sorted(overlap.patterns, key=ids.index)
+            or overlap.values < 1
+        ):
+            problems.append(f"{where}.overlaps: invalid entry {overlap.patterns}")

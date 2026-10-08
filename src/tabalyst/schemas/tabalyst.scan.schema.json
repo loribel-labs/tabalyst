@@ -995,6 +995,67 @@
       "title": "DateSettings",
       "type": "object"
     },
+    "Derived": {
+      "additionalProperties": false,
+      "description": "Analyses computed after the scan from its samples (specification 5.2).",
+      "properties": {
+        "patterns": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DerivedPatterns"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Derived",
+      "type": "object"
+    },
+    "DerivedPatterns": {
+      "additionalProperties": false,
+      "description": "Structural patterns inferred from the samples, one entry per field\n(design 18.12). They are distinct from the configured ``pattern:<id>``\ndetectors.",
+      "properties": {
+        "grammar": {
+          "$ref": "#/$defs/PatternGrammar"
+        },
+        "domain": {
+          "const": "original",
+          "title": "Domain",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "complete": "#/$defs/FieldPatternsComplete",
+                "not_applicable": "#/$defs/FieldPatternsNotApplicable"
+              },
+              "propertyName": "status"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/FieldPatternsComplete"
+              },
+              {
+                "$ref": "#/$defs/FieldPatternsNotApplicable"
+              }
+            ]
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grammar",
+        "domain",
+        "fields"
+      ],
+      "title": "DerivedPatterns",
+      "type": "object"
+    },
     "DetectionSettings": {
       "additionalProperties": false,
       "properties": {
@@ -1741,6 +1802,99 @@
         "status"
       ],
       "title": "Failed",
+      "type": "object"
+    },
+    "FieldPatternsComplete": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "population": {
+          "$ref": "#/$defs/PatternPopulation"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/PatternCandidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "other": {
+          "$ref": "#/$defs/PatternOther"
+        },
+        "overlaps": {
+          "items": {
+            "$ref": "#/$defs/PatternOverlap"
+          },
+          "title": "Overlaps",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "enum": [
+              "max_patterns",
+              "max_values"
+            ],
+            "type": "string"
+          },
+          "title": "Limits",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "population",
+        "candidates",
+        "other",
+        "overlaps",
+        "limits",
+        "status"
+      ],
+      "title": "FieldPatternsComplete",
+      "type": "object"
+    },
+    "FieldPatternsNotApplicable": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "const": "not_applicable",
+          "default": "not_applicable",
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "reason",
+        "status"
+      ],
+      "title": "FieldPatternsNotApplicable",
       "type": "object"
     },
     "FieldResult": {
@@ -3300,6 +3454,323 @@
       "title": "NumericStats",
       "type": "object"
     },
+    "PatternCandidate": {
+      "additionalProperties": false,
+      "description": "A structural pattern found in the samples of a field (PAT-06).\n\n``examples`` are ids of entries of the field's samples. ``generalization``\nis 0 for the structures as read, 1 when adjacent letters were merged and 2\nwhen letters and digits were; ``merged_structures`` counts the structures\nthe candidate stands for.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "principal",
+            "secondary"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "signature": {
+          "items": {
+            "$ref": "#/$defs/PatternToken"
+          },
+          "title": "Signature",
+          "type": "array"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "lengths": {
+          "$ref": "#/$defs/PatternLengths"
+        },
+        "generalization": {
+          "title": "Generalization",
+          "type": "integer"
+        },
+        "merged_structures": {
+          "title": "Merged Structures",
+          "type": "integer"
+        },
+        "coverage": {
+          "$ref": "#/$defs/PatternCoverage"
+        },
+        "confidence": {
+          "$ref": "#/$defs/PatternConfidence"
+        },
+        "examples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "signature",
+        "render",
+        "lengths",
+        "generalization",
+        "merged_structures",
+        "coverage",
+        "confidence",
+        "examples"
+      ],
+      "title": "PatternCandidate",
+      "type": "object"
+    },
+    "PatternConfidence": {
+      "additionalProperties": false,
+      "description": "Heuristic confidence, not a calibrated probability: the share of the\ncandidate damped by its support, ``share * n / (n + 1)``.",
+      "properties": {
+        "method": {
+          "const": "laplace_share",
+          "title": "Method",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "value"
+      ],
+      "title": "PatternConfidence",
+      "type": "object"
+    },
+    "PatternCoverage": {
+      "additionalProperties": false,
+      "description": "Distinct values of the inference population that the candidate takes.\n``basis`` is ``all_distinct`` when the population is every distinct stored\nvalue of the field, ``sample`` when it is a sample: a discovery indicator,\nnever a frequency of the file (specification 10.1).",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        },
+        "basis": {
+          "enum": [
+            "all_distinct",
+            "sample"
+          ],
+          "title": "Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "distinct",
+        "share",
+        "basis"
+      ],
+      "title": "PatternCoverage",
+      "type": "object"
+    },
+    "PatternExcluded": {
+      "additionalProperties": false,
+      "description": "What did not take part in the inference. ``long_text_occurrences`` counts\noccurrences of values too long to be stored (their previews never serve:\nLONG-05); the others count distinct sampled values.",
+      "properties": {
+        "long_text_occurrences": {
+          "title": "Long Text Occurrences",
+          "type": "integer"
+        },
+        "non_string_values": {
+          "title": "Non String Values",
+          "type": "integer"
+        },
+        "empty_values": {
+          "title": "Empty Values",
+          "type": "integer"
+        },
+        "too_long_values": {
+          "title": "Too Long Values",
+          "type": "integer"
+        },
+        "too_complex_values": {
+          "title": "Too Complex Values",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "long_text_occurrences",
+        "non_string_values",
+        "empty_values",
+        "too_long_values",
+        "too_complex_values"
+      ],
+      "title": "PatternExcluded",
+      "type": "object"
+    },
+    "PatternGrammar": {
+      "additionalProperties": false,
+      "description": "The versioned grammar and generalization rules (PAT-04).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "PatternGrammar",
+      "type": "object"
+    },
+    "PatternInferenceSettings": {
+      "additionalProperties": false,
+      "description": "Inference of structural patterns from the samples (design 18.12).\n\nThe inference reads the samples of the finished scan, never the source.\n``max_patterns`` bounds the candidates of a field, ``max_value_length`` the\nstored values that take part (longer ones are counted as excluded) and\n``min_distinct`` the distinct values a candidate needs.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_patterns": {
+          "default": 8,
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Max Patterns",
+          "type": "integer"
+        },
+        "max_value_length": {
+          "default": 64,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Value Length",
+          "type": "integer"
+        },
+        "min_distinct": {
+          "default": 2,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Min Distinct",
+          "type": "integer"
+        }
+      },
+      "title": "PatternInferenceSettings",
+      "type": "object"
+    },
+    "PatternLengths": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "PatternLengths",
+      "type": "object"
+    },
+    "PatternOther": {
+      "additionalProperties": false,
+      "description": "The values no candidate takes, with the number of structures they have.",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        },
+        "structures": {
+          "title": "Structures",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "distinct",
+        "share",
+        "structures"
+      ],
+      "title": "PatternOther",
+      "type": "object"
+    },
+    "PatternOverlap": {
+      "additionalProperties": false,
+      "description": "Distinct values that match every pattern of ``patterns`` (PAT-08).",
+      "properties": {
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "patterns",
+        "values"
+      ],
+      "title": "PatternOverlap",
+      "type": "object"
+    },
+    "PatternPopulation": {
+      "additionalProperties": false,
+      "description": "The values the inference read. ``distinct`` took part out of\n``available`` usable values (a cap on the population may leave some out).",
+      "properties": {
+        "source": {
+          "const": "samples",
+          "title": "Source",
+          "type": "string"
+        },
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "available": {
+          "title": "Available",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/PatternExcluded"
+        }
+      },
+      "required": [
+        "source",
+        "selection",
+        "complete",
+        "available",
+        "distinct",
+        "excluded"
+      ],
+      "title": "PatternPopulation",
+      "type": "object"
+    },
     "PatternSettings": {
       "additionalProperties": false,
       "properties": {
@@ -3358,6 +3829,51 @@
         "regex"
       ],
       "title": "PatternSettings",
+      "type": "object"
+    },
+    "PatternToken": {
+      "additionalProperties": false,
+      "description": "One token of a pattern signature (design 18.12): a class of characters\nrepeated ``min`` to ``max`` times (characters), or a ``literal`` text\nrepeated ``min`` to ``max`` times.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "digit_ascii",
+            "upper_ascii",
+            "lower_ascii",
+            "letter_unicode",
+            "alphanumeric",
+            "literal"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "min",
+        "max"
+      ],
+      "title": "PatternToken",
       "type": "object"
     },
     "PercentageSettings": {
@@ -4357,6 +4873,9 @@
         "exposure": {
           "$ref": "#/$defs/ExposureSettings"
         },
+        "pattern_inference": {
+          "$ref": "#/$defs/PatternInferenceSettings"
+        },
         "random_seed": {
           "default": 42,
           "exclusiveMaximum": 18446744073709551616,
@@ -4914,7 +5433,7 @@
     },
     "Timings": {
       "additionalProperties": false,
-      "description": "Where ``RunInfo.duration_seconds`` went; the four parts add up to it.",
+      "description": "Where ``RunInfo.duration_seconds`` went; the five parts add up to it.",
       "properties": {
         "reading": {
           "title": "Reading",
@@ -4928,6 +5447,10 @@
           "title": "Finalize",
           "type": "number"
         },
+        "derived": {
+          "title": "Derived",
+          "type": "number"
+        },
         "other": {
           "title": "Other",
           "type": "number"
@@ -4937,6 +5460,7 @@
         "reading",
         "analysis",
         "finalize",
+        "derived",
         "other"
       ],
       "title": "Timings",
@@ -5264,7 +5788,15 @@
       "type": "array"
     },
     "derived": {
-      "description": "Analyses computed after the scan, from its samples."
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Derived"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "observations": {
       "description": "Findings about the data."

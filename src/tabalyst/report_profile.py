@@ -934,6 +934,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
         scope=base.scope,
         datasets=base.datasets,
         diagnostics=base.diagnostics,
+        derived=base.derived,
         report=ReportBlock(
             generated_at=datetime.now(UTC),
             generator=ReportGenerator(version=__version__),

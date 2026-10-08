@@ -284,6 +284,10 @@ object of each configuration file. The complete object with its defaults is:
     "detectors": {"number": {"enabled": true}},
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
+    "pattern_inference": {
+      "enabled": true, "max_patterns": 8,
+      "max_value_length": 64, "min_distinct": 2
+    },
     "random_seed": 42
   }
 }
@@ -539,6 +543,19 @@ Ambiguous values are never resolved from other values of the field: only
 At most 200 patterns. Regular expressions run without a timeout: use only
 patterns you trust, since some expressions can take a very long time on some
 values.
+
+### Pattern inference
+
+After a scan, the structural patterns of each text field are inferred from its
+samples (see [Inferred patterns](../scan/format.md#inferred-patterns)). They are
+not the configured patterns above.
+
+| Setting | Default | Maximum | Meaning |
+| --- | --- | --- | --- |
+| `pattern_inference.enabled` | `true` | | `false` skips the inference and leaves `derived` out of the document. |
+| `pattern_inference.max_patterns` | 8 | 64 | Most candidate patterns per field; the smallest structures are generalized or counted in `other`. |
+| `pattern_inference.max_value_length` | 64 | 1,000 | Longer values do not take part and are counted as excluded. |
+| `pattern_inference.min_distinct` | 2 | 1,000 | Distinct values a candidate needs. |
 
 ### Sensitive values and sampling
 

@@ -1047,6 +1047,8 @@ when both conventions are enabled (empty otherwise) and `resolution`
 - Pattern identifiers must be unique. The `pattern:` prefix keeps them apart
   from built-in ids; a registered detector whose id equals a pattern's
   detector id is a `ConfigurationError` when the scan starts.
+- Configured patterns are detectors and are not the patterns inferred from the
+  samples (18.12), which are written apart in `derived.patterns`.
 - Pattern detectors have family `pattern`, no formats and no `details`; they
   follow the registry's detectors in configuration order. Values of other
   accepted native types are matched on their canonical text (9.1). Their
@@ -1334,6 +1336,8 @@ settings from it (section 16.4).
     },
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
+    "pattern_inference": {"enabled": true, "max_patterns": 8,
+                          "max_value_length": 64, "min_distinct": 2},
     "random_seed": 42
   }
 }
@@ -1391,7 +1395,7 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
   "status": "complete",
   "run": {"started_at": "2026-10-06T12:00:00Z", "duration_seconds": 0.012,
           "timings": {"reading": 0.004, "analysis": 0.006, "finalize": 0.002,
-                      "other": 0.0},
+                      "derived": 0.0, "other": 0.0},
           "workers": 1, "peak_memory_bytes": 52428800},
   "source": {"format": "json", "name": "orders.json", "size_bytes": 312,
              "modified_at": "2026-09-26T21:58:00Z", "sha256": "...",
@@ -1406,8 +1410,9 @@ JI-3 (inspect design 7); `arrays.mode` has one value, `preserve`.
 }
 ```
 
-- `run` holds what varies between runs on the same source (O33): the four
-  `timings` add up to `duration_seconds`; `workers` is the number of processes
+- `run` holds what varies between runs on the same source (O33): the
+  `timings` (reading, analysis, finalize, derived analyses of 18.12 and
+  other) add up to `duration_seconds`; `workers` is the number of processes
   that analyzed values; `peak_memory_bytes` is that of the main process, null
   when the platform does not report it; `counters` (lot 2c, 18.4) is written only
   when asked for. It is not part of the description of the data, so two scans
@@ -1700,6 +1705,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-3a | Sections 18.1, 18.4, 18.7, 18.9, 18.10: samples by length (`values.samples.by_length`, `LengthStrataSampler`, `OtherLengths`), pool of values shared with the sample by `id`, `partial` accuracy, settings `max_samples_per_length` and `max_length_strata`, the sub-budget of an eighth, counters `strata_fields`, `strata_limited_fields` and `length_model_bytes`, priorities shared between the sample and its strata. | Lot 3a of the Scan and JSON work. Defaults of the plan accepted by the maintainer on 2026-10-08 (disposition `by_length` with shared ids and a pool, static reservation with `drop` as an API only, strata only for a `bottom_k` sample, every stored type, 100 values and 64 lengths, an eighth of the budget, Report without members). |
 | 2026-10-08 | SJ-2c | Section 16.3: scan and report documents are written compact by default; the top-level `output.json_indent` setting indents them with each sample entry on one line (`json_text.dump_json`). `executions.json` and the Inspect file stay indented. | Weight of the Scan (24.9 MB indented, 10.4 MB compact, 13.5 MB indented with one line per entry on `insurance-ontario`); arrays `[value, count]` refused to keep the format self-describing. Maintainer decision of 2026-10-08. |
 | 2026-10-08 | SJ-3b | Sections 9.10, 15 and new 18.11: the row sample (`records.sample`, `RowSampler`, `RowPriority`), first rows, a bottom-k of the interior by a priority of the position and last rows, cells of the same row for every projected field, settings `records.sample` (`rows`, `edge`, `cell_chars`, `max_bytes`), the byte budget, the Report keeping the header only. | Lot 3b of the Scan and JSON work: ROW-01 to ROW-11 and C01 to C06. |
+| 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -1898,7 +1904,7 @@ B08). The preview and the lengths of an entry are built when it is admitted;
 a text that is not admitted costs one read. Memory is bounded by K entries
 (`LONG_ENTRY_BYTES` plus the preview). A preview does not certify the pattern or
 alphabet of the whole text (LONG-05): a pattern inference must not read it as
-the value.
+the value; the pattern inference of 18.12 excludes the long texts.
 
 In the scan a field with long values has `values.samples.long_texts`
 (absent otherwise): `{selection, k, requested_k?, preview_chars, occurrences,
@@ -2281,6 +2287,98 @@ Both give the same rows (a test compares them, and random batch sizes); only
   groups and their order, the fields of the cells, the counts and the threshold
   (the largest priority of the middle rows, recomputed).
 
+### 18.12 Pattern inference (lot 4a, D08, PAT-01 to PAT-06, C07 to C10)
+
+After the scan, `tabalyst.scanner.patterninfer.infer_patterns(datasets, settings)`
+infers the structural patterns of each text field from its samples. It reads
+the finished datasets, never the source (PAT-01), and `scan()` calls it once
+after `finalize`; the result is `ScanResult.derived.patterns` and its time is
+`run.timings.derived`. The inferred patterns are not the configured ones
+(12.7): those stay detectors (`pattern:<id>`) in `field.detectors`.
+`scan.pattern_inference.enabled` set to false leaves `derived` out.
+
+**Population.** The stored distinct original values of the field: the `listed`
+of `values.samples` and the pool of `by_length.listed` (once each, by `id`),
+in id order, at most `MAX_VALUES` (20,000; `limits` then says `max_values`).
+The two selection laws are not added (LEN-06): the population is a set of
+distinct values, and its figures are counts of distinct values. Excluded, and
+counted in `population.excluded`: the long texts (`long_text_occurrences`: the
+preview of a long text never certifies the pattern of the whole text, LONG-05,
+C10), values that are not strings, empty values, values longer than
+`max_value_length` (64) and values of more than 32 tokens. A field is
+`not_applicable` when its technical type is not `text` or `mixed`
+(`technical_type`), when exposure masks or hides it (`exposure`: the Scan does
+not give the originals back, 21), when its sample is withheld
+(`samples_withheld`, `kept < of`), when it has only long texts
+(`long_texts_only`), no usable value (`no_values`) or fewer than
+`min_distinct` of them (`too_few_distinct`). Every field has an entry.
+
+**Grammar, version 1 (PAT-03, PAT-04).** A value is cut into tokens: a run of
+ASCII digits (`digit_ascii`), a run of ASCII capitals (`upper_ascii`), a run of
+ASCII lowercase letters (`lower_ascii`), a run of letters that has a non-ASCII
+letter (`letter_unicode`), and every other character, a `literal` (a run of the
+same character is one token with a count). Spaces, signs and separators are
+always literals; non-ASCII digits are literals. Two generalizations exist,
+`letter_unicode` for any run of letters (level 1) and `alphanumeric` for a run
+of letters and digits (level 2). Adjacent class tokens never share a
+character, so a signature has one reading of a value and matching it is one
+pass (`matches`): no regular expression is generated and nothing backtracks.
+A change of a class, a rule or the rendering raises `GRAMMAR_VERSION`, in
+`derived.patterns.grammar`.
+
+**Candidates (PAT-02, PAT-05).** Values are grouped by structure (the tokens
+without their lengths). A group is one candidate; each token carries the
+`min` and `max` of its length (characters, or repetitions of a literal), and a
+letter or digit token that is the same text in every value of a group of at
+least `LITERAL_MIN_SUPPORT` (5) values becomes a `literal`: `XX9999'A'` is a
+fixed final `A`, `XX9999X` any capital (C08). With more groups than
+`max_patterns` (8), the groups beyond the first `max_patterns - 1` are
+generalized, level 1 then level 2, until the groups of at least `min_distinct`
+(2) values fit; a generalized group whose structure equals a kept one joins it.
+`merged_structures` counts the structures a candidate stands for and
+`generalization` its level; the candidates are ranked by values, then
+signature, the first is `principal`. Groups below `min_distinct` and the groups
+beyond `max_patterns` are `other` (distinct values and number of structures),
+and `limits` says `max_patterns` when the bound or the ladder acted.
+
+**Exclusive classification (PAT-08, C09).** A value counts for one candidate:
+the most specific one that reads it, by literal letters and digits (more), the
+generalization level (lower), the width of the repeats (narrower), then the
+rank. Candidates with a `letter_unicode` or `alphanumeric` token may read
+values of other structures; `overlaps` lists the sets of candidates that read
+the same distinct values, with their number, and the counts of the candidates
+and of `other` add up to `population.distinct`. This is the discovery
+classification on the population: the validation on the whole file is the
+second pass (lot 7c) and is not here.
+
+**Output.** `derived.patterns`: `{grammar: {name: "tabalyst.pattern", version},
+domain: "original", fields: [...]}`, one entry per field in the order of the
+datasets and fields. A `complete` entry has `dataset`, `field`, `population`
+(`source`, `selection`, `complete`, `available`, `distinct`, `excluded`),
+`candidates`, `other`, `overlaps` and `limits`. A candidate has `id` (`p1`,
+`p2`, ...), `role`, `signature` (tokens `{kind, text?, min, max}`), `render`,
+`lengths` (observed, characters), `generalization`, `merged_structures`,
+`coverage` (`distinct`, `share` to four decimals, `basis`), `confidence`
+(`laplace_share`: `share * n / (n + 1)`, a heuristic and not a probability) and
+`examples` (up to three ids of entries of the field's samples, the smallest).
+The `render` writes `9` a digit, `X` a capital, `x` a lowercase letter, `@` any
+letter, `#` a letter or a digit, with `{n}` or `{min,max}` for repeats of more
+than six characters or of variable length, and quotes the literal letters,
+digits, spaces and the characters `'{}@#` (`XX9999'A'`), so that a literal
+letter is never read as a class (PAT-03); the signature is the reference.
+`coverage.basis` is `all_distinct` when the population is every distinct value
+of the field (`population.complete`: the sample is `all` and nothing was
+excluded or cut) and `sample` otherwise: a discovery indicator on
+distinct values, never a frequency of the file. The estimate on the row sample
+and the validated coverage are not written yet (lots 7c and 8b).
+
+`derived` is part of the base model (a Scan with it reads back) and not of
+its facts: `facts_sha256` leaves it out, a Report carries it as it is (19.3)
+because its base keeps fewer values and cannot compute it, and `check_scan`
+checks it: one entry per field, the render of each signature, the sums, the
+shares, the overlaps and, when the samples are complete, that every example
+exists and matches its signature.
+
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
 ### 19.1 Identity
@@ -2492,5 +2590,7 @@ that capability as missing (`kept < of`, 18.9), and the second pass reads the
 source when it needs them. Since lot 2b `values.samples` and the KMV estimate
 are in this domain: the table keys are raw decoded values, a string keeps its
 text, other native types their canonical text. `frequencies`, lengths and
-statistics keep the analytical value. Structural patterns can be computed before exposure and kept without
-keeping the value.
+statistics keep the analytical value. Structural patterns could be computed before exposure and kept without
+keeping the value; the inference of 18.12 does not do it: it reads the samples
+of the finished scan, so a field that exposure masks or hides has no inferred
+pattern (`not_applicable`, reason `exposure`).

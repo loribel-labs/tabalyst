@@ -23,16 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-08T17:25:26.436315Z",
-    "duration_seconds": 0.037685,
+    "started_at": "2026-10-08T18:46:25.575550Z",
+    "duration_seconds": 0.041343,
     "timings": {
-      "reading": 0.008922,
-      "analysis": 0.016774,
-      "finalize": 0.011634,
-      "other": 0.000356
+      "reading": 0.018255,
+      "analysis": 0.008576,
+      "finalize": 0.012613,
+      "derived": 0.001505,
+      "other": 0.000394
     },
     "workers": 1,
-    "peak_memory_bytes": 52269056
+    "peak_memory_bytes": 53121024
   },
   "source": {
     "format": "jsonl",
@@ -271,9 +272,15 @@
     "exposure": {
       "sensitive_values": "mask"
     },
+    "pattern_inference": {
+      "enabled": true,
+      "max_patterns": 8,
+      "max_value_length": 64,
+      "min_distinct": 2
+    },
     "random_seed": 42
   },
-  "config_sha256": "4f62c17bd828f02b94c963049313ab970466c51a843e734940f4d8e16610f13a",
+  "config_sha256": "cef1e24b1e0b1b1d7b52993ad809ebdefdb6a08309dac993424e6a88dd89173d",
   "scope": {
     "collections": null,
     "records_read": 303,
@@ -12286,13 +12293,734 @@
       ]
     }
   ],
+  "derived": {
+    "patterns": {
+      "grammar": {
+        "name": "tabalyst.pattern",
+        "version": 1
+      },
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "$[]",
+          "field": "f1",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 100,
+            "distinct": 100,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "evt",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 5,
+                  "max": 5
+                }
+              ],
+              "render": "'evt'-99999",
+              "lengths": {
+                "min": 9,
+                "max": 9
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 100,
+                "share": 1.0,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9901
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f2",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 100,
+            "distinct": 100,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "2026",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "03",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "01",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "T",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": ":",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": ":",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "Z",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "'2026'-'03'-'01''T'99:99:99'Z'",
+              "lengths": {
+                "min": 20,
+                "max": 20
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 100,
+                "share": 1.0,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9901
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f3",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 5,
+            "distinct": 5,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 8
+                }
+              ],
+              "render": "x{5,8}",
+              "lengths": {
+                "min": 5,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 0.8,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.64
+              },
+              "examples": [
+                1,
+                2,
+                3
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 1,
+            "share": 0.2,
+            "structures": 1
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f4",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f5",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f6",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 5,
+            "distinct": 5,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "XX",
+              "lengths": {
+                "min": 2,
+                "max": 2
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8333
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f7",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 4
+                }
+              ],
+              "render": "x{3,4}",
+              "lengths": {
+                "min": 3,
+                "max": 4
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.75
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f8",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f9",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 5,
+            "distinct": 5,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{4,6}",
+              "lengths": {
+                "min": 5,
+                "max": 7
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.6,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.45
+              },
+              "examples": [
+                1,
+                2,
+                4
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 3
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "x{1,3}XX",
+              "lengths": {
+                "min": 3,
+                "max": 5
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.4,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.2667
+              },
+              "examples": [
+                0,
+                3
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f10",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f11",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 8,
+            "distinct": 8,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "/",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 8
+                }
+              ],
+              "render": "/x{4,8}",
+              "lengths": {
+                "min": 5,
+                "max": 9
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 6,
+                "share": 0.75,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.6429
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 2,
+            "share": 0.25,
+            "structures": 2
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f12",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f13",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 5,
+            "distinct": 5,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 10
+                }
+              ],
+              "render": "x{4,10}",
+              "lengths": {
+                "min": 4,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8333
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$[]",
+          "field": "f14",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f15",
+          "status": "not_applicable",
+          "reason": "too_few_distinct"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f16",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "$[]",
+          "field": "f17",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 2,
+            "distinct": 2,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "X",
+              "lengths": {
+                "min": 1,
+                "max": 1
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.6667
+              },
+              "examples": [
+                0,
+                1
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-08T17:25:26.760436Z",
+    "generated_at": "2026-10-08T18:49:21.296246Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.3666,
+    "processing_seconds": 0.3396,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -12320,8 +13048,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-      "config_sha256": "4f62c17bd828f02b94c963049313ab970466c51a843e734940f4d8e16610f13a",
-      "facts_sha256": "4630187888b63322dfcc5da6db3364a7bdad8063d826f3ad5ddca54821ed226f"
+      "config_sha256": "cef1e24b1e0b1b1d7b52993ad809ebdefdb6a08309dac993424e6a88dd89173d",
+      "facts_sha256": "33e5e8a2c2b88e3b73659653d90187a61359f982c15f68bda649d08f5499b0e1"
     },
     "datasets": [
       {

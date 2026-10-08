@@ -23,16 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T17:25:23.095452Z",
-    "duration_seconds": 0.278686,
+    "started_at": "2026-10-08T18:46:21.990963Z",
+    "duration_seconds": 0.312798,
     "timings": {
-      "reading": 0.013795,
-      "analysis": 0.032754,
-      "finalize": 0.231789,
-      "other": 0.000349
+      "reading": 0.01054,
+      "analysis": 0.033739,
+      "finalize": 0.261154,
+      "derived": 0.007012,
+      "other": 0.000352
     },
     "workers": 1,
-    "peak_memory_bytes": 69767168
+    "peak_memory_bytes": 70684672
   },
   "source": {
     "format": "csv",
@@ -312,9 +313,15 @@
     "exposure": {
       "sensitive_values": "mask"
     },
+    "pattern_inference": {
+      "enabled": true,
+      "max_patterns": 8,
+      "max_value_length": 64,
+      "min_distinct": 2
+    },
     "random_seed": 42
   },
-  "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
+  "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
   "scope": {
     "collections": null,
     "records_read": 3000,
@@ -43997,13 +44004,3445 @@
     }
   ],
   "diagnostics": [],
+  "derived": {
+    "patterns": {
+      "grammar": {
+        "name": "tabalyst.pattern",
+        "version": 1
+      },
+      "domain": "original",
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 3,
+            "distinct": 3,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 6,
+                  "max": 9
+                }
+              ],
+              "render": "x{6,9}",
+              "lengths": {
+                "min": 6,
+                "max": 9
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.75
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 237,
+            "distinct": 237,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "ONT",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 6,
+                  "max": 7
+                }
+              ],
+              "render": "'ONT'9{6,7}",
+              "lengths": {
+                "min": 9,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 101,
+                "share": 0.4262,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.422
+              },
+              "examples": [
+                74,
+                85,
+                91
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "CLI",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 7,
+                  "max": 8
+                }
+              ],
+              "render": "'CLI''-'{1,2}9{7,8}",
+              "lengths": {
+                "min": 11,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 101,
+                "share": 0.4262,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.422
+              },
+              "examples": [
+                0,
+                1,
+                3
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "QC",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 4,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 3,
+                  "max": 4
+                }
+              ],
+              "render": "'QC''-'{1,2}9999-9{3,4}",
+              "lengths": {
+                "min": 11,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 35,
+                "share": 0.1477,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1436
+              },
+              "examples": [
+                2,
+                11,
+                12
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 2,
+            "distinct": 2,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [],
+          "other": {
+            "distinct": 2,
+            "share": 1.0,
+            "structures": 2
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 227,
+            "distinct": 227,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 9
+                }
+              ],
+              "render": "Xx{2,9}",
+              "lengths": {
+                "min": 3,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 169,
+                "share": 0.7445,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.7401
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 3,
+                  "max": 9
+                }
+              ],
+              "render": "@{3,9}",
+              "lengths": {
+                "min": 3,
+                "max": 9
+              },
+              "generalization": 1,
+              "merged_structures": 2,
+              "coverage": {
+                "distinct": 29,
+                "share": 0.1278,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1235
+              },
+              "examples": [
+                3,
+                40,
+                51
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 8
+                }
+              ],
+              "render": "x{5,8}",
+              "lengths": {
+                "min": 5,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 9,
+                "share": 0.0396,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0357
+              },
+              "examples": [
+                21,
+                47,
+                48
+              ]
+            },
+            {
+              "id": "p4",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 5
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 7
+                }
+              ],
+              "render": "Xx{3,5}-Xx{2,7}",
+              "lengths": {
+                "min": 10,
+                "max": 14
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 6,
+                "share": 0.0264,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0227
+              },
+              "examples": [
+                17,
+                26,
+                33
+              ]
+            },
+            {
+              "id": "p5",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 4
+                }
+              ],
+              "render": "Xx{1,4}' '{1,2}x{1,4}",
+              "lengths": {
+                "min": 5,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 0.022,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0184
+              },
+              "examples": [
+                18,
+                90,
+                205
+              ]
+            },
+            {
+              "id": "p6",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "letter_unicode",
+                  "min": 3,
+                  "max": 8
+                }
+              ],
+              "render": "X{1,2}x{3,4}-@{3,8}",
+              "lengths": {
+                "min": 9,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 0.0176,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0141
+              },
+              "examples": [
+                14,
+                42,
+                54
+              ]
+            },
+            {
+              "id": "p7",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 1,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "letter_unicode",
+                  "min": 1,
+                  "max": 7
+                }
+              ],
+              "render": "@{1,4}' '{2}@{1,7}",
+              "lengths": {
+                "min": 5,
+                "max": 10
+              },
+              "generalization": 1,
+              "merged_structures": 3,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.0132,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0099
+              },
+              "examples": [
+                60,
+                96,
+                133
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 2,
+            "share": 0.0088,
+            "structures": 2
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p1",
+                "p2"
+              ],
+              "values": 166
+            },
+            {
+              "patterns": [
+                "p2",
+                "p3"
+              ],
+              "values": 9
+            },
+            {
+              "patterns": [
+                "p4",
+                "p6"
+              ],
+              "values": 5
+            },
+            {
+              "patterns": [
+                "p5",
+                "p7"
+              ],
+              "values": 2
+            }
+          ],
+          "limits": [
+            "max_patterns"
+          ]
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 214,
+            "distinct": 214,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 9
+                }
+              ],
+              "render": "X{1,2}x{1,9}",
+              "lengths": {
+                "min": 2,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 23,
+                "share": 0.1075,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.103
+              },
+              "examples": [
+                1,
+                2,
+                20
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 6
+                }
+              ],
+              "render": "xXx{1,6}",
+              "lengths": {
+                "min": 3,
+                "max": 3
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.0093,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0062
+              },
+              "examples": [
+                35,
+                48
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 8
+                }
+              ],
+              "render": "x{2,8}",
+              "lengths": {
+                "min": 2,
+                "max": 2
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 1,
+                "share": 0.0047,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0023
+              },
+              "examples": [
+                82
+              ]
+            },
+            {
+              "id": "p4",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 4,
+                  "max": 8
+                }
+              ],
+              "render": "@{4,8}",
+              "lengths": {
+                "min": 4,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 171,
+                "share": 0.7991,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.7944
+              },
+              "examples": [
+                0,
+                3,
+                4
+              ]
+            },
+            {
+              "id": "p5",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 8
+                }
+              ],
+              "render": "X' '{1,2}x{2,8}",
+              "lengths": {
+                "min": 4,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 6,
+                "share": 0.028,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.024
+              },
+              "examples": [
+                53,
+                60,
+                79
+              ]
+            },
+            {
+              "id": "p6",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 4
+                }
+              ],
+              "render": "Xx{2,4}' '{1,2}x{1,4}",
+              "lengths": {
+                "min": 7,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.014,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0105
+              },
+              "examples": [
+                11,
+                28,
+                172
+              ]
+            },
+            {
+              "id": "p7",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "'",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 5
+                }
+              ],
+              "render": "X''''Xx{4,5}",
+              "lengths": {
+                "min": 7,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.014,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0105
+              },
+              "examples": [
+                77,
+                90,
+                196
+              ]
+            },
+            {
+              "id": "p8",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "letter_unicode",
+                  "min": 6,
+                  "max": 6
+                }
+              ],
+              "render": "@@-@@@@@@",
+              "lengths": {
+                "min": 9,
+                "max": 9
+              },
+              "generalization": 1,
+              "merged_structures": 2,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.014,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0105
+              },
+              "examples": [
+                65,
+                85,
+                208
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 2,
+            "share": 0.0093,
+            "structures": 2
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p1",
+                "p4"
+              ],
+              "values": 129
+            },
+            {
+              "patterns": [
+                "p2",
+                "p4"
+              ],
+              "values": 15
+            },
+            {
+              "patterns": [
+                "p3",
+                "p4"
+              ],
+              "values": 15
+            }
+          ],
+          "limits": [
+            "max_patterns"
+          ]
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_7",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 2,
+            "distinct": 2,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "X",
+              "lengths": {
+                "min": 1,
+                "max": 1
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.6667
+              },
+              "examples": [
+                0,
+                1
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_8",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 2,
+            "distinct": 2,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "xx",
+              "lengths": {
+                "min": 2,
+                "max": 2
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.6667
+              },
+              "examples": [
+                0,
+                1
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_9",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_10",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 31,
+            "distinct": 31,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 8
+                }
+              ],
+              "render": "Xx{2,8}",
+              "lengths": {
+                "min": 3,
+                "max": 9
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 6,
+                "share": 0.1935,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1659
+              },
+              "examples": [
+                8,
+                14,
+                22
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 9
+                }
+              ],
+              "render": "x{3,9}",
+              "lengths": {
+                "min": 3,
+                "max": 9
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 7,
+                "share": 0.2258,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1976
+              },
+              "examples": [
+                1,
+                5,
+                9
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 4,
+                  "max": 6
+                }
+              ],
+              "render": "@{4,6}",
+              "lengths": {
+                "min": 4,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 18,
+                "share": 0.5806,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.5501
+              },
+              "examples": [
+                0,
+                2,
+                3
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p1",
+                "p3"
+              ],
+              "values": 9
+            },
+            {
+              "patterns": [
+                "p2",
+                "p3"
+              ],
+              "values": 5
+            }
+          ],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_11",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 183,
+            "distinct": 183,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 12
+                }
+              ],
+              "render": "X{1,2}x{2,12}",
+              "lengths": {
+                "min": 3,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 66,
+                "share": 0.3607,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.3553
+              },
+              "examples": [
+                0,
+                2,
+                5
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 10
+                }
+              ],
+              "render": "x{2,4}' '{1,2}Xx{2,10}",
+              "lengths": {
+                "min": 6,
+                "max": 15
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 9,
+                "share": 0.0492,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0443
+              },
+              "examples": [
+                55,
+                78,
+                79
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 4
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "letter_unicode",
+                  "min": 5,
+                  "max": 9
+                }
+              ],
+              "render": "x{2,4}' '{1,2}@{5,9}",
+              "lengths": {
+                "min": 8,
+                "max": 14
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 60,
+                "share": 0.3279,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.3225
+              },
+              "examples": [
+                3,
+                8,
+                9
+              ]
+            },
+            {
+              "id": "p4",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "letter_unicode",
+                  "min": 5,
+                  "max": 9
+                }
+              ],
+              "render": "x{1,2}' 'xx' '@{5,9}",
+              "lengths": {
+                "min": 11,
+                "max": 15
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 10,
+                "share": 0.0546,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0497
+              },
+              "examples": [
+                10,
+                22,
+                42
+              ]
+            },
+            {
+              "id": "p5",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 3
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 5
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 5
+                }
+              ],
+              "render": "x{2,3}' '{1,2}Xx{4,5}-Xx{3,5}",
+              "lengths": {
+                "min": 13,
+                "max": 16
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 9,
+                "share": 0.0492,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0443
+              },
+              "examples": [
+                4,
+                16,
+                21
+              ]
+            },
+            {
+              "id": "p6",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "de",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "la",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 8
+                }
+              ],
+              "render": "'de'' '{1,2}'la'' 'Xx{3,8}",
+              "lengths": {
+                "min": 10,
+                "max": 15
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 8,
+                "share": 0.0437,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0389
+              },
+              "examples": [
+                1,
+                29,
+                75
+              ]
+            },
+            {
+              "id": "p7",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "alphanumeric",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "'",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 3,
+                  "max": 6
+                }
+              ],
+              "render": "##' '{1,2}#''''#{3,6}",
+              "lengths": {
+                "min": 8,
+                "max": 11
+              },
+              "generalization": 2,
+              "merged_structures": 3,
+              "coverage": {
+                "distinct": 8,
+                "share": 0.0437,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0389
+              },
+              "examples": [
+                23,
+                24,
+                36
+              ]
+            },
+            {
+              "id": "p8",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "des",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 11
+                }
+              ],
+              "render": "'des'' 'x{5,11}",
+              "lengths": {
+                "min": 9,
+                "max": 15
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 0.0273,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0228
+              },
+              "examples": [
+                76,
+                80,
+                94
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 8,
+            "share": 0.0437,
+            "structures": 5
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p2",
+                "p3"
+              ],
+              "values": 45
+            },
+            {
+              "patterns": [
+                "p3",
+                "p8"
+              ],
+              "values": 4
+            },
+            {
+              "patterns": [
+                "p4",
+                "p6"
+              ],
+              "values": 6
+            }
+          ],
+          "limits": [
+            "max_patterns"
+          ]
+        },
+        {
+          "dataset": "rows",
+          "field": "column_12",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 8,
+            "distinct": 8,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 4
+                }
+              ],
+              "render": "Xx{2,4}",
+              "lengths": {
+                "min": 3,
+                "max": 5
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 8,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8889
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_13",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_14",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 137,
+            "distinct": 137,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 12
+                }
+              ],
+              "render": "X{1,2}x{3,12}",
+              "lengths": {
+                "min": 4,
+                "max": 14
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 73,
+                "share": 0.5328,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.5256
+              },
+              "examples": [
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 5,
+                  "max": 11
+                }
+              ],
+              "render": "@{5,11}",
+              "lengths": {
+                "min": 5,
+                "max": 11
+              },
+              "generalization": 1,
+              "merged_structures": 2,
+              "coverage": {
+                "distinct": 13,
+                "share": 0.0949,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0881
+              },
+              "examples": [
+                12,
+                54,
+                62
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 13
+                }
+              ],
+              "render": "x{4,13}",
+              "lengths": {
+                "min": 4,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 10,
+                "share": 0.073,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0664
+              },
+              "examples": [
+                10,
+                13,
+                21
+              ]
+            },
+            {
+              "id": "p4",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 7
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{1,7}' '{1,2}x{1,6}",
+              "lengths": {
+                "min": 7,
+                "max": 11
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 10,
+                "share": 0.073,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0664
+              },
+              "examples": [
+                36,
+                43,
+                58
+              ]
+            },
+            {
+              "id": "p5",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 1,
+                  "max": 5
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 6
+                }
+              ],
+              "render": "Xx{1,5}' '{1,2}Xx{3,6}",
+              "lengths": {
+                "min": 8,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 8,
+                "share": 0.0584,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0519
+              },
+              "examples": [
+                1,
+                25,
+                81
+              ]
+            },
+            {
+              "id": "p6",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 8
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 8
+                }
+              ],
+              "render": "Xx{3,8}-Xx{4,8}",
+              "lengths": {
+                "min": 11,
+                "max": 16
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 6,
+                "share": 0.0438,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0375
+              },
+              "examples": [
+                5,
+                27,
+                42
+              ]
+            },
+            {
+              "id": "p7",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "alphanumeric",
+                  "min": 3,
+                  "max": 3
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "'",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "###-#''''##",
+              "lengths": {
+                "min": 8,
+                "max": 8
+              },
+              "generalization": 2,
+              "merged_structures": 2,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.0219,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0164
+              },
+              "examples": [
+                16,
+                64,
+                111
+              ]
+            },
+            {
+              "id": "p8",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "alphanumeric",
+                  "min": 7,
+                  "max": 9
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 2,
+                  "max": 3
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "alphanumeric",
+                  "min": 4,
+                  "max": 11
+                }
+              ],
+              "render": "#{7,9}-#{2,3}-#{4,11}",
+              "lengths": {
+                "min": 15,
+                "max": 24
+              },
+              "generalization": 2,
+              "merged_structures": 2,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.0219,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0164
+              },
+              "examples": [
+                93,
+                134,
+                135
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 11,
+            "share": 0.0803,
+            "structures": 6
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p1",
+                "p2"
+              ],
+              "values": 67
+            },
+            {
+              "patterns": [
+                "p2",
+                "p3"
+              ],
+              "values": 8
+            }
+          ],
+          "limits": [
+            "max_patterns"
+          ]
+        },
+        {
+          "dataset": "rows",
+          "field": "column_15",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 16,
+            "distinct": 16,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "XX",
+              "lengths": {
+                "min": 2,
+                "max": 2
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 13,
+                "share": 0.8125,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.7545
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "xx",
+              "lengths": {
+                "min": 2,
+                "max": 2
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.1875,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1406
+              },
+              "examples": [
+                9,
+                13,
+                15
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_16",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 18,
+            "distinct": 18,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 4,
+                  "max": 11
+                }
+              ],
+              "render": "Xx{4,11}",
+              "lengths": {
+                "min": 5,
+                "max": 12
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 7,
+                "share": 0.3889,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.3403
+              },
+              "examples": [
+                1,
+                2,
+                7
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 6,
+                  "max": 7
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 10
+                }
+              ],
+              "render": "Xx{6,7}-Xx{5,10}",
+              "lengths": {
+                "min": 15,
+                "max": 20
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.1667,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.125
+              },
+              "examples": [
+                4,
+                8,
+                16
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 6,
+                  "max": 7
+                }
+              ],
+              "render": "x{6,7}",
+              "lengths": {
+                "min": 6,
+                "max": 7
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.1111,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0741
+              },
+              "examples": [
+                3,
+                15
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 6,
+            "share": 0.3333,
+            "structures": 6
+          },
+          "overlaps": [],
+          "limits": [
+            "max_patterns"
+          ]
+        },
+        {
+          "dataset": "rows",
+          "field": "column_17",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 175,
+            "distinct": 175,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "X9X' '{1,2}9X9",
+              "lengths": {
+                "min": 7,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 154,
+                "share": 0.88,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.8743
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "9X' '9X9",
+              "lengths": {
+                "min": 6,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 9,
+                "share": 0.0514,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0463
+              },
+              "examples": [
+                101,
+                103,
+                107
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "X9' '9X9",
+              "lengths": {
+                "min": 6,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 7,
+                "share": 0.04,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.035
+              },
+              "examples": [
+                84,
+                100,
+                102
+              ]
+            },
+            {
+              "id": "p4",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": " ",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "X9X' '99",
+              "lengths": {
+                "min": 6,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 0.0286,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0238
+              },
+              "examples": [
+                104,
+                112,
+                116
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_18",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 2,
+            "distinct": 2,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [],
+          "other": {
+            "distinct": 2,
+            "share": 1.0,
+            "structures": 2
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_19",
+          "status": "not_applicable",
+          "reason": "exposure"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_20",
+          "status": "not_applicable",
+          "reason": "exposure"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_21",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "bottom_k",
+            "complete": false,
+            "available": 136,
+            "distinct": 136,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "CTR",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 9,
+                  "max": 10
+                }
+              ],
+              "render": "'CTR''-'{1,2}9{9,10}",
+              "lengths": {
+                "min": 13,
+                "max": 15
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 136,
+                "share": 1.0,
+                "basis": "sample"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9927
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_22",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 6,
+            "distinct": 6,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 3,
+                  "max": 10
+                }
+              ],
+              "render": "x{3,10}",
+              "lengths": {
+                "min": 3,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 0.6667,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.5333
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 6,
+                  "max": 10
+                },
+                {
+                  "kind": "literal",
+                  "text": "_",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "x{6,10}_X",
+              "lengths": {
+                "min": 8,
+                "max": 12
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.3333,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.2222
+              },
+              "examples": [
+                4,
+                5
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_23",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_24",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_25",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 6,
+            "distinct": 6,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 8
+                }
+              ],
+              "render": "x{5,8}",
+              "lengths": {
+                "min": 5,
+                "max": 8
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.3333,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.2222
+              },
+              "examples": [
+                0,
+                3
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 6,
+                  "max": 7
+                }
+              ],
+              "render": "@{6,7}",
+              "lengths": {
+                "min": 6,
+                "max": 7
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.3333,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.2222
+              },
+              "examples": [
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 2,
+            "share": 0.3333,
+            "structures": 2
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_26",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_27",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 6,
+            "distinct": 6,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 8,
+                  "max": 13
+                }
+              ],
+              "render": "x{8,13}",
+              "lengths": {
+                "min": 8,
+                "max": 13
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 4,
+                "share": 0.6667,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.5333
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 8,
+                  "max": 9
+                },
+                {
+                  "kind": "literal",
+                  "text": "_",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "x{8,9}_X",
+              "lengths": {
+                "min": 10,
+                "max": 11
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.3333,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.2222
+              },
+              "examples": [
+                4,
+                5
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_28",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 9,
+            "distinct": 9,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 11
+                }
+              ],
+              "render": "x{5,11}",
+              "lengths": {
+                "min": 5,
+                "max": 5
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 1,
+                "share": 0.1111,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.0556
+              },
+              "examples": [
+                2
+              ]
+            },
+            {
+              "id": "p2",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "lower_ascii",
+                  "min": 5,
+                  "max": 8
+                },
+                {
+                  "kind": "literal",
+                  "text": "_",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 1,
+                  "max": 1
+                }
+              ],
+              "render": "x{5,8}_X",
+              "lengths": {
+                "min": 7,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 2,
+                "share": 0.2222,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.1481
+              },
+              "examples": [
+                6,
+                8
+              ]
+            },
+            {
+              "id": "p3",
+              "role": "secondary",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 6,
+                  "max": 11
+                }
+              ],
+              "render": "@{6,11}",
+              "lengths": {
+                "min": 6,
+                "max": 11
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 5,
+                "share": 0.5556,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.463
+              },
+              "examples": [
+                0,
+                1,
+                3
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 1,
+            "share": 0.1111,
+            "structures": 1
+          },
+          "overlaps": [
+            {
+              "patterns": [
+                "p1",
+                "p3"
+              ],
+              "values": 3
+            }
+          ],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_29",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 27,
+            "distinct": 27,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "AG",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 2
+                },
+                {
+                  "kind": "upper_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 3,
+                  "max": 3
+                }
+              ],
+              "render": "'AG''-'{1,2}XX-999",
+              "lengths": {
+                "min": 9,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 27,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9643
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "rows",
+          "field": "column_30",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_31",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_32",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_33",
+          "status": "not_applicable",
+          "reason": "technical_type"
+        },
+        {
+          "dataset": "rows",
+          "field": "column_34",
+          "status": "complete",
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 4,
+            "distinct": 4,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "letter_unicode",
+                  "min": 5,
+                  "max": 6
+                }
+              ],
+              "render": "@{5,6}",
+              "lengths": {
+                "min": 5,
+                "max": 6
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 3,
+                "share": 0.75,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.5625
+              },
+              "examples": [
+                0,
+                2,
+                3
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 1,
+            "share": 0.25,
+            "structures": 2
+          },
+          "overlaps": [],
+          "limits": []
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-08T17:25:23.930495Z",
+    "generated_at": "2026-10-08T18:49:18.314536Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 1.1245,
+    "processing_seconds": 0.8135,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -44031,8 +47470,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "d8b95d04da4602b9866641c7ec711dc1a90ea355238a907c258ada2a7197407a",
-      "facts_sha256": "77dd68950e9698734b4fc2671c83ab8d6e5de17dc8daf67bb4df38c20b772f5e"
+      "config_sha256": "63c214e5f8a3d508df83908f1b9854412061221b0bc68cdb611fead667bb25c2",
+      "facts_sha256": "b8fa46d254c3d9a9d3578ab7d0cf44a2ad646138848420c31c558519cd33159f"
     },
     "datasets": [
       {
