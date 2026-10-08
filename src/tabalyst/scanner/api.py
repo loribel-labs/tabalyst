@@ -34,7 +34,9 @@ from tabalyst.scanner.models import (
     DatasetResult,
     EngineInfo,
     ExcelSourceInfo,
+    RunCounters,
     RunInfo,
+    SamplingCounters,
     ScanResult,
     Scope,
     SourceInfo,
@@ -112,6 +114,21 @@ def _duplicate_records(datasets: list[DatasetResult]) -> int | None:
     return sum(count.value for count in counts)
 
 
+def _run_counters(engine: ScanEngine) -> RunCounters:
+    """The optional counters of the samplers, summed over the fields."""
+    values = engine.values
+    sampling = values.sampling
+    return RunCounters(
+        sampling=SamplingCounters(
+            **sampling.totals,
+            k_effective_min=sampling.k_min,
+            k_effective_max=sampling.k_max,
+            sample_model_bytes=values.samples.reserved,
+            long_model_bytes=values.samples.long_reserved,
+        )
+    )
+
+
 def _peak_memory_bytes() -> int | None:
     """Peak memory of this process so far, or ``None`` when unavailable."""
     try:
@@ -180,6 +197,7 @@ def scan(
     on_progress: ProgressCallback | None = None,
     on_record: Callable[[Record], None] | None = None,
     workers: int | None = None,
+    counters: bool = False,
 ) -> ScanResult:
     """Read one source completely and return its finalized scan result.
 
@@ -193,6 +211,9 @@ def scan(
     in this process; by default, large sources use one worker per spare
     processor (``workers.worker_count``). The result does not depend on it.
     A custom ``registry`` always scans in this process.
+
+    ``counters`` adds ``run.counters``, the work of the bottom-k samplers
+    (design 18.4); they are cheap to keep and are never part of the facts.
     """
     if workers is not None and workers < 1:
         raise ConfigurationError("workers must be at least 1")
@@ -267,6 +288,7 @@ def scan(
             ),
             workers=1 if engine.values.pool is None else count,
             peak_memory_bytes=_peak_memory_bytes(),
+            counters=_run_counters(engine) if counters else None,
         ),
         source=SourceInfo(
             format=summary.format,

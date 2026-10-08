@@ -33,6 +33,7 @@ tabalyst.scan(
     on_progress=None,
     on_record=None,
     workers=None,
+    counters=False,
 )
 ```
 
@@ -48,6 +49,8 @@ Returns a `tabalyst.ScanResult`.
 - `workers`: number of processes that analyze values; `1` scans in this process.
   By default, large sources use one per spare processor. The result does not
   depend on it.
+- `counters`: `True` adds `run.counters`, the work of the samplers (see
+  [Scan format](../../scan/format.md#counters-of-a-run)).
 - `on_progress`: see the [conventions](index.md#conventions).
 - `registry`, `on_record`: advanced. `registry` replaces the detectors (and scans
   in this process); `on_record` receives each analyzed record, in reading order,
@@ -71,6 +74,7 @@ tabalyst.generate_scans(
     force=False,
     on_progress=None,
     workers=None,
+    counters=False,
     project_storage=False,
 )
 ```
@@ -88,7 +92,7 @@ Returns a [batch result](index.md#batch-functions) whose successes hold the
   command, as `tabalyst scan` does without `-o` or `-d`, instead of writing
   standalone documents.
 - `config_path`, `force`, `on_progress`: see the [conventions](index.md#conventions).
-- `workers`: as for `scan()`.
+- `workers`, `counters`: as for `scan()`.
 
 A source whose collection or table cannot be decided fails alone with a
 `ConfigurationError`; an option that a source cannot use is listed in

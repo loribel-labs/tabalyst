@@ -10,6 +10,9 @@ never replaces the source. The profile holds the
 complete analysis result; the HTML report is rendered from it. Use it to read
 Tabalyst results from scripts or other tools.
 
+The profile is written without indentation unless `output.json_indent` is `true`
+in the [configuration](../reference/configuration.md#output-settings).
+
 The profile is a [scan document](../scan/format.md) with an added `report`
 block. Everything the scan measured stays where the scan puts it, at the same
 paths (`datasets[].fields[]`, `source`, `config`, `scope`, `diagnostics`), and

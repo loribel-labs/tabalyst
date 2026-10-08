@@ -181,6 +181,13 @@ def scan_command(
             ),
         ),
     ] = None,
+    counters: Annotated[
+        bool,
+        typer.Option(
+            "--counters",
+            help="Add the work counters of the samplers to run.counters.",
+        ),
+    ] = False,
 ) -> None:
     """Scan CSV and JSON files into a complete JSON description of their data."""
     if quiet and verbose:
@@ -201,6 +208,7 @@ def scan_command(
             force=force,
             on_progress=progress,
             workers=workers,
+            counters=counters,
             project_storage=True,
         )
     except TabalystError as exc:

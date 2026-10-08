@@ -118,14 +118,27 @@ class PresentationSettings(BaseModel):
     )
 
 
+class OutputSettings(BaseModel):
+    """How Tabalyst writes its documents: the ``output`` object of configuration
+    files."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    # Indent the scan and report documents (and write each sample entry on one
+    # line) to read them; the default compact form is about 60% smaller.
+    json_indent: bool = False
+
+
 class SettingsFile(BaseModel):
     """Settings of a configuration file besides its ``scan`` object: ``csv``
-    for ``tabalyst sample`` and the ``report`` presentation settings."""
+    for ``tabalyst sample``, the ``report`` presentation settings and the
+    ``output`` settings."""
 
     model_config = ConfigDict(extra="forbid")
 
     csv: CsvConfig = Field(default_factory=CsvConfig)
     report: PresentationSettings = Field(default_factory=PresentationSettings)
+    output: OutputSettings = Field(default_factory=OutputSettings)
 
 
 # Settings that moved, with their new location. The analysis settings moved to
@@ -263,6 +276,13 @@ def settings_from_layer(merged: dict) -> SettingsFile:
         raise ConfigurationError(
             f"Invalid merged configuration: {validation_message(exc)}"
         ) from exc
+
+
+def json_indent(paths: Iterable[Path]) -> bool:
+    """Whether the configuration files ask for indented scan and report
+    documents (``output.json_indent``)."""
+    top_level, _ = load_config_layers(paths)
+    return settings_from_layer(top_level).output.json_indent
 
 
 def resolve_config(

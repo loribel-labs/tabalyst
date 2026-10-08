@@ -23,16 +23,16 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T03:46:18.827661Z",
-    "duration_seconds": 0.022174,
+    "started_at": "2026-10-08T12:08:18.597401Z",
+    "duration_seconds": 0.019855,
     "timings": {
-      "reading": 0.00262,
-      "analysis": 0.001623,
-      "finalize": 0.017525,
-      "other": 0.000407
+      "reading": 0.002149,
+      "analysis": 0.001545,
+      "finalize": 0.015766,
+      "other": 0.000395
     },
     "workers": 1,
-    "peak_memory_bytes": 52408320
+    "peak_memory_bytes": 51400704
   },
   "source": {
     "format": "excel",
@@ -129,6 +129,9 @@
       "max_stored_value_length": 1000,
       "max_listed_frequencies": 100,
       "max_samples": 100,
+      "max_long_samples": 100,
+      "long_preview_chars": 200,
+      "max_sample_memory": 536870912,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -279,7 +282,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "c2b0eed107cd209cbef49d7ac5f2c245e9e5dc222bffcce693d024a72ab3877c",
+  "config_sha256": "3704c1c4f9bf5b400787debab2e76b960295e404225dc3a4e003ce8f0c3945ac",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -1546,806 +1549,106 @@
               "kept": 100,
               "of": 100,
               "listed": [
-                {
-                  "value": "SO-0034",
-                  "type": "string",
-                  "count": 1,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0074",
-                  "type": "string",
-                  "count": 1,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0064",
-                  "type": "string",
-                  "count": 1,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0025",
-                  "type": "string",
-                  "count": 1,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0008",
-                  "type": "string",
-                  "count": 1,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0026",
-                  "type": "string",
-                  "count": 1,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0039",
-                  "type": "string",
-                  "count": 1,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0049",
-                  "type": "string",
-                  "count": 1,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0069",
-                  "type": "string",
-                  "count": 1,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0036",
-                  "type": "string",
-                  "count": 1,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0105",
-                  "type": "string",
-                  "count": 1,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0112",
-                  "type": "string",
-                  "count": 1,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0108",
-                  "type": "string",
-                  "count": 1,
-                  "id": 12,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0042",
-                  "type": "string",
-                  "count": 1,
-                  "id": 13,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0022",
-                  "type": "string",
-                  "count": 1,
-                  "id": 14,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0040",
-                  "type": "string",
-                  "count": 1,
-                  "id": 15,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0041",
-                  "type": "string",
-                  "count": 1,
-                  "id": 16,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0065",
-                  "type": "string",
-                  "count": 1,
-                  "id": 17,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0059",
-                  "type": "string",
-                  "count": 1,
-                  "id": 18,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0058",
-                  "type": "string",
-                  "count": 1,
-                  "id": 19,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0014",
-                  "type": "string",
-                  "count": 1,
-                  "id": 20,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0084",
-                  "type": "string",
-                  "count": 1,
-                  "id": 21,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0081",
-                  "type": "string",
-                  "count": 1,
-                  "id": 22,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0055",
-                  "type": "string",
-                  "count": 1,
-                  "id": 23,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0101",
-                  "type": "string",
-                  "count": 1,
-                  "id": 24,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0080",
-                  "type": "string",
-                  "count": 1,
-                  "id": 25,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0090",
-                  "type": "string",
-                  "count": 1,
-                  "id": 26,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0028",
-                  "type": "string",
-                  "count": 1,
-                  "id": 27,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0033",
-                  "type": "string",
-                  "count": 1,
-                  "id": 28,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0077",
-                  "type": "string",
-                  "count": 1,
-                  "id": 29,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0043",
-                  "type": "string",
-                  "count": 1,
-                  "id": 30,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0066",
-                  "type": "string",
-                  "count": 1,
-                  "id": 31,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0046",
-                  "type": "string",
-                  "count": 1,
-                  "id": 32,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0083",
-                  "type": "string",
-                  "count": 1,
-                  "id": 33,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0005",
-                  "type": "string",
-                  "count": 1,
-                  "id": 34,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0114",
-                  "type": "string",
-                  "count": 1,
-                  "id": 35,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0085",
-                  "type": "string",
-                  "count": 1,
-                  "id": 36,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0051",
-                  "type": "string",
-                  "count": 1,
-                  "id": 37,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0093",
-                  "type": "string",
-                  "count": 1,
-                  "id": 38,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0106",
-                  "type": "string",
-                  "count": 1,
-                  "id": 39,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0097",
-                  "type": "string",
-                  "count": 1,
-                  "id": 40,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0003",
-                  "type": "string",
-                  "count": 1,
-                  "id": 41,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0120",
-                  "type": "string",
-                  "count": 1,
-                  "id": 42,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0094",
-                  "type": "string",
-                  "count": 1,
-                  "id": 43,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0011",
-                  "type": "string",
-                  "count": 1,
-                  "id": 44,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0057",
-                  "type": "string",
-                  "count": 1,
-                  "id": 45,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0012",
-                  "type": "string",
-                  "count": 1,
-                  "id": 46,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0016",
-                  "type": "string",
-                  "count": 1,
-                  "id": 47,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0048",
-                  "type": "string",
-                  "count": 1,
-                  "id": 48,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0073",
-                  "type": "string",
-                  "count": 1,
-                  "id": 49,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0117",
-                  "type": "string",
-                  "count": 1,
-                  "id": 50,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0019",
-                  "type": "string",
-                  "count": 1,
-                  "id": 51,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0056",
-                  "type": "string",
-                  "count": 1,
-                  "id": 52,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0031",
-                  "type": "string",
-                  "count": 1,
-                  "id": 53,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0100",
-                  "type": "string",
-                  "count": 1,
-                  "id": 54,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0086",
-                  "type": "string",
-                  "count": 1,
-                  "id": 55,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0091",
-                  "type": "string",
-                  "count": 1,
-                  "id": 56,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0023",
-                  "type": "string",
-                  "count": 1,
-                  "id": 57,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0079",
-                  "type": "string",
-                  "count": 1,
-                  "id": 58,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0045",
-                  "type": "string",
-                  "count": 1,
-                  "id": 59,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0109",
-                  "type": "string",
-                  "count": 1,
-                  "id": 60,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0096",
-                  "type": "string",
-                  "count": 1,
-                  "id": 61,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0102",
-                  "type": "string",
-                  "count": 1,
-                  "id": 62,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0104",
-                  "type": "string",
-                  "count": 1,
-                  "id": 63,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0115",
-                  "type": "string",
-                  "count": 1,
-                  "id": 64,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0075",
-                  "type": "string",
-                  "count": 1,
-                  "id": 65,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0004",
-                  "type": "string",
-                  "count": 1,
-                  "id": 66,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0087",
-                  "type": "string",
-                  "count": 1,
-                  "id": 67,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0089",
-                  "type": "string",
-                  "count": 1,
-                  "id": 68,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0061",
-                  "type": "string",
-                  "count": 1,
-                  "id": 69,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0092",
-                  "type": "string",
-                  "count": 1,
-                  "id": 70,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0062",
-                  "type": "string",
-                  "count": 1,
-                  "id": 71,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0072",
-                  "type": "string",
-                  "count": 1,
-                  "id": 72,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0021",
-                  "type": "string",
-                  "count": 1,
-                  "id": 73,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0024",
-                  "type": "string",
-                  "count": 1,
-                  "id": 74,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0111",
-                  "type": "string",
-                  "count": 1,
-                  "id": 75,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0050",
-                  "type": "string",
-                  "count": 1,
-                  "id": 76,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0107",
-                  "type": "string",
-                  "count": 1,
-                  "id": 77,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0116",
-                  "type": "string",
-                  "count": 1,
-                  "id": 78,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0001",
-                  "type": "string",
-                  "count": 1,
-                  "id": 79,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0088",
-                  "type": "string",
-                  "count": 1,
-                  "id": 80,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0070",
-                  "type": "string",
-                  "count": 1,
-                  "id": 81,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0032",
-                  "type": "string",
-                  "count": 1,
-                  "id": 82,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0054",
-                  "type": "string",
-                  "count": 1,
-                  "id": 83,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0082",
-                  "type": "string",
-                  "count": 1,
-                  "id": 84,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0103",
-                  "type": "string",
-                  "count": 1,
-                  "id": 85,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0010",
-                  "type": "string",
-                  "count": 1,
-                  "id": 86,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0027",
-                  "type": "string",
-                  "count": 1,
-                  "id": 87,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0007",
-                  "type": "string",
-                  "count": 1,
-                  "id": 88,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0035",
-                  "type": "string",
-                  "count": 1,
-                  "id": 89,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0015",
-                  "type": "string",
-                  "count": 1,
-                  "id": 90,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0095",
-                  "type": "string",
-                  "count": 1,
-                  "id": 91,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0113",
-                  "type": "string",
-                  "count": 1,
-                  "id": 92,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0110",
-                  "type": "string",
-                  "count": 1,
-                  "id": 93,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0009",
-                  "type": "string",
-                  "count": 1,
-                  "id": 94,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0037",
-                  "type": "string",
-                  "count": 1,
-                  "id": 95,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0063",
-                  "type": "string",
-                  "count": 1,
-                  "id": 96,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0029",
-                  "type": "string",
-                  "count": 1,
-                  "id": 97,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0002",
-                  "type": "string",
-                  "count": 1,
-                  "id": 98,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "SO-0078",
-                  "type": "string",
-                  "count": 1,
-                  "id": 99,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "SO-0034", "type": "string", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0074", "type": "string", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0064", "type": "string", "count": 1, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0025", "type": "string", "count": 1, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0008", "type": "string", "count": 1, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0026", "type": "string", "count": 1, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0039", "type": "string", "count": 1, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0049", "type": "string", "count": 1, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0069", "type": "string", "count": 1, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0036", "type": "string", "count": 1, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0105", "type": "string", "count": 1, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0112", "type": "string", "count": 1, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0108", "type": "string", "count": 1, "id": 12, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0042", "type": "string", "count": 1, "id": 13, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0022", "type": "string", "count": 1, "id": 14, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0040", "type": "string", "count": 1, "id": 15, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0041", "type": "string", "count": 1, "id": 16, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0065", "type": "string", "count": 1, "id": 17, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0059", "type": "string", "count": 1, "id": 18, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0058", "type": "string", "count": 1, "id": 19, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0014", "type": "string", "count": 1, "id": 20, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0084", "type": "string", "count": 1, "id": 21, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0081", "type": "string", "count": 1, "id": 22, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0055", "type": "string", "count": 1, "id": 23, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0101", "type": "string", "count": 1, "id": 24, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0080", "type": "string", "count": 1, "id": 25, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0090", "type": "string", "count": 1, "id": 26, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0028", "type": "string", "count": 1, "id": 27, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0033", "type": "string", "count": 1, "id": 28, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0077", "type": "string", "count": 1, "id": 29, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0043", "type": "string", "count": 1, "id": 30, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0066", "type": "string", "count": 1, "id": 31, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0046", "type": "string", "count": 1, "id": 32, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0083", "type": "string", "count": 1, "id": 33, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0005", "type": "string", "count": 1, "id": 34, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0114", "type": "string", "count": 1, "id": 35, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0085", "type": "string", "count": 1, "id": 36, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0051", "type": "string", "count": 1, "id": 37, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0093", "type": "string", "count": 1, "id": 38, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0106", "type": "string", "count": 1, "id": 39, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0097", "type": "string", "count": 1, "id": 40, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0003", "type": "string", "count": 1, "id": 41, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0120", "type": "string", "count": 1, "id": 42, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0094", "type": "string", "count": 1, "id": 43, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0011", "type": "string", "count": 1, "id": 44, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0057", "type": "string", "count": 1, "id": 45, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0012", "type": "string", "count": 1, "id": 46, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0016", "type": "string", "count": 1, "id": 47, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0048", "type": "string", "count": 1, "id": 48, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0073", "type": "string", "count": 1, "id": 49, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0117", "type": "string", "count": 1, "id": 50, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0019", "type": "string", "count": 1, "id": 51, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0056", "type": "string", "count": 1, "id": 52, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0031", "type": "string", "count": 1, "id": 53, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0100", "type": "string", "count": 1, "id": 54, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0086", "type": "string", "count": 1, "id": 55, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0091", "type": "string", "count": 1, "id": 56, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0023", "type": "string", "count": 1, "id": 57, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0079", "type": "string", "count": 1, "id": 58, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0045", "type": "string", "count": 1, "id": 59, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0109", "type": "string", "count": 1, "id": 60, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0096", "type": "string", "count": 1, "id": 61, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0102", "type": "string", "count": 1, "id": 62, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0104", "type": "string", "count": 1, "id": 63, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0115", "type": "string", "count": 1, "id": 64, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0075", "type": "string", "count": 1, "id": 65, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0004", "type": "string", "count": 1, "id": 66, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0087", "type": "string", "count": 1, "id": 67, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0089", "type": "string", "count": 1, "id": 68, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0061", "type": "string", "count": 1, "id": 69, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0092", "type": "string", "count": 1, "id": 70, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0062", "type": "string", "count": 1, "id": 71, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0072", "type": "string", "count": 1, "id": 72, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0021", "type": "string", "count": 1, "id": 73, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0024", "type": "string", "count": 1, "id": 74, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0111", "type": "string", "count": 1, "id": 75, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0050", "type": "string", "count": 1, "id": 76, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0107", "type": "string", "count": 1, "id": 77, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0116", "type": "string", "count": 1, "id": 78, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0001", "type": "string", "count": 1, "id": 79, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0088", "type": "string", "count": 1, "id": 80, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0070", "type": "string", "count": 1, "id": 81, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0032", "type": "string", "count": 1, "id": 82, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0054", "type": "string", "count": 1, "id": 83, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0082", "type": "string", "count": 1, "id": 84, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0103", "type": "string", "count": 1, "id": 85, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0010", "type": "string", "count": 1, "id": 86, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0027", "type": "string", "count": 1, "id": 87, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0007", "type": "string", "count": 1, "id": 88, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0035", "type": "string", "count": 1, "id": 89, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0015", "type": "string", "count": 1, "id": 90, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0095", "type": "string", "count": 1, "id": 91, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0113", "type": "string", "count": 1, "id": 92, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0110", "type": "string", "count": 1, "id": 93, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0009", "type": "string", "count": 1, "id": 94, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0037", "type": "string", "count": 1, "id": 95, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0063", "type": "string", "count": 1, "id": 96, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0029", "type": "string", "count": 1, "id": 97, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0002", "type": "string", "count": 1, "id": 98, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "SO-0078", "type": "string", "count": 1, "id": 99, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ],
               "k": 100,
               "hash": {
@@ -3507,606 +2810,81 @@
               "kept": 75,
               "of": 75,
               "listed": [
-                {
-                  "value": "2026-01-03",
-                  "type": "string",
-                  "count": 2,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-05",
-                  "type": "string",
-                  "count": 2,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-07",
-                  "type": "string",
-                  "count": 2,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-09",
-                  "type": "string",
-                  "count": 2,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-11",
-                  "type": "string",
-                  "count": 2,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-13",
-                  "type": "string",
-                  "count": 2,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-15",
-                  "type": "string",
-                  "count": 2,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-17",
-                  "type": "string",
-                  "count": 2,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-19",
-                  "type": "string",
-                  "count": 2,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-21",
-                  "type": "string",
-                  "count": 2,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-23",
-                  "type": "string",
-                  "count": 2,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-25",
-                  "type": "string",
-                  "count": 2,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-27",
-                  "type": "string",
-                  "count": 2,
-                  "id": 12,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-29",
-                  "type": "string",
-                  "count": 2,
-                  "id": 13,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-31",
-                  "type": "string",
-                  "count": 2,
-                  "id": 14,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-02",
-                  "type": "string",
-                  "count": 2,
-                  "id": 15,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-04",
-                  "type": "string",
-                  "count": 2,
-                  "id": 16,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-06",
-                  "type": "string",
-                  "count": 2,
-                  "id": 17,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-08",
-                  "type": "string",
-                  "count": 2,
-                  "id": 18,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-10",
-                  "type": "string",
-                  "count": 2,
-                  "id": 19,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-12",
-                  "type": "string",
-                  "count": 2,
-                  "id": 20,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-14",
-                  "type": "string",
-                  "count": 2,
-                  "id": 21,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-16",
-                  "type": "string",
-                  "count": 2,
-                  "id": 22,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-18",
-                  "type": "string",
-                  "count": 2,
-                  "id": 23,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-20",
-                  "type": "string",
-                  "count": 2,
-                  "id": 24,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-22",
-                  "type": "string",
-                  "count": 2,
-                  "id": 25,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-24",
-                  "type": "string",
-                  "count": 2,
-                  "id": 26,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-26",
-                  "type": "string",
-                  "count": 2,
-                  "id": 27,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-02-28",
-                  "type": "string",
-                  "count": 2,
-                  "id": 28,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-02",
-                  "type": "string",
-                  "count": 2,
-                  "id": 29,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-04",
-                  "type": "string",
-                  "count": 2,
-                  "id": 30,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-06",
-                  "type": "string",
-                  "count": 2,
-                  "id": 31,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-08",
-                  "type": "string",
-                  "count": 2,
-                  "id": 32,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-10",
-                  "type": "string",
-                  "count": 2,
-                  "id": 33,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-12",
-                  "type": "string",
-                  "count": 2,
-                  "id": 34,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-14",
-                  "type": "string",
-                  "count": 2,
-                  "id": 35,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-16",
-                  "type": "string",
-                  "count": 2,
-                  "id": 36,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-18",
-                  "type": "string",
-                  "count": 2,
-                  "id": 37,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-20",
-                  "type": "string",
-                  "count": 2,
-                  "id": 38,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-22",
-                  "type": "string",
-                  "count": 2,
-                  "id": 39,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-24",
-                  "type": "string",
-                  "count": 2,
-                  "id": 40,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-26",
-                  "type": "string",
-                  "count": 2,
-                  "id": 41,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-28",
-                  "type": "string",
-                  "count": 2,
-                  "id": 42,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-03-30",
-                  "type": "string",
-                  "count": 2,
-                  "id": 43,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-01",
-                  "type": "string",
-                  "count": 2,
-                  "id": 44,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-03",
-                  "type": "string",
-                  "count": 1,
-                  "id": 45,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-05",
-                  "type": "string",
-                  "count": 1,
-                  "id": 46,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-07",
-                  "type": "string",
-                  "count": 1,
-                  "id": 47,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-09",
-                  "type": "string",
-                  "count": 1,
-                  "id": 48,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-11",
-                  "type": "string",
-                  "count": 1,
-                  "id": 49,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-13",
-                  "type": "string",
-                  "count": 1,
-                  "id": 50,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-15",
-                  "type": "string",
-                  "count": 1,
-                  "id": 51,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-17",
-                  "type": "string",
-                  "count": 1,
-                  "id": 52,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-19",
-                  "type": "string",
-                  "count": 1,
-                  "id": 53,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-21",
-                  "type": "string",
-                  "count": 1,
-                  "id": 54,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-23",
-                  "type": "string",
-                  "count": 1,
-                  "id": 55,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-25",
-                  "type": "string",
-                  "count": 1,
-                  "id": 56,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-27",
-                  "type": "string",
-                  "count": 1,
-                  "id": 57,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-04-29",
-                  "type": "string",
-                  "count": 1,
-                  "id": 58,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-01",
-                  "type": "string",
-                  "count": 1,
-                  "id": 59,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-03",
-                  "type": "string",
-                  "count": 1,
-                  "id": 60,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-05",
-                  "type": "string",
-                  "count": 1,
-                  "id": 61,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-07",
-                  "type": "string",
-                  "count": 1,
-                  "id": 62,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-09",
-                  "type": "string",
-                  "count": 1,
-                  "id": 63,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-11",
-                  "type": "string",
-                  "count": 1,
-                  "id": 64,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-13",
-                  "type": "string",
-                  "count": 1,
-                  "id": 65,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-15",
-                  "type": "string",
-                  "count": 1,
-                  "id": 66,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-17",
-                  "type": "string",
-                  "count": 1,
-                  "id": 67,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-19",
-                  "type": "string",
-                  "count": 1,
-                  "id": 68,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-21",
-                  "type": "string",
-                  "count": 1,
-                  "id": 69,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-23",
-                  "type": "string",
-                  "count": 1,
-                  "id": 70,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-25",
-                  "type": "string",
-                  "count": 1,
-                  "id": 71,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-27",
-                  "type": "string",
-                  "count": 1,
-                  "id": 72,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-05-29",
-                  "type": "string",
-                  "count": 1,
-                  "id": 73,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2026-01-01",
-                  "type": "string",
-                  "count": 1,
-                  "id": 74,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "2026-01-03", "type": "string", "count": 2, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-05", "type": "string", "count": 2, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-07", "type": "string", "count": 2, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-09", "type": "string", "count": 2, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-11", "type": "string", "count": 2, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-13", "type": "string", "count": 2, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-15", "type": "string", "count": 2, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-17", "type": "string", "count": 2, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-19", "type": "string", "count": 2, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-21", "type": "string", "count": 2, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-23", "type": "string", "count": 2, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-25", "type": "string", "count": 2, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-27", "type": "string", "count": 2, "id": 12, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-29", "type": "string", "count": 2, "id": 13, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-31", "type": "string", "count": 2, "id": 14, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-02", "type": "string", "count": 2, "id": 15, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-04", "type": "string", "count": 2, "id": 16, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-06", "type": "string", "count": 2, "id": 17, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-08", "type": "string", "count": 2, "id": 18, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-10", "type": "string", "count": 2, "id": 19, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-12", "type": "string", "count": 2, "id": 20, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-14", "type": "string", "count": 2, "id": 21, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-16", "type": "string", "count": 2, "id": 22, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-18", "type": "string", "count": 2, "id": 23, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-20", "type": "string", "count": 2, "id": 24, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-22", "type": "string", "count": 2, "id": 25, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-24", "type": "string", "count": 2, "id": 26, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-26", "type": "string", "count": 2, "id": 27, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-02-28", "type": "string", "count": 2, "id": 28, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-02", "type": "string", "count": 2, "id": 29, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-04", "type": "string", "count": 2, "id": 30, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-06", "type": "string", "count": 2, "id": 31, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-08", "type": "string", "count": 2, "id": 32, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-10", "type": "string", "count": 2, "id": 33, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-12", "type": "string", "count": 2, "id": 34, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-14", "type": "string", "count": 2, "id": 35, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-16", "type": "string", "count": 2, "id": 36, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-18", "type": "string", "count": 2, "id": 37, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-20", "type": "string", "count": 2, "id": 38, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-22", "type": "string", "count": 2, "id": 39, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-24", "type": "string", "count": 2, "id": 40, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-26", "type": "string", "count": 2, "id": 41, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-28", "type": "string", "count": 2, "id": 42, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-03-30", "type": "string", "count": 2, "id": 43, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-01", "type": "string", "count": 2, "id": 44, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-03", "type": "string", "count": 1, "id": 45, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-05", "type": "string", "count": 1, "id": 46, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-07", "type": "string", "count": 1, "id": 47, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-09", "type": "string", "count": 1, "id": 48, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-11", "type": "string", "count": 1, "id": 49, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-13", "type": "string", "count": 1, "id": 50, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-15", "type": "string", "count": 1, "id": 51, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-17", "type": "string", "count": 1, "id": 52, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-19", "type": "string", "count": 1, "id": 53, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-21", "type": "string", "count": 1, "id": 54, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-23", "type": "string", "count": 1, "id": 55, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-25", "type": "string", "count": 1, "id": 56, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-27", "type": "string", "count": 1, "id": 57, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-04-29", "type": "string", "count": 1, "id": 58, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-01", "type": "string", "count": 1, "id": 59, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-03", "type": "string", "count": 1, "id": 60, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-05", "type": "string", "count": 1, "id": 61, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-07", "type": "string", "count": 1, "id": 62, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-09", "type": "string", "count": 1, "id": 63, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-11", "type": "string", "count": 1, "id": 64, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-13", "type": "string", "count": 1, "id": 65, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-15", "type": "string", "count": 1, "id": 66, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-17", "type": "string", "count": 1, "id": 67, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-19", "type": "string", "count": 1, "id": 68, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-21", "type": "string", "count": 1, "id": 69, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-23", "type": "string", "count": 1, "id": 70, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-25", "type": "string", "count": 1, "id": 71, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-27", "type": "string", "count": 1, "id": 72, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-05-29", "type": "string", "count": 1, "id": 73, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2026-01-01", "type": "string", "count": 1, "id": 74, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -5153,390 +3931,54 @@
               "kept": 48,
               "of": 48,
               "listed": [
-                {
-                  "value": "Bruno Martin",
-                  "type": "string",
-                  "count": 4,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Laurent",
-                  "type": "string",
-                  "count": 4,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Ana Laurent",
-                  "type": "string",
-                  "count": 2,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Laurent",
-                  "type": "string",
-                  "count": 6,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Bernard",
-                  "type": "string",
-                  "count": 1,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Farid Laurent",
-                  "type": "string",
-                  "count": 1,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Gaelle Martin",
-                  "type": "string",
-                  "count": 2,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Simon",
-                  "type": "string",
-                  "count": 3,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Michel",
-                  "type": "string",
-                  "count": 3,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Farid Bernard",
-                  "type": "string",
-                  "count": 4,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Simon",
-                  "type": "string",
-                  "count": 2,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Ana Bernard",
-                  "type": "string",
-                  "count": 2,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Gaelle Dubois",
-                  "type": "string",
-                  "count": 3,
-                  "id": 12,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Bernard",
-                  "type": "string",
-                  "count": 4,
-                  "id": 13,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Simon",
-                  "type": "string",
-                  "count": 3,
-                  "id": 14,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Moreau",
-                  "type": "string",
-                  "count": 1,
-                  "id": 15,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Laurent",
-                  "type": "string",
-                  "count": 3,
-                  "id": 16,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Bernard",
-                  "type": "string",
-                  "count": 4,
-                  "id": 17,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Bernard",
-                  "type": "string",
-                  "count": 2,
-                  "id": 18,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Michel",
-                  "type": "string",
-                  "count": 2,
-                  "id": 19,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Dubois",
-                  "type": "string",
-                  "count": 2,
-                  "id": 20,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Laurent",
-                  "type": "string",
-                  "count": 2,
-                  "id": 21,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Gaelle Moreau",
-                  "type": "string",
-                  "count": 4,
-                  "id": 22,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Michel",
-                  "type": "string",
-                  "count": 3,
-                  "id": 23,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Ana Martin",
-                  "type": "string",
-                  "count": 4,
-                  "id": 24,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Dubois",
-                  "type": "string",
-                  "count": 1,
-                  "id": 25,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Bernard",
-                  "type": "string",
-                  "count": 2,
-                  "id": 26,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Ana Simon",
-                  "type": "string",
-                  "count": 2,
-                  "id": 27,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Martin",
-                  "type": "string",
-                  "count": 2,
-                  "id": 28,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Moreau",
-                  "type": "string",
-                  "count": 1,
-                  "id": 29,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Moreau",
-                  "type": "string",
-                  "count": 3,
-                  "id": 30,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Moreau",
-                  "type": "string",
-                  "count": 2,
-                  "id": 31,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Laurent",
-                  "type": "string",
-                  "count": 6,
-                  "id": 32,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Martin",
-                  "type": "string",
-                  "count": 4,
-                  "id": 33,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Ana Dubois",
-                  "type": "string",
-                  "count": 3,
-                  "id": 34,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Bruno Dubois",
-                  "type": "string",
-                  "count": 1,
-                  "id": 35,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Farid Michel",
-                  "type": "string",
-                  "count": 2,
-                  "id": 36,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Farid Dubois",
-                  "type": "string",
-                  "count": 2,
-                  "id": 37,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Michel",
-                  "type": "string",
-                  "count": 2,
-                  "id": 38,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Farid Martin",
-                  "type": "string",
-                  "count": 2,
-                  "id": 39,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Gaelle Laurent",
-                  "type": "string",
-                  "count": 2,
-                  "id": 40,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "David Dubois",
-                  "type": "string",
-                  "count": 2,
-                  "id": 41,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Simon",
-                  "type": "string",
-                  "count": 2,
-                  "id": 42,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Simon",
-                  "type": "string",
-                  "count": 1,
-                  "id": 43,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Gaelle Simon",
-                  "type": "string",
-                  "count": 1,
-                  "id": 44,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Hugo Martin",
-                  "type": "string",
-                  "count": 4,
-                  "id": 45,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Chloe Michel",
-                  "type": "string",
-                  "count": 1,
-                  "id": 46,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Emma Dubois",
-                  "type": "string",
-                  "count": 1,
-                  "id": 47,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "Bruno Martin", "type": "string", "count": 4, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Laurent", "type": "string", "count": 4, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Ana Laurent", "type": "string", "count": 2, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Laurent", "type": "string", "count": 6, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Bernard", "type": "string", "count": 1, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Farid Laurent", "type": "string", "count": 1, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Gaelle Martin", "type": "string", "count": 2, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Simon", "type": "string", "count": 3, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Michel", "type": "string", "count": 3, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Farid Bernard", "type": "string", "count": 4, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Simon", "type": "string", "count": 2, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Ana Bernard", "type": "string", "count": 2, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Gaelle Dubois", "type": "string", "count": 3, "id": 12, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Bernard", "type": "string", "count": 4, "id": 13, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Simon", "type": "string", "count": 3, "id": 14, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Moreau", "type": "string", "count": 1, "id": 15, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Laurent", "type": "string", "count": 3, "id": 16, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Bernard", "type": "string", "count": 4, "id": 17, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Bernard", "type": "string", "count": 2, "id": 18, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Michel", "type": "string", "count": 2, "id": 19, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Dubois", "type": "string", "count": 2, "id": 20, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Laurent", "type": "string", "count": 2, "id": 21, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Gaelle Moreau", "type": "string", "count": 4, "id": 22, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Michel", "type": "string", "count": 3, "id": 23, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Ana Martin", "type": "string", "count": 4, "id": 24, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Dubois", "type": "string", "count": 1, "id": 25, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Bernard", "type": "string", "count": 2, "id": 26, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Ana Simon", "type": "string", "count": 2, "id": 27, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Martin", "type": "string", "count": 2, "id": 28, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Moreau", "type": "string", "count": 1, "id": 29, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Moreau", "type": "string", "count": 3, "id": 30, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Moreau", "type": "string", "count": 2, "id": 31, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Laurent", "type": "string", "count": 6, "id": 32, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Martin", "type": "string", "count": 4, "id": 33, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Ana Dubois", "type": "string", "count": 3, "id": 34, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Bruno Dubois", "type": "string", "count": 1, "id": 35, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Farid Michel", "type": "string", "count": 2, "id": 36, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Farid Dubois", "type": "string", "count": 2, "id": 37, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Michel", "type": "string", "count": 2, "id": 38, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Farid Martin", "type": "string", "count": 2, "id": 39, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Gaelle Laurent", "type": "string", "count": 2, "id": 40, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "David Dubois", "type": "string", "count": 2, "id": 41, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Simon", "type": "string", "count": 2, "id": 42, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Simon", "type": "string", "count": 1, "id": 43, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Gaelle Simon", "type": "string", "count": 1, "id": 44, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Hugo Martin", "type": "string", "count": 4, "id": 45, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Chloe Michel", "type": "string", "count": 1, "id": 46, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Emma Dubois", "type": "string", "count": 1, "id": 47, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -6458,190 +4900,29 @@
               "kept": 23,
               "of": 100,
               "listed": [
-                {
-                  "value": "aaaa.aaaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 9,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 5,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 4,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 17,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaaaa9@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 2,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaa.aaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 6,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 11,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 2,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 3,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaaa.aaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 6,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 13,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 12,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaa.aaaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 2,
-                  "id": 13,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 2,
-                  "id": 14,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaaa.aaaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 15,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaa.aaaaaaa9@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 16,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaa.aaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 6,
-                  "id": 17,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 2,
-                  "id": 18,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaa.aaaaaaa999@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 3,
-                  "id": 19,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaaa.aaaaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 20,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaaaaa.aaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 21,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "aaa.aaaaa99@aaaa.aaaaaaa",
-                  "type": "string",
-                  "count": 1,
-                  "id": 22,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "aaaa.aaaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 9, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaa999@aaaa.aaaaaaa", "type": "string", "count": 5, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaaa999@aaaa.aaaaaaa", "type": "string", "count": 4, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 17, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaaaa9@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaaa9@aaaa.aaaaaaa", "type": "string", "count": 2, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaa.aaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 6, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 11, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaa999@aaaa.aaaaaaa", "type": "string", "count": 2, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaaa999@aaaa.aaaaaaa", "type": "string", "count": 3, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaaa.aaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 6, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 13, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaaa.aaaaaa9@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 12, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaa.aaaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 2, "id": 13, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaaa9@aaaa.aaaaaaa", "type": "string", "count": 2, "id": 14, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaaa.aaaaaa999@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 15, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaa.aaaaaaa9@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 16, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaa.aaaaa99@aaaa.aaaaaaa", "type": "string", "count": 6, "id": 17, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaa99@aaaa.aaaaaaa", "type": "string", "count": 2, "id": 18, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaa.aaaaaaa999@aaaa.aaaaaaa", "type": "string", "count": 3, "id": 19, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaaa.aaaaaaa99@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 20, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaaaaa.aaaaa99@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 21, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "aaa.aaaaa99@aaaa.aaaaaaa", "type": "string", "count": 1, "id": 22, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ],
               "k": 100,
               "hash": {
@@ -7442,46 +5723,11 @@
               "kept": 5,
               "of": 5,
               "listed": [
-                {
-                  "value": "South",
-                  "type": "string",
-                  "count": 22,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "East",
-                  "type": "string",
-                  "count": 24,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "West",
-                  "type": "string",
-                  "count": 28,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "Center",
-                  "type": "string",
-                  "count": 24,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "North",
-                  "type": "string",
-                  "count": 22,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "South", "type": "string", "count": 22, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "East", "type": "string", "count": 24, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "West", "type": "string", "count": 28, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "Center", "type": "string", "count": 24, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "North", "type": "string", "count": 22, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -8216,30 +6462,9 @@
               "kept": 3,
               "of": 3,
               "listed": [
-                {
-                  "value": "web",
-                  "type": "string",
-                  "count": 45,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "phone",
-                  "type": "string",
-                  "count": 34,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "store",
-                  "type": "string",
-                  "count": 41,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "web", "type": "string", "count": 45, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "phone", "type": "string", "count": 34, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "store", "type": "string", "count": 41, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -8989,102 +7214,18 @@
               "kept": 12,
               "of": 12,
               "listed": [
-                {
-                  "value": "4",
-                  "type": "integer",
-                  "count": 9,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "1",
-                  "type": "integer",
-                  "count": 12,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "11",
-                  "type": "integer",
-                  "count": 12,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "3",
-                  "type": "integer",
-                  "count": 10,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "2",
-                  "type": "integer",
-                  "count": 10,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "12",
-                  "type": "integer",
-                  "count": 9,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "7",
-                  "type": "integer",
-                  "count": 14,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "5",
-                  "type": "integer",
-                  "count": 10,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "9",
-                  "type": "integer",
-                  "count": 12,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "10",
-                  "type": "integer",
-                  "count": 10,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "6",
-                  "type": "integer",
-                  "count": 5,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "8",
-                  "type": "integer",
-                  "count": 7,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "4", "type": "integer", "count": 9, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "1", "type": "integer", "count": 12, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "11", "type": "integer", "count": 12, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "3", "type": "integer", "count": 10, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "2", "type": "integer", "count": 10, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "12", "type": "integer", "count": 9, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "7", "type": "integer", "count": 14, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "5", "type": "integer", "count": 10, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "9", "type": "integer", "count": 12, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "10", "type": "integer", "count": 10, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "6", "type": "integer", "count": 5, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "8", "type": "integer", "count": 7, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -9872,806 +8013,106 @@
               "kept": 100,
               "of": 100,
               "listed": [
-                {
-                  "value": "105.89",
-                  "type": "number",
-                  "count": 1,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "126.14",
-                  "type": "number",
-                  "count": 1,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "90.86",
-                  "type": "number",
-                  "count": 1,
-                  "id": 2,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "70.87",
-                  "type": "number",
-                  "count": 1,
-                  "id": 3,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "30.82",
-                  "type": "number",
-                  "count": 1,
-                  "id": 4,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "145.77",
-                  "type": "number",
-                  "count": 1,
-                  "id": 5,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "67.52",
-                  "type": "number",
-                  "count": 1,
-                  "id": 6,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "125.75",
-                  "type": "number",
-                  "count": 1,
-                  "id": 7,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "20.24",
-                  "type": "number",
-                  "count": 1,
-                  "id": 8,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "117.68",
-                  "type": "number",
-                  "count": 1,
-                  "id": 9,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "84.86",
-                  "type": "number",
-                  "count": 1,
-                  "id": 10,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "63.87",
-                  "type": "number",
-                  "count": 1,
-                  "id": 11,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "52.92",
-                  "type": "number",
-                  "count": 1,
-                  "id": 12,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "39.12",
-                  "type": "number",
-                  "count": 1,
-                  "id": 13,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "47.09",
-                  "type": "number",
-                  "count": 1,
-                  "id": 14,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "127.43",
-                  "type": "number",
-                  "count": 1,
-                  "id": 15,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "133.15",
-                  "type": "number",
-                  "count": 1,
-                  "id": 16,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "108.97",
-                  "type": "number",
-                  "count": 1,
-                  "id": 17,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "153.55",
-                  "type": "number",
-                  "count": 1,
-                  "id": 18,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "136.31",
-                  "type": "number",
-                  "count": 1,
-                  "id": 19,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "98.01",
-                  "type": "number",
-                  "count": 1,
-                  "id": 20,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "19.07",
-                  "type": "number",
-                  "count": 1,
-                  "id": 21,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "89.93",
-                  "type": "number",
-                  "count": 1,
-                  "id": 22,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "123.73",
-                  "type": "number",
-                  "count": 1,
-                  "id": 23,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "107.77",
-                  "type": "number",
-                  "count": 1,
-                  "id": 24,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "84.66",
-                  "type": "number",
-                  "count": 1,
-                  "id": 25,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "8.36",
-                  "type": "number",
-                  "count": 1,
-                  "id": 26,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "134.67",
-                  "type": "number",
-                  "count": 1,
-                  "id": 27,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "116.13",
-                  "type": "number",
-                  "count": 1,
-                  "id": 28,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "63.11",
-                  "type": "number",
-                  "count": 1,
-                  "id": 29,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "43.54",
-                  "type": "number",
-                  "count": 1,
-                  "id": 30,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "118.38",
-                  "type": "number",
-                  "count": 1,
-                  "id": 31,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "69.22",
-                  "type": "number",
-                  "count": 1,
-                  "id": 32,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "148.69",
-                  "type": "number",
-                  "count": 1,
-                  "id": 33,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "39.83",
-                  "type": "number",
-                  "count": 1,
-                  "id": 34,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "141.5",
-                  "type": "number",
-                  "count": 1,
-                  "id": 35,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "125.55",
-                  "type": "number",
-                  "count": 1,
-                  "id": 36,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "21.06",
-                  "type": "number",
-                  "count": 1,
-                  "id": 37,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "126.87",
-                  "type": "number",
-                  "count": 1,
-                  "id": 38,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "170.66",
-                  "type": "number",
-                  "count": 1,
-                  "id": 39,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "173.73",
-                  "type": "number",
-                  "count": 1,
-                  "id": 40,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "81.12",
-                  "type": "number",
-                  "count": 1,
-                  "id": 41,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "171.82",
-                  "type": "number",
-                  "count": 1,
-                  "id": 42,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "177.41",
-                  "type": "number",
-                  "count": 1,
-                  "id": 43,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "100.44",
-                  "type": "number",
-                  "count": 1,
-                  "id": 44,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "119.23",
-                  "type": "number",
-                  "count": 1,
-                  "id": 45,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "146.76",
-                  "type": "number",
-                  "count": 1,
-                  "id": 46,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "135.47",
-                  "type": "number",
-                  "count": 1,
-                  "id": 47,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "106.18",
-                  "type": "number",
-                  "count": 1,
-                  "id": 48,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "123.53",
-                  "type": "number",
-                  "count": 1,
-                  "id": 49,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "43.55",
-                  "type": "number",
-                  "count": 1,
-                  "id": 50,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "46.11",
-                  "type": "number",
-                  "count": 1,
-                  "id": 51,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "23.69",
-                  "type": "number",
-                  "count": 2,
-                  "id": 52,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "16.06",
-                  "type": "number",
-                  "count": 1,
-                  "id": 53,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "80.3",
-                  "type": "number",
-                  "count": 1,
-                  "id": 54,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "55.42",
-                  "type": "number",
-                  "count": 1,
-                  "id": 55,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "126.56",
-                  "type": "number",
-                  "count": 1,
-                  "id": 56,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "154.78",
-                  "type": "number",
-                  "count": 1,
-                  "id": 57,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "49.1",
-                  "type": "number",
-                  "count": 1,
-                  "id": 58,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "106.82",
-                  "type": "number",
-                  "count": 1,
-                  "id": 59,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "122.51",
-                  "type": "number",
-                  "count": 1,
-                  "id": 60,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "163.9",
-                  "type": "number",
-                  "count": 1,
-                  "id": 61,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "86",
-                  "type": "integer",
-                  "count": 1,
-                  "id": 62,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "101.24",
-                  "type": "number",
-                  "count": 1,
-                  "id": 63,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "101.41",
-                  "type": "number",
-                  "count": 1,
-                  "id": 64,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "89.47",
-                  "type": "number",
-                  "count": 1,
-                  "id": 65,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "136.61",
-                  "type": "number",
-                  "count": 1,
-                  "id": 66,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "40.97",
-                  "type": "number",
-                  "count": 1,
-                  "id": 67,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "20.49",
-                  "type": "number",
-                  "count": 1,
-                  "id": 68,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "179.19",
-                  "type": "number",
-                  "count": 1,
-                  "id": 69,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "161",
-                  "type": "integer",
-                  "count": 1,
-                  "id": 70,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "61.52",
-                  "type": "number",
-                  "count": 1,
-                  "id": 71,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "61.07",
-                  "type": "number",
-                  "count": 1,
-                  "id": 72,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "138.54",
-                  "type": "number",
-                  "count": 1,
-                  "id": 73,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "78.25",
-                  "type": "number",
-                  "count": 1,
-                  "id": 74,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "120.17",
-                  "type": "number",
-                  "count": 1,
-                  "id": 75,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "86.77",
-                  "type": "number",
-                  "count": 1,
-                  "id": 76,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "44.11",
-                  "type": "number",
-                  "count": 1,
-                  "id": 77,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "80.66",
-                  "type": "number",
-                  "count": 1,
-                  "id": 78,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "121.03",
-                  "type": "number",
-                  "count": 1,
-                  "id": 79,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "147.81",
-                  "type": "number",
-                  "count": 1,
-                  "id": 80,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "135.91",
-                  "type": "number",
-                  "count": 1,
-                  "id": 81,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "111.3",
-                  "type": "number",
-                  "count": 1,
-                  "id": 82,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "128.58",
-                  "type": "number",
-                  "count": 1,
-                  "id": 83,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "84.34",
-                  "type": "number",
-                  "count": 1,
-                  "id": 84,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "112.86",
-                  "type": "number",
-                  "count": 1,
-                  "id": 85,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "59.68",
-                  "type": "number",
-                  "count": 1,
-                  "id": 86,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "51.12",
-                  "type": "number",
-                  "count": 1,
-                  "id": 87,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "121.37",
-                  "type": "number",
-                  "count": 1,
-                  "id": 88,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "144.42",
-                  "type": "number",
-                  "count": 1,
-                  "id": 89,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "144.9",
-                  "type": "number",
-                  "count": 1,
-                  "id": 90,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "166.06",
-                  "type": "number",
-                  "count": 1,
-                  "id": 91,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "122.22",
-                  "type": "number",
-                  "count": 1,
-                  "id": 92,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "35.98",
-                  "type": "number",
-                  "count": 1,
-                  "id": 93,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "21.23",
-                  "type": "number",
-                  "count": 1,
-                  "id": 94,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "50.68",
-                  "type": "number",
-                  "count": 1,
-                  "id": 95,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "143.7",
-                  "type": "number",
-                  "count": 1,
-                  "id": 96,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "105.85",
-                  "type": "number",
-                  "count": 1,
-                  "id": 97,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "42.52",
-                  "type": "number",
-                  "count": 1,
-                  "id": 98,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "166.9",
-                  "type": "number",
-                  "count": 1,
-                  "id": 99,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "105.89", "type": "number", "count": 1, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "126.14", "type": "number", "count": 1, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "90.86", "type": "number", "count": 1, "id": 2, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "70.87", "type": "number", "count": 1, "id": 3, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "30.82", "type": "number", "count": 1, "id": 4, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "145.77", "type": "number", "count": 1, "id": 5, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "67.52", "type": "number", "count": 1, "id": 6, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "125.75", "type": "number", "count": 1, "id": 7, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "20.24", "type": "number", "count": 1, "id": 8, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "117.68", "type": "number", "count": 1, "id": 9, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "84.86", "type": "number", "count": 1, "id": 10, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "63.87", "type": "number", "count": 1, "id": 11, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "52.92", "type": "number", "count": 1, "id": 12, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "39.12", "type": "number", "count": 1, "id": 13, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "47.09", "type": "number", "count": 1, "id": 14, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "127.43", "type": "number", "count": 1, "id": 15, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "133.15", "type": "number", "count": 1, "id": 16, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "108.97", "type": "number", "count": 1, "id": 17, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "153.55", "type": "number", "count": 1, "id": 18, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "136.31", "type": "number", "count": 1, "id": 19, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "98.01", "type": "number", "count": 1, "id": 20, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "19.07", "type": "number", "count": 1, "id": 21, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "89.93", "type": "number", "count": 1, "id": 22, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "123.73", "type": "number", "count": 1, "id": 23, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "107.77", "type": "number", "count": 1, "id": 24, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "84.66", "type": "number", "count": 1, "id": 25, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "8.36", "type": "number", "count": 1, "id": 26, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "134.67", "type": "number", "count": 1, "id": 27, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "116.13", "type": "number", "count": 1, "id": 28, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "63.11", "type": "number", "count": 1, "id": 29, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "43.54", "type": "number", "count": 1, "id": 30, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "118.38", "type": "number", "count": 1, "id": 31, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "69.22", "type": "number", "count": 1, "id": 32, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "148.69", "type": "number", "count": 1, "id": 33, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "39.83", "type": "number", "count": 1, "id": 34, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "141.5", "type": "number", "count": 1, "id": 35, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "125.55", "type": "number", "count": 1, "id": 36, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "21.06", "type": "number", "count": 1, "id": 37, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "126.87", "type": "number", "count": 1, "id": 38, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "170.66", "type": "number", "count": 1, "id": 39, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "173.73", "type": "number", "count": 1, "id": 40, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "81.12", "type": "number", "count": 1, "id": 41, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "171.82", "type": "number", "count": 1, "id": 42, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "177.41", "type": "number", "count": 1, "id": 43, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "100.44", "type": "number", "count": 1, "id": 44, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "119.23", "type": "number", "count": 1, "id": 45, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "146.76", "type": "number", "count": 1, "id": 46, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "135.47", "type": "number", "count": 1, "id": 47, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "106.18", "type": "number", "count": 1, "id": 48, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "123.53", "type": "number", "count": 1, "id": 49, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "43.55", "type": "number", "count": 1, "id": 50, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "46.11", "type": "number", "count": 1, "id": 51, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "23.69", "type": "number", "count": 2, "id": 52, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "16.06", "type": "number", "count": 1, "id": 53, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "80.3", "type": "number", "count": 1, "id": 54, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "55.42", "type": "number", "count": 1, "id": 55, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "126.56", "type": "number", "count": 1, "id": 56, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "154.78", "type": "number", "count": 1, "id": 57, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "49.1", "type": "number", "count": 1, "id": 58, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "106.82", "type": "number", "count": 1, "id": 59, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "122.51", "type": "number", "count": 1, "id": 60, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "163.9", "type": "number", "count": 1, "id": 61, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "86", "type": "integer", "count": 1, "id": 62, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "101.24", "type": "number", "count": 1, "id": 63, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "101.41", "type": "number", "count": 1, "id": 64, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "89.47", "type": "number", "count": 1, "id": 65, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "136.61", "type": "number", "count": 1, "id": 66, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "40.97", "type": "number", "count": 1, "id": 67, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "20.49", "type": "number", "count": 1, "id": 68, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "179.19", "type": "number", "count": 1, "id": 69, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "161", "type": "integer", "count": 1, "id": 70, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "61.52", "type": "number", "count": 1, "id": 71, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "61.07", "type": "number", "count": 1, "id": 72, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "138.54", "type": "number", "count": 1, "id": 73, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "78.25", "type": "number", "count": 1, "id": 74, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "120.17", "type": "number", "count": 1, "id": 75, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "86.77", "type": "number", "count": 1, "id": 76, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "44.11", "type": "number", "count": 1, "id": 77, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "80.66", "type": "number", "count": 1, "id": 78, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "121.03", "type": "number", "count": 1, "id": 79, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "147.81", "type": "number", "count": 1, "id": 80, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "135.91", "type": "number", "count": 1, "id": 81, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "111.3", "type": "number", "count": 1, "id": 82, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "128.58", "type": "number", "count": 1, "id": 83, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "84.34", "type": "number", "count": 1, "id": 84, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "112.86", "type": "number", "count": 1, "id": 85, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "59.68", "type": "number", "count": 1, "id": 86, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "51.12", "type": "number", "count": 1, "id": 87, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "121.37", "type": "number", "count": 1, "id": 88, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "144.42", "type": "number", "count": 1, "id": 89, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "144.9", "type": "number", "count": 1, "id": 90, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "166.06", "type": "number", "count": 1, "id": 91, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "122.22", "type": "number", "count": 1, "id": 92, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "35.98", "type": "number", "count": 1, "id": 93, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "21.23", "type": "number", "count": 1, "id": 94, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "50.68", "type": "number", "count": 1, "id": 95, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "143.7", "type": "number", "count": 1, "id": 96, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "105.85", "type": "number", "count": 1, "id": 97, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "42.52", "type": "number", "count": 1, "id": 98, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "166.9", "type": "number", "count": 1, "id": 99, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ],
               "k": 100,
               "hash": {
@@ -10978,22 +8419,8 @@
               "kept": 2,
               "of": 2,
               "listed": [
-                {
-                  "value": "false",
-                  "type": "boolean",
-                  "count": 15,
-                  "id": 0,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                },
-                {
-                  "value": "true",
-                  "type": "boolean",
-                  "count": 92,
-                  "id": 1,
-                  "count_accuracy": "exact",
-                  "identity_accuracy": "exact"
-                }
+                {"value": "false", "type": "boolean", "count": 15, "id": 0, "count_accuracy": "exact", "identity_accuracy": "exact"},
+                {"value": "true", "type": "boolean", "count": 92, "id": 1, "count_accuracy": "exact", "identity_accuracy": "exact"}
               ]
             },
             "first": {
@@ -11200,12 +8627,12 @@
   ],
   "diagnostics": [],
   "report": {
-    "generated_at": "2026-10-08T03:46:18.894250Z",
+    "generated_at": "2026-10-08T12:30:49.486005Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1145,
+    "processing_seconds": 0.076,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -11233,8 +8660,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "c2b0eed107cd209cbef49d7ac5f2c245e9e5dc222bffcce693d024a72ab3877c",
-      "facts_sha256": "34298ac844ebd578d92fcdd3bbf3151da95a501ae4deaab484d83b0b9f8d7676"
+      "config_sha256": "3704c1c4f9bf5b400787debab2e76b960295e404225dc3a4e003ce8f0c3945ac",
+      "facts_sha256": "f93531c407f6be30b685e1bd589a8dc9a28c26d54118af46d985d37f6c84c344"
     },
     "datasets": [
       {

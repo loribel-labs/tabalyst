@@ -1,4 +1,7 @@
 {
+  "output": {
+    "json_indent": true
+  },
   "report": {
     "string_analysis": {
       "very_short_max_length": 5,

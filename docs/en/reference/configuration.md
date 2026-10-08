@@ -13,8 +13,9 @@ One file can configure every command, with one object per tool. The `scan`
 object holds the analysis settings, read by `tabalyst scan` and
 `tabalyst report`, described in [Scan settings](#scan-settings). The `report`
 object holds the presentation settings of the report, described in
-[Report settings](#report-settings). The top-level `csv` object holds the CSV
-settings of `tabalyst sample`:
+[Report settings](#report-settings). The top-level `output` object sets how
+the documents are written, described in [Output settings](#output-settings).
+The top-level `csv` object holds the CSV settings of `tabalyst sample`:
 
 ```json
 {
@@ -196,6 +197,24 @@ The analysis settings moved to `scan`, the presentation settings to `report`:
 | `string_analysis` | `report.string_analysis` |
 | `value_examples` (other than the two below) | `report.value_examples` |
 
+## Output settings
+
+```json
+{
+  "output": {
+    "json_indent": false
+  }
+}
+```
+
+- `output.json_indent`: `false` by default. The scan document and the report
+  JSON are then written without indentation, on one line, which is about 60%
+  smaller. With `true` they are indented by two spaces and each sample entry
+  stays on one line (about half the size of a fully indented file), which is
+  easier to read when debugging. Only the layout changes: both forms hold the
+  same document. The execution history (`executions.json`) and the Inspect
+  file are always indented, being small and meant to be read.
+
 ## Sample settings
 
 ```json
@@ -242,7 +261,9 @@ object of each configuration file. The complete object with its defaults is:
       "max_line_bytes": 16777216,
       "max_distinct_per_field": 100000, "max_tracked_values": 2000000,
       "max_stored_value_length": 1000, "max_listed_frequencies": 100,
-      "max_samples": 10000, "max_variant_groups": 100,
+      "max_samples": 10000, "max_long_samples": 100,
+      "long_preview_chars": 200, "max_sample_memory": 536870912,
+      "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
@@ -373,9 +394,12 @@ rejected before the scan starts.
 | `max_line_bytes` | 16,777,216 (16 MiB) | 268,435,456 (256 MiB) | JSONL only: a longer line is not parsed. It is an error, or excluded under `tolerant`. The memory needed to parse a line is about 7 to 13 times its size. |
 | `max_distinct_per_field` | 100,000 | 50,000,000 | Distinct values of the field stop being stored; frequencies and cardinality become limited. |
 | `max_tracked_values` | 2,000,000 | 500,000,000 | Distinct values stored for the whole scan; the largest field is released first. |
-| `max_stored_value_length` | 1,000 | 1,000,000 | Longer values are counted, not stored. |
+| `max_stored_value_length` | 1,000 | 1,000,000 | Longer values are counted, not stored; a small sample of them keeps a preview and a digest. |
 | `max_listed_frequencies` | 100 | 100,000 | Most frequent values listed per field. |
 | `max_samples` | 10,000 | 100,000 | Size of the sample of distinct values the scan keeps per field, with their exact counts. |
+| `max_long_samples` | 100 | 10,000 | Size of the sample of long texts (above `max_stored_value_length`) kept per field; 0 keeps none. |
+| `long_preview_chars` | 200 | 1,000,000 | Characters of a long text kept as a preview. It never exceeds `max_stored_value_length`. |
+| `max_sample_memory` | 536,870,912 (512 MiB) | 1,099,511,627,776 | Bytes, by a cost model, that the samples of the whole scan may take; a sample is cut to fit and says so (`requested_k`, `reason`). |
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
 | `max_variants_per_group` | 20 | 10,000 | Variants listed per group. |
 | `max_evidence_examples` | 10 | 1,000 | Example values per detector state. |

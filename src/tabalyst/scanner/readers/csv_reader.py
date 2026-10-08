@@ -36,6 +36,10 @@ DATASET = "rows"
 BATCH_CELLS = 65_536
 MIN_BATCH_ROWS = 64
 MAX_BATCH_ROWS = 4_096
+# Bytes of source a batch may hold: with large cells, rows and columns alone
+# would let one batch take gigabytes (design 13, 18.10). A single record is
+# never split, so the working memory is at least that of the largest record.
+BATCH_BYTES = 8_388_608
 
 
 class CsvReader:
@@ -85,7 +89,7 @@ class CsvReader:
                     raise InputError(
                         "CSV is empty or has no header on its first record."
                     )
-                yield from self._records(reader, header)
+                yield from self._records(reader, header, stream)
             except csv.Error as exc:
                 raise InputError(
                     f"Invalid CSV near physical line {reader.line_num}: {exc}"
@@ -116,7 +120,9 @@ class CsvReader:
             ),
         )
 
-    def _records(self, reader, header: list[str]) -> Iterator[StreamItem]:
+    def _records(
+        self, reader, header: list[str], stream: HashingStream
+    ) -> Iterator[StreamItem]:
         width = len(header)
         # Each record observes its root and every column: with a wider header,
         # every record would be too large, whatever the error policy.
@@ -146,6 +152,8 @@ class CsvReader:
         rows: list[list[str]] = []
         lines: list[int] = []
         index = 0
+        # Bytes read when the batch began; checked every 16 rows, not per row.
+        batch_start = stream.bytes_read
         while True:
             line = reader.line_num + 1
             row = next(reader, None)
@@ -163,6 +171,7 @@ class CsvReader:
                 if rows:
                     yield RecordBatch(DATASET, index - len(rows), rows, lines)
                     rows, lines = [], []
+                    batch_start = stream.bytes_read
                 yield RecordExcluded(
                     dataset=DATASET,
                     index=index,
@@ -174,9 +183,12 @@ class CsvReader:
                 continue
             rows.append(row)
             lines.append(line)
-            if len(rows) >= size:
+            if len(rows) >= size or (
+                not len(rows) & 15 and stream.bytes_read - batch_start >= BATCH_BYTES
+            ):
                 yield RecordBatch(DATASET, index - len(rows) + 1, rows, lines)
                 rows, lines = [], []
+                batch_start = stream.bytes_read
         if rows:
             yield RecordBatch(DATASET, index - len(rows) + 1, rows, lines)
 

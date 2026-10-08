@@ -51,6 +51,25 @@ Also in revision 2, before its release:
 - `values.cardinality.estimate`: the KMV estimate of the distinct count of a
   limited field (`accuracy` `estimated`), when the sample saw the whole field.
 - `scan.random_seed` is an integer from 0 to 2^64 - 1.
+- Values longer than `scan.limits.max_stored_value_length` have their own small
+  sample, `values.samples.long_texts`: a bounded preview, the original lengths,
+  `truncated` and a digest of the complete text, with `fingerprint_based`
+  identity (see [Long texts](format.md#long-texts)). They are no longer excluded
+  from the cardinality estimate, which adds the stored values and the long
+  texts (`estimate.parts`; `k` and `theta_hex` move into the parts). New limits:
+  `max_long_samples` (100), `long_preview_chars` (200) and `max_sample_memory`
+  (512 MiB).
+- The samples have a memory budget: `values.samples` and `long_texts` can carry
+  `requested_k` and `reason` `memory_budget` when a size was cut, and the scan
+  adds the warning `sample_budget` (see
+  [Sample sizes](format.md#sample-sizes-and-the-memory-budget)). A CSV batch of
+  rows and a batch of streamed values are also bounded by size.
+- `run.counters` (optional): the work of the samplers, written by
+  `tabalyst scan --counters`.
+- The scan document is written without indentation by default; the new
+  `output.json_indent` setting restores indentation (see
+  [Writing the document](format.md#writing-the-document)). The content does
+  not change.
 - The JSON Schema of the document and a validator of its invariants are part of
   the package (see [Scan format](format.md#json-schema)).
 - `values.samples` has `kept` and `of`: the number of values it lists and the

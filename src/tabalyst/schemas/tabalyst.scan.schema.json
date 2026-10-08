@@ -183,7 +183,7 @@
     },
     "CardinalityEstimate": {
       "additionalProperties": false,
-      "description": "KMV estimate of the distinct original values (design 18.5).\n\n``value`` is held within the certain bounds of the envelope;\n``unclamped_value`` is the raw estimator, present only when a bound\nchanged it. ``theta_hex`` (the sample threshold) is absent for a sensitive\nfield: it is the priority of one of its values.",
+      "description": "KMV estimate of the distinct original values (design 18.5).\n\n``value`` is held within the certain bounds of the envelope;\n``unclamped_value`` is the raw estimator, present only when a bound\nchanged it. ``theta_hex`` (the sample threshold) is absent for a sensitive\nfield: it is the priority of one of its values. A field with long texts\nhas two disjoint domains: ``parts`` gives each (the estimate is their sum)\nand ``k`` and ``theta_hex`` are then those of the parts.",
       "properties": {
         "accuracy": {
           "const": "estimated",
@@ -217,8 +217,16 @@
           "type": "number"
         },
         "k": {
-          "title": "K",
-          "type": "integer"
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K"
         },
         "theta_hex": {
           "anyOf": [
@@ -231,13 +239,27 @@
           ],
           "default": null,
           "title": "Theta Hex"
+        },
+        "parts": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EstimatePart"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parts"
         }
       },
       "required": [
         "method",
         "value",
-        "relative_standard_error",
-        "k"
+        "relative_standard_error"
       ],
       "title": "CardinalityEstimate",
       "type": "object"
@@ -1198,6 +1220,26 @@
       "title": "Diagnostic",
       "type": "object"
     },
+    "DigestInfo": {
+      "additionalProperties": false,
+      "description": "Function that gives a long text its digest (design 18.6).",
+      "properties": {
+        "algorithm": {
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "bits": {
+          "title": "Bits",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "algorithm",
+        "bits"
+      ],
+      "title": "DigestInfo",
+      "type": "object"
+    },
     "Disabled": {
       "additionalProperties": false,
       "properties": {
@@ -1373,6 +1415,68 @@
         }
       },
       "title": "ErrorSettings",
+      "type": "object"
+    },
+    "EstimatePart": {
+      "additionalProperties": false,
+      "description": "One of the two disjoint domains of an estimate that adds up: the values\nstored in the sample (``values``) and the long texts (``long_texts``),\neach exact or estimated by KMV (design 18.6).",
+      "properties": {
+        "domain": {
+          "enum": [
+            "values",
+            "long_texts"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "estimated"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "relative_standard_error": {
+          "title": "Relative Standard Error",
+          "type": "number"
+        },
+        "k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K"
+        },
+        "theta_hex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Theta Hex"
+        }
+      },
+      "required": [
+        "domain",
+        "accuracy",
+        "value",
+        "relative_standard_error"
+      ],
+      "title": "EstimatePart",
       "type": "object"
     },
     "Evidence": {
@@ -2268,6 +2372,27 @@
           "title": "Max Samples",
           "type": "integer"
         },
+        "max_long_samples": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Max Long Samples",
+          "type": "integer"
+        },
+        "long_preview_chars": {
+          "default": 200,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Long Preview Chars",
+          "type": "integer"
+        },
+        "max_sample_memory": {
+          "default": 536870912,
+          "maximum": 1099511627776,
+          "minimum": 1,
+          "title": "Max Sample Memory",
+          "type": "integer"
+        },
         "max_variant_groups": {
           "default": 100,
           "maximum": 100000,
@@ -2343,6 +2468,175 @@
         "status"
       ],
       "title": "Limited",
+      "type": "object"
+    },
+    "LongTextEntry": {
+      "additionalProperties": false,
+      "description": "A sampled long text: bounded preview, original sizes and digest of the\ncomplete content, which is its identity (design 18.6).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "digest": {
+          "title": "Digest",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "preview": {
+          "title": "Preview",
+          "type": "string"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "original_length_chars": {
+          "title": "Original Length Chars",
+          "type": "integer"
+        },
+        "original_length_bytes": {
+          "title": "Original Length Bytes",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "digest",
+        "type",
+        "preview",
+        "truncated",
+        "original_length_chars",
+        "original_length_bytes",
+        "count",
+        "count_accuracy",
+        "identity_accuracy"
+      ],
+      "title": "LongTextEntry",
+      "type": "object"
+    },
+    "LongTexts": {
+      "additionalProperties": false,
+      "description": "Sample of the values longer than ``limits.max_stored_value_length``.\n\n``occurrences`` counts every occurrence of a long value, exactly. ``of``\nlong texts are sampled, ``kept`` listed (exposure can withhold them). Like\n``Samples`` it is ``all`` until a text was dropped, then ``bottom_k``; ``k``\nis the size granted (design 18.10), ``requested_k`` the one asked for when\nthe budget made it smaller.",
+      "properties": {
+        "selection": {
+          "enum": [
+            "all",
+            "bottom_k"
+          ],
+          "title": "Selection",
+          "type": "string"
+        },
+        "k": {
+          "title": "K",
+          "type": "integer"
+        },
+        "requested_k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested K"
+        },
+        "preview_chars": {
+          "title": "Preview Chars",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "kept": {
+          "title": "Kept",
+          "type": "integer"
+        },
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "digest": {
+          "$ref": "#/$defs/DigestInfo"
+        },
+        "hash": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SampleHash"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/LongTextEntry"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "selection",
+        "k",
+        "preview_chars",
+        "occurrences",
+        "kept",
+        "of",
+        "digest",
+        "listed"
+      ],
+      "title": "LongTexts",
       "type": "object"
     },
     "Missing": {
@@ -3147,6 +3441,20 @@
       "title": "Records",
       "type": "object"
     },
+    "RunCounters": {
+      "additionalProperties": false,
+      "description": "Optional diagnostic counters of a run (``scan(counters=True)``).",
+      "properties": {
+        "sampling": {
+          "$ref": "#/$defs/SamplingCounters"
+        }
+      },
+      "required": [
+        "sampling"
+      ],
+      "title": "RunCounters",
+      "type": "object"
+    },
     "RunInfo": {
       "additionalProperties": false,
       "description": "What varies from one run to the next on the same source: it is not part\nof the description of the data.",
@@ -3177,6 +3485,17 @@
             }
           ],
           "title": "Peak Memory Bytes"
+        },
+        "counters": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunCounters"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3316,6 +3635,30 @@
           "default": null,
           "title": "K"
         },
+        "requested_k": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested K"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
         "hash": {
           "anyOf": [
             {
@@ -3338,6 +3681,17 @@
           ],
           "default": null,
           "title": "Threshold"
+        },
+        "long_texts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LongTexts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3347,6 +3701,95 @@
         "listed"
       ],
       "title": "Samples",
+      "type": "object"
+    },
+    "SamplingCounters": {
+      "additionalProperties": false,
+      "description": "Work of the bottom-k samplers over all fields (design 18.4). Counters\nthat the scan could not measure are not written; a count of 0 is a\nmeasured zero.",
+      "properties": {
+        "hashed_keys": {
+          "title": "Hashed Keys",
+          "type": "integer"
+        },
+        "hit_keys": {
+          "title": "Hit Keys",
+          "type": "integer"
+        },
+        "admitted_keys": {
+          "title": "Admitted Keys",
+          "type": "integer"
+        },
+        "rejected_keys": {
+          "title": "Rejected Keys",
+          "type": "integer"
+        },
+        "evicted_keys": {
+          "title": "Evicted Keys",
+          "type": "integer"
+        },
+        "long_texts_hashed": {
+          "title": "Long Texts Hashed",
+          "type": "integer"
+        },
+        "long_bytes_hashed": {
+          "title": "Long Bytes Hashed",
+          "type": "integer"
+        },
+        "bottom_k_fields": {
+          "title": "Bottom K Fields",
+          "type": "integer"
+        },
+        "reduced_fields": {
+          "title": "Reduced Fields",
+          "type": "integer"
+        },
+        "k_effective_min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K Effective Min"
+        },
+        "k_effective_max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "K Effective Max"
+        },
+        "sample_model_bytes": {
+          "title": "Sample Model Bytes",
+          "type": "integer"
+        },
+        "long_model_bytes": {
+          "title": "Long Model Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "hashed_keys",
+        "hit_keys",
+        "admitted_keys",
+        "rejected_keys",
+        "evicted_keys",
+        "long_texts_hashed",
+        "long_bytes_hashed",
+        "bottom_k_fields",
+        "reduced_fields",
+        "sample_model_bytes",
+        "long_model_bytes"
+      ],
+      "title": "SamplingCounters",
       "type": "object"
     },
     "ScanConfig": {

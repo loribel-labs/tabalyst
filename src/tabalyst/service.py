@@ -4,7 +4,6 @@
 
 """Public analysis boundary shared by Python callers and the CLI."""
 
-import json
 import re
 from collections.abc import Sequence
 from functools import partial
@@ -15,6 +14,7 @@ from urllib.parse import quote
 
 from tabalyst.config import (
     SettingsFile,
+    json_indent,
     load_config_layers,
     settings_from_layer,
 )
@@ -29,6 +29,7 @@ from tabalyst.inspector.resolution import (
     inspect_notice,
     resolve_interpretation,
 )
+from tabalyst.json_text import dump_json
 from tabalyst.models import ReportProfile
 from tabalyst.progress import (
     ProgressCallback,
@@ -232,6 +233,7 @@ def _analyze_resolved(
     collections: Sequence[str] | None = None,
 ) -> tuple[dict[str, Any], tuple[str, ...]]:
     started = perf_counter()
+    indent = json_indent(config_paths)
     json_report, execution_report = _validate_paths(
         source,
         report,
@@ -266,6 +268,7 @@ def _analyze_resolved(
             source,
             scan_config,
             workers=workers,
+            json_indent=indent,
             on_progress=on_progress,
             scan_layer=reused_layer,
             delimiter=separator,
@@ -295,6 +298,7 @@ def _analyze_resolved(
         details=details,
         started=started,
         on_progress=on_progress,
+        json_indent=indent,
     )
     return written, warnings
 
@@ -314,6 +318,7 @@ def _report_scan_resolved(
     was found beside it and checked for staleness, and the warnings (a scan
     document of another engine version is reported, not refused)."""
     started = perf_counter()
+    indent = json_indent(config_paths)
     emit_progress(on_progress, scan_path, ProgressPhase.READING)
     result = load_scan(scan_path)
     source = source_path(scan_path, result)
@@ -343,6 +348,7 @@ def _report_scan_resolved(
         # The total covers the scan too, as ``processing_seconds`` does.
         started=started - result.run.duration_seconds,
         on_progress=on_progress,
+        json_indent=indent,
     )
     warnings = [
         warning
@@ -364,12 +370,13 @@ def _write_report(
     details: bool,
     started: float,
     on_progress: ProgressCallback | None,
+    json_indent: bool = False,
 ) -> dict[str, Any]:
     """Render and write the report artifacts of ``profile``; ``source`` names
     the analyzed file in the execution history, ``progress_source`` the input
     in progress events."""
     result = profile.model_dump(mode="json")
-    json_text = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
+    json_text = dump_json(result, indent=json_indent)
     emit_progress(on_progress, progress_source, ProgressPhase.RENDERING)
     pages = column_pages(profile, report) if details else []
     page_dir = report.with_suffix("")
