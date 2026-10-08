@@ -269,8 +269,14 @@
     },
     "CardinalityEstimate": {
       "additionalProperties": false,
-      "description": "Reserved for the KMV estimate (design 18.5, lot 2b): never written yet.",
+      "description": "KMV estimate of the distinct original values (design 18.5).\n\n``value`` is held within the certain bounds of the envelope;\n``unclamped_value`` is the raw estimator, present only when a bound\nchanged it. ``theta_hex`` (the sample threshold) is absent for a sensitive\nfield: it is the priority of one of its values.",
       "properties": {
+        "accuracy": {
+          "const": "estimated",
+          "default": "estimated",
+          "title": "Accuracy",
+          "type": "string"
+        },
         "method": {
           "const": "kmv",
           "title": "Method",
@@ -279,6 +285,18 @@
         "value": {
           "title": "Value",
           "type": "number"
+        },
+        "unclamped_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unclamped Value"
         },
         "relative_standard_error": {
           "title": "Relative Standard Error",
@@ -289,16 +307,23 @@
           "type": "integer"
         },
         "theta_hex": {
-          "title": "Theta Hex",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Theta Hex"
         }
       },
       "required": [
         "method",
         "value",
         "relative_standard_error",
-        "k",
-        "theta_hex"
+        "k"
       ],
       "title": "CardinalityEstimate",
       "type": "object"
@@ -4263,9 +4288,67 @@
       "title": "RunInfo",
       "type": "object"
     },
+    "SampleEntry": {
+      "additionalProperties": false,
+      "description": "A sampled original value with its exact count (design 18.9).\n\n``id`` numbers the entry in the listing of the Scan and stays the same in a\nReport that keeps a subset of it.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "count_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "unknown"
+          ],
+          "title": "Count Accuracy",
+          "type": "string"
+        },
+        "identity_accuracy": {
+          "enum": [
+            "exact",
+            "estimated",
+            "fingerprint_based",
+            "unknown"
+          ],
+          "title": "Identity Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "count",
+        "id",
+        "count_accuracy",
+        "identity_accuracy"
+      ],
+      "title": "SampleEntry",
+      "type": "object"
+    },
     "SampleHash": {
       "additionalProperties": false,
-      "description": "Priority function of a bottom-k sample (design 18.3): reserved.",
+      "description": "Priority function of a bottom-k sample (design 18.3).",
       "properties": {
         "algorithm": {
           "title": "Algorithm",
@@ -4295,13 +4378,11 @@
     },
     "Samples": {
       "additionalProperties": false,
-      "description": "Distinct values with their counts. ``bottom_k`` is the selection of lot\n2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,\nas hexadecimal digits) are absent.\n\n``kept`` values are listed out of the ``of`` the scan sampled: a Scan has\n``kept == of``; a Report keeps fewer (design 19.4) and says so here.",
+      "description": "Distinct original values with their exact counts (design 18.9).\n\n``all`` lists every distinct value, in first-seen order; ``bottom_k`` the\nones of smallest priority, in ascending priority, and names ``k``, the\n``hash`` and the ``threshold`` (the largest priority kept, as hexadecimal\ndigits; absent while no value was dropped and for a sensitive field).\n\n``kept`` values are listed out of the ``of`` the scan sampled: a Scan has\n``kept == of`` unless exposure withheld values (``mask`` merges, ``hide``\nlists none); a Report keeps fewer (design 19.4) and says so here.",
       "properties": {
         "selection": {
           "enum": [
             "all",
-            "uniform_distinct",
-            "first_seen",
             "bottom_k"
           ],
           "title": "Selection",
@@ -4317,7 +4398,7 @@
         },
         "listed": {
           "items": {
-            "$ref": "#/$defs/ValueCount"
+            "$ref": "#/$defs/SampleEntry"
           },
           "title": "Listed",
           "type": "array"
@@ -4417,6 +4498,8 @@
         },
         "random_seed": {
           "default": 42,
+          "exclusiveMaximum": 18446744073709551616,
+          "minimum": 0,
           "title": "Random Seed",
           "type": "integer"
         }

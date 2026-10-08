@@ -94,7 +94,8 @@ structural or semantic change. See the
   generations retain the first 10,000 raw typed analyzable values per field
   and their continuing counts, with explicit omissions. Complete record
   facts/memberships persist independently. Validation checks all retained
-  data and Scan invariants; discarded cells cannot be reconstructed or used
+  data and the Scan invariants (`scanner.validation.check_scan`, then the
+  catalog); discarded cells cannot be reconstructed or used
   to recompute digests at reopen. DuckDB is pinned to 1.5.5 with a physical
   `v1.4.0` target. The loader owns only its new staging directory.
 - `projects/_publication.py`, `_generation.py`, `_locks.py`, `_sync.py` and
@@ -366,7 +367,10 @@ so the lot that delivers the behavior must enable it. Lot `0` tests describe
 current behavior and guard it.
 
 `scanner/bottomk.py` (lot 2a) is the bottom-k sampler and the KMV estimate,
-isolated from the product: nothing in the engine imports it yet. Lot 2b feeds
-it from `ValueProcessor`, in the scan process or in the worker of the field
-(design 18.3). The choice of its hash is measured by
+isolated from the product. `scanner/valuesample.py` (lot 2b) is the sample of
+original values of a field: a plain dictionary while the field has at most K
+distinct values, a `BottomKSampler` beyond, exposure applied at the end. It
+belongs to `ValueProcessor`, in the scan process or in the worker of the field
+(design 18.3), and the Report ranks an `all` sample with the same hash
+(`report_profile.report_sample`). The choice of its hash is measured by
 `benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).

@@ -42,8 +42,15 @@ Also in revision 2, before its release:
 - `scan.limits.max_samples` is the size of the sample the scan keeps per field:
   10,000 by default (100 before), at most 100,000 and at most
   `max_distinct_per_field`. The effective value is in `config`.
-- `values.samples.selection` may be `bottom_k`, with the members `k`, `hash`
-  and `threshold`: reserved, never written yet.
+- `values.samples` is the sample of the original values (not the analytical
+  ones): `selection` is `all` (every distinct value, first-seen order) or
+  `bottom_k` (the `k` values of smallest hash priority, with `k`, `hash`
+  and `threshold`), which replaces `uniform_distinct` and `first_seen`. Each
+  entry gains `id`, `count_accuracy` and `identity_accuracy`. For a sensitive
+  field `kept` can be below `of`.
+- `values.cardinality.estimate`: the KMV estimate of the distinct count of a
+  limited field (`accuracy` `estimated`), when the sample saw the whole field.
+- `scan.random_seed` is an integer from 0 to 2^64 - 1.
 - The JSON Schema of the document and a validator of its invariants are part of
   the package (see [Scan format](format.md#json-schema)).
 - `values.samples` has `kept` and `of`: the number of values it lists and the

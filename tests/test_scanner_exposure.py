@@ -160,12 +160,13 @@ def test_gate_applies_in_streaming_mode(tmp_path):
     )
 
     assert field["values"]["frequencies"]["status"] == "limited"
-    assert field["values"]["samples"] == {
-        "selection": "first_seen",
-        "kept": 1,
-        "of": 1,
-        "listed": [{"value": "A-99", "type": "string", "count": 3}],
-    }
+    # The masks merge after the calculation: three originals, one mask.
+    samples = field["values"]["samples"]
+    assert (samples["selection"], samples["kept"], samples["of"]) == ("bottom_k", 1, 2)
+    assert [(item["value"], item["count"]) for item in samples["listed"]] == [
+        ("A-99", 3)
+    ]
+    assert "threshold" not in samples
     assert field["values"]["last"]["value"] == "A-99"
 
 
@@ -184,10 +185,11 @@ def test_hide_keeps_counts_only(tmp_path):
         "listed": [],
         "truncated": True,
     }
+    # The originals were sampled and withheld: a reader sees kept below of.
     assert values["samples"] == {
         "selection": "all",
         "kept": 0,
-        "of": 0,
+        "of": 3,
         "listed": [],
     }
     groups = field["normalization"]["variant_groups"]["value"]

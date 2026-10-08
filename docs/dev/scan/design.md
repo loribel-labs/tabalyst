@@ -494,8 +494,9 @@ envelope. The JSON layout is summarized in section 16.
   overflow). Records are numbered like `first_record`: a record with several
   occurrences of the field counts once, and the number does not depend on the
   reader (batches of CSV columns or one value at a time) or on the workers. A
-  member that is unknown is absent, never `null`. `estimate` is reserved for
-  the KMV estimate (18.5). The other envelopes keep their members; a
+  member that is unknown is absent, never `null`. `estimate` (lot 2b) is the
+  KMV estimate of 18.5, published for a `limited` count when the sample saw the
+  whole field. The other envelopes keep their members; a
   `complete` envelope without `accuracy` is exact for its declared population.
 - `values.frequencies`: envelope whose value is `{distinct, listed, truncated}`.
   `distinct` counts distinct analytical values (`(type, analytical text)`),
@@ -506,16 +507,19 @@ envelope. The JSON layout is summarized in section 16.
   not a limitation of the measure: `truncated` says the listing is shorter than
   `distinct`. When the table is released, the envelope is `limited` without
   `lower_bound`: raw distinct values do not prove analytical ones.
-- `values.samples`: a plain object `{selection, kept, of, listed}` (`kept`
-  listed values out of the `of` the scan sampled, section 19.4) with up to
-  `limits.max_samples` (K, 10,000 by default, section 18.2) distinct analytical
-  values, with `selection` set to
-  `all` (every distinct value), `uniform_distinct` (sample of the complete
-  table drawn with `random.Random(random_seed)`) or `first_seen` (first
-  distinct values, used when the table is released), listed as
-  `{value, type, count}` in first-seen order. Counts are complete in every
-  selection. Values longer than `limits.max_stored_value_length` are never
-  sampled. Samples are examples, not statistics.
+- `values.samples` (lot 2b): a plain object `{selection, kept, of, listed}`
+  (and `k`, `hash`, `threshold` for `bottom_k`, section 18.9) with up to
+  `limits.max_samples` (K, 10,000 by default, section 18.2) distinct **original**
+  values (section 21), not analytical ones. `selection` is `all` (every
+  distinct value, in first-seen order, no hash) or `bottom_k` (the K of smallest
+  priority, ascending). An entry is `{id, value, type, count, count_accuracy,
+  identity_accuracy}`. Counts are exact in every selection. Values longer than
+  `limits.max_stored_value_length` are never sampled; the sample is then a
+  `bottom_k` even when it is small, with no `threshold`, and the cardinality has
+  no estimate. `kept` listed values out of the `of` the scan sampled (section
+  19.4); exposure can make them differ (18.9). Samples are examples, not
+  statistics. The selections `uniform_distinct` and `first_seen` of the first
+  revision are gone.
 - `values.first` and `values.last`: `{value, type, record}` for the first and
   last analytical values (EF21), `null` without values. They keep the whole
   value, even beyond `limits.max_stored_value_length`.
@@ -1670,6 +1674,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-07 | SJ-1c | Sections 15, 19.3, 19.4, 19.4b: the `report` object of the configuration (`string_analysis`, `value_examples` moved from the top level), `report.value_examples.kept_per_column` (1 to 1,000, default 100) replaces `REPORT_SAMPLE_SIZE`, the pages read the base through `tabalyst.report_views` (`ColumnView` with the canonical `field`, `DatasetView`), `ScanFieldDetails` removed. | Scan and JSON work, lot 1c: projections and templates of the Report from the base. Maintainer decision of 2026-10-07 on the `report` object. |
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
 | 2026-10-07 | SJ-2a | Sections 18.3 and 18.8: `scanner/bottomk.py` (BLAKE2b 128 bits, `HASH_VERSION` 1, `update`, `retained`, `k`), the location of the sampler state (`ValueProcessor`, in the scan process or the worker of the field), the refusal measures. | Lot 2a of the Scan and JSON work: the sampler isolated from the product and the measured hash choice. |
+| 2026-10-07 | SJ-2b | Sections 9.1, 18.2, 18.3, 18.9, 19.4, 21: the bottom-k in the engine (`scanner/valuesample.py`); `values.samples` of original values, `all` or `bottom_k` (`uniform_distinct` and `first_seen` removed), entries with `id`, `count_accuracy`, `identity_accuracy`, `k`, `hash`, `threshold`; `values.cardinality.estimate` (KMV, held within the certain bounds); exposure after the calculation with `kept < of`; the Report ranks an `all` sample by priority; `random_seed` in [0, 2**64). | Lot 2b of the Scan and JSON work. Maintainer decisions of 2026-10-07 (defaults accepted): `id` is the position in the Scan listing, `kept < of` declares withheld originals, the estimate is clamped with the raw value kept, the seed is bounded. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -1712,16 +1717,15 @@ keeps its sample as `all`, or reduced to its K best when it holds more than K.
 
 Lot 1a delivers the setting: the default is 10,000, the cap is 100,000, an
 explicit K above T is a configuration error, and a K that is not set follows a
-lower T (a scan that lowers T alone keeps working, with K = T). Until lot 2b
-the engine still draws the sample as before (`all`, `uniform_distinct` or
-`first_seen`), with K entries instead of 100. The Report does not read K: it
-works on at most 100 values of the sample (`value_examples.kept_per_column`, 19.4b), the
-whole sample when it has no more, a seeded draw otherwise, or its first values
-when the sample is `first_seen`. Its examples are those of K = 100 except for
-sensitive fields of a released table (the masks of the first K values merge
-after the draw) and for fields of 10,000 to 100,000 distinct values (a draw of
-a draw). Reading the whole sample made the Report quadratic: 0.6 s for 3,000
-rows at K = 100, 25 s at K = 1,000.
+lower T (a scan that lowers T alone keeps working, with K = T). Lot 2b draws the
+sample with the bottom-k (18.3). The Report does not read K: it works on at
+most 100 values of the sample (`value_examples.kept_per_column`, 19.4b), the
+whole sample when it has no more, otherwise the 100 of smallest priority, so
+its examples do not depend on K (a `bottom_k` sample gives its first 100
+entries, an `all` sample is ranked by the Report with the same hash and seed).
+Reading the whole sample made the Report quadratic: 0.6 s for 3,000 rows at
+K = 100, 25 s at K = 1,000. `random_seed` is the seed of the hash: an unsigned
+64-bit integer.
 
 The first version of this decision (O28, 2026-10-06) set T = K = 10,000. The
 baseline of lot 0 showed that it saves memory (715 to 536 MB on the reference
@@ -1744,8 +1748,10 @@ the string `"123"` and the integer `123` stay distinct.
 | `priority(key, *, seed=0) -> int` | Stable priority in `[0, 2**128)`, from the full key and the seed (an integer in `[0, 2**64)`, else `ValueError`); never the builtin `hash()`. |
 | `BottomKSampler(k, *, seed=0, priority=None)` | `priority` replaces the function in tests (injected collisions). `k` and `seed` are attributes. |
 | `BottomKSampler.from_exact(k, counts, *, seed=0, priority=None, overflow_at_occurrence=None)` | The sample of an exact table of `counts` (key to exact count) that holds more than K keys: the K best, with their counts. The engine uses it at the overflow of its table of T keys (18.2); the result equals streaming the same keys. |
+| `BottomKSampler.from_exact_strings(k, texts, counts, *, seed=0)` | `from_exact` for keys of the type `"string"` given as texts: the same sample, hashing in a tight loop and keeping only the K best (the engine's release of a table of strings, lot 2b). |
 | `.add(key, count=1)` | One or `count` occurrences; `count` below 1 is a `ValueError`. |
 | `.update(keys, counts)` | A batch of distinct keys with their counts (the engine's hot path: its batches of 4,096 distinct values, section 13), equivalent to adding the occurrences one by one in any order. Counts are not checked. |
+| `.update_strings(texts, counts)` | `update` for keys of the type `"string"` given as texts (the engine's hot path, lot 2b): once the sample is full, a text whose priority is above the limit is rejected before any key is built or looked up. Same result as `update`; with an injected priority it defers to `update`. |
 | `.entries()` | `Entry(key, priority, count)` ordered by `(priority, key)` ascending. |
 | `.occurrences` | Occurrences added. |
 | `.retained` | Keys in the sample (at most K). There is no `__len__`: an empty sampler must not be falsy. |
@@ -1782,17 +1788,22 @@ complete key on equal priorities, which a heap of integers could not do. Memory
 at K = 10,000 is about 5.3 MB per field (550 bytes per entry, with the keys
 and the compaction slack).
 
-Where the state lives (confirmed at lot 2a). The sampler of a field belongs to
-the field's `ValueProcessor`, the object that already receives the released
-table (`release`) and then the streaming batches (`process`) of distinct values
-with their counts: in the scan process of a one-process scan, in the worker of
-the field in a parallel scan (section 13, item 7). The engine's
-`ValueTracker` keeps only the exact table of at most T keys, so the scan
-process gets no new per-value work. Lot 2b calls
-`BottomKSampler.from_exact` in `ValueProcessor.release` (and when a complete
-table of more than K keys is finalized) and `update` on each batch; the sample
-reaches the scan process inside the field's value block, as plain data like the
-rest. No merge between processes is needed. A merge would nevertheless be
+Where the state lives (confirmed at lot 2a, built at lot 2b). The sample of a
+field belongs to the field's `ValueProcessor` (`scanner/valuesample.py`,
+`ValueSample`), the object that already receives the released table
+(`release`) and then the streaming batches (`process`) of distinct values with
+their counts: in the scan process of a one-process scan, in the worker of the
+field in a parallel scan (section 13, item 7). The engine's `ValueTracker` keeps
+only the exact table of at most T keys, so the scan process gets no new
+per-value work. A `ValueSample` keeps a plain dictionary of original keys with
+their counts, in first-seen order, and no hash, while the field has at most K
+distinct values; the first batch that exceeds K hands that dictionary to
+`BottomKSampler.from_exact`, and every later batch goes to `update`. A complete
+table of more than K keys is handed to `from_exact` at finalization. Keys of
+`str` are paired with the type `"string"` by `zip(repeat("string"), keys)`,
+without a conversion loop. The sample reaches the scan process inside the
+field's value block, as plain data like the rest. No merge between processes
+is needed. A merge would nevertheless be
 exact: a key of the global K best is among the K best of each partition that
 holds it and was never dropped there, so its partial counts sum to the total
 (useful for reading one source with several processes, section 13).
@@ -1877,22 +1888,42 @@ most K distinct keys needs no priority in the Scan (its sample is `all`; the
 Report can hash its few kept values), and only a field whose sample must be cut
 (a table above K, a released table) pays the hash.
 
-### 18.9 Output (cardinality settled at lot 1a, samples at lot 2b)
+### 18.9 Output (cardinality settled at lot 1a, samples and estimate at lot 2b)
 
-`values.cardinality` is described in 9.1. `values.samples` has the reserved
-selection `bottom_k` and the optional members `k`, `hash` (`algorithm`,
-`version`, `bits`, `seed`) and `threshold`, absent until lot 2b. The strata of
-lengths (18.7) have no member yet; their name and layout are settled at lot 3a.
-The rest of this section is provisional:
+`values.cardinality` is described in 9.1. The strata of lengths (18.7) have no
+member yet; their name and layout are settled at lot 3a.
 
-`values.samples` of an overflowed field has `selection: "bottom_k"`; `listed`
-holds the whole sample (K entries, K being `limits.max_samples`, ascending
-priority) in the Scan; each entry has `value`, `type`, `count`,
-`count_accuracy` and `identity_accuracy`; the block names `k`, the hash
-(`algorithm`, `version`, `bits`, `seed`) and the `threshold`. The priority and
-threshold of a sensitive field are not exposed. `values.cardinality` gains
-`domain`, `accuracy`, `identity_accuracy`, `upper_bound`,
-`threshold_reached_at_record`, `overflow_detected_at_record` and `estimate`.
+`values.samples` (lot 2b):
+
+- `selection` is `all` when the sample holds every distinct original value
+  (none was dropped or excluded): `listed` is in first-seen order, there is no
+  hash and no `k`. Otherwise it is `bottom_k`: `listed` holds the sample (at
+  most K entries, K being `limits.max_samples`) in ascending `(priority, key)`
+  order, and the block names `k`, `hash` (`algorithm`, `version`, `bits`,
+  `seed`) and, once a key was dropped, the `threshold` (32 hexadecimal digits).
+- An entry is `{id, value, type, count, count_accuracy, identity_accuracy}`:
+  `id` is the position of the entry in the `listed` of the Scan (kept by a
+  Report that keeps a subset; the pool of lengths of lot 3a continues the
+  numbering), `value` the original text, `count_accuracy` and
+  `identity_accuracy` `exact` (`partial` and `fingerprint_based` arrive with
+  lots 3a and 2c).
+- Exposure applies after the calculation on originals (21). `mask` merges the
+  entries with the same mask in the order of the listing, counts added; `hide`
+  lists none. `of` is always the number of originals sampled and `kept` the
+  number listed, so exposure that withholds values shows as `kept < of`, which
+  is the capability a planner reads (`complete_samples`) to refuse the sample
+  (VAL-06). The `threshold` of a sensitive field (mode `mask` or `hide`) is not
+  written: it is the priority of one of its values.
+
+`values.cardinality.estimate` is written for a `limited` count when the sampler
+dropped a key and no value was excluded (a value above
+`limits.max_stored_value_length` never enters the sample, so the estimator
+would not have seen the whole field; lot 2c brings those values back with
+their own sampler): `{accuracy: "estimated", method: "kmv", value,
+unclamped_value?, relative_standard_error, k, theta_hex?}`. `value` is the
+estimator held within `[lower_bound, upper_bound]`; `unclamped_value` is the
+raw `(k - 1) / theta`, present only when a bound changed it; `theta_hex` is
+absent for a sensitive field. A complete count has no estimate: it is exact.
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
@@ -1955,9 +1986,11 @@ priorities of each field (`value_examples.kept_per_column`, 19.4b), an exact and
 the same exact counters. It declares `kept` and `of` in each `values.samples` (a Scan has them equal:
 `of` is the size of the sample the Scan listed, `kept` the number listed here,
 `selection` still the Scan's). Lot 1b keeps what the Report already used
-(`report_sample`: up to `kept_per_column` values, 100 by default, the first ones
-of a `first_seen` or `bottom_k` sample, a seeded draw otherwise); lot 1c made
-it the setting of 19.4b. The capabilities of the loader say whether the
+(`report_sample`: up to `kept_per_column` values, 100 by default; since lot 2b
+the first ones of a `bottom_k` sample, and for an `all` sample the ones of
+smallest priority, computed with the scan's hash and seed, so that a Report is
+an exact subset of what a bottom-k of that size would keep); lot 1c made it the
+setting of 19.4b. The capabilities of the loader say whether the
 samples are complete (`kept == of` everywhere); a planner refuses a document
 whose samples are not, so a Report is never an input to replan. The invariants
 of `check_scan` apply to a reduced base: `kept` is the length of the listing and
@@ -2042,7 +2075,9 @@ types adding up, string categories, `values.count`, missing components, bounds
 and records of the cardinality, listings against `values.count` and
 `max_samples`, histogram and numeric sums, detector coverage, scope and source
 shape against the datasets, and `config_sha256` against `config`. A scan the
-engine produced has none.
+engine produced has none. The private project storage (`projects/`) runs it
+when it validates a generation and consumes the Scan base only, never a Report
+(lot 1d).
 
 ## 20. Second pass and the rule of costly operations (O31)
 
@@ -2097,6 +2132,9 @@ the diversity of the exposed shapes are different things).
 
 Exposure applies after the calculation (12.8). A masked or hidden sample cannot
 give back the originals to a process outside the scan; the document declares
-that capability as missing, and the second pass reads the source when it needs
-them. Structural patterns can be computed before exposure and kept without
+that capability as missing (`kept < of`, 18.9), and the second pass reads the
+source when it needs them. Since lot 2b `values.samples` and the KMV estimate
+are in this domain: the table keys are raw decoded values, a string keeps its
+text, other native types their canonical text. `frequencies`, lengths and
+statistics keep the analytical value. Structural patterns can be computed before exposure and kept without
 keeping the value.

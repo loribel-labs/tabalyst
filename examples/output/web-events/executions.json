@@ -493,6 +493,23 @@
         "dirty": true,
         "state": "1153f2cc+working"
       }
+    },
+    {
+      "timestamp": "2026-10-08T03:46:18.283479Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.3753,
+      "total_seconds": 0.4487,
+      "git": {
+        "available": true,
+        "commit": "b33f62deee1bbda261a8bffb928308d45aa9dbe3",
+        "dirty": true,
+        "state": "b33f62de+working"
+      }
     }
   ]
 }

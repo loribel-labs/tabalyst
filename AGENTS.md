@@ -119,6 +119,58 @@ Check the documentation and website changes in `../tabalyst-studio` against
 the public README and released tag. Keep prepared, committed, tagged and
 published states distinct in all three repositories.
 
+## Code documentation
+
+These rules apply to code written or modified from now on. Do not mass-fix
+existing code to comply; fix what a change touches.
+
+**Types**
+
+- Every function, method and class attribute has complete type annotations
+  (parameters and return).
+- No `Any` unless a comment justifies it.
+- The code must pass `mypy` (or `pyright`) with no new error.
+
+**Docstrings**
+
+- Required for modules, classes and public functions (no `_` prefix). Optional
+  for private functions unless their behavior is not obvious.
+- Format: a one-line summary, then only what the signature does not tell:
+  side effects, raised exceptions, assumptions about the data, edge cases.
+- Do not repeat types or describe parameters whose name and type are enough.
+- Every module starts with a docstring of one to three lines describing its
+  responsibility (after the license header).
+
+**Comments**
+
+- A comment explains why, never what: a business constraint, a workaround, a
+  performance decision, a trap not to "fix".
+- No comment that paraphrases the code.
+- Never delete a "why" comment without understanding its reason; when in doubt,
+  ask.
+
+**Synchronization**
+
+- Any change of signature or behavior updates the related docstring and
+  comments in the same change.
+- A docstring or comment that became wrong is fixed or removed, never left in
+  place.
+
+**Tests as documentation**
+
+- Every new public behavior comes with at least one test.
+- Test names describe the expected behavior, in English (for example
+  `test_returns_mixed_when_no_majority_type`).
+- Before considering a task done: run the tests, the lint and the type check.
+
+**Architecture decisions**
+
+- Structuring decisions are recorded in `docs/dev/adr/` (one short file per
+  decision: context, decision, consequences). It is maintainer documentation,
+  never published.
+- Read the existing ADRs before proposing an architecture change; do not
+  reverse a recorded decision without saying so explicitly.
+
 ## Documentation
 
 `docs/` holds the sources of the public documentation site (docs.tabalyst.com,
@@ -177,6 +229,30 @@ Writing rules for `docs/en/`:
 When a user-facing behavior changes, update the matching page in `docs/en/`.
 The contents of `docs/en/` and `docs/fr/` are licensed under CC BY 4.0
 (`docs/LICENSE`); the code stays MPL-2.0.
+
+## Design rules
+
+**Smart by default, explicit when costly.** Applies to every command, API and
+future tool.
+
+- An automatic mode (for example the deep pass chosen by `tabalyst report`)
+  runs an extra operation only when its benefit is established and its cost is
+  low. The decision uses deterministic budgets (memory in bytes, cells to
+  process, number of columns), never measured wall-clock time, so the same file
+  gives the same result on any machine. Estimated time only feeds messages and
+  warnings.
+- Forcing an operation (`--deep`) whose estimated cost passes the thresholds
+  (several minutes, or memory beyond the budget) shows the estimate and asks the
+  user to confirm before starting. A batch asks once, with the total.
+- Outside an interactive terminal (script, pipe, CI) never ask: stop with an exit
+  code and a message unless `--yes` is given. `--force` keeps its meaning
+  (overwrite an existing output).
+- The Python API never prompts: it returns the plan with `requires_confirmation`
+  and the estimate, and executes only with an explicit parameter.
+- Never run a long operation silently. An automatic operation is named in the
+  progress output and in the result, with what it added or skipped and why.
+- `tabalyst scan` is never automatic: it stays the fast first pass. Only
+  `--deep` forces the deeper pass there.
 
 ## Versioning
 

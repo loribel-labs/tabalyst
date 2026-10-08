@@ -23,16 +23,16 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-07T06:14:16.374223Z",
-    "duration_seconds": 0.026014,
+    "started_at": "2026-10-08T03:46:17.844318Z",
+    "duration_seconds": 0.030806,
     "timings": {
-      "reading": 0.004771,
-      "analysis": 0.005008,
-      "finalize": 0.015892,
-      "other": 0.000342
+      "reading": 0.005761,
+      "analysis": 0.005921,
+      "finalize": 0.018657,
+      "other": 0.000467
     },
     "workers": 1,
-    "peak_memory_bytes": 53948416
+    "peak_memory_bytes": 55537664
   },
   "source": {
     "format": "jsonl",
@@ -1617,511 +1617,819 @@
               }
             },
             "samples": {
-              "selection": "uniform_distinct",
+              "selection": "bottom_k",
               "kept": 100,
               "of": 100,
               "listed": [
                 {
-                  "value": "evt-00004",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00009",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00012",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00013",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00014",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00015",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00016",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00017",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00018",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00019",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00021",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00023",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00026",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00041",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00042",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00044",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00045",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00048",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00050",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00053",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00054",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00057",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00058",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00059",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00060",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00063",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00064",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00069",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00070",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00072",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00075",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00080",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00081",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00082",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00084",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00091",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00094",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00095",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00098",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00102",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00103",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00111",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00112",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00113",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00115",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00117",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00119",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00120",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00126",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00136",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00137",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00141",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00143",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00148",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00151",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00156",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00163",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00164",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00166",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00170",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00172",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00173",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00175",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00176",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00177",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00180",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00181",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00184",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00186",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00187",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00194",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00195",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00197",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00198",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00199",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00214",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00215",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00217",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00219",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00222",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00230",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00235",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00236",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00238",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00241",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00249",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00259",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00264",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00266",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00273",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00274",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00278",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00279",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00280",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00288",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00290",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00291",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "evt-00293",
-                  "type": "string",
-                  "count": 1
+                  "value": "evt-00028",
+                  "type": "string",
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "evt-00294",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00098",
+                  "type": "string",
+                  "count": 1,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00207",
+                  "type": "string",
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00265",
+                  "type": "string",
+                  "count": 1,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00180",
+                  "type": "string",
+                  "count": 1,
+                  "id": 5,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00040",
+                  "type": "string",
+                  "count": 1,
+                  "id": 6,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00023",
+                  "type": "string",
+                  "count": 1,
+                  "id": 7,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00273",
+                  "type": "string",
+                  "count": 1,
+                  "id": 8,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00127",
+                  "type": "string",
+                  "count": 1,
+                  "id": 9,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00068",
+                  "type": "string",
+                  "count": 1,
+                  "id": 10,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00091",
+                  "type": "string",
+                  "count": 1,
+                  "id": 11,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00233",
+                  "type": "string",
+                  "count": 1,
+                  "id": 12,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00076",
+                  "type": "string",
+                  "count": 1,
+                  "id": 13,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00010",
+                  "type": "string",
+                  "count": 1,
+                  "id": 14,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00094",
+                  "type": "string",
+                  "count": 1,
+                  "id": 15,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00133",
+                  "type": "string",
+                  "count": 1,
+                  "id": 16,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00282",
+                  "type": "string",
+                  "count": 1,
+                  "id": 17,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00218",
+                  "type": "string",
+                  "count": 1,
+                  "id": 18,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00277",
+                  "type": "string",
+                  "count": 1,
+                  "id": 19,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00036",
+                  "type": "string",
+                  "count": 1,
+                  "id": 20,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00147",
+                  "type": "string",
+                  "count": 1,
+                  "id": 21,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00213",
+                  "type": "string",
+                  "count": 1,
+                  "id": 22,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00041",
+                  "type": "string",
+                  "count": 1,
+                  "id": 23,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00032",
+                  "type": "string",
+                  "count": 1,
+                  "id": 24,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00129",
+                  "type": "string",
+                  "count": 1,
+                  "id": 25,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00241",
+                  "type": "string",
+                  "count": 1,
+                  "id": 26,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00038",
+                  "type": "string",
+                  "count": 1,
+                  "id": 27,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00263",
+                  "type": "string",
+                  "count": 1,
+                  "id": 28,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00161",
+                  "type": "string",
+                  "count": 1,
+                  "id": 29,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00031",
+                  "type": "string",
+                  "count": 1,
+                  "id": 30,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00064",
+                  "type": "string",
+                  "count": 1,
+                  "id": 31,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00118",
+                  "type": "string",
+                  "count": 1,
+                  "id": 32,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00237",
+                  "type": "string",
+                  "count": 1,
+                  "id": 33,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00234",
+                  "type": "string",
+                  "count": 1,
+                  "id": 34,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00100",
+                  "type": "string",
+                  "count": 1,
+                  "id": 35,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00167",
+                  "type": "string",
+                  "count": 1,
+                  "id": 36,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00146",
+                  "type": "string",
+                  "count": 1,
+                  "id": 37,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00020",
+                  "type": "string",
+                  "count": 1,
+                  "id": 38,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00051",
+                  "type": "string",
+                  "count": 1,
+                  "id": 39,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00281",
+                  "type": "string",
+                  "count": 1,
+                  "id": 40,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00116",
+                  "type": "string",
+                  "count": 1,
+                  "id": 41,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00227",
+                  "type": "string",
+                  "count": 1,
+                  "id": 42,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00165",
+                  "type": "string",
+                  "count": 1,
+                  "id": 43,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00050",
+                  "type": "string",
+                  "count": 1,
+                  "id": 44,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00067",
+                  "type": "string",
+                  "count": 1,
+                  "id": 45,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00171",
+                  "type": "string",
+                  "count": 1,
+                  "id": 46,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00069",
+                  "type": "string",
+                  "count": 1,
+                  "id": 47,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00190",
+                  "type": "string",
+                  "count": 1,
+                  "id": 48,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00140",
+                  "type": "string",
+                  "count": 1,
+                  "id": 49,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00048",
+                  "type": "string",
+                  "count": 1,
+                  "id": 50,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00275",
+                  "type": "string",
+                  "count": 1,
+                  "id": 51,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00229",
+                  "type": "string",
+                  "count": 1,
+                  "id": 52,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00042",
+                  "type": "string",
+                  "count": 1,
+                  "id": 53,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00199",
+                  "type": "string",
+                  "count": 1,
+                  "id": 54,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00225",
+                  "type": "string",
+                  "count": 1,
+                  "id": 55,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00211",
+                  "type": "string",
+                  "count": 1,
+                  "id": 56,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00255",
+                  "type": "string",
+                  "count": 1,
+                  "id": 57,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00015",
+                  "type": "string",
+                  "count": 1,
+                  "id": 58,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00274",
+                  "type": "string",
+                  "count": 1,
+                  "id": 59,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00179",
+                  "type": "string",
+                  "count": 1,
+                  "id": 60,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00198",
+                  "type": "string",
+                  "count": 1,
+                  "id": 61,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00247",
+                  "type": "string",
+                  "count": 1,
+                  "id": 62,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00203",
+                  "type": "string",
+                  "count": 1,
+                  "id": 63,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00096",
+                  "type": "string",
+                  "count": 1,
+                  "id": 64,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00176",
+                  "type": "string",
+                  "count": 1,
+                  "id": 65,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00070",
+                  "type": "string",
+                  "count": 1,
+                  "id": 66,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00090",
+                  "type": "string",
+                  "count": 1,
+                  "id": 67,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00219",
+                  "type": "string",
+                  "count": 1,
+                  "id": 68,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00212",
+                  "type": "string",
+                  "count": 1,
+                  "id": 69,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00253",
+                  "type": "string",
+                  "count": 1,
+                  "id": 70,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00224",
+                  "type": "string",
+                  "count": 1,
+                  "id": 71,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00120",
+                  "type": "string",
+                  "count": 1,
+                  "id": 72,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00088",
+                  "type": "string",
+                  "count": 1,
+                  "id": 73,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00235",
+                  "type": "string",
+                  "count": 1,
+                  "id": 74,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00122",
+                  "type": "string",
+                  "count": 1,
+                  "id": 75,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00139",
+                  "type": "string",
+                  "count": 1,
+                  "id": 76,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00083",
+                  "type": "string",
+                  "count": 1,
+                  "id": 77,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00175",
+                  "type": "string",
+                  "count": 1,
+                  "id": 78,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00197",
+                  "type": "string",
+                  "count": 1,
+                  "id": 79,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00223",
+                  "type": "string",
+                  "count": 1,
+                  "id": 80,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00288",
+                  "type": "string",
+                  "count": 1,
+                  "id": 81,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00286",
+                  "type": "string",
+                  "count": 1,
+                  "id": 82,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00005",
+                  "type": "string",
+                  "count": 1,
+                  "id": 83,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00124",
+                  "type": "string",
+                  "count": 1,
+                  "id": 84,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00061",
+                  "type": "string",
+                  "count": 1,
+                  "id": 85,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "evt-00295",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 86,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00008",
+                  "type": "string",
+                  "count": 1,
+                  "id": 87,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00296",
+                  "type": "string",
+                  "count": 1,
+                  "id": 88,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00058",
+                  "type": "string",
+                  "count": 1,
+                  "id": 89,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00220",
+                  "type": "string",
+                  "count": 1,
+                  "id": 90,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00092",
+                  "type": "string",
+                  "count": 1,
+                  "id": 91,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00102",
+                  "type": "string",
+                  "count": 1,
+                  "id": 92,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00262",
+                  "type": "string",
+                  "count": 1,
+                  "id": 93,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00278",
+                  "type": "string",
+                  "count": 1,
+                  "id": 94,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00022",
+                  "type": "string",
+                  "count": 1,
+                  "id": 95,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00284",
+                  "type": "string",
+                  "count": 1,
+                  "id": 96,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00054",
+                  "type": "string",
+                  "count": 1,
+                  "id": 97,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00148",
+                  "type": "string",
+                  "count": 1,
+                  "id": 98,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "evt-00034",
+                  "type": "string",
+                  "count": 1,
+                  "id": 99,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
-              ]
+              ],
+              "k": 100,
+              "hash": {
+                "algorithm": "blake2b",
+                "version": 1,
+                "bits": 128,
+                "seed": 42
+              },
+              "threshold": "46debd12546cc0933b9807393ab626d1"
             },
             "first": {
               "value": "evt-00001",
@@ -3395,511 +3703,819 @@
               }
             },
             "samples": {
-              "selection": "uniform_distinct",
+              "selection": "bottom_k",
               "kept": 100,
               "of": 100,
               "listed": [
                 {
-                  "value": "2026-03-01T08:02:26Z",
+                  "value": "2026-03-01T09:56:01Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T08:07:38Z",
+                  "value": "2026-03-01T08:41:12Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T08:08:27Z",
+                  "value": "2026-03-01T10:24:15Z",
                   "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:08:28Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:09:57Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:10:23Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:11:29Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:12:45Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:13:08Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:13:36Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:14:57Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:17:43Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:19:03Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:29:52Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:30:59Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:32:29Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:33:14Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:34:27Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:36:23Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:39:49Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:41:01Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:42:51Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:43:27Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:44:50Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:45:14Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:48:46Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:49:21Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:55:41Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:56:27Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T08:58:40Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:00:50Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:03:40Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:04:53Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:05:47Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:07:06Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:11:39Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:14:06Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:14:36Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:16:56Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:18:54Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:18:58Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:24:02Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:24:29Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:25:01Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:27:06Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:28:08Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:29:32Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:29:50Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:33:26Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:41:21Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:41:37Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:44:19Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:45:56Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:48:15Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:50:04Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:54:01Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T09:59:15Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:00:31Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:02:36Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:05:52Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:08:01Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:08:29Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:09:59Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:10:36Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:11:57Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:14:51Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:15:23Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:18:51Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:21:04Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:21:13Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:26:36Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:26:46Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:28:39Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:28:43Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:28:45Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:41:33Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:42:44Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:44:50Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:46:19Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:48:27Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:53:14Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:57:59Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T10:59:04Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:00:41Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:03:05Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:06:50Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:14:14Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:19:30Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:20:05Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:25:05Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:26:15Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:30:20Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:30:22Z",
-                  "type": "string",
-                  "count": 1
-                },
-                {
-                  "value": "2026-03-01T11:30:34Z",
-                  "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2026-03-01T11:35:50Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T11:37:11Z",
+                  "value": "2026-03-01T09:52:44Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T11:38:27Z",
+                  "value": "2026-03-01T08:25:44Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 5,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:19:43Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 6,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:48:52Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 7,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:28:38Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 8,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:49:08Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 9,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:43:50Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 10,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:10:36Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 11,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:30:20Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 12,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:58:40Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 13,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:08:59Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 14,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:19:57Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 15,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:05:00Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 16,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:42:16Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 17,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:20:11Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 18,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:19:03Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 19,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:11:57Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 20,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:56:55Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 21,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:59:15Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 22,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2026-03-01T11:39:46Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 23,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T11:40:26Z",
+                  "value": "2026-03-01T11:21:41Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 24,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
-                  "value": "2026-03-01T11:41:16Z",
+                  "value": "2026-03-01T09:28:08Z",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 25,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:32:31Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 26,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:16:23Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 27,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:34:07Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 28,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:22:54Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 29,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:35:01Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 30,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:07:38Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 31,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:51:50Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 32,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:25:44Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 33,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:33:17Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 34,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:22:25Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 35,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:27:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 36,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:35:36Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 37,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:00:39Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 38,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:11:43Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 39,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:33:16Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 40,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:46:40Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 41,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:25:01Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 42,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:05:23Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 43,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:16:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 44,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:42:44Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 45,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:24:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 46,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:21:13Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 47,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:20:35Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 48,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:55:08Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 49,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:28:45Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 50,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:19:01Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 51,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:41:01Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 52,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:26:36Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 53,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:06:09Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 54,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:04:35Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 55,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:13:08Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 56,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:08:27Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 57,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:22:46Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 58,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:22:44Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 59,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:46:19Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 60,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:42:36Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 61,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:51:34Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 62,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:18:54Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 63,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:02:23Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 64,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:07:06Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 65,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:23:06Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 66,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:31:22Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 67,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:45:14Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 68,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:08:26Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 69,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:32:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 70,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:03:05Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 71,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:48:46Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 72,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:52:56Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 73,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:37:32Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 74,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:04:47Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 75,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:01:03Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 76,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:27:06Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 77,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:23:38Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 78,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:14:57Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 79,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:15:43Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 80,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:33:59Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 81,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:49:21Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 82,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:34:26Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 83,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:08:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 84,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:02:18Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 85,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:18:58Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 86,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:11:39Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 87,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:00:17Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 88,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:21:04Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 89,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:31:29Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 90,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:28:24Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 91,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:47:35Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 92,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:09:33Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 93,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:00:01Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 94,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T11:23:59Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 95,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T10:17:32Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 96,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:30:30Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 97,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T09:35:16Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 98,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
+                },
+                {
+                  "value": "2026-03-01T08:09:57Z",
+                  "type": "string",
+                  "count": 1,
+                  "id": 99,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
-              ]
+              ],
+              "k": 100,
+              "hash": {
+                "algorithm": "blake2b",
+                "version": 1,
+                "bits": 128,
+                "seed": 42
+              },
+              "threshold": "5e816bf860a87d4f3ae68f7e15ac7978"
             },
             "first": {
               "value": "2026-03-01T08:00:16Z",
@@ -4733,27 +5349,42 @@
                 {
                   "value": "page_view",
                   "type": "string",
-                  "count": 152
+                  "count": 152,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "purchase",
                   "type": "string",
-                  "count": 21
+                  "count": 21,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "click",
                   "type": "string",
-                  "count": 80
+                  "count": 80,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "error",
                   "type": "string",
-                  "count": 26
+                  "count": 26,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "signup",
                   "type": "string",
-                  "count": 21
+                  "count": 21,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -6034,302 +6665,482 @@
                 {
                   "value": "33",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "20",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "8",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "37",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "30",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "54",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 5,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "50",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 6,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "51",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 7,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "13",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 8,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "60",
                   "type": "integer",
-                  "count": 7
+                  "count": 7,
+                  "id": 9,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "27",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 10,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "40",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 11,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "9",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 12,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "34",
                   "type": "integer",
-                  "count": 7
+                  "count": 7,
+                  "id": 13,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "23",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 14,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "49",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 15,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "58",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 16,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "39",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 17,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "22",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 18,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "43",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 19,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "31",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 20,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "53",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 21,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "16",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 22,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "24",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 23,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "17",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 24,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "14",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 25,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "18",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 26,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "36",
                   "type": "integer",
-                  "count": 7
+                  "count": 7,
+                  "id": 27,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "59",
                   "type": "integer",
-                  "count": 8
+                  "count": 8,
+                  "id": 28,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "26",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 29,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "35",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 30,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "56",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 31,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "47",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 32,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "4",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 33,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "6",
                   "type": "integer",
-                  "count": 7
+                  "count": 7,
+                  "id": 34,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "11",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 35,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "45",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 36,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "38",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 37,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "25",
                   "type": "integer",
-                  "count": 7
+                  "count": 7,
+                  "id": 38,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "28",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 39,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "3",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 40,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "1",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 41,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "12",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 42,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "5",
                   "type": "integer",
-                  "count": 5
+                  "count": 5,
+                  "id": 43,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "55",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 44,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "57",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 45,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "44",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 46,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "48",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 47,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "19",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 48,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "32",
                   "type": "integer",
-                  "count": 4
+                  "count": 4,
+                  "id": 49,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "52",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 50,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "15",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 51,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "42",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 52,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "29",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 53,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "10",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 54,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "41",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 55,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "21",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 56,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "46",
                   "type": "integer",
-                  "count": 2
+                  "count": 2,
+                  "id": 57,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "7",
                   "type": "integer",
-                  "count": 3
+                  "count": 3,
+                  "id": 58,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2",
                   "type": "integer",
-                  "count": 1
+                  "count": 1,
+                  "id": 59,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -6649,27 +7460,42 @@
                 {
                   "value": "DE",
                   "type": "string",
-                  "count": 53
+                  "count": 53,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "FR",
                   "type": "string",
-                  "count": 57
+                  "count": 57,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "US",
                   "type": "string",
-                  "count": 54
+                  "count": 54,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "CA",
                   "type": "string",
-                  "count": 45
+                  "count": 45,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "BE",
                   "type": "string",
-                  "count": 44
+                  "count": 44,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -7403,17 +8229,26 @@
                 {
                   "value": "free",
                   "type": "string",
-                  "count": 105
+                  "count": 105,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "team",
                   "type": "string",
-                  "count": 84
+                  "count": 84,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "pro",
                   "type": "string",
-                  "count": 111
+                  "count": 111,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -8384,27 +9219,42 @@
                 {
                   "value": "macOS",
                   "type": "string",
-                  "count": 58
+                  "count": 58,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Android",
                   "type": "string",
-                  "count": 61
+                  "count": 61,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Linux",
                   "type": "string",
-                  "count": 55
+                  "count": 55,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "iOS",
                   "type": "string",
-                  "count": 60
+                  "count": 60,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Windows",
                   "type": "string",
-                  "count": 66
+                  "count": 66,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -9141,12 +9991,18 @@
                 {
                   "value": "false",
                   "type": "boolean",
-                  "count": 171
+                  "count": 171,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "true",
                   "type": "boolean",
-                  "count": 129
+                  "count": 129,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -9462,42 +10318,66 @@
                 {
                   "value": "/login",
                   "type": "string",
-                  "count": 40
+                  "count": 40,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/checkout",
                   "type": "string",
-                  "count": 49
+                  "count": 49,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/blog",
                   "type": "string",
-                  "count": 41
+                  "count": 41,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/pricing",
                   "type": "string",
-                  "count": 36
+                  "count": 36,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/",
                   "type": "string",
-                  "count": 31
+                  "count": 31,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/docs",
                   "type": "string",
-                  "count": 51
+                  "count": 51,
+                  "id": 5,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/signup",
                   "type": "string",
-                  "count": 23
+                  "count": 23,
+                  "id": 6,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "/docs/install",
                   "type": "string",
-                  "count": 29
+                  "count": 29,
+                  "id": 7,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -10559,27 +11439,42 @@
                 {
                   "value": "newsletter",
                   "type": "string",
-                  "count": 94
+                  "count": 94,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "beta",
                   "type": "string",
-                  "count": 95
+                  "count": 95,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "promo",
                   "type": "string",
-                  "count": 84
+                  "count": 84,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "mobile",
                   "type": "string",
-                  "count": 84
+                  "count": 84,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "returning",
                   "type": "string",
-                  "count": 93
+                  "count": 93,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -11416,107 +12311,170 @@
                 {
                   "value": "79.2",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "30.23",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "59.65",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "47.97",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "269.96",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 4,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "216.5",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 5,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "91.93",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 6,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "94.1",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 7,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "160.1",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 8,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "232.05",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 9,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "239.9",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 10,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "248.12",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 11,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "273.29",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 12,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "226.44",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 13,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "165.74",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 14,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "51.35",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 15,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "203.71",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 16,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "289.62",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 17,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "262.23",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 18,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "23.43",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 19,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "151.62",
                   "type": "number",
-                  "count": 1
+                  "count": 1,
+                  "id": 20,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -11812,7 +12770,10 @@
                 {
                   "value": "EUR",
                   "type": "string",
-                  "count": 21
+                  "count": 21,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -12491,17 +13452,26 @@
                 {
                   "value": "500",
                   "type": "integer",
-                  "count": 11
+                  "count": 11,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "404",
                   "type": "integer",
-                  "count": 9
+                  "count": 9,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "503",
                   "type": "integer",
-                  "count": 6
+                  "count": 6,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -12802,12 +13772,18 @@
                 {
                   "value": "B",
                   "type": "string",
-                  "count": 10
+                  "count": 10,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "A",
                   "type": "string",
-                  "count": 20
+                  "count": 20,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -13453,12 +14429,12 @@
     }
   ],
   "report": {
-    "generated_at": "2026-10-07T06:22:10.656569Z",
+    "generated_at": "2026-10-08T03:46:18.177374Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.306,
+    "processing_seconds": 0.3753,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -13487,7 +14463,7 @@
       "engine_version": "0.6.2",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
       "config_sha256": "0f6a1f9ad757777e57f266fc906bf00447a68c3ca99dca86a20b5059b0cc0b41",
-      "facts_sha256": "8d99fa37d84b6ab48c28849bb656aa4ddb5396f90239d14da981230b1b9dd3f0"
+      "facts_sha256": "6257a98ef1560daac998973a7e4071e63d642f852ba566b0592d85576fcb3848"
     },
     "datasets": [
       {
@@ -13643,87 +14619,87 @@
                   "truncated": false
                 },
                 {
-                  "value": "evt-00014",
+                  "value": "evt-00015",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00026",
+                  "value": "evt-00020",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00041",
+                  "value": "evt-00038",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00050",
+                  "value": "evt-00042",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00082",
+                  "value": "evt-00051",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00095",
+                  "value": "evt-00064",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00120",
+                  "value": "evt-00096",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00137",
+                  "value": "evt-00100",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00166",
+                  "value": "evt-00122",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00172",
+                  "value": "evt-00148",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00198",
+                  "value": "evt-00197",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00215",
+                  "value": "evt-00211",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00222",
+                  "value": "evt-00237",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00249",
+                  "value": "evt-00263",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00273",
+                  "value": "evt-00275",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00288",
+                  "value": "evt-00282",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "evt-00291",
+                  "value": "evt-00294",
                   "count": 1,
                   "truncated": false
                 }
@@ -13834,42 +14810,42 @@
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T08:07:38Z",
+                  "value": "2026-03-01T08:06:09Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T08:19:03Z",
+                  "value": "2026-03-01T08:14:57Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T08:30:59Z",
+                  "value": "2026-03-01T08:20:35Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T08:56:27Z",
+                  "value": "2026-03-01T08:41:12Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T09:03:40Z",
+                  "value": "2026-03-01T08:58:40Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T09:11:39Z",
+                  "value": "2026-03-01T09:22:44Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T09:24:02Z",
+                  "value": "2026-03-01T09:31:29Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T09:45:56Z",
+                  "value": "2026-03-01T09:43:50Z",
                   "count": 1,
                   "truncated": false
                 },
@@ -13884,12 +14860,7 @@
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T10:14:51Z",
-                  "count": 1,
-                  "truncated": false
-                },
-                {
-                  "value": "2026-03-01T10:15:23Z",
+                  "value": "2026-03-01T10:10:36Z",
                   "count": 1,
                   "truncated": false
                 },
@@ -13899,22 +14870,27 @@
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T10:42:44Z",
+                  "value": "2026-03-01T10:49:08Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T11:06:50Z",
+                  "value": "2026-03-01T10:56:55Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T11:25:05Z",
+                  "value": "2026-03-01T11:15:43Z",
                   "count": 1,
                   "truncated": false
                 },
                 {
-                  "value": "2026-03-01T11:30:22Z",
+                  "value": "2026-03-01T11:23:59Z",
+                  "count": 1,
+                  "truncated": false
+                },
+                {
+                  "value": "2026-03-01T11:32:31Z",
                   "count": 1,
                   "truncated": false
                 }

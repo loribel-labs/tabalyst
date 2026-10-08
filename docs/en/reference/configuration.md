@@ -96,8 +96,8 @@ per length in its String analysis tooltip.
 - `kept_per_column`: how many values of the scan sample the report keeps and
   draws its examples from, from 1 to 1,000 (default `100`). The report keeps
   the whole scan sample when it has no more values, otherwise this many of its
-  values: the first ones when the scan sample is the first distinct values seen,
-  or values chosen with `scan.random_seed`. The report declares how many it
+  values: the ones of smallest hash priority, which the scan sample would also
+  keep at that size. The report declares how many it
   kept and how many the scan listed in `values.samples` (`kept` and `of`). A
   larger `scan.limits.max_samples` therefore does not change the examples of the
   report. Choosing diverse examples compares the values with
@@ -383,8 +383,7 @@ rejected before the scan starts.
 | `max_listed_records` | 10 | 10,000 | Record numbers listed per records block. |
 
 `max_distinct_per_field` cannot exceed `max_tracked_values`, and
-`max_samples` cannot exceed `max_distinct_per_field`: a sample is drawn from the
-distinct values that were tracked. When `max_samples` is not set, it is
+`max_samples` cannot exceed `max_distinct_per_field`. When `max_samples` is not set, it is
 10,000 or `max_distinct_per_field` when that is lower; the scan document
 records the value in force. Counters, statistics and detector coverage stay
 exact after a limit is reached.
@@ -506,5 +505,6 @@ values.
   addresses, phone numbers, IP addresses and sensitive patterns) appear in the
   result. `mask` (default) replaces letters with `A` or `a` and digits with
   `9`; `hide` removes the values and keeps the counts; `show` keeps them.
-- `random_seed`: seed of the value samples, so that two scans of the same file
-  with the same settings are identical.
+- `random_seed`: seed of the hash that orders the value samples, an integer from
+  0 to 2^64 - 1, so that two scans of the same file with the same settings are
+  identical.
