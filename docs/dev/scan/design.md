@@ -1669,6 +1669,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-07 | SJ-1b | Sections 9.1, 19.1 to 19.7: `values.samples` has `kept` and `of`; the Report is a `tabalyst.report` document (revision 2) with the base at its paths, the `report` block (`generated_at`, `generator`, `processing_seconds`, `config`, `base_scan`, `datasets`), reduced samples declared, the loader `load_document` and `load_base`, `facts_sha256`, the Report JSON Schema. | Scan and JSON work, lot 1b: Report as a superset of the Scan and the common loader. |
 | 2026-10-07 | SJ-1c | Sections 15, 19.3, 19.4, 19.4b: the `report` object of the configuration (`string_analysis`, `value_examples` moved from the top level), `report.value_examples.kept_per_column` (1 to 1,000, default 100) replaces `REPORT_SAMPLE_SIZE`, the pages read the base through `tabalyst.report_views` (`ColumnView` with the canonical `field`, `DatasetView`), `ScanFieldDetails` removed. | Scan and JSON work, lot 1c: projections and templates of the Report from the base. Maintainer decision of 2026-10-07 on the `report` object. |
 | 2026-10-07 | SJ-0 | O28 amended and section 18.2: T and K are separate (`max_distinct_per_field` unchanged, `max_samples` becomes K); `BottomKSampler.from_exact` (18.3). | Lot 0 baselines: T = 10,000 saves memory, not time, and costs exact measures that a first pass alone never gets back. Maintainer decision. |
+| 2026-10-07 | SJ-2a | Sections 18.3 and 18.8: `scanner/bottomk.py` (BLAKE2b 128 bits, `HASH_VERSION` 1, `update`, `retained`, `k`), the location of the sampler state (`ValueProcessor`, in the scan process or the worker of the field), the refusal measures. | Lot 2a of the Scan and JSON work: the sampler isolated from the product and the measured hash choice. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -1739,13 +1740,15 @@ the string `"123"` and the integer `123` stay distinct.
 
 | Name | Contract |
 | --- | --- |
-| `HASH_VERSION`, `HASH_BITS` | Version of the priority function and its width (128). |
-| `priority(key, *, seed=0) -> int` | Stable priority in `[0, 2**128)`, from the full key and the seed; never the builtin `hash()`. |
-| `BottomKSampler(k, *, seed=0, priority=None)` | `priority` replaces the function in tests (injected collisions). |
+| `HASH_ALGORITHM`, `HASH_VERSION`, `HASH_BITS` | `"blake2b"`, 1 and 128: the priority function, its version and its width (18.8). |
+| `priority(key, *, seed=0) -> int` | Stable priority in `[0, 2**128)`, from the full key and the seed (an integer in `[0, 2**64)`, else `ValueError`); never the builtin `hash()`. |
+| `BottomKSampler(k, *, seed=0, priority=None)` | `priority` replaces the function in tests (injected collisions). `k` and `seed` are attributes. |
 | `BottomKSampler.from_exact(k, counts, *, seed=0, priority=None, overflow_at_occurrence=None)` | The sample of an exact table of `counts` (key to exact count) that holds more than K keys: the K best, with their counts. The engine uses it at the overflow of its table of T keys (18.2); the result equals streaming the same keys. |
-| `.add(key, count=1)` | One or `count` occurrences. |
+| `.add(key, count=1)` | One or `count` occurrences; `count` below 1 is a `ValueError`. |
+| `.update(keys, counts)` | A batch of distinct keys with their counts (the engine's hot path: its batches of 4,096 distinct values, section 13), equivalent to adding the occurrences one by one in any order. Counts are not checked. |
 | `.entries()` | `Entry(key, priority, count)` ordered by `(priority, key)` ascending. |
 | `.occurrences` | Occurrences added. |
+| `.retained` | Keys in the sample (at most K). There is no `__len__`: an empty sampler must not be falsy. |
 | `.distinct_exact` | True while no overflow happened and no entry was dropped. |
 | `.overflow_at_occurrence` | 1-based occurrence number of the first occurrence of the (K + 1)th distinct key, else `None`. |
 | `.threshold` | Largest priority of the sample once it is full after an overflow, else `None`. |
@@ -1769,6 +1772,31 @@ Rules (BK-01 to BK-07, tests B01 to B06 and B09):
 - K can shrink to the smaller priorities; it cannot grow, because values
   rejected earlier are lost (B09).
 
+Implementation (lot 2a). The sampler does not keep a heap: it admits a key
+whose rank `(priority, key)` is below the limit of the last compaction, and
+compacts (sort, cut to K, new limit) when the first overflow is reached (K + 1
+keys) and then every half of K admissions. A key of the final sample is below
+every intermediate limit, so it is admitted at its first occurrence and never
+lost; the public members settle to exactly K keys first. The limit compares the
+complete key on equal priorities, which a heap of integers could not do. Memory
+at K = 10,000 is about 5.3 MB per field (550 bytes per entry, with the keys
+and the compaction slack).
+
+Where the state lives (confirmed at lot 2a). The sampler of a field belongs to
+the field's `ValueProcessor`, the object that already receives the released
+table (`release`) and then the streaming batches (`process`) of distinct values
+with their counts: in the scan process of a one-process scan, in the worker of
+the field in a parallel scan (section 13, item 7). The engine's
+`ValueTracker` keeps only the exact table of at most T keys, so the scan
+process gets no new per-value work. Lot 2b calls
+`BottomKSampler.from_exact` in `ValueProcessor.release` (and when a complete
+table of more than K keys is finalized) and `update` on each batch; the sample
+reaches the scan process inside the field's value block, as plain data like the
+rest. No merge between processes is needed. A merge would nevertheless be
+exact: a key of the global K best is among the K best of each partition that
+holds it and was never dropped there, so its partial counts sum to the total
+(useful for reading one source with several processes, section 13).
+
 ### 18.4 Counters
 
 Counts of retained keys are exact (`count_accuracy: "exact"`) when the key
@@ -1783,8 +1811,9 @@ After an overflow, with `K > 2` and a valid sample, `KmvEstimate` gives
 `relative_standard_error = 1 / sqrt(K - 2)`; `k`; `theta_hex` (the threshold
 as 32 hexadecimal digits, since a 128-bit integer is not a safe JSON number).
 `kmv_estimate(threshold=..., k=...)` raises `ValueError` for `k < 3`, a
-threshold of 0 or one at or above `2**128`. No estimate is made while the
-domain is exact. The estimate serves planning; it is not a count of
+threshold of 0 or one at or above `2**128`; `BottomKSampler.kmv()` returns
+`None` instead for a threshold outside that range, which only injected
+priorities produce. No estimate is made while the domain is exact. The estimate serves planning; it is not a count of
 duplicates or a proof of uniqueness. Certain bounds (`lower_bound`,
 `upper_bound`) stay separate from the statistical interval, and an estimate
 may be published with a version clamped to them, with the raw value kept.
@@ -1814,12 +1843,39 @@ of it is announced as exact (B12). Names are provisional until lot 3a.
 
 ### 18.8 Hash choice and refusal threshold
 
-The function is chosen at lot 2a after measuring candidates (BLAKE2b 128 bits
-and other fast functions) on batches of distinct values. It is versioned
-(`HASH_VERSION`); a golden-value test pins it. A candidate is refused when the
-first pass of the realistic dataset regresses by more than 20% against the
-lot 0 baseline on the same machine, or the worst-width dataset (30 columns
-including 5 unique identifiers) by more than 35%.
+Decided at lot 2a from the measures of `benchmarks/bottomk_hash.py`
+([benchmarks.md](benchmarks.md)): **BLAKE2b with a 128-bit digest**
+(`HASH_ALGORITHM = "blake2b"`, `HASH_VERSION = 1`, `HASH_BITS = 128`). The
+message is the 8-byte little-endian seed, then the type, a NUL character and
+the text in UTF-8 (lone surrogates kept, `surrogatepass`); the seed is
+absorbed once and the state copied for each key. It is the fastest function of
+the 128-bit candidates (0.3 to 0.45 microseconds per key, encoding included;
+SHA-256, SHA-1 and MD5 take 0.6 to 0.9, SHAKE-128 0.9 to 1.0) and BLAKE2s is no
+faster. The 64-bit CRC-32 pairs, about 20% cheaper, are refused: 64 bits is
+below the contract, and a linear checksum is not a hash whose independence
+across seeds the estimate can rely on. No third-party library (xxHash, MurmurHash)
+is added for a gain of about 0.2 microseconds per key. The KMV error on
+sequential identifiers is within the model for every 128-bit candidate (12
+seeds), so quality does not separate them.
+
+The version is part of the output (`values.samples.hash`, 18.9). Changing the
+function, the seed encoding or the key encoding raises `HASH_VERSION`; a golden
+test (`tests/scan/test_bottomk.py`) pins the priorities of fixed keys.
+
+Refusal rule: a candidate is refused when the first pass of the realistic dataset
+regresses by more than 20% against the baseline of the same session, or the
+worst-width dataset (30 columns including 5 unique identifiers) by more than
+35%. The prototype of lot 2b (a patched `ValueProcessor`, throwaway) costs
+3.4% on the combined file, 5.3% on the worst-width file and 3.4% on
+`insurance-ontario` in the default parallel mode, where the workers hash. In one
+process (`workers=1`, not the default) it costs 25%, 47% and 36%: the sampler
+and the key conversion of the prototype, not the hash, which is about 0.35 of the
+1.7 microseconds per key measured there. Lot 2b must bring the one-process cost down
+(no conversion of keys, no intermediate table) and measure it again; the
+parallel figures are its reference. Two levers are noted for it: a table of at
+most K distinct keys needs no priority in the Scan (its sample is `all`; the
+Report can hash its few kept values), and only a field whose sample must be cut
+(a table above K, a released table) pays the hash.
 
 ### 18.9 Output (cardinality settled at lot 1a, samples at lot 2b)
 

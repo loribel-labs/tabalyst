@@ -10,6 +10,11 @@ normalization and future detectors, not only raw reading speed.
 
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.csv
     python benchmarks/generate_data.py --rows 100000 -o benchmarks/data/synthetic-100k.json
+    python benchmarks/generate_data.py --rows 1000000 --layout worst-width -o D:/GIT.test/tabalyst/bench/worst-width-1m.csv
+
+The ``worst-width`` layout (CSV only) is the stress case of the bottom-k work:
+30 columns, five of them unique identifiers (``id``, ``customer_uuid``,
+``email``, ``account_number``, ``session_token``).
 """
 
 import argparse
@@ -127,6 +132,30 @@ def _record(rng: random.Random, index: int) -> dict[str, object]:
     }
 
 
+WIDE_FIELDS = [
+    *FIELDS,
+    "account_number", "session_token", "region_code", "segment", "channel",
+    "risk_class", "renewal", "discount", "tenure_months", "note",
+]  # fmt: skip
+
+
+def _wide_record(rng: random.Random, index: int) -> dict[str, object]:
+    """A record of 30 columns: those of ``_record`` plus two more identifiers
+    and eight ordinary columns."""
+    record = _record(rng, index)
+    record["account_number"] = f"ACC-{index:09d}"
+    record["session_token"] = f"{rng.getrandbits(96):024x}"
+    record["region_code"] = rng.choice(["QC-01", "QC-02", "ON-01", "ON-02", "BC-01"])
+    record["segment"] = rng.choice(["retail", "retail", "business", "premium"])
+    record["channel"] = rng.choice(["web", "phone", "branch", "partner"])
+    record["risk_class"] = rng.choice("ABCDE")
+    record["renewal"] = rng.choice(BOOLEANS)
+    record["discount"] = rng.choice([0, 5, 10, 15, 20])
+    record["tenure_months"] = rng.randint(0, 240)
+    record["note"] = "" if rng.random() < 0.7 else rng.choice(WORDS)
+    return record
+
+
 def _csv_value(field: str, value: object) -> str:
     if value is None:
         return "N/A"
@@ -135,14 +164,17 @@ def _csv_value(field: str, value: object) -> str:
     return str(value)
 
 
-def write_csv(path: Path, rows: int, seed: int) -> None:
+def write_csv(path: Path, rows: int, seed: int, layout: str = "standard") -> None:
     rng = random.Random(seed)
+    fields, build = (
+        (WIDE_FIELDS, _wide_record) if layout == "worst-width" else (FIELDS, _record)
+    )
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
-        writer.writerow(FIELDS)
+        writer.writerow(fields)
         for index in range(1, rows + 1):
-            record = _record(rng, index)
-            writer.writerow(_csv_value(field, record[field]) for field in FIELDS)
+            record = build(rng, index)
+            writer.writerow(_csv_value(field, record[field]) for field in fields)
 
 
 def write_json(path: Path, rows: int, seed: int) -> None:
@@ -198,6 +230,12 @@ def main() -> None:
     parser.add_argument("--rows", type=int, required=True)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
+        "--layout",
+        choices=["standard", "worst-width"],
+        default="standard",
+        help="worst-width: 30 columns including 5 unique identifiers (CSV only).",
+    )
+    parser.add_argument(
         "-o",
         "--output",
         type=Path,
@@ -207,8 +245,10 @@ def main() -> None:
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     suffix = args.output.suffix.lower()
+    if args.layout != "standard" and suffix != ".csv":
+        parser.error("the worst-width layout writes CSV only")
     if suffix == ".csv":
-        write_csv(args.output, args.rows, args.seed)
+        write_csv(args.output, args.rows, args.seed, args.layout)
     elif suffix == ".json":
         write_json(args.output, args.rows, args.seed)
     elif suffix == ".jsonl":
