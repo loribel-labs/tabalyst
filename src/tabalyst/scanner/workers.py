@@ -251,10 +251,11 @@ class WorkerPool:
         counts: list,
         limited,
         scalars: bool,
-        grants: tuple[int, int],
+        grants: tuple[int, int, int],
     ) -> int:
         """Start processing a released table; returns the worker of the field.
-        ``grants`` are the sizes of its sample and of its long texts."""
+        ``grants`` are the sizes of its sample, of its long texts and of its
+        samples by length."""
         index = self._least_loaded()
         limit = (limited.reason, limited.limit, limited.lower_bound)
         message = ("release", field, keys, counts, limit, scalars, grants)
@@ -285,12 +286,13 @@ class WorkerPool:
         counts: list,
         ends: tuple,
         scalars: bool,
-        sample_k: int | None,
+        sample_grant: tuple[int, int] | None,
     ) -> int:
-        """Finalize a field from its complete table, whose sample has the size
-        ``sample_k`` granted by the memory budget; returns its worker."""
+        """Finalize a field from its complete table, whose sample and samples
+        by length have the sizes ``sample_grant`` granted by the memory budget;
+        returns its worker."""
         index = self._least_loaded()
-        message = ("table", field, keys, counts, ends, scalars, sample_k)
+        message = ("table", field, keys, counts, ends, scalars, sample_grant)
         self._send(index, message, len(keys))
         return index
 
@@ -375,7 +377,12 @@ def main() -> None:
     _write(stdout, pickle.dumps(("ready",), pickle.HIGHEST_PROTOCOL))
 
     def finalize(
-        field: int, processor, table, ends, scalars: bool, sample_k: int | None = None
+        field: int,
+        processor,
+        table,
+        ends,
+        scalars: bool,
+        sample_grant: tuple[int, int] | None = None,
     ) -> None:
         events: list[tuple[str, str, object]] = []
 
@@ -387,7 +394,7 @@ def main() -> None:
             events.append(("probe", detector, (count, warmup_reactions)))
             return -len(events)
 
-        blocks = processor.finalize(table, ends, failure, probe, scalars, sample_k)
+        blocks = processor.finalize(table, ends, failure, probe, scalars, sample_grant)
         plain = {key: _plain(value) for key, value in blocks.items()}
         reply = pickle.dumps(("done", field, plain, events), pickle.HIGHEST_PROTOCOL)
         _write(stdout, reply)
@@ -409,10 +416,10 @@ def main() -> None:
                 _, _, ends = message
                 finalize(field, processors.pop(field), None, ends, False)
             elif kind == "table":
-                _, _, keys, counts, ends, scalars, sample_k = message
+                _, _, keys, counts, ends, scalars, sample_grant = message
                 table = dict(zip(keys, counts, strict=True))
                 processor = ValueProcessor(context)
-                finalize(field, processor, table, ends, scalars, sample_k)
+                finalize(field, processor, table, ends, scalars, sample_grant)
     except KeyboardInterrupt:
         return
     except BaseException:  # noqa: BLE001 - reported to the scan process

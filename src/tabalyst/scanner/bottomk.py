@@ -92,6 +92,27 @@ def priority(key: Key, *, seed: int = 0) -> int:
     return _hasher(seed)(key)
 
 
+def priorities(keys: Iterable[Key], *, seed: int = 0) -> list[int]:
+    """The priorities of keys, in order: ``priority`` computed once for a batch
+    that several samplers share (the sample and its length strata)."""
+    return list(map(_hasher(seed), keys))
+
+
+def string_priorities(texts: Iterable[str], *, seed: int = 0) -> list[int]:
+    """``priorities`` of the keys ``("string", text)``, given as their texts,
+    without building the keys (the engine's hot path for fields of strings)."""
+    copy = _prototype(seed).copy
+    from_bytes = int.from_bytes
+    prefix = _STRING_PREFIX
+    values = []
+    append = values.append
+    for text in texts:
+        state = copy()
+        state.update(prefix + text.encode("utf-8", "surrogatepass"))
+        append(from_bytes(state.digest(), "big"))
+    return values
+
+
 def kmv_estimate(*, threshold: int, k: int) -> KmvEstimate:
     """KMV estimate of the distinct keys from the K-th smallest priority.
 
@@ -192,6 +213,7 @@ class BottomKSampler:
         seed: int = 0,
         priority: PriorityFunction | None = None,
         overflow_at_occurrence: int | None = None,
+        priorities: Sequence[int] | None = None,
     ) -> BottomKSampler:
         """The sample of an exact table of keys with their counts.
 
@@ -199,7 +221,9 @@ class BottomKSampler:
         keys: the K best with their counts. The engine calls it when its table
         of T keys is released (design 18.2). ``overflow_at_occurrence`` is the
         occurrence the caller knows proved the overflow, if any. Counts must
-        be at least 1.
+        be at least 1. ``priorities``, in the order of ``counts``, are those of
+        the keys when the caller already computed them for another sampler
+        (same function and seed).
         """
         sampler = cls(k, seed=seed, priority=priority)
         if counts and min(counts.values()) < 1:
@@ -211,13 +235,15 @@ class BottomKSampler:
         sampler._rejected = max(len(counts) - k, 0)
         if len(counts) <= k:
             sampler._counts.update(counts)
-            sampler._priorities.update(zip(counts, map(rank, counts)))
+            sampler._priorities.update(
+                zip(counts, map(rank, counts) if priorities is None else priorities)
+            )
             return sampler
         # Sorting every key would cost far more than the hash: the K-th
         # smallest priority bounds the keys worth ranking (ties on it are
         # settled by the complete key, as everywhere).
         keys = list(counts)
-        values = list(map(rank, keys))
+        values = list(map(rank, keys)) if priorities is None else list(priorities)
         cut = sorted(values)[k - 1]
         ranked = sorted((v, key) for v, key in zip(values, keys) if v <= cut)[:k]
         sampler._counts.update((key, counts[key]) for _, key in ranked)
@@ -236,14 +262,15 @@ class BottomKSampler:
         *,
         seed: int = 0,
         overflow_at_occurrence: int | None = None,
+        priorities: Sequence[int] | None = None,
     ) -> BottomKSampler:
         """``from_exact`` for a table of keys of the type ``"string"`` given as
         texts with their counts: the same sample, without building a key or a
         table for the keys that are dropped (the engine's release of a table
-        of T strings)."""
+        of T strings). ``priorities`` are those of the texts, when computed."""
         if len(texts) <= k:
             sampler = cls(k, seed=seed)
-            sampler.update_strings(texts, counts)
+            sampler.update_strings(texts, counts, priorities)
             if counts and min(counts) < 1:
                 raise ValueError("counts must be at least 1")
             return sampler
@@ -254,15 +281,9 @@ class BottomKSampler:
         sampler._hashed = len(texts)
         sampler._admitted = k
         sampler._rejected = len(texts) - k
-        copy = _prototype(seed).copy
-        from_bytes = int.from_bytes
-        prefix = _STRING_PREFIX
-        values = []
-        append = values.append
-        for text in texts:
-            state = copy()
-            state.update(prefix + text.encode("utf-8", "surrogatepass"))
-            append(from_bytes(state.digest(), "big"))
+        values = (
+            string_priorities(texts, seed=seed) if priorities is None else priorities
+        )
         cut = sorted(values)[k - 1]
         ranked = sorted(
             (value, texts[position], counts[position])
@@ -329,23 +350,13 @@ class BottomKSampler:
             self._hits += hits
             self._rejected += hashed - admitted
 
-    def update_strings(self, texts: Iterable[str], counts: Iterable[int]) -> None:
-        """``update`` for distinct keys of the type ``"string"``, given as their
-        texts: the engine's hot path for fields of strings.
-
-        The same result as ``update`` with the keys ``("string", text)``. Once
-        the sample is full, a text whose priority is above the limit is
-        rejected before any key is built or looked up: a retained key never
-        has a priority above the limit.
-        """
-        if self._custom:
-            self.update(zip(repeat("string"), texts), counts)
-            return
+    def update_ranked(
+        self, keys: Sequence[Key], counts: Sequence[int], priorities: Sequence[int]
+    ) -> None:
+        """``update`` with the priorities of the keys already computed (by
+        another sampler that shares them). Same result and same contract."""
         retained = self._counts
-        priorities = self._priorities
-        copy = _prototype(self.seed).copy
-        from_bytes = int.from_bytes
-        prefix = _STRING_PREFIX
+        stored = self._priorities
         trigger = self._trigger
         occurrences = self._occurrences
         hashed = admitted = hits = 0
@@ -356,10 +367,75 @@ class BottomKSampler:
         else:
             limit_priority, limit_key = limit
         try:
-            for text, count in zip(texts, counts, strict=True):
-                state = copy()
-                state.update(prefix + text.encode("utf-8", "surrogatepass"))
-                value = from_bytes(state.digest(), "big")
+            for key, count, value in zip(keys, counts, priorities, strict=True):
+                hashed += 1
+                known = retained.get(key)
+                if known is not None:
+                    retained[key] = known + count
+                    hits += 1
+                elif value < limit_priority or (
+                    value == limit_priority and key < limit_key
+                ):
+                    retained[key] = count
+                    stored[key] = value
+                    admitted += 1
+                    if len(retained) >= trigger:
+                        limit_priority, limit_key = self._compact(occurrences + 1)
+                        trigger = self._trigger
+                occurrences += count
+        finally:
+            self._occurrences = occurrences
+            self._hashed += hashed
+            self._admitted += admitted
+            self._hits += hits
+            self._rejected += hashed - admitted - hits
+
+    def count_occurrences(self, occurrences: int) -> None:
+        """Account for occurrences of keys the caller rejected itself (their
+        priority is above ``admission_limit``): they count, they are not kept."""
+        self._occurrences += occurrences
+
+    @property
+    def admission_limit(self) -> float:
+        """Priority above which a key cannot enter the sample: infinite while
+        nothing was dropped. It is the limit of the last compaction, so it may
+        be looser than ``threshold`` and never tighter."""
+        limit = self._limit
+        return math.inf if limit is None else limit[0]
+
+    def update_strings(
+        self,
+        texts: Sequence[str],
+        counts: Iterable[int],
+        priorities: Sequence[int] | None = None,
+    ) -> None:
+        """``update`` for distinct keys of the type ``"string"``, given as their
+        texts: the engine's hot path for fields of strings. ``priorities`` are
+        those of the texts when the caller computed them for another sampler.
+
+        The same result as ``update`` with the keys ``("string", text)``. Once
+        the sample is full, a text whose priority is above the limit is
+        rejected before any key is built or looked up: a retained key never
+        has a priority above the limit.
+        """
+        if self._custom:
+            self.update(zip(repeat("string"), texts), counts)
+            return
+        retained = self._counts
+        stored = self._priorities
+        if priorities is None:
+            priorities = string_priorities(texts, seed=self.seed)
+        trigger = self._trigger
+        occurrences = self._occurrences
+        hashed = admitted = hits = 0
+        limit = self._limit
+        limit_priority: float
+        if limit is None:
+            limit_priority, limit_key = math.inf, ("", "")
+        else:
+            limit_priority, limit_key = limit
+        try:
+            for text, count, value in zip(texts, counts, priorities, strict=True):
                 hashed += 1
                 if value <= limit_priority:
                     key = ("string", text)
@@ -369,7 +445,7 @@ class BottomKSampler:
                         hits += 1
                     elif value < limit_priority or key < limit_key:
                         retained[key] = count
-                        priorities[key] = value
+                        stored[key] = value
                         admitted += 1
                         if len(retained) >= trigger:
                             limit_priority, limit_key = self._compact(occurrences + 1)

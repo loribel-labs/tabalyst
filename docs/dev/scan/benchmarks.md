@@ -415,6 +415,98 @@ bytes plus two per character of the mean stored value (`memory.sample_entry_byte
 checked against `tracemalloc` by a test; the default budget of 512 MiB covers 34
 columns of 10,000 values of 40 characters each (about 7 MB a column).
 
+## Samples by length (lot 3a)
+
+Same method as lots 2a to 2c: the working tree against a `git worktree` of the base
+commit (`a7ce56f`, lot 2c), alternated in one session (the first tree alternates
+from one series to the next), one fresh interpreter per run, three series
+(`benchmarks/scan_json_baseline.py`, tasks `scan` and `scan-single`; driver and logs
+under `D:/GIT.test/tabalyst/artifacts/scan-json-lot3a/`). Medians of the paired
+ratios (new / base - 1). `insurance-ontario.csv` has two series only (its first was
+a probe).
+
+| File | Mode | Paired ratios | Median |
+| --- | --- | --- | ---: |
+| insurance-combined.csv | default | +5.1%, -2.8%, +3.4% | +3.4% |
+| worst-width-1m.csv | default | +5.9%, +3.9%, +12.1% | +5.9% |
+| insurance-ontario.csv | default | +0.2%, -0.3% | -0.0% |
+| long-text-60k.csv | default | +4.4%, -7.5%, +0.1% | +0.1% |
+| many-lengths-500k.csv | default | +8.5%, -3.9%, +0.8% | +0.8% |
+| insurance-combined.csv | 1 process | -4.1%, -3.6%, +5.7% | -3.6% |
+| worst-width-1m.csv | 1 process | +2.4%, -3.9%, -2.0% | -2.0% |
+| insurance-ontario.csv | 1 process | +4.2%, +4.2% | +4.2% |
+| long-text-60k.csv | 1 process | -2.4%, +19.5%, -0.9% | -0.9% |
+| many-lengths-500k.csv | 1 process | +9.4%, +9.4%, +8.7% | +9.4% |
+
+All medians are under the thresholds (20%, 35% for the worst-width file). The
+added work per distinct key of a `bottom_k` field is a `len`, a dictionary lookup
+and a comparison with the admission limit of the stratum; the priority is computed
+once for the sample and its strata (`bottomk.string_priorities`), and only the keys
+that can enter a stratum are handed to it. The worst-width file barely changes
+because its identifiers all have one length. The peak memory moves by +0.1% to
++9% (combined 987 to 988 MB; the stress file 211 to 230 MB in one process); the
+indented Scan grows by 0.1 MB (combined), 0.9 MB (worst width) and 2.8 MB
+(long texts), the pool of values that the sample does not hold.
+
+`many-lengths-500k.csv` (177,725,201 bytes) is a stress file written for this lot:
+500,000 rows, `name` (3 to 40 characters), `comment` (10 to 200), `code` (6 to 12),
+`wide` (1 to 400, so more lengths than the 64 tracked), a unique `id` and a
+37-value `label`, random content. The file measured came from a one-off script of the same
+distribution (seed 7, LF line ends); `generate_data.py --layout many-lengths` now
+writes an equivalent one. It exercises the slow path of untracked lengths (`other`).
+
+**Plateau of memory (PERF-05).** `test_memory_does_not_grow_with_the_number_of_lengths_met`
+scans 8,000 and 32,000 rows with 40 lengths in cycle: the peak is within 10% (2.20
+MB against 2.20 MB measured), once 30 strata of 20 values are full.
+
+## Row sample (lot 3b)
+
+**Priority of a position** (`benchmarks/rowsample_priority.py`, 1,000,000 positions, 64 bits
+each, all distinct): a BLAKE2b call per position 0.27 to 0.29 s, a splitmix64 mix in Python
+0.27 s, and the choice of the row sample, one BLAKE2b-512 call for a block of eight positions
+and the eight little-endian words of its digest, 0.07 to 0.08 s. A hash that does not look at
+the cells is what the row sample needs (ROW-05), and the block makes it 3.5 times cheaper.
+Isolated sampler, 34 columns: 0.084 microseconds per row for the CSV batches (1,003,520 rows
+in 0.084 s), 0.96 microseconds per record once the middle is full for single records (against
+tens of microseconds of reading a JSON record).
+
+**First pass.** Same method as lots 2a to 3a: the working tree against a `git worktree` of
+the base, alternated in one session (the first tree alternates from one series to the next),
+one fresh interpreter per run, three series (`benchmarks/scan_json_baseline.py`, tasks `scan`
+and `scan-single`; driver and logs under `D:/GIT.test/tabalyst/artifacts/scan-json-lot3b/`).
+The base is the state of lot 3a (commit `a7ce56f` plus the uncommitted lot 3a), so the figures
+are the cost of the row sample alone. Medians of the paired ratios (new / base - 1):
+
+| File | Mode | Paired ratios | Median |
+| --- | --- | --- | ---: |
+| insurance-combined.csv | default | +4.5%, +12.2%, -3.3% | +4.5% |
+| worst-width-1m.csv | default | +2.6%, +8.9%, +5.8% | +5.8% |
+| insurance-ontario.csv | default | -8.6%, -0.8%, +7.2% | -0.8% |
+| long-text-60k.csv | default | -6.6%, -8.9%, -4.5% | -6.6% |
+| insurance-combined.csv | 1 process | +2.0%, +4.5%, +12.8% | +4.5% |
+| worst-width-1m.csv | 1 process | +25.1%, +1.7%, +4.7% | +4.7% |
+| insurance-ontario.csv | 1 process | -0.0%, -5.0%, +6.6% | -0.0% |
+| long-text-60k.csv | 1 process | -0.0%, +4.4%, -8.9% | -0.0% |
+| synthetic-100k.jsonl (68 MB) | default | +2.7%, -7.2%, +5.2% | +2.7% |
+| synthetic-100k.json (68 MB) | default | +5.2%, +9.0%, +3.3% | +5.2% |
+
+All medians are under the thresholds (20%, 35% for the worst-width file). The +25.1% of the
+first worst-width series in one process is the base's own variance: the same base took 56.8 s
+in that series and 75.0 and 74.5 s in the next two, while the new tree took 71.1, 76.3 and
+78.1 s (the paired ratio of the last two is +1.7% and +4.7%). The peak memory moves by +0.1% to
++1.3%. The CSV path stays the batch path: the row sample takes the rows of a batch as they
+are, once per batch, and projects only the 50 first rows, the rows admitted to the middle
+(a few thousand for a million rows) and the 50 last. The indented Scan (`json.dumps(indent=2)`, the figure the
+script reports) grows by 2.8 MB (combined), 2.6 MB (worst width), 2.7 MB (ontario), 1.1 MB (long
+texts) and 2.0 MB (JSONL). As written (`dump_json`), the Scan of insurance-ontario grows from
+10.4 to 11.2 MB compact (the default) and from 13.6 to 14.5 MB with `output.json_indent`, where
+each row takes one line.
+
+**Model of the memory.** `rowsample.TABLE_ROW_BYTES` and the other constants are checked against
+`tracemalloc` by tests: for rows of 5, 30 and 100 columns the model is 0.98 to 1.15 times the
+measure (table rows) and 1.02 to 1.37 times (records). The plateau test feeds 5,000 and 40,000
+rows through a sample of 200: the retained memory is the same within 10%.
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

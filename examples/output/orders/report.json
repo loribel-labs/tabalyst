@@ -23,16 +23,16 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T12:08:16.937136Z",
-    "duration_seconds": 0.025293,
+    "started_at": "2026-10-08T17:25:25.740589Z",
+    "duration_seconds": 0.025805,
     "timings": {
-      "reading": 0.003053,
-      "analysis": 0.002389,
-      "finalize": 0.01946,
-      "other": 0.000391
+      "reading": 0.011536,
+      "analysis": 0.003407,
+      "finalize": 0.010508,
+      "other": 0.000355
     },
     "workers": 1,
-    "peak_memory_bytes": 51609600
+    "peak_memory_bytes": 52092928
   },
   "source": {
     "format": "json",
@@ -116,6 +116,8 @@
       "max_samples": 100,
       "max_long_samples": 100,
       "long_preview_chars": 200,
+      "max_samples_per_length": 100,
+      "max_length_strata": 64,
       "max_sample_memory": 536870912,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
@@ -125,7 +127,13 @@
     },
     "records": {
       "preview": 20,
-      "duplicates": true
+      "duplicates": true,
+      "sample": {
+        "rows": 1000,
+        "edge": 50,
+        "cell_chars": 200,
+        "max_bytes": 16777216
+      }
     },
     "types": {
       "minimum_confidence": 0.95
@@ -267,7 +275,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "a04a5a2090e8f8e5e6f39551179d501e84260607a5d0c564bd46387f40a13315",
+  "config_sha256": "bb9a737089a00341fd9549f529eddf0c415c2da394412e3a5a40a2bbb199ebd7",
   "scope": {
     "collections": {
       "mode": "explicit",
@@ -1495,7 +1503,55 @@
               ]
             }
           }
-        ]
+        ],
+        "sample": {
+          "selection": "start_middle_end",
+          "hash": {
+            "algorithm": "blake2b",
+            "version": 1,
+            "bits": 64,
+            "seed": 42
+          },
+          "requested": {
+            "rows": 1000,
+            "edge": 50,
+            "middle": 900
+          },
+          "middle_k": 900,
+          "population": {
+            "records": 60,
+            "interior": 0,
+            "scope": "interior_rows"
+          },
+          "complete": true,
+          "fields": [
+            "f1",
+            "f2",
+            "f3",
+            "f4",
+            "f6",
+            "f7",
+            "f8",
+            "f9",
+            "f11",
+            "f14",
+            "f15",
+            "f16",
+            "f19",
+            "f20",
+            "f21",
+            "f22",
+            "f23"
+          ],
+          "fields_limited": false,
+          "cell_chars": 200,
+          "truncated_cells": 0,
+          "bytes": 378917,
+          "max_bytes": 16777216,
+          "kept": 0,
+          "of": 60,
+          "rows": []
+        }
       },
       "fields": [
         {
@@ -10759,7 +10815,28 @@
                 "bits": 128,
                 "seed": 42
               },
-              "threshold": "cec7a8e470b91e65f85c068387d703c0"
+              "threshold": "cec7a8e470b91e65f85c068387d703c0",
+              "by_length": {
+                "domain": "original",
+                "unit": "characters",
+                "per_length_k": 100,
+                "max_lengths": 45,
+                "limited": false,
+                "tracked": 1,
+                "strata": [
+                  {
+                    "length": 7,
+                    "selection": "bottom_k",
+                    "kept": 0,
+                    "of": 100,
+                    "occurrences": 119,
+                    "count_accuracy": "exact",
+                    "threshold": "cec7a8e470b91e65f85c068387d703c0",
+                    "ids": []
+                  }
+                ],
+                "listed": []
+              }
             },
             "first": {
               "value": "O0002-1",
@@ -16531,12 +16608,12 @@
   ],
   "diagnostics": [],
   "report": {
-    "generated_at": "2026-10-08T12:27:40.385633Z",
+    "generated_at": "2026-10-08T17:25:25.867652Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1292,
+    "processing_seconds": 0.1657,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -16564,8 +16641,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
-      "config_sha256": "a04a5a2090e8f8e5e6f39551179d501e84260607a5d0c564bd46387f40a13315",
-      "facts_sha256": "71a70422b5534fa48ecbd42931d90915ab72f722b9ae41e77d11d6ca615af1cf"
+      "config_sha256": "bb9a737089a00341fd9549f529eddf0c415c2da394412e3a5a40a2bbb199ebd7",
+      "facts_sha256": "14c7094476998027c3b13a3705571b28576c0b4b207311fb7199973e0dba0ab3"
     },
     "datasets": [
       {

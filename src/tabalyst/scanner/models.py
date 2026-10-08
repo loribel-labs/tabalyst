@@ -86,7 +86,7 @@ IntMeasure = measure(int)
 # Accuracy of a value or of the identity of the values it counts (design 18.1):
 # ``exact``, ``estimated`` by a named method, ``fingerprint_based`` (equality of
 # a digest, not of the whole value) or ``unknown``.
-Accuracy = Literal["exact", "estimated", "fingerprint_based", "unknown"]
+Accuracy = Literal["exact", "estimated", "fingerprint_based", "partial", "unknown"]
 
 
 class EstimatePart(ScanModel):
@@ -326,6 +326,72 @@ class LongTexts(ScanModel):
         return _omit_none(handler(self), ("requested_k", "hash", "threshold"))
 
 
+class LengthOther(ScanModel):
+    """What the strata by length do not hold: ``lengths`` distinct lengths that
+    are not tracked and the ``occurrences`` counted while they were not
+    (design 18.7). The strata and ``other`` add up to every stored value."""
+
+    lengths: int
+    occurrences: int
+
+
+class LengthStratum(ScanModel):
+    """The values of one length, a bottom-k sample of the originals.
+
+    ``ids`` number entries of ``samples.listed`` or of ``by_length.listed``;
+    ``kept`` of the ``of`` values sampled are listed (exposure withholds them).
+    ``count_accuracy`` is ``exact`` when the length was tracked from its first
+    occurrence; ``partial`` when it was admitted late, and then the counts cover
+    the occurrences from ``tracking_started_at_occurrence`` on (LEN-05).
+    ``selection`` is ``all`` while the stratum dropped no value.
+    """
+
+    length: int
+    selection: Literal["all", "bottom_k"]
+    kept: int
+    of: int
+    occurrences: int
+    count_accuracy: Accuracy
+    tracking_started_at_occurrence: int | None = None
+    threshold: str | None = None
+    ids: list[int]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self), ("tracking_started_at_occurrence", "threshold")
+        )
+
+
+class ByLength(ScanModel):
+    """Samples by length of the original text (design 18.7), a stratum for each
+    of at most ``max_lengths`` tracked lengths with ``per_length_k`` values each.
+
+    A stratum lists the ``id`` of its values; one that is already in the
+    ``listed`` of ``samples`` is not copied, ``listed`` here holds the others and
+    its ids continue the numbering of the sample. ``limited`` says that some
+    stored values are in no stratum: ``other`` sums them. ``max_lengths`` is the
+    number in force, ``requested_max_lengths`` the one asked for when the memory
+    budget (design 18.10) granted fewer.
+    """
+
+    domain: Literal["original"]
+    unit: Literal["characters"]
+    per_length_k: int
+    max_lengths: int
+    requested_max_lengths: int | None = None
+    reason: str | None = None
+    limited: bool
+    tracked: int
+    strata: list[LengthStratum]
+    other: LengthOther | None = None
+    listed: list[SampleEntry]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("requested_max_lengths", "reason", "other"))
+
+
 class Samples(ScanModel):
     """Distinct original values with their exact counts (design 18.9).
 
@@ -352,12 +418,23 @@ class Samples(ScanModel):
     # The values longer than ``limits.max_stored_value_length``, absent when
     # the field has none (design 18.6).
     long_texts: LongTexts | None = None
+    # Samples by length of the stored values, only for a ``bottom_k`` sample
+    # (an ``all`` sample lists every value) and when they are turned on.
+    by_length: ByLength | None = None
 
     @model_serializer(mode="wrap")
     def _omit_bottom_k(self, handler) -> dict[str, Any]:
         return _omit_none(
             handler(self),
-            ("k", "requested_k", "reason", "hash", "threshold", "long_texts"),
+            (
+                "k",
+                "requested_k",
+                "reason",
+                "hash",
+                "threshold",
+                "long_texts",
+                "by_length",
+            ),
         )
 
 
@@ -665,11 +742,120 @@ class PreviewRecord(ScanModel):
     values: dict[str, list[str | None] | None]
 
 
+RowOrigin = Literal["start", "middle", "end"]
+
+
+class SampleRow(ScanModel):
+    """A row of the row sample: its position in the dataset (the record index),
+    the groups it belongs to and the cells of the projected fields.
+
+    ``values`` has the shape of ``PreviewRecord.values``: canonical text per
+    field id, a list when the path repeats, ``null`` for a JSON null or a hidden
+    cell, no key for a field absent from the record. ``truncated`` lists the
+    fields whose cell was cut at ``cell_chars`` (design 18.11).
+    """
+
+    record: int
+    origins: list[RowOrigin]
+    values: dict[str, list[str | None] | None]
+    truncated: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_untruncated(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        if not data.get("truncated"):
+            data.pop("truncated", None)
+        return data
+
+
+class RowSizes(ScanModel):
+    """Sizes asked for: ``rows`` in all, ``edge`` first and ``edge`` last rows,
+    and ``middle`` = ``rows`` - 2 * ``edge`` rows of the interior."""
+
+    rows: int
+    edge: int
+    middle: int
+
+
+class RowPopulation(ScanModel):
+    """The records read (``records``) and the ones the middle is drawn from:
+    positions ``edge`` + 1 to ``records`` - ``edge``, ``interior`` of them
+    (``scope`` names it, ROW-07)."""
+
+    records: int
+    interior: int
+    scope: Literal["interior_rows"]
+
+
+class RowSample(ScanModel):
+    """Common row sample of a dataset: first rows, a bottom-k of the interior
+    and last rows, the same cells for every projected field (design 18.11).
+
+    ``middle_k`` is the size of the middle in force, below ``requested.middle``
+    when the byte budget cut it (``reason`` is then ``memory_budget``, which
+    also covers start or end rows left out). ``complete`` says that every record
+    read is a row. ``threshold`` (16 hexadecimal digits) is the largest priority
+    kept in the middle, written once a middle row was dropped. ``fields`` are
+    the projected field ids; ``fields_limited`` says that untracked paths are not
+    projected. ``bytes`` is the modelled size of the rows kept, ``max_bytes`` the
+    budget of the scan. ``kept`` rows are listed out of the ``of`` sampled: a
+    Report keeps the header and no row (``kept`` 0).
+    """
+
+    selection: Literal["start_middle_end"]
+    hash: SampleHash
+    requested: RowSizes
+    middle_k: int
+    reason: str | None = None
+    population: RowPopulation
+    complete: bool
+    threshold: str | None = None
+    fields: list[str]
+    fields_limited: bool
+    cell_chars: int
+    truncated_cells: int
+    bytes: int
+    max_bytes: int
+    kept: int
+    of: int
+    rows: list[SampleRow]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("reason", "threshold"))
+
+    def interior(self) -> list[SampleRow]:
+        """The rows drawn from the interior, with the scope they speak for: the
+        only rows an exploration may treat as a sample (ROW-07)."""
+        return [row for row in self.rows if row.origins == ["middle"]]
+
+    def covers(self, field_ids: list[str]) -> bool:
+        """Whether every named field is projected and none of its cells was cut
+        or withheld: the rows can serve a relation between them (ROW-11). A
+        sample that lists no row, or fewer than it sampled (a Report), serves
+        none."""
+        if not self.rows or self.kept != self.of:
+            return False
+        if not set(field_ids) <= set(self.fields):
+            return False
+        return not any(
+            field in row.truncated or (field in row.values and row.values[field] is None)
+            for row in self.rows
+            for field in field_ids
+        )
+
+
 class Records(ScanModel):
     with_missing: RecordList
     empty: RecordList
     duplicates: DuplicateRecords
     preview: list[PreviewRecord]
+    # Absent when ``records.sample.rows`` is 0.
+    sample: RowSample | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_sample(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("sample",))
 
 
 class DatasetResult(ScanModel):
@@ -814,12 +1000,18 @@ class SamplingCounters(ScanModel):
     bottom_k_fields: int
     # Fields whose sample was smaller than asked for (memory budget).
     reduced_fields: int
+    # Fields that have samples by length, and those among them with values
+    # in no stratum.
+    strata_fields: int
+    strata_limited_fields: int
     # Sizes K of the bottom-k samples, among the fields that have one.
     k_effective_min: int | None = None
     k_effective_max: int | None = None
-    # Bytes of the cost model reserved for the samples and the long texts.
+    # Bytes of the cost model reserved for the samples, the long texts and the
+    # samples by length.
     sample_model_bytes: int
     long_model_bytes: int
+    length_model_bytes: int
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:

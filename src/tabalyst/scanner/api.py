@@ -125,6 +125,7 @@ def _run_counters(engine: ScanEngine) -> RunCounters:
             k_effective_max=sampling.k_max,
             sample_model_bytes=values.samples.reserved,
             long_model_bytes=values.samples.long_reserved,
+            length_model_bytes=values.samples.length_reserved,
         )
     )
 

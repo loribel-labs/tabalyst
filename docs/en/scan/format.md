@@ -218,6 +218,62 @@ empty records, duplicate records and a preview of the first records.
   a JSON null is `null`; a field absent from the record has no key. Sensitive
   values go through the field's exposure; a cell holding a hidden value is
   `null`. Empty strings, blanks and null markers are shown as read.
+- `sample`: the [row sample](#row-sample), absent when `records.sample.rows` is 0.
+
+### Row sample
+
+`records.sample` keeps whole rows of the dataset, taken in the same pass: the first
+`edge` records, the last `edge` records and, between them, a random but reproducible
+choice of the others. Every row has the cells of the same record for all the projected
+fields, so a later analysis can relate the values of two fields.
+
+```json
+{
+  "selection": "start_middle_end",
+  "hash": {"algorithm": "blake2b", "version": 1, "bits": 64, "seed": 42},
+  "requested": {"rows": 1000, "edge": 50, "middle": 900},
+  "middle_k": 900,
+  "population": {"records": 3000, "interior": 2900, "scope": "interior_rows"},
+  "complete": false,
+  "threshold": "4e361452e3b67ee0",
+  "fields": ["column_1", "column_2"],
+  "fields_limited": false,
+  "cell_chars": 200, "truncated_cells": 0,
+  "bytes": 2477121, "max_bytes": 16777216,
+  "kept": 1000, "of": 1000,
+  "rows": [
+    {"record": 1, "origins": ["start"],
+     "values": {"column_1": ["a"], "column_2": ["1"]}}
+  ]
+}
+```
+
+- `requested`: the sizes asked for. `rows` is the total, `edge` the number of rows at
+  each end and `middle` the rest, `rows` - 2 * `edge`.
+- A row has the `record` number, its `origins` (`start`, `middle`, `end`; a record that is
+  both at the start and at the end of a short dataset is listed once with `["start", "end"]`)
+  and its `values`, in the shape of the preview: text per field identifier, a list for a
+  repeated path, `null` for a JSON null or a hidden cell, no key for a field absent from
+  the record. Rows are in source order within each group: start, middle, end.
+- The middle is drawn from the interior only, records `edge` + 1 to the number of records
+  minus `edge` (`population.interior`, `scope` `interior_rows`). It is not a uniform sample
+  of the whole dataset: do not add the edges to an estimate over the whole dataset. The
+  choice depends on the position of a record, never on its content (two identical records
+  are two observations), on the `random_seed` and on the version of the hash, so the same
+  source and configuration give the same rows with any number of workers.
+- `complete` is true when every record is a row, which is the case for a dataset of at
+  most `rows` records. `threshold` is the largest priority kept in the middle, written
+  when some records of the interior were not kept.
+- A cell is cut at `cell_chars` characters (all the values of a repeated path together).
+  The row names the cut fields in `truncated` and `truncated_cells` counts them: a row with
+  a cut or hidden cell cannot serve a relation on that field. `fields` lists the projected
+  fields; `fields_limited` is true when `limits.max_fields` left some paths untracked.
+- Sensitive values go through the exposure of their field, as in the preview.
+- `bytes` is the size of the rows by a cost model, and `max_bytes` the budget of the whole
+  scan (`records.sample.max_bytes`). When the budget is exceeded, the middle shrinks first
+  (`middle_k` below `requested.middle`), then the start and the end keep what fits, and the
+  block says `reason` `memory_budget`.
+- A Report keeps this block without rows (`kept` 0, `of` the number the scan sampled).
 
 ## Fields
 
@@ -399,20 +455,82 @@ field that has none:
 - For a sensitive field the block lists nothing (`kept` is 0, `of` is not): a
   preview and a digest are the value itself.
 
+### Samples by length
+
+A `bottom_k` sample favors the lengths that most values have: a length that few
+values share can be absent from it. `values.samples.by_length` completes it with
+a sample for each length, so a rare length stays visible. It is written for a
+field whose sample is `bottom_k` and absent when the sample lists every value
+(`selection` `all`), or when `scan.limits.max_samples_per_length` is 0:
+
+```json
+"by_length": {"domain": "original", "unit": "characters",
+              "per_length_k": 100, "max_lengths": 64, "limited": false,
+              "tracked": 3,
+              "strata": [
+                {"length": 4, "selection": "all", "kept": 2, "of": 2,
+                 "occurrences": 5, "count_accuracy": "exact",
+                 "ids": [10210, 10211]},
+                {"length": 8, "selection": "bottom_k", "kept": 100, "of": 100,
+                 "occurrences": 999990, "count_accuracy": "exact",
+                 "threshold": "0004c1...", "ids": [3, 8, 11, "..."]}
+              ],
+              "listed": [{"id": 10210, "value": "abcd", "type": "string",
+                          "count": 3, "count_accuracy": "exact",
+                          "identity_accuracy": "exact"}]}
+```
+
+- `domain` is `original` and `unit` is `characters` (code points of the original
+  text): the length of `00123` is 5, whatever the normalization.
+- A stratum is a bottom-k of the values of one length, with at most
+  `per_length_k` values (`scan.limits.max_samples_per_length`, 100 by default).
+  It uses the same priority as the sample, so a value that is in both is the
+  same entry. `occurrences` is the exact number of occurrences of that length,
+  `of` the values sampled and `kept` those listed; `selection` is `all` while
+  the stratum dropped no value, and `threshold` works as for the sample.
+- A stratum lists the `id` of its values. A value that is already in
+  `samples.listed` is not copied: only the others are in `by_length.listed`,
+  whose ids continue the numbering of `samples.listed`.
+- Counts are exact (`count_accuracy` `exact`) for a length tracked from its
+  first occurrence, as for the sample. A length admitted later has
+  `count_accuracy` `partial` and `tracking_started_at_occurrence`: its counts
+  cover the occurrences from that one on, and no frequency of it is exact. A scan
+  tracks every length from its first occurrence, so it writes `exact` today.
+- At most `scan.limits.max_length_strata` lengths (64 by default) are tracked per
+  field, the first met. The others are summed in `other`: `{"lengths": 32,
+  "occurrences": 96}`, the number of untracked lengths and their occurrences,
+  and `limited` is `true`. The strata and `other` add up to the stored values
+  of the field. The minimum, maximum and mean lengths stay exact in
+  `string_lengths`.
+- Values longer than `scan.limits.max_stored_value_length` are not in the strata:
+  they have [their own sample](#long-texts).
+- For a sensitive field the strata keep their `length`, `of` and `occurrences`
+  and list nothing (`kept` is 0, `ids` is empty, no `threshold`).
+- A [report](../report/json-profile.md#reduced-samples) keeps the strata
+  without their values: `kept` is 0.
+- `scan.limits.max_samples_per_length` and `max_length_strata` at 0 turn the
+  samples by length off. Both are in the [configuration](../reference/configuration.md).
+
 ### Sample sizes and the memory budget
 
 The scan limits the memory its samples may take with a model of their cost, not
 by measuring (`scan.limits.max_sample_memory`, 512 MiB by default). Sizes are
 reserved in the order the source is read, so they are the same for any number of
 workers. A field never takes more than an equal share of the budget, so a source
-with very many columns cuts every column alike. A long text sample takes its
-reservation from an eighth of the budget, first come first served.
+with very many columns cuts every column alike. A long text sample and the
+samples by length each take their reservation from an eighth of the budget.
+The samples by length reserve the cost of a full stratum for each length they
+may track, in the same order.
 
 When the budget grants less than `scan.limits.max_samples` (or
 `max_long_samples`), the block writes the size in force in `k`, the size asked
 for in `requested_k` and `reason` `memory_budget` (the long texts block has
 `requested_k` only), and a warning `sample_budget` names how many fields were
-cut. A smaller sample is still a bottom-k: its estimate has the larger error of
+cut. The samples by length do the same with `max_lengths`,
+`requested_max_lengths` and `reason`, only for a field that has more lengths
+than the budget granted: a field that fits the lengths granted lost nothing and
+says nothing. A grant of 0 lengths writes the block with `tracked` 0 and
+`limited` true. A smaller sample is still a bottom-k: its estimate has the larger error of
 its `k`. A size of 0 samples nothing for that field (`kept` and `of` are 0) and
 the field has no estimate. Counts, lengths, statistics and the exact tables are
 not affected. A sample that holds every value of its field (`selection` `all`)
@@ -424,8 +542,10 @@ is never cut.
 `run.counters.sampling`, the work of the samplers summed over the fields:
 `hashed_keys`, `admitted_keys`, `hit_keys` (occurrences of values already in a
 sample), `rejected_keys`, `evicted_keys`, `long_texts_hashed`,
-`long_bytes_hashed`, `bottom_k_fields`, `reduced_fields`, `k_effective_min`,
-`k_effective_max`, `sample_model_bytes` and `long_model_bytes`. Without the
+`long_bytes_hashed`, `bottom_k_fields`, `reduced_fields`, `strata_fields`
+(fields with samples by length), `strata_limited_fields` (those with values in
+`other`), `k_effective_min`, `k_effective_max`, `sample_model_bytes`,
+`long_model_bytes` and `length_model_bytes`. Without the
 option the member is absent. A figure that the scan did not measure is not
 written. Counters describe the run, not the data.
 

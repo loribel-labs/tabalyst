@@ -8,7 +8,9 @@ A field keeps its distinct original values with exact counts while they are at
 most K, without any hash; beyond K it switches to a ``BottomKSampler``, seeded
 with everything seen so far, so a key of the final sample is counted from its
 first occurrence. Values longer than the stored length go to a small sample of
-long texts (design 18.6).
+long texts (design 18.6). Once the field is a bottom-k, a stratum per length
+keeps a few values of every length, from the priorities of the same batch
+(design 18.7).
 """
 
 from __future__ import annotations
@@ -24,8 +26,11 @@ from tabalyst.scanner.bottomk import (
     HASH_VERSION,
     BottomKSampler,
     Key,
+    priorities,
+    string_priorities,
 )
 from tabalyst.scanner.exposure import ExposureGate
+from tabalyst.scanner.lengthsample import PARTIAL, LengthStrataSampler
 from tabalyst.scanner.longtext import (
     DIGEST_ALGORITHM,
     DIGEST_BITS,
@@ -33,7 +38,15 @@ from tabalyst.scanner.longtext import (
     LongTextSampler,
 )
 from tabalyst.scanner.measures import canonical_text
-from tabalyst.scanner.models import DigestInfo, LongTexts, SampleHash, Samples
+from tabalyst.scanner.models import (
+    ByLength,
+    DigestInfo,
+    LengthOther,
+    LengthStratum,
+    LongTexts,
+    SampleHash,
+    Samples,
+)
 
 # Reason written when the memory budget granted a sample smaller than asked.
 MEMORY_BUDGET = "memory_budget"
@@ -52,11 +65,17 @@ class ValueSample:
     while streaming. A value that fits no sample (``k`` or ``long_k`` of 0)
     sets ``omitted``: the sample then claims neither to hold every distinct
     value nor to support a KMV estimate.
+
+    ``length_k`` values are kept for each of ``strata_k`` lengths (0 turns the
+    samples by length off), granted by the memory budget out of
+    ``strata_requested`` (design 18.7). They start when the sample becomes a
+    bottom-k: until then it lists every value.
     """
 
     __slots__ = (
         "exact",
         "k",
+        "length_k",
         "long",
         "long_k",
         "long_occurrences",
@@ -67,6 +86,9 @@ class ValueSample:
         "requested",
         "sampler",
         "seed",
+        "strata",
+        "strata_k",
+        "strata_requested",
     )
 
     def __init__(
@@ -78,6 +100,9 @@ class ValueSample:
         requested: int | None = None,
         preview_chars: int = 200,
         long_requested: int = 100,
+        length_k: int = 0,
+        strata_k: int = 0,
+        strata_requested: int | None = None,
     ) -> None:
         self.k = k
         self.requested = k if requested is None else requested
@@ -94,6 +119,10 @@ class ValueSample:
         self.long_requested = long_requested
         self.long_occurrences = 0
         self.omitted = False
+        self.length_k = length_k
+        self.strata_k = strata_k
+        self.strata_requested = strata_k if strata_requested is None else strata_requested
+        self.strata: LengthStrataSampler | None = None
 
     def grant_long(self, k: int) -> None:
         """Size of the long text sample, granted by the memory budget."""
@@ -123,13 +152,25 @@ class ValueSample:
         sampler = self.sampler
         if sampler is not None:
             # The hot path of a field of strings: no key is built unless it
-            # can enter the sample.
-            sampler.update_strings(texts, counts)
+            # can enter the sample. The priorities are computed once for the
+            # sample and its strata.
+            strata = self.strata
+            if strata is None:
+                sampler.update_strings(texts, counts)
+            else:
+                values = string_priorities(texts, seed=self.seed)
+                sampler.update_strings(texts, counts, values)
+                strata.update_strings(texts, counts, values)
         elif not self.exact and len(texts) > self.k:
             # A table released with more than K strings (the usual case).
+            values = string_priorities(texts, seed=self.seed) if self._strata_on() else None
             self.sampler = BottomKSampler.from_exact_strings(
-                self.k, texts, counts, seed=self.seed
+                self.k, texts, counts, seed=self.seed, priorities=values
             )
+            if values is not None:
+                self.strata = LengthStrataSampler.from_exact_strings(
+                    self.length_k, self.strata_k, texts, counts, values, seed=self.seed
+                )
             self.exact = None
         else:
             self._add_pairs(list(zip(repeat("string"), texts)), counts)
@@ -190,7 +231,13 @@ class ValueSample:
             return
         sampler = self.sampler
         if sampler is not None:
-            sampler.update(pairs, counts)
+            strata = self.strata
+            if strata is None:
+                sampler.update(pairs, counts)
+            else:
+                values = priorities(pairs, seed=self.seed)
+                sampler.update_ranked(pairs, counts, values)
+                strata.update(pairs, counts, values)
             return
         exact = self.exact
         if not exact:
@@ -199,8 +246,34 @@ class ValueSample:
             for pair, count in zip(pairs, counts, strict=True):
                 exact[pair] = exact.get(pair, 0) + count
         if len(exact) > self.k:
-            self.sampler = BottomKSampler.from_exact(self.k, exact, seed=self.seed)
+            values = priorities(exact, seed=self.seed) if self._strata_on() else None
+            self.sampler = BottomKSampler.from_exact(
+                self.k, exact, seed=self.seed, priorities=values
+            )
+            if values is not None:
+                self.strata = LengthStrataSampler.from_exact(
+                    self.length_k,
+                    self.strata_k,
+                    list(exact),
+                    list(exact.values()),
+                    values,
+                    seed=self.seed,
+                )
             self.exact = None
+
+    def _strata_on(self) -> bool:
+        """Whether the strata by length start with the bottom-k: they are on
+        and the budget granted at least one length."""
+        return self.length_k > 0 and self.strata_k > 0
+
+    def _has_by_length(self) -> bool:
+        """Whether the sample describes strata by length: it is a bottom-k and
+        the strata were asked for, even if the budget granted none."""
+        return (
+            self.sampler is not None
+            and self.length_k > 0
+            and self.strata_requested > 0
+        )
 
     def counters(self) -> dict[str, int]:
         """The work counters of this field's samplers (design 18.4), as plain
@@ -223,6 +296,11 @@ class ValueSample:
                     self.long_occurrences > 0
                     and self.long_k < self.long_requested
                 )
+                or self._strata_cut()
+            ),
+            "strata_fields": int(self._has_by_length()),
+            "strata_limited_fields": int(
+                self._has_by_length() and self._by_length_limited()
             ),
             "k": self.k,
         }
@@ -353,6 +431,101 @@ class ValueSample:
             hash=_hash(self.seed),
             threshold=(None if threshold is None or sensitive else f"{threshold:032x}"),
             long_texts=long_texts,
+            by_length=self._by_length(gate, items, len(listed)),
+        )
+
+    def _by_length_limited(self) -> bool:
+        """Whether some stored values are in no stratum."""
+        strata = self.strata
+        return strata is None or strata.limited
+
+    def _strata_cut(self) -> bool:
+        """Whether the memory budget cost the field a stratum: it granted fewer
+        lengths than asked for and the field has lengths beyond them. A field
+        that fits in the lengths granted lost nothing and says nothing."""
+        return (
+            self._has_by_length()
+            and self.strata_k < self.strata_requested
+            and self._by_length_limited()
+        )
+
+    def _by_length(
+        self, gate: ExposureGate, items: Sequence[tuple[Key, int]], first_id: int
+    ) -> ByLength | None:
+        """The ``by_length`` block, or ``None`` when the strata are off.
+
+        A stratum lists the ids of its values; those already in the sample
+        (``items``, ids from 0) are not copied, the others go to ``listed``
+        with ids from ``first_id``. A sensitive field lists none: the strata
+        keep their lengths and counts, as ``samples`` keeps ``of``.
+        """
+        if not self._has_by_length():
+            return None
+        strata = self.strata
+        show = gate.mode == "show"
+        position = {key: index for index, (key, _) in enumerate(items)} if show else {}
+        pool: list[dict[str, object]] = []
+        blocks: list[LengthStratum] = []
+        if strata is not None:
+            for length, stratum in strata.strata().items():
+                ids: list[int] = []
+                accuracy = stratum.count_accuracy
+                for entry in stratum.entries() if show else ():
+                    index = position.get(entry.key)
+                    if index is None:
+                        index = first_id + len(pool)
+                        pool.append(
+                            {
+                                "id": index,
+                                "value": entry.key[1],
+                                "type": entry.key[0],
+                                "count": entry.count,
+                                "count_accuracy": accuracy,
+                                "identity_accuracy": "exact",
+                            }
+                        )
+                    ids.append(index)
+                dropped = not stratum.distinct_exact
+                threshold = stratum.threshold
+                blocks.append(
+                    LengthStratum(
+                        length=length,
+                        selection="bottom_k" if dropped else "all",
+                        kept=len(ids),
+                        of=stratum.retained,
+                        occurrences=stratum.occurrences,
+                        count_accuracy=accuracy,
+                        tracking_started_at_occurrence=(
+                            stratum.tracking_started_at_occurrence
+                            if accuracy == PARTIAL
+                            else None
+                        ),
+                        threshold=(
+                            f"{threshold:032x}"
+                            if show and dropped and threshold is not None
+                            else None
+                        ),
+                        ids=ids,
+                    )
+                )
+        other = None
+        if strata is not None and strata.limited:
+            other = LengthOther(
+                lengths=strata.other.lengths, occurrences=strata.other.occurrences
+            )
+        reduced = self._strata_cut()
+        return ByLength(
+            domain="original",
+            unit="characters",
+            per_length_k=self.length_k,
+            max_lengths=self.strata_k,
+            requested_max_lengths=self.strata_requested if reduced else None,
+            reason=MEMORY_BUDGET if reduced else None,
+            limited=other is not None or self.strata_k == 0,
+            tracked=len(blocks),
+            strata=blocks,
+            other=other,
+            listed=pool,
         )
 
     def _long_texts(self, gate: ExposureGate) -> LongTexts | None:

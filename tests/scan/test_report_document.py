@@ -96,7 +96,22 @@ def test_A11_a_consumer_of_the_base_receives_a_report(tmp_path):
     assert [(d.id, [f.id for f in d.fields]) for d in base.datasets] == [
         (d.id, [f.id for f in d.fields]) for d in expected.datasets
     ]
-    assert base.datasets == expected.datasets  # envelopes included
+    # The Report keeps the header of the row sample and none of its rows.
+    assert [d.records.sample.kept for d in base.datasets] == [0]
+    assert base.datasets == [
+        d.model_copy(
+            update={
+                "records": d.records.model_copy(
+                    update={
+                        "sample": d.records.sample.model_copy(
+                            update={"kept": 0, "rows": []}
+                        )
+                    }
+                )
+            }
+        )
+        for d in expected.datasets
+    ]  # envelopes included
     assert check_scan(base) == []
     assert from_report.report is not None and from_scan.report is None
 
@@ -146,9 +161,30 @@ def test_a_report_keeps_a_declared_subset_of_a_larger_sample(tmp_path):
 
 
 def test_a_report_with_all_its_values_is_complete(tmp_path):
+    source = write_text(tmp_path, "data.csv", CSV)
+    config = write_json(
+        tmp_path, "rows.json", {"scan": {"records": {"sample": {"rows": 0}}}}
+    )
+    generate_scans(
+        [source], output_dir=tmp_path / "scans", config_path=config, force=True
+    )
+    generate_reports(
+        [tmp_path / "scans" / "data.scan.json"],
+        output_dir=tmp_path / "reports",
+        config_path=config,
+        from_scan=True,
+        force=True,
+    )
+
+    document = load_document(tmp_path / "reports" / "data.json")
+
+    assert document.capabilities.complete_samples is True
+
+
+def test_a_report_without_the_rows_of_its_row_sample_is_not_complete(tmp_path):
     _, report_file = _written(tmp_path)
 
-    assert load_document(report_file).capabilities.complete_samples is True
+    assert load_document(report_file).capabilities.complete_samples is False
 
 
 @pytest.mark.scan_json_lot("1b")

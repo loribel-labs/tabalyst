@@ -686,6 +686,8 @@ Each dataset has a `records` block of record-level facts (section 16.2):
   as `lower_bound`. `disabled` when `records.duplicates` is `false`.
 - `records` lists the first record indices, up to
   `limits.max_listed_records`.
+- `sample`: the row sample (section 18.11), a start, a bottom-k of the interior
+  and an end of whole rows; `preview` stays the first records only.
 - `preview`: the first `records.preview` records, values per field id as
   canonical text (section 9.1), in observation order for items paths; a JSON
   null is `null`; untracked paths and absent fields have no key. The exposure
@@ -1296,7 +1298,10 @@ settings from it (section 16.4).
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
-    "records": {"preview": 10, "duplicates": true},
+    "records": {
+      "preview": 10, "duplicates": true,
+      "sample": {"rows": 1000, "edge": 50, "cell_chars": 200, "max_bytes": 16777216}
+    },
     "types": {"minimum_confidence": 0.95},
     "detection": {"minimum_share": 0.95, "warmup_values": 10000, "probe_interval": 100,
                   "rare_share": 0.001},
@@ -1692,7 +1697,9 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-07 | SJ-2a | Sections 18.3 and 18.8: `scanner/bottomk.py` (BLAKE2b 128 bits, `HASH_VERSION` 1, `update`, `retained`, `k`), the location of the sampler state (`ValueProcessor`, in the scan process or the worker of the field), the refusal measures. | Lot 2a of the Scan and JSON work: the sampler isolated from the product and the measured hash choice. |
 | 2026-10-07 | SJ-2b | Sections 9.1, 18.2, 18.3, 18.9, 19.4, 21: the bottom-k in the engine (`scanner/valuesample.py`); `values.samples` of original values, `all` or `bottom_k` (`uniform_distinct` and `first_seen` removed), entries with `id`, `count_accuracy`, `identity_accuracy`, `k`, `hash`, `threshold`; `values.cardinality.estimate` (KMV, held within the certain bounds); exposure after the calculation with `kept < of`; the Report ranks an `all` sample by priority; `random_seed` in [0, 2**64). | Lot 2b of the Scan and JSON work. Maintainer decisions of 2026-10-07 (defaults accepted): `id` is the position in the Scan listing, `kept < of` declares withheld originals, the estimate is clamped with the raw value kept, the seed is bounded. |
 | 2026-10-08 | SJ-2c | Sections 9.1, 11, 13, 16.1, 18.4, 18.6, 18.9, new 18.10: long texts sampled apart (`values.samples.long_texts`, `LongTextSampler`, digest identity `fingerprint_based`), the estimate adds the values and the long texts (`estimate.parts`), settings `max_long_samples`, `long_preview_chars` and `max_sample_memory`, the memory budget of the samples in bytes with requested and effective sizes (`requested_k`, `reason`) and the warning `sample_budget`, batches bounded by size, optional `run.counters`. | Lot 2c of the Scan and JSON work. Defaults of the plan accepted by the maintainer on 2026-10-08 (`selection` describes the listed values only, estimate in two parts, budget in bytes with no floor); the session chose 512 MiB instead of 256 so that a realistic 34-column scan is never cut, and added a fair share per field to first come first served. |
+| 2026-10-08 | SJ-3a | Sections 18.1, 18.4, 18.7, 18.9, 18.10: samples by length (`values.samples.by_length`, `LengthStrataSampler`, `OtherLengths`), pool of values shared with the sample by `id`, `partial` accuracy, settings `max_samples_per_length` and `max_length_strata`, the sub-budget of an eighth, counters `strata_fields`, `strata_limited_fields` and `length_model_bytes`, priorities shared between the sample and its strata. | Lot 3a of the Scan and JSON work. Defaults of the plan accepted by the maintainer on 2026-10-08 (disposition `by_length` with shared ids and a pool, static reservation with `drop` as an API only, strata only for a `bottom_k` sample, every stored type, 100 values and 64 lengths, an eighth of the budget, Report without members). |
 | 2026-10-08 | SJ-2c | Section 16.3: scan and report documents are written compact by default; the top-level `output.json_indent` setting indents them with each sample entry on one line (`json_text.dump_json`). `executions.json` and the Inspect file stay indented. | Weight of the Scan (24.9 MB indented, 10.4 MB compact, 13.5 MB indented with one line per entry on `insurance-ontario`); arrays `[value, count]` refused to keep the format self-describing. Maintainer decision of 2026-10-08. |
+| 2026-10-08 | SJ-3b | Sections 9.10, 15 and new 18.11: the row sample (`records.sample`, `RowSampler`, `RowPriority`), first rows, a bottom-k of the interior by a priority of the position and last rows, cells of the same row for every projected field, settings `records.sample` (`rows`, `edge`, `cell_chars`, `max_bytes`), the byte budget, the Report keeping the header only. | Lot 3b of the Scan and JSON work: ROW-01 to ROW-11 and C01 to C06. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -1701,7 +1708,8 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 Principle 1 admits an estimate when it is named. An estimate carries
 `accuracy: "estimated"`, its `method` and its `parameters`, and never the
 status `complete`. Accuracy values: `exact`, `estimated`, `fingerprint_based`
-(equality of a digest, not of the full value) and `unknown`. Two approximations
+(equality of a digest, not of the full value), `partial` (a count that covers
+only the occurrences from a recorded point on, 18.7) and `unknown`. Two approximations
 are planned: the KMV estimate of a cardinality (18.5) and quantiles rebuilt
 from histogram bins (second pass). Everything the Scan already measures stays
 exact for its population.
@@ -1843,8 +1851,9 @@ compaction), never per rejected key, so they cost nothing on the hot path and
 are always kept. The long text sampler adds `hashed_texts` and `hashed_bytes`.
 `scan(..., counters=True)` (`tabalyst scan --counters`) writes their sum over
 the fields in `run.counters.sampling`, with the sizes granted (`k_effective_min`,
-`k_effective_max`, `reduced_fields`) and the bytes reserved in the cost model
-(`sample_model_bytes`, `long_model_bytes`); without the request the member is
+`k_effective_max`, `reduced_fields`, `strata_fields`, `strata_limited_fields`) and the bytes
+reserved in the cost model (`sample_model_bytes`, `long_model_bytes`,
+`length_model_bytes`); without the request the member is
 absent. A counter that the scan did not measure is not written, never 0: bytes
 hashed are known for the long texts only, and the peak memory is
 `run.peak_memory_bytes` (null when the platform does not report it). Counters
@@ -1913,16 +1922,60 @@ k?, theta_hex?}`). The estimate is their sum, its relative error is
 `theta_hex` belong to the parts. It exists once either domain dropped a key.
 The certain bounds of 9.1 still clamp it.
 
-### 18.7 Length strata (lot 3a)
+### 18.7 Length strata (lot 3a, D07, LEN-01 to LEN-06)
 
 `tabalyst.scanner.lengthsample.LengthStrataSampler(per_length_k, max_lengths)`
-keeps a bottom-k per tracked length, with a bounded number of lengths. A
-length is tracked from its first occurrence while a place is free; others are
-summed in `other` (`lengths`, `occurrences`) and `limited` is true (B11).
-`drop(length)` is the hook of the memory budget; a dropped length that returns
-is admitted late: its stratum has `count_accuracy: "partial"` and
-`tracking_started_at_occurrence` after its first occurrence, and no frequency
-of it is announced as exact (B12). Names are provisional until lot 3a.
+keeps a bottom-k per tracked length, with a bounded number of lengths. The
+length of a key is the number of characters (code points) of its original text
+(21): the engine's `string_lengths` stays the analytical histogram.
+
+| Name | Contract |
+| --- | --- |
+| `.update_strings(texts, counts, priorities)`, `.update(keys, counts, priorities)` | A batch of distinct keys with their counts and priorities, which the caller computed once for the global sample (the hash is not computed twice). |
+| `.from_exact_strings(...)`, `.from_exact(...)` | The strata of an exact table, equal to streaming the same keys; used when the global sample becomes a `bottom_k`, at which point the table holds every value with its exact count. |
+| `.add(key, count=1)` | One key, for tests. |
+| `.strata()` | `{length: Stratum}` in ascending length. A `Stratum` has `entries()`, `occurrences`, `retained`, `distinct_exact`, `threshold`, `count_accuracy` and `tracking_started_at_occurrence`. |
+| `.other` | `OtherLengths`: `lengths` (distinct untracked lengths now) and `occurrences`. |
+| `.limited` | True when `other.occurrences` is above 0. |
+| `.drop(length)` | Gives a stratum up: its occurrences move to `other`. |
+
+A length is tracked from its first occurrence while a place is free (first met,
+first tracked: LEN-04 and the "fixed quota from admission" of the specification);
+others are summed in `other` and `limited` is true (B11). Strata and `other` add
+up to every occurrence the sampler received, also after a `drop`. A stratum is a
+`BottomKSampler` of `per_length_k` keys with the priority of the global sample, so
+the argument of 18.3 holds: a key retained was admitted at its first occurrence
+and its count is exact (`count_accuracy: "exact"`). `drop(length)` is the hook
+of the memory budget; a dropped length that returns, or a length of `other` that
+meets a free place, is admitted late: its stratum has `count_accuracy:
+"partial"` and `tracking_started_at_occurrence` after its first occurrence, and
+no frequency of it is announced as exact (B12, LEN-05). Occurrences are numbered
+from 1 in the order the sampler receives them (the keys of a batch in the order
+of the batch).
+
+Where it lives (`scanner/valuesample.py`). Strata exist for a field whose
+sample is `bottom_k`, not for an `all` sample, which lists every value and so
+every length: they start at the switch, seeded from the exact table
+(`from_exact*`), then every batch gives them the priorities it computed for the
+global sample (`bottomk.string_priorities`, `priorities`; `update_strings`,
+`update_ranked` and `from_exact*` accept them). Per key the strata add a `len`,
+one dictionary lookup and one comparison against the admission limit of the
+stratum (`BottomKSampler.admission_limit`); only the keys that can enter are
+handed to a stratum. The values longer than `max_stored_value_length` are not in
+the strata: they have `long_texts` (18.6), with their own lengths. As the global
+sample, the strata are in the `ValueProcessor` of the field (the worker of the
+field in a parallel scan), and no merge is needed.
+
+Mutualisation (LEN-02). A value of a stratum that is in the global sample is
+one entry: the stratum lists its `id`. Only the others are in
+`by_length.listed`, with ids that continue the numbering (18.9). The two
+samplers do hold their own keys in memory (the text is shared, the tuple and the
+counters are not): the saving is in the document.
+
+Combining (LEN-06). The strata and the global sample have different selection
+laws; a consumer must not add them to estimate a proportion. A stratum gives
+the exact `occurrences` of its length and a bottom-k of its values; the
+global sample gives the values by global priority.
 
 ### 18.8 Hash choice and refusal threshold
 
@@ -1962,8 +2015,8 @@ Report can hash its few kept values), and only a field whose sample must be cut
 
 ### 18.9 Output (cardinality settled at lot 1a, samples and estimate at lot 2b)
 
-`values.cardinality` is described in 9.1. The strata of lengths (18.7) have no
-member yet; their name and layout are settled at lot 3a.
+`values.cardinality` is described in 9.1. The strata of lengths (18.7) are
+`values.samples.by_length` (below).
 
 `values.samples` also carries `requested_k` and `reason` when the memory budget
 (18.10) granted a size K smaller than `limits.max_samples`: `k` is the size in
@@ -1984,10 +2037,10 @@ that are too long to be stored.
   `seed`) and, once a key was dropped, the `threshold` (32 hexadecimal digits).
 - An entry is `{id, value, type, count, count_accuracy, identity_accuracy}`:
   `id` is the position of the entry in the `listed` of the Scan (kept by a
-  Report that keeps a subset; the pool of lengths of lot 3a continues the
+  Report that keeps a subset; the pool of lengths, below, continues the
   numbering), `value` the original text, `count_accuracy` and
-  `identity_accuracy` `exact` (`partial` and `fingerprint_based` arrive with
-  lots 3a and 2c).
+  `identity_accuracy` `exact` (`partial` for a late stratum, `fingerprint_based`
+  for the long texts).
 - Exposure applies after the calculation on originals (21). `mask` merges the
   entries with the same mask in the order of the listing, counts added; `hide`
   lists none. `of` is always the number of originals sampled and `kept` the
@@ -1995,6 +2048,46 @@ that are too long to be stored.
   is the capability a planner reads (`complete_samples`) to refuse the sample
   (VAL-06). The `threshold` of a sensitive field (mode `mask` or `hide`) is not
   written: it is the priority of one of its values.
+
+`values.samples.by_length` (lot 3a, 18.7), written for a `bottom_k` sample when
+`limits.max_samples_per_length` and `limits.max_length_strata` are above 0 (and
+absent for an `all` sample, whatever the lengths):
+
+```
+by_length: {
+  domain: "original", unit: "characters",
+  per_length_k, max_lengths, requested_max_lengths?, reason?,
+  limited, tracked,
+  strata: [{length, selection: "all" | "bottom_k", kept, of, occurrences,
+            count_accuracy, tracking_started_at_occurrence?, threshold?, ids}],
+  other?: {lengths, occurrences},
+  listed: [entry]              # ids continue those of samples.listed
+}
+```
+
+- A stratum lists `ids` of entries of `samples.listed` or of `by_length.listed`
+  (the pool: values of a stratum that the global sample does not hold). Every id
+  of a stratum exists, appears once, and names a value whose text has the length
+  of the stratum (checked by `check_scan`). The pool starts at `len(samples.listed)`.
+  `of` is the number of values the stratum sampled (at most `per_length_k`), `kept`
+  the number listed. `occurrences` is the exact number of occurrences of the
+  length since its tracking started. `tracking_started_at_occurrence` is written
+  for a `partial` stratum only (an exact one began at the first occurrence).
+  `threshold` is as in the sample: present once the stratum dropped a value, not
+  for a sensitive field.
+- `other` is written when `limited` and gives the untracked lengths and the
+  occurrences counted into `other`; strata and `other` add up to the stored
+  values of the field (`values.count` less the long texts). `limited` is
+  also true when `max_lengths` is 0.
+- Exposure: a sensitive field (mode `mask` or `hide`) keeps `length`, `of` and
+  `occurrences` of its strata and lists nothing (`kept` 0, `ids` empty, no
+  `threshold`, empty pool), the same capability declaration as the sample.
+- Report: its base keeps the strata without their members (`kept` 0, no pool):
+  the ids would point at values the Report does not hold (19.4). `facts_sha256`
+  leaves the members out like the sample's.
+- Memory budget: `max_lengths` is the number in force (18.10) and
+  `requested_max_lengths` with `reason: memory_budget` the one asked for,
+  written only for a field that has more lengths than the budget granted.
 
 `values.cardinality.estimate` is written for a `limited` count when a sampler
 dropped a key and every value reached a sample (a value that fits no sample,
@@ -2018,8 +2111,8 @@ measured at 540 bytes at K = 10,000, plus two bytes per character of the mean
 stored value) and `memory.long_entry_bytes` (700 bytes plus four per preview
 character). A test checks the model against `tracemalloc`.
 
-`memory.SampleBudget` has two sub-budgets: the long texts take an eighth, the
-samples of values the rest (MEM-01: keys, payloads, structure and compaction
+`memory.SampleBudget` has three sub-budgets: the long texts take an eighth, the
+samples by length another eighth (18.7), the samples of values the rest (MEM-01: keys, payloads, structure and compaction
 slack of the samplers; the tables, the parser and the pending batches have their
 own limits, 13). Sizes are reserved before the sample is built (MEM-04), in the
 scan process only, in the order the source is read, so they do not depend on the
@@ -2049,6 +2142,20 @@ in force, and a sample of size 0 has no estimate. No limit is ever lifted by a
 request for an exact result (MEM-06); the exact tables are bounded by T and by
 `max_tracked_values`, and lowering T stays the other way to spend less.
 
+The samples by length (18.7) have their own sub-budget, an eighth of
+`limits.max_sample_memory` (`memory.LENGTH_SHARE`), so the samples of values
+keep three quarters. A field that becomes a `bottom_k` reserves the cost of a
+full stratum (`per_length_k` entries) for each of the `limits.max_length_strata`
+lengths it may track, at the same places as K: a released table in
+`ValueTracker._grants`, a complete table of more than K values in `reserve`
+(it reserves its distinct values at most), and a table that fits its sample
+reserves nothing. The grant is a number of lengths, `min(requested, share /
+cost of a stratum)`, travelling with the sample's in the `release` and `table`
+messages, so it is the same for 1 or several workers. The sampler's `drop` is
+the hook for a budget that must take a stratum back; the engine does not call it
+(a scan tracks every length from its first occurrence, and a grant of fewer
+lengths sums the others in `other`), so a scan writes `exact` strata today.
+
 Bounded states (MEM-02): the number of samples (K), their length
 (`max_stored_value_length`, `long_preview_chars`), the long texts (`max_long_samples`) and the
 batches (13) each have a bound. The lengths, patterns and error categories of
@@ -2056,6 +2163,123 @@ later lots will join this table. The warm-up values of a streamed field are
 bounded by `detection.warmup_values` and by the stored length. A giant record
 (MEM-05) cannot be split: the working memory of the parser is the largest record
 (and, for CSV, the cells of a batch of at most 8 MiB).
+
+### 18.11 Row sample (lot 3b, D12, ROW-01 to ROW-11)
+
+Each dataset keeps a small sample of whole rows, taken in the one pass: the
+first `edge` records, a bottom-k of the interior and the last `edge` records,
+with the cells of every projected field of the same row (ROW-06). It is the
+common storage of the Report (the rows to show) and of the analyses of later lots
+(relations between fields, which need values of the same record). Names (ROW-01):
+S = `records.sample.rows` (1,000), E = `records.sample.edge` (50) and the middle
+M = S - 2E (900). K is the size of the sample of distinct values and does not
+appear here.
+
+`tabalyst.scanner.rowsample.RowSampler` lives in `RecordFacts`, so in the scan
+process: the workers only receive the work per value. It has two entries, one
+per reader item: `add_batch(start, rows)` for the CSV batches of strings (lot 6
+of the engine, section 13) and `add_record(record)` for any other `Record`.
+Both give the same rows (a test compares them, and random batch sizes); only
+`bytes` differs, since a record costs more in the model than a row of strings.
+
+- **Positions.** The position of a row is the index of its record, which counts
+  the records a tolerant scan excluded (they have no row and leave gaps). `start`
+  is the first `edge` records read, in reading order, not the records numbered
+  1 to `edge`.
+- **End and middle (ROW-03, ROW-04).** The records after the start wait in a
+  buffer of the latest `edge`. A record that leaves the buffer is a candidate of
+  the middle; the buffer at the end is the end. The two groups are disjoint, and
+  no record of the start enters the buffer. Only candidates that leave the buffer
+  can enter the middle, so the last `edge` records never do, even when their
+  priority is the smallest (C03). The population of the middle is the positions
+  `edge` + 1 to N - `edge`, `population.interior` of them, and the block says
+  `population.scope: "interior_rows"` (ROW-07). The rows of the middle are not a
+  uniform sample of the whole dataset (ROW-08): `RowSample.interior()` returns
+  them alone, and an estimate over the whole population would need weights
+  (not delivered).
+- **Small datasets.** With N < 2E the end window overlaps the start: a record is
+  stored once, with `origins: ["start", "end"]`. With N at most S every record is
+  a row (`complete: true`): the interior fits in the middle. With N = 0 the
+  sample has no row.
+- **Priority (ROW-05).** `RowPriority(seed)`: the 64-bit priority of the
+  position `i` is the number `i mod 8` of the eight little-endian 64-bit words of
+  BLAKE2b with a 512-bit digest (personalization `tabalyst.rows.v1`) of the seed
+  and the block `i // 8`. One hash call serves eight rows: 0.07 s per million
+  rows against 0.28 s for a call per row (benchmarks.md, lot 3b). It never looks at
+  the cells, so two identical rows are two observations with their own
+  priorities (C02). `ROW_HASH_VERSION` is 1; the seed is `random_seed`. The ties
+  of a 64-bit priority are broken by the position. The middle keeps the M
+  smallest `(priority, position)` among the candidates: the same rows whatever the
+  batches, the readers and the number of workers (principle 6).
+- **Hot path.** The priorities of the candidates of a batch are computed together
+  (`RowPriority.range`) and a batch is filtered once against the threshold of the
+  middle; only the few rows that can enter are projected. The buffer holds
+  references to the rows of the batch (to the `Record` for the record path), not
+  copies, and a row is projected only when it is admitted, at the end for the
+  buffer, and for the start. A reader that reused the observations of a record
+  would break the record path: none does (a test reads JSON and JSONL).
+- **Cells (ROW-06, ROW-09).** The cells of a record are its scalar observations as
+  canonical text per path, as the preview has them: a list when the path repeats
+  (items of an array), `null` for a JSON null, no key for a path absent from the
+  record. The cells of one path share `cell_chars` characters (200): the text
+  that passes it is cut on a code point, the following values of the path are
+  dropped, and the row lists the field in `truncated` (counted in
+  `truncated_cells`). A table row projects all its columns. `fields` lists the
+  projected field ids (those with a scalar value); `fields_limited` says that
+  untracked paths (`limits.max_fields`) are not.
+- **Exposure (12.8).** At the end, like the preview: `mask` merges, `hide` writes
+  a hidden cell as `null`; nulls and strings that are not content stay as read.
+  The original values stay in memory until the end, as the preview's do.
+- **Budget (ROW-10, ROW-11, MEM-01 to MEM-06).** `records.sample.max_bytes` (16 MiB)
+  is the budget of the rows kept by all the datasets of a scan, in bytes of a cost
+  model (`rowsample.TABLE_ROW_BYTES`, `TABLE_CELL_BYTES` and `RECORD_*`, between
+  0.9 and 1.6 times the `tracemalloc` figure in a test) and first come, first served. It is a limit
+  on bytes: S is not an authorization to exceed it. When it is exceeded the worst
+  rows of the middle are given up one by one (the size in force `middle_k` can only
+  shrink, as in B09), then the start stops growing (the first rows that fit stay),
+  and the end is projected from the newest row back while it fits. The end is
+  charged to the budget when the dataset is finalized, so with several datasets
+  the order of their finalization (the order of the datasets) is part of the
+  result: a later dataset read while the budget was half spent can leave the
+  earlier one only what its own end needs. The document
+  says `reason: "memory_budget"` as soon as anything was cut, with `requested`,
+  `middle_k`, `bytes` and `max_bytes`. A cut middle still has its `threshold`
+  and is the bottom-k of its size; the shrinking depends on the data and their
+  order only, so it is the same with 1 or several workers. The largest memory of
+  a scan is also bounded by the record in reading and by the CSV batch (13).
+- **Output.** `records.sample` (absent when `records.sample.rows` is 0):
+
+  ```json
+  {"selection": "start_middle_end",
+   "hash": {"algorithm": "blake2b", "version": 1, "bits": 64, "seed": 42},
+   "requested": {"rows": 1000, "edge": 50, "middle": 900}, "middle_k": 900,
+   "population": {"records": 3000, "interior": 2900, "scope": "interior_rows"},
+   "complete": false, "threshold": "4e361452e3b67ee0",
+   "fields": ["column_1", "column_2"], "fields_limited": false,
+   "cell_chars": 200, "truncated_cells": 0, "bytes": 2477121,
+   "max_bytes": 16777216, "kept": 1000, "of": 1000,
+   "rows": [{"record": 1, "origins": ["start"],
+             "values": {"column_1": ["a"], "column_2": ["1"]}}]}
+  ```
+
+  Rows are in source order within each group: the start (with the rows that are
+  also the end), the middle, the end. `threshold` (16 hexadecimal digits) is the
+  largest priority kept, written once a row of the interior was not kept.
+- **Report (O27, 19.4).** The Report keeps the header and no row: `kept` 0,
+  `rows` empty, the same facts otherwise. `facts_sha256` leaves out `rows` and
+  `kept`; `complete_samples` is false for a base that dropped rows. The
+  Report's own "Data sample" still reads `records.preview` (section 9.10); lot 5
+  decides what it shows of the start, the middle and the end.
+- **Consumers.** `RowSample.interior()` (the rows an exploration may treat as a
+  sample, C04) and `RowSample.covers(field_ids)` (false when a field is not
+  projected, or has a cut or hidden cell in a row: C06) are the seams of the
+  planner of lot 6a and of the relations of lot 8a. `covers` is false for a sample
+  that lists no row or fewer than it sampled, which is what a Report holds. A cell is the text, not the
+  native type; lot 8a decides whether the type must be added.
+- **Validation.** `check_scan` checks the hash identity (algorithm, version, bits
+  and the seed of the configuration), the settings in force, the population, the
+  groups and their order, the fields of the cells, the counts and the threshold
+  (the largest priority of the middle rows, recomputed).
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
