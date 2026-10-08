@@ -174,7 +174,8 @@ read and rendered without the scan or the source.
 
 The report keeps fewer sample values than the scan: at most
 `report.config.value_examples.kept_per_column` distinct values per field (100 by
-default), a subset of the scan's with the same exact counts. Each
+default), the ones of smallest hash priority: a subset of the scan's with the
+same exact counts, and the same whatever the size of the scan sample. Each
 `values.samples` block says how many it lists, `kept`, out of how many the scan
 sampled, `of`. A scan has `kept` equal to `of`.
 

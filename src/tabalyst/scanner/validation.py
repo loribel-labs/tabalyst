@@ -179,6 +179,38 @@ def _check_listings(
         problems.append(
             f"{where}.values.samples: all counts must add up to values.count"
         )
+    _check_sample_members(field, where, problems)
+
+
+def _check_sample_members(field: FieldResult, where: str, problems: list[str]) -> None:
+    """The bottom-k members of a sample and the estimate of the cardinality."""
+    samples = field.values.samples
+    where_samples = f"{where}.values.samples"
+    ids = [item.id for item in samples.listed]
+    if len(set(ids)) != len(ids) or any(entry_id < 0 for entry_id in ids):
+        problems.append(f"{where_samples}: entry ids must be distinct and not negative")
+    if samples.selection == "bottom_k":
+        if samples.k is None or samples.hash is None:
+            problems.append(f"{where_samples}: a bottom_k sample names k and hash")
+        elif samples.of > samples.k:
+            problems.append(f"{where_samples}: more values than k")
+    elif samples.k is not None or samples.hash is not None or samples.threshold:
+        problems.append(f"{where_samples}: only a bottom_k sample names k and hash")
+    cardinality = field.values.cardinality
+    estimate = (
+        cardinality.estimate if isinstance(cardinality, CardinalityLimited) else None
+    )
+    if estimate is None:
+        return
+    where_estimate = f"{where}.values.cardinality.estimate"
+    if samples.selection != "bottom_k" or estimate.k != samples.k:
+        problems.append(f"{where_estimate}: must come from the bottom_k sample")
+    lower = cardinality.lower_bound or 0
+    upper = cardinality.upper_bound
+    if estimate.value < lower or (upper is not None and estimate.value > upper):
+        problems.append(f"{where_estimate}: value must stay within the certain bounds")
+    if estimate.unclamped_value is not None and estimate.value not in (lower, upper):
+        problems.append(f"{where_estimate}: unclamped_value only when a bound applied")
 
 
 def _check_statistics(field: FieldResult, where: str, problems: list[str]) -> None:

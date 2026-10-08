@@ -11,6 +11,7 @@ from scan_helpers import (
     field,
     limited_cardinality,
     run_scan,
+    without_estimate,
     write_json,
     write_text,
 )
@@ -121,7 +122,7 @@ def test_distinct_limit_publishes_only_a_proven_bound(tmp_path):
         dataset(run_scan(source, limits={"max_distinct_per_field": 6}), "rows"), "v"
     )
 
-    assert limited["values"]["cardinality"] == limited_cardinality(
+    assert without_estimate(limited["values"]["cardinality"]) == limited_cardinality(
         "distinct_limit", 5, 6, 6, reached=5, overflow=6
     )
     assert limited["values"]["frequencies"]["status"] == "limited"
@@ -184,7 +185,7 @@ def test_listings_use_analytical_values_and_cardinality_stays_raw(tmp_path):
     assert city["values"]["first"] == {"value": "Paris", "type": "string", "record": 1}
 
 
-def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
+def test_the_bottom_k_sample_is_the_same_whether_or_not_the_table_is_released(tmp_path):
     lines = [f"v{index % 7}" for index in range(30)]
     source = write_text(tmp_path, "v.csv", "v\n" + "\n".join(lines) + "\n")
 
@@ -201,19 +202,15 @@ def test_samples_are_seeded_and_first_seen_when_the_table_is_released(tmp_path):
     )
 
     samples = sampled[0]["values"]["samples"]
-    assert samples["selection"] == "uniform_distinct"
-    assert len(samples["listed"]) == 3
+    assert samples["selection"] == "bottom_k"
+    assert (samples["k"], samples["kept"], samples["of"]) == (3, 3, 3)
     assert sampled[1]["values"]["samples"] == samples
-    assert released["values"]["samples"] == {
-        "selection": "first_seen",
-        "kept": 3,
-        "of": 3,
-        "listed": [
-            {"value": "v0", "type": "string", "count": 5},
-            {"value": "v1", "type": "string", "count": 5},
-            {"value": "v2", "type": "string", "count": 4},
-        ],
+    # Counts are those of the whole stream, however the table was released.
+    oracle = {f"v{n}": sum(1 for i in range(30) if i % 7 == n) for n in range(7)}
+    assert {item["value"]: item["count"] for item in samples["listed"]} == {
+        item["value"]: oracle[item["value"]] for item in samples["listed"]
     }
+    assert released["values"]["samples"] == samples
 
 
 def test_streaming_after_release_gives_the_same_measures(tmp_path):
@@ -250,10 +247,15 @@ def test_global_budget_releases_the_largest_table(tmp_path):
     # Row 6 stores the 9th value again: a, with 6 values, is the largest.
     a, b, c = (field(rows_result, name) for name in "abc")
     # No record is named: the limit that stopped them is not their own.
-    assert c["values"]["cardinality"] == limited_cardinality("global_budget", 8, 3, 6)
-    assert a["values"]["cardinality"] == limited_cardinality("global_budget", 8, 6, 6)
+    assert without_estimate(c["values"]["cardinality"]) == limited_cardinality(
+        "global_budget", 8, 3, 6
+    )
+    assert without_estimate(a["values"]["cardinality"]) == limited_cardinality(
+        "global_budget", 8, 6, 6
+    )
     assert b["values"]["cardinality"] == complete_cardinality(3)
-    assert c["values"]["samples"]["selection"] == "first_seen"
+    # Three values are the whole domain, however the table was released.
+    assert c["values"]["samples"]["selection"] == "all"
     assert c["string_lengths"]["value"]["count"] == 6
     codes = {item["code"]: item for item in result["diagnostics"]}
     assert codes["global_budget"]["count"] == 2

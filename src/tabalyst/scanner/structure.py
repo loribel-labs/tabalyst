@@ -356,9 +356,10 @@ class DatasetState:
             if state.values is None
             else state.values.finalize(report_failure, report_probe)
         )
+        estimate = blocks.pop("estimate")
         if state.values is not None:
             blocks["cardinality"] = state.values.cardinality(
-                blocks["cardinality"], state.value_count
+                blocks["cardinality"], state.value_count, estimate
             )
         components = MissingComponents(
             absent=presence.absent,

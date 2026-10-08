@@ -68,6 +68,7 @@ from tabalyst.report_views import (
     StringProfile,
 )
 from tabalyst.scan_document import facts_sha256
+from tabalyst.scanner.bottomk import BottomKSampler
 from tabalyst.scanner.engine import has_limited_measure
 from tabalyst.scanner.models import (
     Complete,
@@ -77,6 +78,7 @@ from tabalyst.scanner.models import (
     FieldResult,
     Limited,
     Records,
+    SampleEntry,
     ScanResult,
     ValueCount,
 )
@@ -297,20 +299,23 @@ def _listed_values(field: FieldResult) -> tuple[list[ValueCount], bool]:
     return frequencies.value.listed, not frequencies.value.truncated
 
 
-def report_sample(field: FieldResult, seed: int, size: int) -> list[ValueCount]:
+def report_sample(field: FieldResult, seed: int, size: int) -> list[SampleEntry]:
     """The values of the scan sample of ``field`` that the report uses and
     keeps in its base: all of them up to ``size`` (``kept_per_column``),
-    otherwise the first ones of a ``first_seen`` or ``bottom_k`` sample (the
-    smallest priorities, design 19.4) or a seeded draw, so a scan of any sample
-    size gives the same examples."""
+    otherwise the ``size`` of smallest priority (design 19.4): the head of a
+    ``bottom_k`` sample, or the ones a bottom-k would keep of an ``all`` sample,
+    which the scan listed without a hash. A scan of any sample size therefore
+    gives the same examples."""
     samples = field.values.samples
     listed = samples.listed
     if len(listed) <= size:
         return listed
-    if samples.selection in ("first_seen", "bottom_k"):
+    if samples.selection == "bottom_k":
         return listed[:size]
-    chosen = sorted(random.Random(seed).sample(range(len(listed)), size))
-    return [listed[position] for position in chosen]
+    entries = {(item.type, item.value): item for item in listed}
+    sampler = BottomKSampler(size, seed=seed)
+    sampler.update(entries, [item.count for item in listed])
+    return [entries[entry.key] for entry in sampler.entries()]
 
 
 def build_value_profile(

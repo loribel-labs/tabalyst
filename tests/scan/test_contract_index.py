@@ -21,7 +21,7 @@ FILES = (
     "test_contract_bottomk.py",
     "test_report_document.py",
 )
-REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14"] + [f"B{n:02d}" for n in range(1, 14)]
+REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18"] + [f"B{n:02d}" for n in range(1, 14)]
 
 
 def _declared() -> dict[str, list[str | None]]:

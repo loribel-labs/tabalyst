@@ -303,18 +303,57 @@ the others:
   They are absent for the other reasons and when a member is unknown: an
   absent member is never `null` and never zero.
 
-`values.samples` lists distinct values with their exact counts: all of them
-when the field has at most `scan.limits.max_samples` (10,000 by default),
-otherwise that many, drawn with `scan.random_seed` (`uniform_distinct`) or the
-first distinct values seen when the table was released (`first_seen`). A sample
-is a set of examples, not a statistic: its counts are exact for its values and
-do not describe the other values of the field. `max_samples` cannot exceed
-`max_distinct_per_field`; when it is not set it follows a lower
-`max_distinct_per_field`. The selection `bottom_k`, with the members `k`,
-`hash` and `threshold`, is reserved for a later revision. `kept` is the number
-of values listed and `of` the number the scan sampled: a scan writes both equal.
-A [report](../report/json-profile.md#reduced-samples) that holds the scan as its
-base keeps fewer values and says so with `kept` below `of`.
+When the table of distinct values is released, `values.cardinality` may carry
+an `estimate` of the distinct count, from the sample described below:
+
+```json
+"estimate": {"accuracy": "estimated", "method": "kmv", "value": 187500.0,
+             "relative_standard_error": 0.01, "k": 10000,
+             "theta_hex": "0000a3f1..."}
+```
+
+- `accuracy` is `estimated`: the value is a statistical estimate, never an
+  exact count. `relative_standard_error` is its expected relative error (about
+  1% at `k` 10,000).
+- `value` is held within the certain bounds `lower_bound` and `upper_bound`;
+  `unclamped_value` is the raw estimate, present only when a bound changed it.
+- `theta_hex` is the threshold of the sample (see `threshold` below). It is
+  absent for a sensitive field.
+- There is no estimate when a value too long to be sampled (above
+  `scan.limits.max_stored_value_length`) was met, since the sample did not see
+  the whole field.
+
+`values.samples` lists distinct original values with their exact counts, each
+entry as `{id, value, type, count, count_accuracy, identity_accuracy}`:
+
+- `selection` is `all` when the sample lists every distinct value of the field
+  (at most `scan.limits.max_samples` of them, 10,000 by default), in the order
+  they were first seen.
+- Otherwise `selection` is `bottom_k`: the `k` values of smallest priority, in
+  ascending priority. The priority of a value is a stable hash of its type and
+  its text (`hash`: `algorithm`, `version`, `bits` and `seed`, which is
+  `scan.random_seed`), so the sample depends on the set of distinct values and
+  on `k`, not on the order of the records, on the reading in batches or on the
+  workers. `threshold` is the largest priority kept, as hexadecimal digits,
+  present once a value was dropped.
+- Counts are exact for the whole field (`count_accuracy` is `exact`): a value
+  of the sample was counted from its first occurrence. They are not a ranking:
+  the most frequent value can be absent, and the counts of a sample do not
+  describe the other values.
+- `id` numbers the entry in the listing of the scan. A report that keeps some
+  of the entries keeps their `id`.
+- Values are in the original domain (`00123`, `123` and ` 123 ` are three
+  entries), unlike `values.frequencies`, which lists analytical values.
+- `kept` is the number of entries listed and `of` the number of original
+  values sampled. A scan writes both equal, except for a sensitive field:
+  exposure applies after the calculation, `mask` merges the values with the
+  same mask and `hide` lists none, so `kept` is below `of` and the originals
+  cannot be recovered from the document. A
+  [report](../report/json-profile.md#reduced-samples) that holds the scan as its
+  base also keeps fewer values and says so with `kept` below `of`.
+
+`max_samples` cannot exceed `max_distinct_per_field`; when it is not set it
+follows a lower `max_distinct_per_field`.
 
 ## JSON Schema
 

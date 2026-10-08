@@ -23,16 +23,16 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-07T06:14:15.147107Z",
-    "duration_seconds": 0.003392,
+    "started_at": "2026-10-08T03:46:13.711174Z",
+    "duration_seconds": 0.003544,
     "timings": {
-      "reading": 0.000515,
-      "analysis": 0.000135,
-      "finalize": 0.002376,
-      "other": 0.000366
+      "reading": 0.000467,
+      "analysis": 0.000137,
+      "finalize": 0.002568,
+      "other": 0.000372
     },
     "workers": 1,
-    "peak_memory_bytes": 50892800
+    "peak_memory_bytes": 51208192
   },
   "source": {
     "format": "csv",
@@ -533,22 +533,34 @@
                 {
                   "value": "001",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "002",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "003",
                   "type": "string",
-                  "count": 2
+                  "count": 2,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "004",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -1271,22 +1283,34 @@
                 {
                   "value": "Alice",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Bob",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Charlie",
                   "type": "string",
-                  "count": 2
+                  "count": 2,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Dana",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -2016,17 +2040,26 @@
                 {
                   "value": "12.50",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "25.00",
                   "type": "string",
-                  "count": 2
+                  "count": 2,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "not available",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -2765,22 +2798,34 @@
                 {
                   "value": "2026-01-01",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2026-02-01",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2026-03-01",
                   "type": "string",
-                  "count": 2
+                  "count": 2,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "2026-04-01",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 3,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -3521,12 +3566,18 @@
                 {
                   "value": "true",
                   "type": "string",
-                  "count": 4
+                  "count": 4,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "false",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -4233,17 +4284,26 @@
                 {
                   "value": "First order",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 0,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Two items, one order",
                   "type": "string",
-                  "count": 2
+                  "count": 2,
+                  "id": 1,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 },
                 {
                   "value": "Pending review",
                   "type": "string",
-                  "count": 1
+                  "count": 1,
+                  "id": 2,
+                  "count_accuracy": "exact",
+                  "identity_accuracy": "exact"
                 }
               ]
             },
@@ -4873,12 +4933,12 @@
   ],
   "diagnostics": [],
   "report": {
-    "generated_at": "2026-10-07T06:22:09.197936Z",
+    "generated_at": "2026-10-08T03:46:13.735210Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.017,
+    "processing_seconds": 0.0242,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

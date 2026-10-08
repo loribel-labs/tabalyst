@@ -64,6 +64,11 @@ def complete_cardinality(value: int) -> dict:
     }
 
 
+def without_estimate(cardinality: dict) -> dict:
+    """The cardinality block without its KMV estimate (tested on its own)."""
+    return {name: value for name, value in cardinality.items() if name != "estimate"}
+
+
 def limited_cardinality(
     reason: str,
     limit: int,

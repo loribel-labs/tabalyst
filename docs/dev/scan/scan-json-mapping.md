@@ -18,13 +18,13 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Exact counts, presence, lengths histogram, numeric statistics | Exact, no Welford (design 9.1 to 9.5) | Done | |
 | Four rates and their denominators (A03) | `report_profile.py`, now documented in design 9.11 and pinned by tests | Done | 0 |
 | Run instrumentation (PERF-01) | `run`: `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `finalize`, `other`), `workers`, `peak_memory_bytes` | Modify: add planning, second pass, serialization, render | 6a, 7a, 5 |
-| Diagnostic counters of the sampler (PERF-02, PERF-03) | None | Add, optional and cheap | 2b |
-| Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound` (Done at 1a); `estimate` (2b, reserved at 1a) | 1a, 2b |
+| Diagnostic counters of the sampler (PERF-02, PERF-03) | None | Add, optional and cheap. Not done at 2b (the lot measured the cost instead, see benchmarks.md): moved to 2c with the memory budget | 2c |
+| Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound` (Done at 1a); `estimate` (Done at 2b: KMV, held within the certain bounds) | 1a, 2b |
 | Tracking limit T and sample size K separate (O28) | `max_distinct_per_field` 100,000 (kept as T); `max_samples` 100 becomes K, default 10,000 (Done at 1a, cap 100,000, K at most T) | Modify | 1a |
 | JSON Schema of the base and validator of invariants (20.3, A01) | None | Done at 1a: `scanner/schema.py`, `scanner/validation.py`, committed `schemas/tabalyst.scan.schema.json` (design 19.7) | 1a |
-| Bottom-k of distinct values (D04, D05, BK) | `values.samples` is `all`, `uniform_distinct` or `first_seen`, biased towards the start once the table is released | Add, replaces the biased selections. The sampler (`scanner/bottomk.py`, BLAKE2b 128 bits) is Done at 2a and not yet used by the engine; its state belongs to `ValueProcessor` (design 18.3) | 2a, 2b |
-| KMV estimate (7.3) | None | Add: `kmv_estimate` and `BottomKSampler.kmv()` Done at 2a; published in the document at 2b | 2a, 2b |
-| Original domain (D25, O32) | Listings and samples use the analytical value (NFC, trim, collapse) | Modify | 2b, 4a |
+| Bottom-k of distinct values (D04, D05, BK) | Done at 2b: `values.samples` is `all` or `bottom_k` (`k`, `hash`, `threshold`; entries with `id`, `count_accuracy`, `identity_accuracy`); `uniform_distinct` and `first_seen` removed. State in `ValueProcessor` (`scanner/valuesample.py`, design 18.3) | Done | 2a, 2b |
+| KMV estimate (7.3) | None | Add: `kmv_estimate` and `BottomKSampler.kmv()` Done at 2a; Done at 2b: published in `values.cardinality.estimate` | 2a, 2b |
+| Original domain (D25, O32) | Samples and the estimate use the original value (Done at 2b, A18); frequency listings, lengths and statistics keep the analytical value (Q5) | Patterns at 4a | 2b, 4a |
 | Long texts (D06) | A value above `max_stored_value_length` releases the table (`value_too_long`) | Modify: small bottom-k with previews | 2c |
 | Global memory budget (MEM) | `max_tracked_values`, `max_tracked_records` | Modify: sub-budgets, requested and effective sizes | 2c |
 | Samples by length (D07) | Exact length histogram | Add the samples; histogram Done | 3a |
@@ -42,10 +42,10 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Add | 7b |
 | Relationships (D13, D14) | None | Add | 8a, 8b |
 | Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
-| Explore access (D24) | Private DuckDB layer `projects/` | Modify, frozen then adapted | 1d |
+| Explore access (D24) | Private DuckDB layer `projects/` | Adapted (1d): reads the Scan base only | 1d |
 | HTML from JSON alone (D19, F01) | `render_report` reads the profile | Modify with the new sections | 1c, 5 |
 | Atomic writes (5.4, F05) | `write_text_atomic` | Done | |
-| Exposure after calculation (VAL-06) | `mask`, `hide`, `show` gate at finalization | Done, extended to samples | 2b |
+| Exposure after calculation (VAL-06) | `mask`, `hide`, `show` gate at finalization | Done, extended to samples at 2b: `kept < of` declares withheld originals, no threshold for a sensitive field | 2b |
 | Large integers in the HTML (F06, Q6) | Not decided | Decide before stability | 5 |
 
 ## Instrumentation names
@@ -75,7 +75,7 @@ the main process and are never summed with worker time.
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity |
 | `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |
-| `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Frozen, then adapted once the model is stable (1d) |
+| `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Adapted (1d): `validate_database` runs `check_scan`; no codec or schema change |
 | `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9, 10a) |
 | `cli/scan.py`, `cli/` | Options, output | `--deep`, `--plan`, `--yes` (6b, 7a) |
 | `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |

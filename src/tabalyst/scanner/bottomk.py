@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import hashlib
 import math
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
+from itertools import repeat
 from typing import NamedTuple
 
 HASH_ALGORITHM = "blake2b"
@@ -27,6 +28,8 @@ HASH_VERSION = 1
 HASH_BITS = 128
 
 _SPACE = 1 << HASH_BITS
+# The start of every encoded key of the type ``string`` (see ``_hasher``).
+_STRING_PREFIX = b"string\0"
 _SEED_LIMIT = 1 << 64
 
 Key = tuple[str, str]
@@ -136,6 +139,7 @@ class BottomKSampler:
 
     __slots__ = (
         "_counts",
+        "_custom",
         "_limit",
         "_occurrences",
         "_overflow_at",
@@ -156,6 +160,7 @@ class BottomKSampler:
         self._rank: PriorityFunction = (
             priority if priority is not None else _hasher(seed)
         )
+        self._custom = priority is not None
         self._counts: dict[Key, int] = {}
         self._priorities: dict[Key, int] = {}
         self._occurrences = 0
@@ -189,12 +194,71 @@ class BottomKSampler:
         if counts and min(counts.values()) < 1:
             raise ValueError("counts must be at least 1")
         rank = sampler._rank
-        sampler._counts.update(counts)
-        sampler._priorities.update((key, rank(key)) for key in counts)
         sampler._occurrences = sum(counts.values())
-        if len(counts) > k:
-            sampler._compact()
-            sampler._overflow_at = overflow_at_occurrence
+        if len(counts) <= k:
+            sampler._counts.update(counts)
+            sampler._priorities.update(zip(counts, map(rank, counts)))
+            return sampler
+        # Sorting every key would cost far more than the hash: the K-th
+        # smallest priority bounds the keys worth ranking (ties on it are
+        # settled by the complete key, as everywhere).
+        keys = list(counts)
+        values = list(map(rank, keys))
+        cut = sorted(values)[k - 1]
+        ranked = sorted((v, key) for v, key in zip(values, keys) if v <= cut)[:k]
+        sampler._counts.update((key, counts[key]) for _, key in ranked)
+        sampler._priorities.update((key, value) for value, key in ranked)
+        sampler._limit = ranked[-1]
+        sampler._trigger = _trigger_after_drop(k)
+        sampler._overflow_at = overflow_at_occurrence
+        return sampler
+
+    @classmethod
+    def from_exact_strings(
+        cls,
+        k: int,
+        texts: Sequence[str],
+        counts: Sequence[int],
+        *,
+        seed: int = 0,
+        overflow_at_occurrence: int | None = None,
+    ) -> BottomKSampler:
+        """``from_exact`` for a table of keys of the type ``"string"`` given as
+        texts with their counts: the same sample, without building a key or a
+        table for the keys that are dropped (the engine's release of a table
+        of T strings)."""
+        if len(texts) <= k:
+            sampler = cls(k, seed=seed)
+            sampler.update_strings(texts, counts)
+            if counts and min(counts) < 1:
+                raise ValueError("counts must be at least 1")
+            return sampler
+        if min(counts) < 1:
+            raise ValueError("counts must be at least 1")
+        sampler = cls(k, seed=seed)
+        sampler._occurrences = sum(counts)
+        copy = _prototype(seed).copy
+        from_bytes = int.from_bytes
+        prefix = _STRING_PREFIX
+        values = []
+        append = values.append
+        for text in texts:
+            state = copy()
+            state.update(prefix + text.encode("utf-8", "surrogatepass"))
+            append(from_bytes(state.digest(), "big"))
+        cut = sorted(values)[k - 1]
+        ranked = sorted(
+            (value, texts[position], counts[position])
+            for position, value in enumerate(values)
+            if value <= cut
+        )[:k]
+        for value, text, count in ranked:
+            key = ("string", text)
+            sampler._counts[key] = count
+            sampler._priorities[key] = value
+        sampler._limit = (ranked[-1][0], ("string", ranked[-1][1]))
+        sampler._trigger = _trigger_after_drop(k)
+        sampler._overflow_at = overflow_at_occurrence
         return sampler
 
     def add(self, key: Key, count: int = 1) -> None:
@@ -240,6 +304,51 @@ class BottomKSampler:
             # Also when a key raises, so the count matches the keys admitted.
             self._occurrences = occurrences
 
+    def update_strings(self, texts: Iterable[str], counts: Iterable[int]) -> None:
+        """``update`` for distinct keys of the type ``"string"``, given as their
+        texts: the engine's hot path for fields of strings.
+
+        The same result as ``update`` with the keys ``("string", text)``. Once
+        the sample is full, a text whose priority is above the limit is
+        rejected before any key is built or looked up: a retained key never
+        has a priority above the limit.
+        """
+        if self._custom:
+            self.update(zip(repeat("string"), texts), counts)
+            return
+        retained = self._counts
+        priorities = self._priorities
+        copy = _prototype(self.seed).copy
+        from_bytes = int.from_bytes
+        prefix = _STRING_PREFIX
+        trigger = self._trigger
+        occurrences = self._occurrences
+        limit = self._limit
+        limit_priority: float
+        if limit is None:
+            limit_priority, limit_key = math.inf, ("", "")
+        else:
+            limit_priority, limit_key = limit
+        try:
+            for text, count in zip(texts, counts, strict=True):
+                state = copy()
+                state.update(prefix + text.encode("utf-8", "surrogatepass"))
+                value = from_bytes(state.digest(), "big")
+                if value <= limit_priority:
+                    key = ("string", text)
+                    known = retained.get(key)
+                    if known is not None:
+                        retained[key] = known + count
+                    elif value < limit_priority or key < limit_key:
+                        retained[key] = count
+                        priorities[key] = value
+                        if len(retained) >= trigger:
+                            limit_priority, limit_key = self._compact(occurrences + 1)
+                            trigger = self._trigger
+                occurrences += count
+        finally:
+            self._occurrences = occurrences
+
     def _compact(self, overflow_at: int | None = None) -> tuple[int, Key]:
         """Keep the K best keys (more than K are held) and tighten the
         admission limit, which is returned.
@@ -251,9 +360,21 @@ class BottomKSampler:
         k = self.k
         if self._limit is None and overflow_at is not None:
             self._overflow_at = overflow_at
-        for _, key in ranked[k:]:
-            del self._counts[key]
-            del self._priorities[key]
+        counts, priorities = self._counts, self._priorities
+        if len(ranked) > 2 * k:
+            # Dropping most of a large table (``from_exact``): rebuilding the
+            # K survivors is cheaper than deleting the rest key by key. In
+            # place, since ``update`` holds these dictionaries.
+            survivors = ranked[:k]
+            kept = {key: counts[key] for _, key in survivors}
+            counts.clear()
+            counts.update(kept)
+            priorities.clear()
+            priorities.update((key, value) for value, key in survivors)
+        else:
+            for _, key in ranked[k:]:
+                del counts[key]
+                del priorities[key]
         self._limit = ranked[k - 1]
         self._trigger = _trigger_after_drop(k)
         return self._limit

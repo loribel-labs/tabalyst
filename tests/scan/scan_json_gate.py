@@ -11,7 +11,7 @@ unexpectedly and fails the suite, so the lot must add its name here. Lot
 ``0`` tests describe behavior that exists today and must keep passing.
 """
 
-ENABLED_LOTS: set[str] = {"0", "1a", "1b", "1c", "2a"}
+ENABLED_LOTS: set[str] = {"0", "1a", "1b", "1c", "2a", "2b"}
 
 KNOWN_LOTS = frozenset(
     {

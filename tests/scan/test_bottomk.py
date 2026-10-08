@@ -154,6 +154,65 @@ def test_batches_with_counts_give_the_sample_of_streaming_the_occurrences(k):
     assert batched.threshold == streamed.threshold
 
 
+@pytest.mark.parametrize("k", [1, 4, 9, 40])
+def test_string_batches_give_the_sample_of_the_generic_batches(k):
+    rng = random.Random(100 + k)
+    texts = [
+        f"t{rng.randrange(150)}" + ("\udcff" if n % 9 == 0 else "")
+        for n in range(1200)
+    ]
+    generic = BottomKSampler(k)
+    fast = BottomKSampler(k)
+    position = 0
+    while position < len(texts):
+        batch = Counter(texts[position : position + rng.randint(1, 200)])
+        position += sum(batch.values())
+        generic.update([("string", text) for text in batch], list(batch.values()))
+        fast.update_strings(list(batch), list(batch.values()))
+
+    assert _entries(fast) == _entries(generic)
+    assert fast.occurrences == generic.occurrences == len(texts)
+    assert fast.threshold == generic.threshold
+    assert fast.overflow_at_occurrence == generic.overflow_at_occurrence
+
+
+@pytest.mark.parametrize("distinct", [0, 3, 9, 10, 11, 60])
+def test_from_exact_strings_equals_from_exact_of_string_keys(distinct):
+    rng = random.Random(distinct)
+    texts = [f"s{n}-{rng.randrange(99)}" for n in range(distinct)]
+    counts = [rng.randint(1, 5) for _ in texts]
+
+    generic = BottomKSampler.from_exact(
+        10, {("string", text): count for text, count in zip(texts, counts)}, seed=3
+    )
+    fast = BottomKSampler.from_exact_strings(10, texts, counts, seed=3)
+
+    assert _entries(fast) == _entries(generic)
+    assert (fast.occurrences, fast.threshold) == (generic.occurrences, generic.threshold)
+    assert fast.distinct_exact == generic.distinct_exact
+    for batch in ([("string", "later")], [("string", texts[0])] if texts else []):
+        if batch:
+            generic.update(batch, [2])
+            fast.update_strings([batch[0][1]], [2])
+    assert _entries(fast) == _entries(generic)
+
+
+def test_from_exact_strings_rejects_a_count_below_one():
+    with pytest.raises(ValueError):
+        BottomKSampler.from_exact_strings(2, ["a", "b", "c"], [1, 0, 1])
+
+
+def test_string_batches_use_an_injected_priority():
+    collide = BottomKSampler(2, priority=lambda key: 7)
+
+    collide.update_strings(["b", "a", "c"], [1, 1, 1])
+
+    assert [entry.key for entry in collide.entries()] == [
+        ("string", "a"),
+        ("string", "b"),
+    ]
+
+
 @pytest.mark.parametrize("k", [1, 5, 12])
 def test_any_order_of_the_stream_gives_the_same_sample(k):
     rng = random.Random(7 + k)

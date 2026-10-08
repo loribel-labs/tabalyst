@@ -583,7 +583,8 @@ class ScanConfig(_Settings):
         default_factory=list, max_length=MAX_PATTERNS
     )
     exposure: ExposureSettings = Field(default_factory=ExposureSettings)
-    random_seed: int = 42
+    # The seed of the bottom-k hash (design 18.3) is an unsigned 64-bit integer.
+    random_seed: int = Field(default=42, ge=0, lt=2**64)
 
     model_config = ConfigDict(extra="forbid", serialize_by_alias=True)
 

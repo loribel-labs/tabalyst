@@ -17,6 +17,7 @@ from scan_helpers import (
     dataset,
     field,
     limited_cardinality,
+    without_estimate,
     write_json,
     write_text,
 )
@@ -37,7 +38,10 @@ def _ids(count: int) -> list[str]:
 
 
 def _cardinality(document: dict, dataset_id: str, display: str) -> dict:
-    return field(dataset(document, dataset_id), display)["values"]["cardinality"]
+    """The cardinality block without its estimate (see ``test_value_sample``)."""
+    return without_estimate(
+        field(dataset(document, dataset_id), display)["values"]["cardinality"]
+    )
 
 
 def test_a_complete_cardinality_is_exact_for_the_original_values(tmp_path):
@@ -140,9 +144,8 @@ def test_members_that_are_not_known_are_absent_not_null(tmp_path):
     values = field(dataset(document, "rows"), "v")["values"]
     text = json.dumps(values)
 
-    # The estimate and the bottom-k sample belong to lot 2b.
-    assert "estimate" not in values["cardinality"]
+    assert "estimate" in values["cardinality"]
     for name in ("k", "hash", "threshold"):
-        assert name not in values["samples"], name
-    assert "null" not in json.dumps(values["cardinality"])
-    assert '"selection": "first_seen"' in text
+        assert name in values["samples"], name
+    assert "null" not in text
+    assert values["samples"]["selection"] == "bottom_k"

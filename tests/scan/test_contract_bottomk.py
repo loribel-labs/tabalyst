@@ -454,3 +454,23 @@ def test_B10_scan_analytical_memory_does_not_grow_with_unique_values(tmp_path):
     assert len(_samples(result)["listed"]) == 1000
     # Four times the unique values, about the same analytical memory.
     assert large < small * 1.1
+
+
+@pytest.mark.scan_json_lot("2b")
+def test_A18_samples_keep_the_original_variants_while_frequencies_merge_them(tmp_path):
+    variants = ["Café", "Cafe\u0301", " Café ", "CAFÉ", "Cafe"]
+    source = write_text(tmp_path, "v.csv", "v\n" + "\n".join(variants * 2) + "\n")
+
+    values = field(dataset(run_scan(source), "rows"), "v")["values"]
+
+    assert values["cardinality"]["value"] == 5
+    assert values["cardinality"]["domain"] == "original"
+    assert [item["value"] for item in values["samples"]["listed"]] == variants
+    assert {item["count"] for item in values["samples"]["listed"]} == {2}
+    # The analytical value (NFC, trim, collapse) merges the first three.
+    assert values["frequencies"]["value"]["distinct"] == 3
+    assert values["frequencies"]["value"]["listed"][0] == {
+        "value": "Café",
+        "type": "string",
+        "count": 6,
+    }

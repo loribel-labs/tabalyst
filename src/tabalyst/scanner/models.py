@@ -90,13 +90,25 @@ Accuracy = Literal["exact", "estimated", "fingerprint_based", "unknown"]
 
 
 class CardinalityEstimate(ScanModel):
-    """Reserved for the KMV estimate (design 18.5, lot 2b): never written yet."""
+    """KMV estimate of the distinct original values (design 18.5).
 
+    ``value`` is held within the certain bounds of the envelope;
+    ``unclamped_value`` is the raw estimator, present only when a bound
+    changed it. ``theta_hex`` (the sample threshold) is absent for a sensitive
+    field: it is the priority of one of its values.
+    """
+
+    accuracy: Literal["estimated"] = "estimated"
     method: Literal["kmv"]
     value: float
+    unclamped_value: float | None = None
     relative_standard_error: float
     k: int
-    theta_hex: str
+    theta_hex: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("unclamped_value", "theta_hex"))
 
 
 class CardinalityComplete(Complete[int]):
@@ -221,8 +233,20 @@ class Frequencies(ScanModel):
     truncated: bool
 
 
+class SampleEntry(ValueCount):
+    """A sampled original value with its exact count (design 18.9).
+
+    ``id`` numbers the entry in the listing of the Scan and stays the same in a
+    Report that keeps a subset of it.
+    """
+
+    id: int
+    count_accuracy: Accuracy
+    identity_accuracy: Accuracy
+
+
 class SampleHash(ScanModel):
-    """Priority function of a bottom-k sample (design 18.3): reserved."""
+    """Priority function of a bottom-k sample (design 18.3)."""
 
     algorithm: str
     version: int
@@ -231,17 +255,21 @@ class SampleHash(ScanModel):
 
 
 class Samples(ScanModel):
-    """Distinct values with their counts. ``bottom_k`` is the selection of lot
-    2b: until then ``k``, ``hash`` and ``threshold`` (the largest priority kept,
-    as hexadecimal digits) are absent.
+    """Distinct original values with their exact counts (design 18.9).
+
+    ``all`` lists every distinct value, in first-seen order; ``bottom_k`` the
+    ones of smallest priority, in ascending priority, and names ``k``, the
+    ``hash`` and the ``threshold`` (the largest priority kept, as hexadecimal
+    digits; absent while no value was dropped and for a sensitive field).
 
     ``kept`` values are listed out of the ``of`` the scan sampled: a Scan has
-    ``kept == of``; a Report keeps fewer (design 19.4) and says so here."""
+    ``kept == of`` unless exposure withheld values (``mask`` merges, ``hide``
+    lists none); a Report keeps fewer (design 19.4) and says so here."""
 
-    selection: Literal["all", "uniform_distinct", "first_seen", "bottom_k"]
+    selection: Literal["all", "bottom_k"]
     kept: int
     of: int
-    listed: list[ValueCount]
+    listed: list[SampleEntry]
     k: int | None = None
     hash: SampleHash | None = None
     threshold: str | None = None

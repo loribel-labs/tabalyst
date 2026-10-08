@@ -21,7 +21,6 @@ so a detector that adaptive detection skips costs nothing per value.
 from __future__ import annotations
 
 import heapq
-import random
 import zlib
 from collections import Counter
 from collections.abc import Sequence
@@ -44,6 +43,7 @@ from tabalyst.scanner.measures import ValueMeasures, canonical_text
 from tabalyst.scanner.models import (
     BooleanCounts,
     CardinalityComplete,
+    CardinalityEstimate,
     CardinalityLimited,
     Complete,
     Disabled,
@@ -61,6 +61,7 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.normalization import KEY_STAGE, STAGES, VERSION, Normalizer
 from tabalyst.scanner.technical import technical_type
+from tabalyst.scanner.valuesample import ValueSample
 
 # Distinct values a streamed field gathers before processing them: the batch
 # is also its memoization, so memory stays bounded.
@@ -395,11 +396,15 @@ class ValueTracker:
             self._local().process(keys, counts, scalars=self.scalars)
 
     def cardinality(
-        self, block: BaseModel | dict[str, Any], value_count: int
+        self,
+        block: BaseModel | dict[str, Any],
+        value_count: int,
+        estimate: dict[str, Any] | None = None,
     ) -> BaseModel | dict[str, Any]:
         """The cardinality block of the field, qualified: its domain (original
         values), its identity accuracy and, once limited, the certain maximum
-        (``value_count``) and where tracking stopped (design 9.1).
+        (``value_count``), where tracking stopped (design 9.1) and the KMV
+        ``estimate`` of the sample, held within the certain bounds.
 
         ``block`` is a model, or plain data when a worker process computed it.
         """
@@ -415,15 +420,27 @@ class ValueTracker:
         if status != "limited":
             return block
         distinct_limit = data["reason"] == "distinct_limit"
+        lower_bound = data.get("lower_bound")
+        if estimate is not None:
+            raw = estimate["value"]
+            value = min(max(raw, lower_bound or 0), value_count)
+            estimate = CardinalityEstimate(
+                **{
+                    **estimate,
+                    "value": value,
+                    "unclamped_value": None if value == raw else raw,
+                }
+            )
         return CardinalityLimited(
             reason=data["reason"],
             limit=data["limit"],
-            lower_bound=data.get("lower_bound"),
+            lower_bound=lower_bound,
             domain=ORIGINAL_DOMAIN,
             identity_accuracy="exact",
             upper_bound=value_count,
             threshold_reached_at_record=self.reached if distinct_limit else None,
             overflow_detected_at_record=self.overflow if distinct_limit else None,
+            estimate=estimate,
         )
 
     def _ends(self) -> tuple:
@@ -477,7 +494,7 @@ class ValueProcessor:
         "decided",
         "limited",
         "measures",
-        "samples",
+        "sample",
         "scalars",
         "seen",
         "skipping",
@@ -487,8 +504,9 @@ class ValueProcessor:
     def __init__(self, context: ValueContext) -> None:
         self.context = context
         self.measures = ValueMeasures(context.detectors.tallies())
-        # First distinct analytical values with their counts, once released.
-        self.samples: dict[tuple[str, str], int] | None = None
+        # The sample of original values, once released (a complete table
+        # makes it at finalization).
+        self.sample: ValueSample | None = None
         # The limit that released the table, if any.
         self.limited: Limited | None = None
         # Whether a value other than a string was seen.
@@ -508,7 +526,7 @@ class ValueProcessor:
         values."""
         self.limited = limited
         self.measures.numeric.median_values = None
-        self.samples = {}
+        self.sample = self._new_sample()
         self.process(keys, counts, scalars=scalars)
         self.warm = set(keys[: self.context.detectors.warmup_values])
 
@@ -526,6 +544,8 @@ class ValueProcessor:
         """
         if scalars:
             self.scalars = True
+        if self.sample is not None:
+            self.sample.add(keys, counts, self.scalars)
         if not self.decided:
             end, warmup = self._warmup(keys)
             if end:
@@ -619,20 +639,10 @@ class ValueProcessor:
             for position, (text, count) in enumerate(zip(texts, counts, strict=True)):
                 value = ("string" if typed is None else typed[position], text)
                 analytical[value] = analytical.get(value, 0) + count
-        elif self.samples is not None:
-            # Samples keep the first distinct analytical values with their
-            # complete counts (design 9.1).
-            samples = self.samples
-            room = self.context.max_samples - len(samples)
-            longest = self.context.max_stored_length
-            for position, (text, count) in enumerate(zip(texts, counts, strict=True)):
-                value = ("string" if typed is None else typed[position], text)
-                known = samples.get(value)
-                if known is not None:
-                    samples[value] = known + count
-                elif room > 0 and len(text) <= longest:
-                    samples[value] = count
-                    room -= 1
+
+    def _new_sample(self) -> ValueSample:
+        context = self.context
+        return ValueSample(context.max_samples, context.seed, context.max_stored_length)
 
     def _strings(
         self,
@@ -846,17 +856,19 @@ class ValueProcessor:
                     truncated=distinct > len(ranked),
                 )
             )
-            samples = _samples(analytical, exposed, context.max_samples, context.seed)
+            sample = self._new_sample()
+            sample.add(list(table), list(table.values()), self.scalars)
+            samples = sample.samples(gate)
+            estimate = None
         else:
             limited = self.limited
             cardinality = limited
             # Raw distinct values do not prove normalized ones: no bound.
             unproven = Limited(reason=limited.reason, limit=limited.limit)
             frequencies = unproven
-            samples = _sample(
-                "first_seen",
-                _listing(gate.typed_counts(self.samples.items()).items()),
-            )
+            sample = self.sample
+            samples = sample.samples(gate)
+            estimate = sample.estimate(gate)
             stage_cardinality = dict.fromkeys(range(len(STAGES)), unproven)
             variant_groups = unproven if measures.lengths else _NO_VALUES
         results = detectors.results(measures.tallies, report_failure, gate, report_probe)
@@ -867,6 +879,7 @@ class ValueProcessor:
             "cardinality": cardinality,
             "frequencies": frequencies,
             "samples": samples,
+            "estimate": estimate,
             "first": self._value_at(*first, gate),
             "last": self._value_at(*last, gate),
             "string_characteristics": measures.string_characteristics(),
@@ -1038,31 +1051,6 @@ def _listing(items) -> list[ValueCount]:
     ]
 
 
-def _sample(selection: str, listed: list[ValueCount]) -> Samples:
-    """A scan sample: it lists everything it sampled (``kept == of``)."""
-    return Samples(
-        selection=selection, kept=len(listed), of=len(listed), listed=listed
-    )
-
-
-def _samples(
-    analytical: dict[tuple[str, str], int],
-    exposed: dict[tuple[str, str], int],
-    size: int,
-    seed: int,
-) -> Samples:
-    """Every distinct exposed value, or a seeded uniform sample, in first-seen
-    order. Hidden values keep the selection of the analytical values."""
-    if analytical and not exposed:
-        selection = "all" if len(analytical) <= size else "uniform_distinct"
-        return _sample(selection, [])
-    items = list(exposed.items())
-    if len(items) <= size:
-        return _sample("all", _listing(items))
-    chosen = sorted(random.Random(seed).sample(range(len(items)), size))
-    return _sample("uniform_distinct", _listing(items[i] for i in chosen))
-
-
 def no_values(context: ValueContext) -> dict:
     """Value blocks of a field without analyzable values (design 9.9)."""
     detectors = context.detectors
@@ -1070,7 +1058,8 @@ def no_values(context: ValueContext) -> dict:
     return {
         "cardinality": _NO_VALUES,
         "frequencies": _NO_VALUES,
-        "samples": _sample("all", []),
+        "samples": Samples(selection="all", kept=0, of=0, listed=[]),
+        "estimate": None,
         "first": None,
         "last": None,
         "string_characteristics": ValueMeasures().string_characteristics(),
