@@ -68,11 +68,12 @@ class PackageTable:
     columns: tuple[TableColumn, ...]
     rows: tuple[dict[str, Cell], ...]
     unique: tuple[str, ...]
+    row_lines: tuple[int, ...]
 
 
 @dataclass(frozen=True)
 class DatasetPackage:
-    """Represent a parsed package before cross-table resolution or generation."""
+    """Represent validated, indexed catalog tables before generation."""
 
     root: Path
     id: str
@@ -81,6 +82,8 @@ class DatasetPackage:
     catalog: dict[str, object]
     tables: dict[str, PackageTable]
     input_paths: frozenset[Path]
+    value_index: dict[str, dict[str, frozenset[Cell]]]
+    relation_index: dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]]
 
 
 def _fail(code: str, path: Path, message: str, row: int = 1, column: str = "-") -> None:
@@ -202,11 +205,12 @@ def _schema(path: Path, role: str) -> tuple[tuple[TableColumn, ...], tuple[str, 
 
 
 def _csv(path: Path, columns: tuple[TableColumn, ...], unique: tuple[str, ...],
-         role: str, cell_budget: int) -> tuple[dict[str, Cell], ...]:
+         role: str, cell_budget: int) -> tuple[tuple[dict[str, Cell], ...], tuple[int, ...]]:
     expected = [column.name for column in columns]
     seen: dict[str, set[Cell]] = {column.name: set() for column in columns if column.unique or column.name == "id"}
     seen_pairs: set[tuple[Cell, ...]] = set()
     rows: list[dict[str, Cell]] = []
+    row_lines: list[int] = []
     try:
         with path.open("r", encoding="utf-8", newline="") as stream:
             reader = csv.reader(stream, strict=True)
@@ -245,9 +249,101 @@ def _csv(path: Path, columns: tuple[TableColumn, ...], unique: tuple[str, ...],
                         _fail("PACKAGE_CSV_DUPLICATE", path, "duplicate composite key", line, ",".join(unique))
                     seen_pairs.add(key)
                 rows.append(row)
+                row_lines.append(line)
     except (UnicodeError, csv.Error) as exc:
         _fail("PACKAGE_CSV_PARSE", path, str(exc))
-    return tuple(rows)
+    return tuple(rows), tuple(row_lines)
+
+
+def _resolve_tables(
+    tables: dict[str, PackageTable],
+) -> tuple[dict[str, dict[str, frozenset[Cell]]],
+           dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]]]:
+    """Resolve declared foreign keys and group rows by their reference values."""
+    values = {
+        table_id: {
+            column.name: frozenset(row[column.name] for row in table.rows
+                                   if row[column.name] is not None)
+            for column in table.columns
+        }
+        for table_id, table in tables.items()
+    }
+    grouped: dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]] = {}
+    for table_id, table in tables.items():
+        groups: dict[str, dict[Cell, list[dict[str, Cell]]]] = {}
+        for column in table.columns:
+            if column.references is None:
+                continue
+            target_id, target_column = column.references.split(".")
+            target = tables.get(target_id)
+            if target is None or target_column not in values[target_id]:
+                _fail("PACKAGE_REFERENCE_SCHEMA", table.schema,
+                      f"{column.name} references unknown {column.references}", 1, column.name)
+            target_rule = next(rule for rule in target.columns if rule.name == target_column)
+            if column.type != target_rule.type or not (target_rule.unique or target_column == "id"):
+                _fail("PACKAGE_REFERENCE_SCHEMA", table.schema,
+                      f"{column.name} must reference a unique column of the same type", 1, column.name)
+            by_value: dict[Cell, list[dict[str, Cell]]] = {}
+            for row, line in zip(table.rows, table.row_lines, strict=True):
+                value = row[column.name]
+                if value is None:
+                    continue
+                if value not in values[target_id][target_column]:
+                    _fail("PACKAGE_REFERENCE_UNKNOWN", table.file,
+                          f"unknown {target_id}.{target_column} ID {value!r}", line, column.name)
+                by_value.setdefault(value, []).append(row)
+            groups[column.name] = by_value
+        grouped[table_id] = {
+            name: {key: tuple(rows) for key, rows in entries.items()}
+            for name, entries in groups.items()
+        }
+    return values, grouped
+
+
+def _check_required_choices(tables: dict[str, PackageTable],
+                            relations: dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]]) -> None:
+    """Ensure each declared Computer generation has core component choices."""
+    generations = tables.get("generation")
+    if generations is None:
+        return
+    if "id" not in {column.name for column in generations.columns}:
+        _fail("PACKAGE_SCHEMA", generations.schema, "generation table requires id", 1, "id")
+    for component in ("cpu", "memory", "storage", "display"):
+        candidates = [table for table in tables.values()
+                      if table.role in {"relation", "weighted_relation"}
+                      and any(column.name == "generation_id" and column.references == "generation.id"
+                              for column in table.columns)
+                      and any(column.name == f"{component}_id"
+                              for column in table.columns)]
+        if not candidates:
+            _fail("PACKAGE_REQUIRED_CHOICE", generations.schema,
+                  f"no generation relation for required {component}", 1, f"{component}_id")
+        for generation, line in zip(generations.rows, generations.row_lines, strict=True):
+            ident = generation["id"]
+            if not any(relations[table.id]["generation_id"].get(ident) for table in candidates):
+                _fail("PACKAGE_REQUIRED_CHOICE", generations.file,
+                      f"generation {ident!r} has no {component} choice", line, "id")
+
+
+def _check_orphans(tables: dict[str, PackageTable],
+                   relations: dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]]) -> None:
+    """Reject required entity IDs that no relation can reach."""
+    for entity in tables.values():
+        if entity.role != "entity" or "id" not in {column.name for column in entity.columns}:
+            continue
+        links = [(table.id, column.name) for table in tables.values()
+                 if table.role in {"relation", "weighted_relation"}
+                 for column in table.columns
+                 if column.required and column.references == f"{entity.id}.id"]
+        if not links:
+            continue
+        linked: set[Cell] = {
+            value for table_id, column in links for value in relations[table_id][column]
+        }
+        for row, line in zip(entity.rows, entity.row_lines, strict=True):
+            if row["id"] not in linked:
+                _fail("PACKAGE_REFERENCE_ORPHAN", entity.file,
+                      f"required {entity.id} ID {row['id']!r} has no relation", line, "id")
 
 
 def _manifest(path: Path) -> dict[str, object]:
@@ -338,10 +434,11 @@ def _output_schema(path: Path) -> None:
             _fail("PACKAGE_SCHEMA", path, f"{name}: depends_on must list columns")
 
 
-def _steps(items: object, path: Path) -> None:
+def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
     if not isinstance(items, list) or not items:
         _fail("PACKAGE_SCHEMA", path, "catalog_steps requires nonempty steps")
     ids: set[str] = set()
+    outputs: set[str] = set()
     for raw in items:
         step = _mapping(raw, path, {
             "id", "kind", "output", "source", "candidate_column", "where",
@@ -349,23 +446,71 @@ def _steps(items: object, path: Path) -> None:
             "selected", "column",
         }, {"id", "kind", "output"})
         ident = _identifier(step["id"], path, "step id")
-        _identifier(step["output"], path, "step output")
+        output = _identifier(step["output"], path, "step output")
         if ident in ids:
             _fail("PACKAGE_SCHEMA", path, f"duplicate step {ident!r}")
+        if output in outputs:
+            _fail("PACKAGE_SCHEMA", path, f"duplicate step output {output!r}")
         ids.add(ident)
         kind = step["kind"]
         if kind == "select":
             if not {"source", "candidate_column"}.issubset(step):
                 _fail("PACKAGE_SCHEMA", path, "select step needs source and candidate_column")
+            source = step["source"]
+            if not isinstance(source, str) or source not in tables:
+                _fail("PACKAGE_STEP_REFERENCE", path, f"unknown source table {source!r}")
+            names = {column.name for column in tables[source].columns}
+            candidate = step["candidate_column"]
+            if not isinstance(candidate, str) or candidate not in names:
+                _fail("PACKAGE_STEP_REFERENCE", path, f"unknown candidate column {candidate!r}")
+            where = step.get("where", {})
+            if not isinstance(where, dict) or any(
+                not isinstance(column, str) or column not in names
+                or not isinstance(field, str) or field not in outputs
+                for column, field in where.items()
+            ):
+                _fail("PACKAGE_STEP_REFERENCE", path, f"{ident}: where requires source columns and prior fields")
+            seen_candidates: set[tuple[Cell, ...]] = set()
+            for row, line in zip(tables[source].rows, tables[source].row_lines, strict=True):
+                if row[candidate] is None:
+                    _fail("PACKAGE_STEP_CANDIDATE", tables[source].file,
+                          f"{ident}: candidate is empty", line, candidate)
+                key = tuple(row[column] for column in where) + (row[candidate],)
+                if key in seen_candidates:
+                    _fail("PACKAGE_STEP_DUPLICATE", tables[source].file,
+                          f"duplicate candidate {row[candidate]!r} in {ident}", line, candidate)
+                seen_candidates.add(key)
+            weight = step.get("weight_column")
+            if weight is not None and (
+                not isinstance(weight, str) or weight not in names
+                or next(column for column in tables[source].columns if column.name == weight).type
+                not in {"integer", "number"}
+            ):
+                _fail("PACKAGE_STEP_REFERENCE", path, f"{ident}: invalid weight column")
+            if weight is not None:
+                for row, line in zip(tables[source].rows, tables[source].row_lines, strict=True):
+                    value = row[weight]
+                    if not isinstance(value, (int, Decimal)) or isinstance(value, bool) or value <= 0:
+                        _fail("PACKAGE_CSV_WEIGHT", tables[source].file,
+                              "weight must be positive", line, weight)
         elif kind == "derive":
             if not {"from_table", "selected", "column"}.issubset(step):
                 _fail("PACKAGE_SCHEMA", path, "derive step needs from_table, selected and column")
+            table = step["from_table"]
+            if not isinstance(table, str) or table not in tables:
+                _fail("PACKAGE_STEP_REFERENCE", path, f"unknown derive table {table!r}")
+            if (not isinstance(step["selected"], str) or step["selected"] not in outputs
+                or not isinstance(step["column"], str) or step["column"] not in {
+                column.name for column in tables[table].columns
+            }):
+                _fail("PACKAGE_STEP_REFERENCE", path, f"{ident}: unknown selected field or column")
         else:
             _fail("PACKAGE_SCHEMA", path, f"unknown catalog step kind {kind!r}")
+        outputs.add(output)
 
 
 def load_generate_package(path: Path | str) -> DatasetPackage:
-    """Load the package and validate local table shape and values without generating rows."""
+    """Load and index a package after validating its tables and references."""
     source = Path(path)
     manifest_path = source / "dataset.yaml" if source.is_dir() else source
     if manifest_path.name != "dataset.yaml" or not manifest_path.is_file():
@@ -398,15 +543,31 @@ def load_generate_package(path: Path | str) -> DatasetPackage:
         if bytes_total > MAX_CSV_BYTES:
             _fail("PACKAGE_LIMIT", file, "reference CSV bytes exceed 64 MiB")
         columns, unique = _schema(schema, role)
-        rows = _csv(file, columns, unique, role, MAX_CELLS - cells_total)
+        rows, row_lines = _csv(file, columns, unique, role, MAX_CELLS - cells_total)
         cells_total += len(rows) * len(columns)
-        tables[table_id] = PackageTable(table_id, role, file, schema, columns, rows, unique)
+        tables[table_id] = PackageTable(table_id, role, file, schema, columns, rows, unique, row_lines)
+    values, relations = _resolve_tables(tables)
+    for table in tables.values():
+        if table.role not in {"relation", "weighted_relation"}:
+            continue
+        foreign = tuple(column.name for column in table.columns if column.references)
+        if len(foreign) < 2:
+            continue
+        seen_pairs: set[tuple[Cell, ...]] = set()
+        for row, line in zip(table.rows, table.row_lines, strict=True):
+            pair = tuple(row[name] for name in foreign)
+            if pair in seen_pairs:
+                _fail("PACKAGE_RELATION_DUPLICATE", table.file,
+                      "duplicate relation pair", line, ",".join(foreign))
+            seen_pairs.add(pair)
+    _check_required_choices(tables, relations)
+    _check_orphans(tables, relations)
     for raw in manifest["datasets"]:
         if raw["mode"] == "generated":
             schema_path = _relative(root, raw["schema"], manifest_path, schema=True)
             paths.add(schema_path)
             _output_schema(schema_path)
             if raw["row_source"] == "catalog_steps":
-                _steps(raw.get("steps"), manifest_path)
+                _steps(raw.get("steps"), manifest_path, tables)
     return DatasetPackage(root, manifest["id"], manifest["package_version"],
-                          manifest, catalog, tables, frozenset(paths))
+                          manifest, catalog, tables, frozenset(paths), values, relations)
