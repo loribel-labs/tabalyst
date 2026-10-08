@@ -22,8 +22,8 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Cardinality envelope (5.7) | `values.cardinality`: `status`, `value`, `reason`, `limit`, `lower_bound` | Modify: `domain`, `accuracy`, thresholds, `upper_bound` (Done at 1a); `estimate` (2b, reserved at 1a) | 1a, 2b |
 | Tracking limit T and sample size K separate (O28) | `max_distinct_per_field` 100,000 (kept as T); `max_samples` 100 becomes K, default 10,000 (Done at 1a, cap 100,000, K at most T) | Modify | 1a |
 | JSON Schema of the base and validator of invariants (20.3, A01) | None | Done at 1a: `scanner/schema.py`, `scanner/validation.py`, committed `schemas/tabalyst.scan.schema.json` (design 19.7) | 1a |
-| Bottom-k of distinct values (D04, D05, BK) | `values.samples` is `all`, `uniform_distinct` or `first_seen`, biased towards the start once the table is released | Add, replaces the biased selections | 2a, 2b |
-| KMV estimate (7.3) | None | Add | 2a, 2b |
+| Bottom-k of distinct values (D04, D05, BK) | `values.samples` is `all`, `uniform_distinct` or `first_seen`, biased towards the start once the table is released | Add, replaces the biased selections. The sampler (`scanner/bottomk.py`, BLAKE2b 128 bits) is Done at 2a and not yet used by the engine; its state belongs to `ValueProcessor` (design 18.3) | 2a, 2b |
+| KMV estimate (7.3) | None | Add: `kmv_estimate` and `BottomKSampler.kmv()` Done at 2a; published in the document at 2b | 2a, 2b |
 | Original domain (D25, O32) | Listings and samples use the analytical value (NFC, trim, collapse) | Modify | 2b, 4a |
 | Long texts (D06) | A value above `max_stored_value_length` releases the table (`value_too_long`) | Modify: small bottom-k with previews | 2c |
 | Global memory budget (MEM) | `max_tracked_values`, `max_tracked_records` | Modify: sub-budgets, requested and effective sizes | 2c |

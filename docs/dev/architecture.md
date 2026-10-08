@@ -361,6 +361,12 @@ second pass) is specified in [scan/design.md](scan/design.md) sections 18 to
 its baselines are in [scan/benchmarks.md](scan/benchmarks.md) and measured by
 `benchmarks/scan_json_baseline.py`. Its contract tests (`tests/scan/test_contract_*.py`)
 carry `@pytest.mark.scan_json_lot("<lot>")`: a test of a lot missing from
-`SCAN_JSON_ENABLED_LOTS` in `tests/scan/conftest.py` is a strict expected failure,
+`ENABLED_LOTS` in `tests/scan/scan_json_gate.py` is a strict expected failure,
 so the lot that delivers the behavior must enable it. Lot `0` tests describe
 current behavior and guard it.
+
+`scanner/bottomk.py` (lot 2a) is the bottom-k sampler and the KMV estimate,
+isolated from the product: nothing in the engine imports it yet. Lot 2b feeds
+it from `ValueProcessor`, in the scan process or in the worker of the field
+(design 18.3). The choice of its hash is measured by
+`benchmarks/bottomk_hash.py` (design 18.8, [scan/benchmarks.md](scan/benchmarks.md)).
