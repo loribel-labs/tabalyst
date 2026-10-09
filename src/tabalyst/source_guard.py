@@ -15,10 +15,11 @@ the results stay provisional until it agrees.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Protocol
 
 from tabalyst.errors import InputError
 from tabalyst.scanner.models import ScanResult, SourceInfo
-from tabalyst.scanner.planner.models import AnalysisPlan
+from tabalyst.scanner.planner.models import AnalysisPlan, PlanBase
 from tabalyst.scanner.planner.planner import plan_base
 
 
@@ -34,7 +35,14 @@ class SourceNotReadable(InputError):
     """The source cannot be read again. The Scan and the plan stay valid."""
 
 
-def check_plan_base(plan: AnalysisPlan, scan: ScanResult) -> None:
+class PlanOfScan(Protocol):
+    """A plan that stands on a Scan: the plan of analyses, or that of a sample."""
+
+    @property
+    def base(self) -> PlanBase: ...
+
+
+def check_plan_base(plan: PlanOfScan, scan: ScanResult) -> None:
     """Raise ``StalePlan`` unless ``plan`` was made for ``scan`` (D04): same
     source, configuration, engine and facts."""
     current = plan_base(scan)

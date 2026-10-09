@@ -73,8 +73,12 @@ support is not yet required. Record format changes in the relevant changelogs.
   advice (classic allocation, saturating product of cardinalities; 20.14).
 - `src/tabalyst/scanner/smart/`: the targets and the plan of a smart sample (`SamplingPlan`: targets by
   family, monotone capped weights, sizes, reserve, candidate budget, readings of the source; 20.15). It
-  reads a Scan and a current second-pass document, never the source; the selection of the rows is the
-  next lot.
+  reads a Scan and a current second-pass document, never the source. The selection of the rows (lot 10b,
+  20.16) is in the same package: `evaluate.py` (tests on a row), `select.py` (bounded pool, greedy cover),
+  `execute.py` (the guarded reading), `estimate.py` (time, confirmation), `result.py` (the report
+  `tabalyst.sample`); `src/tabalyst/smart_service.py` is its boundary for the CLI and the API.
+- `src/tabalyst/scan_page.py`: the web page of an explicit `tabalyst scan` (the report rendered from the Scan
+  alone; 16.8). Scans another command makes by itself write none.
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of
   a source (plan against Scan, readable source, digest at the end; 20.6).
 - `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,

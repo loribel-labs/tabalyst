@@ -887,3 +887,22 @@ The automatic second pass now adds 22.2 s to a report of 20.8 s, **+107%** (+84%
 cells and about 5 s to the second pass; the estimate stays within `low`. The JSON grows from 1.19 to 1.28 MB and the HTML
 from 0.76 to 0.87 MB. The levers, if the overhead is too much, are `deep.crosstab.automatic_tables` (a default of 8) and
 the automatic budget of 20.2 (decision O36); both are deterministic.
+
+## Selection of a smart sample (lot 10b)
+
+`tabalyst sample --sample-method smart` on the reference files, with the Scan stored (one reading). The machine
+was slower than at lot 0 (the first pass of `insurance-combined.csv` took 20 s against 10.5 s at the baseline).
+
+| File | Rows | Targets (tested columns) | Selection | Peak, process | Pool |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `insurance-ontario.csv` | 90,909 | 256 | 1.8 s (20 us a row) | 225 MB | 0.5 MB, 2,040 rows |
+| `insurance-combined.csv` | 1,000,000 | 345 (31) | 35.0 s (35 us a row) | 259 MB | 1.4 MB, 5,035 rows |
+
+On the combined file the Scan loaded takes 254 MB and the selection adds 5 MB: the memory of the selection does
+not depend on the number of rows (PERF-05). The first version took 2.4 s and 37.7 s: the profile showed the numeric
+targets (ten bins, one test each) placing every number ten times and the offer of every row to every target it
+covers; the numbers are now placed once and a row that cannot beat the worst candidate of a full target is
+skipped before the call. What is left is the first pass's reading of the cells (dates and numbers of the columns
+that have a test, remembered per distinct string) and the csv parsing. `SELECT_NS_PER_CELL` (600) and
+`SELECT_NS_PER_ROW` (2,000) put the model at 35 s at its centre for the combined file, in a range of 23 to 65 s.
+All the 260 exact counts of the plan on the combined file were found again by the reading (`verification`).

@@ -200,8 +200,9 @@ tabalyst scan customers.csv --plan --smart --sample-size 1000
 cover the diversity and the rare cases of a file, not to look like it: its
 proportions do not estimate the population. The plan says what the sample would
 aim for and what it would cost; it reads the scan and the second-pass document if
-it is current, never the source, and writes nothing. `tabalyst sample` does not
-choose the rows of a smart sample yet.
+it is current, never the source, and writes nothing. [`tabalyst sample
+--sample-method smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
+chooses the rows from this plan.
 
 The plan lists **targets**, each a thing worth having in the sample, with a
 `weight` and an `obligation`:

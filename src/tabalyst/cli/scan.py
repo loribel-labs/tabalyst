@@ -32,10 +32,12 @@ from tabalyst.deep_service import (
 )
 from tabalyst.errors import TabalystError
 from tabalyst.plan_service import BatchPlanResult, generate_plans
+from tabalyst.scan_page import write_scan_page
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
 from tabalyst.scanner.planner import Stratify, plan_text
 from tabalyst.scanner.planner.render import confirmation_lines, estimate_text
 from tabalyst.scanner.smart import Smart, sampling_plan_text
+from tabalyst.service import _config_paths
 
 
 def _counts(success: ScanSuccess) -> tuple[str, str, str]:
@@ -52,6 +54,8 @@ def _print_success(success: ScanSuccess, *, verbose: bool) -> None:
     records, datasets, fields = _counts(success)
     typer.echo(f"Scanned {records}: {datasets}, {fields}.", err=True)
     typer.echo(f"Scan: {success.job.output.resolve()}", err=True)
+    if success.job.page is not None:
+        typer.echo(f"Page: {success.job.page.resolve()}", err=True)
     if verbose:
         result = success.result
         typer.echo(f"Format: {result.source.format}", err=True)
@@ -90,6 +94,8 @@ def _print_batch_result(
                     f"Scan: {success.job.source} -> {success.job.output.resolve()}",
                     err=True,
                 )
+                if success.job.page is not None:
+                    typer.echo(f"Page: {success.job.page.resolve()}", err=True)
                 if verbose:
                     records, datasets, fields = _counts(success)
                     typer.echo(
@@ -238,6 +244,7 @@ def _run_deep(
     workers: int | None,
     counters: bool,
     yes: bool,
+    html: bool,
 ) -> None:
     """``tabalyst scan --deep``: the first pass unless the stored Scan is
     current, then the second pass, asking first when the rule R1 says so."""
@@ -254,6 +261,7 @@ def _run_deep(
             on_progress=progress,
             workers=workers,
             counters=counters,
+            html=html,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
@@ -288,9 +296,28 @@ def _run_deep(
             typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
             raise typer.Exit(error_exit_code(exc)) from exc
         _print_deep_result(result, quiet=quiet, verbose=verbose)
+        _refresh_pages(result, config, quiet=quiet)
         errors += [failure.error for failure in result.failures]
     if errors:
         raise typer.Exit(batch_exit_code(errors))
+
+
+def _refresh_pages(result: BatchDeepResult, config: list[Path] | None, *, quiet: bool) -> None:
+    """Write the page of each scan again, now that its second pass is stored: the
+    page shows the analyses the document holds."""
+    for success in result.successes:
+        scan = success.job.scan
+        if scan.job.page is None or scan.job.output is None:
+            continue
+        try:
+            write_scan_page(
+                scan.result, scan.job.page, _config_paths(config), scan_path=scan.job.output
+            )
+        except TabalystError as exc:
+            typer.echo(f"Warning [{scan.job.source}]: {exc}", err=True)
+            continue
+        if not quiet:
+            typer.echo(f"Page: {scan.job.page.resolve()}", err=True)
 
 
 def scan_command(
@@ -355,6 +382,17 @@ def scan_command(
     no_progress: Annotated[
         bool,
         typer.Option("--no-progress", help="Disable interactive progress."),
+    ] = False,
+    no_html: Annotated[
+        bool,
+        typer.Option(
+            "--no-html",
+            help=(
+                "Do not write the web page of the scan, <name>.scan.html beside the "
+                "scan document, or beside the source when the scan is in the "
+                "shared storage."
+            ),
+        ),
     ] = False,
     workers: Annotated[
         int | None,
@@ -475,6 +513,7 @@ def scan_command(
             ("--output-dir", output_dir is not None),
             ("--force", force),
             ("--counters", counters),
+            ("--no-html", no_html),
         ):
             if given:
                 raise typer.BadParameter(f"{name} cannot be used with --plan: a plan writes nothing.")
@@ -498,6 +537,7 @@ def scan_command(
             workers=workers,
             counters=counters,
             yes=yes,
+            html=not no_html,
         )
         return
     if plan:
@@ -547,6 +587,7 @@ def scan_command(
             workers=workers,
             counters=counters,
             project_storage=True,
+            html=not no_html,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)

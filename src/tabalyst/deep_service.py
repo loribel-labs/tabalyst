@@ -122,6 +122,7 @@ def prepare_deep(
     workers: int | None = None,
     counters: bool = False,
     project_storage: bool = True,
+    html: bool = False,
 ) -> DeepPreparation:
     """Scan the sources, or reuse the current stored Scan of each, and plan the
     second pass of every Scan as a forced one, with the analyzers that have an
@@ -148,6 +149,7 @@ def prepare_deep(
         counters=counters,
         project_storage=project_storage,
         refresh=False,
+        html=html,
     )
     failures = list(batch.failures)
     jobs: list[DeepJob] = []

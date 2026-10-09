@@ -71,6 +71,7 @@ lot, with the reason recorded in section 17.
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
 | O43 | Targets and the plan of a smart sample | The plan of a smart sample is a document of its own, `SamplingPlan` (`scanner/smart/`), not a member of `AnalysisPlan`: it reads a Scan and, when it is current, the second-pass document, and has its own `plan_id`. It lists the targets of one dataset by family (low cardinality, structured strings, numeric, dates, quality, relations), each with a predicate named by reference into the Scan (never a value of the data), a frequency with its accuracy, a weight and an obligation. The weight is `min(cap, base * (1 + gain * rarity))`, monotone in the share and in the base, capped, configurable (`smart.weights`) and versioned; mandatory targets are the values of an exhaustive enumeration and the confirmed issues. A reserve of ordinary rows (20 % by default) gives way to mandatory targets. The plan announces the readings of the source (scan, second pass, selection) and never merges them; it never runs a second pass by itself. The `smart` settings are a top-level object of the configuration file. | Accepted 2026-10-09 (maintainer, lot 10a) | 15 of the specification, 20.15 |
+| O44 | Selection of the rows of a smart sample and its report | The selection reads the source once, with the configuration the Scan recorded, and tests each row against the targets of the plan through tests resolved from the Scan before the reading (`scanner/smart/evaluate.py`); a target that cannot be resolved is left out with a reason, never guessed. It keeps a bounded pool of whole candidate rows (at most `candidates_per_target` for each target, the best by a seeded hash of the position, one copy of a row whatever the targets it holds) and a bottom-k reserve of ordinary rows, in a byte budget; a row the budget turns away is counted and never shortened. A greedy cover then chooses the rows: the mandatory targets first, then the weight not yet covered; what is left of the size goes to ordinary rows. The rows are written in the order of the source after the digest of the reading agrees with the Scan's. The report is a document of its own, `tabalyst.sample` (0.2.0 revision 1), with the plan, the selection and the coverage of the catalog of targets by family and weighted, the missed targets with their reason, and a verification of every exact count of the plan against the rows found. The time of the selection is estimated apart from the plan and asks for a confirmation as a second pass does. | Accepted 2026-10-09 (maintainer, lot 10b) | 15 of the specification, 20.16 |
 | O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
 | O41 | Tables of a category against a feature | A table is a candidate of `category_crosstab`: the category is its `field`, the column of the feature its `partner`, the feature (`pattern`, `length`, `prefix`) a parameter, and the order matters (`>` in the id). The classes come from the Scan alone, at the plan and at the run, and end with the explicit class `other`, so nothing creates an axis while the source streams (REL-12). Rows left out are counted by cause and `rows = counted + excluded` is checked. The planner ranks by the bias-corrected Cramér's V on the row sample, picks by itself the best feature of two columns (`redundant_feature` for the others) and at most eight tables; the result gives the counts with their margins, the coverage and the purity of each category in both directions, the exceptions with exact counts and their first rows, Cramér's V (never 0 for lack of data, `stable` or not) and candidate rules. A `PairAnalyzer` replaces the special case of the correlation in the planner. The report prints one block per pair of columns in a Relationships section. | Accepted 2026-10-09 (maintainer, lot 8b) | 18.14, 20.2, 20.5, 20.12, 20.13 |
 | O40 | Pairs of numeric columns | A pair is a candidate with a `partner` and an `exploration`, the score the row sample gives it. The planner scores all the pairs of the eligible columns on the sample when it makes the plan (no change to the Scan, no cost to the first pass), bounded by columns and by pairs times rows compared (COST-05), lists the best (`max_candidates`) and describes what it did in `relations`. `pearson_correlation` counts the common rows of a pair over the whole source with stable co-moments merged by batch, `pairwise_complete`, and gives an undefined result with its reason, never 0, when the rows or the variance are not enough (REL-07 to REL-09). A complete sample of a CSV file answers without reading. Pairs are ranked by the lower end of a 95% interval and the planner picks eight at most by itself. | Accepted 2026-10-09 (maintainer, lot 8a) | 20.2, 20.4, 20.5, 20.12 |
@@ -1690,6 +1691,28 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
   percentage. Datasets without columns are still omitted (16.5): their
   structure is not shown.
 
+### 16.8 The web page of a scan (lot 10b, O44)
+
+Decided with the maintainer in lot 10b: an explicit `tabalyst scan` writes a web page, a scan that another command
+makes by itself writes none.
+
+- **Where.** `scan_page.scan_page_path`: beside the scan document with the extension `.html` (`x.scan.json` gives
+  `x.scan.html`), or `<stem>.scan.html` beside the source when the scan is in the shared storage (no `-o`, no `-d`).
+  `--no-html` skips it. It joins the outputs `validate_outputs` checks and cannot be an input. The page of a scan in the shared
+  storage is replaced at every scan, like the scan; the page of a standalone scan (`-o`, `-d`) needs `--force` like its
+  document.
+- **What.** The report rendered from the Scan alone (`build_profile` with no analyses, then `render_report`): the page
+  of `tabalyst report --scan` as it would be without a second pass. It reads no source and runs no analysis, so the
+  scan writes no second-pass document because of it. With `--deep` the page is written again after the second pass,
+  through `service._profile_from_scan`, so that it shows the stored results.
+- **Who.** `generate_scans(html=True)` and `prepare_deep(html=True)`; the CLI passes `not no_html`. The Python API, the
+  report, the plan and the sample leave it off (`html=False`), so their scans write no page.
+- **Failure.** A page that cannot be built or written is a warning (`ScanSuccess.warnings`) and `ScanJob.page` becomes
+  `None`: the scan document is already written and valid.
+- **Cost.** Measured on `insurance-combined.csv`: `tabalyst scan` 18.1 s without the page, 20.0 s with it (+1.9 s,
+  +10%); `insurance-ontario.csv` 3.9 s and 5.2 s. The rendering depends on the size of the document, not on the number
+  of rows, and the first pass is not touched (`run.duration_seconds` is that of the scan).
+
 ## 17. Changes to this document
 
 | Date | Lot | Change | Reason |
@@ -1745,6 +1768,8 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-09 | SJ-8b | New decision O41, new section 20.13, notes in 18.12, 18.14, 20.2 and 20.5: the tables of a category against a feature (`scanner/features.py`: the classes of a category and of the features `pattern`, `length` and `prefix`, `PatternClassifier` shared with the validation; `scanner/crosstab.py`: margins, purity in both directions, Cramér's V and its bias-corrected form; `planner/crosstabs.py`: exploration of the row sample, `planner/samplerows.py` and `planner/identifiers.py` split out of the exploration of the pairs; `planner/analyzers/crosstab.py`; `secondpass/crosstab.py`: `CodeFeed`, `CrosstabAccumulator`; the result `crosstab`), `PairAnalyzer` and `PairProposal` in the planner, several feeds on a column in the router, `Relations.tables`, `Budgets.automatic_tables`, `AnalysisRequest.feature`, `deep.crosstab` settings (`CrosstabSettings`), the domain `mixed`, the Relationships section of the report (`report_relations.py`, sections renumbered), `NS_PER_CELL` of the three features, `cost_model_version` 6. | Lot 8b of the Scan and JSON work: D14, REL-01 to REL-03, REL-11 to REL-16, E03 to E05, HTML-06. Maintainer decision of 2026-10-09 (approved the plan and its defaults: nulls outside the table, one automatic feature per pair of columns, prefix of two characters from the Scan, 0.45 and 0.9 thresholds, three examples per cell, no separate estimate over the row sample). |
 | 2026-10-09 | SJ-9 | New decision O42, new section 20.14, notes in 20.5: the help with stratification (`scanner/stratify.py`: `allocate_strata` moved from `sampling.py`, `saturating_product`, `size_for_every_stratum`; `planner/stratification.py` and `planner/stratmodels.py`: `Stratify`, `advise_stratification`, `with_stratification`, `AnalysisPlan.stratification`; `reasons.STRATIFICATION`), several fields and `max_strata` in `sample`, the balance of strata in `SampleResult`, `scan --plan --stratify`, `--stratify-by` and `--sample-size`. | Lot 9 of the Scan and JSON work: D16, D17, STRAT-01 to STRAT-08, E06 to E08. Maintainer decision of 2026-10-09 ("ok" to the plan and its defaults: CLI options on `scan --plan`, no HTML in this lot, thresholds 50, 1,000, 10,000 and 100,000, a missing value as a stratum of its own). |
 | 2026-10-09 | SJ-10a | New decision O43, new section 20.15, notes in 20.5 and 20.14: the targets and the plan of a smart sample (`scanner/smart/`: `SamplingPlan`, the six families of targets, `weights.py`, `plan_sampling`, `Smart`, `sampling_plan_text`), the `smart` settings (`SmartSettings`, `SmartWeights`, `smart_settings`), `PlanSuccess.sampling`, `generate_plans(smart=)`, `scan --plan --smart`. | Lot 10a of the Scan and JSON work: D15, SMART-01 to SMART-04, 15 of the specification, E09, E12, E14. Maintainer decision of 2026-10-09 ("ok avec tout": an autonomous plan document, a top-level `smart` object, the relations family in this lot, D23 left to lot 10b). |
+| 2026-10-09 | SJ-10b | New decision O44, new section 20.16, notes in 20.14 and 20.15: the selection of the rows of a smart sample (`scanner/smart/`: `evaluate.py`, `select.py`, `execute.py`, `estimate.py`, `result.py`), the document `tabalyst.sample` and its schema, `tabalyst sample --sample-method smart` (`--yes`, exit code 3), `smart_service.py` (`prepare_smart_samples`, `execute_smart_samples`, `SelectionConfirmationRequired`), `SampleResult.report` and `smart`, D23 for `stratified` (`shared_scan_service.stored_scan`, `max_strata` explicit allows the run), `source_guard.check_plan_base` for any plan that stands on a Scan. | Lot 10b of the Scan and JSON work: SMART-05 to SMART-13, D15, D23, E10, E11, E13, E15. Maintainer decisions of 2026-10-09 (the plan and its defaults, "OK pour le reste"). |
+| 2026-10-09 | SJ-10b | New section 16.8: the web page of an explicit `tabalyst scan` (`scan_page.py`, `generate_scans(html=)`, `ScanJob.page`, `prepare_deep(html=)`, `--no-html`). | Maintainer decision of 2026-10-09: an explicit scan writes the page, an automatic scan does not ("ok pour tout" to the name `<stem>.scan.html`, the report rendered from the Scan alone, and the cost measured first). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3204,7 +3229,7 @@ every `PairAnalyzer` for its pairs; `relations` has a member for each (`datasets
 
 **Smart sampling (lot 10a).** The targets and the plan of a smart sample are `SamplingPlan` (20.15). They are not analyzers and take no part in the selection of the analyses.
 
-**Not yet.** The selection of the rows of a smart sample (10b).
+**Not yet.** The selection of the rows of a smart sample (done at lot 10b, 20.16).
 
 ### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
 
@@ -3830,8 +3855,8 @@ data. It is a recommendation with its basis and uncertainty (specification 11.1)
 `stratification_lines` in `plan_text`. A request for an unknown field, an ambiguous dataset, fewer than two fields, a
 repeated field or a sample size below 1 raises `ConfigurationError`.
 
-**Not yet.** The Report prints nothing of the advice (lot 11); `sample` does not read a stored Scan to refuse an
-excessive risk by itself (lot 10b, D23); `balanced` and `coverage` strategies stay extensions (specification 14).
+**Not yet.** The Report prints nothing of the advice (lot 11); `sample` reads a stored Scan to refuse an
+excessive risk since lot 10b (20.16, D23); `balanced` and `coverage` strategies stay extensions (specification 14).
 
 ### 20.15 Targets and the plan of a smart sample (lot 10a, D15, SMART-01 to SMART-04, 15 of the specification, E09, E12, E14, O43)
 
@@ -3922,8 +3947,93 @@ analyses; `--deep` counts the second pass among the readings); `tabalyst.plan_sa
 `max_candidate_bytes`, `weights`); it is not part of `deep` and does not enter the key of a second-pass result. The plan is
 not written on disk in this lot, so it has no JSON Schema yet: the report of lot 10b (SMART-12) will carry it.
 
-**Not yet.** The selection of the rows, the report of what was covered, the time estimate and the HTML (lot 10b); a sample
-that reads a stored Scan to refuse an excessive stratification risk (lot 10b, D23); `sample --sample-method smart`.
+**Not yet.** The selection of the rows, the report of what was covered and the time estimate came with lot 10b (20.16).
+
+### 20.16 Selection of the rows of a smart sample and its report (lot 10b, D15, D23, SMART-05 to SMART-13, E09 to E15, O44)
+
+The plan of 20.15 says what a smart sample aims at; this lot reads the source once more and chooses the rows. It
+is `tabalyst sample --sample-method smart`, `tabalyst.generate_samples(method="smart")` and the two steps behind
+it. CSV files only, like every `sample`.
+
+```text
+scanner/smart/
+|-- evaluate.py  Evaluator: the predicates of the plan as tests on a row (SMART-05)
+|-- select.py    SelectionPool: candidates, reserve, greedy cover (SMART-05 to SMART-10)
+|-- execute.py   select_rows(): the one reading, guarded by the digest of the Scan
+|-- estimate.py  estimate_selection(): time and confirmation (R1)
+`-- result.py    SampleDocument: the report `tabalyst.sample`, build_document(), the schema
+smart_service.py prepare_smart_samples(), execute_smart_samples(), SelectionConfirmationRequired
+```
+
+**Order of the work.** `prepare_smart_samples` plans the outputs, scans the sources through the shared storage
+(`generate_scans(refresh=False)`: a current Scan is reused), reads the second-pass document if it is current
+(`plan_sampling` ignores a stale one), plans the sample and estimates the selection. Nothing is asked and no
+source is read again. `execute_smart_samples` checks the confirmation (`SelectionConfirmationRequired` before any
+reading when the batch needs one and `confirmed` is false, R1), then for each source reads it, writes the CSV
+file through a temporary file and then the report. The first pass (when no Scan is stored) and the selection are
+the readings the report counts (`run.passes`); a second pass is never run.
+
+**Tests on a row (`evaluate.py`).** The predicates name their reference into the Scan; the evaluator resolves
+them once and reads each cell as the first pass did (`CellReader`, the replay of the second pass). A column has
+one test object: the original value (a dictionary from the sampled value to its targets, the missing cells), the
+pattern (`PatternCoder`, the exclusive classification of PAT-08), the analytical length, the number (the
+extremes by exact comparison with the float64 the Scan wrote, zero, the sign and the bin by the rule of the
+second pass, the last bin closed), the date (its kind, the ISO text of the extremes, the year), the findings of
+the observations a row can show (`minority_pattern`, `ambiguous_dates`, `mixed_types` and `type_outliers` by the
+technical family of the cell, `technical.string_family`) and, for the exceptions of a table of the second pass,
+the coders of the table (`CategoryCoder`, `feature_coder`) on the category and the column of the feature. A
+batch of rows tests each distinct string once; the result per string is remembered up to 16,384 strings of at
+most 256 characters per column. A target that cannot be tested (`unresolved`: a reference that is gone, a Scan
+that no longer supports the table) covers nothing and the report says why. `not_evaluable` targets of the plan
+(duplicate rows, variant groups) stay so.
+
+**Pool and cover (`select.py`).** Rows are numbered by their record, and a row has a priority (`RowPriority` of
+the seed of the plan: `blake2b` of the position, shared with the row sample). For each target the pool keeps the
+`per_target_effective` rows of the smallest priority that cover it, so the choice depends on the file and the
+seed only, never on the size of the batches. A row is held once however many targets hold it (a count of the
+roles that hold it). The bottom-k reserve keeps the `size` rows of smallest priority overall: enough that after
+the cover has taken its rows the reserve can still be filled in priority order. The pool is bounded by
+`smart.max_candidate_bytes` in characters of source text (cells and a separator each): optional targets stop at
+80% of it so that mandatory targets and the reserve are not starved, and a row that does not fit is refused,
+counted (`pool.refused_rows`, `refused` on the target) and never shortened (E15). The cover is a lazy greedy:
+first with the weights of the mandatory targets alone, then with all weights, taking each time the row that adds
+the most weight not yet covered (ties by priority, then record), for `size - reserve.rows_granted` rows. What is
+left goes to the rows of the reserve, then to any other held row, by priority (E13: the report declares it in
+`reserve.adjusted`). A target is covered once. The result is a heuristic on a bounded pool and promises no
+optimum (SMART-07). The rows are written in the order of the source and the targets are not added to the CSV
+file (SMART-09).
+
+**Guard.** `select_rows` checks the plan against the Scan (`StalePlan`), the source against the recorded size
+(`SourceNotReadable`, `StaleSource`) and, after the reading, the digest against the Scan's: a source that changed
+leaves no output (20.6). The reader is the one of the Scan, so a tolerant error policy excludes the same records.
+
+**Time and confirmation (`estimate.py`).** As for a second pass (20.3): the reading costs at least the parsing
+share and at most the reading phase of the first pass; the work adds `SELECT_NS_PER_CELL` (600) for each cell of
+a column that has a test and `SELECT_NS_PER_ROW` (2,000), scaled by the speed of the first pass. It is a message
+and a threshold (120 s on the upper bound), not an input of the choice, and it is not in the plan, which keeps
+its identity. `tabalyst sample --sample-method smart` shows the estimate and asks when it passes the threshold;
+outside a terminal it stops with exit code 3 unless `--yes` is given. A batch asks once, with the total.
+
+**Report (`result.py`, SMART-12, SMART-13).** `tabalyst.sample` 0.2.0 revision 1 (`<stem>.sample.json`, schema in
+`tabalyst/schemas`): `request`, `output`, `run` (times, memory, records and cells read, the digest verified,
+`passes`), the `plan` embedded, `selection` (rows by cover and by reserve, the reserve planned and taken, the pool
+and the refused rows), `coverage`, `statements` and one entry per target. The coverage is named `target_catalog`:
+counts of defined, evaluable, observed and covered targets, the weighted share, the mandatory targets, the same by
+family, the heaviest missed targets with their reason (`size`, `budget`, `not_observed`) and a `verification`: for
+every target whose frequency the plan holds exactly, the number of rows the reading found against the plan's
+count. It is the oracle of the tests: a disagreement is a defect of a test on a row. The statements say that
+the coverage is that of the catalog and not of every phenomenon (SMART-13) and that the proportions of the sample
+are not those of the population (E13). The plan inside it keeps its own `plan_id`.
+
+**D23 for `stratified`.** `generate_samples(method="stratified")` asks the shared storage for a current Scan of
+the source (`shared_scan_service.stored_scan`: it never scans and never writes) and, when the advice of 20.14
+finds the strata of the requested columns `excessive` (a combination whose bound passes 100,000 states, or a
+column of an exact count above it), stops before reading the file with the advice. An explicit `max_strata` allows
+the run: a product of cardinalities is a bound and the combinations that exist can be far fewer. Without a stored
+Scan nothing is advised and the runtime cap of 20.14 is what stops it.
+
+**Not yet.** The HTML of the report of a sample (the page of a scan is 16.8); an option `--deep` on `sample`; the grouping of rows by target
+(SMART-09 allows it on request).
 
 ## 21. Original value domain (O32)
 

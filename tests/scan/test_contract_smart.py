@@ -3,15 +3,25 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """Contract tests of the targets and the plan of a smart sample (plan tests E09,
-E12 and E14; design 20.15, SMART-01 to SMART-04, SMART-10, SMART-13). The
-selection itself, E10, E11, E13 and E15, belongs to lot 10b."""
+E12 and E14; design 20.15, SMART-01 to SMART-04, SMART-10, SMART-13) and of the
+selection of the rows (E10, E11, E13 and E15; design 20.16, SMART-05 to SMART-12)."""
+
+import csv
 
 import pytest
 from planner_helpers import scan_csv
 from second_pass_helpers import deep_csv, forced_plan
+from smart_helpers import region_rows, report
 
 from tabalyst.scanner.planner import plan_analyses
 from tabalyst.scanner.smart import plan_sampling
+
+
+def _sub(directory, name):
+    path = directory / name
+    path.mkdir()
+    return path
+
 
 NORMAL = [f"Region-{chr(65 + i)}" for i in range(13)]
 SINGLETONS = [f"Regoin-typo-{i}" for i in range(10)]
@@ -120,3 +130,89 @@ def test_E14_targets_that_only_a_finished_enrichment_gives_announce_an_extra_pas
     bins = [t for t in done.targets if t.predicate.kind == "numeric_bin" and t.displays == ["n"]]
     assert bins and all(t.evidence == "second_pass" for t in bins)
     assert sum(t.frequency.count for t in bins) == 1000
+
+
+@pytest.mark.scan_json_lot("10b")
+def test_E10_a_sample_too_small_keeps_its_size_and_says_which_targets_it_misses(tmp_path):
+    _, plan, selection, document = report(tmp_path, "region,n", region_rows(), 10)
+
+    # Ten rows for 23 mandatory values: the size is respected, and the rarest
+    # values, which weigh most (SMART-02), are the ones kept.
+    assert len(selection.rows) == 10
+    assert {row[0] for row in selection.rows} == set(SINGLETONS)
+    coverage = document.coverage
+    assert coverage.mandatory.defined == 23 and coverage.mandatory.covered == 10
+    assert len(coverage.mandatory.missing) == 13
+    assert {m.reason for m in coverage.missing} == {"size"}
+    must = [m.weight for m in coverage.missing if m.obligation == "mandatory"]
+    assert must == sorted(must, reverse=True) and len(must) == 13
+    assert coverage.missing[0].obligation == "mandatory"
+    assert document.selection.reserve.planned == 0
+    assert plan.size.mandatory_bound >= 23
+
+
+@pytest.mark.scan_json_lot("10b")
+def test_E11_a_row_that_covers_several_targets_is_held_once_and_counts_for_each(tmp_path):
+    # Two columns of three values each, almost always together: three rows can cover
+    # the six values, and a row with a single new value is not worth one more.
+    pairs = [("x", "p"), ("y", "q"), ("z", "r")]
+    rows = [f"{a},{b},{i}" for i in range(300) for a, b in [pairs[i % 3]]]
+    rows += ["x,q,901", "y,r,902", "z,p,903"]
+    _, plan, selection, document = report(tmp_path, "a,b,n", rows, 3)
+
+    assert len(selection.rows) == 3
+    assert {row[0] for row in selection.rows} == {"x", "y", "z"}
+    assert {row[1] for row in selection.rows} == {"p", "q", "r"}
+    assert document.coverage.mandatory.covered == document.coverage.mandatory.defined == 6
+    # A row is stored once however many targets hold it (SMART-05, SMART-08).
+    assert document.selection.pool.candidate_rows <= len(plan.targets) * 2
+    assert len({id(row) for row in selection.rows}) == 3
+
+
+@pytest.mark.scan_json_lot("10b")
+def test_E13_the_reserve_of_ordinary_rows_gives_way_to_targets_and_is_declared(tmp_path):
+    _, plan, selection, document = report(tmp_path, "region,n", region_rows(), 100)
+
+    # Room for everything: the reserve is the share the plan granted, plus the
+    # slots that no target could use, and the report says so.
+    reserve = document.selection.reserve
+    assert reserve.planned == plan.reserve.rows_granted == 20
+    assert reserve.taken == document.selection.by_reserve >= 20
+    assert reserve.adjusted == (reserve.taken != reserve.planned)
+    assert len(selection.rows) == 100
+    assert "proportions_not_population" in document.statements
+    assert "catalog_not_population" in document.statements
+    assert document.coverage.scope == "target_catalog"
+
+    # Short of room, the targets come first and the reserve is reduced (SMART-10).
+    _, small, _, short = report(_sub(tmp_path, "short"), "region,n", region_rows(), 26)
+    assert small.reserve.reduced_by_mandatory
+    assert short.coverage.mandatory.covered == 23
+
+
+@pytest.mark.scan_json_lot("10b")
+def test_E15_long_rows_come_out_whole_and_never_as_a_preview(tmp_path):
+    from tabalyst.config import SmartSettings
+    from tabalyst.scanner.smart.execute import select_rows
+
+    long_text = "é" * 40_000
+    rows = [f"{name},{long_text}-{i}" for i, name in enumerate(["a", "b", "c"] * 4)]
+    rows += [f"{name}{i},{long_text}" for i, name in enumerate(["u"] * 150)]
+    result = scan_csv(tmp_path, "tag,text", rows)
+    source = tmp_path / "data.csv"
+    with source.open(encoding="utf-8", newline="") as stream:
+        original = list(csv.reader(stream))[1:]
+
+    plan = plan_sampling(result, size=20)
+    selection = select_rows(result, source, plan)
+    assert len(selection.rows) == 20
+    assert all(row in original for row in selection.rows)
+    assert any(len(row[1]) >= 40_000 for row in selection.rows)
+
+    # A budget too small for a row never turns it into a shorter one: the rows the
+    # pool cannot hold are refused and counted.
+    tight = plan_sampling(result, size=20, settings=SmartSettings(max_candidate_bytes=1_000))
+    refused = select_rows(result, source, tight)
+    assert refused.outcome.refused_rows > 0
+    assert refused.outcome.peak_bytes <= 1_000
+    assert all(row in original for row in refused.rows)

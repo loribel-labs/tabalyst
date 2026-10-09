@@ -51,6 +51,11 @@ from tabalyst.scanner.smart import plan_sampling as plan_sampling
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
+from tabalyst.smart_service import (
+    SelectionConfirmationRequired as SelectionConfirmationRequired,
+)
+from tabalyst.smart_service import execute_smart_samples as execute_smart_samples
+from tabalyst.smart_service import prepare_smart_samples as prepare_smart_samples
 from tabalyst.source_guard import SourceNotReadable as SourceNotReadable
 from tabalyst.source_guard import StalePlan as StalePlan
 from tabalyst.source_guard import StaleSource as StaleSource
@@ -73,6 +78,7 @@ __all__ = [
     "ScanConfig",
     "ScanResult",
     "SecondPassPlan",
+    "SelectionConfirmationRequired",
     "Smart",
     "SourceNotReadable",
     "StalePlan",
@@ -84,6 +90,7 @@ __all__ = [
     "analyze",
     "build_generate_plan",
     "execute_deep",
+    "execute_smart_samples",
     "generate_datasets",
     "generate_deep",
     "generate_inspections",
@@ -97,6 +104,7 @@ __all__ = [
     "plan_sampling",
     "plan_second_pass",
     "prepare_deep",
+    "prepare_smart_samples",
     "run_second_pass",
     "sample_csv",
     "scan",

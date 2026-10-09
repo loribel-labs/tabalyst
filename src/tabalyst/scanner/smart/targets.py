@@ -36,6 +36,7 @@ from tabalyst.scanner.secondpass.models import (
     DenseHistogram,
     PatternCounts,
 )
+from tabalyst.scanner.smart.bins import bin_index
 from tabalyst.scanner.smart.models import (
     Catalog,
     Evidence,
@@ -477,8 +478,9 @@ class _Builder:
         if isinstance(histogram, DenseHistogram):
             counts = [0] * bins
             for item in histogram.values:
-                index = min(bins - 1, ((item.value - histogram.min) * bins) // (histogram.max - histogram.min))
-                counts[index] += item.count
+                index = bin_index(item.value, histogram.min, histogram.max, bins)
+                if index is not None:
+                    counts[index] += item.count
             return counts
         if (
             isinstance(histogram, BinnedHistogram)

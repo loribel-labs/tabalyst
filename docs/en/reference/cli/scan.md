@@ -30,6 +30,7 @@ table at the end of this section shows which options each kind of file uses.
 | `-q`, `--quiet` | Suppress success messages; warnings and errors remain |
 | `-v`, `--verbose` | Show the format, encoding, delimiter or table, status, diagnostics and duration |
 | `--no-progress` | Disable the progress line |
+| `--no-html` | Do not write the [web page of the scan](../../scan/files.md#the-web-page-of-a-scan), `<stem>.scan.html` beside the scan document (beside the source when the scan is in the local storage). Refused with `--plan` |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default |
 | `--counters` | Add the work counters of the samplers to `run.counters` in the scan document (see [Scan format](../../scan/format.md#counters-of-a-run)). The scan always runs again |
 | `--plan` | Show the analyses a second pass could add, what they would cost and which the scan already answers, without running them. Uses the stored scan when it is current, otherwise makes it. Refuses `-o`, `-d`, `--force` and `--counters`. See [Plan the analyses](../../scan/plan.md) |
@@ -60,7 +61,7 @@ A JSONL file has one dataset, its lines, so it has no collection to choose.
 
 | Option | CSV | JSON | JSONL | Excel |
 | --- | :---: | :---: | :---: | :---: |
-| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters`, `--plan`, `--stratify`, `--stratify-by`, `--smart`, `--sample-size`, `--deep` | yes | yes | yes | yes |
+| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--no-html`, `--workers`, `--counters`, `--plan`, `--stratify`, `--stratify-by`, `--smart`, `--sample-size`, `--deep` | yes | yes | yes | yes |
 | `--delimiter`, `--encoding` | yes | - | - | - |
 | `--collection` | - | yes, repeatable | - | yes, once |
 

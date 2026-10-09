@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-09T19:34:20.676918Z",
-    "duration_seconds": 0.277465,
+    "started_at": "2026-10-09T21:20:57.705121Z",
+    "duration_seconds": 0.283538,
     "timings": {
-      "reading": 0.009715,
-      "analysis": 0.022179,
-      "finalize": 0.235667,
-      "derived": 0.009421,
-      "other": 0.000482
+      "reading": 0.010127,
+      "analysis": 0.023359,
+      "finalize": 0.239965,
+      "derived": 0.009679,
+      "other": 0.000408
     },
     "workers": 1,
-    "peak_memory_bytes": 77664256
+    "peak_memory_bytes": 77119488
   },
   "source": {
     "format": "csv",
@@ -46067,7 +46067,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -54687,21 +54687,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-09T19:34:21.219988Z",
-        "duration_seconds": 0.104136,
+        "started_at": "2026-10-09T21:36:47.930271Z",
+        "duration_seconds": 0.000388,
         "timings": {
-          "reading": 0.008525,
-          "analysis": 0.051894,
-          "other": 0.043716
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000388
         },
         "workers": 1,
-        "peak_memory_bytes": 99835904,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 3000,
-        "cells_read": 93000,
-        "executed": 44,
-        "reused": 0,
+        "peak_memory_bytes": 85078016,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 44,
         "skipped": 0
       },
       "analyses": [
@@ -87220,12 +87220,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-09T19:34:21.751185Z",
+    "generated_at": "2026-10-09T21:36:48.336688Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 1.2859,
+    "processing_seconds": 0.7541,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
