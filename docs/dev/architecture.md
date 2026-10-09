@@ -87,13 +87,13 @@ structural or semantic change. See the
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.
   `generate_package.py` validates versioned packages for all three domains.
-  The visible Computer package is loaded by path;
+  The single Computer package is bundled and available as `--example computer`;
   `generate_computer_output.py` streams its paired EN/FR
   CSVs and metadata. `generate_service.py` plans all three artifacts, protects
   package resources and the request file, then stages and publishes them with
   the existing best-effort restoration rule. CRM uses a versioned package with
   generated column schemas; `generate_columns_package.py` validates it and
-  shares the column execution engine. Insurance uses a matching packaged copy;
+  shares the column execution engine. Insurance uses the same bundled package layout;
   the v1 reader has been removed from the development checkout.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in

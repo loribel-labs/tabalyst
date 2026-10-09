@@ -83,7 +83,7 @@ class GenerateResult:
 
 
 def _example_path(example: str) -> Path:
-    if example not in {"crm", "insurance"}:
+    if example not in {"crm", "insurance", "computer"}:
         raise ConfigurationError(f"Unknown Generate example: {example}")
     return Path(str(files("tabalyst").joinpath("generate_examples", example)))
 

@@ -8,14 +8,15 @@ The development CLI and API reject v1 definitions after the Insurance migration.
 
 ## Run the development packages
 
-Install this checkout in an isolated environment. The source is a package
-directory or its `dataset.yaml`; `--example crm` and `--example insurance` use
-bundled copies. Computer is a visible, path-only fixture and is not bundled as
-`--example computer`. Keep the output directory outside the source package.
+Install this checkout in an isolated environment. CRM, Insurance, and Computer
+have one package each under `src/tabalyst/generate_examples/`. Select them with
+`--example crm`, `--example insurance`, or `--example computer`. A custom
+package can still be passed as a directory or its `dataset.yaml`. Keep the
+output directory outside the source package.
 
 ```console
-tabalyst generate examples/generate/computer --validate-only
-tabalyst generate examples/generate/computer -d OUTPUT_DIR --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer --validate-only
+tabalyst generate --example computer -d OUTPUT_DIR --rows 10000 --seed 42 --output-profile extended
 tabalyst generate --example crm -o OUTPUT_DIR/contacts.csv --rows 500
 tabalyst generate --example insurance -d OUTPUT_DIR/insurance --rows 3000 --anomaly-profile dirty_realistic
 ```
@@ -38,7 +39,7 @@ The service boundary is `tabalyst.build_generate_plan(...)` followed by
 from tabalyst import build_generate_plan, generate_datasets
 
 plan = build_generate_plan(
-    package_path="examples/generate/computer",
+    example="computer",
     output_dir="OUTPUT_DIR",
     rows=10000,
     seed=42,
@@ -251,8 +252,8 @@ shared by their dependent datasets. A generated record holds stable IDs and
 typed values; rendering and localization happen after all choices.
 
 The final CLI accepts a package directory, its `dataset.yaml`, or a packaged
-`--example crm|insurance`. Computer remains a local package path until a later
-distribution decision. `--request FILE` is optional. `-o` names exactly one
+`--example crm|insurance|computer`. Computer can also be loaded by local package
+path. `--request FILE` is optional. `-o` names exactly one
 clean CSV without a companion; `-d` is required for multiple CSVs, metadata,
 or anomalies. A validation-only call needs no destination and writes nothing.
 
@@ -265,8 +266,8 @@ it offers `compact` and `standard` output profiles. It accepts `ca` and `us` mar
 run requires `-d`; its destination cannot be inside the source package.
 
 ```text
-tabalyst generate examples/generate/computer/ -d computer-output/ --rows 10000 --seed 42
-tabalyst generate examples/generate/computer/ --validate-only
+tabalyst generate --example computer -d computer-output/ --rows 10000 --seed 42
+tabalyst generate --example computer --validate-only
 tabalyst generate --example crm -o crm-contacts.csv
 tabalyst generate --example insurance --rows 3000 -d insurance-output/
 ```
@@ -394,7 +395,7 @@ not retain all output rows.
 
 ## Migration and parity gates
 
-CRM lot 9 uses `examples/generate/crm/` and the identical packaged copy under
+CRM lot 9 originally had a visible copy. Its sole maintained package is now
 `src/tabalyst/generate_examples/crm/`. The common package loader validates its
 manifest and generated column schemas. The column execution engine preserves
 the existing 400-account pool, shuffled-cycle references, 26-column order,
@@ -414,7 +415,7 @@ for byte. The transitional v1 reader remains for Insurance through lot 10.
 | Insurance business provider and seven tables | Registered internal provider and resources | Branch links, IDs/emails unique across branches, coherent amounts, dates, status. |
 | Anomaly profile, five operations and `when` | Separate selected mutation pass | Unchanged clean CSV with/without profile, measured events and skips, seven Insurance artifacts. |
 | Staging, collision checks, `--force` | Shared planner and publisher | Input protection, no new final on generation failure, best-effort restoration. |
-| Packaged and visible examples | Equivalent packages in wheel/sdist and `examples/` | CLI and API work outside checkout; old YAML is rejected after lot 10. |
+| Packaged examples | One source per domain under `src/tabalyst/generate_examples/`, included in wheel/sdist | CLI and API work outside checkout; old YAML is rejected after lot 10. |
 
 Freeze a v0.6.2 comparison before each migration: headers, counts, allowed
 values, cohort proportions, entity links, uniqueness, branch sequence, anomaly
@@ -445,7 +446,7 @@ the v1 reader; lots 11–14 complete the profiles and benchmark; lot 15 aligns
 user documentation and demos with released behavior. No public user guide is
 updated merely because this design is accepted.
 
-The lot 4 development package at `examples/generate/computer/` implements the
+The lot 4 development package, now under `src/tabalyst/generate_examples/computer/`, implements the
 seven-level hierarchy with two fictional entries at each level. Parent keys
 and compatibility relations delimit the choices. Its 3:1 type weights and
 `portable_only` constraint are test distributions, not market estimates. It
@@ -522,8 +523,8 @@ The benchmark mode samples the generation process tree's resident memory with
 environment and an output directory outside the checkout:
 
 ```console
-python benchmarks/computer_corpus.py examples/generate/computer EXTERNAL_OUTPUT_DIR --rows 10000
-python benchmarks/computer_corpus.py examples/generate/computer EXTERNAL_OUTPUT_DIR --rows 10000 --audit-only
+python benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000
+python benchmarks/computer_corpus.py src/tabalyst/generate_examples/computer EXTERNAL_OUTPUT_DIR --rows 10000 --audit-only
 ```
 
 Use a fresh output directory for each generation run. Timing includes package

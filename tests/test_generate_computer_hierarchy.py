@@ -5,6 +5,7 @@
 """Verify the fictional Computer hierarchy and its first generation profiles."""
 
 from collections import Counter
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -13,7 +14,7 @@ from tabalyst.errors import ConfigurationError
 from tabalyst.generate_package import DatasetPackage, load_generate_package
 from tabalyst.generate_selection import select_catalog_row
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/computer"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
 FIELDS = (
     "computer_type_id", "product_segment_id", "brand_id",
     "product_family_id", "product_model_id", "generation_id", "form_factor_id",

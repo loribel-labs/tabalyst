@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import shutil
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -34,7 +35,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/insurance"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "insurance")))
 V1_SHA256 = {
     "insurance-principal.csv": "ae5323a64a906d0937cd54a787111e012b51d63cab99af67297c13c24d8ad3dc",
     "insurance-ontario.csv": "69252bca2b365c06213a94a01c840ae37406219834a995ffe24d8eb7059bd545",
@@ -112,12 +113,7 @@ def test_insurance_branches_combine_and_profile(tmp_path: Path) -> None:
     assert scenario_digest == V1_SUMMARY_SCENARIO_SHA256
 
 
-def test_insurance_package_copies_and_quotas(tmp_path: Path) -> None:
-    root = Path(__file__).resolve().parents[1]
-    packaged = root / "src/tabalyst/generate_examples/insurance"
-    for visible in PACKAGE.rglob("*"):
-        if visible.is_file():
-            assert visible.read_bytes() == (packaged / visible.relative_to(PACKAGE)).read_bytes()
+def test_insurance_package_quotas(tmp_path: Path) -> None:
     assert validate_generate_package(PACKAGE).package_id == "insurance"
     package = load_generate_package(PACKAGE)
     assert len(package.tables) == 7 < MAX_TABLES

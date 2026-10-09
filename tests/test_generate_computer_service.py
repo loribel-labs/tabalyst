@@ -8,6 +8,7 @@ import csv
 import json
 import shutil
 from collections.abc import Iterable
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,25 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/computer"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
+
+
+def test_packaged_computer_example_generates_three_artifacts(tmp_path: Path) -> None:
+    """Load the Computer resources and create both locales through --example."""
+    runner = CliRunner()
+    validated = runner.invoke(app, ["generate", "--example", "computer", "--validate-only"])
+    assert validated.exit_code == 0, validated.output
+    destination = tmp_path / "computer"
+    created = runner.invoke(app, ["generate", "--example", "computer", "-d",
+                                  str(destination), "--rows", "5", "--seed", "42",
+                                  "--output-profile", "extended"])
+    assert created.exit_code == 0, created.output
+    assert sorted(path.name for path in destination.iterdir()) == [
+        "computers-en.csv", "computers-fr.csv", "computers.meta.json",
+    ]
+    for locale in ("en", "fr"):
+        with (destination / f"computers-{locale}.csv").open(encoding="utf-8", newline="") as stream:
+            assert len(list(csv.DictReader(stream))) == 5
 
 
 def test_api_plans_three_files_and_applies_request_overrides(tmp_path: Path) -> None:

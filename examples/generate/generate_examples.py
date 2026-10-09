@@ -7,12 +7,17 @@
 from __future__ import annotations
 
 import argparse
+from importlib.resources import files
 from pathlib import Path
 
 from tabalyst.errors import TabalystError
 from tabalyst.generate_columns_package import load_columns_definition
 from tabalyst.generate_package import load_generate_package
-from tabalyst.generate_service import build_generate_plan, generate_datasets
+from tabalyst.generate_service import (
+    GeneratePlan,
+    build_generate_plan,
+    generate_datasets,
+)
 
 HERE = Path(__file__).resolve().parent
 
@@ -36,12 +41,12 @@ def main() -> int:
         help="Replace existing generated files.",
     )
     args = parser.parse_args()
-    definitions = [HERE / name for name in (
-        "cohorts-anomalies", "common-references", "crm", "insurance",
-    )]
+    definitions = [HERE / name for name in ("cohorts-anomalies", "common-references")]
+    definitions.extend(Path(str(files("tabalyst").joinpath("generate_examples", name)))
+                       for name in ("crm", "insurance"))
 
     # Preflight every plan before the first output is written.
-    plans = []
+    plans: list[GeneratePlan] = []
     destinations: set[Path] = set()
     try:
         for path in definitions:
@@ -57,6 +62,7 @@ def main() -> int:
                     path, output_dir=folder, rows=args.rows,
                     anomaly_profile=profile, force=args.force,
                 )
+                assert isinstance(plan, GeneratePlan)
                 for artifact in plan.artifacts:
                     destination = artifact.path.resolve()
                     if destination in destinations:

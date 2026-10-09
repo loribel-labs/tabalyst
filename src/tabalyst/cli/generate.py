@@ -21,7 +21,7 @@ def generate_command(
     ] = None,
     example: Annotated[
         str | None,
-        typer.Option("--example", help="Packaged example: crm or insurance."),
+        typer.Option("--example", help="Packaged example: crm, insurance, or computer."),
     ] = None,
     output: Annotated[
         Path | None,

@@ -1,8 +1,9 @@
 # Generate examples
 
-`crm/`, `insurance/`, `common-references/`, and `cohorts-anomalies/` are
-versioned packages. Run all four from the repository root with an editable
-Tabalyst installation:
+`common-references/` and `cohorts-anomalies/` are small editable fixtures.
+The CRM and Insurance packages have their single source under
+`src/tabalyst/generate_examples/`. Run all four column packages from the
+repository root with an editable Tabalyst installation:
 
 ```console
 python examples/generate/generate_examples.py
@@ -20,7 +21,8 @@ Without `--force`, an existing generated file stops the run before any new
 package is executed. If a package later declares several profiles, each gets
 its own subfolder to avoid filename collisions.
 
-The CRM and Insurance packages under `src/tabalyst/generate_examples/` are
-bundled for `--example crm` and `--example insurance`. Keep each identical to
-its visible package. Insurance's seven synthetic resource tables and their
-provenance are in `insurance/data/` and `insurance/SOURCES.md`.
+The CRM, Insurance, and Computer packages under `src/tabalyst/generate_examples/`
+are the only copies and are available as `--example crm`, `--example insurance`,
+and `--example computer`. Insurance's seven synthetic resource tables and
+provenance are in `src/tabalyst/generate_examples/insurance/data/` and
+`src/tabalyst/generate_examples/insurance/SOURCES.md`.

@@ -10,6 +10,7 @@ import json
 import re
 import tracemalloc
 from datetime import date
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -28,7 +29,7 @@ from tabalyst.generate_computer_output import (
 from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_selection import select_catalog_row
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/computer"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
 
 
 def _write(directory: Path, rows: int = 10) -> tuple[Path, Path, Path]:
@@ -75,7 +76,7 @@ def test_render_uses_only_declared_labels_and_rejects_unavailable_profiles() -> 
 
 def test_standard_profile_preserves_register_order_types_and_locale_alignment(tmp_path: Path) -> None:
     package = load_generate_package(PACKAGE)
-    contract = (PACKAGE.parents[2] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
+    contract = (Path(__file__).resolve().parents[1] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
     blocks = re.findall(r"```text\n([^`]+)\n```", contract)
     compact_register, additions_register, _, complete_register = (
         tuple(block.strip().split(",")) for block in blocks[-4:]
@@ -134,7 +135,7 @@ def test_standard_keeps_every_compact_cell_for_the_same_request(tmp_path: Path) 
 
 def test_extended_hardware_profile_follows_register_and_aligns_locales(tmp_path: Path) -> None:
     package = load_generate_package(PACKAGE)
-    contract = (PACKAGE.parents[2] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
+    contract = (Path(__file__).resolve().parents[1] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
     blocks = re.findall(r"```text\n([^`]+)\n```", contract)
     _, _, extended_register, complete_register = (
         tuple(block.strip().split(",")) for block in blocks[-4:]
