@@ -51,11 +51,15 @@ support is not yet required. Record format changes in the relevant changelogs.
   `docs/dev/scan/design.md` 18.14.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
+- `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation
+  (stable co-moments, Chan merge, Fisher interval), shared by the exploration of
+  the row sample and the second pass (`docs/dev/scan/design.md` 20.12).
 - `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
   second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
   is its boundary for the CLI and the API.
   `costmodel.py` holds the calibrated sizes, budgets and CPU classes (20.2),
-  `secondpass.py` the time estimate and the confirmation (20.3).
+  `secondpass.py` the time estimate and the confirmation (20.3). `relations.py` explores the pairs of numeric columns
+  on the row sample and bounds that work (20.12).
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of
   a source (plan against Scan, readable source, digest at the end; 20.6).
 - `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,

@@ -64,6 +64,9 @@ Keep these exactly as written in every language:
 | validated pattern | pattern validé | An inferred pattern whose occurrences were counted on every value of the file by the second pass, not only on a sample of the distinct values |
 | `deep.mode` | mode du second passage | The setting that tells `tabalyst report` whether to plan a second pass by itself (`auto`), never (`off`) or always, as `--deep` does (`force`) |
 | second pass document | document de second passage | The `deep.json` or `<stem>.deep.json` written by `tabalyst scan --deep`, beside the scan, which it never changes |
+| pair of columns | paire de colonnes | Two numeric columns of one dataset analyzed together. The planner scores the pairs on the row sample, lists the best and the second pass computes their correlation over every row |
+| common rows | lignes communes | The rows where both columns of a pair have a number; the means and the coefficient of a pair are those of these rows only (`pairwise_complete`) |
+| undefined coefficient | coefficient non défini | A correlation that cannot be computed, because too few common rows or a column that does not vary; the result says why and never writes `0` |
 | exact distinct count | nombre exact de valeurs distinctes | The number of different original values of a field, counted exactly by the second pass when the scan only estimated it; `redundant` is the occurrences beyond the first of each value |
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |

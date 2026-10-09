@@ -66,6 +66,47 @@ Each candidate gets one decision:
 A plan contains no value from your data, and no date: the same scan gives the
 same plan on any machine, whatever the number of workers.
 
+## Pairs of columns
+
+Most analyses concern one column. `pearson_correlation` concerns a pair of numeric
+columns of the same dataset, and a file of 100 numeric columns has 4,950 pairs, so
+the planner does not list them all. It scores every pair of the eligible columns
+on the rows the scan sampled, which reads no source, and lists the best.
+
+A pair is a candidate like another, with `partner` (the second field) and
+`exploration`, what the sample says of it:
+
+```json
+{"id": "pearson_correlation:rows:column_2+column_3",
+ "display": "price and cost", "partner": "column_3",
+ "exploration": {"scope": "interior_rows", "pairs": 900,
+                 "coefficient": 0.987977, "lower": 0.986307,
+                 "upper": 0.989444, "score": 0.986307}}
+```
+
+`scope` says which rows were used: `interior_rows` (the sampled rows of the interior
+of the file, not uniform over it) or `all_rows` (a complete sample, the whole file).
+`lower` and `upper` bound the coefficient at 95%, and `score` is the lower bound of
+its absolute value, which ranks the pairs and gives the benefit (100 times the score,
+45 at least for an automatic choice). The figures are rounded to six decimals. A pair
+without a score, because too few rows have both numbers or a column does not vary,
+carries a `reason` instead of a coefficient, and is not listed unless you asked for it.
+
+The plan also has a `relations` member that says what the exploration did, for each
+dataset with two numeric columns: the rows it used, the numeric columns, the
+columns kept, the columns it left out by reason (`constant`, `identifier_like`,
+`sensitive_exposure`, `repeated_path`, `not_in_sample`, `too_few_values`,
+`column_budget`), the pairs that were possible, scored and left undefined (by
+reason), the pairs listed, and the `work` spent, the pairs times the rows compared.
+A dataset that could not be explored has `unavailable`: `no_sample`,
+`sample_reduced` or `too_few_rows`.
+
+The work of the exploration is bounded like the rest: `deep.pearson.max_columns`
+(50) and `deep.pearson.max_work` (1,000,000 pairs times rows). Beyond them the
+least present columns are left out and counted as `column_budget`. The planner lists
+20 pairs at most (`max_candidates`) and picks 8 at most by itself
+(`automatic_pairs`); a pair it did not pick says `pairs_budget`.
+
 ## Memory and cost
 
 Each analysis lists the memory it needs in three cases: at least what the scan
@@ -84,7 +125,9 @@ measured on the second pass, with the reading of each cell included. A counter
 of integers or a bin costs about 1 microsecond a cell, as much as the first pass
 spends on a cell, which is why both are `moderate`; so are a pattern validation
 (about 0.9 microsecond, and a little more for each candidate pattern) and a count
-of dates by period (about 1.6 microseconds).
+of dates by period (about 1.6 microseconds). A pair of numeric columns costs
+about 1.5 microseconds for each cell of its two columns, also `moderate`; a column
+that several pairs share is read once.
 
 ## Automatic, requested and forced
 
@@ -155,7 +198,10 @@ print(plan.summary.second_pass_required)
 `tabalyst.plan_analyses(scan)` plans from a scan result in memory.
 `tabalyst.plan_document(path)` plans from a scan document; a Report is refused,
 because it keeps fewer sample values than its scan. `requests` name analyses to
-choose first, and `automatic=False` selects nothing else. A request for an
+choose first, and `automatic=False` selects nothing else. A request for a pair names
+both columns, `tabalyst.AnalysisRequest("pearson_correlation", field="price",
+partner="cost")`, and works for a pair the sample did not show; with `field` alone
+it asks for the listed pairs that use the column. A request for an
 unknown analysis, dataset or field raises `tabalyst.ConfigurationError`.
 `tabalyst.generate_plans(inputs)` plans several sources, as the command does;
 `forced=True` plans a forced second pass, and the result says whether running

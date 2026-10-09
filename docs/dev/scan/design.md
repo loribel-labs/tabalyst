@@ -70,6 +70,7 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O40 | Pairs of numeric columns | A pair is a candidate with a `partner` and an `exploration`, the score the row sample gives it. The planner scores all the pairs of the eligible columns on the sample when it makes the plan (no change to the Scan, no cost to the first pass), bounded by columns and by pairs times rows compared (COST-05), lists the best (`max_candidates`) and describes what it did in `relations`. `pearson_correlation` counts the common rows of a pair over the whole source with stable co-moments merged by batch, `pairwise_complete`, and gives an undefined result with its reason, never 0, when the rows or the variance are not enough (REL-07 to REL-09). A complete sample of a CSV file answers without reading. Pairs are ranked by the lower end of a 95% interval and the planner picks eight at most by itself. | Accepted 2026-10-09 (maintainer, lot 8a) | 20.2, 20.4, 20.5, 20.12 |
 | O39 | Patterns, dates and the second pass of the Report | `pattern_validation` counts every occurrence of the original domain against the candidates of the Scan with the matcher of the inference (a possessive regular expression for an ASCII value, the token loop for the rest), exclusively by the most specific reader, and reconciles `matched + other + excluded = values`; it reads no source when the Scan holds every distinct value with its exact count. `temporal_distribution` counts the dates the first pass parsed per calendar day, month or year, by the date as written (no conversion of the offset), ambiguous values counted apart and never placed. `tabalyst report` runs the second pass by itself on the planner's decision (`--deep` forces it, `--yes` and exit code 3 as for `scan --deep`, `deep.mode` for scripts), and embeds the result under `analyses`, with what it left out and why; a Report of a scan document reads no source unless forced. | Accepted 2026-10-09 (maintainer, lot 7c) | 18.12, 20.1, 20.2, 20.4, 20.5, 20.9, 20.10, 20.11 |
 | O38 | Exact distinct and exact frequencies | `exact_distinct` counts the distinct values of the original domain (section 21) exactly, with the values read (V) and the redundant occurrences (V minus D). Each value goes to one set chosen by the value alone: strings of up to 18 ASCII digits as integers in a set per length (so `00123` and `123` stay apart), any other string as itself, and the native types of JSON in sets of their own. A value outside the compact key is not converted, it is in the generic set. The sets share the bytes the plan gave them and the field stops, with a lower bound that is never presented as the count, when they cannot hold it (D08). `exact_frequencies` keeps a table keyed by native type and analytical text, always a table: counters of integers would merge `7`, `007` and the integer 7, and a field of at most 1,000 values makes a table smaller than any dense array. Both are `available`; `EXECUTABLE` is derived from the registry. | Accepted 2026-10-09 (maintainer, lot 7b) | 20.2, 20.4, 20.5, 20.6, 20.8 |
 | O37 | Executor of the second pass and its document | `scanner/secondpass/` reads the source once, with the configuration the Scan recorded, replays the first pass's reading of each cell (same normalizer, classifier and number detector) and counts for the two analyzers that have an executor: `numeric_histogram` (exact counters of a small integer domain, or bins with exact edges) and `length_distribution`. Each result is checked against the counts of the Scan and fails alone on a disagreement; nothing is published before the digest of the reading is compared with the Scan's. The result is the separate document `tabalyst.scan.deep` (`<stem>.deep.json`, `deep.json` beside the shared scan), keyed by what each analysis depends on and reused in part. Its settings (`deep.bins`, `deep.bin_strategy`) are outside `ScanConfig`, so changing them never makes a Scan stale. The Python entry is `run_second_pass` and `generate_deep`, not `tabalyst.scan(..., deep=True)`, which would change the return type of the first pass. | Accepted 2026-10-09 (maintainer, lot 7a) | 20.1, 20.2, 20.4, 20.7 |
@@ -1737,6 +1738,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-09 | SJ-7a | New decision O37, new section 20.7, sections 20.1, 20.3, 20.4 (rewritten), 20.5 and 20.6 updated, notes in 20.2: the executor of the second pass (`scanner/secondpass/`) with the replay of the first pass's reading of a cell, the agreement check with the Scan, exact counters and bins with exact edges, quantiles by one convention (exact or estimated with certain bounds), `deep.bins` and `deep.bin_strategy`, the document `tabalyst.scan.deep` with its key, partial reuse and schema, `tabalyst scan --deep` and `--yes`, exit code 3, the Python entries `run_second_pass`, `prepare_deep`, `execute_deep` and `generate_deep`, CPU classes remeasured on the executor (limits 100, 600 and 2,400 ns), the method `linear_bins` renamed `bins`. | Lot 7a of the Scan and JSON work: D02, D09, D10, D22, PASS2-01 to PASS2-05, HIST-01 to HIST-07, CACHE-01 to CACHE-05, A07, A12, A15, D03, D04, D05 (executor halves), D09 to D11. Maintainer decisions of 2026-10-09 ("oui a tout" to the plan: Python entries, planning for what can run, `deep` settings outside the identity of the Scan, exit code 3 for a refused or declined confirmation, location of the document, shared reader factory, two bound strategies). |
 | 2026-10-09 | SJ-7b | New decision O38, new section 20.8, notes in 20.2, 20.4, 20.5, 20.6 and 20.7: the executor of `exact_distinct` (`secondpass/exactset.py`: one set per kind of key, strings of up to 18 digits as integers by length, a pool of the bytes the plan gave, `limited` with a lower bound when the pool cannot hold it) and of `exact_frequencies` (`secondpass/frequencies.py`, always a table keyed by native type and analytical text; the `dense_counts` method and the dense state shared with the histogram are dropped), the results `distinct`, `distinct_limited` and `frequencies`, the `original` domain of an analysis, the measured model of the exact set (`EXACT_SET_FIXED_BYTES`, `SET_SMALL_*`, `FREQUENCY_KEY_BYTES`, `cost_model_version` 3), `NS_PER_CELL` of the set (400) and the table (120), `EXECUTABLE` derived from the registry. | Lot 7b of the Scan and JSON work: D03, EXACT-01 to EXACT-07, D06, D07, D08 (executor half). Maintainer decisions of 2026-10-09 ("oui a tout" to the plan: keys by kind with integer sets by length for digit strings, a table for the frequencies, a lower bound published when a field is stopped). |
 | 2026-10-09 | SJ-7c | New decision O39, new sections 20.9, 20.10 and 20.11, notes in 18.12, 20.1, 20.2, 20.4 and 20.5: the executors of `pattern_validation` (`secondpass/patterns.py`: compiled possessive regular expressions for ASCII values, the token matcher for the rest, exclusive classification, overlaps, reconciliation, derivation from the exact counts of the Scan without reading) and `temporal_distribution` (`secondpass/periods.py`, dates as written, ambiguous counted apart), `CellReader.cells(dates=)`, `skip_reading`, `reading_candidates`, the datetime columns as temporal fields, `NS_PER_CELL` of the matcher (800 plus 100 a candidate) and the period (1,600), `cost_model_version` 4, `deep.mode` and `DeepSection`, the second pass inside the Report (`report_chain.py`, `deep_store.py`, `report --deep`, `--yes`, exit code 3, `analyses` in the Report) and its pages. | Lot 7c of the Scan and JSON work: D02, D08, PAT-07 to PAT-11, TIME-01 to TIME-03, 18.2, A13, A14, C11, D12. Maintainer decisions of 2026-10-09 ("oui a tout" to the plan). |
+| 2026-10-09 | SJ-8a | New decision O40, new section 20.12, notes in 20.2 and 20.5: the pair analyses (`planner/relations.py`: exploration of the row sample, column and work budgets, `relations` in the plan, candidates with `partner` and `exploration`; `scanner/pearson.py`: stable co-moments, Chan merge, Fisher interval; `secondpass/pearson.py`: `ColumnFeed`, `PairAccumulator`, the result `pearson`; `Router` hands aligned rows to the pairs), `deep.pearson` settings (`PearsonSettings`), `Budgets.automatic_pairs`, `AnalysisRequest.partner`, `NS_PER_CELL["pearson"]`, `cost_model_version` 5. | Lot 8a of the Scan and JSON work: D13, D14, REL-04 to REL-10, COST-05, E01, E02. Maintainer decision of 2026-10-09 (followed the assistant's recommendations: exploration at plan time, complete sample without reading, float64, defaults of `deep.pearson`, automatic pairs limited to eight). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2871,8 +2873,10 @@ peak of its first pass (715 MB with workers, 177 MB for the main process, on the
 (`limits.max_sample_memory`). 100 million cells is about 12 s of reading and
 under a minute of work at the rates of the baseline (34 million cells read in
 4.0 s and analyzed in 20.6 s in one process), a low cost. The number of columns
-enters through the cells; a limit on selected columns comes with the pair
-analyses (lot 8a, COST-05).
+enters through the cells. The pair analyses (lot 8a, COST-05) have their own
+bounds, set by the `deep.pearson` settings and described in 20.12: the columns
+explored (50), the pairs times rows compared by the exploration (1 million), the
+pairs listed (20) and the pairs chosen by the planner itself (8).
 
 **Memory (COST-01, specification 11.3).** Sizes are payloads, measured with
 `tracemalloc` (`benchmarks/planner_costs.py`) and checked by
@@ -3081,6 +3085,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
 | `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
+| `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
@@ -3165,7 +3170,14 @@ and refuses `--output`, `--output-dir`, `--force` and `--counters`. The text goe
 to standard output, the scan outcome to standard error. The Python API raises
 `ConfigurationError` for a request naming an unknown analyzer, dataset or field.
 
-**Not yet.** Pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
+**Pairs (lot 8a).** `pearson_correlation` has no candidate per field: the planner asks it for
+the pairs (20.12). Its candidates have a `partner`, an `exploration` and the id
+`pearson_correlation:dataset:first+second`; `AnalysisRequest` has a `partner`, and
+`Budgets.automatic_pairs` limits the pairs the planner picks by itself (reason
+`pairs_budget` for the others). The plan has a `relations` member, absent when no dataset
+has two numeric columns.
+
+**Not yet.** Features and tables of categories and patterns (8b); sampling targets (9 to 10b).
 
 ### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
 
@@ -3499,6 +3511,109 @@ changes the values: the exact count is of the originals), the exact or estimated
 scan limit released, the validated occurrences of every pattern, and the dates per period.
 Histograms, lengths and the complete frequencies are in the JSON and listed in the section;
 their charts are not drawn yet.
+
+### 20.12 Pairs of numeric columns (lot 8a, D13, D14, REL-04 to REL-10, COST-05, E01, E02, O40)
+
+The second pass can count the Pearson correlation of a pair of numeric columns over
+every row. The number of pairs is quadratic, so the work has two stages: an exploration
+of the row sample, when the plan is made, chooses the pairs worth counting (REL-04 to
+REL-06), and the executor counts those over the source (REL-07 to REL-09).
+
+**Exploration (`planner/relations.py`).** It reads the row sample of each dataset
+(`records.sample`) of the Scan in memory and nothing else.
+
+- *Rows.* A sample that lists no row, or fewer than it sampled (a Report), is not used
+  (`no_sample`, `sample_reduced`). A complete sample is the whole population and is used
+  whole (`scope: all_rows`); otherwise only the interior rows are a sample (ROW-07,
+  `scope: interior_rows`), and fewer than `explore_min_pairs` (30) of them make the dataset
+  `too_few_rows`. The first and the last rows say nothing of the rest of the file.
+- *Columns.* A field takes part when its technical type is `integer` or `number`, its
+  numeric measure is complete, it is not withheld by exposure, its path does not repeat
+  in a record (an `ItemsSegment`: a pair never crosses the items of an array, no
+  `explode`), it varies (`numeric.min != numeric.max`), it is not an identifier (the rule
+  of 20.5, or an integer field whose values are 99% distinct, whatever its name) and its
+  cells are in the sample, whole (`RowSample.covers`: none cut or hidden), with at least
+  `explore_min_pairs` numbers. Each exclusion has a code (`not_in_sample`,
+  `constant`, `sensitive_exposure`, `repeated_path`, `identifier_like`, `too_few_values`,
+  `measure_unavailable`, `column_budget`) and is counted in the plan, never dropped in
+  silence. Cells are read by the `CellReader` of the Scan's configuration (the same
+  normalizer and number detector as the first pass); for a JSON source, whose native
+  numbers the sample writes as text, a decimal also reads what the detector would not.
+- *Budget (COST-05, REL-06).* At most `max_columns` (50) columns, and at most
+  `max_work` (1,000,000) pairs times rows compared: the columns beyond the budget are the
+  least present ones (ties keep the order of the document) and are counted as
+  `column_budget`. The work is the post-processing budget; it depends on the data and the
+  settings, never on a measured time. All the pairs of the kept columns are scored.
+- *Score (REL-05).* Over the rows where both columns have a number: count, coefficient
+  (`scanner/pearson.py`) and the 95% interval of Fisher's transform (an estimate: it
+  assumes rows drawn at random from a bivariate normal distribution). A pair with fewer than
+  `explore_min_pairs` common rows, or a column that does not vary over them, is undefined
+  with its reason and is not listed. The `score` is the smaller absolute value the interval
+  allows (0 when it holds 0), so that a high coefficient on a few rows does not outrank a
+  steady one on many. Figures are rounded to six decimals so that the plan is the same on
+  any machine. "Not detected in the sample" is not "absent": rare exceptions can be missing
+  (REL-05).
+- *Candidates.* The pairs with a score above 0 by decreasing score (ties: more rows, then
+  the order of the columns), `max_candidates` (20) at most. A pair named by a request that the
+  exploration did not list is a candidate too (REL-06), scored from the sample when it can be,
+  and not applicable (`not_numeric`, `sensitive_exposure`, `repeated_path`,
+  `measure_unavailable`) when a column cannot be a number. The pair is in the order of the
+  dataset whichever way it was asked.
+
+**The plan.** `relations.datasets[]` has, per dataset with two numeric columns, `scope`,
+`rows`, `numeric`, `columns`, `excluded` (by code), `possible` (pairs of the kept columns),
+`evaluated`, `undefined` with `undefined_reasons`, `listed`, `work` and `unavailable`. A
+candidate's `utility` is 100 times its score (reason `exploratory_correlation`); the planner
+picks by itself the pairs of 45 or more (a lower bound of 0.45), `automatic_pairs` (8) at most,
+and the others are rejected `pairs_budget` (a forced plan takes all those listed, a request
+those it names). The `costs` of a pair hold `PAIR_STATE_BYTES` (512) for its co-moments, the
+batch of floats of each column (`PAIR_FEED_ROWS` x `PAIR_FEED_ENTRY_BYTES`, one state per column
+shared by every pair that uses it, REL-03) and the memory of reading its cells; the time
+estimate counts the cells of both columns.
+
+**Executor (`secondpass/pearson.py`).** `ColumnFeed` converts the strings of a column once
+per batch (a CSV batch) or the values of a record (JSON, Excel; the rows wait in a buffer of
+`PAIR_FEED_ROWS` records) into float64, with the memory of the replayed cells; a value that is
+not a number, or does not fit a float64, is missing. It counts the numbers as the Scan counts
+them. `PairAccumulator` takes the aligned rows of the two columns:
+
+- the rows where both have a number give count, means, sums of squares and cross product by
+  a centered pass, merged with the batches before by the update of Chan et al. (stable
+  whatever the sizes and the order), with the minimum and maximum of each column
+  (`scanner/pearson.py`);
+- the other rows are counted as `first_missing`, `second_missing` and `both_missing`, so that
+  `rows = pairs + first_missing + second_missing + both_missing`;
+- the means are those of the common rows, never those of the Scan (REL-08);
+- fewer than `min_pairs` (10, part of the key) common rows give `insufficient_pairs`, a column
+  whose minimum equals its maximum gives `zero_variance_first` or `zero_variance_second`
+  (decided by comparison, so no float error hides a constant), and the result is `defined: false`
+  without a coefficient, never 0 (REL-09, E02); a coefficient is clamped to [-1, 1];
+- the numbers the reading found in each column must equal the Scan's `numeric.count`, or the
+  pair fails alone with `scan_mismatch`.
+
+The result is `pearson` (20.4 and the public page `deep-format`): `accuracy` is `exact_counts`
+and `precision` `float64`: the counts are exact and the coefficient is computed in float64,
+which agrees with an exact fraction oracle to 1e-12 on the tests. It is a linear association
+and not a cause (REL-10). `Router` hands each pair the aligned rows of its two columns once;
+a pair or a column that fails does so alone. `cells_read` counts each column once.
+
+**Complete sample.** When the Scan holds every row of a CSV dataset (`records.sample.complete`)
+and covers both columns, the pair is `requires_source: false`: the executor computes it from the
+rows of the sample with the same arithmetic and `source` is `samples`. Other formats read the
+source, since their sample cells (canonical text of native values) may differ from what the
+reading counts.
+
+**Key.** It holds both fields (`partner`), the method and `min_pairs`, not the exploration, the
+budgets or the order: a stored pair is reused whatever chose it.
+
+**Report.** The Second pass section lists the pair as "price and cost" with the coefficient and
+the common rows (`report_deep.result_summary`); the pairs appear nowhere else yet (the section
+Relationships is lot 8b, HTML-06).
+
+**Costs.** `NS_PER_CELL["pearson"]` is the time a cell of a column of a pair adds, the reading of
+the cell included, 1.5 ns, `moderate`; a shared column is read once, so the estimate is an
+upper bound for pairs that share columns. `COST_MODEL_VERSION` is 5. Measures:
+`benchmarks.md`, "Pairs of numeric columns (lot 8a)".
 
 ## 21. Original value domain (O32)
 

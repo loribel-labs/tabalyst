@@ -93,7 +93,11 @@ def estimate_time(plan: AnalysisPlan, scan: ScanResult) -> TimeEstimate | None:
     )
     values = {(facts.dataset, facts.field): facts.values for facts in scan_facts(scan)}
     nanoseconds = sum(
-        values.get((candidate.dataset, candidate.field), 0) * candidate.costs.cell_ns
+        (
+            values.get((candidate.dataset, candidate.field), 0)
+            + values.get((candidate.dataset, candidate.partner or ""), 0)
+        )
+        * candidate.costs.cell_ns
         for candidate in plan.candidates
         if candidate.selection.state == "selected"
         and candidate.execution.requires_source

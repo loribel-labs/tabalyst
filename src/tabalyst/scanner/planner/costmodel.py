@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 4
+COST_MODEL_VERSION = 5
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -54,6 +54,12 @@ EXACT_SET_FIXED_BYTES = 4_096
 MATCHER_BYTES = 5_120
 # The small result object of an analysis; under 0.001% of any budget.
 RESULT_BYTES = 1_024
+# A pair of numeric columns (lot 8a): the co-moments of a pair are six numbers
+# and a count, the batch of floats of a column is shared by every pair that
+# uses it (``PAIR_FEED_ROWS`` rows, a float object and its slot, 32 bytes).
+PAIR_STATE_BYTES = 512
+PAIR_FEED_ROWS = 4_096
+PAIR_FEED_ENTRY_BYTES = 32
 # Reading the source once: the readers hold at most 8 MiB of batch (a CSV batch
 # is closed by size); the worst measured peak is 19 MB (60,000 rows of texts
 # up to 8,000 characters), 7 to 8 MB for the other files.
@@ -144,6 +150,9 @@ NS_PER_CELL = {
     "distinct_set": 400,
     "matcher_base": 800,
     "matcher": 100,
+    # A pair of numeric columns (lot 8a): the nanoseconds a cell of either
+    # column adds, the reading of the cell included. Calibrated below.
+    "pearson": 1_500,
 }
 # Upper limits of ``very_low``, ``low`` and ``moderate`` in nanoseconds a cell.
 # The first pass spends about 600 ns on a cell of the baseline (20.6 s for 34

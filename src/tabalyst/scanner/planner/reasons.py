@@ -24,6 +24,8 @@ NOT_APPLICABLE = {
     "no_candidates": "no pattern candidate was found",
     "mixed_temporal_kinds": "the dates mix kinds (date, datetime, time zones)",
     "time_only": "the values are times of day, without a date",
+    "not_numeric": "a pair needs two numeric columns",
+    "repeated_path": "the field repeats in a record, which a pair cannot align",
 }
 
 # Why an analysis needs no further reading.
@@ -46,6 +48,7 @@ SELECTION = {
     "low_utility": "too little expected benefit for an automatic choice",
     "cpu_class": "its CPU class is above the automatic limit",
     "cells_budget": "the shared reading exceeds the automatic cell budget",
+    "pairs_budget": "enough pairs were already chosen automatically",
     "budget": "its memory does not fit in the budget with the analyses already selected",
 }
 
@@ -71,6 +74,8 @@ UTILITY = {
     "temporal_distribution": "shows how the dates are spread",
     "derivable_from_samples": "follows from the exact counts the scan already lists",
     "base_value": "a common analysis",
+    "exploratory_correlation": "the sample suggests a linear relation between the two columns",
+    "not_explored": "the sample could not score this pair",
 }
 
 REASONS = {**NOT_APPLICABLE, **SATISFIED, **SELECTION, **CONFIRMATION, **UTILITY}

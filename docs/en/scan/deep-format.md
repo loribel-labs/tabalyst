@@ -90,6 +90,10 @@ work in the same process, such as a first pass.
 }
 ```
 
+An analysis of a pair of fields also has `partner`, the id of the second field, and
+its `display` names both (`price and cost`). The field of the entry is the first of
+the pair in the order of the dataset.
+
 `domain` is `analytical`: values are those of the scan after its normalization,
 so `" 1 "` and `"1"` are the same value. It is `original` for `exact_distinct`, which
 counts the values as they are in the file, as the cardinality of the scan does.
@@ -264,10 +268,44 @@ number of dates of `temporal_kind` the scan counted, `ambiguous` the ambiguous
 values of the scan, and `unplaced` the other content values (not dates, invalid,
 or of another kind): `values = count + ambiguous + unplaced`.
 
+**`pearson`**: the correlation of a pair of numeric fields over the rows where both
+have a number.
+
+```json
+{
+  "kind": "pearson",
+  "accuracy": "exact_counts",
+  "precision": "float64",
+  "rule": "pairwise_complete",
+  "source": "source",
+  "min_pairs": 10,
+  "rows": 3000,
+  "pairs": 2571,
+  "excluded": {"first_missing": 0, "second_missing": 429, "both_missing": 0},
+  "defined": true,
+  "coefficient": 0.995454,
+  "mean_first": 0.0082,
+  "mean_second": 0.5288,
+  "std_first": 1.0016,
+  "std_second": 3.0249,
+  "covariance": 3.0158
+}
+```
+
+`rows = pairs + first_missing + second_missing + both_missing`. `first_missing` counts
+the rows with a number in the second column only, `second_missing` in the first
+only, `both_missing` in neither. The means, spreads (population) and covariance are
+those of the `pairs` common rows. The counts are exact; the coefficient is computed
+in 64-bit floats (`precision`). When `defined` is false there is no `coefficient`,
+nor means, and `reason` is `insufficient_pairs` (fewer than `min_pairs` common rows),
+`zero_variance_first` or `zero_variance_second`; a coefficient is never written as
+`0` for lack of data. `source` is `samples` when the complete row sample of the scan
+held every row (CSV files of up to 1,000 rows), `source` when the file was read.
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
-its version, the field, the method with its effective parameters (the number of
+its version, the field (and its partner, for a pair), the method with its effective parameters (the number of
 bins and the strategy are among them) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
@@ -291,3 +329,6 @@ domain. Members without a value are left out rather than written as `null`.
 The results `pattern_counts` and `periods` were added with the executors of
 `pattern_validation` and `temporal_distribution`, and the domain `original` is also
 that of `pattern_validation`, without a new revision: the format is not published yet.
+The result `pearson`, the `partner` member of an analysis and the members `partner`,
+`exploration` and `relations` of the plan (see [Plan](plan.md#pairs-of-columns)) came with
+`pearson_correlation`, also without a new revision.

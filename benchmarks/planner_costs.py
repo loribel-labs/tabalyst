@@ -215,7 +215,9 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
     scanned = scan(source, config=ScanConfig.model_validate({"limits": limits}))
     first_pass = perf_counter() - started
     registry = default_registry().runnable()
+    planned = perf_counter()
     plan = plan_analyses(scanned, forced=True, registry=registry)
+    plan_seconds = perf_counter() - planned
     # The Scan always holds the length histogram: switch it off to plan the
     # length analysis, as a Scan whose measure is limited or off would.
     lengthless = scanned.model_copy(
@@ -246,12 +248,16 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         "matcher": lambda c: c.analyzer == "pattern_validation"
         and c.execution.requires_source,
         "period": lambda c: c.analyzer == "temporal_distribution",
+        # Pairs of numeric columns (lot 8a): the cost is per cell of a column
+        # of the pair; a column shared by several pairs is read once.
+        "pearson": lambda c: c.analyzer == "pearson_correlation",
     }
     out: dict[str, object] = {
         "source": source.name,
         "first_pass_seconds": round(first_pass, 3),
         "cells": scanned.source.shape.cells,
         "reading_seconds_of_the_scan": scanned.run.timings.reading,
+        "plan_seconds": round(plan_seconds, 3),
     }
     for label, keep in kinds.items():
         base_scan, base_plan = (
@@ -287,6 +293,18 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
             "reading_seconds": best.timings.reading,
             "analysis_seconds": best.timings.analysis,
             "ns_per_cell": round(best.timings.analysis / best.cells_read * 1e9, 1),
+            **(
+                {
+                    "ns_per_cell_of_a_pair": round(
+                        best.timings.analysis
+                        / (len(chosen) * scanned.datasets[0].record_count * 2)
+                        * 1e9,
+                        1,
+                    )
+                }
+                if label == "pearson"
+                else {}
+            ),
             **(
                 {
                     "ns_per_cell_per_candidate": round(

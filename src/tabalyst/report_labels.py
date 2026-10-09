@@ -199,6 +199,13 @@ ANALYSIS_LABELS = {
     "exact_distinct": "Exact distinct count",
     "pattern_validation": "Pattern validation",
     "temporal_distribution": "Distribution over time",
+    "pearson_correlation": "Correlation between two columns",
+}
+# Why a correlation has no coefficient (``PearsonResult.reason``), in words.
+PEARSON_REASONS = {
+    "insufficient_pairs": "too few rows have a number in both columns",
+    "zero_variance_first": "the first column does not vary over the common rows",
+    "zero_variance_second": "the second column does not vary over the common rows",
 }
 # How a second pass ended for a Report (``analyses.outcome``), and who decided it.
 OUTCOME_WORDS = {

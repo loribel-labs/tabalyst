@@ -8,7 +8,8 @@ scan does not hold: histograms of numeric fields, with exact or estimated
 medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
-counted on every value and the dates counted per period. It writes them to a
+counted on every value, the dates counted per period and the correlation of
+pairs of numeric columns. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
 experimental in the beta. [`tabalyst report`](../reference/cli/report.md#second-pass)
 runs it by itself for the analyses that are useful and cheap, and puts the results
@@ -44,6 +45,7 @@ stored.
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
+| `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
 
 A scan always holds the length histogram of a text field unless it was limited
 or turned off, so `length_distribution` is rare. `tabalyst scan --plan --deep`
@@ -92,6 +94,62 @@ datetimes are not merged: a column of both has no distribution.
 
 The count of placed dates and the number of ambiguous values are those of the
 scan; a difference fails the analysis rather than giving a result.
+
+## Correlation between two columns
+
+The second pass counts, over every row, the Pearson correlation of a pair of numeric
+columns. It does not try every pair of the file. It first scores all the pairs of
+the eligible columns on the rows the scan sampled, which needs no reading of the
+source, keeps the best ones, and reads the file once for them.
+
+```json
+{"kind": "pearson", "accuracy": "exact_counts", "precision": "float64",
+ "rule": "pairwise_complete", "source": "source", "min_pairs": 10,
+ "rows": 3000, "pairs": 2571,
+ "excluded": {"first_missing": 0, "second_missing": 429,
+              "both_missing": 0},
+ "defined": true, "coefficient": 0.995454, "mean_first": 0.0082,
+ "mean_second": 0.5288, "std_first": 1.0016, "std_second": 3.0249,
+ "covariance": 3.0158}
+```
+
+Only the rows where **both** columns have a number count (`pairwise_complete`).
+The means and the spreads are those of these common rows, not the ones of each
+column in the scan, which can differ when the empty cells are not the same.
+`rows` is `pairs` plus the three exclusions, so nothing is left unaccounted for. A
+value is missing when the cell is empty, is not a number, or does not fit a 64-bit
+float.
+
+A coefficient is never replaced by `0` when it cannot be computed. There is no
+`coefficient` and `reason` says why: `insufficient_pairs` (fewer than
+`min_pairs` common rows), or `zero_variance_first` or `zero_variance_second` (a
+column that does not vary over the common rows). The counts are exact; the
+coefficient is computed in 64-bit floats from stable co-moments, which keeps its
+digits even for numbers with a large common offset. It measures a linear
+association between two columns. It does not show that one causes the other, and
+it can be small for a relation that is not a line.
+
+**How the pairs are chosen.** A column takes part when it is numeric, varies, is
+not an identifier, is not hidden by exposure, does not repeat inside a record (the
+items of an array), and has enough numbers in the sample. An identifier is a
+column of almost only distinct values whose name looks like one, or an integer
+column that is almost entirely distinct. The plan counts the columns it left out,
+by reason. The pairs are scored on the interior rows of the sample (a
+complete sample, which holds every row of a small file, is used whole). A pair is
+ranked by the lower end of its 95% interval, so that a high coefficient over a few
+rows does not outrank a steady one over many. The interval is an estimate that
+assumes the rows are drawn at random from a bell-shaped relation. A pair that
+this sample does not show can still hold in the file: "not detected in the sample"
+does not mean "absent".
+
+**What is automatic.** `tabalyst report` picks by itself the pairs whose lower
+bound is 0.45 or more, eight at most. `--deep` takes every pair the plan lists,
+twenty at most, after asking if the estimate calls for it. The API can ask for any
+pair, even one that the sample did not show.
+
+**Small files.** When the scan sampled every row of a CSV file (up to 1,000
+rows), the sample is the file: the pair is computed from it and the source is not
+read again (`source` is `samples`).
 
 ## Exact distinct count
 
@@ -148,6 +206,10 @@ sets the bins:
 ```json
 {"deep": {"bins": 50, "bin_strategy": "sample_quantile"}}
 ```
+
+The `deep.pearson` object chooses the pairs of numeric columns: how many
+columns are explored, how much work that may take and how many pairs the plan lists
+or picks by itself. See [Deep settings](../reference/configuration.md#deep-settings).
 
 `bin_strategy: "sample_quantile"` places the inner edges where the sample of
 rows kept by the scan has its quantiles, which suits a very skewed distribution

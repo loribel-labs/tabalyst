@@ -60,6 +60,9 @@ def analysis_key(base: PlanBase, candidate: Candidate) -> str:
         "parameters": candidate.parameters,
         "domain": analysis_domain(candidate.analyzer),
     }
+    if candidate.partner is not None:
+        # Absent for a single field, so the key of its analyses does not move.
+        material["partner"] = candidate.partner
     canonical = json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

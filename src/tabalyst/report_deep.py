@@ -14,7 +14,7 @@ from __future__ import annotations
 from collections import Counter
 
 from tabalyst.models import AnalysesBlock
-from tabalyst.report_labels import ANALYSIS_LABELS, DEEP_REASONS, EXACT
+from tabalyst.report_labels import ANALYSIS_LABELS, DEEP_REASONS, EXACT, PEARSON_REASONS
 from tabalyst.report_views import (
     ColumnAnalyses,
     SecondPassMetrics,
@@ -32,6 +32,7 @@ from tabalyst.scanner.secondpass.models import (
     FrequencyTable,
     LengthDistribution,
     PatternCounts,
+    PearsonResult,
     PeriodCounts,
 )
 
@@ -132,6 +133,16 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             f"{result.matched:,} of {result.values:,} values read by "
             f"{_plural(len(result.candidates), 'pattern')}, {result.other:,} by none"
             + (f", {excluded:,} not tested" if excluded else ""),
+            EXACT,
+        )
+    if isinstance(result, PearsonResult):
+        left_out = sum(result.excluded.model_dump().values())
+        tail = f"; {left_out:,} of {result.rows:,} rows lack a number in one column" if left_out else ""
+        if result.coefficient is None:
+            why = PEARSON_REASONS.get(result.reason or "", result.reason or "undefined")
+            return f"no coefficient: {why} ({_plural(result.pairs, 'common row')}){tail}", EXACT
+        return (
+            f"r = {result.coefficient:+.3f} over {_plural(result.pairs, 'common row')}{tail}",
             EXACT,
         )
     assert isinstance(result, PeriodCounts)

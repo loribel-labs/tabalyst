@@ -432,6 +432,15 @@ as written; design 20.10). `deep_service.py` is the boundary for the CLI and the
 (`DeepSettings` in `config.py`) are not part of `ScanConfig`, so they never make a Scan stale;
 `DeepSection` adds `mode`, which only tells Report whether to plan.
 
+`pearson.py` (lot 8a, design 20.12) holds the pairs of numeric columns: `ColumnFeed` converts a
+column once per batch for every pair that uses it, `PairAccumulator` keeps the stable co-moments
+of the rows where both columns have a number and the rows left out, and the `Router` hands it the
+aligned rows (the batches of a CSV file, or the records of a JSON or Excel source buffered by
+`PAIR_FEED_ROWS`). The choice of the pairs is the planner's: `planner/relations.py` scores them on
+the row sample of the Scan when the plan is made, within its own column and work budgets, and the
+arithmetic (`scanner/pearson.py`) is shared by the two stages. A complete sample of a CSV file
+answers without reading the source.
+
 `report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
 Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
 writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the
