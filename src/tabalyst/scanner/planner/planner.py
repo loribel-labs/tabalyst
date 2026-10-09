@@ -20,6 +20,14 @@ from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.identity import facts_sha256
 from tabalyst.scanner.models import ScanResult
 from tabalyst.scanner.planner.analyzer import Analyzer, Assessment
+from tabalyst.scanner.planner.costmodel import (
+    COST_MODEL_VERSION,
+    DEFAULT_AUTOMATIC_MEMORY_BYTES,
+    DEFAULT_MAX_CELLS,
+    DEFAULT_MEMORY_BUDGET_BYTES,
+    PARSER_RESERVE_BYTES,
+    cell_class,
+)
 from tabalyst.scanner.planner.facts import FieldFacts, scan_facts
 from tabalyst.scanner.planner.models import (
     CPU_ORDER,
@@ -29,7 +37,6 @@ from tabalyst.scanner.planner.models import (
     Candidate,
     CommonCost,
     Costs,
-    CpuClass,
     Execution,
     Memory,
     Objective,
@@ -43,14 +50,8 @@ from tabalyst.scanner.planner.models import (
 from tabalyst.scanner.planner.registry import AnalyzerRegistry, default_registry
 
 UTILITY_VERSION = 1
-# Provisional values, calibrated at lot 6b on the baselines (design 20.2).
-DEFAULT_MEMORY_BUDGET_BYTES = 256 * 1024 * 1024
-PARSER_RESERVE_BYTES = 16 * 1024 * 1024
-# The lowest utility the planner picks by itself.
+# The lowest utility the planner picks by itself (a forced plan ignores it).
 AUTOMATIC_MIN_UTILITY = 45
-# Cells of the common reading up to which it is classed ``very_low``, ``low``
-# and ``moderate``; above, ``high``.
-CELL_CLASS_LIMITS = (1_000_000, 10_000_000, 100_000_000)
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,10 +65,11 @@ class AnalysisRequest:
 
 
 def default_budgets() -> Budgets:
-    """The provisional budgets of the planner."""
+    """The budgets of the planner, calibrated on the baselines (design 20.2)."""
     return Budgets(
         memory_bytes=DEFAULT_MEMORY_BUDGET_BYTES,
-        max_cells=None,
+        automatic_memory_bytes=DEFAULT_AUTOMATIC_MEMORY_BYTES,
+        max_cells=DEFAULT_MAX_CELLS,
         automatic_max_cpu="moderate",
     )
 
@@ -142,18 +144,23 @@ class _Ledger:
         self.reading = self.reading or reads_source
 
 
+def plan_base(scan: ScanResult) -> PlanBase:
+    """The identity of the Scan a plan stands on (design 19.5): a plan is only
+    valid for the Scan whose base it carries."""
+    return PlanBase(
+        format_revision=scan.format_revision,
+        engine_version=scan.engine.version,
+        source_sha256=scan.source.sha256,
+        config_sha256=scan.config_sha256,
+        facts_sha256=facts_sha256(scan),
+    )
+
+
 def _cells(scan: ScanResult) -> int:
     shape_cells = scan.source.shape.cells
     if shape_cells is not None:
         return shape_cells
     return sum(len(dataset.fields) * dataset.record_count for dataset in scan.datasets)
-
-
-def _cell_class(cells: int) -> CpuClass:
-    for limit, name in zip(CELL_CLASS_LIMITS, CPU_ORDER, strict=False):
-        if cells <= limit:
-            return name
-    return "high"
 
 
 def _matches(request: AnalysisRequest, facts: FieldFacts, analyzer: Analyzer) -> bool:
@@ -188,21 +195,27 @@ def _check_requests(
 
 
 def _decide(
-    entries: list[_Entry], budgets: Budgets, automatic: bool, cells: int
+    entries: list[_Entry], budgets: Budgets, automatic: bool, forced: bool, cells: int
 ) -> _Ledger:
     """Set the selection of every entry (PLAN-05) and return the memory the
-    selection needs."""
+    selection needs.
+
+    A request or a forced plan may use the hard budget; what the planner picks
+    by itself stays within the automatic limits, the memory of the requests
+    already chosen included.
+    """
     ledger = _Ledger()
     priority = 0
+    automatic_memory = min(budgets.automatic_memory_bytes, budgets.memory_bytes)
 
     def reject(entry: _Entry, reason: str) -> None:
         entry.selection = Selection(state="rejected", reason=reason, requested=entry.requested)
 
-    def try_select(entry: _Entry, reason: str) -> None:
+    def try_select(entry: _Entry, reason: str, memory_limit: int) -> None:
         nonlocal priority
         assert entry.costs is not None
         reads_source = entry.assessment.requires_source
-        if not ledger.fits(entry.costs, reads_source, budgets.memory_bytes):
+        if not ledger.fits(entry.costs, reads_source, memory_limit):
             reject(entry, "budget")
             return
         ledger.add(entry.costs, reads_source)
@@ -229,7 +242,7 @@ def _decide(
     # 1. What was asked for and can be done.
     for entry in applicable:
         if entry.requested:
-            try_select(entry, "requested")
+            try_select(entry, "requested", budgets.memory_bytes)
 
     # 2. The cheap analyses of the most use, then 3. the costly ones by use per
     # byte (specification 11.1).
@@ -246,24 +259,52 @@ def _decide(
         ),
     )
     limit = CPU_ORDER.index(budgets.automatic_max_cpu)
+    reading_too_long = CPU_ORDER.index(cell_class(cells)) > limit
     for entry in [*cheap, *costly]:
         assert entry.costs is not None and entry.utility is not None
-        if not automatic:
+        if forced:
+            try_select(entry, "forced", budgets.memory_bytes)
+        elif not automatic:
             reject(entry, "not_requested")
         elif entry.utility.score < AUTOMATIC_MIN_UTILITY:
             reject(entry, "low_utility")
         elif CPU_ORDER.index(entry.costs.cpu) > limit:
             reject(entry, "cpu_class")
-        elif (
-            entry.assessment.requires_source
-            and budgets.max_cells is not None
-            and cells > budgets.max_cells
+        elif entry.assessment.requires_source and (
+            budgets.max_cells is not None and cells > budgets.max_cells
         ):
             # Only a reading of the source is limited by cells.
             reject(entry, "cells_budget")
+        elif entry.assessment.requires_source and reading_too_long:
+            reject(entry, "cpu_class")
         else:
-            try_select(entry, "automatic")
+            try_select(entry, "automatic", automatic_memory)
     return ledger
+
+
+def _beyond_automatic(
+    selected: Sequence[Candidate], ledger: _Ledger, budgets: Budgets, cells: int
+) -> list[str]:
+    """The automatic limits that the selection exceeds, as codes (R1). What the
+    planner picks by itself never exceeds them."""
+    codes: list[str] = []
+    if ledger.total().max > budgets.automatic_memory_bytes:
+        codes.append("memory_over_automatic")
+    over_cells = (
+        ledger.reading and budgets.max_cells is not None and cells > budgets.max_cells
+    )
+    if over_cells:
+        codes.append("cells_over_automatic")
+    limit = CPU_ORDER.index(budgets.automatic_max_cpu)
+    heavy = any(
+        c.costs is not None and CPU_ORDER.index(c.costs.cpu) > limit for c in selected
+    )
+    long_reading = (
+        ledger.reading and not over_cells and CPU_ORDER.index(cell_class(cells)) > limit
+    )
+    if heavy or long_reading:
+        codes.append("cpu_over_automatic")
+    return codes
 
 
 def _candidate(entry: _Entry) -> Candidate:
@@ -301,13 +342,17 @@ def plan_analyses(
     *,
     requests: Sequence[AnalysisRequest] = (),
     automatic: bool = True,
+    forced: bool = False,
     budgets: Budgets | None = None,
     registry: AnalyzerRegistry | None = None,
 ) -> AnalysisPlan:
     """Plan the analyses that could be added to a finished Scan.
 
-    ``requests`` are chosen first when they fit the budget; with ``automatic``
-    the planner then adds the cheap, useful analyses by itself. Raises
+    ``requests`` are chosen first when they fit the hard memory budget; with
+    ``automatic`` the planner then adds the cheap, useful analyses by itself,
+    within the automatic limits. ``forced`` (a second pass asked for as a whole)
+    takes instead every applicable analysis the hard budget holds, whatever the
+    automatic limits and the utility, which only orders them. Raises
     ``ConfigurationError`` for a request that names an unknown analyzer,
     dataset or field. Reads the Scan only; nothing is run or written.
     """
@@ -335,7 +380,7 @@ def plan_analyses(
             entries.append(entry)
 
     cells = _cells(scan)
-    ledger = _decide(entries, budgets, automatic, cells)
+    ledger = _decide(entries, budgets, automatic, forced, cells)
 
     candidates = [_candidate(entry) for entry in entries]
     selected = [c for c in candidates if c.selection.state == "selected"]
@@ -344,20 +389,16 @@ def plan_analyses(
         requires_source=reading,
         cells=cells if reading else None,
         memory_bytes=PARSER_RESERVE_BYTES if reading else 0,
-        cpu=_cell_class(cells) if reading else None,
+        cpu=cell_class(cells) if reading else None,
     )
     plan = AnalysisPlan(
         utility_version=UTILITY_VERSION,
+        cost_model_version=COST_MODEL_VERSION,
         plan_id="",
-        base=PlanBase(
-            format_revision=scan.format_revision,
-            engine_version=scan.engine.version,
-            source_sha256=scan.source.sha256,
-            config_sha256=scan.config_sha256,
-            facts_sha256=facts_sha256(scan),
-        ),
+        base=plan_base(scan),
         objective=Objective(
             automatic=automatic,
+            forced=forced,
             requested=[
                 RequestedAnalysis(
                     analyzer=request.analyzer,
@@ -378,6 +419,7 @@ def plan_analyses(
             second_pass_required=reading,
             executable=all(c.execution.available for c in selected),
             memory=ledger.total(),
+            beyond_automatic=_beyond_automatic(selected, ledger, budgets, cells),
         ),
         candidates=candidates,
     )

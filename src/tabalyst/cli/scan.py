@@ -22,6 +22,7 @@ from tabalyst.errors import TabalystError
 from tabalyst.plan_service import BatchPlanResult, generate_plans
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
 from tabalyst.scanner.planner import plan_text
+from tabalyst.scanner.planner.render import confirmation_lines
 
 
 def _plural(count: int, word: str) -> str:
@@ -121,7 +122,14 @@ def _print_plans(batch: BatchPlanResult, *, quiet: bool) -> None:
             typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
         if index:
             typer.echo("")
-        typer.echo(plan_text(success.plan, success.job.source.name))
+        typer.echo(
+            plan_text(success.plan, success.job.source.name, success.confirmation)
+        )
+    if len(batch.successes) > 1 and batch.confirmation is not None:
+        typer.echo("")
+        typer.echo("All together:")
+        for line in confirmation_lines(batch.confirmation):
+            typer.echo(f"  {line}")
     for failure in batch.failures:
         typer.echo(
             f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
@@ -220,10 +228,25 @@ def scan_command(
             ),
         ),
     ] = False,
+    deep: Annotated[
+        bool,
+        typer.Option(
+            "--deep",
+            help=(
+                "With --plan, plan the second pass as if it were forced: every "
+                "applicable analysis the memory budget holds, with its estimate "
+                "and whether it would ask for a confirmation."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """Scan CSV and JSON files into a complete JSON description of their data."""
     if quiet and verbose:
         raise typer.BadParameter("--quiet and --verbose cannot be used together.")
+    if deep and not plan:
+        raise typer.BadParameter(
+            "--deep is only available with --plan until the second pass runs."
+        )
     if plan:
         for name, given in (
             ("--output", output is not None),
@@ -247,6 +270,7 @@ def scan_command(
                 collections=collection_paths(collection),
                 on_progress=progress,
                 workers=workers,
+                forced=deep,
             )
         except TabalystError as exc:
             typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)

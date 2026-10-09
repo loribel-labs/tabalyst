@@ -73,6 +73,8 @@ class FieldFacts:
     numeric_min: float | None
     numeric_max: float | None
     lengths: str
+    min_length: int | None
+    mean_length: float | None
     max_length: int | None
     long_text_occurrences: int
     samples_listed: int
@@ -176,6 +178,8 @@ def _facts(
         numeric_min=numeric.value.min if numeric.status == "complete" else None,
         numeric_max=numeric.value.max if numeric.status == "complete" else None,
         lengths=lengths.status,
+        min_length=lengths.value.min_length if lengths.status == "complete" else None,
+        mean_length=float(lengths.value.mean_length) if lengths.status == "complete" else None,
         max_length=lengths.value.max_length if lengths.status == "complete" else None,
         long_text_occurrences=(
             0 if samples.long_texts is None else samples.long_texts.occurrences

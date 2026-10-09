@@ -9,13 +9,13 @@ from __future__ import annotations
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
-    COUNTER_BYTES,
     Analyzer,
     Assessment,
     costs,
     memory,
 )
 from tabalyst.scanner.planner.analyzers.common import blocked, result_state
+from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
@@ -78,7 +78,9 @@ class TemporalDistribution(Analyzer):
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
         size = int(assessment.parameters["periods"]) * COUNTER_BYTES
         state = State(key=f"periods:{facts.where}", memory=memory(size))
-        return costs("very_low", [state, result_state(self.id, facts)])
+        return costs(
+            NS_PER_CELL["period"], [state, result_state(self.id, facts)]
+        )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         return Utility(score=50, reasons=["temporal_distribution"])

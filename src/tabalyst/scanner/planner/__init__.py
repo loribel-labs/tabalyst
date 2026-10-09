@@ -14,6 +14,15 @@ from tabalyst.scanner.planner.planner import (
 )
 from tabalyst.scanner.planner.registry import AnalyzerRegistry, default_registry
 from tabalyst.scanner.planner.render import plan_text
+from tabalyst.scanner.planner.secondpass import (
+    Confirmation,
+    SecondPassPlan,
+    TimeEstimate,
+    combine_confirmations,
+    confirmation_for,
+    estimate_time,
+    plan_second_pass,
+)
 
 __all__ = [
     "AnalysisPlan",
@@ -22,9 +31,16 @@ __all__ = [
     "AnalyzerRegistry",
     "Assessment",
     "Budgets",
+    "Confirmation",
     "FieldFacts",
+    "SecondPassPlan",
+    "TimeEstimate",
+    "combine_confirmations",
+    "confirmation_for",
     "default_budgets",
     "default_registry",
+    "estimate_time",
     "plan_analyses",
+    "plan_second_pass",
     "plan_text",
 ]

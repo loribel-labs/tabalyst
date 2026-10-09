@@ -23,7 +23,11 @@ from tabalyst.scanner.planner import (
     AnalysisRequest,
     AnalyzerRegistry,
     Budgets,
+    Confirmation,
+    TimeEstimate,
+    combine_confirmations,
     plan_analyses,
+    plan_second_pass,
 )
 from tabalyst.service import ConfigPath
 
@@ -34,7 +38,13 @@ class PlanSuccess:
     plan: AnalysisPlan
     # The shared scan was current: only the planning ran.
     reused: bool
+    estimate: TimeEstimate | None
+    confirmation: Confirmation
     warnings: tuple[str, ...] = ()
+
+    @property
+    def requires_confirmation(self) -> bool:
+        return self.confirmation.required
 
 
 @dataclass(frozen=True)
@@ -42,6 +52,12 @@ class BatchPlanResult:
     successes: tuple[PlanSuccess, ...]
     failures: tuple[ScanFailure, ...]
     warnings: tuple[tuple[Path, str], ...] = ()
+    # One confirmation for the whole batch, with the total (R1).
+    confirmation: Confirmation | None = None
+
+    @property
+    def requires_confirmation(self) -> bool:
+        return self.confirmation is not None and self.confirmation.required
 
 
 def plan_document(
@@ -77,13 +93,16 @@ def generate_plans(
     collections: Sequence[str] | None = None,
     on_progress: ProgressCallback | None = None,
     workers: int | None = None,
+    forced: bool = False,
 ) -> BatchPlanResult:
     """Plan the analyses of one or more sources.
 
     The scan comes from the shared storage when it is current for the source, its
     settings and the engine; otherwise the first pass runs and is stored, as
-    ``tabalyst scan`` does. The second pass never runs. A failed source does not
-    stop the others.
+    ``tabalyst scan`` does. The second pass never runs and nothing is asked: the
+    result says whether running the plans, together, requires a confirmation
+    (``forced`` plans a second pass asked for as a whole). A failed source does
+    not stop the others.
     """
     batch = generate_scans(
         input_specs,
@@ -100,15 +119,25 @@ def generate_plans(
     failures = list(batch.failures)
     for success in batch.successes:
         try:
-            plan = plan_analyses(success.result)
+            second = plan_second_pass(success.result, forced=forced)
         except TabalystError as exc:
             failures.append(ScanFailure(job=success.job, error=exc))
         else:
             successes.append(
-                PlanSuccess(success.job, plan, success.reused, success.warnings)
+                PlanSuccess(
+                    success.job,
+                    second.plan,
+                    success.reused,
+                    second.estimate,
+                    second.confirmation,
+                    success.warnings,
+                )
             )
     return BatchPlanResult(
         successes=tuple(successes),
         failures=tuple(failures),
         warnings=batch.plan.warnings,
+        confirmation=combine_confirmations(s.confirmation for s in successes)
+        if successes
+        else None,
     )

@@ -5,8 +5,10 @@ description: The Python functions that scan a CSV, JSON, JSONL or Excel source -
 
 `tabalyst.scan()` scans one source in memory and writes nothing.
 `tabalyst.generate_scans()` scans several sources and writes their scan
-documents. `tabalyst.plan_analyses()` and `tabalyst.plan_document()` plan the
-analyses a scan could still receive (see [Plan the analyses](../../scan/plan.md)). The command is [`tabalyst scan`](../cli/scan.md); the result is
+documents. `tabalyst.plan_analyses()`, `tabalyst.plan_document()` and
+`tabalyst.plan_second_pass()` plan the analyses a scan could still receive, with
+their estimated time and whether running them would require a confirmation (see
+[Plan the analyses](../../scan/plan.md)). The command is [`tabalyst scan`](../cli/scan.md); the result is
 described in the [scan format](../../scan/format.md).
 
 ```python

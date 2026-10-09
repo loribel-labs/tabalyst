@@ -396,8 +396,18 @@ size (design 13).
 each analyzer of `analyzers/` whether it applies, is already answered, what it costs and how
 useful it is, and selects under a firm memory budget with shared states counted once. It
 runs nothing: `plan_service.py` is its boundary for the CLI (`tabalyst scan --plan`) and the
-API, and the costs are provisional until lot 6b. `facts_sha256` lives in `scanner/identity.py`
-so that the planner does not import the document loader.
+API. `facts_sha256` lives in `scanner/identity.py` so that the planner does not import the
+document loader.
+
+Lot 6b calibrated it (design 20.2, 20.3, 20.6). `costmodel.py` holds every size, budget and CPU
+class, measured by `benchmarks/planner_costs.py` and checked against `tracemalloc` by tests;
+an automatic choice stays within 128 MiB and a request or a forced plan within a hard budget of
+512 MiB. `secondpass.py` estimates the time from the first pass, outside the plan so that it
+stays the same on any machine, and says whether a run needs a confirmation (`plan_second_pass`,
+`combine_confirmations`); `cli/confirm.py` is the gate that asks in a terminal and refuses with
+exit code 3 elsewhere, wired to the command at lot 7a. `source_guard.py` checks that a plan
+belongs to its Scan and that the source can be read again with the size recorded, and compares
+the digest of the second reading at its end.
 
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the

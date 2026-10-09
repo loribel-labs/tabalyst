@@ -10,7 +10,6 @@ from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
     BIN_COUNT,
-    COUNTER_BYTES,
     Analyzer,
     Assessment,
     costs,
@@ -22,6 +21,7 @@ from tabalyst.scanner.planner.analyzers.common import (
     result_state,
 )
 from tabalyst.scanner.planner.analyzers.frequencies import dense_domain, dense_state
+from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
@@ -67,10 +67,12 @@ class NumericHistogram(Analyzer):
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
         if assessment.method == "dense_counts":
             state = dense_state(facts, int(assessment.parameters["domain"]))
+            work = NS_PER_CELL["dense_counter"]
         else:
             size = int(assessment.parameters["bins"]) * COUNTER_BYTES + BOUNDS_BYTES
             state = State(key=f"bins:{facts.where}", memory=memory(size))
-        return costs("very_low", [state, result_state(self.id, facts)])
+            work = NS_PER_CELL["bin"]
+        return costs(work, [state, result_state(self.id, facts)])
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         if identifier_like(facts):
