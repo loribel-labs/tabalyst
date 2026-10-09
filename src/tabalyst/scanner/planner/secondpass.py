@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
+from tabalyst.config import DeepSettings
 from tabalyst.scanner.models import ScanResult
 from tabalyst.scanner.planner.costmodel import (
     DEFAULT_CONFIRM_SECONDS,
@@ -171,6 +172,7 @@ def plan_second_pass(
     forced: bool = False,
     budgets: Budgets | None = None,
     registry: AnalyzerRegistry | None = None,
+    deep: DeepSettings | None = None,
     threshold_seconds: float = DEFAULT_CONFIRM_SECONDS,
 ) -> SecondPassPlan:
     """Plan the second pass of a finished Scan with its estimate and its
@@ -182,6 +184,7 @@ def plan_second_pass(
         forced=forced,
         budgets=budgets,
         registry=registry,
+        deep=deep,
     )
     estimate = estimate_time(plan, scan)
     return SecondPassPlan(

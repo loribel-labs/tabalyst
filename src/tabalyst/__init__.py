@@ -5,6 +5,11 @@
 """Public Python interface for Tabalyst."""
 
 from tabalyst._version import __version__
+from tabalyst.config import DeepSettings as DeepSettings
+from tabalyst.deep_service import ConfirmationRequired as ConfirmationRequired
+from tabalyst.deep_service import execute_deep as execute_deep
+from tabalyst.deep_service import generate_deep as generate_deep
+from tabalyst.deep_service import prepare_deep as prepare_deep
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
 from tabalyst.generate_service import GeneratePlan as GeneratePlan
 from tabalyst.generate_service import GenerateResult as GenerateResult
@@ -31,14 +36,22 @@ from tabalyst.scanner.planner import AnalysisRequest as AnalysisRequest
 from tabalyst.scanner.planner import SecondPassPlan as SecondPassPlan
 from tabalyst.scanner.planner import plan_analyses as plan_analyses
 from tabalyst.scanner.planner import plan_second_pass as plan_second_pass
+from tabalyst.scanner.secondpass import DeepResult as DeepResult
+from tabalyst.scanner.secondpass import run_second_pass as run_second_pass
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
+from tabalyst.source_guard import SourceNotReadable as SourceNotReadable
+from tabalyst.source_guard import StalePlan as StalePlan
+from tabalyst.source_guard import StaleSource as StaleSource
 
 __all__ = [
     "AnalysisPlan",
     "AnalysisRequest",
     "ConfigurationError",
+    "ConfirmationRequired",
+    "DeepResult",
+    "DeepSettings",
     "GeneratePlan",
     "GenerateResult",
     "InputError",
@@ -47,11 +60,16 @@ __all__ = [
     "ScanConfig",
     "ScanResult",
     "SecondPassPlan",
+    "SourceNotReadable",
+    "StalePlan",
+    "StaleSource",
     "TabalystError",
     "__version__",
     "analyze",
     "build_generate_plan",
+    "execute_deep",
     "generate_datasets",
+    "generate_deep",
     "generate_inspections",
     "generate_plans",
     "generate_reports",
@@ -61,6 +79,8 @@ __all__ = [
     "plan_analyses",
     "plan_document",
     "plan_second_pass",
+    "prepare_deep",
+    "run_second_pass",
     "sample_csv",
     "scan",
 ]

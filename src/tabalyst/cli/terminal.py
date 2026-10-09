@@ -86,6 +86,8 @@ class ProgressPrinter:
         if not self.enabled or event.index is None or event.total is None:
             return
         label = self._labels[event.phase]
+        if event.detail and event.phase == ProgressPhase.READING:
+            label = f"{label} ({event.detail})"
         message = f"[{event.index}/{event.total}] {event.source.name} - {label}"
         if event.bytes_read is not None and event.bytes_total:
             message += f" {100 * event.bytes_read // event.bytes_total}%"

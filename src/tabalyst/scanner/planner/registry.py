@@ -38,6 +38,12 @@ class AnalyzerRegistry:
         self._classes[identifier] = analyzer
         return analyzer
 
+    def runnable(self) -> AnalyzerRegistry:
+        """A registry of the analyzers that have an executor, in the same
+        order: the one a second pass plans with, so that it asks for and
+        reports only what it can run."""
+        return AnalyzerRegistry(analyzer for analyzer in self if analyzer.available)
+
     def __iter__(self) -> Iterator[type[Analyzer]]:
         return iter(self._classes.values())
 

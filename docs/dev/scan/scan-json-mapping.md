@@ -37,10 +37,10 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Report as a superset of the Scan (D18, D20, D21, O29) | Done at 1b: `tabalyst.report` document, the Scan base at its paths plus the `report` block; copies of facts removed (the pages read them through views until 1c) | Done (1b), pages on the base (1c) | 1b, 1c |
 | Common loader (A02, A11) | Done at 1b: `scan_document.load_document` and `load_base` read a Scan or a Report (`scan_reuse.load_scan` still reads Scan documents) | Done | 1b |
 | Reduced Report samples (O27) | Done at 1b: `values.samples` has `kept` and `of`; the Report keeps the 100 values it uses | Done at 1c: `report.value_examples.kept_per_column` (design 19.4b) | 1b, 1c, 5 |
-| Cache identity (CACHE) | Source SHA-256, configuration hash, engine version (`scanner/identity.py`) | Done, extended for the second pass | 7a |
+| Cache identity (CACHE) | Source SHA-256, configuration hash, engine version (`scanner/identity.py`) | Done at 7a: the key of a second-pass result (`secondpass/document.analysis_key`), partial reuse and invalidation (design 20.4) | 7a |
 | Planner (D11) | None | Done at 6a: registry of six analyzers and the planner (`scanner/planner/`, design 20.5); calibrated at 6b: cost model, two memory levels, forced plan, time estimate and confirmation (20.2, 20.3), source guard (20.6) | Done (6a, 6b) | 6a, 6b |
-| Second pass, histograms, medians (D02, D09, D10, D22) | None | Add | 7a |
-| Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Add | 7b |
+| Second pass, histograms, medians (D02, D09, D10, D22) | None | Done at 7a: `scanner/secondpass/` (executor, replay of the first pass's reading, counters and bins with exact edges, quantiles), the document `tabalyst.scan.deep` and its schema, `deep.bins` and `deep.bin_strategy` (design 20.4, 20.7) | 7a |
+| Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Done at 7b: `secondpass/exactset.py` (keys by kind, shared pool, `limited` with a lower bound) and the exact frequencies (`secondpass/frequencies.py`); results `distinct`, `distinct_limited` and `frequencies` of the second-pass document (design 20.8) | 7b |
 | Relationships (D13, D14) | None | Add | 8a, 8b |
 | Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
 | Explore access (D24) | Private DuckDB layer `projects/` | Adapted (1d): reads the Scan base only | 1d |
@@ -75,13 +75,15 @@ the main process and are never summed with worker time.
 | `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Done at 1c: the pages read the base through `report_views` (`ColumnView.field`); HTML identical to 1b; browser check at desktop and mobile |
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity; `generate_scans(refresh=)` and `ScanSuccess.reused` (6a) |
-| `plan_service.py` | None | `plan_document`, `generate_plans`: the planner for the CLI and the API (6a) |
+| `plan_service.py` | None | `plan_document`, `generate_plans`: the planner for the CLI and the API (6a); reads the `deep` settings (7a) |
+| `deep_service.py` | None | `prepare_deep`, `execute_deep`, `generate_deep`, `ConfirmationRequired`: the second pass for the CLI and the API, which never prompts (7a) |
+| `scanner/readers/factory.py`, `scanner/process.py` | Moved out of `scanner/api.py` (`open_reader`, `peak_memory_bytes`) | Shared by the first and the second pass; no change to the loop of the first pass (7a) |
 | `source_guard.py` | None | Plan against Scan, readable source of the recorded size, digest at the end of a second reading (6b) |
-| `cli/confirm.py` | None | The gate of a costly operation: asks in a terminal, refuses elsewhere (6b, wired at 7a) |
+| `cli/confirm.py` | None | The gate of a costly operation: asks in a terminal, refuses elsewhere (6b); wired to `scan --deep` and `--yes` at 7a |
 | `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |
 | `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Adapted (1d): `validate_database` runs `check_scan`; no codec or schema change |
 | `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9, 10a) |
-| `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep`, `--yes` (6b, 7a) |
+| `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep` with `--plan` (6b); `--deep` alone and `--yes`, exit code 3 (7a) |
 | `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
 | `tests/scan/`, `tests/test_reporting.py`, `tests/browser/report.cjs` | Everything above | Contract tests gated by lot |
 

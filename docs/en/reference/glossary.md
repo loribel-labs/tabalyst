@@ -60,6 +60,10 @@ Keep these exactly as written in every language:
 | analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
 | forced plan | plan forcé | A plan that takes every applicable analysis within the hard memory budget, whatever the limits of an automatic choice (`tabalyst scan --plan --deep`) |
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |
+| second pass | second passage | The reading of a source after its scan, to add analyses such as histograms (`tabalyst scan --deep`); its result is the second pass document |
+| second pass document | document de second passage | The `deep.json` or `<stem>.deep.json` written by `tabalyst scan --deep`, beside the scan, which it never changes |
+| exact distinct count | nombre exact de valeurs distinctes | The number of different original values of a field, counted exactly by the second pass when the scan only estimated it; `redundant` is the occurrences beyond the first of each value |
+| histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
 | record | enregistrement | One CSV row, one element of a JSON collection, one object line of a JSONL file or one data row of an Excel table |

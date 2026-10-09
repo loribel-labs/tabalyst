@@ -33,7 +33,8 @@ table at the end of this section shows which options each kind of file uses.
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default |
 | `--counters` | Add the work counters of the samplers to `run.counters` in the scan document (see [Scan format](../../scan/format.md#counters-of-a-run)). The scan always runs again |
 | `--plan` | Show the analyses a second pass could add, what they would cost and which the scan already answers, without running them. Uses the stored scan when it is current, otherwise makes it. Refuses `-o`, `-d`, `--force` and `--counters`. See [Plan the analyses](../../scan/plan.md) |
-| `--deep` | With `--plan`, plan the second pass as if it were forced: every applicable analysis the memory budget holds, with the estimated time and whether a run would ask for a confirmation. Not available without `--plan` yet |
+| `--deep` | Run the second pass: read each file again and add histograms, exact distinct counts and exact frequencies to `deep.json`, beside the scan. It asks first when it is costly. With `--plan`, show the second pass as if it were forced, with the estimated time and whether a run would ask. See [Add histograms and exact medians](../../scan/deep.md) |
+| `-y`, `--yes` | With `--deep`, start a costly second pass without asking. Outside a terminal, a costly second pass does not start without it |
 | `--help` | Show the options and exit |
 
 ### Options for CSV files
@@ -72,6 +73,14 @@ tabalyst scan customers.csv
 tabalyst scan data/*.csv -d scans
 tabalyst scan customers.csv -o scans/customers-2026.scan.json --force
 tabalyst scan orders.json
+```
+
+### Add histograms with a second pass
+
+```console
+tabalyst scan customers.csv --deep
+tabalyst scan data/*.csv --deep --yes
+tabalyst scan customers.csv --deep -o scans/customers.scan.json
 ```
 
 ### Plan the analyses
@@ -131,4 +140,5 @@ tabalyst report scans/*.scan.json --scan -d reports
 | `0` | Every scan was written |
 | `1` | A scan could not be analyzed or written |
 | `2` | Invalid options, or a JSON or Excel source whose collection or table must be chosen |
-| `4` | A source is missing, unreadable or invalid |
+| `3` | With `--deep`, a confirmation was needed and not given: it could not be asked (not a terminal, no `--yes`) or the answer was no. Nothing was started |
+| `4` | A source is missing, unreadable or invalid, or changed after its scan so that a second pass was discarded |

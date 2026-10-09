@@ -409,6 +409,23 @@ exit code 3 elsewhere, wired to the command at lot 7a. `source_guard.py` checks 
 belongs to its Scan and that the source can be read again with the size recorded, and compares
 the digest of the second reading at its end.
 
+`scanner/secondpass/` (lot 7a) is the executor of the second pass (design 20.4, 20.7).
+`executor.run_second_pass` reads the source once through the reader of the format
+(`readers/factory.open_reader`, shared with the first pass), `routing.py` hands each selected
+field to its analyses, `replay.py` repeats the first pass's decisions on a cell (content or
+not, analytical text, number) with the same normalizer, classifier and number detector, and
+`accumulators.py` and `bins.py` count and read quantiles exactly. Each result is checked
+against the Scan before it is kept, and nothing is returned before the digest of the reading
+has been compared with the Scan's. `document.py` and `models.py` are the separate document
+`<stem>.deep.json` (key of each result, partial reuse), `schema.py` its JSON Schema.
+`exactset.py` (lot 7b) is the exact distinct count of the original values: one set per kind of
+key (digit strings by length, texts, JSON integers and numbers), a pool of the bytes the plan
+gave the exact sets of the run, and a field that is stopped with a lower bound when the pool
+cannot hold it (design 20.8); `frequencies.py` is the table of the exact frequencies.
+`deep_service.py` is the boundary for the CLI and the API (`prepare_deep`, `execute_deep`,
+`generate_deep`); it never prompts. The `deep` settings (`DeepSettings` in `config.py`) are
+not part of `ScanConfig`, so they never make a Scan stale.
+
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the
 sample becomes a `bottom_k` and feeds it the priorities it computed once for the

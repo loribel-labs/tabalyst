@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Exact distinct count of a field whose scan stopped tracking it."""
+"""Exact distinct count of a field whose scan stopped tracking it (lot 7b)."""
 
 from __future__ import annotations
 
@@ -22,17 +22,30 @@ from tabalyst.scanner.planner.analyzers.common import (
     result_state,
     uniqueness,
 )
-from tabalyst.scanner.planner.costmodel import NS_PER_CELL
+from tabalyst.scanner.planner.costmodel import (
+    EXACT_SET_FIXED_BYTES,
+    EXACT_SET_STATE_PREFIX,
+    NS_PER_CELL,
+    SET_SMALL_ENTRIES,
+    SET_SMALL_EXTRA_BYTES,
+)
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, Memory, State, Utility
 
 
 class ExactDistinct(Analyzer):
     """The memory is a set of the original values: at least the values the scan
-    proved distinct, about the KMV estimate, at most every value read."""
+    proved distinct, about the KMV estimate, at most every value read.
+
+    ``key`` is the key that the expected values take: ``integer`` (a string of
+    digits or a JSON integer, held as an integer) or ``text``. The firm bound
+    always charges a text, since a value that does not fit the compact key goes
+    to the generic set of texts (design 20.8).
+    """
 
     id: ClassVar[str] = "exact_distinct"
     outputs: ClassVar[tuple[str, ...]] = ("distinct_count", "uniqueness")
+    available: ClassVar[bool] = True
 
     def relevant(self, facts: FieldFacts) -> bool:
         return True
@@ -62,13 +75,17 @@ class ExactDistinct(Analyzer):
         key = str(assessment.parameters["key"])
         shortest, mean, longest = text_length(facts)
         size = Memory(
-            min=lower * set_entry(key, shortest)[0],
-            expected=expected * set_entry(key, mean)[1],
-            max=maximum * set_entry(key, longest)[2],
+            min=EXACT_SET_FIXED_BYTES + lower * set_entry(key, shortest)[0],
+            expected=EXACT_SET_FIXED_BYTES + expected * set_entry(key, mean)[1],
+            max=(
+                EXACT_SET_FIXED_BYTES
+                + maximum * set_entry("text", longest)[2]
+                + min(maximum, SET_SMALL_ENTRIES) * SET_SMALL_EXTRA_BYTES
+            ),
         )
         return costs(
             NS_PER_CELL["distinct_set"],
-            [State(key=f"exact_set:{facts.where}", memory=size), result_state(self.id, facts)],
+            [State(key=f"{EXACT_SET_STATE_PREFIX}{facts.where}", memory=size), result_state(self.id, facts)],
         )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:

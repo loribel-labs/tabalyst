@@ -263,13 +263,14 @@ def test_scan_plan_deep_shows_the_forced_plan_and_the_confirmation_it_would_ask(
     assert "forced" not in plain.stdout
 
 
-def test_deep_is_only_available_with_plan(tmp_path):
+def test_yes_only_goes_with_deep_and_without_plan(tmp_path):
     source = write_text(tmp_path, "t.csv", "t\na\n")
 
-    result = runner.invoke(app, ["scan", str(source), "--deep"])
+    alone = runner.invoke(app, ["scan", str(source), "--plan", "--yes"])
+    planned = runner.invoke(app, ["scan", str(source), "--plan", "--deep", "--yes"])
 
-    assert result.exit_code == 2
-    assert "--plan" in result.output
+    assert alone.exit_code == planned.exit_code == 2
+    assert "--yes" in alone.output and "--yes" in planned.output
 
 
 def test_several_sources_give_one_confirmation_for_all_of_them(tmp_path):

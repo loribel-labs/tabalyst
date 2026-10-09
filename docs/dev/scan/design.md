@@ -70,6 +70,8 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O38 | Exact distinct and exact frequencies | `exact_distinct` counts the distinct values of the original domain (section 21) exactly, with the values read (V) and the redundant occurrences (V minus D). Each value goes to one set chosen by the value alone: strings of up to 18 ASCII digits as integers in a set per length (so `00123` and `123` stay apart), any other string as itself, and the native types of JSON in sets of their own. A value outside the compact key is not converted, it is in the generic set. The sets share the bytes the plan gave them and the field stops, with a lower bound that is never presented as the count, when they cannot hold it (D08). `exact_frequencies` keeps a table keyed by native type and analytical text, always a table: counters of integers would merge `7`, `007` and the integer 7, and a field of at most 1,000 values makes a table smaller than any dense array. Both are `available`; `EXECUTABLE` is derived from the registry. | Accepted 2026-10-09 (maintainer, lot 7b) | 20.2, 20.4, 20.5, 20.6, 20.8 |
+| O37 | Executor of the second pass and its document | `scanner/secondpass/` reads the source once, with the configuration the Scan recorded, replays the first pass's reading of each cell (same normalizer, classifier and number detector) and counts for the two analyzers that have an executor: `numeric_histogram` (exact counters of a small integer domain, or bins with exact edges) and `length_distribution`. Each result is checked against the counts of the Scan and fails alone on a disagreement; nothing is published before the digest of the reading is compared with the Scan's. The result is the separate document `tabalyst.scan.deep` (`<stem>.deep.json`, `deep.json` beside the shared scan), keyed by what each analysis depends on and reused in part. Its settings (`deep.bins`, `deep.bin_strategy`) are outside `ScanConfig`, so changing them never makes a Scan stale. The Python entry is `run_second_pass` and `generate_deep`, not `tabalyst.scan(..., deep=True)`, which would change the return type of the first pass. | Accepted 2026-10-09 (maintainer, lot 7a) | 20.1, 20.2, 20.4, 20.7 |
 | O36 | Costs, budgets and confirmation | The cost model is calibrated on measures (`benchmarks/planner_costs.py`, the baselines of lot 0) and versioned (`cost_model_version`). Two memory levels: an automatic choice stays within 128 MiB, a request or a forced plan up to a hard budget of 512 MiB that nothing lifts (MEM-06). A selection beyond an automatic limit, or whose estimated time may reach 120 s on its upper bound, requires a confirmation; the time is an estimate kept out of the plan. Before a second reading the plan must belong to the Scan, the source must be readable and of the recorded size, and its digest is compared at the end of the reading. | Accepted 2026-10-08 (maintainer, lot 6b) | 20.2, 20.3, 20.6 |
 | O35 | Analyzers and planner | `scanner/planner/` holds a registry of analyzers and a planner that reads a Scan (never a Report, never the source) and returns a deterministic plan: candidates with applicability, costs (memory in three scenarios, CPU class), utility and a decision (`selected`, `already_satisfied`, `rejected`) with a reason code; selection under a firm memory budget; shared states counted once. The planner chooses on merit; `available` says whether an executor exists. Costs and thresholds were provisional until lot 6b (O36). | Accepted 2026-10-08 (maintainer, lot 6a) | 20.5 |
 | O34 | Observations and adaptive normalization | `observations` sits beside `derived` in the base: observations of versioned rules (`informational`, `candidate_anomaly`, `confirmed_issue`) apart from the limits of the scan, with `has_observations`, `has_quality_issues` and `has_limits`. A normalization stage that changed nothing takes the count of its input (`equals`), even after the table was released. | Accepted 2026-10-08 (maintainer, lot 4b) | 10, 18.13 |
@@ -1731,6 +1733,8 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-5 | New section 18.14 and notes in 9.10, 16.4, 18.11, 18.13, 19.3, 19.4b: the report pages read the observations, limits, patterns and row sample of the base through `report_sections` and `report_labels`; the projections `issues`, `preview`, `limits`, `with_issues` and `with_issues_column_count` are removed; `records.preview` and `scan.records.preview` are removed (the start of the row sample replaces them); `report.row_sample` and the reduced row sample of the Report; accuracy vocabulary; display budgets; integers are never rounded by the report. | Lot 5 of the Scan and JSON work: D19, HTML-01 to HTML-09, F01 to F04 and F06. Maintainer decisions of 2026-10-08 (remove the preview, 10 rows per part, remove the stored projections with "not computed" when the block is missing, "Quality issues" in the sense of QUAL-03, light Scan rendering through `report --scan`). |
 | 2026-10-08 | SJ-6a | New section 20.5 and decision O35, notes in 3 and 20.1: the registry of analyzers and the planner (`scanner/planner/`), six built-in analyzers with the rows of the decision tree, the plan (candidates, applicability, costs in three scenarios, utility, decision with a reason code, `already_satisfied` with its `satisfied_by`), selection under a firm memory budget with shared states and one common reading, `plan_analyses`, `plan_document`, `generate_plans` and `tabalyst scan --plan`; `facts_sha256` moves to `scanner/identity.py`. | Lot 6a of the Scan and JSON work: D11, PLAN-01 to PLAN-06, D01 to D03. Maintainer decisions of 2026-10-08 (placement in `scanner/planner/`, planning on merit with an `available` flag, `--plan` reuses or makes the first pass and never runs the second, provisional costs until lot 6b, public page now). |
 | 2026-10-08 | SJ-6b | New decision O36, sections 20.2 and 20.3 rewritten, new 20.6, notes in 20.1 and 20.5: the calibrated cost model (`scanner/planner/costmodel.py`, `cost_model_version`), two memory levels (128 MiB automatic, 512 MiB hard), the forced plan (`plan_analyses(forced=)`, `scan --plan --deep`), `summary.beyond_automatic`, `costs.cell_ns`, `execution.on_limit`, the time estimate kept out of the plan, the confirmation (`plan_second_pass`, `combine_confirmations`, `cli/confirm.py`, exit code 3) and the source guard (`source_guard.py`). | Lot 6b of the Scan and JSON work: COST-01 to COST-05, PASS2-01, PASS2-06, D04, D05, D08, rule R1. Maintainer decisions of 2026-10-08 (two memory levels, forced mode lifts the automatic limits, 120 s on the upper bound, `--yes` and `--deep` execution at lot 7a, exit code 3, no column budget before lot 8a). |
+| 2026-10-09 | SJ-7a | New decision O37, new section 20.7, sections 20.1, 20.3, 20.4 (rewritten), 20.5 and 20.6 updated, notes in 20.2: the executor of the second pass (`scanner/secondpass/`) with the replay of the first pass's reading of a cell, the agreement check with the Scan, exact counters and bins with exact edges, quantiles by one convention (exact or estimated with certain bounds), `deep.bins` and `deep.bin_strategy`, the document `tabalyst.scan.deep` with its key, partial reuse and schema, `tabalyst scan --deep` and `--yes`, exit code 3, the Python entries `run_second_pass`, `prepare_deep`, `execute_deep` and `generate_deep`, CPU classes remeasured on the executor (limits 100, 600 and 2,400 ns), the method `linear_bins` renamed `bins`. | Lot 7a of the Scan and JSON work: D02, D09, D10, D22, PASS2-01 to PASS2-05, HIST-01 to HIST-07, CACHE-01 to CACHE-05, A07, A12, A15, D03, D04, D05 (executor halves), D09 to D11. Maintainer decisions of 2026-10-09 ("oui a tout" to the plan: Python entries, planning for what can run, `deep` settings outside the identity of the Scan, exit code 3 for a refused or declined confirmation, location of the document, shared reader factory, two bound strategies). |
+| 2026-10-09 | SJ-7b | New decision O38, new section 20.8, notes in 20.2, 20.4, 20.5, 20.6 and 20.7: the executor of `exact_distinct` (`secondpass/exactset.py`: one set per kind of key, strings of up to 18 digits as integers by length, a pool of the bytes the plan gave, `limited` with a lower bound when the pool cannot hold it) and of `exact_frequencies` (`secondpass/frequencies.py`, always a table keyed by native type and analytical text; the `dense_counts` method and the dense state shared with the histogram are dropped), the results `distinct`, `distinct_limited` and `frequencies`, the `original` domain of an analysis, the measured model of the exact set (`EXACT_SET_FIXED_BYTES`, `SET_SMALL_*`, `FREQUENCY_KEY_BYTES`, `cost_model_version` 3), `NS_PER_CELL` of the set (400) and the table (120), `EXECUTABLE` derived from the registry. | Lot 7b of the Scan and JSON work: D03, EXACT-01 to EXACT-07, D06, D07, D08 (executor half). Maintainer decisions of 2026-10-09 ("oui a tout" to the plan: keys by kind with integer sets by length for digit strings, a table for the frequencies, a lower bound published when a field is stopped). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2812,15 +2816,26 @@ when it validates a generation and consumes the Scan base only, never a Report
 | Command | Behavior |
 | --- | --- |
 | `tabalyst scan` | First pass only. Never automatic. |
-| `tabalyst scan --deep` | Forces the second pass. With a valid Scan in the cache (source, configuration, engine), one pass; otherwise the first pass, then the second if the planner keeps analyses: at most two passes. Writes `<stem>.deep.json`. |
+| `tabalyst scan --deep` | Forces the second pass (lot 7a). With a valid Scan in the cache (source, configuration, engine), one pass; otherwise the first pass, then the second if the planner keeps analyses: at most two passes. It plans as if forced, with the analyzers that have an executor, asks first when 20.3 says so (`--yes` skips the question) and writes `<stem>.deep.json` (`deep.json` beside the shared `scan.json`; beside the Scan written with `--output` or `--output-dir`). It names the second pass before it starts and what it did when it ends. |
 | `tabalyst scan --plan` | Shows the plan without running it (20.5): from the current stored scan, or after the first pass; never the second pass. It also shows the estimated time and whether a run would ask for a confirmation. |
-| `tabalyst scan --plan --deep` | Plans the second pass as if forced (20.2): every applicable analysis the hard memory budget holds. `--deep` alone is refused until the second pass runs (lot 7a). |
+| `tabalyst scan --plan --deep` | Plans the second pass as if forced (20.2): every applicable analysis the hard memory budget holds, on merit, including the analyses that have no executor yet, which it says cannot run in this version. |
 | `tabalyst report` | The planner decides whether a second pass has a benefit and a low cost, and what it holds. It names what it added or left out, and why. |
 | `tabalyst report --deep` | Forces the second pass. |
 
-The Python API is `tabalyst.scan(..., deep=True)`; it never prompts.
+The Python API never prompts (O37): `tabalyst.run_second_pass(scan, source,
+plan, previous=)` runs a plan and returns the document, `prepare_deep` scans or
+reuses the Scans and plans the second pass of a batch with its confirmation,
+`execute_deep(preparation, confirmed=)` runs it and raises
+`ConfirmationRequired` when a confirmation is needed and was not given, and
+`generate_deep` does both. The line "`tabalyst.scan(..., deep=True)`" of the
+first drafts is not kept: `scan` returns the `ScanResult` of the first pass and
+its signature and speed are not touched by the second.
+
 `deep.mode` (`auto`, `off`, `force`) is a configuration setting for scripts
-and CI, with no command-line option to skip the second pass.
+and CI, with no command-line option to skip the second pass; it arrives with
+the chain of the Report (lot 7c). The section `deep` of a configuration file
+holds `bins` and `bin_strategy` (20.7) and is validated with the other
+top-level settings.
 
 ### 20.2 Deterministic budgets and the cost model
 
@@ -2852,29 +2867,50 @@ analyses (lot 8a, COST-05).
 
 | Structure | Model | Measured |
 | --- | --- | --- |
-| Text in a set | 41 bytes + characters + a slot of 27 (minimum), 37 (expected) or 80 bytes (maximum, with the old and the new table of a growing set) | 82 to 91 bytes for 8 characters, 139 to 147 for 64, peak up to 104 for 12 |
+| Text in a set | 41 bytes + characters + a slot of 27 (minimum), 37 (expected) or 80 bytes (maximum, with the old and the new table of a growing set), plus 27 bytes for each of the first 50,000 entries in the firm bound (a small set grows to four times its fill: up to 107 bytes of table an entry right after a growth) | 82 to 91 bytes for 8 characters, 139 to 147 for 64, peak up to 104 for 12 |
 | Integer in a set | 32 bytes + the same slots | 66 to 74 bytes, peak 88 |
 | Entry of a table of counts | 90 bytes + the key | 98 to 101 for a key of 10 characters |
+| Key of the table of frequencies (`FREQUENCY_KEY_BYTES`) | 56 bytes more than the text: the tuple of the native type and the analytical text | |
+| Empty containers of an exact set (`EXACT_SET_FIXED_BYTES`) | 4,096 bytes: three sets and up to 18 sets of digits of one length, 216 bytes each | |
 | Compiled matcher | 5,120 bytes | 2.2 to 4.4 KB |
 | Dense counter | 8 bytes a slot | 8 |
 | Reading the source once (`PARSER_RESERVE_BYTES`) | 24 MiB | 7 to 8 MB, 19 MB for texts of up to 8,000 characters |
+| Cells remembered by the second pass for a field (`REPLAY_MEMO_ENTRIES` x `REPLAY_ENTRY_BYTES`) | 1,024 strings at 250 bytes | under 1 MB a field, 2 MB for 22 text fields (lot 7a) |
+| Exact edge of a bin and its float (`EDGE_BYTES`) | 280 bytes | fractions of two integers |
 
-The exact set of lot 7b replaces the entry of the set with a measure of its own;
-until then a field of one million 12-character identifiers is charged 133 MB of
-firm bound (87 MB measured at rest).
+The exact set of lot 7b is measured on its own (`planner_costs.py exact`, one million
+distinct identifiers): 61.5 to 65.5 bytes an entry for strings of 8 to 12 digits (a set of
+integers per length), 82.6 to 86.6 for 8 to 12 characters of letters and digits, peak 71 and
+87; the bytes the executor charges to its pool are within 7% of the bytes held (65.6, 82.6
+and 86.6). A field of one million 12-character identifiers is charged 133 MB of firm bound
+(87 MB measured at rest, 70 for digits), and a run of four such fields on the 1 M x 34
+baseline held a peak of 202 MB of traced memory for a firm bound of 417 MB.
 
-**CPU (COST-02 to COST-04).** The reading (parsing, normalization) is a common
-cost, counted once and classed by its cells: `very_low` up to 1 million cells,
-`low` up to 10 million, `moderate` up to 100 million, `high` above. Each analysis
-adds nanoseconds to every cell it reads (`NS_PER_CELL`); its class follows from
-them: `very_low` up to 50 ns, `low` up to 200, `moderate` up to 800, `high`
-above. They are measures of proxies on values already parsed (a dense counter 15 ns, a
-length 22, a bin 42, a period 35, a table of counts 43, a set of unique texts 127
-to 154, a compiled matcher 98 per candidate, loop overhead removed, rounded up),
-marked as such: the executor of lot 7a replaces them with its own.
-Matching a value tries each candidate of a pattern until one matches, so its
-cost grows with their number (one or two candidates are `low`, three to eight
-`moderate`, nine or more `high`).
+**CPU (COST-02 to COST-04).** The reading (parsing) is a common cost, counted
+once and classed by its cells: `very_low` up to 1 million cells, `low` up to 10
+million, `moderate` up to 100 million, `high` above. Each analysis adds
+nanoseconds to every cell it reads (`NS_PER_CELL`); its class follows from them.
+Since lot 7a the limits are `very_low` up to 100 ns, `low` up to 600,
+`moderate` up to 2,400 and `high` above: the first pass spends about 600 ns on a
+cell of the baseline (20.6 s for 34 million cells), so `low` is an analysis that
+costs no more than that and `moderate` one that costs up to four times as much.
+The earlier limits (50, 200, 800) were set on proxies of values already parsed;
+the executor showed that counting a cell after the work that the first pass does
+on it costs several hundred nanoseconds.
+
+The five analyses the executor runs are costed with its measures
+(`benchmarks/planner_costs.py executor`, 1 million rows, rounded up): a counter
+of integers 900 ns (841), a bin of a decimal 1,800 ns (1,661), a length 250
+ns (207), a key of an exact set 400 ns (373, 317 on another file) and an entry of the
+table of frequencies 120 ns (108). They include the normalization and the number detector, which the
+executor runs once per distinct string of a batch, as the first pass does, and
+which a length does not need for its number. The other analyses keep the
+proxies (a period 35, a compiled matcher 98 per candidate, loop overhead
+removed, rounded up),
+which do not include the reading of the cell and are replaced when their
+executor exists (lot 7c). Matching a value tries each candidate of a
+pattern until one matches, so its cost grows with their number (one or two
+candidates are `low`, three to eight `moderate`, nine or more `high`).
 
 **Time (COST-03).** `estimate_time(plan, scan)` gives a range, outside the plan:
 the reading costs what the first pass spent reading (`run.timings.reading`, which
@@ -2915,17 +2951,67 @@ files are each under the threshold can be over it together. The command side is
 `cli/confirm.py` (`confirm_second_pass`): proceed without a word when nothing
 needs confirming or with `--yes`; in a terminal (input and error output) show the
 estimate and ask, the default answer being no; elsewhere refuse with
-`EXIT_CONFIRMATION_REQUIRED` (3). `--yes` and the command that runs the second
-pass arrive with lot 7a, which wires the gate; `scan --plan` shows what a run
-would ask.
+`EXIT_CONFIRMATION_REQUIRED` (3). Since lot 7a the gate is wired: `tabalyst
+scan --deep` plans, asks once for the whole batch (`prepare_deep` combines the
+confirmations) and runs; `--yes` skips the question. Exit code 3 means that a
+confirmation was needed and not given, whether it could not be asked (not a
+terminal, no `--yes`) or the answer was no: nothing was started, and the
+Scans made for the planning stay. `scan --plan --deep` shows what a run would
+ask. The confirmation is computed on the analyses the executor can run, so it
+never asks about a set that would not be built.
 
-### 20.4 Second-pass document
+### 20.4 Second-pass document (lot 7a, D22, CACHE-01 to CACHE-05, O37)
 
 `<stem>.deep.json` is separate and written atomically; the Scan is not
-rewritten. It carries the identity of its base (19.5), the plan, the execution
-and the analyses, each with its own envelope. A change of source, schema or
-configuration invalidates it (A09). A Report embeds what it needs under
-`analyses`.
+rewritten (A12). It is the format `tabalyst.scan.deep`, version `0.2.0`,
+revision 1, with its own JSON Schema (`tabalyst.scan.deep.schema.json`) and its
+own revision history. It is placed beside the Scan it stands on:
+`deep.json` next to the shared `scan.json`, `<stem>.deep.json` next to
+`<stem>.scan.json` (and `<name>.deep.json` next to any other scan file).
+
+| Member | Content |
+| --- | --- |
+| `format`, `format_version`, `format_revision` | The identity of the format. |
+| `status` | `complete` when every analysis is complete, `partial` otherwise. |
+| `base` | The identity of the Scan (19.5): format revision, engine version, source and configuration digests, `facts_sha256`. |
+| `settings`, `settings_sha256` | The `deep` settings of the run. |
+| `plan` | The plan that was run, whole (20.5), with its `plan_id`. |
+| `run` | `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `other`), `workers` (1), `peak_memory_bytes`, `source_read`, `source_verified` (the digest of the reading was compared with the Scan's, 20.6), `records_read`, `cells_read` (the cells handed to the analyses), `executed`, `reused`, `skipped`. It describes the latest run only. |
+| `analyses` | One entry per selected analysis, in plan order. |
+
+An entry has the `id` of its candidate, the analyzer and its version, the
+dataset, field and `display`, the `method` and `parameters`, the `domain`
+(`analytical`: the values after the normalization of section 10), its `key`, a
+`status` (`complete`, `limited`, `failed`, `skipped`), a `reason` and a `detail`
+(counts and the type of an exception, never a value of the data) and its
+`result` (20.7). `skipped` is an analysis selected that has no executor
+(`not_available`); `limited` is an analysis that met a limit and says what it
+holds (D08): the exact distinct count whose sets cannot be held (20.8). The
+histograms never meet one, their states being of fixed size.
+
+**Key (CACHE-02).** The SHA-256 of the identity of the Scan, the analyzer and its
+version, the dataset and field, the method with its effective parameters (the
+bins and the way their bounds are chosen are among them), and the domain of the
+values. Budgets, costs and the order of the analyses are not: a result computed
+under another budget is still the result. A change of the `deep` settings that a
+method uses changes its key, so only that analysis is computed again.
+
+**Reuse (CACHE-04, A15).** A run keeps the `complete` entries of the stored
+document that have the key it would give, computes the others (missing, `failed`
+or with another key) and writes the whole. When nothing is left to compute the
+source is not read, no digest is checked and the file is not rewritten if its plan
+and settings are those of the run. An entry that was `failed` is tried again: a
+failure is not proof of anything.
+
+**Invalidation (A09, CACHE-05).** A document of another source, configuration,
+engine version or `facts_sha256` has another `base`, so none of its entries has
+the key and all are computed again; a document of another format, revision or
+shape is ignored as if it were absent. There is no migration. A change of
+presentation, of the number of examples shown or of the order of the charts is not
+an input of any analysis, so it never causes a second reading (CACHE-03); what the
+document lacks for a rendering is a real request for an analysis.
+
+A Report embeds what it needs under `analyses` (lot 7c).
 
 ### 20.5 Analyzers and the plan (lot 6a, D11, PLAN-01 to PLAN-06, O35)
 
@@ -2933,7 +3019,7 @@ The planner says what is useful and possible to add to a finished Scan; the Scan
 says what was observed. It lives in `scanner/planner/` and reads a `ScanResult`
 in memory or from the cache, never a Report (19.4: `plan_document` refuses one
 whose samples are reduced) and never the source. It runs nothing and writes
-nothing. The second pass (lot 7a) gives the analyzers an executor.
+nothing. The second pass (lot 7a, 20.7) gives two of them an executor.
 
 ```text
 scanner/planner/
@@ -2950,7 +3036,10 @@ scanner/planner/
 ```
 
 **Analyzer (PLAN-02).** A class with an `id`, a `version`, its `outputs`,
-`available` (false until an executor exists), `deterministic` and `reusable`,
+`available` (false until an executor exists; true for `numeric_histogram` and
+`length_distribution` since lot 7a, and for `exact_distinct` and
+`exact_frequencies` since lot 7b), `deterministic` and `reusable`, built with the
+`deep` settings that parametrize its methods,
 and four methods: `relevant(facts)` (does the analyzer concern this kind of
 field at all, so a plan has no row for a text field and a histogram),
 `assess(facts)` (`applicable`, `satisfied` or `not_applicable`, with reasons, a
@@ -2963,10 +3052,10 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 
 | Analyzer | Applies to | Already satisfied when | Not applicable when | Method |
 | --- | --- | --- | --- | --- |
-| `exact_frequencies` | any field | `frequencies` complete and not truncated (`counts_complete`), or every distinct original value is listed with its exact count in the samples (`counts_in_samples`) | no values, exposure, more than 1,000 distinct values or a released table (`high_cardinality`), a frequency measure that is off or failed (`measure_unavailable`) | `dense_counts` for an integer domain of at most 65,536 values, else `hash_table` |
-| `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (exact median, mode, quantiles from one state) or `linear_bins` (100) |
+| `exact_frequencies` | any field | `frequencies` complete and not truncated (`counts_complete`), or every distinct original value is listed with its exact count in the samples (`counts_in_samples`) | no values, exposure, more than 1,000 distinct values or a released table (`high_cardinality`), a frequency measure that is off or failed (`measure_unavailable`) | `hash_table`: a table keyed by native type and analytical text (lot 7b) |
+| `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (an integer field whose minimum and maximum are integers, at most 65,536 integers apart: exact median, mode, quantiles from one state) or `bins` (`deep.bins`, 100 by default, with the `strategy` of `deep.bin_strategy`) |
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
-| `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` or `text` |
+| `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher`; reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `temporal_distribution` | date, mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` |
 
@@ -3016,15 +3105,14 @@ named in `summary.beyond_automatic`.
 three scenarios (`min`, `expected`, `max`); `max` is a firm bound taken from
 the counts of the Scan (an exact distinct set cannot exceed the number of
 values read) and is what the budget is charged. A state used by several
-candidates (the dense counters of an integer domain are shared by the
-frequencies and the histogram) is counted once, at its largest. The reading
+candidates (same key) is counted once, at its largest; the dense counters of an
+integer domain are shared by the histogram and the reading of the field. The reading
 (parsing) is a common cost, `PARSER_RESERVE_BYTES`, counted once and only when a
 selected analysis `requires_source` (COST-01). The plan's `summary.memory` is
 that total. These are payloads of the structures, not process memory.
 
 **Values.** The sizes, the budgets, the CPU classes and the utility scores are the
-calibrated ones of 20.2 (lot 6b); the utility scores stay heuristic. Lot 7b replaces
-the entry size of the exact set with a measure.
+calibrated ones of 20.2 (lots 6b and 7b); the utility scores stay heuristic.
 
 **Plan.** `AnalysisPlan` has `planner` and `planner_version`, `utility_version`, `cost_model_version`,
 a `plan_id` (the SHA-256 of the rest of the plan), `base` (the identity of the
@@ -3034,11 +3122,14 @@ candidates each matched), `budgets`, `common` (the shared reading: whether it is
 needed, its cells, its memory and its CPU class), `summary` (counts by decision,
 `second_pass_required`, `executable`, memory, `beyond_automatic`) and `candidates`. `executable` is
 false while a selected analyzer is not `available`: the plan says what a second
-pass would do, and the second pass refuses what cannot run. A plan holds no
-date, no measured time and no value of the data; the same Scan, request and
-budgets give the same plan on any machine, with any number of workers. The
-plan is not a document of its own yet: lot 7a writes it into the second-pass
-document (20.4) and gives it a schema and a changelog.
+pass would do on merit. `tabalyst scan --deep` plans with `default_registry().runnable()`,
+the analyzers that have an executor, so that it asks for and reports only what it can
+run; `scan --plan --deep` keeps the whole registry and says how many of the selected
+analyses cannot run in this version. A plan holds no
+date, no measured time and no value of the data; the same Scan, request, budgets
+and `deep` settings give the same plan on any machine, with any number of workers.
+The plan is a member of the second-pass document (20.4), which has its schema and its
+changelog.
 
 **Entry points.** `plan_analyses(scan, requests=, automatic=, budgets=,
 registry=)`, `plan_document(path_or_dict, ...)` (the loader of 19.2 and
@@ -3050,8 +3141,8 @@ and refuses `--output`, `--output-dir`, `--force` and `--counters`. The text goe
 to standard output, the scan outcome to standard error. The Python API raises
 `ConfigurationError` for a request naming an unknown analyzer, dataset or field.
 
-**Not in this lot.** The executor (7a to 7c), the command that runs the second pass
-with `--yes` (7a); pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
+**Not yet.** The executors of `pattern_validation` and `temporal_distribution` (7c);
+pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
 
 ### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
 
@@ -3082,8 +3173,190 @@ D08 (a limit met by an exact distinct count) has two halves. The plan half is in
 force: a set whose firm bound does not fit the budget is rejected with `budget`
 and never selected, and `execution.on_limit` is `limited`. The executor half, a
 `limited` or `failed` result with its reason that never presents the count of a
-prefix as exact, is tested with the exact set (lot 7b); D04 and D05 likewise get
-their executor tests at lot 7a.
+prefix as exact, is tested since lot 7b with the exact set
+(`test_contract_exact_distinct.py`, 20.8). The executor halves of D04
+and D05 are tested since lot 7a (`test_contract_second_pass.py`): a source rewritten
+with the same size between the planning and the reading raises `StaleSource`, its
+results are discarded and no document is written, an existing one staying as it is; a
+source that is gone raises `SourceNotReadable` and leaves the Scan, the plan and the
+directory as they were. The executor closes the pass with
+`guard.finish(summary.sha256, summary.bytes_read)` of the reader, which hashes the
+whole file (`HashingStream.drain`).
+
+### 20.7 The executor and the histograms (lot 7a, D09, D10, PASS2-01 to PASS2-05, HIST-01 to HIST-07, O37)
+
+`scanner/secondpass/` runs the selected analyses that have an executor:
+
+```text
+scanner/secondpass/
+|-- models.py       DeepResult, AnalysisResult and the results (20.4)
+|-- document.py     analysis_key, deep_path_for, deep_document, load_deep
+|-- executor.py     run_second_pass, pending_candidates
+|-- routing.py      FieldRoute, Router: one reading, each field to its analyses
+|-- replay.py       CellReader: the first pass's reading of a cell
+|-- accumulators.py DenseAccumulator, BinAccumulator, LengthAccumulator
+|-- exactset.py     ExactPool, ExactSet: the exact distinct count (20.8)
+|-- frequencies.py  FrequencyAccumulator: the exact frequencies (20.8)
+|-- boundaries.py   place_edges: where the edges of a histogram go
+|-- bins.py         BinEdges, quantiles, ranks
+`-- schema.py       the JSON Schema of the document
+```
+
+**One reading (PASS2-01 to PASS2-03).** `run_second_pass(scan, source, plan, ...)`
+checks that the plan belongs to the Scan and that the source is there with the
+recorded size (20.6), opens the reader of the format with the configuration the
+Scan recorded (`readers/factory.open_reader`, which the first pass uses too),
+hands each record to the fields that an analysis needs and, at the end, compares
+the digest of the bytes read with the Scan's. It returns the document or raises;
+it writes nothing, and a failure after the reading publishes nothing. A table is
+read column by column from the batches, a JSON or Excel record by the path of its
+observations. Every record is parsed once; a CSV file is still scanned to its
+separators. The executor runs in one process: the results do not depend on the
+workers of the first pass (tested), and the cost model assumes one.
+
+**Replay (PASS2-02).** `CellReader` decides for a raw string what the first pass
+decided: whether it is content (not empty, blank or a null marker of the
+configuration), what its analytical text is (NFC, trim and collapsed whitespace,
+with the shortcut the first pass takes for printable strings) and, for a numeric
+analysis, which number the number detector gives it (`matched`, within its input
+limit; an ambiguous value is not a number). A JSON integer or number is a number
+of the text the reader kept. A field remembers the cells of its first 1,024 raw
+strings across batches, and counts the distinct strings of each batch once.
+
+**Agreement with the Scan.** An analysis ends with a check: the numeric values it
+counted, their minimum and maximum, or the content strings, must be those the Scan
+counted. A disagreement is a `failed` entry with the reason `scan_mismatch` and the
+counts, never a result; so is a field whose values the executor cannot read as the
+Scan did (a decimal in a dense integer domain, `non_integral_value`). An analysis
+that raises stops receiving values and fails alone with `analysis_error` and the type
+of the exception. The other analyses and the digest check go on.
+
+**Dense counters.** An integer field whose minimum and maximum are written as
+integers, at most 65,536 apart, gets a counter per integer (`array('q')`). The
+result lists the integers that occur with their counts, the distinct count, every
+mode (ten at most, `modes_truncated`), the median and the quantiles, all `exact`.
+
+**Bins (HIST-01 to HIST-06).** Any other numeric field gets `bins` bins (100 by
+default; 2 to 1,000) between the exact minimum and maximum of the Scan. The edges
+are exact fractions. Bin `i` is `[edges[i], edges[i + 1])` and the last bin is closed
+on the right, so the maximum has a bin; a range of one value has a single bin and
+no division. A number is placed by comparing its float with the floats of the
+edges, and with the exact fractions only when the two floats are equal: rounding to
+the nearest float is monotonic, so a strictly greater float proves a greater number.
+The placement is therefore exact for any magnitude, integers beyond float64
+included. When the minimum or the maximum is written as a float64 (the rounding of a
+decimal number, which may be on either side of it), the edges are placed on the
+neighbouring floats, so that no value is outside; `outside` counts what is, and
+anything but zero is a `scan_mismatch`. The counts per bin are exact. The document
+writes the edges as numbers (the minimum and maximum as the Scan wrote them); the
+classification used the exact ones, so an edge that float64 cannot represent may be
+rounded in the file.
+
+**Quantiles.** The quantile of level `q` of `n` values is the linear interpolation
+between the values at ranks `floor((n - 1) q)` and `ceil((n - 1) q)`; for the median
+of an even count it is the mean of the two central values (HIST-07). The document
+gives the levels 5%, 25%, 50% (also `median`), 75% and 95%. With counters they are
+`exact`. Read from bins they are `estimated`: each rank is placed at the middle of its
+place in its bin (the bin is taken as uniform) and the bounds `lower` and `upper` are
+those of the bins that hold the two ranks, tightened by the minimum and maximum when
+the Scan wrote them as integers. The true quantile is always within them (tested
+against an exhaustive oracle). The estimate never replaces the median of the Scan: a
+Scan whose table was released still says `limited` (A07).
+
+**`bin_strategy`.** `linear` (default) is the above. `sample_quantile` places the
+inner edges at the quantiles of what the Scan kept of the field, for a very skewed
+distribution: the numbers of the row sample (the shape of the occurrences), when it
+holds at least twice the number of bins, else those of the bottom-k sample (the
+distinct values), else, with the reason `sample_too_small` or
+`sample_without_spread`, it falls back to `linear`. The outer bounds are the exact
+ones whatever the strategy, and the counts are those of the whole source. Equal
+sample values merge their edges, so there may be fewer bins than asked for. The result
+names `strategy`, `requested_strategy`, `bounds_source` (`range`, `rows` or
+`distinct`) and the `reason` of a fallback.
+
+**Lengths.** `length_distribution` counts the length, in characters, of the analytical
+text of every content string, as `string_lengths` does, and gives the same block
+(`count`, `min_length`, `max_length`, `mean_length`, `median_length` and the
+histogram). It applies when the Scan's histogram is limited or off; the check is the
+number of content strings.
+
+**Cost.** Measured on the baseline (`benchmarks/planner_costs.py executor`, 1 million
+rows by 34 columns): 841 ns a cell for counters of integers, 1,661 for bins of
+decimals, 207 for lengths; the shared reading 3.1 to 3.4 s; the memory held at the
+peak 8.3 to 9.4 MB with 90,909 or 1,000,000 rows, so it does not grow with the number
+of records (PERF-05). Forced on the baseline file, the run takes 7.6 s for four
+analyses (estimated 4 to 11 s). The costs of the other analyzers stay proxies (20.2).
+
+### 20.8 The exact set and the exact frequencies (lot 7b, D06 to D08, EXACT-01 to EXACT-07, O38)
+
+**The original domain (EXACT-01, EXACT-03).** The distinct count of the Scan is taken
+over the original values (section 21): the raw string of a cell, for the values that
+are content (not empty, blank or a null marker), and `(native type, value)` for the
+other types of JSON. `exact_distinct` repeats that equality, with the classifier of the
+first pass and no normalization, number detector or analytical text: a string is
+equal to another only if the two are the same characters, so `00123`, `123` and
+`123 ` are three values, `Ab` and `AB` two, and the string `"123"` is not the integer
+123. The count of a CSV file never goes through `CellReader.cells`.
+
+**Keys (EXACT-02 to EXACT-05).** A value is put in one set, chosen by the value alone
+and never by what the other values look like, and the sets hold different kinds of key,
+so no value is converted afterwards and none can be merged with another:
+
+| Value | Set | Key |
+| --- | --- | --- |
+| A string of 1 to 18 ASCII digits | one set per length | the integer of the digits (the length is the other half of the key, so leading zeros count) |
+| Any other string (letters, blanks, separators, Unicode, more than 18 digits, a text far longer than its analytical text) | the generic set | the string |
+| A JSON integer | integers | the integer |
+| A JSON number | numbers | its canonical text |
+| A JSON boolean | two flags | the value |
+
+Python without a native array library has no key smaller than an integer or a string
+that is still fast: the measures of lot 7b put a set of the integers of 8 to 12 digits
+at 66 bytes an entry against 87 for a set of the strings of 12 characters, and a
+sentinel-packed ASCII integer at 74 bytes for 170 ns more, and an open-addressing table
+in `array` objects was 200 times slower. Only the digits are encoded. D is the sum of
+the sizes of the sets, V the sum of the counts, `redundant` is V minus D (the
+occurrences beyond the first of each value, not the number of values that repeat) and
+`unique` is D equal to V in this domain (EXACT-07).
+
+**Memory (D08, MEM-06, EXACT-05).** The plan charges an `exact_set:` state to each
+field: the firm bound is a text of the longest length at the largest slot, plus 27
+bytes an entry for the first 50,000 (a small set grows to four times its fill) and 4 KB
+for the empty containers. The executor builds a pool with the sum of those bounds, and
+every set draws from it: after each batch (every 4,096 native values) it charges the
+bytes it holds (the table of each set as Python sizes it, and the size of each key it
+added). The first set that makes the pool exceed its total is stopped: its sets are
+freed, the entry is `limited` with the reason `memory_budget` and a result of kind
+`distinct_limited` that holds `values_read` and a `lower_bound` (the distinct values
+proven at that point). The count of a prefix is never `distinct`. The other analyses of
+the pass go on, and the digest of the reading is still compared. The bound can be
+exceeded by a value the plan could not see, whose raw text is much longer than its
+analytical text (blanks around it), which is the case that is reported rather than
+undercounted.
+
+**Frequencies.** `exact_frequencies` applies to a field with a complete table of at most
+1,000 values whose listing in the Scan is cut. The table is keyed by `(native type,
+analytical text)`, as the Scan keys its own, and sorted by decreasing count, then text,
+then type. It is checked against the Scan: the number of values, the number of distinct
+values, and that the entries the Scan lists are the head of the table. A source with
+more distinct values than the Scan found stops adding new ones and fails with
+`scan_mismatch`. The dense counters of the histogram are not used: they merge `7`,
+`007` and the integer 7, which are three values here, and a table of at most 1,000
+entries (about 210 KB at the firm bound) is smaller than an array of 65,536 counters (512 KB).
+The Scan lists every distinct value with its exact count in its samples when it has no
+more than K of them (`max_samples`, 10,000 by default), so the analyzer applies when
+the K of the Scan is lower than the number of values of the field.
+
+**Cost.** Measured on the baseline (`planner_costs.py executor`, 1 million rows): 373 ns a cell for
+the exact set of four fields of one million values and 317 for one on another file, 108 for
+the table of four fields of 300 to 900 values, so both are CPU class `low`. A forced
+`tabalyst scan --deep --yes` of the combined file runs 8 analyses (two counters, two bins,
+four exact sets) in 10.6 s (estimated 5 to 14 s; reading 3.6 s) and finds the exact
+number of distinct values of the identifiers (1,000,000 and 1,000,000, against a KMV
+estimate of 1,000,000 and 984,843), of the postal code (130,082 against 131,022) and of
+the claim amount (115,667 against 115,800); the plan asks first, as the sets go beyond
+the 128 MiB of an automatic choice (`memory_over_automatic`), and the process peak is 438
+MB for a firm bound of 443 MB. Run again, nothing is read: 0.9 s.
 
 ## 21. Original value domain (O32)
 

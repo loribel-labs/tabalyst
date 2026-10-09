@@ -647,3 +647,129 @@ the planner's own cost is unchanged by the lot and stays linear in the number of
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL
 parcours (hash, event pass, Scan, report with a stored scan) are in
 `docs/dev/inspect/benchmarks.md` (lot JI-8).
+
+## Second pass (lot 7a)
+
+The first pass is untouched: the lot moves `_open_reader` and `_peak_memory_bytes` out of
+`scanner/api.py` (to `readers/factory.py` and `scanner/process.py`) without changing the
+loop, so the Scan is not compared with the earlier commit. What is measured is the
+executor, with `benchmarks/planner_costs.py executor` (best of two or three runs, results
+under `D:/GIT.test/tabalyst/artifacts/`), and a real `tabalyst scan --deep`.
+
+```powershell
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py executor D:\GIT.test\tabalyst\csv\insurance-combined.csv --repeat 2
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py executor D:\GIT.test\tabalyst\csv\insurance-ontario.csv --repeat 3
+$env:TABALYST_HOME = "D:\GIT.test\tabalyst\home-7a-bench"
+.\.venv\Scripts\python.exe -m tabalyst scan D:\GIT.test\tabalyst\csv\insurance-combined.csv --deep -v
+```
+
+**Cost of a cell** (the analysis time of the run divided by the cells handed to the
+analyses; the reading, which is shared, is separate). `insurance-combined.csv`, 1,000,000
+rows by 34 columns, 34 million cells:
+
+| Analysis | Cells handled | Reading | Analysis | Per cell | Model (firm bytes) | Peak traced |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Counters of integers (2 columns) | 2,000,000 | 3.44 s | 1.68 s | 841 ns | 0.60 MB | 8.3 MB |
+| Bins of decimals (2 columns) | 2,000,000 | 3.12 s | 3.32 s | 1,661 ns | 0.57 MB | 9.4 MB |
+| Lengths (22 text columns, Scan's histogram turned off) | 22,000,000 | 3.28 s | 4.54 s | 207 ns | 5.83 MB | 9.2 MB |
+
+`insurance-ontario.csv` (90,909 rows) gives 666 and 1,658 ns for counters and bins, and 8.2
+and 9.3 MB at the peak: the memory held does not depend on the number of records (PERF-05).
+It is the reader (7 to 8 MB, 24 MiB reserved by the model) and the states, far under their
+firm bounds. The cost of a counter or a bin is mostly what is done to a cell before it is
+counted, the same as in the first pass (profile of the bins on the Ontario file: the reader 36%,
+the replay of the cells 49%, of which the number detector 23%, the counting and the
+placement in a bin 6%); lengths are cheaper
+because they need no number and the strings of a text column repeat. The reading phase of
+the second pass (3.1 to 3.4 s) is 0.72 to 0.79 of the `run.timings.reading` of the first
+(4.3 s), above the 0.6 that the estimate takes as its lowest share.
+
+**The constants.** `NS_PER_CELL` takes 900 ns for a counter of integers, 1,800 for a bin and
+250 for a length (rounded up from 841, 1,661 and 207), where lot 6b had proxies of 20, 50 and
+30 on values already parsed. The CPU class limits move from 50, 200 and 800 ns to 100, 600 and
+2,400 (the first pass spends about 600 ns on a cell), so a counter and a bin are `moderate` and
+a length is `low`; with the old limits a bin of a decimal would have been `high` and never
+chosen by the Report. `COST_MODEL_VERSION` is 2. The memory model adds the cells remembered per
+field (1,024 strings at 250 bytes) and 280 bytes per edge of a bin; it stays far over what the
+runs held (conservative by a factor of 3 or more).
+
+**A real run** (`tabalyst scan --deep` on the combined file, Scan stored by the first call):
+
+| Run | Result |
+| --- | --- |
+| Forced, with what the executor can run | 4 analyses (two counters, two bins), 4,000,000 cells, 7.6 s (reading 3.3 s, analysis 4.3 s), estimated 4 to 11 s; `deep.json` of 317 KB; no confirmation |
+| Again | 1.0 s in all: every result is stored, the source is not read, the file is not rewritten |
+| `scan --plan --deep` (all analyzers) | 33 selected, 54 to 417 MiB, estimated 5 to 14 s, confirmation `memory_over_automatic`; 29 of them cannot run yet |
+
+Planner on the finished Scan (best of three): automatic 11 ms, 30 selected, 31 to 40 MiB,
+estimated 4.7 to 12.8 s; forced for the executor's analyzers 9 ms, 4 selected, 24 to 25 MiB,
+estimated 4.3 to 11.3 s, no confirmation. The medians of the two integer columns are exact
+(5,002 and 500); those of the two decimal columns are estimates with bounds.
+
+## Exact distinct and exact frequencies (lot 7b)
+
+The first pass is untouched (`git diff --stat` of the lot has nothing in `scanner/` but
+`planner/` and `secondpass/`), so the Scan is not compared with an earlier commit. What is
+measured is the exact set, with `benchmarks/planner_costs.py` (`exact` and `executor`,
+results under `D:/GIT.test/tabalyst/artifacts/`), and a real `tabalyst scan --deep`.
+
+```powershell
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py exact --entries 1000000
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py executor D:\GIT.test\tabalyst\csv\insurance-combined.csv --repeat 2
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py executor D:\GIT.test\tabalyst\csv\exact-table-1m.csv --repeat 2 --max-samples 100
+$env:TABALYST_HOME = "D:\GIT.test\tabalyst\home-7b-bench"
+.\.venv\Scripts\python.exe -m tabalyst scan D:\GIT.test\tabalyst\csv\insurance-combined.csv --deep --yes -v
+```
+
+**Which key.** Candidates measured on one million distinct identifiers (a script outside the
+repository, `tracemalloc`, then the same without it for the time of a batch of 4,096 distinct
+values):
+
+| Representation | Bytes an entry (at rest) | ns a distinct value |
+| --- | ---: | ---: |
+| set of strings of 12 characters (key 53 + slot 34) | about 87 | 69 |
+| set of integers, one set per length (strings of digits) | 66 | 237 (with `isdigit`, `isascii` and the length) |
+| set of integers, ASCII packed with a sentinel | 74 | 241 |
+| open-addressing table in two `array('Q')`, 128-bit keys | 36 at rest, 70 at the peak | about 15,000 |
+
+Only the digit strings get the compact key (ADR `2026-10-09-exact-distinct-keys.md`).
+
+**The exact set** (`planner_costs.py exact`, 1,000,000 distinct values, the strings are built
+inside the trace): bytes an entry held, peak, and the bytes the executor charges to its pool.
+
+| Identifiers | Held | Peak | Charged | ns a value (with the generation of the string) |
+| --- | ---: | ---: | ---: | ---: |
+| 8 digits | 61.5 | 68.3 | 65.6 | 417 |
+| 10 digits | 65.5 | 70.9 | 65.6 | 352 |
+| 12 digits | 65.5 | 70.9 | 65.6 | 355 |
+| 8 characters, letters and digits | 82.6 | 82.7 | 82.6 | 500 |
+| 10 characters | 84.6 | 84.7 | 84.6 | 552 |
+| 12 characters | 86.6 | 86.7 | 86.6 | 549 |
+
+The charge is the measure, so a limit is met at the bytes the plan stated. The firm bound of
+the plan for a 12-character identifier is 133 MB for a million values (41 + 12 + 80 bytes, plus
+27 for the first 50,000), 1.5 times what is held.
+
+**Cost of a cell** (the analysis time of the run divided by the cells handed to the analyses,
+the reading separate; `insurance-combined.csv` 1,000,000 rows by 34 columns, and
+`exact-table-1m.csv`, 1,000,000 rows of four fields of 300, 500, 700 and 900 values and a
+sequence):
+
+| Analysis | Cells handled | Reading | Analysis | Per cell | Model (firm bytes) | Peak traced |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Exact sets (4 fields of up to one million values) | 4,000,000 | 3.30 s | 1.49 s | 373 ns | 416.6 MB | 201.9 MB |
+| Exact set (1 identifier field of 1,000,000 values) | 1,000,000 | 0.90 s | 0.32 s | 317 ns | 128.4 MB | 77.6 MB |
+| Tables of frequencies (4 fields) | 4,000,000 | 0.79 s | 0.43 s | 108 ns | 1.39 MB | 4.0 MB |
+
+The counters, bins and lengths of lot 7a, run again in the same session on a machine that was
+not otherwise idle, gave 956, 1,516 and 182 ns, against 841, 1,661 and 207: the constants of
+the model (900, 1,800, 250) are kept. `NS_PER_CELL` takes 400 ns for a key of an exact set and
+120 for an entry of the table (rounded up), both class `low`. `COST_MODEL_VERSION` is 3.
+
+**A real run** (`tabalyst scan --deep --yes` on the combined file, Scan stored by the first
+call): 8 analyses (two counters, two bins, four exact sets), 7,000,000 cells, 10.6 s (reading
+3.6 s, analysis 7.0 s; estimated 5 to 14 s); the plan asked first (`memory_over_automatic`,
+firm bound 443 MB); the process peak is 438 MB; `deep.json` is 360 KB. The exact numbers of
+distinct values: `id_client` 1,000,000 (unique), `id_contrat` 1,000,000 (unique, the KMV
+estimate of the Scan said 984,843), `code_postal` 130,082 (131,022), `montant_reclamation`
+115,667 (115,800). Run again: 0.9 s, the source is not read.

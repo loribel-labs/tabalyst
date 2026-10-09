@@ -15,6 +15,8 @@ object holds the analysis settings, read by `tabalyst scan` and
 object holds the presentation settings of the report, described in
 [Report settings](#report-settings). The top-level `output` object sets how
 the documents are written, described in [Output settings](#output-settings).
+The top-level `deep` object sets the histograms of the second pass, described
+in [Deep settings](#deep-settings).
 The top-level `csv` object holds the CSV settings of `tabalyst sample`:
 
 ```json
@@ -219,6 +221,23 @@ The analysis settings moved to `scan`, the presentation settings to `report`:
   easier to read when debugging. Only the layout changes: both forms hold the
   same document. The execution history (`executions.json`) and the Inspect
   file are always indented, being small and meant to be read.
+
+## Deep settings
+
+The top-level `deep` object configures the second pass of `tabalyst scan
+--deep`, in [Add histograms and exact medians](../scan/deep.md). It is not part
+of the `scan` object: changing it never makes a stored scan stale.
+
+```json
+{"deep": {"bins": 50, "bin_strategy": "sample_quantile"}}
+```
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `deep.bins` | `100` | Number of bins of the histogram of a numeric field that is not counted per integer. From 2 to 1,000 |
+| `deep.bin_strategy` | `linear` | `linear`: bins of equal width between the exact minimum and maximum. `sample_quantile`: inner edges at the quantiles of the sample kept by the scan, for a very skewed distribution; it falls back to `linear` when the sample is too small, and says so |
+
+The counts per bin are exact with either strategy.
 
 ## Sample settings
 

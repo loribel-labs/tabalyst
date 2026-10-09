@@ -2,7 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Write or check the committed JSON Schemas of the Scan and Report documents.
+"""Write or check the committed JSON Schemas of the Scan, Report and second-pass
+documents.
 
 python scripts/scan_schema.py          # write src/tabalyst/schemas/
 python scripts/scan_schema.py --check  # fail when a file is out of date
@@ -20,9 +21,15 @@ from tabalyst.report_schema import SCHEMA_FILE as REPORT_FILE
 from tabalyst.report_schema import report_schema_text
 from tabalyst.scanner.schema import SCHEMA_FILE as SCAN_FILE
 from tabalyst.scanner.schema import scan_schema_text
+from tabalyst.scanner.secondpass.schema import SCHEMA_FILE as DEEP_FILE
+from tabalyst.scanner.secondpass.schema import deep_schema_text
 
 DIRECTORY = ROOT / "src" / "tabalyst" / "schemas"
-SCHEMAS = {SCAN_FILE: scan_schema_text, REPORT_FILE: report_schema_text}
+SCHEMAS = {
+    SCAN_FILE: scan_schema_text,
+    REPORT_FILE: report_schema_text,
+    DEEP_FILE: deep_schema_text,
+}
 
 
 def main(argv: list[str]) -> int:

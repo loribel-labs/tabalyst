@@ -38,6 +38,9 @@ are written atomically: an interrupted scan never leaves a partial file.
   [changelog](format-changelog.md).
 - [Plan the analyses](plan.md): `tabalyst scan --plan`, the analyses a scan
   could still receive and what they would cost.
+- [Add histograms and exact medians](deep.md): `tabalyst scan --deep`, a
+  second pass that reads the file again, and its [document
+  format](deep-format.md).
 - [Manage query caches](cache.md): `tabalyst cache info` and
   `tabalyst cache clean`.
 - [Configuration](../reference/configuration.md): the `scan` settings.

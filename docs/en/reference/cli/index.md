@@ -92,10 +92,11 @@ made and how to keep it in an Inspect file.
 | `0` | Success |
 | `1` | Analysis or output failure |
 | `2` | Invalid configuration or command, or a JSON or Excel source whose collection or table must be chosen (see [Inspect](../../inspect/json.md) and [Inspect Excel workbooks](../../inspect/excel.md)) |
+| `3` | A confirmation was needed and not given, so nothing was started (`tabalyst scan --deep`) |
 | `4` | Input error: missing, unreadable or invalid source |
 
 When a batch has several kinds of failure, `1` wins over `2`, which wins over
-`4`.
+`4`. Code `3` stops a command before it starts anything.
 
 ## Environment
 

@@ -13,7 +13,6 @@ import pytest
 from planner_helpers import by_analyzer, scan_csv
 
 from tabalyst.scanner import ScanConfig
-from tabalyst.scanner.api import _open_reader
 from tabalyst.scanner.planner import (
     AnalysisRequest,
     AnalyzerRegistry,
@@ -42,6 +41,7 @@ from tabalyst.scanner.planner.costmodel import (
 )
 from tabalyst.scanner.planner.models import State, Utility
 from tabalyst.scanner.planner.planner import AUTOMATIC_MIN_UTILITY
+from tabalyst.scanner.readers.factory import open_reader
 
 ENTRIES = 50_000
 
@@ -121,7 +121,7 @@ def test_reading_texts_of_thousands_of_characters_stays_within_the_parser_reserv
     gc.collect()
     tracemalloc.start()
     base = tracemalloc.get_traced_memory()[0]
-    for _ in _open_reader(path, ScanConfig(), None):
+    for _ in open_reader(path, ScanConfig(), None):
         pass
     peak = tracemalloc.get_traced_memory()[1] - base
     tracemalloc.stop()
@@ -146,15 +146,24 @@ def test_the_model_charges_the_length_of_the_texts_it_keeps(tmp_path):
 
 
 def test_cpu_classes_follow_the_nanoseconds_a_cell_adds():
-    assert [cpu_class_for(ns) for ns in (1, 50, 51, 200, 201, 800, 801)] == [
+    assert [cpu_class_for(ns) for ns in (1, 100, 101, 600, 601, 2_400, 2_401)] == [
         "very_low", "very_low", "low", "low", "moderate", "moderate", "high",
     ]  # fmt: skip
-    assert NS_PER_CELL["dense_counter"] < NS_PER_CELL["distinct_set"] < 800
+
+
+def test_the_analyses_the_executor_runs_are_costed_with_its_own_measures():
+    # Counting a cell after the number detector and the normalization: a
+    # length (no number), a counter of integers, a bin of a decimal.
+    assert NS_PER_CELL["length_counter"] < NS_PER_CELL["dense_counter"] < NS_PER_CELL["bin"]
+    assert [cpu_class_for(NS_PER_CELL[kind]) for kind in ("length_counter", "dense_counter", "bin")] == [
+        "low", "moderate", "moderate",
+    ]  # fmt: skip
 
 
 def test_a_class_given_alone_stands_for_the_top_of_its_range():
-    assert costs("low", [State(key="s", memory=memory(1))]).cell_ns == 200
+    assert costs("low", [State(key="s", memory=memory(1))]).cell_ns == 600
     assert costs(130, [State(key="s", memory=memory(1))]).cpu == "low"
+    assert costs("high", [State(key="s", memory=memory(1))]).cell_ns == 4 * 2_400
 
 
 def test_the_common_reading_is_classed_by_its_cells():

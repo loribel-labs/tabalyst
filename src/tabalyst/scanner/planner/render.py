@@ -36,7 +36,8 @@ def duration_text(seconds: float) -> str:
     return f"{seconds / 3600:.1f} h"
 
 
-def _estimate(estimate: TimeEstimate) -> str:
+def estimate_text(estimate: TimeEstimate) -> str:
+    """A time estimate as a range of rounded durations."""
     low, high = duration_text(estimate.low_seconds), duration_text(estimate.high_seconds)
     return high if low == high else f"{low} to {high}"
 
@@ -46,7 +47,7 @@ def confirmation_lines(confirmation: Confirmation) -> list[str]:
     lines: list[str] = []
     if confirmation.estimate is not None:
         lines.append(
-            f"Estimated time: {_estimate(confirmation.estimate)} "
+            f"Estimated time: {estimate_text(confirmation.estimate)} "
             "(a guide from the first pass, not a promise)."
         )
     if confirmation.required:
@@ -134,13 +135,20 @@ def plan_text(
             + ("" if cells is None else f" ({cells:,} cells, CPU {plan.common.cpu})")
             + f". Memory: {_memory(summary.memory)}."
         )
-        if not summary.executable:
-            lines.append(
-                "The second pass is not available in this version: the plan "
-                "only shows what it would do."
-            )
     else:
         lines.append("No second reading of the source is needed.")
+    waiting = sum(
+        1
+        for c in plan.candidates
+        if c.selection.state == "selected" and not c.execution.available
+    )
+    if waiting == summary.selected and waiting:
+        lines.append("None of the selected analyses can run in this version.")
+    elif waiting:
+        lines.append(
+            f"{waiting} of the selected analyses cannot run in this version; "
+            "tabalyst scan --deep runs the others."
+        )
     if confirmation is not None:
         lines += confirmation_lines(confirmation)
     return "\n".join(lines)

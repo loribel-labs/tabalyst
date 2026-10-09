@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Callable, Iterable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
@@ -55,28 +54,12 @@ from tabalyst.scanner.observations import (
 )
 from tabalyst.scanner.paths import format_absolute, parse_path
 from tabalyst.scanner.patterninfer import infer_patterns
+from tabalyst.scanner.process import peak_memory_bytes
 from tabalyst.scanner.quality import build_observations
-from tabalyst.scanner.readers.base import Reader
-from tabalyst.scanner.readers.csv_reader import CsvReader
-from tabalyst.scanner.readers.excel_reader import ExcelReader
-from tabalyst.scanner.readers.json_reader import JsonReader
-from tabalyst.scanner.readers.jsonl_reader import JsonlReader
+from tabalyst.scanner.readers.factory import open_reader
 from tabalyst.scanner.workers import WorkerPool, worker_count
 
 NORMALIZATION_VERSION = 1
-
-
-def _open_reader(
-    path: Path, config: ScanConfig, on_bytes: Callable[[int], None] | None
-) -> Reader:
-    source_format = source_format_of(path)
-    if source_format == "json":
-        return JsonReader(path, config, on_bytes)
-    if source_format == "jsonl":
-        return JsonlReader(path, config, on_bytes)
-    if source_format == "excel":
-        return ExcelReader(path, config, on_bytes)
-    return CsvReader(path, config, on_bytes)
 
 
 def _collection_scope(source_format: str, config: ScanConfig) -> CollectionScope | None:
@@ -134,51 +117,6 @@ def _run_counters(engine: ScanEngine) -> RunCounters:
             length_model_bytes=values.samples.length_reserved,
         )
     )
-
-
-def _peak_memory_bytes() -> int | None:
-    """Peak memory of this process so far, or ``None`` when unavailable."""
-    try:
-        import resource
-    except ImportError:
-        pass
-    else:
-        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # Kibibytes on Linux, bytes on macOS.
-        return peak if sys.platform == "darwin" else peak * 1024
-    if sys.platform != "win32":
-        return None
-    import ctypes
-    from ctypes import wintypes
-
-    class Counters(ctypes.Structure):
-        _fields_ = (
-            ("cb", wintypes.DWORD),
-            ("PageFaultCount", wintypes.DWORD),
-            ("PeakWorkingSetSize", ctypes.c_size_t),
-            ("WorkingSetSize", ctypes.c_size_t),
-            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
-            ("QuotaPagedPoolUsage", ctypes.c_size_t),
-            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
-            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
-            ("PagefileUsage", ctypes.c_size_t),
-            ("PeakPagefileUsage", ctypes.c_size_t),
-        )
-
-    counters = Counters()
-    counters.cb = ctypes.sizeof(Counters)
-    kernel32 = ctypes.WinDLL("kernel32")
-    psapi = ctypes.WinDLL("psapi")
-    kernel32.GetCurrentProcess.restype = wintypes.HANDLE
-    psapi.GetProcessMemoryInfo.argtypes = (
-        wintypes.HANDLE,
-        ctypes.POINTER(Counters),
-        wintypes.DWORD,
-    )
-    ok = psapi.GetProcessMemoryInfo(
-        kernel32.GetCurrentProcess(), ctypes.byref(counters), counters.cb
-    )
-    return int(counters.PeakWorkingSetSize) if ok else None
 
 
 def _observations(
@@ -276,7 +214,7 @@ def scan(
     emit_progress(
         on_progress, path, ProgressPhase.READING, bytes_read=0, bytes_total=stat.st_size
     )
-    reader = _open_reader(
+    reader = open_reader(
         path, config, byte_progress(on_progress, path, stat.st_size)
     )
     detectors = DetectorSet(
@@ -398,7 +336,7 @@ def scan(
                 ),
             ),
             workers=1 if engine.values.pool is None else count,
-            peak_memory_bytes=_peak_memory_bytes(),
+            peak_memory_bytes=peak_memory_bytes(),
             counters=_run_counters(engine) if counters else None,
         ),
         source=source_info,

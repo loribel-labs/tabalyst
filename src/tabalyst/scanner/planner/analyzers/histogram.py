@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
-    BIN_COUNT,
+    DENSE_DOMAIN_MAX,
     Analyzer,
     Assessment,
     costs,
@@ -18,15 +18,33 @@ from tabalyst.scanner.planner.analyzer import (
 from tabalyst.scanner.planner.analyzers.common import (
     blocked,
     identifier_like,
+    replay_state,
     result_state,
 )
-from tabalyst.scanner.planner.analyzers.frequencies import dense_domain, dense_state
-from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
+from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, EDGE_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
-# Two bounds of the bins, as 8 bytes each.
-BOUNDS_BYTES = 16
+
+def dense_domain(facts: FieldFacts) -> int | None:
+    """Number of integers between the minimum and maximum of an integer field
+    when a dense array of counters can hold them, else ``None``. The bounds
+    must be written as integers, which are exact: the array starts at the
+    minimum."""
+    if (
+        facts.technical_type != "integer"
+        or facts.numeric != "complete"
+        or not isinstance(facts.numeric_min, int)
+        or not isinstance(facts.numeric_max, int)
+    ):
+        return None
+    domain = facts.numeric_max - facts.numeric_min + 1
+    return domain if 0 < domain <= DENSE_DOMAIN_MAX else None
+
+
+def dense_state(facts: FieldFacts, domain: int) -> State:
+    """The array of counters of a small integer domain."""
+    return State(key=f"dense_counts:{facts.where}", memory=memory(domain * COUNTER_BYTES))
 
 
 class NumericHistogram(Analyzer):
@@ -34,6 +52,7 @@ class NumericHistogram(Analyzer):
 
     id: ClassVar[str] = "numeric_histogram"
     outputs: ClassVar[tuple[str, ...]] = ("histogram", "quantiles", "median_estimate")
+    available: ClassVar[bool] = True
 
     def relevant(self, facts: FieldFacts) -> bool:
         return facts.technical_type in ("integer", "number") or (
@@ -61,7 +80,12 @@ class NumericHistogram(Analyzer):
                 "applicable", method="dense_counts", parameters={"domain": domain}
             )
         return Assessment(
-            "applicable", method="linear_bins", parameters={"bins": BIN_COUNT}
+            "applicable",
+            method="bins",
+            parameters={
+                "bins": self.settings.bins,
+                "strategy": self.settings.bin_strategy,
+            },
         )
 
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
@@ -69,10 +93,11 @@ class NumericHistogram(Analyzer):
             state = dense_state(facts, int(assessment.parameters["domain"]))
             work = NS_PER_CELL["dense_counter"]
         else:
-            size = int(assessment.parameters["bins"]) * COUNTER_BYTES + BOUNDS_BYTES
+            bins = int(assessment.parameters["bins"])
+            size = bins * COUNTER_BYTES + (bins + 1) * EDGE_BYTES
             state = State(key=f"bins:{facts.where}", memory=memory(size))
             work = NS_PER_CELL["bin"]
-        return costs(work, [state, result_state(self.id, facts)])
+        return costs(work, [state, replay_state(facts), result_state(self.id, facts)])
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         if identifier_like(facts):
