@@ -303,7 +303,7 @@ def _resolve_tables(
 def _check_required_choices(tables: dict[str, PackageTable],
                             relations: dict[str, dict[str, dict[Cell, tuple[dict[str, Cell], ...]]]]) -> None:
     """Ensure each declared Computer generation has core component choices."""
-    generations = tables.get("generation")
+    generations = tables.get("generation") or tables.get("model_generation")
     if generations is None:
         return
     if "id" not in {column.name for column in generations.columns}:
@@ -311,7 +311,8 @@ def _check_required_choices(tables: dict[str, PackageTable],
     for component in ("cpu", "memory", "storage", "display"):
         candidates = [table for table in tables.values()
                       if table.role in {"relation", "weighted_relation"}
-                      and any(column.name == "generation_id" and column.references == "generation.id"
+                      and any(column.name == "generation_id"
+                              and column.references == f"{generations.id}.id"
                               for column in table.columns)
                       and any(column.name == f"{component}_id"
                               for column in table.columns)]
@@ -435,8 +436,8 @@ def _output_schema(path: Path) -> None:
 
 
 def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
-    if not isinstance(items, list) or not items:
-        _fail("PACKAGE_SCHEMA", path, "catalog_steps requires nonempty steps")
+    if not isinstance(items, list) or not 1 <= len(items) <= MAX_COLUMNS:
+        _fail("PACKAGE_SCHEMA", path, "catalog_steps requires 1 to 256 steps")
     ids: set[str] = set()
     outputs: set[str] = set()
     for raw in items:
@@ -463,6 +464,9 @@ def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
             candidate = step["candidate_column"]
             if not isinstance(candidate, str) or candidate not in names:
                 _fail("PACKAGE_STEP_REFERENCE", path, f"unknown candidate column {candidate!r}")
+            candidate_rule = next(column for column in tables[source].columns if column.name == candidate)
+            if candidate_rule.type != "string":
+                _fail("PACKAGE_STEP_REFERENCE", path, f"{ident}: candidate IDs must be strings")
             where = step.get("where", {})
             if not isinstance(where, dict) or any(
                 not isinstance(column, str) or column not in names
@@ -475,6 +479,9 @@ def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
                 if row[candidate] is None:
                     _fail("PACKAGE_STEP_CANDIDATE", tables[source].file,
                           f"{ident}: candidate is empty", line, candidate)
+                if not isinstance(row[candidate], str) or not IDENTIFIER.fullmatch(row[candidate]):
+                    _fail("PACKAGE_STEP_CANDIDATE", tables[source].file,
+                          f"{ident}: candidate is not a canonical ID", line, candidate)
                 key = tuple(row[column] for column in where) + (row[candidate],)
                 if key in seen_candidates:
                     _fail("PACKAGE_STEP_DUPLICATE", tables[source].file,
@@ -562,12 +569,27 @@ def load_generate_package(path: Path | str) -> DatasetPackage:
             seen_pairs.add(pair)
     _check_required_choices(tables, relations)
     _check_orphans(tables, relations)
-    for raw in manifest["datasets"]:
+    datasets = manifest["datasets"]
+    assert isinstance(datasets, list)
+    for raw in datasets:
         if raw["mode"] == "generated":
             schema_path = _relative(root, raw["schema"], manifest_path, schema=True)
             paths.add(schema_path)
             _output_schema(schema_path)
             if raw["row_source"] == "catalog_steps":
                 _steps(raw.get("steps"), manifest_path, tables)
-    return DatasetPackage(root, manifest["id"], manifest["package_version"],
-                          manifest, catalog, tables, frozenset(paths), values, relations)
+    raw_entities = manifest.get("entities", [])
+    if not isinstance(raw_entities, list) or len(raw_entities) > MAX_DATASETS:
+        _fail("PACKAGE_LIMIT", manifest_path, "entities must contain at most 64 entries")
+    for raw in raw_entities:
+        if not isinstance(raw, dict) or "schema" not in raw:
+            _fail("PACKAGE_SCHEMA", manifest_path, "entity requires a schema")
+        schema_path = _relative(root, raw["schema"], manifest_path, schema=True)
+        paths.add(schema_path)
+        _output_schema(schema_path)
+    package = DatasetPackage(root, manifest["id"], manifest["package_version"],
+                             manifest, catalog, tables, frozenset(paths), values, relations)
+    from tabalyst.generate_selection import validate_selection_package
+
+    validate_selection_package(package)
+    return package

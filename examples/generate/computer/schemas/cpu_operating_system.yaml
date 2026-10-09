@@ -1,0 +1,4 @@
+type: relation
+columns:
+  cpu_id: {type: string, required: true, references: cpu.id}
+  operating_system_id: {type: string, required: true, references: operating_system.id}

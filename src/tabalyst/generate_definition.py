@@ -405,6 +405,11 @@ def load_generate_definition(path: str | Path) -> GenerateDefinition:
         raise ConfigurationError(f"{source}: {exc}") from exc
     except OSError as exc:
         raise InputError(f"Cannot read definition file {source}: {exc}") from exc
+    return validate_generate_mapping(root, source)
+
+
+def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
+    """Validate a Generate column model assembled by either source format."""
     root = _mapping(source, root, "definition", {
         "definition_version", "id", "defaults", "csv", "schemas", "entities",
         "cohorts", "datasets", "anomaly_profiles",

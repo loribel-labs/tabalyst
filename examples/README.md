@@ -8,7 +8,8 @@ examples/
 |-- config.json
 |-- generate/
 |   |-- generate_examples.py
-|   |-- input/ (four YAML definitions)
+|   |-- input/ (three transitional YAML definitions)
+|   |-- crm/ (versioned CRM package)
 |   `-- output/ (generated locally; ignored by Git)
 |-- input/
 |   |-- basic.csv
@@ -75,8 +76,8 @@ also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel
-contains the runtime package, report resources, and packaged copies of the
-`examples/generate/input/` YAML definitions. CRM and Insurance are local development
+contains the runtime package, report resources, the CRM package and the
+transitional Insurance YAML. CRM and Insurance are local development
 demos. Generate is under development
 and is not advertised as a released feature. The CRM data is synthetic, with
 reserved `.example` domains and fictional phone numbers. The configured 20,000
@@ -124,10 +125,32 @@ with `tabalyst generate examples/generate/input/cohorts-anomalies.yaml --anomaly
 Keep `OUTPUT_DIR` outside the repository for one-off local trials. The packaged
 Insurance YAML is the same complete example as the visible file.
 
+The CRM development package lives at `examples/generate/crm/`, with the same
+manifest and schemas packaged for `--example crm`. It preserves the 400-account
+pool, 26 columns, cohorts and measured anomalies. Insurance remains on v1 in
+this lot.
+
+The Computer development package lives at `examples/generate/computer/`. It is
+loaded by path and is not a packaged `--example`. From an installed Tabalyst
+wheel, copy that folder outside the checkout and run:
+
+```console
+tabalyst generate COMPUTER_PACKAGE --validate-only
+tabalyst generate COMPUTER_PACKAGE -d OUTPUT_DIR --rows 10000 --seed 42
+```
+
+The command writes aligned `computers-en.csv`, `computers-fr.csv`, and
+`computers.meta.json`. The first milestone offers only the 40-column `compact`
+profile and the paired `en,fr` locales. A JSON `--request FILE` can select
+`rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`,
+and `locales`; explicit CLI options override the request. Keep both the package
+and output folder outside the checkout when testing a wheel.
+
 ## Regenerate all Generate examples
 
 Run the script from the repository root with an editable installation of
-Tabalyst. It reads every YAML in `examples/generate/input/` and writes into
+Tabalyst. It reads the transitional YAML files in `examples/generate/input/`
+and the CRM package, then writes into
 `examples/generate/output/<definition>/`. The output folder is ignored by Git.
 By default it uses each YAML's declared row counts and generates every declared
 anomaly profile along with its clean CSV. Insurance therefore writes 275,000

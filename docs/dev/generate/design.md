@@ -242,7 +242,8 @@ identical CSV bytes.
 
 ## Lot 5: CRM development demo
 
-The packaged and visible `crm.yaml` definitions are identical. They generate a
+In the released v1 format, the packaged and visible `crm.yaml` definitions
+were identical. They generated a
 single `crm-contacts` CSV with 26 columns and 400 shared synthetic accounts.
 Contact names and account locations use the packaged common references;
 contact email and phone depend on the selected account province. The account

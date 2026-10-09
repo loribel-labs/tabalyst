@@ -1,0 +1,5 @@
+type: relation
+columns:
+  product_family_id: {type: string, required: true, references: product_family.id}
+  product_segment_id: {type: string, required: true, references: product_segment.id}
+unique: [product_family_id, product_segment_id]

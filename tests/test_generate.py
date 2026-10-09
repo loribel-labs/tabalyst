@@ -88,12 +88,15 @@ def test_plan_examples_and_apportion(tmp_path: Path) -> None:
     assert crm.rows == {"crm-contacts": 5}
 
 
-def test_packaged_examples_match_visible_yaml() -> None:
+def test_packaged_examples_match_visible_sources() -> None:
     root = Path(__file__).resolve().parents[1]
-    for name in ("crm", "insurance"):
-        installed = files("tabalyst").joinpath("generate_examples", f"{name}.yaml")
-        visible = root / "examples" / "generate" / "input" / f"{name}.yaml"
-        assert installed.read_bytes() == visible.read_bytes()
+    installed = files("tabalyst").joinpath("generate_examples", "insurance.yaml")
+    visible = root / "examples" / "generate" / "input" / "insurance.yaml"
+    assert installed.read_bytes() == visible.read_bytes()
+    crm = root / "examples" / "generate" / "crm"
+    for source in crm.rglob("*.yaml"):
+        packaged = files("tabalyst").joinpath("generate_examples", "crm", *source.relative_to(crm).parts)
+        assert packaged.read_bytes() == source.read_bytes()
 
 
 def test_bad_options_and_collisions(tmp_path: Path) -> None:

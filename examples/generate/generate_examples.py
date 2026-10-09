@@ -10,7 +10,9 @@ import argparse
 from pathlib import Path
 
 from tabalyst.errors import TabalystError
+from tabalyst.generate_columns_package import load_columns_definition
 from tabalyst.generate_definition import load_generate_definition
+from tabalyst.generate_package import load_generate_package
 from tabalyst.generate_service import build_generate_plan, generate_datasets
 
 HERE = Path(__file__).resolve().parent
@@ -35,7 +37,7 @@ def main() -> int:
         help="Replace existing generated files.",
     )
     args = parser.parse_args()
-    definitions = sorted((HERE / "input").glob("*.yaml"))
+    definitions = sorted((HERE / "input").glob("*.yaml")) + [HERE / "crm"]
     if not definitions:
         parser.error("No YAML definitions found in examples/generate/input")
 
@@ -44,7 +46,8 @@ def main() -> int:
     destinations: set[Path] = set()
     try:
         for path in definitions:
-            definition = load_generate_definition(path)
+            definition = (load_columns_definition(load_generate_package(path))
+                          if path.is_dir() else load_generate_definition(path))
             profiles = (None,) if args.clean_only or not definition.anomaly_profiles else (
                 profile["id"] for profile in definition.anomaly_profiles
             )

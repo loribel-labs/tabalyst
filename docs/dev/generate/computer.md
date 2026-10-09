@@ -206,6 +206,14 @@ distribution decision. `--request FILE` is optional. `-o` names exactly one
 clean CSV without a companion; `-d` is required for multiple CSVs, metadata,
 or anomalies. A validation-only call needs no destination and writes nothing.
 
+In the Computer development lot, `--request FILE` reads a bounded UTF-8 JSON
+object with optional `dataset`, `rows`, `seed`, `as_of_date`,
+`generation_profile`, `output_profile`, `market`, and `locales` keys. The
+effective value order is explicit CLI/API option, request, then package default.
+Computer currently requires `dataset: "computers"`, paired `en`/`fr` locales,
+and the `compact` output profile. It accepts `ca` and `us` markets. A Computer
+run requires `-d`; its destination cannot be inside the source package.
+
 ```text
 tabalyst generate examples/generate/computer/ -d computer-output/ --rows 10000 --seed 42
 tabalyst generate examples/generate/computer/ --validate-only
@@ -236,7 +244,8 @@ atomicity under publication failure is not promised.
 
 Computer uses distinct `computer_type`, `form_factor`, and `product_segment`
 taxonomies; the brand, family, model, and generation hierarchy; CPU, GPU,
-memory, storage, display, OS, and color catalogs; six compatibility relations;
+memory, storage, display, OS, and color catalogs; six hierarchy compatibility
+relations and two technical compatibility relations;
 seven generation-weight tables; and four influence tables:
 `cpu_memory_weight`, `gpu_memory_weight`, `gpu_storage_weight`, and
 `product_segment_memory_weight`. The only v0.1 constraint action is `exclude`.
@@ -256,6 +265,14 @@ A constraint's `scope_id` is `global` or a generation-profile ID. Both scopes
 apply to a selected profile. Matching exclusions are idempotent. Check a
 constraint when both fields are known. Before a choice, reject a candidate
 that conflicts with an earlier choice in either condition/target direction.
+The `constraint` CSV schema has exactly `scope_id`, `condition_field`,
+`condition_id`, `target_field`, `target_id`, and `action` (all required strings).
+Fields name catalog step outputs; IDs name canonical selected values, and
+`action` is `exclude`. `filters` and `influences` are lists of mappings with
+`source`, `candidate_column`, and `where`. The former intersects candidates;
+the latter reads `weight` from a `weighted_relation` table. A missing matching
+influence row leaves the factor at 1. Multiple matching influence rows for
+one candidate and context are invalid.
 For conditions involving a future choice, use deterministic, bounded
 lookahead over remaining domains so no impossible row is emitted. If no valid
 completion exists, fail with `GENERATION_IMPOSSIBLE_CONFIGURATION` and the
@@ -263,6 +280,12 @@ relevant dataset, generation, fields, and IDs; never retry indefinitely. A
 constraint on a derived field resolves to its canonical source ID. Later
 commercial fields require an explicit rule rather than dependence on CSV
 column order.
+
+The initial engine caps a row's lookahead at 100,000 visited nodes and reports
+`GENERATION_SEARCH_LIMIT` if that bound is reached; it never treats a truncated
+search as proof of impossibility. Weighted draws use exact rational weights
+reduced to the smallest integer ratio. SHA-256 hashes length-prefixed UTF-8
+parts to seed a local stream for each decision.
 
 One internal record is rendered twice. Only declared localized labels differ
 between EN and FR; IDs, SKU, numeric values, dates, booleans, currency, and
@@ -284,6 +307,31 @@ list_price`, stock is nonnegative, and status agrees with quantity. An offer
 of the same variant may have a different price or stock. Dates are ISO and
 bounded by `as_of_date`; ratings and review counts obey their ranges.
 
+The lot 6 internal Computer derivation joins selected IDs to the CPU, GPU,
+memory, storage, display, OS, and generation tables. CPU and GPU brand,
+family, and model come from explicit catalog columns; storage capacity comes
+from numeric `capacity_gb`, never from its display label. Display touch is a
+typed catalog boolean. The development
+fixture accepts `ca`/CAD and `us`/USD markets. Synthetic list price combines
+the selected component capacities and an offer-specific increment; a separate
+discount draw yields 0, 5, 10, or 15 percent. Stock is an integer from 0 to
+50, with `out_of_stock` exactly when it is zero. Release dates lie between
+January 1 of the selected model year and `as_of_date`; a reference date before
+that model year fails. Review counts are 0 to 500, with no rating at zero
+reviews and a rating from 3.0 to 5.0 otherwise. These are fixture rules, not
+claims about real products or market distributions. The internal derivation
+does not yet render localized labels or write CSV.
+
+The lot 7 development writer projects that derived record to the declared
+40-column `compact` profile. It writes EN and FR from the same internal row,
+localizing only dictionary labels, with UTF-8 and LF bytes. The package fixture
+declares `output_profiles.compact`; `standard` and `extended` remain reserved for
+lots 11–14 and fail explicitly until their values exist. The writer accepts
+caller-supplied paths and emits a deterministic metadata JSON with effective
+request, output counts and profile, package resource SHA-256 digests, engine
+version, and Python minor version. Service/CLI planning and publication belong
+to lot 8.
+
 Independent SHA-256-derived streams use the root seed, dataset ID, row index,
 decision ID, and relevant context IDs. No Python `hash()` or shared global RNG
 state. Adding an unrelated column must not change earlier decisions. With
@@ -295,6 +343,14 @@ must use bounded storage or a constructive identity rule; the generator must
 not retain all output rows.
 
 ## Migration and parity gates
+
+CRM lot 9 uses `examples/generate/crm/` and the identical packaged copy under
+`src/tabalyst/generate_examples/crm/`. The common package loader validates its
+manifest and generated column schemas. The column execution engine preserves
+the existing 400-account pool, shuffled-cycle references, 26-column order,
+cohorts and measured anomaly pass. At 500 rows with seed 42 and
+`dirty_realistic`, all four output files match the frozen YAML v1 scenario byte
+for byte. The transitional v1 reader remains for Insurance through lot 10.
 
 | Existing v1 capability | Package representation | Required parity |
 | --- | --- | --- |
@@ -338,6 +394,12 @@ service, CLI, and local demo; lots 9–10 migrate CRM and Insurance and remove
 the v1 reader; lots 11–14 complete the profiles and benchmark; lot 15 aligns
 user documentation and demos with released behavior. No public user guide is
 updated merely because this design is accepted.
+
+The lot 4 development package at `examples/generate/computer/` implements the
+seven-level hierarchy with two fictional entries at each level. Parent keys
+and compatibility relations delimit the choices. Its 3:1 type weights and
+`portable_only` constraint are test distributions, not market estimates. It
+deliberately stops before component choices and CSV rendering in later lots.
 
 ## Computer column register
 
