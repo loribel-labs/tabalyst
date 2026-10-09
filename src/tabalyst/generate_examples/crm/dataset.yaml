@@ -1,0 +1,76 @@
+format: tabalyst.generate.package
+format_version: 0.1.0
+id: crm
+package_version: 0.1.0
+catalog: catalog.yaml
+defaults:
+  rows: 20000
+  seed: 42
+  as_of_date: '2026-09-30'
+entities:
+- id: accounts
+  count: 400
+  generator: company
+  schema: schemas/accounts.yaml
+cohorts:
+- id: contact_only
+  weight: 64
+  values:
+    opportunity_stage: None
+- id: pipeline
+  weight: 36
+datasets:
+- id: crm-contacts
+  mode: generated
+  row_source: columns
+  rows: 20000
+  schema: schemas/contacts.yaml
+anomaly_profiles:
+  dirty_realistic:
+    targets:
+    - crm-contacts
+    operations:
+    - kind: set_missing
+      column: email
+      rate: 0.06
+    - kind: duplicate
+      column: email
+      rate: 0.02
+    - kind: replace
+      column: email
+      value: invalid-address
+      rate: 0.01
+    - kind: set_missing
+      column: phone
+      rate: 0.05
+    - kind: format
+      column: phone
+      value: phone_spaces
+      rate: 0.12
+    - kind: format
+      column: company_name
+      value: upper
+      rate: 0.03
+    - kind: replace
+      column: country
+      value: CA
+      rate: 0.06
+    - kind: format
+      column: industry
+      value: lower
+      rate: 0.04
+    - kind: format
+      column: lead_source
+      value: lower
+      rate: 0.04
+    - kind: set_missing
+      column: opportunity_amount
+      rate: 0.04
+      when:
+        opportunity_stage: Proposal
+    - kind: replace
+      column: opportunity_probability
+      value: '120'
+      rate: 0.01
+      when:
+        opportunity_stage: Closed Won

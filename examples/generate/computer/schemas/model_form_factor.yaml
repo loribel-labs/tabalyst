@@ -1,0 +1,5 @@
+type: relation
+columns:
+  product_model_id: {type: string, required: true, references: product_model.id}
+  form_factor_id: {type: string, required: true, references: form_factor.id}
+unique: [product_model_id, form_factor_id]

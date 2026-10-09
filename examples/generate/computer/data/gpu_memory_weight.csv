@@ -1,0 +1,5 @@
+gpu_id,memory_id,weight
+aster_integrated,mem_16,2
+aster_discrete,mem_32,5
+brindle_integrated,mem_16,2
+brindle_discrete,mem_32,5

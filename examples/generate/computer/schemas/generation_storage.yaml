@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  generation_id: {type: string, required: true, references: model_generation.id}
+  storage_id: {type: string, required: true, references: storage.id}
+  weight: {type: number, required: true}

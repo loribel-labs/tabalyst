@@ -1,0 +1,63 @@
+columns:
+- name: company_id
+  type: string
+  generate:
+    kind: sequence
+    prefix: A
+    width: 5
+- name: company_name
+  type: string
+  generate:
+    kind: sequence
+    prefix: 'Cedarline Group '
+    width: 4
+- name: industry
+  type: string
+  generate:
+    kind: choice
+    weights:
+      Software: 18
+      Manufacturing: 15
+      Retail: 14
+      Healthcare: 12
+      Professional Services: 12
+      Finance: 9
+      Logistics: 8
+      Education: 7
+      Hospitality: 5
+- name: company_size
+  type: string
+  generate:
+    kind: choice
+    weights:
+      1-10: 18
+      11-50: 34
+      51-200: 27
+      201-1000: 16
+      1001+: 5
+- name: country
+  type: string
+  generate:
+    kind: constant
+    value: Canada
+- name: city
+  type: string
+  generate:
+    kind: provider
+    group: account_address
+    field: city
+    name: common.address
+- name: province_code
+  type: string
+  generate:
+    kind: provider
+    group: account_address
+    field: province_code
+    name: common.address
+- name: postal_code
+  type: string
+  generate:
+    kind: provider
+    group: account_address
+    field: postal_code
+    name: common.address

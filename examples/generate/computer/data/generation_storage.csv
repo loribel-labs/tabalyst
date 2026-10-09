@@ -1,0 +1,5 @@
+generation_id,storage_id,weight
+aster_arc_14_g1,ssd_512,3
+aster_arc_14_g1,ssd_1024,1
+brindle_bay_desk_g1,ssd_512,1
+brindle_bay_desk_g1,ssd_1024,3

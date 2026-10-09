@@ -67,6 +67,14 @@ structural or semantic change. See the
   `generate_insurance.py` loads and validates packaged Insurance tables and
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.
+  During the package-format transition, `generate_package.py` validates a local
+  Computer package and `generate_computer_output.py` streams its paired EN/FR
+  CSVs and metadata. `generate_service.py` plans all three artifacts, protects
+  package resources and the request file, then stages and publishes them with
+  the existing best-effort restoration rule. CRM uses a versioned package with
+  generated column schemas; `generate_columns_package.py` validates it and
+  shares the column execution engine during migration. Insurance retains its
+  v1 definition until its dedicated migration lot.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`

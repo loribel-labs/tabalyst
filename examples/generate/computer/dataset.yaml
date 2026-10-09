@@ -1,0 +1,141 @@
+format: tabalyst.generate.package
+format_version: "0.1.0"
+id: mini_computer
+package_version: "0.1.0"
+catalog: catalog.yaml
+defaults: {rows: 10, seed: 42, as_of_date: "2026-09-30"}
+generation_profiles:
+  balanced: {}
+  portable_only: {}
+output_profiles:
+  compact: [product_id, sku, brand, product_family, model, generation, model_year, computer_type, form_factor, product_segment, cpu_brand, cpu_family, cpu_model, cpu_cores, cpu_threads, gpu_brand, gpu_family, gpu_model, gpu_type, gpu_vram_gb, memory_type, memory_gb, storage_type, storage_gb, display_size_in, display_type, display_resolution, display_refresh_rate_hz, operating_system, color, weight_kg, currency, list_price, current_price, stock_quantity, stock_status, release_date, rating, review_count, market]
+datasets:
+  - id: computers
+    mode: generated
+    row_source: catalog_steps
+    schema: schemas/computers.yaml
+    steps:
+      - id: select_type
+        kind: select
+        output: computer_type_id
+        source: computer_type
+        candidate_column: id
+        weight_column: weight
+      - id: select_segment
+        kind: select
+        output: product_segment_id
+        source: computer_type_product_segment
+        candidate_column: product_segment_id
+        where: {computer_type_id: computer_type_id}
+      - id: select_brand
+        kind: select
+        output: brand_id
+        source: product_segment_brand
+        candidate_column: brand_id
+        where: {product_segment_id: product_segment_id}
+      - id: select_family
+        kind: select
+        output: product_family_id
+        source: product_family
+        candidate_column: id
+        where: {brand_id: brand_id}
+        filters:
+          - source: product_family_computer_type
+            candidate_column: product_family_id
+            where: {computer_type_id: computer_type_id}
+          - source: product_family_product_segment
+            candidate_column: product_family_id
+            where: {product_segment_id: product_segment_id}
+      - id: select_model
+        kind: select
+        output: product_model_id
+        source: product_model
+        candidate_column: id
+        where: {product_family_id: product_family_id}
+      - id: select_generation
+        kind: select
+        output: generation_id
+        source: model_generation
+        candidate_column: id
+        where: {product_model_id: product_model_id}
+      - id: select_form_factor
+        kind: select
+        output: form_factor_id
+        source: model_form_factor
+        candidate_column: form_factor_id
+        where: {product_model_id: product_model_id}
+        filters:
+          - source: computer_type_form_factor
+            candidate_column: form_factor_id
+            where: {computer_type_id: computer_type_id}
+      - id: select_cpu
+        kind: select
+        output: cpu_id
+        source: generation_cpu
+        candidate_column: cpu_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+      - id: select_gpu
+        kind: select
+        output: gpu_id
+        source: generation_gpu
+        candidate_column: gpu_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+      - id: select_memory
+        kind: select
+        output: memory_id
+        source: generation_memory
+        candidate_column: memory_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+        influences:
+          - source: cpu_memory_weight
+            candidate_column: memory_id
+            where: {cpu_id: cpu_id}
+          - source: gpu_memory_weight
+            candidate_column: memory_id
+            where: {gpu_id: gpu_id}
+          - source: product_segment_memory_weight
+            candidate_column: memory_id
+            where: {product_segment_id: product_segment_id}
+      - id: select_storage
+        kind: select
+        output: storage_id
+        source: generation_storage
+        candidate_column: storage_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+        influences:
+          - source: gpu_storage_weight
+            candidate_column: storage_id
+            where: {gpu_id: gpu_id}
+      - id: select_display
+        kind: select
+        output: display_id
+        source: generation_display
+        candidate_column: display_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+        filters:
+          - source: gpu_display
+            candidate_column: display_id
+            where: {gpu_id: gpu_id}
+      - id: select_operating_system
+        kind: select
+        output: operating_system_id
+        source: generation_operating_system
+        candidate_column: operating_system_id
+        where: {generation_id: generation_id}
+        weight_column: weight
+        filters:
+          - source: cpu_operating_system
+            candidate_column: operating_system_id
+            where: {cpu_id: cpu_id}
+      - id: select_color
+        kind: select
+        output: color_id
+        source: generation_color
+        candidate_column: color_id
+        where: {generation_id: generation_id}
+        weight_column: weight
