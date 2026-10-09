@@ -8,6 +8,7 @@ import shutil
 from collections import defaultdict
 from datetime import date
 from decimal import Decimal
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,7 @@ from tabalyst.generate_computer import derive_computer_row
 from tabalyst.generate_package import Cell, DatasetPackage, load_generate_package
 from tabalyst.generate_selection import select_catalog_row
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/computer"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
 AS_OF = date(2026, 9, 30)
 
 

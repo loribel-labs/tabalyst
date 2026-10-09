@@ -249,9 +249,9 @@ tabalyst generate --example insurance --rows 3000 -d insurance-output/
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
 ```
 
-In the development checkout, you can pass `examples/generate/crm/` or
-`examples/generate/insurance/` instead of `--example`. That checkout uses the
-new package format and rejects version 1 YAML files. A selected anomaly
+In the development checkout, the CRM, Insurance, and Computer definitions live
+only under `src/tabalyst/generate_examples/`. Use `--example` to select them.
+That checkout uses the new package format and rejects version 1 YAML files. A selected anomaly
 profile writes an altered CSV, a cell change log and a summary beside the
 untouched clean CSV. Insurance's profile changes only the combined file.
 `--rows 3000` apportions 2,182, 273 and 545 rows to the three branches.
@@ -259,8 +259,8 @@ Existing outputs require `--force`.
 
 Run `python examples/generate/generate_examples.py` in the development checkout
 to generate the four column packages into ignored local output folders. The
-Computer package is also available by path there, with 40, 70 and 111-column
-profiles and synchronized EN/FR CSVs; it has no `--example computer`. See
+Computer package is available as `--example computer`, with 40, 70 and
+111-column profiles and synchronized EN/FR CSVs. See
 [`examples/generate/README.md`](examples/generate/README.md) for commands and
 [`docs/dev/generate/computer.md`](docs/dev/generate/computer.md) for the
 unreleased contract.

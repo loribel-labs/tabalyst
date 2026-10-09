@@ -11,6 +11,7 @@ import hashlib
 import json
 import shutil
 from collections import Counter
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -24,7 +25,7 @@ from tabalyst.generate_service import (
     validate_generate_package,
 )
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/crm"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "crm")))
 BASELINE_CSV_SHA256 = "6530498b8cb9a82b486dbcfcf93fa9c1e858e3f1aba465405629079f9f532a13"
 
 
@@ -54,11 +55,8 @@ def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> 
     )
 
 
-def test_visible_and_packaged_crm_are_identical_and_cli_works(tmp_path: Path) -> None:
-    """Ship the same manifest through the local path and packaged example."""
-    packaged = Path(__file__).resolve().parents[1] / "src/tabalyst/generate_examples/crm"
-    for visible in PACKAGE.rglob("*.yaml"):
-        assert visible.read_bytes() == (packaged / visible.relative_to(PACKAGE)).read_bytes()
+def test_packaged_crm_cli_works(tmp_path: Path) -> None:
+    """Load the single packaged CRM source through the CLI."""
     runner = CliRunner()
     assert runner.invoke(app, ["generate", str(PACKAGE), "--validate-only"]).exit_code == 0
     assert validate_generate_package(PACKAGE).package_id == "crm"

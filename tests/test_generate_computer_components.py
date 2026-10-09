@@ -6,6 +6,7 @@
 
 import shutil
 from collections import Counter
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,7 @@ from tabalyst.errors import ConfigurationError
 from tabalyst.generate_package import Cell, DatasetPackage, load_generate_package
 from tabalyst.generate_selection import select_catalog_row
 
-PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/computer"
+PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
 COMPONENTS = (
     "cpu", "gpu", "memory", "storage", "display", "operating_system", "color",
 )
