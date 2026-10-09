@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 import pytest
+from generate_package_fixture import write_columns_package
 
 from tabalyst.errors import ConfigurationError
 from tabalyst.generate_service import build_generate_plan, generate_datasets
@@ -64,8 +65,7 @@ def _rows(path: Path) -> list[dict[str, str]]:
 
 
 def test_clean_cohorts_relations_and_traced_anomalies(tmp_path: Path) -> None:
-    source = tmp_path / "definition.yaml"
-    source.write_text(DEFINITION, encoding="utf-8")
+    source = write_columns_package(tmp_path, DEFINITION)
     clean_dir, dirty_dir = tmp_path / "clean", tmp_path / "dirty"
     generate_datasets(build_generate_plan(source, output_dir=clean_dir))
     result = generate_datasets(build_generate_plan(
@@ -91,10 +91,9 @@ def test_clean_cohorts_relations_and_traced_anomalies(tmp_path: Path) -> None:
 
 
 def test_anomaly_reproducible_and_impossible_mutation_counted(tmp_path: Path) -> None:
-    source = tmp_path / "definition.yaml"
-    source.write_text(DEFINITION.replace("column: email, rate: 0.25", "column: email, rate: 0.25")
-                      .replace("column: status, value: lower", "column: status, value: strip"),
-                      encoding="utf-8")
+    source = write_columns_package(
+        tmp_path, DEFINITION.replace("column: status, value: lower", "column: status, value: strip"),
+    )
     outputs = []
     for name in ("first", "second"):
         folder = tmp_path / name
@@ -114,8 +113,7 @@ def test_anomaly_reproducible_and_impossible_mutation_counted(tmp_path: Path) ->
     ("rate: 0.25", "rate: .nan", "rate"),
 ])
 def test_invalid_anomaly_fails_before_output(tmp_path: Path, before: str, after: str, message: str) -> None:
-    source = tmp_path / "definition.yaml"
-    source.write_text(DEFINITION.replace(before, after), encoding="utf-8")
+    source = write_columns_package(tmp_path, DEFINITION.replace(before, after))
     destination = tmp_path / "out"
     with pytest.raises(ConfigurationError, match=message):
         build_generate_plan(source, output_dir=destination, anomaly_profile="dirty")

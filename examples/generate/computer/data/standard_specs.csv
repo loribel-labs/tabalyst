@@ -1,0 +1,3 @@
+id,wifi_standard,bluetooth_version,ethernet_speed,usb_a_ports,usb_c_ports,hdmi_ports,battery_wh,power_adapter_w,chassis_material,camera_type,biometric_type,warranty_period
+aster_arc_14_g1,wifi_6e,5.3,none,2,2,1,70,90,aluminum,1080p,fingerprint,24
+brindle_bay_desk_g1,wifi_6,5.2,1_gbps,4,2,1,,300,steel,none,none,12

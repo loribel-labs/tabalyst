@@ -1,3 +1,3 @@
-id,en,fr
-mobile_work,Mobile work,"Travail mobile, bureau"
-desk_work,Desk work,Travail de bureau
+id,en,fr,product_subcategory_id
+mobile_work,Mobile work,"Travail mobile, bureau",portable
+desk_work,Desk work,Travail de bureau,desktop

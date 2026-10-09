@@ -1,0 +1,21 @@
+type: resource
+columns:
+  agency_code:
+    type: string
+    required: true
+    unique: true
+  filiale:
+    type: string
+    required: true
+  province_code:
+    type: string
+    required: true
+  city_id:
+    type: string
+    required: true
+  language_profile:
+    type: string
+    required: true
+  weight:
+    type: integer
+    required: true

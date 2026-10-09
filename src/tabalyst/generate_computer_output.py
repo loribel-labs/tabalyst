@@ -34,6 +34,86 @@ COMPACT_COLUMNS = (
     "currency", "list_price", "current_price", "stock_quantity",
     "stock_status", "release_date", "rating", "review_count", "market",
 )
+STANDARD_ADDITIONS = (
+    "mpn", "product_category", "product_subcategory", "cpu_architecture",
+    "cpu_max_clock_ghz", "display_brightness_nits", "display_touch",
+    "display_finish", "os_family", "npu_tops", "ai_pc_class",
+    "wifi_standard", "bluetooth_version", "ethernet_speed", "usb_a_ports",
+    "usb_c_ports", "hdmi_ports", "battery_wh", "power_adapter_w",
+    "chassis_material", "camera_type", "keyboard_layout", "biometric_type",
+    "discount_percent", "price_tier", "condition", "warranty_period",
+    "product_age_months", "product_lifecycle_status", "language",
+)
+STANDARD_COLUMNS = (
+    "product_id", "sku", "mpn", "brand", "product_family", "model",
+    "generation", "model_year", "computer_type", "form_factor",
+    "product_segment", "product_category", "product_subcategory",
+    "cpu_brand", "cpu_family", "cpu_model", "cpu_architecture", "cpu_cores",
+    "cpu_threads", "cpu_max_clock_ghz", "gpu_brand", "gpu_family",
+    "gpu_model", "gpu_type", "gpu_vram_gb", "memory_type", "memory_gb",
+    "storage_type", "storage_gb", "display_size_in", "display_type",
+    "display_resolution", "display_refresh_rate_hz", "display_brightness_nits",
+    "display_touch", "display_finish", "os_family", "operating_system",
+    "npu_tops", "ai_pc_class", "wifi_standard", "bluetooth_version",
+    "ethernet_speed", "usb_a_ports", "usb_c_ports", "hdmi_ports",
+    "battery_wh", "power_adapter_w", "color", "weight_kg",
+    "chassis_material", "camera_type", "keyboard_layout", "biometric_type",
+    "currency", "list_price", "current_price", "discount_percent",
+    "price_tier", "condition", "stock_quantity", "stock_status",
+    "warranty_period", "release_date", "product_age_months",
+    "product_lifecycle_status", "rating", "review_count", "market", "language",
+)
+EXTENDED_ADDITIONS = (
+    "display_aspect_ratio", "display_hdr", "display_color_gamut",
+    "npu_brand", "npu_family", "copilot_plus_pc", "cellular_type",
+    "docking_support", "thunderbolt_ports", "displayport_ports",
+    "ethernet_port", "card_reader_type", "memory_slots_total",
+    "memory_slots_used", "m2_slots_total", "m2_slots_used",
+    "upgradeability_level", "width_mm", "depth_mm", "height_mm",
+    "chassis_finish", "microphone_type", "speaker_configuration",
+    "keyboard_type", "trusted_platform",
+    "product_generation", "popularity_level", "sales_rank",
+    "conversion_rate", "seller_type", "warehouse", "units_sold_30d",
+    "return_rate", "seller", "promotion_type", "promotion_status",
+    "lowest_price_30d", "highest_price_30d", "average_price_30d",
+    "price_change_30d_percent", "shipping_availability",
+)
+_EXTENDED_AFTER = {
+    "display_brightness_nits": ("display_aspect_ratio",),
+    "display_finish": ("display_hdr", "display_color_gamut"),
+    "operating_system": ("npu_brand", "npu_family"),
+    "ai_pc_class": ("copilot_plus_pc",),
+    "ethernet_speed": ("cellular_type", "docking_support"),
+    "usb_c_ports": ("thunderbolt_ports",),
+    "hdmi_ports": (
+        "displayport_ports", "ethernet_port", "card_reader_type",
+        "memory_slots_total", "memory_slots_used", "m2_slots_total",
+        "m2_slots_used", "upgradeability_level",
+    ),
+    "weight_kg": ("width_mm", "depth_mm", "height_mm"),
+    "chassis_material": ("chassis_finish",),
+    "camera_type": ("microphone_type", "speaker_configuration", "keyboard_type"),
+    "biometric_type": ("trusted_platform",),
+    "warranty_period": (
+        "promotion_type", "promotion_status", "lowest_price_30d",
+        "highest_price_30d", "average_price_30d", "price_change_30d_percent",
+    ),
+    "product_age_months": ("product_generation",),
+    "review_count": (
+        "popularity_level", "sales_rank", "units_sold_30d",
+        "conversion_rate", "return_rate",
+    ),
+    "language": ("seller", "seller_type", "warehouse", "shipping_availability"),
+}
+EXTENDED_COLUMNS = tuple(
+    field for column in STANDARD_COLUMNS
+    for field in (column, *_EXTENDED_AFTER.get(column, ()))
+)
+PROFILE_COLUMNS = {
+    "compact": COMPACT_COLUMNS,
+    "standard": STANDARD_COLUMNS,
+    "extended": EXTENDED_COLUMNS,
+}
 LABEL_FIELDS = {
     "brand": ("brand", "brand_id"),
     "product_family": ("product_family", "product_family_id"),
@@ -42,10 +122,19 @@ LABEL_FIELDS = {
     "computer_type": ("computer_type", "computer_type_id"),
     "form_factor": ("form_factor", "form_factor_id"),
     "product_segment": ("product_segment", "product_segment_id"),
+    "product_category": ("product_category", "product_category_id"),
+    "product_subcategory": ("product_subcategory", "product_subcategory_id"),
     "cpu_brand": ("brand", "cpu_brand_id"),
     "gpu_brand": ("brand", "gpu_brand_id"),
+    "npu_brand": ("brand", "npu_brand"),
     "operating_system": ("operating_system", "operating_system_id"),
     "color": ("color", "color_id"),
+    "seller": ("seller", "seller"),
+    "seller_type": ("seller_type", "seller_type"),
+    "warehouse": ("warehouse", "warehouse"),
+    "promotion_type": ("promotion_type", "promotion_type"),
+    "promotion_status": ("promotion_status", "promotion_status"),
+    "shipping_availability": ("shipping_availability", "shipping_availability"),
 }
 
 
@@ -74,17 +163,20 @@ def render_computer_row(package: DatasetPackage, row: dict[str, Cell],
                         locale: str, profile: str = "compact") -> dict[str, str]:
     """Project one derived row without changing its canonical values.
 
-    Only the compact profile is populated in the first Computer milestone.
+    Each profile includes its predecessor in the canonical register order.
     """
     if locale not in {"en", "fr"}:
         raise ValueError(f"unsupported locale {locale!r}")
-    if profile != "compact":
+    if profile not in PROFILE_COLUMNS:
         raise ValueError(f"unsupported Computer output profile {profile!r}")
     rendered: dict[str, str] = {}
-    for column in COMPACT_COLUMNS:
+    for column in PROFILE_COLUMNS[profile]:
         if column in LABEL_FIELDS:
             table_id, key = LABEL_FIELDS[column]
-            rendered[column] = _label(package, table_id, row[key], locale)
+            rendered[column] = (
+                "" if column == "npu_brand" and row[key] is None
+                else _label(package, table_id, row[key], locale)
+            )
         else:
             if column not in row:
                 raise ConfigurationError(f"PACKAGE_OUTPUT: missing Computer field {column!r}")
@@ -107,16 +199,17 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         raise ValueError("Computer outputs need distinct en, fr, and metadata paths")
     if type(rows) is not int or rows < 1:
         raise ValueError("rows must be positive")
-    if output_profile != "compact":
+    if output_profile not in PROFILE_COLUMNS:
         raise ValueError(f"unsupported Computer output profile {output_profile!r}")
     profiles = package.manifest.get("output_profiles")
-    if not isinstance(profiles, dict) or profiles.get("compact") != list(COMPACT_COLUMNS):
-        raise ConfigurationError("PACKAGE_OUTPUT: compact profile differs from Computer register")
+    if not isinstance(profiles, dict) or profiles.get(output_profile) != list(PROFILE_COLUMNS[output_profile]):
+        raise ConfigurationError(f"PACKAGE_OUTPUT: {output_profile} profile differs from Computer register")
+    columns = PROFILE_COLUMNS[output_profile]
     with ExitStack() as stack:
         writers: dict[str, csv.DictWriter] = {}
         for locale in ("en", "fr"):
             stream = stack.enter_context(outputs[locale].open("w", encoding="utf-8", newline=""))
-            writer = csv.DictWriter(stream, fieldnames=COMPACT_COLUMNS,
+            writer = csv.DictWriter(stream, fieldnames=columns,
                                     extrasaction="raise", lineterminator="\n")
             writer.writeheader()
             writers[locale] = writer
@@ -131,9 +224,9 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                 ))
     resources: dict[str, str] = {}
     for path in sorted(package.input_paths):
-        with path.open("rb") as stream:
+        with path.open("rb") as source:
             resources[path.relative_to(package.root).as_posix()] = (
-                hashlib.file_digest(stream, "sha256").hexdigest()
+                hashlib.file_digest(source, "sha256").hexdigest()
             )
     metadata: dict[str, object] = {
         "format": "tabalyst.generate.computer.metadata",
@@ -147,7 +240,7 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                     "output_profile": output_profile, "locales": ["en", "fr"],
                     "market": market},
         "outputs": {locale: {"rows": rows, "profile": output_profile,
-                             "columns": len(COMPACT_COLUMNS)} for locale in ("en", "fr")},
+                             "columns": len(columns)} for locale in ("en", "fr")},
         "engine_version": __version__,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
     }

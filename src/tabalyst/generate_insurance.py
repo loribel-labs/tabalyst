@@ -6,13 +6,12 @@
 
 from __future__ import annotations
 
-import csv
 import random
 from datetime import date, timedelta
 from decimal import Decimal
-from importlib.resources import files
 
 from tabalyst.errors import ConfigurationError
+from tabalyst.generate_package import DatasetPackage
 from tabalyst.generate_references import CommonProvider, CommonReferences
 
 FIELDS = (
@@ -62,18 +61,16 @@ def _money(rng: random.Random, low: str, high: str) -> str:
 class InsuranceReferences:
     """Validate insurance editorial data once for each generation."""
 
-    def __init__(self, common: CommonReferences) -> None:
+    def __init__(self, common: CommonReferences, package: DatasetPackage) -> None:
         self.tables: dict[str, list[dict[str, str]]] = {}
         for name, schema in SCHEMAS.items():
-            resource = files("tabalyst").joinpath("generate_resources", "insurance", name)
-            try:
-                with resource.open("r", encoding="utf-8", newline="") as stream:
-                    reader = csv.DictReader(stream)
-                    if tuple(reader.fieldnames or ()) != schema:
-                        raise ValueError("unexpected header")
-                    rows = list(reader)
-            except (OSError, UnicodeError, ValueError) as exc:
-                raise ConfigurationError(f"Invalid packaged Insurance resource {name}: {exc}") from exc
+            table = package.tables.get(name.removesuffix(".csv"))
+            if table is None or table.role != "resource" or tuple(
+                column.name for column in table.columns
+            ) != schema:
+                raise ConfigurationError(f"PACKAGE_PROVIDER: invalid Insurance resource {name}")
+            rows = [{key: "" if value is None else str(value).lower() if isinstance(value, bool)
+                     else str(value) for key, value in row.items()} for row in table.rows]
             if not rows or any(
                 None in row or any(not value for value in row.values())
                 or not row["weight"].isdigit() or int(row["weight"]) <= 0
@@ -125,9 +122,11 @@ class InsuranceReferences:
 
 
 class InsuranceProvider:
-    def __init__(self, common: CommonReferences) -> None:
-        self.common = CommonProvider(common)
-        self.refs = InsuranceReferences(common)
+    """Generate coherent branch rows from declared Insurance resources."""
+
+    def __init__(self, common: CommonReferences, package: DatasetPackage) -> None:
+        self.common: CommonProvider = CommonProvider(common)
+        self.refs: InsuranceReferences = InsuranceReferences(common, package)
 
     def row(self, branch: str | None, number: int, rng: random.Random,
             as_of_date: str) -> dict[str, str]:
@@ -168,7 +167,8 @@ class InsuranceProvider:
         creation = _day(rng, max(birth + timedelta(days=18 * 365 + 5),
                                  start - timedelta(days=30)), start)
         modification = _day(rng, creation, as_of)
-        claim_date, claim_amount, claim_status = "", "", ""
+        claim_date: date | str = ""
+        claim_amount, claim_status = "", ""
         if rng.random() < float(product["claim_probability"]):
             claim = _pick(rng, self.refs.tables["claim_statuses.csv"])
             claim_date = _day(rng, start, min(end or as_of, as_of))

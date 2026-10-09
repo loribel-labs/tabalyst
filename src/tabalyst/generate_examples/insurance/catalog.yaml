@@ -1,0 +1,29 @@
+tables:
+  agencies:
+    role: resource
+    file: data/agencies.csv
+    schema: schemas/agencies.yaml
+  branch_contract_weights:
+    role: resource
+    file: data/branch_contract_weights.csv
+    schema: schemas/branch_contract_weights.yaml
+  claim_statuses:
+    role: resource
+    file: data/claim_statuses.csv
+    schema: schemas/claim_statuses.yaml
+  contract_statuses:
+    role: resource
+    file: data/contract_statuses.csv
+    schema: schemas/contract_statuses.yaml
+  contract_types:
+    role: resource
+    file: data/contract_types.csv
+    schema: schemas/contract_types.yaml
+  payment_frequencies:
+    role: resource
+    file: data/payment_frequencies.csv
+    schema: schemas/payment_frequencies.yaml
+  payment_methods:
+    role: resource
+    file: data/payment_methods.csv
+    schema: schemas/payment_methods.yaml

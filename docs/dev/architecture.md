@@ -56,9 +56,10 @@ structural or semantic change. See the
   unsafe outputs reject the batch before any reading), sequential inspections
   and the visible Inspect file writes (`generate_inspections()`); `inspect()` is
   its single-source form in the public API.
-- `generate_definition.py`: strict, bounded YAML version 1 loading and located
-  validation for Generate. `generate_service.py` resolves overrides, apportions
-  rows, plans every artifact and owns staging and best-effort publication.
+- `generate_definition.py`: historical YAML version 1 validation; the development
+  service rejects this published format. `generate_service.py` resolves
+  overrides, apportions rows, plans every artifact and owns staging and
+  best-effort publication.
   `generate_csv.py` is the UTF-8/LF streaming writer adapted from the Generate
   prototype. `generate_values.py` evaluates elementary and dependent columns,
   with shared entity pools and stable random streams. Lot 3 adds relations and
@@ -67,14 +68,15 @@ structural or semantic change. See the
   `generate_insurance.py` loads and validates packaged Insurance tables and
   generates one coherent 33-field branch row per request; the shared CSV
   writer and combine pass produce its three branch files and union.
-  During the package-format transition, `generate_package.py` validates a local
-  Computer package and `generate_computer_output.py` streams its paired EN/FR
+  `generate_package.py` validates versioned packages for all three domains.
+  The visible Computer package is loaded by path;
+  `generate_computer_output.py` streams its paired EN/FR
   CSVs and metadata. `generate_service.py` plans all three artifacts, protects
   package resources and the request file, then stages and publishes them with
   the existing best-effort restoration rule. CRM uses a versioned package with
   generated column schemas; `generate_columns_package.py` validates it and
-  shares the column execution engine during migration. Insurance retains its
-  v1 definition until its dedicated migration lot.
+  shares the column execution engine. Insurance uses a matching packaged copy;
+  the v1 reader has been removed from the development checkout.
 - `projects/`: private DuckDB project storage, not used by default Scan/Report
   (design in
   `scan/project-storage.md`): `identity.py` (ULID project ids), `location.py`

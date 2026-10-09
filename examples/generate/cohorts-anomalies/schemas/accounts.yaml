@@ -1,0 +1,6 @@
+columns:
+- name: account_id
+  type: string
+  generate:
+    kind: sequence
+    prefix: A

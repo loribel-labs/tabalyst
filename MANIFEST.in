@@ -3,4 +3,11 @@ include README.md
 include examples/README.md
 include examples/config.json
 recursive-include examples/input *.csv
+include examples/generate/README.md
+include examples/generate/generate_examples.py
+recursive-include examples/generate/crm *.yaml
+recursive-include examples/generate/insurance *.yaml *.csv *.md
+recursive-include examples/generate/computer *.yaml *.csv *.md
+recursive-include examples/generate/common-references *.yaml
+recursive-include examples/generate/cohorts-anomalies *.yaml
 recursive-include src/tabalyst/generate_resources *.csv *.md
