@@ -4,7 +4,7 @@
 
 """Reusable planning and batch execution for Tabalyst Report."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -17,6 +17,7 @@ from tabalyst.batch import (
     validate_outputs,
 )
 from tabalyst.config import load_config_layers, settings_from_layer
+from tabalyst.deep_store import ConfirmationRequired
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
 from tabalyst.execution_log import EXECUTION_LOG_NAME
 from tabalyst.inspector.choices import collection_slug
@@ -29,14 +30,19 @@ from tabalyst.progress import (
     ProgressPhase,
     emit_progress,
 )
+from tabalyst.report_chain import ChainPlan
 from tabalyst.report_config import resolve_report_config
 from tabalyst.scan_reuse import read_scan_document, source_name
 from tabalyst.scanner.identity import source_format_of
+from tabalyst.scanner.planner import Confirmation, combine_confirmations
 from tabalyst.service import (
     ConfigPath,
-    _analyze_resolved,
+    ScannedReport,
     _config_paths,
-    _report_scan_resolved,
+    _scan_document_resolved,
+    _scan_resolved,
+    plan_report_chain,
+    write_scanned_report,
 )
 
 
@@ -323,6 +329,17 @@ def _validate_report_plan(jobs: tuple[ReportJob, ...], *, force: bool) -> None:
     )
 
 
+@dataclass(frozen=True)
+class _Waiting:
+    """A scanned job whose second pass and files come next."""
+
+    index: int
+    job: ReportJob
+    scanned: ScannedReport
+    chain: ChainPlan
+    forward: ProgressCallback | None
+
+
 def generate_reports(
     input_specs: Sequence[str | Path],
     *,
@@ -338,6 +355,9 @@ def generate_reports(
     from_scan: bool = False,
     workers: int | None = None,
     all_collections: bool = False,
+    deep: bool = False,
+    confirmed: bool = False,
+    confirm: Callable[[Confirmation], bool] | None = None,
 ) -> BatchReportResult:
     """Plan and execute one or more reports without depending on the CLI.
 
@@ -350,6 +370,16 @@ def generate_reports(
     Set ``details=True`` to write a standalone HTML page for each column.
     ``all_collections`` reports every visible collection of each JSON file or
     workbook, one pair of files per collection (see ``build_report_plan``).
+
+    The planner decides whether a second pass has a benefit and a low cost and
+    adds its analyses to each report (``analyses``, design 20.1); ``deep=True``
+    forces it and the ``deep.mode`` setting can turn it off or force it. A
+    forced second pass whose estimate passes the thresholds of rule R1 is not
+    started before it is confirmed, once for the whole batch: ``confirmed=True``
+    says it was, ``confirm`` is asked with the total otherwise, and without
+    either ``ConfirmationRequired`` is raised after the sources are scanned and
+    before any is read again. This function never prompts. With ``from_scan``
+    no source is read unless ``deep`` forces it.
     """
     if from_scan and (separator is not None or encoding is not None):
         raise ConfigurationError(
@@ -400,85 +430,124 @@ def generate_reports(
             )
         )
         plan = replace(plan, warnings=(*plan.warnings, *notices))
-    if from_scan:
-        top_level, scan_layer = load_config_layers(config_paths)
-        settings = settings_from_layer(top_level)
-    else:
+    top_level, scan_layer = load_config_layers(config_paths)
+    settings = settings_from_layer(top_level)
+    deep_section = settings.deep
+    if not from_scan:
         config = resolve_report_config(
             config_paths,
             separator=separator,
             encoding=encoding,
         )
-        _, report_scan_layer = load_config_layers(config_paths)
     successes: list[ReportSuccess] = []
     failures: list[ReportFailure] = []
     total = len(plan.jobs)
+    # Scanned jobs that wait for the confirmation of a forced second pass, which
+    # is asked once for the batch (R1). An automatic pass never waits.
+    waiting: list[_Waiting] = []
+
+    def forwarder(index: int) -> ProgressCallback | None:
+        if on_progress is None:
+            return None
+
+        def forward(event: ProgressEvent) -> None:
+            on_progress(
+                ProgressEvent(
+                    source=event.source,
+                    phase=event.phase,
+                    index=index,
+                    total=total,
+                    detail=event.detail,
+                    bytes_read=event.bytes_read,
+                    bytes_total=event.bytes_total,
+                )
+            )
+
+        return forward
+
+    def fail(index: int, job: ReportJob, exc: TabalystError) -> None:
+        failures.append(ReportFailure(job=job, error=exc))
+        emit_progress(
+            on_progress,
+            job.source,
+            ProgressPhase.FAILED,
+            index=index,
+            total=total,
+            detail=str(exc),
+        )
+
+    def finish(item: _Waiting) -> None:
+        try:
+            result, warnings = write_scanned_report(
+                item.scanned,
+                item.chain,
+                force=force,
+                details=details,
+                on_progress=item.forward,
+            )
+        except TabalystError as exc:
+            fail(item.index, item.job, exc)
+        else:
+            successes.append(
+                ReportSuccess(
+                    job=item.job,
+                    result=result,
+                    source_checked=item.scanned.checked,
+                    warnings=warnings,
+                )
+            )
 
     for index, job in enumerate(plan.jobs, start=1):
-        def forward(event: ProgressEvent, *, job_index: int = index) -> None:
-            if on_progress is not None:
-                on_progress(
-                    ProgressEvent(
-                        source=event.source,
-                        phase=event.phase,
-                        index=job_index,
-                        total=total,
-                        detail=event.detail,
-                        bytes_read=event.bytes_read,
-                        bytes_total=event.bytes_total,
-                    )
-                )
-
-        checked = None
-        warnings: tuple[str, ...] = ()
+        forward = forwarder(index)
         try:
             if job.error is not None:
                 raise job.error
             if from_scan:
-                result, checked, warnings = _report_scan_resolved(
+                scanned = _scan_document_resolved(
                     job.source,
                     job.output,
                     settings,
                     scan_layer,
                     config_paths,
                     force=force,
-                    details=details,
                     on_progress=forward,
                 )
             else:
-                result, warnings = _analyze_resolved(
+                scanned = _scan_resolved(
                     job.source,
                     job.output,
                     config,
                     config_paths,
                     force=force,
-                    details=details,
                     on_progress=forward,
                     workers=workers,
-                    scan_layer=report_scan_layer,
+                    scan_layer=scan_layer,
                     separator=separator,
                     encoding=encoding,
                     collections=[job.collection] if job.collection else collections,
                 )
+            chain = plan_report_chain(scanned, deep_section, deep=deep)
         except TabalystError as exc:
-            failures.append(ReportFailure(job=job, error=exc))
-            emit_progress(
-                on_progress,
-                job.source,
-                ProgressPhase.FAILED,
-                index=index,
-                total=total,
-                detail=str(exc),
-            )
+            fail(index, job, exc)
+            continue
+        item = _Waiting(index, job, scanned, chain, forward)
+        if chain.mode == "forced":
+            waiting.append(item)
         else:
-            successes.append(
-                ReportSuccess(
-                    job=job,
-                    result=result,
-                    source_checked=checked,
-                    warnings=warnings,
-                )
-            )
+            finish(item)
+
+    if waiting:
+        needing = [
+            item.chain.confirmation
+            for item in waiting
+            if item.chain.confirmation is not None
+        ]
+        if needing and not confirmed:
+            everything = combine_confirmations(needing)
+            if everything.required and not (confirm is not None and confirm(everything)):
+                raise ConfirmationRequired(everything)
+        for item in waiting:
+            finish(item)
 
     return BatchReportResult(
         plan=plan,

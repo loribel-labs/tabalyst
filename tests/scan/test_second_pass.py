@@ -31,6 +31,7 @@ from tabalyst.deep_service import (
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.models import Complete, Disabled, NumericStats
+from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
 from tabalyst.scanner.secondpass import (
     EXECUTABLE,
     analysis_key,
@@ -403,9 +404,10 @@ def test_the_progress_of_the_second_pass_is_named_while_the_bytes_are_read(tmp_p
 
 def test_what_a_field_remembers_is_what_the_planner_charges_for(tmp_path):
     from tabalyst.scanner.planner.costmodel import REPLAY_MEMO_ENTRIES
-    from tabalyst.scanner.secondpass.routing import MEMO_ENTRIES
+    from tabalyst.scanner.secondpass.replay import CellReader
+    from tabalyst.scanner.secondpass.routing import FieldRoute
 
-    assert MEMO_ENTRIES == REPLAY_MEMO_ENTRIES
+    assert FieldRoute(CellReader(ScanConfig()), None, None).memo_entries == REPLAY_MEMO_ENTRIES
 
 
 def test_the_command_runs_the_second_pass_and_names_it(tmp_path, monkeypatch):
@@ -518,9 +520,12 @@ def test_the_plan_of_a_forced_run_says_what_cannot_run_yet(tmp_path, monkeypatch
         tmp_path, "codes.csv", "\n".join(["customer_id", *[f"C{n:06d}" for n in range(2_000)]]) + "\n"
     )
 
+    # Every analyzer has an executor since lot 7c: one without stands in for a
+    # future analysis the plan names but this version cannot run.
+    runnable = runner.invoke(app, ["scan", str(_ids(tmp_path)), "--plan", "--deep"])
+    monkeypatch.setattr(PatternValidation, "available", False)
     mixed = runner.invoke(app, ["scan", str(source), "--plan", "--deep"])
     waiting = runner.invoke(app, ["scan", str(only), "--plan", "--deep"])
-    runnable = runner.invoke(app, ["scan", str(_ids(tmp_path)), "--plan", "--deep"])
 
     assert mixed.exit_code == waiting.exit_code == runnable.exit_code == 0
     assert "cannot run in this version" in mixed.stdout

@@ -177,6 +177,29 @@ class DeepSettings(BaseModel):
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+DeepMode = Literal["auto", "off", "force"]
+
+
+class DeepSection(DeepSettings):
+    """The ``deep`` object of configuration files: the settings of the second
+    pass, and ``mode``, which tells ``tabalyst report`` what to do about it.
+
+    ``auto`` (the default) lets the planner decide whether a second pass has a
+    benefit and a low cost; ``off`` never runs one, for a script or a CI that must
+    read each source once; ``force`` behaves as ``--deep``, with its confirmation.
+    The mode only decides whether to plan, so it is not part of the settings a
+    second-pass document records (``settings()``) and changing it never makes a
+    stored result stale. ``tabalyst scan --deep`` is an explicit request and
+    runs whatever the mode.
+    """
+
+    mode: DeepMode = "auto"
+
+    def settings(self) -> DeepSettings:
+        """What the second pass computes with: the section without its mode."""
+        return DeepSettings.model_validate(self.model_dump(exclude={"mode"}))
+
+
 class SettingsFile(BaseModel):
     """Settings of a configuration file besides its ``scan`` object: ``csv``
     for ``tabalyst sample``, the ``report`` presentation settings, the
@@ -187,7 +210,7 @@ class SettingsFile(BaseModel):
     csv: CsvConfig = Field(default_factory=CsvConfig)
     report: PresentationSettings = Field(default_factory=PresentationSettings)
     output: OutputSettings = Field(default_factory=OutputSettings)
-    deep: DeepSettings = Field(default_factory=DeepSettings)
+    deep: DeepSection = Field(default_factory=DeepSection)
 
 
 # Settings that moved, with their new location. The analysis settings moved to
@@ -332,7 +355,13 @@ def settings_from_layer(merged: dict) -> SettingsFile:
 def deep_settings(paths: Iterable[Path]) -> DeepSettings:
     """The ``deep`` settings of the configuration files (second pass)."""
     top_level, _ = load_config_layers(paths)
-    return settings_from_layer(top_level).deep
+    return settings_from_layer(top_level).deep.settings()
+
+
+def deep_mode(paths: Iterable[Path]) -> DeepMode:
+    """The ``deep.mode`` of the configuration files (``auto`` by default)."""
+    top_level, _ = load_config_layers(paths)
+    return settings_from_layer(top_level).deep.mode
 
 
 def json_indent(paths: Iterable[Path]) -> bool:

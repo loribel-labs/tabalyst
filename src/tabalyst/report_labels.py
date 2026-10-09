@@ -190,3 +190,37 @@ ORIGIN_WORDS = {
     "middle": "Sampled",
     "end": "End",
 }
+
+# The analyses of the second pass (design 20), in words.
+ANALYSIS_LABELS = {
+    "numeric_histogram": "Histogram and exact quantiles",
+    "length_distribution": "Length distribution",
+    "exact_frequencies": "Exact frequencies",
+    "exact_distinct": "Exact distinct count",
+    "pattern_validation": "Pattern validation",
+    "temporal_distribution": "Distribution over time",
+}
+# How a second pass ended for a Report (``analyses.outcome``), and who decided it.
+OUTCOME_WORDS = {
+    "ran": "The second pass computed analyses.",
+    "reused": "The stored results of an earlier second pass were enough.",
+    "nothing_selected": "The planner found nothing worth adding.",
+    "disabled": "The second pass is turned off (deep.mode is off).",
+    "unavailable": "Some analyses could not be computed because the source was not read.",
+    "failed": "The second pass failed, so the report goes without it.",
+}
+MODE_WORDS = {
+    "auto": "Automatic: the planner chose what is useful and cheap.",
+    "forced": "Forced: every applicable analysis the budget holds.",
+    "off": "Off.",
+}
+# Why an analysis of the second pass is not complete (``AnalysisResult.reason``).
+DEEP_REASONS = {
+    "source_not_read": "this report was built from a scan document, which reads no source",
+    "source_unavailable": "the source of the scan document was not found beside it",
+    "memory_budget": "the exact set did not fit in the memory the plan gave it",
+    "scan_mismatch": "the second pass found other counts than the scan, so it kept no result",
+    "analysis_error": "the analysis failed",
+    "unrepresentable": "a value could not be represented",
+    "not_available": "no executor in this version",
+}

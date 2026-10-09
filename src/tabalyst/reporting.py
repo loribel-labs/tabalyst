@@ -17,10 +17,14 @@ from tabalyst._version import get_version
 from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
+from tabalyst.report_deep import column_analyses, second_pass_view
 from tabalyst.report_labels import (
     ACCURACY_TITLES,
     ACCURACY_WORDS,
+    DEEP_REASONS,
+    MODE_WORDS,
     ORIGIN_WORDS,
+    OUTCOME_WORDS,
 )
 from tabalyst.report_profile import build_views
 from tabalyst.report_sections import (
@@ -32,6 +36,7 @@ from tabalyst.report_sections import (
     rows_view,
 )
 from tabalyst.report_views import (
+    ColumnAnalyses,
     ColumnView,
     DatasetView,
     LimitView,
@@ -40,6 +45,7 @@ from tabalyst.report_views import (
 from tabalyst.scan_document import load_report
 from tabalyst.scan_reuse import read_json_document
 from tabalyst.scanner.models import PatternCandidate
+from tabalyst.scanner.secondpass.models import DistinctCount
 
 
 def format_number(number: float) -> str:
@@ -102,6 +108,7 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
     config = ReportConfig.from_presentation(profile.report.config, profile.config)
     datasets = {dataset.id: dataset for dataset in profile.datasets}
     entries = pattern_entries(profile.derived)
+    deep = column_analyses(profile.analyses)
     views = []
     for projection in profile.report.datasets:
         base = datasets[projection.id]
@@ -129,6 +136,12 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
         for column in projection.columns:
             field = fields[column.id]
             derived = build_views(field, column.inferred_type, config)
+            results = deep.get((projection.id, column.id), ColumnAnalyses())
+            exact = (
+                results.distinct.distinct
+                if isinstance(results.distinct, DistinctCount)
+                else None
+            )
             columns.append(
                 ColumnView(
                     **dict(column),
@@ -136,7 +149,8 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                     numeric=derived.numeric,
                     date_profile=derived.date_profile,
                     string_profile=derived.string_profile,
-                    distinct=cardinality_view(field),
+                    distinct=cardinality_view(field, exact),
+                    deep=results,
                     quality=findings.get(column.id, []),
                     limits=bounded.get(column.id, []),
                     patterns=pattern_view(
@@ -153,6 +167,7 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                 patterns_available=bool(entries),
                 quality_issue_column_count=sum(c.has_quality_issues for c in columns),
                 observation_column_count=sum(c.has_observations for c in columns),
+                second_pass=second_pass_view(profile.analyses, projection.id),
             )
         )
     return views
@@ -196,6 +211,9 @@ def _labels() -> dict[str, object]:
         "acc_titles": ACCURACY_TITLES,
         "origin_words": ORIGIN_WORDS,
         "display_limits": DISPLAY_LIMITS,
+        "mode_words": MODE_WORDS,
+        "outcome_words": OUTCOME_WORDS,
+        "deep_reasons": DEEP_REASONS,
     }
 
 
@@ -251,6 +269,7 @@ def _page_view(dataset: DatasetView, prefix: str, grammar: str) -> dict[str, obj
         "pattern_columns": pattern_columns,
         "pattern_rows": pattern_rows,
         "pattern_missing": len(dataset.columns) - len(pattern_columns),
+        "period_columns": [c for c in dataset.columns if c.deep.periods],
         "pattern_grammar": grammar,
         # The largest sample any column of the dataset keeps in this document.
         "sample_size": max(

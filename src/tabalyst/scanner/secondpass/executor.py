@@ -29,7 +29,10 @@ from tabalyst.scanner.measures import Unrepresentable
 from tabalyst.scanner.models import DatasetResult, FieldResult, ScanResult
 from tabalyst.scanner.observations import StreamItem
 from tabalyst.scanner.paths import FieldPath
-from tabalyst.scanner.planner.costmodel import EXACT_SET_STATE_PREFIX
+from tabalyst.scanner.planner.costmodel import (
+    EXACT_SET_STATE_PREFIX,
+    PERIOD_MEMO_ENTRIES,
+)
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
 from tabalyst.scanner.process import peak_memory_bytes
@@ -53,6 +56,12 @@ from tabalyst.scanner.secondpass.models import (
     DeepTimings,
     DistinctLimited,
 )
+from tabalyst.scanner.secondpass.patterns import (
+    PatternAccumulator,
+    derive_from_samples,
+    pattern_entry,
+)
+from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
@@ -61,7 +70,13 @@ from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_p
 EXECUTABLE = frozenset(analyzer.id for analyzer in default_registry().runnable())
 
 Accumulator = (
-    DenseAccumulator | BinAccumulator | LengthAccumulator | ExactSet | FrequencyAccumulator
+    DenseAccumulator
+    | BinAccumulator
+    | LengthAccumulator
+    | ExactSet
+    | FrequencyAccumulator
+    | PatternAccumulator
+    | PeriodAccumulator
 )
 
 
@@ -152,9 +167,32 @@ def _grant(candidate: Candidate) -> int:
     )
 
 
-def _setup(job: _Job, cells: CellReader, pool: ExactPool) -> None:
+def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> None:
     """The accumulator of an analysis, with the route of its field."""
     candidate, field, dataset = job.candidate, job.field, job.dataset
+    if candidate.analyzer == "pattern_validation":
+        entry = (
+            pattern_entry(scan.derived.patterns.fields, dataset.id, field.id)
+            if scan.derived is not None and scan.derived.patterns is not None
+            else None
+        )
+        if entry is None:
+            job.failure = ("scan_mismatch", "the scan has no inferred patterns for the field")
+            return
+        accumulator = PatternAccumulator(entry, scan.config.pattern_inference.max_value_length)
+        job.accumulator = accumulator
+        if not candidate.execution.requires_source:
+            derive_from_samples(accumulator, field)
+        return
+    if candidate.analyzer == "temporal_distribution":
+        temporal = field.temporal.value if field.temporal.status == "complete" else None
+        if temporal is None or len(temporal.kinds) != 1:
+            job.failure = ("scan_mismatch", "the scan has no single temporal kind for the field")
+            return
+        job.accumulator = PeriodAccumulator(
+            str(candidate.parameters["granularity"]), temporal.kinds[0].kind
+        )
+        return
     if candidate.analyzer == "length_distribution":
         job.accumulator = LengthAccumulator()
         return
@@ -222,6 +260,15 @@ def _finish(job: _Job) -> _Finished:
         return _Finished(
             "complete", accumulator.result(frequencies.value, field.values.count)
         )
+    if isinstance(accumulator, PatternAccumulator):
+        source = "source" if job.candidate.execution.requires_source else "samples"
+        return _Finished("complete", accumulator.result(field.values.count, source))
+    if isinstance(accumulator, PeriodAccumulator):
+        assert field.temporal.status == "complete"
+        stats = field.temporal.value
+        return _Finished(
+            "complete", accumulator.result(stats.kinds[0].count, stats.ambiguous)
+        )
     assert field.numeric.status == "complete" and accumulator is not None
     return _Finished("complete", accumulator.result(field.numeric.value))
 
@@ -242,8 +289,7 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.failure is not None:
         reason, detail = job.failure
         return _entry(candidate, key, "failed", reason=reason, detail=detail)
-    assert job.route is not None
-    if job.route.failure is not None:
+    if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     try:
         finished = _finish(job)
@@ -277,6 +323,16 @@ def pending_candidates(plan: AnalysisPlan, previous: DeepResult | None) -> list[
     ]
 
 
+def reading_candidates(plan: AnalysisPlan, previous: DeepResult | None) -> list[Candidate]:
+    """The pending analyses that need the source: the others are answered by the
+    Scan alone (the patterns of a field whose every distinct value it holds)."""
+    return [
+        candidate
+        for candidate in pending_candidates(plan, previous)
+        if candidate.execution.requires_source
+    ]
+
+
 def run_second_pass(
     scan: ScanResult,
     source: Path,
@@ -284,6 +340,7 @@ def run_second_pass(
     *,
     settings: DeepSettings | None = None,
     previous: DeepResult | None = None,
+    skip_reading: str | None = None,
     on_progress: ProgressCallback | None = None,
 ) -> SecondPassOutcome:
     """Run the selected analyses of ``plan`` over ``source`` and return the
@@ -291,7 +348,10 @@ def run_second_pass(
 
     Results of ``previous`` with the same key are kept, and the source is not
     read at all when nothing is left to compute (CACHE-04). Selected analyses
-    that have no executor are ``skipped``. Raises ``StalePlan``, ``StaleSource``
+    that have no executor are ``skipped``; so are those that need the source
+    when ``skip_reading`` is given (a reason code such as ``source_unavailable``):
+    the source is then neither opened nor checked, and what the Scan or the
+    stored results can answer is still computed. Raises ``StalePlan``, ``StaleSource``
     or ``SourceNotReadable`` (design 20.6) before and after the reading: no
     document is returned then.
     """
@@ -318,16 +378,19 @@ def run_second_pass(
         elif key in usable:
             entries[candidate.id] = usable[key]
             reused.append(candidate.id)
+        elif skip_reading is not None and candidate.execution.requires_source:
+            entries[candidate.id] = _entry(candidate, key, "skipped", reason=skip_reading)
+            skipped.append(candidate.id)
         else:
             dataset, field = fields[(candidate.dataset, candidate.field)]
             jobs.append(_Job(candidate, key, dataset, field))
 
+    read_jobs: list[_Job] = []
     reading = [0.0]
     consume = 0.0
     router = Router({})
     verified = False
     if jobs:
-        guard: SourceGuard = prepare_second_pass(plan, scan, source)
         cells = CellReader(scan.config)
         # The exact sets of the run share what the plan gave them (MEM-06).
         pool = ExactPool(
@@ -338,11 +401,18 @@ def run_second_pass(
             )
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
+        # An analysis the Scan can answer alone (the patterns of a field whose
+        # every distinct value it holds) does not read the source.
         for job in jobs:
             try:
-                _setup(job, cells, pool)
+                _setup(job, cells, pool, scan)
+            except ScanMismatch as exc:
+                job.failure = ("scan_mismatch", str(exc))
+                continue
             except Exception as exc:  # noqa: BLE001 - one analysis fails alone
                 job.failure = ("analysis_error", type(exc).__name__)
+                continue
+            if not job.candidate.execution.requires_source:
                 continue
             where = (job.dataset.id, field_path(job.field.path))
             route = routes.get(where)
@@ -355,27 +425,35 @@ def run_second_pass(
                 route.distinct = accumulator
             elif isinstance(accumulator, FrequencyAccumulator):
                 route.frequencies = accumulator
+            elif isinstance(accumulator, PatternAccumulator):
+                route.patterns = accumulator
+            elif isinstance(accumulator, PeriodAccumulator):
+                route.periods = accumulator
+                route.memo_entries = PERIOD_MEMO_ENTRIES
             else:
                 route.numeric = accumulator
             job.route = route
-        emit_progress(
-            on_progress,
-            source,
-            ProgressPhase.READING,
-            detail="second pass",
-            bytes_read=0,
-            bytes_total=scan.source.size_bytes,
-        )
-        reader = open_reader(
-            source, scan.config, byte_progress(on_progress, source, scan.source.size_bytes)
-        )
-        router = Router(routes)
-        consume_started = perf_counter()
-        router.consume(_timed(reader, reading))
-        consume = perf_counter() - consume_started
-        summary = reader.summary()
-        guard.finish(summary.sha256, summary.bytes_read)
-        verified = True
+        read_jobs = [job for job in jobs if job.route is not None]
+        if read_jobs:
+            guard: SourceGuard = prepare_second_pass(plan, scan, source)
+            emit_progress(
+                on_progress,
+                source,
+                ProgressPhase.READING,
+                detail="second pass",
+                bytes_read=0,
+                bytes_total=scan.source.size_bytes,
+            )
+            reader = open_reader(
+                source, scan.config, byte_progress(on_progress, source, scan.source.size_bytes)
+            )
+            router = Router(routes)
+            consume_started = perf_counter()
+            router.consume(_timed(reader, reading))
+            consume = perf_counter() - consume_started
+            summary = reader.summary()
+            guard.finish(summary.sha256, summary.bytes_read)
+            verified = True
         for job in jobs:
             entries[job.candidate.id] = _conclude(job)
 
@@ -398,7 +476,7 @@ def run_second_pass(
             ),
             workers=1,
             peak_memory_bytes=peak_memory_bytes(),
-            source_read=bool(jobs),
+            source_read=bool(read_jobs),
             source_verified=verified,
             records_read=router.records_read,
             cells_read=router.cells_read,
@@ -413,6 +491,6 @@ def run_second_pass(
         executed=tuple(job.candidate.id for job in jobs),
         reused=tuple(reused),
         skipped=tuple(skipped),
-        read_source=bool(jobs),
+        read_source=bool(read_jobs),
     )
 

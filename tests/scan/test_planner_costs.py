@@ -179,8 +179,9 @@ def test_the_cost_of_a_pattern_grows_with_its_candidates(tmp_path):
     candidate = by_analyzer(plan_analyses(result, automatic=False), "pattern_validation")["code"]
 
     count = candidate.parameters["patterns"]
-    assert candidate.costs.cell_ns == count * NS_PER_CELL["matcher"]
-    assert candidate.costs.cpu == cpu_class_for(count * NS_PER_CELL["matcher"])
+    expected = NS_PER_CELL["matcher_base"] + count * NS_PER_CELL["matcher"]
+    assert count > 1 and candidate.costs.cell_ns == expected
+    assert candidate.costs.cpu == cpu_class_for(expected)
 
 
 # Budgets -----------------------------------------------------------------------

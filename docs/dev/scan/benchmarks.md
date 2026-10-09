@@ -773,3 +773,49 @@ firm bound 443 MB); the process peak is 438 MB; `deep.json` is 360 KB. The exact
 distinct values: `id_client` 1,000,000 (unique), `id_contrat` 1,000,000 (unique, the KMV
 estimate of the Scan said 984,843), `code_postal` 130,082 (131,022), `montant_reclamation`
 115,667 (115,800). Run again: 0.9 s, the source is not read.
+
+## Patterns, dates and the second pass of the Report (lot 7c)
+
+Machine: the one of lots 7a and 7b, not idle during the measures (the counters of integers took
+1,142 to 1,252 ns a cell against 841 at lot 7a, so the figures below are 30 to 50% above a quiet
+machine). Both commands read the combined file of lot 0 (1,000,000 rows by 34 columns).
+
+**Cost of a cell** (`planner_costs.py executor --max-samples 1000`: the Scan keeps a sample of
+1,000 values, so the patterns need the source; the analysis time of the run divided by the cells
+handed to the analyses, the reading separate):
+
+| Analysis | Cells handled | Per cell | Model | Peak traced |
+| --- | ---: | ---: | ---: | ---: |
+| Pattern validation (3 fields, 5 candidates), token loop only | 3,000,000 | 1,788 ns (1,073 a candidate) | | |
+| Pattern validation, compiled regular expressions for ASCII values | 3,000,000 | 633 to 722 ns (380 to 430 a candidate) | 800 + 100 a candidate | 7.4 MB |
+| Dates per period, the memory of 1,024 strings of the other analyses | 5,000,000 | 1,700 to 1,964 ns | | 9.2 MB |
+| Dates per period, 16,384 strings remembered (`PERIOD_MEMO_ENTRIES`) | 5,000,000 | 674 ns | 800 | 23.5 MB (firm 34.4 MB) |
+
+A value of an ASCII text is read by a possessive regular expression, `{low,high}+` for every
+repeat (the semantics of the greedy matcher of the grammar, no backtracking); the token loop,
+kept for the other values, cost about 2.8 times more on these fields. The date detector is the
+expensive part of a date: a column of days repeats the same strings from one batch to the next,
+and a memory of 1,024 strings, enough for the other analyses, read the same dates again every
+time (2,658 distinct dates in `date_debut`). `NS_PER_CELL` is 800 ns for the field of a pattern
+validation plus 100 for each candidate (`matcher_base`, `matcher`) and 800 for a period, all
+class `moderate`; `COST_MODEL_VERSION` is 4. The planner estimates the plan of the combined file
+at 12 to 41 s before the dates were remembered (30 analyses, 13 of them reading the source).
+
+**Overhead of the Report** (`benchmarks/report_overhead.py`, each case in its own storage, wall
+time of `tabalyst report` including the interpreter and the files):
+
+| Case | Wall time | Scan | Second pass | Reading of the second pass | Analyses | Peak (process) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `off` (`deep.mode` off, no second pass) | 20.9 s | 18.5 s | none | none | 0 | 355 MB |
+| `auto` (the planner decides) | 38.3 s | 19.2 s | 16.7 s | 4.5 s | 30 (13 read the source) | 400 MB |
+| `warm` (`auto` again on the same storage) | 1.8 s | reused | 0.0003 s | none | 30 reused | 266 MB |
+| `forced` (`--deep --yes`) | 39.6 s | 18.4 s | 18.7 s | 5.1 s | 33 | 459 MB |
+
+The automatic second pass adds 17.4 s to a report of 20.9 s, 84%: above the 50% I proposed as the
+point from which the overhead is worth a decision, and it reads 12 million cells, a tenth of the
+100 million that an automatic choice may take (decision O36). It was 23.8 s (+105%) before the
+dates were remembered. The estimate of the plan (12 to 41 s) holds the measure. The JSON grows
+from 0.76 to 1.19 MB (the embedded second-pass document, with the plan of 126 candidates), the
+HTML from 0.65 to 0.76 MB. On `examples/input/insurance-customers.csv` (3,000 rows) the report
+takes 1.8 s against 1.7 s without it (the second pass is 0.07 s of 29 analyses). The lever, if the overhead is too much, is the automatic
+budget of 20.2, which is deterministic and recorded in the plan.

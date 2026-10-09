@@ -1,6 +1,6 @@
 ---
 title: "CLI: tabalyst report"
-description: Every option of tabalyst report and examples for CSV, JSON and Excel files, including how to choose a table with --collection and report every table with --all-collections.
+description: Every option of tabalyst report and examples for CSV, JSON and Excel files, including the second pass it adds by itself, --deep and --yes, how to choose a table with --collection and report every table with --all-collections.
 ---
 
 ```console
@@ -12,6 +12,11 @@ one, an interactive HTML report and a JSON profile, plus an `executions.json`
 history in the same folder. With `--scan`, the inputs are scan documents. The
 sources are never modified. See [Tabalyst Report](../../report/index.md) for what
 the report contains.
+
+The report also adds, by itself, the [exact analyses of a second
+pass](../../scan/deep.md) that are useful and cheap: patterns counted on every
+value, dates by period, exact distinct counts and medians. It says so after the
+report path. See [Second pass](#second-pass).
 
 ## Output files
 
@@ -46,6 +51,8 @@ options each kind of file uses.
 | `-v`, `--verbose` | Also show the profile and history paths, and the encoding and delimiter of a CSV file |
 | `--no-progress` | Disable the progress line |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default. Not with `--scan` |
+| `--deep` | Force the [second pass](#second-pass): every applicable exact analysis, whatever the planner thinks of its cost. Asks first when it is costly |
+| `-y`, `--yes` | Start a costly forced second pass without asking. Outside a terminal, a costly forced second pass needs it |
 | `--help` | Show the options and exit |
 
 ### Options for CSV files
@@ -68,13 +75,13 @@ A JSONL file has one dataset, its lines, so it has no collection to choose.
 
 | Option | Description |
 | --- | --- |
-| `--scan` | Build the reports from scan documents written by `tabalyst scan`, without reading the sources again. Not with `--delimiter`, `--encoding`, `--collection`, `--all-collections` or `--workers` |
+| `--scan` | Build the reports from scan documents written by `tabalyst scan`, without reading the sources again, not even for the second pass unless `--deep` is given. Not with `--delimiter`, `--encoding`, `--collection`, `--all-collections` or `--workers` |
 
 ### Options by format
 
 | Option | CSV | JSON | JSONL | Excel |
 | --- | :---: | :---: | :---: | :---: |
-| `-o`, `-d`, `-c`, `-f`, `--details`, `-q`, `-v`, `--no-progress`, `--workers` | yes | yes | yes | yes |
+| `-o`, `-d`, `-c`, `-f`, `--details`, `-q`, `-v`, `--no-progress`, `--workers`, `--deep`, `--yes` | yes | yes | yes | yes |
 | `--delimiter`, `--encoding` | yes | - | - | - |
 | `--collection` | - | yes, repeatable | - | yes, once |
 | `--all-collections` | - | yes | - | yes |
@@ -196,6 +203,45 @@ tabalyst report scans/*.scan.json --scan -d reports
 tabalyst report customers.csv --config settings.json
 ```
 
+## Second pass
+
+The scan counts and samples everything in one pass. A second pass reads the file
+again for what a sample cannot give: the number of occurrences each inferred
+pattern reads in the whole file, the dates counted per day, month or year, the
+exact number of distinct values and the exact median of a column the scan
+stopped counting. `tabalyst report` decides by itself:
+
+```console
+tabalyst report customers.csv
+```
+
+```text
+Analyzed 3,000 rows and 34 columns.
+Report: D:\work\customers.html
+Second pass (automatic): 36 analyses, 36 computed, 0 reused.
+```
+
+The planner picks an analysis only when it is useful and cheap, under budgets of
+memory and cells that do not depend on your machine, so the same file gives the
+same report anywhere. It never asks a question. The report says what was added,
+what the scan already answered and what was left out, in its **Second pass**
+section.
+
+| What you write | What happens |
+| --- | --- |
+| `tabalyst report data.csv` | The planner decides |
+| `tabalyst report data.csv --deep` | Every applicable analysis the memory budget holds. Asks first when the estimate may reach two minutes or goes beyond what the planner chooses by itself; `--yes` skips the question; outside a terminal it stops with exit code `3` without `--yes`. With several files it asks once, with the total |
+| `tabalyst report data.csv -c off.json`, with `{"deep": {"mode": "off"}}` | No second pass: for a script that must read each file once. The report says the second pass is off |
+| `{"deep": {"mode": "force"}}` | The same as `--deep` on every run |
+| `tabalyst report scans/data.scan.json --scan` | The source is not read. The analyses that the scan and the stored `data.deep.json` answer are in the report; the others are listed as skipped, with the reason |
+| `tabalyst report scans/data.scan.json --scan --deep` | The source next to the scan document is read. If it is not there the command fails (exit code `4`) and writes nothing |
+
+The results are stored beside the scan, in `deep.json`, so that a second report of
+the same file, or one that changes only the presentation, reads nothing again. If
+the file changes while an automatic second pass runs, the report is still written
+without it, with a warning; a forced second pass fails instead. See [Add
+histograms and exact medians with a second pass](../../scan/deep.md).
+
 ## Exit codes
 
 | Code | When |
@@ -203,7 +249,8 @@ tabalyst report customers.csv --config settings.json
 | `0` | Every report was written |
 | `1` | A report could not be analyzed, rendered or written |
 | `2` | Invalid options, or a JSON or Excel source whose collection or table must be chosen |
-| `4` | A source is missing, unreadable or invalid |
+| `3` | A costly forced second pass needed a confirmation and was not given: no terminal and no `--yes`, or the answer was no. Nothing was started |
+| `4` | A source is missing, unreadable or invalid, or changed during a forced second pass |
 
 See also [Report Excel workbooks](../../report/excel.md),
 [Report JSON files](../../report/json.md) and [Inspect](inspect.md).

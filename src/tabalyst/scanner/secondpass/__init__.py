@@ -15,6 +15,7 @@ from tabalyst.scanner.secondpass.executor import (
     EXECUTABLE,
     SecondPassOutcome,
     pending_candidates,
+    reading_candidates,
     run_second_pass,
 )
 from tabalyst.scanner.secondpass.models import (
@@ -38,5 +39,6 @@ __all__ = [
     "deep_path_for",
     "load_deep",
     "pending_candidates",
+    "reading_candidates",
     "run_second_pass",
 ]

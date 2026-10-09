@@ -10,6 +10,11 @@ from typing import Annotated
 
 import typer
 
+from tabalyst.cli.confirm import (
+    EXIT_CONFIRMATION_REQUIRED,
+    Decision,
+    confirm_second_pass,
+)
 from tabalyst.cli.terminal import (
     COLLECTION_HELP,
     ProgressPrinter,
@@ -17,9 +22,12 @@ from tabalyst.cli.terminal import (
     collection_paths,
     error_exit_code,
     error_text,
+    plural,
 )
+from tabalyst.deep_store import ConfirmationRequired
 from tabalyst.errors import TabalystError
 from tabalyst.report_service import BatchReportResult, ReportSuccess, generate_reports
+from tabalyst.scanner.planner import Confirmation
 
 
 def _describe(result: dict) -> str:
@@ -32,9 +40,37 @@ def _describe(result: dict) -> str:
     return f"{rows:,} records and {columns} fields in {len(datasets)} {noun}"
 
 
+def second_pass_line(result: dict) -> str | None:
+    """What the second pass did for a report, in a sentence: named whether the
+    planner chose it or the user forced it, with what it computed, reused and left
+    out (rule R1). ``None`` for a profile that has no ``analyses``."""
+    block = result.get("analyses")
+    if block is None:
+        return None
+    how = {"auto": "automatic", "forced": "forced", "off": "off"}[block["mode"]]
+    outcome = block["outcome"]
+    if outcome == "disabled":
+        return "Second pass: off (deep.mode is off), no analysis added."
+    if outcome == "failed":
+        return f"Second pass ({how}): left out, {block['reason']}"
+    document = block.get("deep")
+    if document is None or outcome == "nothing_selected":
+        return f"Second pass ({how}): nothing to add, the scan already answers what it could."
+    run = document["run"]
+    parts = [f"{run['executed']} computed", f"{run['reused']} reused"]
+    if run["skipped"]:
+        reason = block.get("reason")
+        parts.append(f"{run['skipped']} left out" + (f" ({reason})" if reason else ""))
+    total = run["executed"] + run["reused"] + run["skipped"]
+    return f"Second pass ({how}): {plural(total, 'analysis')}, {', '.join(parts)}."
+
+
 def _print_success(success: ReportSuccess, *, verbose: bool) -> None:
     typer.echo(f"Analyzed {_describe(success.result)}.", err=True)
     typer.echo(f"Report: {success.job.output.resolve()}", err=True)
+    line = second_pass_line(success.result)
+    if line is not None:
+        typer.echo(line, err=True)
     if verbose:
         typer.echo(f"Profile: {success.job.profile_output.resolve()}", err=True)
         history = success.job.execution_output.resolve()
@@ -62,6 +98,9 @@ def _print_batch_result(
                     f"{success.job.output.resolve()}",
                     err=True,
                 )
+                line = second_pass_line(success.result)
+                if line is not None:
+                    typer.echo(f"  {line}", err=True)
                 if verbose:
                     source = success.result["source"]
                     details = [_describe(success.result)]
@@ -200,6 +239,28 @@ def report_command(
             ),
         ),
     ] = None,
+    deep: Annotated[
+        bool,
+        typer.Option(
+            "--deep",
+            help=(
+                "Force the second pass: read each source again for the exact "
+                "analyses the scan lacks. Without it the report adds only what the "
+                "planner finds useful and cheap. Asks first when it is costly."
+            ),
+        ),
+    ] = False,
+    yes: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help=(
+                "Start a costly forced second pass without asking. Outside a "
+                "terminal, a costly forced second pass needs it (exit code 3)."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """Analyze and profile datasets with Tabalyst Report."""
     if quiet and verbose:
@@ -208,6 +269,12 @@ def report_command(
     progress = ProgressPrinter(
         enabled=not quiet and not no_progress and sys.stderr.isatty()
     )
+    decisions: list[Decision] = []
+
+    def confirm(confirmation: Confirmation) -> bool:
+        decisions.append(confirm_second_pass(confirmation, assume_yes=yes))
+        return decisions[-1] is Decision.PROCEED
+
     try:
         batch = generate_reports(
             inputs,
@@ -223,7 +290,13 @@ def report_command(
             from_scan=from_scan,
             workers=workers,
             all_collections=all_collections,
+            deep=deep,
+            confirm=confirm,
         )
+    except ConfirmationRequired as exc:
+        if decisions and decisions[-1] is Decision.DECLINED:
+            typer.echo("Nothing was started.", err=True)
+        raise typer.Exit(EXIT_CONFIRMATION_REQUIRED) from exc
     except TabalystError as exc:
         typer.echo(f"Error: {error_text(exc, 'report')}", err=True)
         raise typer.Exit(error_exit_code(exc)) from exc

@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-09T11:48:49.123964Z",
-    "duration_seconds": 0.01355,
+    "started_at": "2026-10-09T13:30:39.294620Z",
+    "duration_seconds": 0.014189,
     "timings": {
-      "reading": 0.002069,
-      "analysis": 0.00196,
-      "finalize": 0.007984,
-      "derived": 0.001172,
-      "other": 0.000366
+      "reading": 0.002801,
+      "analysis": 0.002058,
+      "finalize": 0.007693,
+      "derived": 0.001225,
+      "other": 0.000412
     },
     "workers": 1,
-    "peak_memory_bytes": 54198272
+    "peak_memory_bytes": 56336384
   },
   "source": {
     "format": "excel",
@@ -8624,13 +8624,3675 @@
       }
     ]
   },
+  "analyses": {
+    "mode": "auto",
+    "outcome": "ran",
+    "deep": {
+      "format": "tabalyst.scan.deep",
+      "format_version": "0.2.0",
+      "format_revision": 1,
+      "status": "complete",
+      "base": {
+        "format_revision": 2,
+        "engine_version": "0.6.2",
+        "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
+        "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
+        "facts_sha256": "e732719d85d56c9be88bd27cdbe25f7d196fb5be8a9c4f409efa2a58851f2376"
+      },
+      "settings": {
+        "bins": 100,
+        "bin_strategy": "linear"
+      },
+      "settings_sha256": "3cc11de36aee5ad26fc3410baff07c4a3a30c5b611cb78c5b8b031f5819c8b49",
+      "plan": {
+        "planner": "tabalyst.planner",
+        "planner_version": 1,
+        "utility_version": 1,
+        "cost_model_version": 4,
+        "plan_id": "b129e546bdb683cc0f5fbcc96b948e8f8df793601167e09bed0cc806d444f882",
+        "base": {
+          "format_revision": 2,
+          "engine_version": "0.6.2",
+          "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
+          "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
+          "facts_sha256": "e732719d85d56c9be88bd27cdbe25f7d196fb5be8a9c4f409efa2a58851f2376"
+        },
+        "objective": {
+          "automatic": true,
+          "forced": false,
+          "requested": []
+        },
+        "budgets": {
+          "memory_bytes": 536870912,
+          "automatic_memory_bytes": 134217728,
+          "max_cells": 100000000,
+          "automatic_max_cpu": "moderate",
+          "overflow": "reject"
+        },
+        "common": {
+          "requires_source": true,
+          "cells": 1080,
+          "memory_bytes": 25165824,
+          "cpu": "very_low"
+        },
+        "summary": {
+          "candidates": 31,
+          "selected": 9,
+          "already_satisfied": 18,
+          "rejected": 4,
+          "second_pass_required": true,
+          "executable": true,
+          "memory": {
+            "min": 25265494,
+            "expected": 25465369,
+            "max": 26068802
+          },
+          "beyond_automatic": []
+        },
+        "candidates": [
+          {
+            "id": "exact_frequencies:rows:column_1",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": "hash_table",
+            "parameters": {
+              "distinct": 120
+            },
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "partial_counts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 19384,
+                "expected": 83384,
+                "max": 275384
+              },
+              "cpu": "low",
+              "cell_ns": 120,
+              "states": [
+                {
+                  "key": "frequencies:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 18360,
+                    "expected": 18360,
+                    "max": 18360
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:exact_frequencies:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 1,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_2",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_2/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_3",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_4",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_5",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_6",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_7",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "quantity",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_7/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_8",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "unit_price",
+            "method": "hash_table",
+            "parameters": {
+              "distinct": 119
+            },
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "partial_counts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 22206,
+                "expected": 86206,
+                "max": 282014
+              },
+              "cpu": "low",
+              "cell_ns": 120,
+              "states": [
+                {
+                  "key": "frequencies:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 21182,
+                    "expected": 21182,
+                    "max": 24990
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:exact_frequencies:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 2,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:rows:column_9",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "paid",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_9/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_histogram:rows:column_7",
+            "analyzer": "numeric_histogram",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "quantity",
+            "method": "dense_counts",
+            "parameters": {
+              "domain": 12
+            },
+            "outputs": [
+              "histogram",
+              "quantiles",
+              "median_estimate"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "numeric_distribution",
+                "same_state_exact_median"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1120,
+                "expected": 65120,
+                "max": 257120
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "dense_counts:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 96,
+                    "expected": 96,
+                    "max": 96
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_histogram:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 8,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_histogram:rows:column_8",
+            "analyzer": "numeric_histogram",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "unit_price",
+            "method": "bins",
+            "parameters": {
+              "bins": 100,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "histogram",
+              "quantiles",
+              "median_estimate"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "numeric_distribution"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 30104,
+                "expected": 94104,
+                "max": 286104
+              },
+              "cpu": "moderate",
+              "cell_ns": 1800,
+              "states": [
+                {
+                  "key": "bins:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 29080,
+                    "expected": 29080,
+                    "max": 29080
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_histogram:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 9,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:rows:column_1",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:rows:column_3",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:rows:column_4",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:rows:column_5",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:rows:column_6",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_1",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_2",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_2/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_3",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_3/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_4",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_5",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_5/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_6",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_6/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_7",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "quantity",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_7/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_8",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "unit_price",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_8/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:rows:column_9",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "paid",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_9/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_1",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "candidates_unvalidated"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 3,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_3",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 4,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_4",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_5",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 5,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:rows:column_6",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 6,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "temporal_distribution:rows:column_2",
+            "analyzer": "temporal_distribution",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "method": "period_counts",
+            "parameters": {
+              "granularity": "day",
+              "periods": 149
+            },
+            "outputs": [
+              "period_counts"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "temporal_distribution"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 2216,
+                "expected": 10091,
+                "max": 33716
+              },
+              "cpu": "moderate",
+              "cell_ns": 800,
+              "states": [
+                {
+                  "key": "periods:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1192,
+                    "expected": 1192,
+                    "max": 1192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 7875,
+                    "max": 31500
+                  }
+                },
+                {
+                  "key": "result:temporal_distribution:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 7,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          }
+        ]
+      },
+      "run": {
+        "started_at": "2026-10-09T13:30:39.330352Z",
+        "duration_seconds": 0.007211,
+        "timings": {
+          "reading": 0.002328,
+          "analysis": 0.001492,
+          "other": 0.003391
+        },
+        "workers": 1,
+        "peak_memory_bytes": 59502592,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 120,
+        "cells_read": 480,
+        "executed": 9,
+        "reused": 0,
+        "skipped": 0
+      },
+      "analyses": [
+        {
+          "id": "exact_frequencies:rows:column_1",
+          "analyzer": "exact_frequencies",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_1",
+          "display": "order_id",
+          "method": "hash_table",
+          "parameters": {
+            "distinct": 120
+          },
+          "domain": "analytical",
+          "key": "da99044d40aa7f612182d27b494e358bc0788bf0a5f9935f1e64de087f152e57",
+          "status": "complete",
+          "result": {
+            "kind": "frequencies",
+            "count": 120,
+            "distinct": 120,
+            "values": [
+              {
+                "value": "SO-0001",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0002",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0003",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0004",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0005",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0006",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0007",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0008",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0009",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0010",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0011",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0012",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0013",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0014",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0015",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0016",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0017",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0018",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0019",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0020",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0021",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0022",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0023",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0024",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0025",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0026",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0027",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0028",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0029",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0030",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0031",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0032",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0033",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0034",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0035",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0036",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0037",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0038",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0039",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0040",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0041",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0042",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0043",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0044",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0045",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0046",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0047",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0048",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0049",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0050",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0051",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0052",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0053",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0054",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0055",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0056",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0057",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0058",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0059",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0060",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0061",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0062",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0063",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0064",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0065",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0066",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0067",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0068",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0069",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0070",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0071",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0072",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0073",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0074",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0075",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0076",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0077",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0078",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0079",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0080",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0081",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0082",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0083",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0084",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0085",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0086",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0087",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0088",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0089",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0090",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0091",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0092",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0093",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0094",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0095",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0096",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0097",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0098",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0099",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0100",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0101",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0102",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0103",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0104",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0105",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0106",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0107",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0108",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0109",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0110",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0111",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0112",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0113",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0114",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0115",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0116",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0117",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0118",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0119",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0120",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes": [
+              {
+                "value": "SO-0001",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0002",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0003",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0004",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0005",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0006",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0007",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0008",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0009",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "SO-0010",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes_truncated": true
+          }
+        },
+        {
+          "id": "exact_frequencies:rows:column_8",
+          "analyzer": "exact_frequencies",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_8",
+          "display": "unit_price",
+          "method": "hash_table",
+          "parameters": {
+            "distinct": 119
+          },
+          "domain": "analytical",
+          "key": "3a7396193fc5982adc49f7370b8238a4c9495355788ec9fc53160ebaf2e2652b",
+          "status": "complete",
+          "result": {
+            "kind": "frequencies",
+            "count": 120,
+            "distinct": 119,
+            "values": [
+              {
+                "value": "23.69",
+                "type": "number",
+                "count": 2
+              },
+              {
+                "value": "100.44",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "101.24",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "101.41",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "105.41",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "105.85",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "105.89",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "106.18",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "106.82",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "107.77",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "108.97",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "111.3",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "112.86",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "116.13",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "116.9",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "117.68",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "118.38",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "119.23",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "120.17",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "120.84",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "121.03",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "121.37",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "121.95",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "122.22",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "122.51",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "123.53",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "123.73",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "125.55",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "125.75",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "126.14",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "126.56",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "126.87",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "127.43",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "128.58",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "133.15",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "134.67",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "135.47",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "135.91",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "136.31",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "136.61",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "138.54",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "141.5",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "143.7",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "144.42",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "144.9",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "145.77",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "146.69",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "146.76",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "147.81",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "148.69",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "152.13",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "153.55",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "154.78",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "159.17",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "16.06",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "161",
+                "type": "integer",
+                "count": 1
+              },
+              {
+                "value": "162.31",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "163.9",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "166.06",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "166.9",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "170.66",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "171.35",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "171.82",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "173.73",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "174.49",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "177.41",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "179.19",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "19.07",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "20.24",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "20.49",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "21.06",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "21.23",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "26.6",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "28.56",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "30.82",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "35.98",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "39.12",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "39.83",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "40.97",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "42.52",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "43.54",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "43.55",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "44.11",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "45.89",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "46.11",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "47.09",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "48.25",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "49.1",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "50.36",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "50.68",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "51.12",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "52.92",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "55.42",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "59.68",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "61.07",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "61.52",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "63.11",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "63.21",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "63.87",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "64.84",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "67.52",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "69.22",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "70.87",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "78.25",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "8.36",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "80.3",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "80.66",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "81.12",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "84.34",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "84.66",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "84.76",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "84.86",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "86",
+                "type": "integer",
+                "count": 1
+              },
+              {
+                "value": "86.61",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "86.77",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "89.47",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "89.93",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "90.86",
+                "type": "number",
+                "count": 1
+              },
+              {
+                "value": "98.01",
+                "type": "number",
+                "count": 1
+              }
+            ],
+            "modes": [
+              {
+                "value": "23.69",
+                "type": "number",
+                "count": 2
+              }
+            ],
+            "modes_truncated": false
+          }
+        },
+        {
+          "id": "numeric_histogram:rows:column_7",
+          "analyzer": "numeric_histogram",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_7",
+          "display": "quantity",
+          "method": "dense_counts",
+          "parameters": {
+            "domain": 12
+          },
+          "domain": "analytical",
+          "key": "17c278a96454b38ba3f976ecd0ae642c3ec4ae5efb45d1d9b987444be9dbe563",
+          "status": "complete",
+          "result": {
+            "kind": "dense_counts",
+            "count": 120,
+            "min": 1,
+            "max": 12,
+            "distinct": 12,
+            "values": [
+              {
+                "value": 1,
+                "count": 12
+              },
+              {
+                "value": 2,
+                "count": 10
+              },
+              {
+                "value": 3,
+                "count": 10
+              },
+              {
+                "value": 4,
+                "count": 9
+              },
+              {
+                "value": 5,
+                "count": 10
+              },
+              {
+                "value": 6,
+                "count": 5
+              },
+              {
+                "value": 7,
+                "count": 14
+              },
+              {
+                "value": 8,
+                "count": 7
+              },
+              {
+                "value": 9,
+                "count": 12
+              },
+              {
+                "value": 10,
+                "count": 10
+              },
+              {
+                "value": 11,
+                "count": 12
+              },
+              {
+                "value": 12,
+                "count": 9
+              }
+            ],
+            "modes": [
+              7
+            ],
+            "modes_truncated": false,
+            "median": {
+              "level": 0.5,
+              "value": 7,
+              "accuracy": "exact"
+            },
+            "quantiles": [
+              {
+                "level": 0.05,
+                "value": 1,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.25,
+                "value": 3,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.5,
+                "value": 7,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.75,
+                "value": 10,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.95,
+                "value": 12,
+                "accuracy": "exact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "numeric_histogram:rows:column_8",
+          "analyzer": "numeric_histogram",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_8",
+          "display": "unit_price",
+          "method": "bins",
+          "parameters": {
+            "bins": 100,
+            "strategy": "linear"
+          },
+          "domain": "analytical",
+          "key": "8cef0142027a169ab4bb5600b286d3430858d84aebb8bb9c1bdbda2a08f52bbe",
+          "status": "complete",
+          "result": {
+            "kind": "bins",
+            "strategy": "linear",
+            "requested_strategy": "linear",
+            "bounds_source": "range",
+            "count": 120,
+            "min": 8.36,
+            "max": 179.19,
+            "edges": [
+              8.36,
+              10.068299999999997,
+              11.776599999999998,
+              13.484899999999998,
+              15.1932,
+              16.9015,
+              18.6098,
+              20.3181,
+              22.0264,
+              23.7347,
+              25.443,
+              27.1513,
+              28.8596,
+              30.5679,
+              32.2762,
+              33.984500000000004,
+              35.692800000000005,
+              37.4011,
+              39.1094,
+              40.8177,
+              42.526,
+              44.234300000000005,
+              45.942600000000006,
+              47.65090000000001,
+              49.3592,
+              51.0675,
+              52.775800000000004,
+              54.484100000000005,
+              56.192400000000006,
+              57.90070000000001,
+              59.60900000000001,
+              61.3173,
+              63.025600000000004,
+              64.7339,
+              66.44220000000001,
+              68.15050000000001,
+              69.8588,
+              71.56710000000001,
+              73.2754,
+              74.98370000000001,
+              76.69200000000001,
+              78.40030000000002,
+              80.10860000000001,
+              81.8169,
+              83.52520000000001,
+              85.2335,
+              86.94180000000001,
+              88.65010000000001,
+              90.35840000000002,
+              92.06670000000001,
+              93.775,
+              95.48330000000001,
+              97.19160000000001,
+              98.89990000000002,
+              100.60820000000001,
+              102.31650000000002,
+              104.02480000000001,
+              105.73310000000001,
+              107.44140000000002,
+              109.14970000000001,
+              110.85800000000002,
+              112.56630000000001,
+              114.27460000000002,
+              115.98290000000001,
+              117.69120000000001,
+              119.39950000000002,
+              121.10780000000001,
+              122.81610000000002,
+              124.52440000000001,
+              126.23270000000002,
+              127.94100000000002,
+              129.6493,
+              131.35760000000002,
+              133.06590000000003,
+              134.7742,
+              136.48250000000002,
+              138.19080000000002,
+              139.89910000000003,
+              141.6074,
+              143.31570000000002,
+              145.02400000000003,
+              146.7323,
+              148.44060000000002,
+              150.14890000000003,
+              151.85720000000003,
+              153.56550000000001,
+              155.27380000000002,
+              156.98210000000003,
+              158.6904,
+              160.39870000000002,
+              162.10700000000003,
+              163.81530000000004,
+              165.52360000000002,
+              167.23190000000002,
+              168.94020000000003,
+              170.6485,
+              172.35680000000002,
+              174.06510000000003,
+              175.77340000000004,
+              177.48170000000002,
+              179.19
+            ],
+            "counts": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              2,
+              3,
+              2,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              2,
+              2,
+              3,
+              1,
+              2,
+              2,
+              2,
+              1,
+              1,
+              1,
+              0,
+              0,
+              2,
+              1,
+              3,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              3,
+              0,
+              4,
+              3,
+              0,
+              2,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              2,
+              0,
+              1,
+              4,
+              2,
+              0,
+              1,
+              1,
+              0,
+              3,
+              2,
+              3,
+              4,
+              2,
+              3,
+              3,
+              1,
+              0,
+              0,
+              2,
+              3,
+              1,
+              1,
+              1,
+              0,
+              3,
+              2,
+              2,
+              1,
+              0,
+              2,
+              1,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              2,
+              0,
+              0,
+              3,
+              1,
+              1,
+              1,
+              1
+            ],
+            "outside": {
+              "below": 0,
+              "above": 0
+            },
+            "median": {
+              "level": 0.5,
+              "value": 106.16017500000001,
+              "accuracy": "estimated",
+              "lower": 105.73310000000001,
+              "upper": 107.44140000000002
+            },
+            "quantiles": [
+              {
+                "level": 0.05,
+                "value": 21.713211666666666,
+                "accuracy": "estimated",
+                "lower": 20.3181,
+                "upper": 22.0264
+              },
+              {
+                "level": 0.25,
+                "value": 58.861618750000005,
+                "accuracy": "estimated",
+                "lower": 58.327775,
+                "upper": 60.036075000000004
+              },
+              {
+                "level": 0.5,
+                "value": 106.16017500000001,
+                "accuracy": "estimated",
+                "lower": 105.73310000000001,
+                "upper": 107.44140000000002
+              },
+              {
+                "level": 0.75,
+                "value": 134.5250729166667,
+                "accuracy": "estimated",
+                "lower": 133.49297500000003,
+                "upper": 135.201275
+              },
+              {
+                "level": 0.95,
+                "value": 170.96168833333337,
+                "accuracy": "estimated",
+                "lower": 170.6485,
+                "upper": 172.35680000000002
+              }
+            ]
+          }
+        },
+        {
+          "id": "pattern_validation:rows:column_1",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_1",
+          "display": "order_id",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "2ce64873aa103e3e25cd570b117cbfe667583dfd3ffb60157924503dd754964b",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "grammar_version": 1,
+            "values": 120,
+            "matched": 120,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "'SO'-9999",
+                "occurrences": 120
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:rows:column_3",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_3",
+          "display": "customer",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "113e386c35e7ae74635f7c82509a28a49e00744e08eb6ae1224364e3f8e6b4c7",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 120,
+            "matched": 120,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "Xx{2,5}' 'Xx{4,6}",
+                "occurrences": 120
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:rows:column_5",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_5",
+          "display": "region",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "fbce2d368599c06c96a0e03d894c14e85fe5c8df644f0b65610d387fa5160543",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 120,
+            "matched": 120,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "Xx{3,5}",
+                "occurrences": 120
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:rows:column_6",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_6",
+          "display": "channel",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "b8cab3c6cac53cecfb7c9632fe9f33246b6629289532c352eba29b27732959b7",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 120,
+            "matched": 120,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "x{3,5}",
+                "occurrences": 120
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "temporal_distribution:rows:column_2",
+          "analyzer": "temporal_distribution",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_2",
+          "display": "order_date",
+          "method": "period_counts",
+          "parameters": {
+            "granularity": "day",
+            "periods": 149
+          },
+          "domain": "analytical",
+          "key": "a0c380934d09b3d673fe58a94004a7a5a405fb3d37b9e8558c1188b061301b50",
+          "status": "complete",
+          "result": {
+            "kind": "periods",
+            "accuracy": "exact",
+            "granularity": "day",
+            "temporal_kind": "date",
+            "zone": "as_written",
+            "values": 120,
+            "count": 120,
+            "ambiguous": 0,
+            "unplaced": 0,
+            "first": "2026-01-01",
+            "last": "2026-05-29",
+            "periods": [
+              {
+                "period": "2026-01-01",
+                "count": 1
+              },
+              {
+                "period": "2026-01-03",
+                "count": 2
+              },
+              {
+                "period": "2026-01-05",
+                "count": 2
+              },
+              {
+                "period": "2026-01-07",
+                "count": 2
+              },
+              {
+                "period": "2026-01-09",
+                "count": 2
+              },
+              {
+                "period": "2026-01-11",
+                "count": 2
+              },
+              {
+                "period": "2026-01-13",
+                "count": 2
+              },
+              {
+                "period": "2026-01-15",
+                "count": 2
+              },
+              {
+                "period": "2026-01-17",
+                "count": 2
+              },
+              {
+                "period": "2026-01-19",
+                "count": 2
+              },
+              {
+                "period": "2026-01-21",
+                "count": 2
+              },
+              {
+                "period": "2026-01-23",
+                "count": 2
+              },
+              {
+                "period": "2026-01-25",
+                "count": 2
+              },
+              {
+                "period": "2026-01-27",
+                "count": 2
+              },
+              {
+                "period": "2026-01-29",
+                "count": 2
+              },
+              {
+                "period": "2026-01-31",
+                "count": 2
+              },
+              {
+                "period": "2026-02-02",
+                "count": 2
+              },
+              {
+                "period": "2026-02-04",
+                "count": 2
+              },
+              {
+                "period": "2026-02-06",
+                "count": 2
+              },
+              {
+                "period": "2026-02-08",
+                "count": 2
+              },
+              {
+                "period": "2026-02-10",
+                "count": 2
+              },
+              {
+                "period": "2026-02-12",
+                "count": 2
+              },
+              {
+                "period": "2026-02-14",
+                "count": 2
+              },
+              {
+                "period": "2026-02-16",
+                "count": 2
+              },
+              {
+                "period": "2026-02-18",
+                "count": 2
+              },
+              {
+                "period": "2026-02-20",
+                "count": 2
+              },
+              {
+                "period": "2026-02-22",
+                "count": 2
+              },
+              {
+                "period": "2026-02-24",
+                "count": 2
+              },
+              {
+                "period": "2026-02-26",
+                "count": 2
+              },
+              {
+                "period": "2026-02-28",
+                "count": 2
+              },
+              {
+                "period": "2026-03-02",
+                "count": 2
+              },
+              {
+                "period": "2026-03-04",
+                "count": 2
+              },
+              {
+                "period": "2026-03-06",
+                "count": 2
+              },
+              {
+                "period": "2026-03-08",
+                "count": 2
+              },
+              {
+                "period": "2026-03-10",
+                "count": 2
+              },
+              {
+                "period": "2026-03-12",
+                "count": 2
+              },
+              {
+                "period": "2026-03-14",
+                "count": 2
+              },
+              {
+                "period": "2026-03-16",
+                "count": 2
+              },
+              {
+                "period": "2026-03-18",
+                "count": 2
+              },
+              {
+                "period": "2026-03-20",
+                "count": 2
+              },
+              {
+                "period": "2026-03-22",
+                "count": 2
+              },
+              {
+                "period": "2026-03-24",
+                "count": 2
+              },
+              {
+                "period": "2026-03-26",
+                "count": 2
+              },
+              {
+                "period": "2026-03-28",
+                "count": 2
+              },
+              {
+                "period": "2026-03-30",
+                "count": 2
+              },
+              {
+                "period": "2026-04-01",
+                "count": 2
+              },
+              {
+                "period": "2026-04-03",
+                "count": 1
+              },
+              {
+                "period": "2026-04-05",
+                "count": 1
+              },
+              {
+                "period": "2026-04-07",
+                "count": 1
+              },
+              {
+                "period": "2026-04-09",
+                "count": 1
+              },
+              {
+                "period": "2026-04-11",
+                "count": 1
+              },
+              {
+                "period": "2026-04-13",
+                "count": 1
+              },
+              {
+                "period": "2026-04-15",
+                "count": 1
+              },
+              {
+                "period": "2026-04-17",
+                "count": 1
+              },
+              {
+                "period": "2026-04-19",
+                "count": 1
+              },
+              {
+                "period": "2026-04-21",
+                "count": 1
+              },
+              {
+                "period": "2026-04-23",
+                "count": 1
+              },
+              {
+                "period": "2026-04-25",
+                "count": 1
+              },
+              {
+                "period": "2026-04-27",
+                "count": 1
+              },
+              {
+                "period": "2026-04-29",
+                "count": 1
+              },
+              {
+                "period": "2026-05-01",
+                "count": 1
+              },
+              {
+                "period": "2026-05-03",
+                "count": 1
+              },
+              {
+                "period": "2026-05-05",
+                "count": 1
+              },
+              {
+                "period": "2026-05-07",
+                "count": 1
+              },
+              {
+                "period": "2026-05-09",
+                "count": 1
+              },
+              {
+                "period": "2026-05-11",
+                "count": 1
+              },
+              {
+                "period": "2026-05-13",
+                "count": 1
+              },
+              {
+                "period": "2026-05-15",
+                "count": 1
+              },
+              {
+                "period": "2026-05-17",
+                "count": 1
+              },
+              {
+                "period": "2026-05-19",
+                "count": 1
+              },
+              {
+                "period": "2026-05-21",
+                "count": 1
+              },
+              {
+                "period": "2026-05-23",
+                "count": 1
+              },
+              {
+                "period": "2026-05-25",
+                "count": 1
+              },
+              {
+                "period": "2026-05-27",
+                "count": 1
+              },
+              {
+                "period": "2026-05-29",
+                "count": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-09T11:48:49.186475Z",
+    "generated_at": "2026-10-09T13:30:39.378636Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0882,
+    "processing_seconds": 0.1069,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

@@ -17,17 +17,16 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from tabalyst.batch import validate_outputs, write_text_atomic
+from tabalyst.batch import validate_outputs
 from tabalyst.config import DeepSettings, load_config_layers, settings_from_layer
-from tabalyst.errors import ReportError, TabalystError
+from tabalyst.deep_store import ConfirmationRequired, write_deep
+from tabalyst.errors import TabalystError
 from tabalyst.progress import (
     ProgressCallback,
     ProgressEvent,
     ProgressPhase,
     emit_progress,
 )
-from tabalyst.projects._locks import workspace_writer
-from tabalyst.projects.location import StorageLocation
 from tabalyst.scan_service import ScanFailure, ScanSuccess, generate_scans
 from tabalyst.scanner.planner import (
     Confirmation,
@@ -39,26 +38,12 @@ from tabalyst.scanner.planner import (
 from tabalyst.scanner.secondpass import (
     DeepResult,
     SecondPassOutcome,
-    deep_document,
     deep_path_for,
     load_deep,
-    pending_candidates,
+    reading_candidates,
     run_second_pass,
 )
 from tabalyst.service import ConfigPath, _config_paths
-
-
-class ConfirmationRequired(TabalystError):
-    """The second pass exceeds a limit that a run needs confirming (rule R1) and
-    no confirmation was given. Nothing was started. ``confirmation`` holds the
-    estimate and the reasons."""
-
-    def __init__(self, confirmation: Confirmation) -> None:
-        super().__init__(
-            "The second pass needs a confirmation before it starts "
-            f"({', '.join(confirmation.reasons)}). Nothing was started."
-        )
-        self.confirmation = confirmation
 
 
 @dataclass(frozen=True)
@@ -74,9 +59,9 @@ class DeepJob:
 
     @property
     def pending(self) -> int:
-        """Analyses a run has to compute; 0 when the stored results are enough
-        and the source need not be read."""
-        return len(pending_candidates(self.second.plan, self.previous))
+        """Analyses a run has to compute from the source; 0 when the stored
+        results and the Scan are enough and the source need not be read."""
+        return len(reading_candidates(self.second.plan, self.previous))
 
     @property
     def source(self) -> Path:
@@ -170,7 +155,7 @@ def prepare_deep(
     for success in batch.successes:
         try:
             second = plan_second_pass(
-                success.result, forced=True, registry=registry, deep=top.deep
+                success.result, forced=True, registry=registry, deep=top.deep.settings()
             )
         except TabalystError as exc:
             failures.append(ScanFailure(job=success.job, error=exc))
@@ -187,7 +172,7 @@ def prepare_deep(
     return DeepPreparation(
         jobs=tuple(jobs),
         failures=tuple(failures),
-        settings=top.deep,
+        settings=top.deep.settings(),
         warnings=batch.plan.warnings,
         # Only the sources with something left to compute count: a run that
         # reads nothing never asks, whatever the size of the file.
@@ -207,29 +192,13 @@ def _write(
     preparation: DeepPreparation,
     previous: DeepResult | None,
 ) -> bool:
-    """Write the document, unless there is nothing to say or the stored one
-    already says it: a run that computed nothing, with the plan and the settings
-    of the stored document, would only replace its record of the run."""
-    document = outcome.document
-    if previous is None:
-        if not document.analyses:
-            return False
-    elif (
-        not outcome.executed
-        and previous.plan.plan_id == document.plan.plan_id
-        and previous.settings == document.settings
-    ):
-        return False
-    text = deep_document(document, indent=preparation.indent)
-    try:
-        if preparation.shared:
-            with workspace_writer(StorageLocation.local()):
-                write_text_atomic(job.deep_path, text)
-        else:
-            write_text_atomic(job.deep_path, text)
-    except OSError as exc:
-        raise ReportError(f"Cannot write second-pass file {job.deep_path}: {exc}") from exc
-    return True
+    return write_deep(
+        job.deep_path,
+        outcome,
+        previous,
+        shared=preparation.shared,
+        indent=preparation.indent,
+    )
 
 
 def execute_deep(

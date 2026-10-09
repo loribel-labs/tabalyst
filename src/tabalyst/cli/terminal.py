@@ -25,6 +25,15 @@ COLLECTION_HELP = (
 )
 
 
+def plural(count: int, word: str) -> str:
+    """``count`` and ``word`` in the plural unless the count is one; a word ending
+    in ``is`` (analysis) becomes ``es``."""
+    if word.endswith("is"):
+        word = word[:-2] + ("is" if count == 1 else "es")
+        return f"{count:,} {word}"
+    return f"{count:,} {word}{'' if count == 1 else 's'}"
+
+
 def collection_paths(values: list[str] | None) -> list[str] | None:
     """``--collection`` values as absolute paths (see ``expand_collection``)."""
     if values is None:

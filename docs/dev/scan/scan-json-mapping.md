@@ -41,6 +41,9 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Planner (D11) | None | Done at 6a: registry of six analyzers and the planner (`scanner/planner/`, design 20.5); calibrated at 6b: cost model, two memory levels, forced plan, time estimate and confirmation (20.2, 20.3), source guard (20.6) | Done (6a, 6b) | 6a, 6b |
 | Second pass, histograms, medians (D02, D09, D10, D22) | None | Done at 7a: `scanner/secondpass/` (executor, replay of the first pass's reading, counters and bins with exact edges, quantiles), the document `tabalyst.scan.deep` and its schema, `deep.bins` and `deep.bin_strategy` (design 20.4, 20.7) | 7a |
 | Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Done at 7b: `secondpass/exactset.py` (keys by kind, shared pool, `limited` with a lower bound) and the exact frequencies (`secondpass/frequencies.py`); results `distinct`, `distinct_limited` and `frequencies` of the second-pass document (design 20.8) | 7b |
+| Validation of patterns (D08, PAT-07 to PAT-11) | Inference from the samples only | Done at 7c: `secondpass/patterns.py` (compiled matcher, exclusive classification, overlaps, reconciliation, derivation from the exact counts of the Scan) and the result `pattern_counts` (design 20.9) | 7c |
+| Dates by period (TIME-01 to TIME-03, D12) | `temporal` block of the first pass (kinds, min, max, years) | Done at 7c: `secondpass/periods.py`, `CellReader.cells(dates=)` and the result `periods` (design 20.10) | 7c |
+| Report chain (D02, A13, A14, 18.2) | None | Done at 7c: `report_chain.py`, `report --deep`, `--yes`, `deep.mode`, the `analyses` member of the Report and its pages (design 20.11) | 7c |
 | Relationships (D13, D14) | None | Add | 8a, 8b |
 | Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
 | Explore access (D24) | Private DuckDB layer `projects/` | Adapted (1d): reads the Scan base only | 1d |
@@ -76,6 +79,7 @@ the main process and are never summed with worker time.
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity; `generate_scans(refresh=)` and `ScanSuccess.reused` (6a) |
 | `plan_service.py` | None | `plan_document`, `generate_plans`: the planner for the CLI and the API (6a); reads the `deep` settings (7a) |
+| `report_chain.py`, `deep_store.py`, `report_deep.py` | None | The second pass inside Report, its writer and its views (7c) |
 | `deep_service.py` | None | `prepare_deep`, `execute_deep`, `generate_deep`, `ConfirmationRequired`: the second pass for the CLI and the API, which never prompts (7a) |
 | `scanner/readers/factory.py`, `scanner/process.py` | Moved out of `scanner/api.py` (`open_reader`, `peak_memory_bytes`) | Shared by the first and the second pass; no change to the loop of the first pass (7a) |
 | `source_guard.py` | None | Plan against Scan, readable source of the recorded size, digest at the end of a second reading (6b) |
@@ -83,7 +87,7 @@ the main process and are never summed with worker time.
 | `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |
 | `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Adapted (1d): `validate_database` runs `check_scan`; no codec or schema change |
 | `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9, 10a) |
-| `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep` with `--plan` (6b); `--deep` alone and `--yes`, exit code 3 (7a) |
+| `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep` with `--plan` (6b); `--deep` alone and `--yes`, exit code 3 (7a); `report --deep`, `--yes`, exit code 3 and the line of the second pass (7c) |
 | `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
 | `tests/scan/`, `tests/test_reporting.py`, `tests/browser/report.cjs` | Everything above | Contract tests gated by lot |
 

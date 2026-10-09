@@ -180,13 +180,97 @@ class FrequencyTable(ScanModel):
     modes_truncated: bool
 
 
+class PatternTally(ScanModel):
+    """Occurrences read by one candidate pattern of the Scan, exclusively: each
+    value counts for the most specific candidate that reads it (PAT-08)."""
+
+    id: str
+    render: str
+    occurrences: int
+
+
+class PatternExclusions(ScanModel):
+    """Values the inference leaves out and the validation therefore does not
+    test: strings longer than ``scan.pattern_inference.max_value_length``, strings
+    of more than 32 tokens, and values that are not strings (JSON numbers and
+    booleans)."""
+
+    non_string: int
+    too_long: int
+    too_complex: int
+
+
+class PatternOverlapCount(ScanModel):
+    """Occurrences that every pattern of ``patterns`` reads (they are counted
+    for one of them only, in ``candidates``)."""
+
+    patterns: list[str]
+    occurrences: int
+
+
+class PatternCounts(ScanModel):
+    """The inferred patterns of a field counted over every occurrence (PAT-07 to
+    PAT-09), in the original domain. ``values`` is the content values of the
+    field (empty cells and null markers are the Scan's ``missing``); they add up:
+    ``matched + other + excluded = values``, with ``matched`` the sum of the
+    candidates. A value that no candidate reads is an observation of structure,
+    never an error (PAT-10). ``computed_from`` says whether the source was read
+    (``source``) or the exact counts of a Scan that holds every distinct value
+    were enough (``samples``); the result is the same."""
+
+    kind: Literal["pattern_counts"] = "pattern_counts"
+    accuracy: Literal["exact"] = "exact"
+    computed_from: Literal["source", "samples"]
+    grammar_version: int
+    values: int
+    matched: int
+    candidates: list[PatternTally]
+    other: int
+    excluded: PatternExclusions
+    overlaps: list[PatternOverlapCount]
+
+
+class PeriodCount(ScanModel):
+    """Values placed in one period: ``period`` is ``YYYY-MM-DD``, ``YYYY-MM`` or
+    ``YYYY`` according to the granularity."""
+
+    period: str
+    count: int
+
+
+class PeriodCounts(ScanModel):
+    """Exact count of the dates of a field per calendar day, month or year
+    (TIME-01, TIME-02). A value is placed by the calendar date it is written
+    with: the offset of an aware datetime is not converted, so a change of
+    daylight saving time moves nothing. ``count`` values are placed, as many as
+    the Scan counted of this ``temporal_kind``; ``ambiguous`` are the ones whose
+    day and month order the Scan could not resolve, counted and never placed
+    (TIME-03); ``unplaced`` is every other content value (not a date, invalid,
+    or of another kind). ``periods`` lists the non-empty periods in order."""
+
+    kind: Literal["periods"] = "periods"
+    accuracy: Literal["exact"] = "exact"
+    granularity: Literal["day", "month", "year"]
+    temporal_kind: Literal["date", "datetime_naive", "datetime_aware"]
+    zone: Literal["as_written"] = "as_written"
+    values: int
+    count: int
+    ambiguous: int
+    unplaced: int
+    first: str
+    last: str
+    periods: list[PeriodCount]
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
     | LengthDistribution
     | DistinctCount
     | DistinctLimited
-    | FrequencyTable,
+    | FrequencyTable
+    | PatternCounts
+    | PeriodCounts,
     Field(discriminator="kind"),
 ]
 

@@ -31,6 +31,7 @@ from tabalyst._version import __version__
 from tabalyst.config import PresentationSettings, RowSampleSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.models import (
+    AnalysesBlock,
     ArrayProfile,
     BaseScan,
     ColumnProfile,
@@ -763,9 +764,14 @@ def report_fields(result: ScanResult, dataset: DatasetResult) -> list[FieldResul
     ]
 
 
-def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
+def build_profile(
+    result: ScanResult,
+    config: ReportConfig,
+    analyses: AnalysesBlock | None = None,
+) -> ReportProfile:
     """The report profile of a scan: one dataset per scan dataset holding at
-    least one column. ``config.scan`` must be the configuration of the scan."""
+    least one column. ``config.scan`` must be the configuration of the scan.
+    ``analyses`` is what the second pass added, if it was planned."""
     header = result.source.header
     if header is not None:
         width = len(header)
@@ -808,6 +814,7 @@ def build_profile(result: ScanResult, config: ReportConfig) -> ReportProfile:
         diagnostics=base.diagnostics,
         derived=base.derived,
         observations=base.observations,
+        analyses=analyses,
         report=ReportBlock(
             generated_at=datetime.now(UTC),
             generator=ReportGenerator(version=__version__),

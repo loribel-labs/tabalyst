@@ -22,6 +22,7 @@ from tabalyst.cli.terminal import (
     collection_paths,
     error_exit_code,
     error_text,
+    plural,
 )
 from tabalyst.deep_service import (
     BatchDeepResult,
@@ -36,20 +37,13 @@ from tabalyst.scanner.planner import plan_text
 from tabalyst.scanner.planner.render import confirmation_lines, estimate_text
 
 
-def _plural(count: int, word: str) -> str:
-    if word.endswith("is"):
-        word = word[:-2] + ("is" if count == 1 else "es")
-        return f"{count:,} {word}"
-    return f"{count:,} {word}{'' if count == 1 else 's'}"
-
-
 def _counts(success: ScanSuccess) -> tuple[str, str, str]:
     result = success.result
     fields = sum(len(dataset.fields) for dataset in result.datasets)
     return (
-        _plural(result.scope.records_analyzed, "record"),
-        _plural(len(result.datasets), "dataset"),
-        _plural(fields, "field"),
+        plural(result.scope.records_analyzed, "record"),
+        plural(len(result.datasets), "dataset"),
+        plural(fields, "field"),
     )
 
 
@@ -78,7 +72,7 @@ def _print_partial(success: ScanSuccess) -> None:
     )
     typer.echo(
         f"Warning [{success.job.source}]: partial scan, "
-        f"{_plural(scope.records_excluded, 'record')} excluded ({reasons}).",
+        f"{plural(scope.records_excluded, 'record')} excluded ({reasons}).",
         err=True,
     )
 
@@ -169,7 +163,7 @@ def _announce(preparation: DeepPreparation, *, quiet: bool) -> None:
         timing = "" if estimate is None else f", estimated {estimate_text(estimate)}"
         typer.echo(
             f"Second pass [{job.source.name}]: reading the source again for "
-            f"{_plural(count, 'analysis')}{timing}.",
+            f"{plural(count, 'analysis')}{timing}.",
             err=True,
         )
 
@@ -189,7 +183,7 @@ def _print_deep_result(result: BatchDeepResult, *, quiet: bool, verbose: bool) -
         skipped = [entry.analyzer for entry in document.analyses if entry.status == "skipped"]
         if skipped:
             typer.echo(
-                f"Warning [{source}]: {_plural(len(skipped), 'analysis')} cannot run "
+                f"Warning [{source}]: {plural(len(skipped), 'analysis')} cannot run "
                 f"in this version and {'was' if len(skipped) == 1 else 'were'} skipped.",
                 err=True,
             )
@@ -205,7 +199,7 @@ def _print_deep_result(result: BatchDeepResult, *, quiet: bool, verbose: bool) -
         run = document.run
         typer.echo(
             f"Second pass: {success.job.deep_path.resolve()} "
-            f"({_plural(len(document.analyses), 'analysis')}: {run.executed} computed, "
+            f"({plural(len(document.analyses), 'analysis')}: {run.executed} computed, "
             f"{run.reused} reused"
             f"{'' if success.written else ', unchanged'})",
             err=True,

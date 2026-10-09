@@ -6,10 +6,13 @@ description: What tabalyst scan --deep adds to a scan by reading the source agai
 `tabalyst scan --deep` reads a file a second time to add what the first pass of a
 scan does not hold: histograms of numeric fields, with exact or estimated
 medians and quantiles, the exact number of distinct values of an identifier-like
-field, the exact counts of a field whose scan lists only some of them, and the
-length distribution of a text field when the scan lacks it. It writes them to a
+field, the exact counts of a field whose scan lists only some of them, the
+length distribution of a text field when the scan lacks it, the inferred patterns
+counted on every value and the dates counted per period. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
-experimental in the beta.
+experimental in the beta. [`tabalyst report`](../reference/cli/report.md#second-pass)
+runs it by itself for the analyses that are useful and cheap, and puts the results
+in the report.
 
 ```console
 tabalyst scan customers.csv --deep
@@ -39,12 +42,56 @@ stored.
 | `length_distribution` | Text fields whose scan has no length histogram | The exact count of every length |
 | `exact_distinct` | Fields whose scan stopped counting distinct values | The exact number of distinct values, the number of values it counts over and how many of them repeat an earlier one |
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
+| `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
+| `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 
 A scan always holds the length histogram of a text field unless it was limited
-or turned off, so `length_distribution` is rare. The other analyses of the
-[plan](plan.md) (patterns counted on every occurrence, dates by period) cannot
-run yet. `tabalyst scan --plan --deep` lists them and says so; `tabalyst scan
---deep` runs the others and skips these without asking about them.
+or turned off, so `length_distribution` is rare. `tabalyst scan --plan --deep`
+shows what a run would do.
+
+## Patterns on every value
+
+The scan infers patterns such as `XX9999'A'` from a sample of the distinct values
+of a field, and its shares count distinct values, not occurrences. The second pass
+reads every value of the file with those patterns, as they are in the file (before
+any cleaning), and counts each value once, for the most specific pattern that reads
+it. The counts add up: the values read by a pattern, the values no pattern reads
+(`other`) and the values that were not tested (too long, too many tokens, or JSON
+numbers and booleans) make the values of the field.
+
+```json
+{"kind": "pattern_counts", "accuracy": "exact", "computed_from": "source",
+ "values": 3000, "matched": 2990,
+ "candidates": [{"id": "p1", "render": "XX9999'A'", "occurrences": 2100}],
+ "other": 10, "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
+ "overlaps": []}
+```
+
+A value that no pattern reads is an observation about its structure, not an error:
+the dominant pattern is not a rule of your data. The second pass does not look for
+new patterns among them. When the scan holds every distinct value with its exact
+count, the occurrences follow from those counts and the source is not read
+(`computed_from` is `samples`, the result is the same).
+
+## Dates per period
+
+The dates the scan parsed are counted per calendar day (a span of up to two
+years), month (up to 60 years) or year, with the period fixed before the reading.
+A value is placed by the date it is written with: the offset of a datetime is not
+converted, so `2024-03-10T23:30:00-05:00` is on the 10th, and a change of daylight
+saving time moves nothing. A date that could be read day first or month first, and
+that the scan did not resolve, is counted as `ambiguous` and never placed. Dates and
+datetimes are not merged: a column of both has no distribution.
+
+```json
+{"kind": "periods", "accuracy": "exact", "granularity": "month",
+ "temporal_kind": "date", "zone": "as_written", "values": 3000, "count": 2990,
+ "ambiguous": 8, "unplaced": 2, "first": "2016-09", "last": "2027-08",
+ "periods": [{"period": "2016-09", "count": 21}]}
+```
+
+The count of placed dates and the number of ambiguous values are those of the
+scan; a difference fails the analysis rather than giving a result.
 
 ## Exact distinct count
 

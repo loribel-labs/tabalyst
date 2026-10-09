@@ -127,13 +127,14 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
     changed = generate_deep([source], config_path=config).successes[0]
 
     ids = {e.display: e.id for e in first.outcome.document.analyses}
-    assert len(first.outcome.executed) == 2 and first.outcome.read_source
+    # Two histograms and the patterns of the names, which the Scan answers alone.
+    assert len(first.outcome.executed) == 3 and first.outcome.read_source
     # Complete: every result is valid, so the source is not read and the file is not rewritten.
     assert again.outcome.read_source is False and again.written is False
     assert again.outcome.reused == first.outcome.executed
     # Settings that change only the bins recompute the histogram that uses them.
     assert changed.outcome.executed == (ids["price"],)
-    assert changed.outcome.reused == (ids["age"],)
+    assert set(changed.outcome.reused) == {ids["age"], ids["name"]}
 
     # A partial cache: a missing entry and a failed one are computed again.
     path = changed.job.deep_path
@@ -195,9 +196,42 @@ def test_D03_a_plan_of_several_analyses_reads_the_source_once(tmp_path, monkeypa
     assert {a.analyzer for a in outcome.document.analyses} == {
         "numeric_histogram",
         "length_distribution",
+        "pattern_validation",
     }
-    assert len(outcome.executed) == 3 and len(opened) == 1
+    # The patterns of `note` come from the exact counts of the Scan: no reading.
+    assert len(outcome.executed) == 4 and len(opened) == 1
     assert outcome.document.run.records_read == 500
+
+
+@pytest.mark.scan_json_lot("7c")
+def test_D03_patterns_and_dates_share_the_one_reading_of_the_other_analyses(
+    tmp_path, monkeypatch
+):
+    lines = ["age,code,day"] + [
+        f"{18 + n % 70},AB{n % 900 + 100},2024-{n % 12 + 1:02d}-{n % 28 + 1:02d}"
+        for n in range(500)
+    ]
+    # K = 50 leaves the patterns of `code` a sample, so they need the source.
+    scanned = scan_csv(tmp_path, "age,code,day", lines[1:], limits={"max_samples": 50})
+    plan = forced_plan(scanned)
+    opened = []
+    from tabalyst.scanner.readers import factory
+    from tabalyst.scanner.secondpass import executor
+
+    def counting(path, config, on_bytes):
+        opened.append(path)
+        return factory.open_reader(path, config, on_bytes)
+
+    monkeypatch.setattr(executor, "open_reader", counting)
+
+    outcome = run_second_pass(scanned, tmp_path / "data.csv", plan)
+
+    found = {(a.analyzer, a.display) for a in outcome.document.analyses}
+    assert ("pattern_validation", "code") in found
+    assert ("temporal_distribution", "day") in found
+    assert ("numeric_histogram", "age") in found
+    assert all(a.status == "complete" for a in outcome.document.analyses)
+    assert len(opened) == 1 and outcome.document.run.records_read == 500
 
 
 # D04 and D05, the executor halves -----------------------------------------------

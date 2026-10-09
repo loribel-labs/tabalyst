@@ -3,7 +3,7 @@ title: Second pass format
 description: Structure of the deep.json document written by tabalyst scan --deep, with its identity, plan, run, analyses and results, and the changelog of its format revisions.
 ---
 
-`tabalyst scan --deep` writes a JSON document beside the scan: `deep.json` next
+`tabalyst scan --deep` and `tabalyst report` write a JSON document beside the scan: `deep.json` next
 to a stored `scan.json`, or `<stem>.deep.json` next to a `<stem>.scan.json`. This
 page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `1`. The
 format is **experimental**: it can change incompatibly between releases. Always
@@ -100,7 +100,7 @@ depends on (see below). `status` is one of:
 | --- | --- |
 | `complete` | The result is there and agrees with the scan |
 | `failed` | The analysis did not give a result; `reason` says why and `detail` gives counts or the type of an exception, never a value of your data |
-| `skipped` | The analysis was selected but cannot run in this version (`not_available`) |
+| `skipped` | The analysis was selected but did not run: it needs the source and the report was built without reading it (`source_not_read` for a report of a scan document, `source_unavailable` when the source is not beside it), or it has no executor (`not_available`) |
 | `limited` | The analysis met a limit and says what it holds. Only `exact_distinct` does (reason `memory_budget`): its result is a lower bound. The histograms never do, their size does not depend on the data |
 
 The reasons of a failure are `scan_mismatch` (the counts of the second pass are
@@ -214,6 +214,56 @@ three values.
 
 `modes` lists the values tied for the most frequent, ten at most.
 
+**`pattern_counts`**: the inferred patterns of a field counted on every value of
+the file, in the original domain.
+
+```json
+{
+  "kind": "pattern_counts",
+  "accuracy": "exact",
+  "computed_from": "source",
+  "grammar_version": 1,
+  "values": 3000,
+  "matched": 2990,
+  "candidates": [{"id": "p1", "render": "XX9999'A'", "occurrences": 2100}],
+  "other": 10,
+  "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
+  "overlaps": [{"patterns": ["p1", "p2"], "occurrences": 12}]
+}
+```
+
+`matched` is the sum of the `occurrences` of the candidates, which are those of
+the scan (`derived.patterns`) in the same order. They add up: `matched + other +
+excluded = values`, with `excluded` the sum of its three members. An occurrence
+counts for one candidate, the most specific that reads it; `overlaps` says how many
+occurrences several candidates read. `computed_from` is `samples` when the exact
+counts of the scan were enough, `source` when the file was read.
+
+**`periods`**: the dates of a field per calendar period.
+
+```json
+{
+  "kind": "periods",
+  "accuracy": "exact",
+  "granularity": "month",
+  "temporal_kind": "date",
+  "zone": "as_written",
+  "values": 3000,
+  "count": 2990,
+  "ambiguous": 8,
+  "unplaced": 2,
+  "first": "2016-09",
+  "last": "2027-08",
+  "periods": [{"period": "2016-09", "count": 21}]
+}
+```
+
+`granularity` is `day`, `month` or `year`, and `period` is written `YYYY-MM-DD`,
+`YYYY-MM` or `YYYY`. `periods` lists the non-empty periods in order. `count` is the
+number of dates of `temporal_kind` the scan counted, `ambiguous` the ambiguous
+values of the scan, and `unplaced` the other content values (not dates, invalid,
+or of another kind): `values = count + ambiguous + unplaced`.
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
@@ -238,3 +288,6 @@ First revision of the format, introduced with `tabalyst scan --deep`: `base`,
 `settings`, `plan`, `run` and `analyses`, with the results `dense_counts`, `bins`,
 `lengths`, `distinct`, `distinct_limited` and `frequencies`, and the `original`
 domain. Members without a value are left out rather than written as `null`.
+The results `pattern_counts` and `periods` were added with the executors of
+`pattern_validation` and `temporal_distribution`, and the domain `original` is also
+that of `pattern_validation`, without a new revision: the format is not published yet.

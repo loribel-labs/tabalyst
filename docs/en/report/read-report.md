@@ -29,7 +29,7 @@ with a shape in front of it, never only a color:
 | `≥` or at least | A scan limit stopped the count: the real figure is at least this. |
 | `≈` or estimated | Estimated from a sample of the values, shown with its error. |
 | sample | Counted on a sample of the distinct values, not on the whole file. |
-| not computed | The scan did not compute it, for example when `scan.observations.enabled` is `false`. |
+| not computed | The scan did not compute it, for example when `scan.observations.enabled` is `false`, or the second pass did not run the analysis. |
 
 A figure without a label is exact. An integer is always written with all its
 digits, however large.
@@ -149,7 +149,7 @@ record their statuses.
 | --- | --- | --- |
 | Range | Maximum minus minimum. | A large span may suggest an outlier or mixed units. |
 | Minimum, Maximum | Smallest and largest accepted numbers. | Compare with expected bounds. |
-| Mean, Median | Arithmetic mean and middle value of accepted numbers. | A blank median means its measure reached a scan limit. |
+| Mean, Median | Arithmetic mean and middle value of accepted numbers. | A blank median means its measure reached a scan limit. When the second pass computed it, it is shown with `exact` (counted per integer) or `est.` (estimated from bins, with its bounds in the tooltip). |
 | Distinct, Examples | Normalized value count and retained value examples. | These describe value representation, not the calculation of numeric statistics. |
 
 Configured number conventions can accept comma decimals such as `12,5`. Check
@@ -174,6 +174,11 @@ invalid date-shaped values and other present values.
 Only an explicit `scan.detectors.date.ambiguous_order` setting resolves an
 ambiguous order. The report shows unambiguous DMY/MDY evidence but does not
 apply it to ambiguous values.
+
+Below the table, **Distribution over time** counts the valid dates of a column per
+day, month or year, exactly, when the second pass computed them. A date is placed
+by the date it is written with; ambiguous dates are counted apart and never
+placed. Open a column to see its periods; the table is the alternative to a chart.
 
 ## String analysis
 
@@ -219,12 +224,35 @@ fixed in every value is quoted, such as `'ONT'9{6,7}`.
 | --- | --- | --- |
 | Column, Pattern | Field and pattern, with its role: `principal` for the most common. | A secondary pattern can be a second format in use, or a rare mistake. |
 | Distinct values, Share | Distinct values the pattern takes, and their share of the distinct values read. | A share counts distinct values, never occurrences in the file. |
-| Basis | exact when the scan held every distinct value of the field, sample when it held a sample of them. | A pattern is not validated against the whole file. |
+| Basis | exact when the scan held every distinct value of the field, sample when it held a sample of them. | The share is of distinct values, not of the file. |
+| Validated on every value | When the second pass ran: how many values of the whole file the pattern reads, and their share of the values of the column. | Exact. A value is counted for the most specific pattern that reads it. |
 | Lengths, Examples | Observed lengths, and examples among the values the report keeps. | An example the report does not keep is not shown. |
 
 A value counts for one pattern, the most specific that reads it. The row
-*unmatched* counts the values no pattern takes. A column with no pattern, such as
-a number or a masked column, says why on its own page.
+*unmatched* counts the values no pattern takes; with the second pass, its
+validated figure is the number of values of the whole file that no pattern reads.
+That is an observation about structure, not an error. A column with no pattern,
+such as a number or a masked column, says why on its own page.
+
+## Second pass
+
+**Purpose:** say what the second pass added to the report and what it left out. The
+report runs it by itself for the analyses that are useful and cheap; `tabalyst
+report --deep` forces it. The section is absent from a report made before the
+second pass existed.
+
+| Report part | Meaning | What to check |
+| --- | --- | --- |
+| Introduction | Who decided (automatic, forced or off) and how the second pass ended. | A report built from a scan document reads no source and says so. |
+| Computed, Not computed | Analyses with a result, and those skipped or failed. | A skipped analysis says why in its row. |
+| Already answered, Not selected | Analyses the scan already answers, and those the planner left out. | The reasons are listed under the table: too little benefit, a mixed type, a value too long for an exact set. |
+| Table | Each analysis with its status, what it found and its accuracy. | Exact counts are marked exact; a stopped distinct count is a lower bound. |
+| Footnote | Whether the source was read again and checked against the digest of the scan. | The source is checked, so no result mixes two versions of the file. |
+
+The second pass also completes figures elsewhere: the exact distinct count of a
+column the scan stopped counting (marked *2nd pass*), the median of a numeric
+column, the validated occurrences of each pattern and the distribution of dates
+over time.
 
 ## Limits and diagnostics
 

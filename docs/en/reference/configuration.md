@@ -225,8 +225,8 @@ The analysis settings moved to `scan`, the presentation settings to `report`:
 ## Deep settings
 
 The top-level `deep` object configures the second pass of `tabalyst scan
---deep`, in [Add histograms and exact medians](../scan/deep.md). It is not part
-of the `scan` object: changing it never makes a stored scan stale.
+--deep` and of `tabalyst report`, in [Add histograms and exact medians](../scan/deep.md).
+It is not part of the `scan` object: changing it never makes a stored scan stale.
 
 ```json
 {"deep": {"bins": 50, "bin_strategy": "sample_quantile"}}
@@ -235,6 +235,7 @@ of the `scan` object: changing it never makes a stored scan stale.
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `deep.bins` | `100` | Number of bins of the histogram of a numeric field that is not counted per integer. From 2 to 1,000 |
+| `deep.mode` | `auto` | What `tabalyst report` does about the second pass. `auto`: the planner adds the analyses that are useful and cheap. `off`: none, for a script that must read each file once. `force`: the same as `--deep`, with its confirmation. `tabalyst scan --deep` is an explicit request and runs whatever the mode |
 | `deep.bin_strategy` | `linear` | `linear`: bins of equal width between the exact minimum and maximum. `sample_quantile`: inner edges at the quantiles of the sample kept by the scan, for a very skewed distribution; it falls back to `linear` when the sample is too small, and says so |
 
 The counts per bin are exact with either strategy.

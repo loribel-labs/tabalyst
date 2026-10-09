@@ -31,6 +31,7 @@ from tabalyst.scanner.models import (
     Scope,
 )
 from tabalyst.scanner.models import SourceInfo as ScanSource
+from tabalyst.scanner.secondpass.models import DeepResult
 
 FORMAT = "tabalyst.report"
 FORMAT_VERSION = "0.2.0"
@@ -289,6 +290,39 @@ class ReportBlock(ResultModel):
     datasets: list[DatasetProfile]
 
 
+AnalysesMode = Literal["auto", "forced", "off"]
+AnalysesOutcome = Literal[
+    "ran", "reused", "nothing_selected", "disabled", "unavailable", "failed"
+]
+
+
+class AnalysesBlock(ResultModel):
+    """What the second pass did for this Report (design 20.1, rule R1).
+
+    ``mode`` says who decided: ``auto`` (the planner, on benefit and cost),
+    ``forced`` (``--deep`` or ``deep.mode`` ``force``) or ``off`` (``deep.mode``
+    ``off``). ``outcome`` is ``ran`` (analyses were computed), ``reused`` (stored
+    results were enough), ``nothing_selected``, ``disabled``, ``unavailable``
+    (the analyses that need the source could not read it: ``reason`` says why and
+    each is ``skipped`` in ``deep``) or ``failed`` (an automatic second pass met
+    an error and the Report goes without it). ``deep`` is the second-pass
+    document, the plan with what it kept, left out and why, and the results; it
+    is absent when no plan was made."""
+
+    mode: AnalysesMode
+    outcome: AnalysesOutcome
+    reason: str | None = None
+    deep: DeepResult | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        for name in ("reason", "deep"):
+            if data.get(name, 0) is None:
+                del data[name]
+        return data
+
+
 class ReportProfile(ResultModel):
     """The Report document: the Scan base, then the ``report`` block."""
 
@@ -312,12 +346,15 @@ class ReportProfile(ResultModel):
     derived: Derived | None = None
     # Likewise the ``observations`` block, computed by the Scan from its facts.
     observations: Observations | None = None
+    # What the second pass added to the Report (design 20.4); the common loader
+    # ignores it, like ``report``.
+    analyses: AnalysesBlock | None = None
     report: ReportBlock
 
     @model_serializer(mode="wrap")
     def _omit_derived(self, handler) -> dict[str, Any]:
         data = handler(self)
-        for name in ("derived", "observations"):
+        for name in ("derived", "observations", "analyses"):
             if data.get(name, 0) is None:
                 del data[name]
         return data

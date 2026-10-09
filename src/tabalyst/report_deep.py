@@ -1,0 +1,209 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Views of the second pass that the report pages read (design 20, 18.14).
+
+Everything here is computed when a page is rendered, from the ``analyses`` member
+of the document: no source, no recomputation (HTML-01). A document without that
+member is shown as having none, never rebuilt.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+
+from tabalyst.models import AnalysesBlock
+from tabalyst.report_labels import ANALYSIS_LABELS, DEEP_REASONS, EXACT
+from tabalyst.report_views import (
+    ColumnAnalyses,
+    SecondPassMetrics,
+    SecondPassRow,
+    SecondPassView,
+)
+from tabalyst.scanner.planner.reasons import reason_text
+from tabalyst.scanner.secondpass.models import (
+    AnalysisOutput,
+    AnalysisResult,
+    BinnedHistogram,
+    DenseHistogram,
+    DistinctCount,
+    DistinctLimited,
+    FrequencyTable,
+    LengthDistribution,
+    PatternCounts,
+    PeriodCounts,
+)
+
+_NOT_COMPUTED = "not_computed"
+_AT_LEAST = "at_least"
+
+
+def _plural(count: int, word: str) -> str:
+    return f"{count:,} {word}{'' if count == 1 else 's'}"
+
+
+def column_analyses(
+    analyses: AnalysesBlock | None,
+) -> dict[tuple[str, str], ColumnAnalyses]:
+    """The results of each column, by dataset and field id."""
+    if analyses is None or analyses.deep is None:
+        return {}
+    found: dict[tuple[str, str], dict[str, AnalysisOutput]] = {}
+    for item in analyses.deep.analyses:
+        if item.result is None or item.status not in ("complete", "limited"):
+            continue
+        found.setdefault((item.dataset, item.field), {})[item.analyzer] = item.result
+    views: dict[tuple[str, str], ColumnAnalyses] = {}
+    for key, results in found.items():
+        views[key] = ColumnAnalyses(
+            distinct=results.get("exact_distinct"),  # type: ignore[arg-type]
+            patterns=results.get("pattern_validation"),  # type: ignore[arg-type]
+            periods=results.get("temporal_distribution"),  # type: ignore[arg-type]
+            histogram=results.get("numeric_histogram"),  # type: ignore[arg-type]
+            lengths=results.get("length_distribution"),  # type: ignore[arg-type]
+            frequencies=results.get("exact_frequencies"),  # type: ignore[arg-type]
+        )
+    return views
+
+
+def _shown(value: float) -> str:
+    return f"{value:,}" if isinstance(value, int) else f"{value:,.4f}".rstrip("0").rstrip(".")
+
+
+def result_summary(result: AnalysisOutput) -> tuple[str, str]:
+    """What a result says, in a sentence, and the accuracy of its figures."""
+    if isinstance(result, DenseHistogram):
+        median = result.median
+        return (
+            (
+                f"{_plural(result.distinct, 'distinct integer')} counted one by one; "
+                f"median {_shown(median.value)}"
+            ),
+            EXACT,
+        )
+    if isinstance(result, BinnedHistogram):
+        median = result.median
+        bounds = (
+            f" (between {_shown(median.lower)} and {_shown(median.upper)})"
+            if median.lower is not None and median.upper is not None
+            else ""
+        )
+        return (
+            (
+                f"{_plural(len(result.counts), 'bin')}, counts exact; median "
+                f"estimated at {_shown(median.value)}{bounds}"
+            ),
+            EXACT,
+        )
+    if isinstance(result, LengthDistribution):
+        return (
+            (
+                f"lengths {result.min_length} to {result.max_length} characters, "
+                f"mean {_shown(round(result.mean_length, 2))}"
+            ),
+            EXACT,
+        )
+    if isinstance(result, DistinctCount):
+        return (
+            f"{result.distinct:,} distinct values among {result.values:,}"
+            + (", all different" if result.unique else ""),
+            EXACT,
+        )
+    if isinstance(result, DistinctLimited):
+        return (
+            (
+                f"at least {result.lower_bound:,} distinct values; stopped after "
+                f"{result.values_read:,} values"
+            ),
+            _AT_LEAST,
+        )
+    if isinstance(result, FrequencyTable):
+        return (
+            f"{_plural(result.distinct, 'value')} counted, the most frequent "
+            f"{result.values[0].count:,} times"
+            if result.values
+            else "no value",
+            EXACT,
+        )
+    if isinstance(result, PatternCounts):
+        excluded = sum(result.excluded.model_dump().values())
+        return (
+            f"{result.matched:,} of {result.values:,} values read by "
+            f"{_plural(len(result.candidates), 'pattern')}, {result.other:,} by none"
+            + (f", {excluded:,} not tested" if excluded else ""),
+            EXACT,
+        )
+    assert isinstance(result, PeriodCounts)
+    return (
+        f"{result.count:,} dates by {result.granularity}, {result.first} to {result.last}"
+        + (f"; {result.ambiguous:,} ambiguous not placed" if result.ambiguous else ""),
+        EXACT,
+    )
+
+
+def _row(item: AnalysisResult) -> SecondPassRow:
+    label = ANALYSIS_LABELS.get(item.analyzer, item.analyzer)
+    if item.result is not None and item.status in ("complete", "limited"):
+        summary, kind = result_summary(item.result)
+        if item.status == "limited" and item.reason:
+            summary += f" ({DEEP_REASONS.get(item.reason, item.reason)})"
+        return SecondPassRow(
+            column=item.display,
+            analysis=label,
+            status=item.status,
+            kind=kind,  # type: ignore[arg-type]
+            summary=summary,
+        )
+    why = DEEP_REASONS.get(item.reason or "", item.reason or "not computed")
+    return SecondPassRow(
+        column=item.display,
+        analysis=label,
+        status=item.status,
+        kind=_NOT_COMPUTED,
+        summary=f"Not computed: {why}",
+    )
+
+
+def second_pass_view(analyses: AnalysesBlock | None, dataset: str) -> SecondPassView:
+    """What the second pass did for one dataset."""
+    if analyses is None:
+        return SecondPassView()
+    document = analyses.deep
+    if document is None:
+        return SecondPassView(
+            available=True, mode=analyses.mode, outcome=analyses.outcome, reason=analyses.reason
+        )
+    rows = [_row(item) for item in document.analyses if item.dataset == dataset]
+    plan = [c for c in document.plan.candidates if c.dataset == dataset]
+    states = Counter(c.selection.state for c in plan)
+    left_out: Counter[str] = Counter()
+    for candidate in plan:
+        if candidate.selection.state != "rejected":
+            continue
+        code = candidate.selection.reason or ""
+        if code == "not_applicable" and candidate.applicability.reasons:
+            code = candidate.applicability.reasons[0]
+        left_out[reason_text(code)] += 1
+    statuses = Counter(row.status for row in rows)
+    run = document.run
+    return SecondPassView(
+        available=True,
+        mode=analyses.mode,
+        outcome=analyses.outcome,
+        reason=analyses.reason,
+        metrics=SecondPassMetrics(
+            computed=statuses["complete"] + statuses["limited"],
+            skipped=statuses["skipped"],
+            failed=statuses["failed"],
+            already_answered=states["already_satisfied"],
+            not_selected=states["rejected"],
+        ),
+        rows=rows,
+        left_out=left_out.most_common(),
+        source_read=run.source_read,
+        source_verified=run.source_verified,
+        seconds=run.duration_seconds,
+        executed=run.executed,
+        reused=run.reused,
+    )

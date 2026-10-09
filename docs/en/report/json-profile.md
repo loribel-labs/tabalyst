@@ -116,7 +116,25 @@ A shortened profile for a five-row `orders.csv`:
 | `datasets` | array | The scan datasets, with their records and fields: the measured facts. The samples of the fields are reduced (see [Reduced samples](#reduced-samples)) |
 | `derived` | object | Optional: the [inferred patterns](../scan/format.md#inferred-patterns) of the scan, carried as they are because the reduced samples cannot compute them again |
 | `observations` | object | Optional: the [observations and limits](../scan/format.md#observations-and-limits) of the scan, carried as they are. The report reads its quality findings and its limits from them (see [Findings](#findings)) |
+| `analyses` | object | Optional: what the [second pass](../scan/deep.md) did for this report (see [`analyses`](#analyses)) |
 | `report` | object | What the report adds (see below) |
+
+## `analyses`
+
+The report runs a second pass by itself when the planner finds an analysis useful
+and cheap, and `--deep` forces it. This member says what happened and holds the
+[second pass document](../scan/deep-format.md) of the run, whole:
+
+| Field | Content |
+| --- | --- |
+| `mode` | Who decided: `auto` (the planner), `forced` (`--deep`, or `deep.mode` set to `force`) or `off` (`deep.mode` set to `off`) |
+| `outcome` | `ran` (analyses were computed), `reused` (the stored results of an earlier run were enough), `nothing_selected`, `disabled`, `unavailable` (analyses that need the source could not read it) or `failed` (an automatic second pass met an error and the report goes without it) |
+| `reason` | Why, for `disabled`, `unavailable` and `failed`; a sentence |
+| `deep` | The second pass document: its `plan` lists every candidate analysis with the decision on it and its reason (kept, already answered by the scan, or left out), and `analyses` holds the results, each with its `status` and `reason` |
+
+A report built with `--scan` reads no source: the analyses that need it are
+`skipped` with the reason `source_not_read`. A report written before the second
+pass existed has no `analyses`, and its HTML has no Second pass section.
 
 ## `report`
 
