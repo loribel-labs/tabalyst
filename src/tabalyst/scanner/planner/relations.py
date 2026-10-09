@@ -22,7 +22,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING
 
 from tabalyst.config import PearsonSettings
-from tabalyst.scanner.models import DatasetResult, RowSample, SampleRow
+from tabalyst.scanner.models import DatasetResult, SampleRow
 from tabalyst.scanner.pearson import (
     INSUFFICIENT_PAIRS,
     CoMoments,
@@ -32,9 +32,11 @@ from tabalyst.scanner.pearson import (
     score,
     to_float,
 )
-from tabalyst.scanner.planner.analyzers.common import identifier_like, uniqueness
+from tabalyst.scanner.planner.analyzer import PairProposal
 from tabalyst.scanner.planner.facts import FieldFacts
+from tabalyst.scanner.planner.identifiers import identifier_like, uniqueness
 from tabalyst.scanner.planner.models import Exploration, ExploredDataset
+from tabalyst.scanner.planner.samplerows import cell_text, usable_rows
 
 if TYPE_CHECKING:
     # Imported by the planner when it needs one: the second pass imports the
@@ -59,28 +61,6 @@ COLUMN_BUDGET = "column_budget"
 MEASURE_UNAVAILABLE = "measure_unavailable"
 
 
-@dataclass(frozen=True, slots=True)
-class PairProposal:
-    """A pair the planner puts in the plan: the two fields in document order,
-    what the sample says of them and, when the pair cannot be analyzed, why."""
-
-    first: FieldFacts
-    second: FieldFacts
-    exploration: Exploration | None
-    reasons: tuple[str, ...] = ()
-    # Both columns are fully in a complete sample: the Scan alone answers.
-    from_samples: bool = False
-
-
-@dataclass(frozen=True, slots=True)
-class PairRequest:
-    """A pair asked for explicitly, whether or not the exploration found it."""
-
-    dataset: str | None
-    first: str
-    second: str
-
-
 @dataclass(slots=True)
 class _Column:
     facts: FieldFacts
@@ -88,43 +68,8 @@ class _Column:
     usable: int = 0
 
 
-@dataclass(slots=True)
-class _Sample:
-    """The rows of a dataset an exploration may use, and what they stand for."""
-
-    scope: str
-    rows: list[SampleRow]
-    complete: bool
-    sample: RowSample
-
-
 def _rounded(value: float | None) -> float | None:
     return None if value is None else round(value, DECIMALS)
-
-
-def _usable_rows(dataset: DatasetResult, settings: PearsonSettings) -> tuple[_Sample | None, str | None]:
-    """The sample rows of a dataset, or why there are none to use: a complete
-    sample is the whole population, otherwise only the interior rows are a
-    sample (ROW-07); the first and last rows say nothing of the rest."""
-    sample = dataset.records.sample
-    if sample is None or not sample.rows:
-        return None, "no_sample"
-    if sample.kept != sample.of:
-        return None, "sample_reduced"
-    complete = sample.complete
-    rows = list(sample.rows) if complete else sample.interior()
-    if len(rows) < settings.explore_min_pairs:
-        return None, "too_few_rows"
-    return _Sample("all_rows" if complete else "interior_rows", rows, complete, sample), None
-
-
-def _cell(row: SampleRow, field_id: str) -> str | None:
-    """The text of a single-valued cell, or ``None`` for a row without a value
-    (null, absent, or several occurrences, which no pair may use)."""
-    cell = row.values.get(field_id)
-    if cell is None or len(cell) != 1:
-        return None
-    return cell[0]
 
 
 def column_floats(
@@ -135,7 +80,7 @@ def column_floats(
     counts them). A number is read like the first pass reads it; ``lenient``
     (JSON, whose native numbers the sample writes as text) also accepts what a
     decimal reads."""
-    texts = [_cell(row, field_id) for row in rows]
+    texts = [cell_text(row, field_id) for row in rows]
     counts = Counter(text for text in texts if text is not None)
     distinct = list(counts)
     numbers: dict[str, float | None] = {}
@@ -215,7 +160,7 @@ def explore_dataset(
     numeric = [f for f in facts if f.technical_type in NUMERIC_TYPES]
     if len(numeric) < 2:
         return None, []
-    usable, unavailable = _usable_rows(dataset, settings)
+    usable, unavailable = usable_rows(dataset, settings.explore_min_pairs)
     if usable is None:
         return ExploredDataset(dataset=dataset.id, numeric=len(numeric), unavailable=unavailable), []
 
@@ -314,7 +259,7 @@ def explicit_proposal(
             return PairProposal(first, second, None, (REPEATED,))
         if item.numeric != "complete":
             return PairProposal(first, second, None, (MEASURE_UNAVAILABLE,))
-    usable, _ = _usable_rows(dataset, settings)
+    usable, _ = usable_rows(dataset, settings.explore_min_pairs)
     if usable is None or not usable.sample.covers([first.field, second.field]):
         return PairProposal(first, second, None)
     exploration = explore_pair(

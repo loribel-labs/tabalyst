@@ -12,6 +12,7 @@ from tabalyst.batch import plan_outputs, validate_outputs
 from tabalyst.config import resolve_config
 from tabalyst.errors import InputError, TabalystError
 from tabalyst.sampling import (
+    DEFAULT_MAX_STRATA,
     SampleMethod,
     SampleResult,
     default_sample_output,
@@ -90,7 +91,7 @@ def generate_samples(
     method: SampleMethod | str,
     rows: int | None = None,
     percent: float | None = None,
-    field: str | None = None,
+    field: str | Sequence[str] | None = None,
     seed: int | None = None,
     output: str | Path | None = None,
     output_dir: str | Path | None = None,
@@ -98,11 +99,12 @@ def generate_samples(
     encoding: str | None = None,
     config_path: ConfigPath | None = None,
     force: bool = False,
+    max_strata: int = DEFAULT_MAX_STRATA,
 ) -> BatchSampleResult:
     """Plan and execute one or more CSV samples."""
 
     selected_method = validate_sample_options(
-        method, rows=rows, percent=percent, field=field
+        method, rows=rows, percent=percent, field=field, max_strata=max_strata
     )
     config = resolve_config(
         _config_paths(config_path), separator=delimiter, encoding=encoding
@@ -125,6 +127,7 @@ def generate_samples(
                 delimiter=config.csv.delimiter,
                 encoding=config.csv.encoding,
                 force=force,
+                max_strata=max_strata,
             )
         except TabalystError as exc:
             failures.append(SampleFailure(job=job, error=exc))

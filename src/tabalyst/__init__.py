@@ -35,6 +35,7 @@ from tabalyst.scanner import scan as scan
 from tabalyst.scanner.planner import AnalysisPlan as AnalysisPlan
 from tabalyst.scanner.planner import AnalysisRequest as AnalysisRequest
 from tabalyst.scanner.planner import SecondPassPlan as SecondPassPlan
+from tabalyst.scanner.planner import Stratify as Stratify
 from tabalyst.scanner.planner import plan_analyses as plan_analyses
 from tabalyst.scanner.planner import plan_second_pass as plan_second_pass
 from tabalyst.scanner.secondpass import DeepResult as DeepResult
@@ -65,6 +66,7 @@ __all__ = [
     "SourceNotReadable",
     "StalePlan",
     "StaleSource",
+    "Stratify",
     "TabalystError",
     "__version__",
     "analyze",

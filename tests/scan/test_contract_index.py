@@ -30,8 +30,9 @@ FILES = (
     "test_contract_validation.py",
     "test_contract_report_chain.py",
     "test_contract_relations.py",
+    "test_contract_stratification.py",
 )
-REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18", "A13", "C11", "D12"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10", "A07", "A12", "A15", "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D13", "E01", "E02", "F01", "F02", "F03", "F04", "F06"]
+REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18", "A13", "C11", "D12"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10", "A07", "A12", "A15", "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D13", "E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "F01", "F02", "F03", "F04", "F06"]
 
 
 def _declared() -> dict[str, list[str | None]]:

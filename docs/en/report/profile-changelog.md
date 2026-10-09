@@ -71,7 +71,9 @@ The profile becomes a superset of the Scan document: it has `format:
   exact distinct count and median that a scan limit had stopped. The second pass
   document inside `analyses` also holds the correlation of pairs of numeric columns
   (`partner` on an analysis, the result `pearson`, `relations` and `exploration` in
-  the plan).
+  the plan) and the tables of a category against a feature (the result `crosstab`,
+  `relations.tables`, the domain `mixed`). The HTML report shows both in a
+  Relationships section before the Second pass section.
 - The HTML report adds the Observations and Patterns sections, qualifies every
   count as exact, estimated, sample, at least or not computed, and writes
   integers with all their digits (see

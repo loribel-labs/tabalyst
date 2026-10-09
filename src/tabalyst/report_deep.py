@@ -14,7 +14,14 @@ from __future__ import annotations
 from collections import Counter
 
 from tabalyst.models import AnalysesBlock
-from tabalyst.report_labels import ANALYSIS_LABELS, DEEP_REASONS, EXACT, PEARSON_REASONS
+from tabalyst.report_labels import (
+    ANALYSIS_LABELS,
+    DEEP_REASONS,
+    EXACT,
+    FEATURE_WORDS,
+    PEARSON_REASONS,
+    TABLE_REASONS,
+)
 from tabalyst.report_views import (
     ColumnAnalyses,
     SecondPassMetrics,
@@ -26,6 +33,7 @@ from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     AnalysisResult,
     BinnedHistogram,
+    CrosstabResult,
     DenseHistogram,
     DistinctCount,
     DistinctLimited,
@@ -143,6 +151,21 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             return f"no coefficient: {why} ({_plural(result.pairs, 'common row')}){tail}", EXACT
         return (
             f"r = {result.coefficient:+.3f} over {_plural(result.pairs, 'common row')}{tail}",
+            EXACT,
+        )
+    if isinstance(result, CrosstabResult):
+        word = FEATURE_WORDS.get(result.feature.kind, result.feature.kind)
+        head = f"{result.counted:,} of {result.rows:,} rows by {word}"
+        found = result.association
+        if found.corrected is None:
+            why = TABLE_REASONS.get(found.reason or "", found.reason or "undefined")
+            return f"{head}; no score: {why}", EXACT
+        forward = result.purity.forward.value
+        shown = "" if forward is None else f"; purity {forward:.1%}"
+        caution = "" if found.stable else " (low counts)"
+        return (
+            f"{head}; Cramér's V {found.cramers_v:.2f}{caution}{shown}"
+            + (f"; {len(result.rules):,} candidate rules" if result.rules else ""),
             EXACT,
         )
     assert isinstance(result, PeriodCounts)

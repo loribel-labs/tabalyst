@@ -25,6 +25,7 @@ from tabalyst.progress import (
     byte_progress,
     emit_progress,
 )
+from tabalyst.scanner.features import CategoryCoder, feature_coder
 from tabalyst.scanner.measures import Unrepresentable
 from tabalyst.scanner.models import DatasetResult, FieldResult, ScanResult
 from tabalyst.scanner.observations import StreamItem
@@ -33,9 +34,11 @@ from tabalyst.scanner.planner.costmodel import (
     EXACT_SET_STATE_PREFIX,
     PERIOD_MEMO_ENTRIES,
 )
+from tabalyst.scanner.planner.crosstabs import code_rows
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
 from tabalyst.scanner.planner.relations import column_floats
+from tabalyst.scanner.planner.samplerows import cell_text
 from tabalyst.scanner.process import peak_memory_bytes
 from tabalyst.scanner.readers.factory import open_reader
 from tabalyst.scanner.secondpass.accumulators import (
@@ -45,6 +48,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     ScanMismatch,
 )
 from tabalyst.scanner.secondpass.boundaries import place_edges
+from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.document import analysis_domain, analysis_key
 from tabalyst.scanner.secondpass.exactset import MEMORY_BUDGET, ExactPool, ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
@@ -80,6 +84,7 @@ Accumulator = (
     | PatternAccumulator
     | PeriodAccumulator
     | PairAccumulator
+    | CrosstabAccumulator
 )
 
 
@@ -174,10 +179,13 @@ def _grant(candidate: Candidate) -> int:
     )
 
 
+Feeds = dict[tuple[str, FieldPath, str], ColumnFeed | CodeFeed]
+
+
 def _setup_pair(
     job: _Job,
     cells: CellReader,
-    feeds: dict[tuple[str, FieldPath], ColumnFeed],
+    feeds: Feeds,
 ) -> None:
     """The accumulator of a pair. A pair whose rows the complete sample of the
     Scan holds is counted from them now and reads nothing; the others get the
@@ -201,11 +209,84 @@ def _setup_pair(
     columns_of = []
     for field in (first, second):
         where = (dataset.id, field_path(field.path))
-        feed = feeds.get(where)
+        feed = feeds.get((*where, "number"))
         if feed is None:
-            feed = feeds[where] = ColumnFeed(cells)
+            feed = feeds[(*where, "number")] = ColumnFeed(cells)
+        assert isinstance(feed, ColumnFeed)
         columns_of.append(feed)
     job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs)
+    job.reads_pair = True
+
+
+def _setup_table(job: _Job, cells: CellReader, feeds: Feeds, scan: ScanResult) -> None:
+    """The accumulator of a table. The classes come from the Scan alone, as they
+    did when the table was planned. A table whose rows the complete sample of the
+    Scan holds is counted from them now and reads nothing; the others get the
+    feed of each column, shared with the other tables that use it."""
+    candidate, dataset = job.candidate, job.dataset
+    category, column = job.field, job.partner
+    assert column is not None
+    parameters = candidate.parameters
+    feature = str(parameters["feature"])
+    max_classes = int(parameters.get("max_classes", 0))
+    prefix_length = int(parameters.get("prefix_length", 0))
+    measure = category.values.frequencies
+    max_categories = int(parameters["max_categories"])
+    if measure.status != "complete" or len(measure.value.listed) < min(
+        measure.value.distinct, max_categories
+    ):
+        raise ScanMismatch("the frequencies of the scan no longer reach the categories")
+    categories = CategoryCoder(cells, measure.value, max_categories)
+    entry = (
+        pattern_entry(scan.derived.patterns.fields, dataset.id, column.id)
+        if scan.derived is not None and scan.derived.patterns is not None
+        else None
+    )
+    coder, why = feature_coder(
+        cells,
+        feature,
+        column,
+        entry,
+        max_classes=max_classes or 2,
+        prefix_length=prefix_length or 1,
+        max_value_length=scan.config.pattern_inference.max_value_length,
+    )
+    if coder is None:
+        raise ScanMismatch(f"the scan no longer offers the feature: {why}")
+    rules = {
+        "feature": feature,
+        "prefix_length": prefix_length or None,
+        "examples": int(parameters["examples"]),
+        "rule_purity": int(parameters["rule_purity"]),
+        "rule_support": int(parameters["rule_support"]),
+    }
+    if not candidate.execution.requires_source:
+        sample = dataset.records.sample
+        ids = [category.id, column.id]
+        if sample is None or not sample.complete or not sample.covers(ids):
+            raise ScanMismatch("the scan no longer holds every row of the table")
+        left, right = CodeFeed(categories), CodeFeed(coder)
+        right.raws = [cell_text(row, column.id) or "" for row in sample.rows]
+        right.records = [row.record for row in sample.rows]
+        table = CrosstabAccumulator(left, right, **rules)  # type: ignore[arg-type]
+        table.add(
+            code_rows(categories, sample.rows, category.id),
+            code_rows(coder, sample.rows, column.id),
+        )
+        job.accumulator = table
+        return
+    columns_of: list[CodeFeed] = []
+    for field, side, kind in (
+        (category, categories, f"category:{parameters['max_categories']}"),
+        (column, coder, f"{feature}:{max_classes}:{prefix_length}"),
+    ):
+        where = (dataset.id, field_path(field.path), kind)
+        feed = feeds.get(where)
+        if feed is None:
+            feed = feeds[where] = CodeFeed(side)
+        assert isinstance(feed, CodeFeed)
+        columns_of.append(feed)
+    job.accumulator = CrosstabAccumulator(columns_of[0], columns_of[1], **rules)  # type: ignore[arg-type]
     job.reads_pair = True
 
 
@@ -313,6 +394,11 @@ def _finish(job: _Job) -> _Finished:
         accumulator.check(field.numeric.value, partner.numeric.value)
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(source))
+    if isinstance(accumulator, CrosstabAccumulator):
+        partner = job.partner
+        assert partner is not None
+        source = "source" if job.candidate.execution.requires_source else "samples"
+        return _Finished("complete", accumulator.result(source, field, partner))
     if isinstance(accumulator, PeriodAccumulator):
         assert field.temporal.status == "complete"
         stats = field.temporal.value
@@ -342,7 +428,7 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
-    if isinstance(pair, PairAccumulator):
+    if isinstance(pair, PairAccumulator | CrosstabAccumulator):
         broken = pair.failure or pair.first.failure or pair.second.failure
         if broken is not None:
             return _entry(candidate, key, "failed", reason="analysis_error", detail=broken)
@@ -461,13 +547,16 @@ def run_second_pass(
             )
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
-        feeds: dict[tuple[str, FieldPath], ColumnFeed] = {}
+        feeds: Feeds = {}
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
             try:
                 if job.candidate.analyzer == "pearson_correlation":
                     _setup_pair(job, cells, feeds)
+                    continue
+                if job.candidate.analyzer == "category_crosstab":
+                    _setup_table(job, cells, feeds, scan)
                     continue
                 _setup(job, cells, pool, scan)
             except ScanMismatch as exc:
@@ -514,7 +603,8 @@ def run_second_pass(
             pairs = [
                 (job.dataset.id, job.accumulator)
                 for job in read_jobs
-                if isinstance(job.accumulator, PairAccumulator) and job.reads_pair
+                if isinstance(job.accumulator, PairAccumulator | CrosstabAccumulator)
+                and job.reads_pair
             ]
             router = Router(routes, feeds, pairs)
             consume_started = perf_counter()

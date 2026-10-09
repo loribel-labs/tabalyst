@@ -334,6 +334,119 @@ class SecondPassView(ResultModel):
     reused: int = 0
 
 
+class RelationCell(ResultModel):
+    """One cell of a table: its count and its share of the category's classified
+    rows (the conditional percentage the page shows before any score)."""
+
+    count: int
+    share: float | None
+    # The class that holds most of its category, or a cell that is an exception.
+    dominant: bool
+    exception: bool
+
+
+class RelationRow(ResultModel):
+    """A category of a table: its cells, its totals and its purity."""
+
+    label: str
+    other: bool
+    cells: list[RelationCell]
+    classified: int
+    rows: int
+    coverage: float | None
+    dominant: str | None
+    purity: float | None
+    exceptions: int
+
+
+class RelationException(ResultModel):
+    """An exception cell: the category and the class it should not have, the
+    exact count of its rows, and the first of them."""
+
+    category: str
+    label: str
+    count: int
+    examples: list[tuple[int, str]]
+
+
+class RelationRule(ResultModel):
+    """A candidate rule learned from the data, in words."""
+
+    category: str
+    label: str
+    support: int
+    confidence: float
+    exceptions: int
+
+
+class RelationTable(ResultModel):
+    """The table of one feature of a column against a category, as the page
+    prints it. ``strength`` is a word for the score, or ``unstable`` when the
+    counts are too low to name one (REL-14); it is ``None`` without a score."""
+
+    feature: str
+    feature_label: str
+    leading: bool
+    kind: Literal["exact"] = "exact"
+    source: Literal["source", "samples"]
+    sentence: str
+    classes: list[str]
+    other_class: bool
+    rows: list[RelationRow]
+    column_totals: list[int]
+    total: int
+    counted: int
+    examined: int
+    left_out: str
+    purity: float | None
+    reverse_purity: float | None
+    baseline: float | None
+    score: float | None
+    strength: str | None
+    note: str | None
+    exceptions: list[RelationException]
+    exception_count: int
+    exception_cells: int
+    rules: list[RelationRule]
+
+
+class RelationGroup(ResultModel):
+    """The tables that relate two columns, grouped so that the same
+    phenomenon is not told three times (REL-16): the leading feature first."""
+
+    category: str
+    column: str
+    tables: list[RelationTable]
+
+
+class CorrelationRow(ResultModel):
+    """The correlation of a pair of numeric columns, in words."""
+
+    pair: str
+    coefficient: float | None
+    pairs: int
+    rows: int
+    note: str
+
+
+class RelationsView(ResultModel):
+    """The relationships of a dataset (HTML-06): tables of a category against a
+    feature, and the correlations of numeric pairs, from the second pass."""
+
+    groups: list[RelationGroup] = Field(default_factory=list)
+    correlations: list[CorrelationRow] = Field(default_factory=list)
+    # What the planner explored on the row sample to propose them, in words.
+    notes: list[str] = Field(default_factory=list)
+
+    @property
+    def available(self) -> bool:
+        return bool(self.groups or self.correlations)
+
+    @property
+    def count(self) -> int:
+        return len(self.groups) + len(self.correlations)
+
+
 class ColumnView(ColumnProfile):
     """A column projection with the canonical facts of its field (``field``,
     read as the scan wrote them) and the figures the pages derive from them."""
@@ -373,3 +486,4 @@ class DatasetView(DatasetProfile):
     quality_issue_column_count: int
     observation_column_count: int
     second_pass: SecondPassView = Field(default_factory=SecondPassView)
+    relations: RelationsView = Field(default_factory=RelationsView)

@@ -10,7 +10,7 @@ from typing import Annotated
 import typer
 
 from tabalyst.errors import ConfigurationError, InputError, TabalystError
-from tabalyst.sampling import SampleMethod, SampleResult
+from tabalyst.sampling import DEFAULT_MAX_STRATA, SampleMethod, SampleResult
 from tabalyst.sampling_service import generate_samples
 
 
@@ -24,6 +24,13 @@ def _print_result(result: SampleResult) -> None:
     typer.echo(f"Source rows:   {result.source_rows:,}", err=True)
     typer.echo(f"Sample rows:   {result.sample_rows:,}", err=True)
     typer.echo(f"Sample rate:   {result.sample_rate:.2f}%", err=True)
+    if result.strata_known is not None:
+        typer.echo(
+            f"Strata:        {result.strata_known:,} known, "
+            f"{result.strata_selected:,} sampled, "
+            f"{result.strata_uncovered:,} without rows",
+            err=True,
+        )
     if result.seed is not None and result.method in {
         SampleMethod.RANDOM,
         SampleMethod.STRATIFIED,
@@ -53,9 +60,20 @@ def sample_command(
         typer.Option("--percent", help="Percentage of data rows to select."),
     ] = None,
     field: Annotated[
-        str | None,
-        typer.Option("--field", help="Field used for stratified sampling."),
+        list[str] | None,
+        typer.Option(
+            "--field",
+            help="Field used for stratified sampling; repeat it to stratify "
+            "by the combinations of several fields.",
+        ),
     ] = None,
+    max_strata: Annotated[
+        int,
+        typer.Option(
+            "--max-strata",
+            help="Most strata a stratified sample may hold; more stop it.",
+        ),
+    ] = DEFAULT_MAX_STRATA,
     seed: Annotated[
         int | None,
         typer.Option("--seed", help="Seed for reproducible random selection."),
@@ -105,6 +123,7 @@ def sample_command(
             delimiter=delimiter,
             encoding=encoding,
             force=force,
+            max_strata=max_strata,
         )
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

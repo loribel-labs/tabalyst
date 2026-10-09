@@ -70,6 +70,8 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
+| O41 | Tables of a category against a feature | A table is a candidate of `category_crosstab`: the category is its `field`, the column of the feature its `partner`, the feature (`pattern`, `length`, `prefix`) a parameter, and the order matters (`>` in the id). The classes come from the Scan alone, at the plan and at the run, and end with the explicit class `other`, so nothing creates an axis while the source streams (REL-12). Rows left out are counted by cause and `rows = counted + excluded` is checked. The planner ranks by the bias-corrected Cramér's V on the row sample, picks by itself the best feature of two columns (`redundant_feature` for the others) and at most eight tables; the result gives the counts with their margins, the coverage and the purity of each category in both directions, the exceptions with exact counts and their first rows, Cramér's V (never 0 for lack of data, `stable` or not) and candidate rules. A `PairAnalyzer` replaces the special case of the correlation in the planner. The report prints one block per pair of columns in a Relationships section. | Accepted 2026-10-09 (maintainer, lot 8b) | 18.14, 20.2, 20.5, 20.12, 20.13 |
 | O40 | Pairs of numeric columns | A pair is a candidate with a `partner` and an `exploration`, the score the row sample gives it. The planner scores all the pairs of the eligible columns on the sample when it makes the plan (no change to the Scan, no cost to the first pass), bounded by columns and by pairs times rows compared (COST-05), lists the best (`max_candidates`) and describes what it did in `relations`. `pearson_correlation` counts the common rows of a pair over the whole source with stable co-moments merged by batch, `pairwise_complete`, and gives an undefined result with its reason, never 0, when the rows or the variance are not enough (REL-07 to REL-09). A complete sample of a CSV file answers without reading. Pairs are ranked by the lower end of a 95% interval and the planner picks eight at most by itself. | Accepted 2026-10-09 (maintainer, lot 8a) | 20.2, 20.4, 20.5, 20.12 |
 | O39 | Patterns, dates and the second pass of the Report | `pattern_validation` counts every occurrence of the original domain against the candidates of the Scan with the matcher of the inference (a possessive regular expression for an ASCII value, the token loop for the rest), exclusively by the most specific reader, and reconciles `matched + other + excluded = values`; it reads no source when the Scan holds every distinct value with its exact count. `temporal_distribution` counts the dates the first pass parsed per calendar day, month or year, by the date as written (no conversion of the offset), ambiguous values counted apart and never placed. `tabalyst report` runs the second pass by itself on the planner's decision (`--deep` forces it, `--yes` and exit code 3 as for `scan --deep`, `deep.mode` for scripts), and embeds the result under `analyses`, with what it left out and why; a Report of a scan document reads no source unless forced. | Accepted 2026-10-09 (maintainer, lot 7c) | 18.12, 20.1, 20.2, 20.4, 20.5, 20.9, 20.10, 20.11 |
 | O38 | Exact distinct and exact frequencies | `exact_distinct` counts the distinct values of the original domain (section 21) exactly, with the values read (V) and the redundant occurrences (V minus D). Each value goes to one set chosen by the value alone: strings of up to 18 ASCII digits as integers in a set per length (so `00123` and `123` stay apart), any other string as itself, and the native types of JSON in sets of their own. A value outside the compact key is not converted, it is in the generic set. The sets share the bytes the plan gave them and the field stops, with a lower bound that is never presented as the count, when they cannot hold it (D08). `exact_frequencies` keeps a table keyed by native type and analytical text, always a table: counters of integers would merge `7`, `007` and the integer 7, and a field of at most 1,000 values makes a table smaller than any dense array. Both are `available`; `EXECUTABLE` is derived from the registry. | Accepted 2026-10-09 (maintainer, lot 7b) | 20.2, 20.4, 20.5, 20.6, 20.8 |
@@ -1739,6 +1741,8 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-09 | SJ-7b | New decision O38, new section 20.8, notes in 20.2, 20.4, 20.5, 20.6 and 20.7: the executor of `exact_distinct` (`secondpass/exactset.py`: one set per kind of key, strings of up to 18 digits as integers by length, a pool of the bytes the plan gave, `limited` with a lower bound when the pool cannot hold it) and of `exact_frequencies` (`secondpass/frequencies.py`, always a table keyed by native type and analytical text; the `dense_counts` method and the dense state shared with the histogram are dropped), the results `distinct`, `distinct_limited` and `frequencies`, the `original` domain of an analysis, the measured model of the exact set (`EXACT_SET_FIXED_BYTES`, `SET_SMALL_*`, `FREQUENCY_KEY_BYTES`, `cost_model_version` 3), `NS_PER_CELL` of the set (400) and the table (120), `EXECUTABLE` derived from the registry. | Lot 7b of the Scan and JSON work: D03, EXACT-01 to EXACT-07, D06, D07, D08 (executor half). Maintainer decisions of 2026-10-09 ("oui a tout" to the plan: keys by kind with integer sets by length for digit strings, a table for the frequencies, a lower bound published when a field is stopped). |
 | 2026-10-09 | SJ-7c | New decision O39, new sections 20.9, 20.10 and 20.11, notes in 18.12, 20.1, 20.2, 20.4 and 20.5: the executors of `pattern_validation` (`secondpass/patterns.py`: compiled possessive regular expressions for ASCII values, the token matcher for the rest, exclusive classification, overlaps, reconciliation, derivation from the exact counts of the Scan without reading) and `temporal_distribution` (`secondpass/periods.py`, dates as written, ambiguous counted apart), `CellReader.cells(dates=)`, `skip_reading`, `reading_candidates`, the datetime columns as temporal fields, `NS_PER_CELL` of the matcher (800 plus 100 a candidate) and the period (1,600), `cost_model_version` 4, `deep.mode` and `DeepSection`, the second pass inside the Report (`report_chain.py`, `deep_store.py`, `report --deep`, `--yes`, exit code 3, `analyses` in the Report) and its pages. | Lot 7c of the Scan and JSON work: D02, D08, PAT-07 to PAT-11, TIME-01 to TIME-03, 18.2, A13, A14, C11, D12. Maintainer decisions of 2026-10-09 ("oui a tout" to the plan). |
 | 2026-10-09 | SJ-8a | New decision O40, new section 20.12, notes in 20.2 and 20.5: the pair analyses (`planner/relations.py`: exploration of the row sample, column and work budgets, `relations` in the plan, candidates with `partner` and `exploration`; `scanner/pearson.py`: stable co-moments, Chan merge, Fisher interval; `secondpass/pearson.py`: `ColumnFeed`, `PairAccumulator`, the result `pearson`; `Router` hands aligned rows to the pairs), `deep.pearson` settings (`PearsonSettings`), `Budgets.automatic_pairs`, `AnalysisRequest.partner`, `NS_PER_CELL["pearson"]`, `cost_model_version` 5. | Lot 8a of the Scan and JSON work: D13, D14, REL-04 to REL-10, COST-05, E01, E02. Maintainer decision of 2026-10-09 (followed the assistant's recommendations: exploration at plan time, complete sample without reading, float64, defaults of `deep.pearson`, automatic pairs limited to eight). |
+| 2026-10-09 | SJ-8b | New decision O41, new section 20.13, notes in 18.12, 18.14, 20.2 and 20.5: the tables of a category against a feature (`scanner/features.py`: the classes of a category and of the features `pattern`, `length` and `prefix`, `PatternClassifier` shared with the validation; `scanner/crosstab.py`: margins, purity in both directions, Cramér's V and its bias-corrected form; `planner/crosstabs.py`: exploration of the row sample, `planner/samplerows.py` and `planner/identifiers.py` split out of the exploration of the pairs; `planner/analyzers/crosstab.py`; `secondpass/crosstab.py`: `CodeFeed`, `CrosstabAccumulator`; the result `crosstab`), `PairAnalyzer` and `PairProposal` in the planner, several feeds on a column in the router, `Relations.tables`, `Budgets.automatic_tables`, `AnalysisRequest.feature`, `deep.crosstab` settings (`CrosstabSettings`), the domain `mixed`, the Relationships section of the report (`report_relations.py`, sections renumbered), `NS_PER_CELL` of the three features, `cost_model_version` 6. | Lot 8b of the Scan and JSON work: D14, REL-01 to REL-03, REL-11 to REL-16, E03 to E05, HTML-06. Maintainer decision of 2026-10-09 (approved the plan and its defaults: nulls outside the table, one automatic feature per pair of columns, prefix of two characters from the Scan, 0.45 and 0.9 thresholds, three examples per cell, no separate estimate over the row sample). |
+| 2026-10-09 | SJ-9 | New decision O42, new section 20.14, notes in 20.5: the help with stratification (`scanner/stratify.py`: `allocate_strata` moved from `sampling.py`, `saturating_product`, `size_for_every_stratum`; `planner/stratification.py` and `planner/stratmodels.py`: `Stratify`, `advise_stratification`, `with_stratification`, `AnalysisPlan.stratification`; `reasons.STRATIFICATION`), several fields and `max_strata` in `sample`, the balance of strata in `SampleResult`, `scan --plan --stratify`, `--stratify-by` and `--sample-size`. | Lot 9 of the Scan and JSON work: D16, D17, STRAT-01 to STRAT-08, E06 to E08. Maintainer decision of 2026-10-09 ("ok" to the plan and its defaults: CLI options on `scan --plan`, no HTML in this lot, thresholds 50, 1,000, 10,000 and 100,000, a missing value as a stratum of its own). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2413,8 +2417,9 @@ letter is never read as a class (PAT-03); the signature is the reference.
 of the field (`population.complete`: the sample is `all` and nothing was
 excluded or cut) and `sample` otherwise: a discovery indicator on
 distinct values, never a frequency of the file. The validated coverage, on
-every occurrence of the file, is written by the second pass (20.9); the estimate
-on the row sample is not written yet (lot 8b).
+every occurrence of the file, is written by the second pass (20.9). Lot 8b does not
+add an estimate over the row sample: the exploration of 20.13 holds the counts of the
+sample per class instead, in the scores of the tables it lists.
 
 `derived` is part of the base model (a Scan with it reads back) and not of
 its facts: `facts_sha256` leaves it out, a Report carries it as it is (19.3)
@@ -2649,9 +2654,19 @@ the samples the document keeps (the largest `values.samples.kept` of the dataset
 not `kept_per_column`), the row sample the scan and the report kept, and whether
 the patterns and the observations were computed.
 
-Not in this lot: the validated coverage and the estimate over the row sample
-(lots 7c and 8b), the relationships (HTML-06, lot 8b), the analyses and the plan
-(lots 6a to 7c).
+Not in this lot: the validated coverage (lot 7c), the relationships (HTML-06, lot 8b),
+the analyses and the plan (lots 6a to 7c).
+
+**Relationships section (lot 8b, HTML-06).** The section sits between Patterns and
+Second pass (the later sections are renumbered 12 to 15) and is shown when the second pass
+computed a table or a correlation. `report_relations.py` builds its views from the
+`analyses` of the document (`RelationsView`, one `RelationGroup` per pair of columns with
+the leading feature first, `RelationTable`, `CorrelationRow`) and the page prints the counts
+and the percentage of each category in every cell before the scores, the exceptions without
+requiring anyone to know Cramér's V or Pearson, and the candidate rules, labelled learned and
+not validated. A score on low counts is `unstable` and gets no strength word; a table without
+a score says why. What the planner explored on the sample, and found nothing in, is a note.
+The Second pass section keeps a row for each analysis.
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
@@ -2873,7 +2888,7 @@ peak of its first pass (715 MB with workers, 177 MB for the main process, on the
 (`limits.max_sample_memory`). 100 million cells is about 12 s of reading and
 under a minute of work at the rates of the baseline (34 million cells read in
 4.0 s and analyzed in 20.6 s in one process), a low cost. The number of columns
-enters through the cells. The pair analyses (lot 8a, COST-05) have their own
+enters through the cells. The pair analyses (lot 8a, COST-05) and the tables of lot 8b (20.13) have their own
 bounds, set by the `deep.pearson` settings and described in 20.12: the columns
 explored (50), the pairs times rows compared by the exploration (1 million), the
 pairs listed (20) and the pairs chosen by the planner itself (8).
@@ -3086,6 +3101,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
 | `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
+| `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
@@ -3177,7 +3193,14 @@ the pairs (20.12). Its candidates have a `partner`, an `exploration` and the id
 `pairs_budget` for the others). The plan has a `relations` member, absent when no dataset
 has two numeric columns.
 
-**Not yet.** Features and tables of categories and patterns (8b); sampling targets (9 to 10b).
+**Tables (lot 8b).** `category_crosstab` is the second analyzer of pairs: a `PairAnalyzer` (20.13) that
+proposes tables of a category against a feature, directed (id with `>`), with `Budgets.automatic_tables`
+(reason `tables_budget`), `AnalysisRequest.feature` and the reason `redundant_feature`. The planner asks
+every `PairAnalyzer` for its pairs; `relations` has a member for each (`datasets`, `tables`).
+
+**Stratification (lot 9).** The plan can carry advice on stratified sampling, `stratification` (20.14). It is not an analyzer: it has no executor and takes no part in the selection.
+
+**Not yet.** Sampling targets (10a and 10b).
 
 ### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
 
@@ -3607,13 +3630,204 @@ reading counts.
 budgets or the order: a stored pair is reused whatever chose it.
 
 **Report.** The Second pass section lists the pair as "price and cost" with the coefficient and
-the common rows (`report_deep.result_summary`); the pairs appear nowhere else yet (the section
-Relationships is lot 8b, HTML-06).
+the common rows (`report_deep.result_summary`); the pairs are also listed in the Relationships
+section (20.13, `report_relations.py`).
 
 **Costs.** `NS_PER_CELL["pearson"]` is the time a cell of a column of a pair adds, the reading of
 the cell included, 1.5 ns, `moderate`; a shared column is read once, so the estimate is an
 upper bound for pairs that share columns. `COST_MODEL_VERSION` is 5. Measures:
 `benchmarks.md`, "Pairs of numeric columns (lot 8a)".
+
+### 20.13 Tables of a category against a feature (lot 8b, D14, REL-01 to REL-03, REL-11 to REL-16, E03 to E05, HTML-06, O41)
+
+A category column, a branch, can determine the shape of another column, a client identifier. The
+second pass counts, over every row, how many rows of each category fall in each class of a feature
+of that other column. As for the pairs of 20.12, the work has two stages: an exploration of the row
+sample, when the plan is made, chooses the tables worth counting (REL-02, REL-04 to REL-06), and the
+executor counts those over the source (REL-11 to REL-15). The planner has no special case for either
+kind: a `PairAnalyzer` explores, assesses, estimates and rates its pairs, and has its member of
+`relations` (`datasets` for the correlations, `tables` for the tables).
+
+**Features and classes (`scanner/features.py`, REL-01, REL-12).** A feature turns each value of a
+column into one class of a set that is fixed before the source is read again, and that only the Scan
+decides: nothing creates an axis while the source streams. Every set ends with the explicit class
+`other`, which stays in the result when it is empty.
+
+| Feature | Reads | Domain (21) | Classes |
+| --- | --- | --- | --- |
+| `pattern` | the original string | `original` | the candidates of `derived.patterns`, by the exclusive classification of 18.12 and 20.9 (`PatternClassifier`, shared with the validation) |
+| `length` | the analytical text, in characters | `analytical` | the `max_classes` - 1 most frequent lengths of the exact histogram of the Scan, in increasing order |
+| `prefix` | the first `prefix_length` characters of the original string | `original` | the `max_classes` - 1 most frequent prefixes of the values the Scan lists, counted with their exact counts |
+
+A category is read in the analytical domain against the exact frequencies of the Scan: its
+`max_categories` most frequent values are rows, the rest is `other` (a JSON value keeps its native type,
+so the integer 1 and the string "1" are two rows). A value is coded `MISSING` when the row has none
+(empty, blank, a null marker, an absent key, a repeated path) and `UNCLASSIFIED` when the feature does not
+classify it: a value that is not a string (a JSON number or boolean, for the three features), longer than
+`max_value_length` or of more than 32 tokens (`pattern`). The classes of a prefix come from the Scan and not from the
+plan, since the plan holds no value of the data: it holds their number.
+
+Who may play which part. A **category** has complete frequencies, listed at least as far as
+`max_categories`, between 2 and `max_distinct` (100) distinct values, is not withheld by exposure, does not
+repeat in a record, does not look like an identifier (the rule of 20.5) and has at most half of its values
+distinct (`near_unique`): a value that never repeats is not a category. The **column** of a feature is a
+text, mixed or integer column, withheld by no exposure, and offers the feature when the Scan has its classes
+(`no_pattern`, `no_lengths`, `few_lengths`, `no_values_listed`, `few_prefixes`: at least two classes). A
+column is never its own feature.
+
+**Exploration (`planner/crosstabs.py`).** It codes the rows of the row sample of each dataset (`samplerows.py`:
+a complete sample is the whole population, otherwise the interior rows only, ROW-07, and fewer than
+`explore_min_rows` (30) of them are too few) and scores every table of the kept columns with the
+bias-corrected Cramér's V (below), rounded to six decimals so that the plan is the same on any machine. It
+reads the Scan only, and its work is bounded by quantities, not by a time: at most `max_columns` (50)
+columns, and `max_work` (1,000,000) tables times rows coded; the least present columns are left out and
+counted `column_budget`. Every exclusion has a code counted in the plan (`excluded_categories`,
+`excluded_features`), and a table without a score has its reason in `undefined_reasons` (`too_few_rows`,
+`single_category`, `single_class`): none is dropped in silence, and "not found in the sample" is not
+"absent from the file" (REL-05). A dataset with no eligible category has no block.
+
+*Candidates.* The tables with a score above 0, by decreasing score (ties: more rows, then the order of the
+document), `max_candidates` (20) at most; a table named by a request that the exploration did not list is a
+candidate too (REL-06), scored from the sample when it can be, and not applicable (`sensitive_exposure`,
+`too_many_categories`, `no_pattern`...) when a column cannot play its part. The category is always the row
+axis (`AnalysisRequest.field`, then `partner` for the column and `feature`; no feature asks for the three).
+The id is `category_crosstab:dataset:category>column:feature`; `parameters` hold what a result depends on
+(`feature`, `max_categories`, `examples`, `rule_purity`, `rule_support`, and `max_classes`, `prefix_length`
+where the feature uses them).
+
+*Redundancy (REL-16).* Of the features of the same two columns, only the one with the best score is eligible
+for the automatic choice: the others wait for it and are rejected `redundant_feature` once it is chosen, or
+chosen in its place when it was not (budget, CPU class), so that a relation is not lost for being told twice. A request, or a forced plan, takes them
+all, and the report groups them. The utility is 100 times the score (reason `exploratory_association`); the
+planner picks by itself the tables of 45 or more, `automatic_tables` (8) at most (reason `tables_budget` for
+the others).
+
+**The plan.** `relations.tables[]` has, per dataset with an eligible category, `scope`, `rows`, `categories`,
+`columns`, `excluded_categories`, `excluded_features`, `possible`, `evaluated`, `undefined`,
+`undefined_reasons`, `listed`, `work`, `cells` (the largest table, rows by classes, counters included, REL-11)
+and `unavailable`. A candidate has an `exploration` that says `scope`, the classified `rows`, the effective
+`categories` and `classes`, the `purity`, `cramers_v` and `score`. The `costs` of a table hold the counters
+and the examples of its cells (`TABLE_CELL_BYTES`, `TABLE_EXAMPLE_BYTES`), the batch of codes of each column
+(`PAIR_FEED_ROWS` x `CODE_FEED_ENTRY_BYTES`, one state per column and feature, shared by every table that uses
+it, REL-03), the coder and the memory of reading its cells; the time estimate counts the cells of both columns.
+
+**Executor (`secondpass/crosstab.py`).** `CodeFeed` converts the strings of a column once per batch (a CSV
+batch) or the values of a record (JSON, Excel; the rows wait in a buffer of `PAIR_FEED_ROWS` records) into
+codes, with the memory of the codes of the strings it has seen; `Router` accepts several feeds on a column
+(the category, the pattern, the length of the same column) and hands each table the aligned codes of its two
+columns. `CrosstabAccumulator` counts the pairs of codes of a batch at once:
+
+- the rows with a class in both axes make the table (`counted`); the others are `category_missing`,
+  `feature_missing`, `both_missing` and `unclassified`, so that `rows = counted + excluded` is checked, as is
+  each column's number of values against the Scan's (`scan_mismatch` fails the table alone);
+- the first `examples` (3) rows of every cell in source order are kept with their record number and the value
+  (cut at 64 characters), because the dominant class of a category is only known at the end; only the cells
+  that turn out to be exceptions are listed. A batch is scanned for them only when it holds a cell that has
+  fewer than `examples`, so the cost does not grow with the rows;
+- a complete sample of a CSV file answers without reading the source (`source` is `samples`); other formats
+  read it, since the cells of their sample are the canonical text of native values.
+
+**Result `crosstab` (REL-13, REL-15).** `accuracy` is `exact_counts` and `precision` `float64`: the counts are
+exact, the purity and the coefficients are computed from them. It holds the axes (`categories`, `classes`,
+each with its field, its domain and its classes in the order of the counts), the `feature` (kind, version,
+`prefix_length`), `rows`, `counted`, `excluded`, the `counts` with the `row_totals` and `column_totals` (the
+margins), `by_category` (the rows of a category, how many of them are in the table and the `coverage` it gives,
+its `dominant` class, its `purity` and its `exceptions`), `purity`, `association`, `exceptions` and `rules`. A
+class `other` or a category with no row stays in the table with zero counts and takes no part in the scores.
+
+*Purity and the dominant class.* The forward purity A to B is the sum, over the categories, of the count of
+their dominant class, over the counted rows; the reverse purity is the same from the classes, and is another
+figure (REL-13). A tie goes to the first class listed. `purity.baseline` is the share of the most frequent
+class, the purity of an answer that ignores the category. The exceptions are the rows outside the dominant
+class of their category, as exact counts (`exceptions.count`, `cells`) and the `listed` largest cells (20) with
+their first rows.
+
+*Association (`scanner/crosstab.py`).* Cramér's V over the rows and the columns that have a count (the
+effective ones; a zero margin takes no part but stays visible, REL-14) and Bergsma's bias-corrected V, which
+does not grow with the number of classes or shrink with the rows the way V does and is what the planner ranks
+by. With one effective row or column, or fewer than two counted rows, there is no score and the `reason`
+(`single_category`, `single_class`, `too_few_rows`) says why: never 0. The score is `stable` unless more than a
+fifth of the cells of the axes that hold at least 5 rows has an expected count below 5, or one is below 1
+(`low_share`), or fewer than two rows or columns hold that many: an axis of fewer rows is `sparse`, counted in
+`association.sparse` and left out of the test, so a stray class of one row does not make a solid table
+unstable. An unstable score is never called strong. The exploration records `stable` in the exploration of a
+candidate and does not gate on it: a sample of 900 rows has fewer counts than the file. The coefficients are float64; the oracle of the tests is exact fractions and agrees to
+1e-12.
+
+*Candidate rules (REL-15).* A category whose dominant class is a pattern, a length or a prefix (not `other`),
+with at least `rule_support` (30) counted rows of which `rule_purity` (90) percent are in that class, gives a
+rule with `status: candidate` and `provenance: learned`: a rule a user approves is another thing, with its own
+provenance, and is not delivered here.
+
+**Key.** It holds both fields (`partner`), the method and the parameters above (the feature, the classes it
+reads, the examples and the thresholds of the rules), not the exploration, the budgets or the order. The
+`domain` of an analysis of a table is `mixed`: each axis of the result names its own.
+
+**Report (HTML-06, 18.14).** The Relationships section prints, for each pair of columns, one block with the
+leading feature first and the others folded (REL-16): the sentence, the metrics (classified rows, purity,
+association with its strength word or `unstable`, exceptions), the table of counts with the percentage of each
+category in every cell before any score, the exceptions with their first rows, and the candidate rules, said
+to be learned and not validated. It also lists the correlations of 20.12 and says what the planner explored on
+the sample. `report_relations.py` builds it from the `analyses` of the document.
+
+**Costs.** `NS_PER_CELL["crosstab_pattern"]`, `["crosstab_length"]` and `["crosstab_prefix"]` are the time a cell
+of either column of a table adds, the reading of the cell included: 600, 500 and 300 ns, all `low`,
+rounded up from the measures on the combined file (445, 412 and 230 ns for each cell handed to the
+analyses, columns shared by several tables counted once; the planner charges each table both its columns,
+so its estimate is an upper bound for tables that share one). `COST_MODEL_VERSION` is 6.
+Measures: `benchmarks.md`, "Tables of a category against a feature (lot 8b)".
+
+### 20.14 Help with stratification (lot 9, D16, D17, STRAT-01 to STRAT-08, E06 to E08, O42)
+
+`stratified` sampling keeps its classical statistical meaning (D16, STRAT-01): each stratum gets rows in
+proportion to its size, by the largest remainder, and a stratum whose quota rounds to zero is absent. The
+arithmetic is `scanner/stratify.py`, shared by `tabalyst sample` and the advice so that the advice describes the
+rule the sample applies: `allocate_strata` (moved unchanged from `sampling.py`), `saturating_product`
+(non-negative factors, a zero wins over a saturated factor, the product stops at `SATURATED` = 2^63 - 1 and says so)
+and `size_for_every_stratum` (the sample size at which the exact quota of the rarest stratum reaches 1).
+
+**The sample (`sampling.py`).** `field` takes one name or several; a stratum is the cell for one field and a tuple of
+cells for several, so `("a|b", "c")` and `("a", "b|c")` never collide (STRAT-03). An empty cell is a stratum of its own,
+as it always was, and the advice declares it (`limits.missing: "own_stratum"`). The counting pass raises `InputError`
+at the first record that would make more than `max_strata` strata (default 100,000, `--max-strata`), before any
+reservoir exists and before the output is touched (STRAT-08). `SampleResult` gains `fields` and the balance of a
+stratified sample: `strata_known`, `strata_selected` and `strata_uncovered`, the strata whose quota is zero (STRAT-02).
+The rounding is the classic one; the single-field sample with the same seed selects the same rows as before.
+
+**The advice (`planner/stratification.py`, models in `planner/stratmodels.py`, words in `reasons.STRATIFICATION`).**
+`plan_analyses(scan, stratify=Stratify(...))` (or `with_stratification`, which `generate_plans` uses) adds
+`plan.stratification` and recomputes `plan_id`; without a request the plan has no such member and keeps its identity.
+It reads the facts and the row sample of the Scan, never the source, and writes counts and field ids, no value of the
+data. It is a recommendation with its basis and uncertainty (specification 11.1), not a fact.
+
+- *Column (STRAT-04).* Not a key: no values, exposure, repeated path, identifier, more than half of the values
+  distinct, a single stratum, more than 50 strata, or a count the scan stopped tracking without an estimate. Strata are
+  `values.cardinality` (the original domain, 21) plus one when values are missing; `strata_basis` is `exact`,
+  `estimate` (KMV) or `bound` (`upper_bound`). `smallest_share`, `largest_share` and `size_for_every_stratum` come from
+  the exact frequencies when they are complete and untruncated (analytical domain, so a little coarser than the original
+  one); with `sample_size` the allocation is simulated with `allocate_strata` and `uncovered_at_size` counts the strata
+  with a zero quota. `rare_strata` (rarest at 1% or less, or uncovered) warns without promising a minimum.
+- *Combination (STRAT-05 to STRAT-07).* `strata_bound` is the saturating product of the certain maxima of the columns
+  (the exact count, or `upper_bound`), capped by the records (`capped_by_records`). A product of estimates is
+  `strata_estimate`, apart, and the reason `estimated_strata`; it is never published as the bound (E07). The row sample
+  gives `observed`, the distinct tuples of its usable rows (the cell text, `None` for a missing cell), a lower bound of
+  the combinations that exist, and exactly their number when the sample holds every row (`observed_exact`); the
+  columns must be whole in the sample (`RowSample.covers`), else the reason says why. The risk is `low` up to 1,000
+  strata, `moderate` up to 10,000, `high` up to 100,000, `excessive` above or saturated; when the sample is complete the
+  exact number replaces the bound. A `high` or `excessive` risk suggests `reduce_fields`, `set_explicit_limit` and
+  `use_smart` and names the widest column; a high bound proves a risk, not an explosion. `mean_quota` (the sample size
+  over the bound) is a bound that does not depend on the distribution (`mean_quota_below_one`).
+- *Limits* are in the plan (`limits`) as constants of version 1 of the advice: 50 strata per column, 1,000 and 10,000
+  for the risk classes, 100,000 states, 8 fields per combination, 30 rows at least in the sample. They are not
+  `deep` settings, so they do not enter the key of a second-pass result.
+
+**Entry points.** `tabalyst scan --plan --stratify` (columns), `--stratify-by a,b` (repeatable, implies `--stratify`) and
+`--sample-size N`; `tabalyst.Stratify`, `plan_analyses(stratify=)`, `generate_plans(stratify=)`; the text is
+`stratification_lines` in `plan_text`. A request for an unknown field, an ambiguous dataset, fewer than two fields, a
+repeated field or a sample size below 1 raises `ConfigurationError`.
+
+**Not yet.** The Report prints nothing of the advice (lot 11); `sample` does not read a stored Scan to refuse an
+excessive risk by itself (lot 10a, D23); `balanced` and `coverage` strategies stay extensions (specification 14).
 
 ## 21. Original value domain (O32)
 

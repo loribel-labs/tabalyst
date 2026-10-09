@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 5
+COST_MODEL_VERSION = 6
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -60,6 +60,18 @@ RESULT_BYTES = 1_024
 PAIR_STATE_BYTES = 512
 PAIR_FEED_ROWS = 4_096
 PAIR_FEED_ENTRY_BYTES = 32
+# A table of a category against a feature (lot 8b): a counter of a cell is a
+# dictionary entry keyed by a pair of codes, an example of an exception holds a
+# record number and a value of up to 64 characters; the batch of codes of a
+# column is shared by every table that uses it (``PAIR_FEED_ROWS`` rows, a code,
+# the string it came from and the record number).
+TABLE_CELL_BYTES = 150
+TABLE_EXAMPLE_BYTES = 250
+CODE_FEED_ENTRY_BYTES = 56
+# What the coder of a column keeps: the dictionary of its classes, and the code
+# of the raw strings it remembered (``REPLAY_MEMO_ENTRIES``, about as large as a
+# remembered cell).
+CODER_BYTES = 8_192
 # Reading the source once: the readers hold at most 8 MiB of batch (a CSV batch
 # is closed by size); the worst measured peak is 19 MB (60,000 rows of texts
 # up to 8,000 characters), 7 to 8 MB for the other files.
@@ -153,6 +165,17 @@ NS_PER_CELL = {
     # A pair of numeric columns (lot 8a): the nanoseconds a cell of either
     # column adds, the reading of the cell included. Calibrated below.
     "pearson": 1_500,
+    # A table (lot 8b): the nanoseconds a cell of either column of a table adds
+    # (the category and the column of the feature), the reading of the cell
+    # included, for each feature. Measured on the executor (`planner_costs.py
+    # executor`, 1 million rows, tables that share their columns): 445, 412 and
+    # 230 ns for each cell handed, 312, 330 and 161 for each cell of each table.
+    # The model charges every table both its columns, so it is an upper bound
+    # for tables that share one; rounded up, on a machine 10 to 20% slower than
+    # at lot 7a.
+    "crosstab_pattern": 600,
+    "crosstab_length": 500,
+    "crosstab_prefix": 300,
 }
 # Upper limits of ``very_low``, ``low`` and ``moderate`` in nanoseconds a cell.
 # The first pass spends about 600 ns on a cell of the baseline (20.6 s for 34

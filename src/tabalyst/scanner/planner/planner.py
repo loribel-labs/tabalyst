@@ -18,12 +18,15 @@ from dataclasses import dataclass
 
 from tabalyst.config import DeepSettings
 from tabalyst.errors import ConfigurationError
+from tabalyst.scanner.features import FEATURES
 from tabalyst.scanner.identity import facts_sha256
-from tabalyst.scanner.models import DatasetResult, ScanResult
-from tabalyst.scanner.planner.analyzer import Analyzer, Assessment
-from tabalyst.scanner.planner.analyzers.pearson import (
-    PAIR_SEPARATOR,
-    PearsonCorrelation,
+from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.planner.analyzer import (
+    AnalysisRequest,
+    Analyzer,
+    Assessment,
+    PairAnalyzer,
+    PairProposal,
 )
 from tabalyst.scanner.planner.costmodel import (
     COST_MODEL_VERSION,
@@ -45,6 +48,7 @@ from tabalyst.scanner.planner.models import (
     Execution,
     Exploration,
     ExploredDataset,
+    ExploredTables,
     Memory,
     Objective,
     PlanBase,
@@ -53,32 +57,15 @@ from tabalyst.scanner.planner.models import (
     Selection,
     State,
     Summary,
+    TableExploration,
     Utility,
 )
 from tabalyst.scanner.planner.registry import AnalyzerRegistry, default_registry
-from tabalyst.scanner.planner.relations import (
-    PairProposal,
-    explicit_proposal,
-    explore_dataset,
-)
+from tabalyst.scanner.planner.stratification import Stratify, advise_stratification
 
 UTILITY_VERSION = 1
 # The lowest utility the planner picks by itself (a forced plan ignores it).
 AUTOMATIC_MIN_UTILITY = 45
-
-
-@dataclass(frozen=True, slots=True)
-class AnalysisRequest:
-    """An analysis asked for explicitly. ``dataset`` and ``field`` (an id or a
-    display path) narrow it; absent, it concerns every dataset or field. For an
-    analysis of pairs, ``field`` and ``partner`` name one pair, which may be
-    absent from what the exploration proposes; ``field`` alone asks for the
-    proposed pairs that use it."""
-
-    analyzer: str
-    dataset: str | None = None
-    field: str | None = None
-    partner: str | None = None
 
 
 def default_budgets(deep: DeepSettings | None = None) -> Budgets:
@@ -91,6 +78,7 @@ def default_budgets(deep: DeepSettings | None = None) -> Budgets:
         max_cells=DEFAULT_MAX_CELLS,
         automatic_max_cpu="moderate",
         automatic_pairs=deep.pearson.automatic_pairs,
+        automatic_tables=deep.crosstab.automatic_tables,
     )
 
 
@@ -108,14 +96,30 @@ class _Entry:
     selection: Selection | None = None
     # The second field of a pair and what the sample says of it.
     partner: FieldFacts | None = None
-    exploration: Exploration | None = None
+    exploration: Exploration | TableExploration | None = None
+    # The feature of the second column of a table, and whether another feature
+    # of the same two columns scored higher (REL-16).
+    feature: str | None = None
+    redundant: bool = False
 
     @property
     def id(self) -> str:
         field = self.facts.field
         if self.partner is not None:
-            field = f"{field}{PAIR_SEPARATOR}{self.partner.field}"
+            separator = (
+                ">" if isinstance(self.analyzer, PairAnalyzer) and self.analyzer.directed else "+"
+            )
+            field = f"{field}{separator}{self.partner.field}"
+        if self.feature is not None:
+            field = f"{field}:{self.feature}"
         return f"{self.analyzer.id}:{self.facts.dataset}:{field}"
+
+    @property
+    def display(self) -> str:
+        if self.partner is None:
+            return self.facts.display
+        names = f"{self.facts.display} and {self.partner.display}"
+        return names if self.feature is None else f"{names} ({self.feature})"
 
 
 class _Ledger:
@@ -197,20 +201,6 @@ def _matches(request: AnalysisRequest, facts: FieldFacts, analyzer: Analyzer) ->
     )
 
 
-def _pair_matches(request: AnalysisRequest, first: FieldFacts, second: FieldFacts) -> bool:
-    """Whether a request for pairs concerns the pair (in either order)."""
-    if request.dataset not in (None, first.dataset):
-        return False
-    if request.field is None:
-        return True
-    members = ({first.field, first.display}, {second.field, second.display})
-    if request.partner is None:
-        return any(request.field in member for member in members)
-    return (request.field in members[0] and request.partner in members[1]) or (
-        request.field in members[1] and request.partner in members[0]
-    )
-
-
 def _check_requests(
     requests: Sequence[AnalysisRequest],
     registry: AnalyzerRegistry,
@@ -232,8 +222,14 @@ def _check_requests(
                 for field in dataset.fields
             ):
                 raise ConfigurationError(f"Unknown field {request.field!r}.")
+        pairs = issubclass(registry[request.analyzer], PairAnalyzer)
+        if request.feature is not None:
+            if not (pairs and registry[request.analyzer].features):
+                raise ConfigurationError(f"{request.analyzer!r} does not take a feature.")
+            if request.feature not in FEATURES:
+                raise ConfigurationError(f"Unknown feature {request.feature!r}.")
         if request.partner is not None:
-            if request.analyzer != PearsonCorrelation.id:
+            if not pairs:
                 raise ConfigurationError(f"{request.analyzer!r} does not analyze pairs of fields.")
             if request.field is None:
                 raise ConfigurationError("A partner needs the field it pairs with.")
@@ -250,6 +246,12 @@ def _check_requests(
                 raise ConfigurationError(
                     f"No dataset has both {request.field!r} and {request.partner!r}."
                 )
+
+
+def _columns(entry: _Entry) -> tuple[str, str, str, str]:
+    """The two columns of a pair or a table, whatever its feature."""
+    assert entry.partner is not None
+    return (entry.facts.dataset, entry.analyzer.id, entry.facts.field, entry.partner.field)
 
 
 def _decide(
@@ -305,12 +307,20 @@ def _decide(
     # 2. The cheap analyses of the most use, then 3. the costly ones by use per
     # byte (specification 11.1).
     rest = [entry for entry in applicable if not entry.requested]
+
+    def is_cheap(entry: _Entry) -> bool:
+        # A pair or a table is chosen within a count of its own, so it competes
+        # by what the sample says of it, whatever the class of its CPU: a table of
+        # patterns must not lose to a table of lengths for costing a little more.
+        assert entry.costs is not None
+        return entry.partner is not None or CPU_ORDER.index(entry.costs.cpu) <= 1
+
     cheap = sorted(
-        (e for e in rest if e.costs is not None and CPU_ORDER.index(e.costs.cpu) <= 1),
+        (e for e in rest if e.costs is not None and is_cheap(e)),
         key=lambda e: (-(e.utility.score if e.utility else 0), e.order),
     )
     costly = sorted(
-        (e for e in rest if e.costs is not None and CPU_ORDER.index(e.costs.cpu) > 1),
+        (e for e in rest if e.costs is not None and not is_cheap(e)),
         key=lambda e: (
             -((e.utility.score if e.utility else 0) * 1_000_000 // max(1, e.costs.memory.max)),
             e.order,
@@ -318,14 +328,16 @@ def _decide(
     )
     limit = CPU_ORDER.index(budgets.automatic_max_cpu)
     reading_too_long = CPU_ORDER.index(cell_class(cells)) > limit
-    automatic_pairs = 0
-    for entry in [*cheap, *costly]:
+    chosen_pairs: dict[str, int] = {}
+    # The pairs of columns of which a feature was chosen: no other feature of the
+    # same two columns is (REL-16).
+    covered: set[tuple[str, str, str, str]] = set()
+
+    def automatic_choice(entry: _Entry) -> None:
         assert entry.costs is not None and entry.utility is not None
-        if forced:
-            try_select(entry, "forced", budgets.memory_bytes)
-        elif not automatic:
-            reject(entry, "not_requested")
-        elif entry.utility.score < AUTOMATIC_MIN_UTILITY:
+        analyzer = entry.analyzer
+        pair = analyzer if isinstance(analyzer, PairAnalyzer) else None
+        if entry.utility.score < AUTOMATIC_MIN_UTILITY:
             reject(entry, "low_utility")
         elif CPU_ORDER.index(entry.costs.cpu) > limit:
             reject(entry, "cpu_class")
@@ -336,12 +348,33 @@ def _decide(
             reject(entry, "cells_budget")
         elif entry.assessment.requires_source and reading_too_long:
             reject(entry, "cpu_class")
-        elif entry.partner is not None and automatic_pairs >= budgets.automatic_pairs:
-            reject(entry, "pairs_budget")
+        elif pair is not None and chosen_pairs.get(analyzer.id, 0) >= pair.automatic_limit(budgets):
+            reject(entry, pair.budget_reason)
         else:
             try_select(entry, "automatic", automatic_memory)
-            if entry.partner is not None and entry.selection.state == "selected":  # type: ignore[union-attr]
-                automatic_pairs += 1
+            if pair is not None and entry.selection.state == "selected":  # type: ignore[union-attr]
+                chosen_pairs[analyzer.id] = chosen_pairs.get(analyzer.id, 0) + 1
+                covered.add(_columns(entry))
+
+    # A feature that scored below another of the same two columns waits for it:
+    # it is chosen only when that one was not (budget, CPU class), so a relation
+    # is not lost for being told twice.
+    deferred: list[_Entry] = []
+    for entry in [*cheap, *costly]:
+        assert entry.costs is not None and entry.utility is not None
+        if forced:
+            try_select(entry, "forced", budgets.memory_bytes)
+        elif not automatic:
+            reject(entry, "not_requested")
+        elif entry.redundant:
+            deferred.append(entry)
+        else:
+            automatic_choice(entry)
+    for entry in deferred:
+        if _columns(entry) in covered:
+            reject(entry, "redundant_feature")
+        else:
+            automatic_choice(entry)
     return ledger
 
 
@@ -380,11 +413,7 @@ def _candidate(entry: _Entry) -> Candidate:
         analyzer_version=analyzer.version,
         dataset=facts.dataset,
         field=facts.field,
-        display=(
-            facts.display
-            if entry.partner is None
-            else f"{facts.display} and {entry.partner.display}"
-        ),
+        display=entry.display,
         partner=None if entry.partner is None else entry.partner.field,
         exploration=entry.exploration,
         method=assessment.method,
@@ -408,60 +437,24 @@ def _candidate(entry: _Entry) -> Candidate:
 
 def _pair_entries(
     scan: ScanResult,
-    analyzer: PearsonCorrelation,
+    analyzer: PairAnalyzer,
     facts_list: Sequence[FieldFacts],
     requests: Sequence[AnalysisRequest],
     start: int,
-) -> tuple[list[_Entry], list[ExploredDataset]]:
-    """The candidates of the pairs of numeric columns: the best the exploration
-    of each dataset found, then the pairs a request named that it did not list
-    (REL-06). Reads the row sample of the Scan and nothing else."""
+) -> tuple[list[_Entry], list[ExploredDataset] | list[ExploredTables]]:
+    """The candidates of the pairs of columns an analyzer proposes: the best its
+    exploration of the row sample found, then the pairs a request named that it
+    did not list (REL-06). Reads the row sample of the Scan and nothing else."""
     # The second pass imports the planner, so it is imported late.
     from tabalyst.scanner.secondpass.replay import CellReader
 
-    settings = analyzer.settings.pearson
     reader = CellReader(scan.config)
     # JSON writes its native numbers as text in the sample: a decimal reads them.
     lenient = scan.source.format != "csv"
-    by_dataset: dict[str, list[FieldFacts]] = {}
-    for facts in facts_list:
-        by_dataset.setdefault(facts.dataset, []).append(facts)
-    proposals: list[PairProposal] = []
-    blocks: list[ExploredDataset] = []
-    for dataset in scan.datasets:
-        block, listed = explore_dataset(
-            dataset, by_dataset.get(dataset.id, []), reader, settings, lenient
-        )
-        if block is not None:
-            blocks.append(block)
-        proposals.extend(listed)
-    known = {(p.first.dataset, p.first.field, p.second.field) for p in proposals}
-    datasets: dict[str, DatasetResult] = {dataset.id: dataset for dataset in scan.datasets}
-    for request in requests:
-        if request.analyzer != analyzer.id or request.field is None or request.partner is None:
-            continue
-        for dataset_id, members in by_dataset.items():
-            if request.dataset not in (None, dataset_id):
-                continue
-            first = next((f for f in members if request.field in (f.field, f.display)), None)
-            second = next((f for f in members if request.partner in (f.field, f.display)), None)
-            if first is None or second is None:
-                continue
-            if members.index(first) > members.index(second):
-                first, second = second, first
-            if (dataset_id, first.field, second.field) in known:
-                continue
-            known.add((dataset_id, first.field, second.field))
-            proposals.append(
-                explicit_proposal(datasets[dataset_id], first, second, reader, settings, lenient)
-            )
+    proposals, blocks = analyzer.explore(scan, facts_list, requests, reader, lenient)
     entries: list[_Entry] = []
     for proposal in proposals:
-        if proposal.reasons:
-            assessment = Assessment("not_applicable", proposal.reasons)
-        else:
-            # Only a CSV file writes the cells of its sample as the reading does.
-            assessment = analyzer.assess_pair(proposal.from_samples and not lenient)
+        assessment = analyzer.assess_pair(proposal, lenient)
         entry = _Entry(
             start + len(entries),
             analyzer,
@@ -469,10 +462,12 @@ def _pair_entries(
             assessment,
             partner=proposal.second,
             exploration=proposal.exploration,
+            feature=proposal.feature,
+            redundant=proposal.redundant,
         )
         if assessment.kind == "applicable":
-            entry.costs = analyzer.estimate_pair(proposal.first, proposal.second, assessment)
-            entry.utility = analyzer.utility_pair(proposal.exploration)
+            entry.costs = analyzer.estimate_pair(proposal, assessment)
+            entry.utility = analyzer.utility_pair(proposal)
         entries.append(entry)
     return entries, blocks
 
@@ -486,6 +481,7 @@ def plan_analyses(
     budgets: Budgets | None = None,
     registry: AnalyzerRegistry | None = None,
     deep: DeepSettings | None = None,
+    stratify: Stratify | None = None,
 ) -> AnalysisPlan:
     """Plan the analyses that could be added to a finished Scan.
 
@@ -496,7 +492,8 @@ def plan_analyses(
     automatic limits and the utility, which only orders them. Raises
     ``ConfigurationError`` for a request that names an unknown analyzer,
     dataset or field. ``deep`` holds the settings that parametrize the methods
-    (the bins of a histogram). Reads the Scan only; nothing is run or written.
+    (the bins of a histogram). ``stratify`` adds the advice on stratified
+    sampling (design 20.14). Reads the Scan only; nothing is run or written.
     """
     registry = default_registry() if registry is None else registry
     deep = DeepSettings() if deep is None else deep
@@ -507,20 +504,21 @@ def plan_analyses(
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)
-    explored: list[ExploredDataset] = []
+    explored: dict[str, list] = {}  # type: ignore[type-arg]
     for analyzer in analyzers:
-        if isinstance(analyzer, PearsonCorrelation):
+        if isinstance(analyzer, PairAnalyzer):
             pairs, blocks = _pair_entries(scan, analyzer, facts_list, requests, len(entries))
             for entry in pairs:
                 assert entry.partner is not None
+                proposal = PairProposal(
+                    entry.facts, entry.partner, entry.exploration, feature=entry.feature
+                )
                 for index, request in enumerate(requests):
-                    if request.analyzer == analyzer.id and _pair_matches(
-                        request, entry.facts, entry.partner
-                    ):
+                    if request.analyzer == analyzer.id and analyzer.matches(request, proposal):
                         entry.requested = True
                         matched[index] += 1
             entries.extend(pairs)
-            explored.extend(blocks)
+            explored.setdefault(analyzer.relations, []).extend(blocks)
             continue
         for facts in facts_list:
             if not analyzer.relevant(facts):
@@ -562,6 +560,7 @@ def plan_analyses(
                     dataset=request.dataset,
                     field=request.field,
                     partner=request.partner,
+                    feature=request.feature,
                     candidates=matched[index],
                 )
                 for index, request in enumerate(requests)
@@ -579,9 +578,28 @@ def plan_analyses(
             memory=ledger.total(),
             beyond_automatic=_beyond_automatic(selected, ledger, budgets, cells),
         ),
-        relations=Relations(datasets=explored) if explored else None,
+        relations=(
+            Relations(datasets=explored.get("datasets", []), tables=explored.get("tables", []))
+            if any(explored.values())
+            else None
+        ),
         candidates=candidates,
     )
+    if stratify is not None:
+        return with_stratification(plan, scan, stratify, facts_list)
+    return plan.model_copy(update={"plan_id": plan_id(plan)})
+
+
+def with_stratification(
+    plan: AnalysisPlan,
+    scan: ScanResult,
+    stratify: Stratify,
+    facts_list: Sequence[FieldFacts] | None = None,
+) -> AnalysisPlan:
+    """The plan with the advice on stratification added and its ``plan_id``
+    recomputed. The advice takes no part in the choice of the analyses."""
+    advice = advise_stratification(scan, stratify, facts_list)
+    plan = plan.model_copy(update={"stratification": advice})
     return plan.model_copy(update={"plan_id": plan_id(plan)})
 
 

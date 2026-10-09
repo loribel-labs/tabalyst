@@ -845,3 +845,45 @@ under a second: 21 ms here.
 `auto` 36.4 s (second pass 16.2 s, 30 analyses, 12 million cells read, no pair reached the automatic bound on this
 file), `warm` 1.85 s. The pairs add nothing here to the +84% measured at lot 7c, which stays to be decided by the
 maintainer; the planning of the pairs costs 21 ms.
+
+## Tables of a category against a feature (lot 8b)
+
+`benchmarks/planner_costs.py executor` on the combined file (1,000,000 x 34, one reading per kind
+of analysis, two repeats; the machine was not idle: the counters of integers took 1,470 ns a cell
+against 841 at lot 7a). Tables chosen by the exploration of a forced plan, which share their columns:
+
+| Feature | Tables | Cells handed (a shared column counted once) | Per cell handed | Per cell of each table | Model |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Pattern | 5 | 7,000,000 | 445 ns | 312 ns | 600 ns |
+| Length | 5 | 8,000,000 | 412 ns | 330 ns | 500 ns |
+| Prefix | 10 | 14,000,000 | 230 ns | 161 ns | 300 ns |
+
+The planner charges each table both its columns, so its estimate is an upper bound for tables that
+share one (a column of the combined file served up to five tables). The three are class `low`.
+`NS_PER_CELL["crosstab_pattern"]`, `["crosstab_length"]` and `["crosstab_prefix"]` are rounded up from
+the measure; `COST_MODEL_VERSION` is 6. The plan of the forced second pass, exploration of the tables
+and of the pairs included, took 0.156 s (21 ms at lot 8a for the pairs alone). The firm bound of the
+model is 3.6 to 7.1 MB for 5 to 10 tables, the traced peak 7.7 to 8.1 MB with the reading.
+
+The refactor of `PatternAccumulator` (the classifier is shared with the tables) kept the loop of the
+validation inline: calling `PatternClassifier.classify` for each distinct value costs 80 ns more on a
+column of identifiers (296 against 215 ns, 300,000 distinct values, one candidate), so the loop is
+repeated in `add_strings` and the figures of lot 7c still hold (221 against 214 ns).
+
+On `examples/input/insurance-customers.csv` (3,000 rows, 34 columns) the exploration of the tables
+costs a fraction of the 0.12 s of the whole second pass of the Report (44 analyses, 8 of them tables).
+
+**Overhead of the Report with tables** (`benchmarks/report_overhead.py`, same file and cases as lots 7c and 8a):
+
+| Case | Wall time | Scan | Second pass | Reading of the second pass | Analyses | Cells read | Peak (process) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `off` | 20.8 s | 18.6 s | none | none | 0 | none | 356 MB |
+| `auto` | 43.0 s | 18.7 s | 22.0 s | 5.1 s | 38 | 25 million | 402 MB |
+| `warm` | 1.9 s | reused | 0.0003 s | none | 38 reused | none | 267 MB |
+| `forced` (`--deep --yes`) | 51.5 s | 18.9 s | 29.8 s | 4.9 s | 55 | 37 million | 464 MB |
+
+The automatic second pass now adds 22.2 s to a report of 20.8 s, **+107%** (+84% at lots 7c and 8a, 38.3 s and
+36.4 s). The planner picks eight tables by itself on this file (`automatic_tables`), which add 8 analyses, 13 million
+cells and about 5 s to the second pass; the estimate stays within `low`. The JSON grows from 1.19 to 1.28 MB and the HTML
+from 0.76 to 0.87 MB. The levers, if the overhead is too much, are `deep.crosstab.automatic_tables` (a default of 8) and
+the automatic budget of 20.2 (decision O36); both are deterministic.

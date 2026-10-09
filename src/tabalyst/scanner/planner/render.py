@@ -9,8 +9,9 @@ from __future__ import annotations
 from collections import Counter
 
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate, Memory
-from tabalyst.scanner.planner.reasons import reason_text
+from tabalyst.scanner.planner.reasons import STRATIFICATION, reason_text
 from tabalyst.scanner.planner.secondpass import Confirmation, TimeEstimate
+from tabalyst.scanner.planner.stratmodels import Stratification
 
 
 def size_text(count: int) -> str:
@@ -69,6 +70,70 @@ def _line(candidate: Candidate) -> str:
     method = "" if candidate.method is None else f" [{candidate.method}]"
     where = f"{candidate.dataset} / {candidate.display}"
     return f"{candidate.analyzer}{method}: {where}"
+
+
+def _strata(count: int | None, basis: str | None) -> str:
+    if count is None:
+        return "unknown"
+    mark = {"estimate": "about ", "bound": "at most "}.get(basis or "", "")
+    return f"{mark}{count:,}"
+
+
+def stratification_lines(advice: Stratification) -> list[str]:
+    """The advice on stratified sampling as text (design 20.14): the columns
+    that make good keys, then each combination asked for."""
+    limits = advice.limits
+    lines = ["Stratification (a recommendation from the scan, not a fact of the data):"]
+    good = [c for c in advice.columns if c.candidate]
+    lines.append(f"  {len(good)} of {len(advice.columns)} columns can be a key by themselves.")
+    for column in good:
+        notes = "; ".join(STRATIFICATION[r] for r in column.reasons)
+        rare = (
+            ""
+            if column.smallest_share is None
+            else f", rarest {column.smallest_share:.2%}, every stratum kept from "
+            f"{column.size_for_every_stratum:,} rows"
+        )
+        absent = (
+            ""
+            if column.uncovered_at_size is None
+            else f", {column.uncovered_at_size} without a row at {advice.sample_size:,} rows"
+        )
+        lines.append(
+            f"    {column.dataset} / {column.display}: "
+            f"{_strata(column.strata, column.strata_basis)} strata{rare}{absent}"
+            + (f" ({notes})" if notes else "")
+        )
+    for entry in advice.combinations:
+        lines += [
+            "",
+            f"  {entry.dataset} / {' + '.join(entry.displays)}: risk {entry.risk}",
+            "    combinations: "
+            + (
+                f"at least {entry.strata_bound:,} (saturated)"
+                if entry.saturated
+                else f"at most {entry.strata_bound:,}"
+            )
+            + (
+                f", estimated {entry.strata_estimate:,}"
+                if entry.strata_estimate is not None
+                else ""
+            ),
+        ]
+        if entry.observed is not None:
+            kind = "exactly" if entry.observed_exact else "at least"
+            lines.append(
+                f"    row sample: {kind} {entry.observed:,} in {entry.sample_rows:,} rows"
+            )
+        if entry.mean_quota is not None:
+            lines.append(f"    mean rows per stratum: {entry.mean_quota:g}")
+        lines += [f"    - {STRATIFICATION[r]}" for r in entry.reasons]
+        lines += [f"    * {STRATIFICATION[s]}" for s in entry.suggestions]
+    lines.append(
+        f"  Limits: {limits.max_strata_per_column} strata per column, "
+        f"{limits.max_states:,} states in a sample; a missing value is a stratum of its own."
+    )
+    return lines
 
 
 def plan_text(
@@ -151,4 +216,6 @@ def plan_text(
         )
     if confirmation is not None:
         lines += confirmation_lines(confirmation)
+    if plan.stratification is not None:
+        lines += ["", *stratification_lines(plan.stratification)]
     return "\n".join(lines)

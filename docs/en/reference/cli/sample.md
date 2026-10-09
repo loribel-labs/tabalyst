@@ -19,7 +19,8 @@ See [Tabalyst Sample](../../sample/index.md).
 | `--sample-method METHOD` | Required: `first`, `last`, `random` or `stratified` |
 | `--rows N` | Number of data rows to select |
 | `--percent X` | Percentage of data rows to select, rounded up to a whole row. Exclusive with `--rows` |
-| `--field TEXT` | Field that defines the strata, required by `stratified` |
+| `--field TEXT` | Field that defines the strata, required by `stratified`. Repeat it to stratify by the combinations of several fields |
+| `--max-strata N` | Most strata a stratified sample may hold (default 100,000). A file with more stops with an error, and nothing is written |
 | `--seed N` | Seed that makes a random or stratified selection reproducible |
 | `-o`, `--output PATH` | Output CSV filename, for a single input. Not with `-d` |
 | `-d`, `--output-dir PATH` | Folder for samples named `<stem>.sample.csv` |
@@ -36,6 +37,7 @@ tabalyst sample customers.csv --sample-method first --rows 1000
 tabalyst sample customers.csv --sample-method last --rows 1000
 tabalyst sample customers.csv --sample-method random --percent 5 --seed 42
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
+tabalyst sample customers.csv --sample-method stratified --field province --field language --rows 1000
 tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
 tabalyst sample *.csv --sample-method random --percent 5 -d samples/
 tabalyst sample data.csv --sample-method random --rows 100 --delimiter ";" --encoding cp1252

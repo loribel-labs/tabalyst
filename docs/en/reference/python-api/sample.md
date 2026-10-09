@@ -34,19 +34,26 @@ tabalyst.sample_csv(
     delimiter=",",
     encoding="utf-8-sig",
     force=False,
+    max_strata=100_000,
 )
 ```
 
 Returns a `tabalyst.SampleResult` with `source`, `output`, `method`,
 `source_rows`, `sample_rows`, `sample_rate`, `field`, `seed`, `encoding` and
-`delimiter`.
+`delimiter`. A stratified sample also gives `fields` (the columns, as a tuple)
+and the balance of its strata: `strata_known`, `strata_selected` and
+`strata_uncovered` (the strata that got no row). They are `None` for the other
+methods.
 
 - `source`: the CSV file.
 - `method`: `"first"`, `"last"`, `"random"` or `"stratified"`, or a
   `tabalyst.SampleMethod`.
 - `rows`, `percent`: the size of the sample, as a number of data rows or a
   percentage rounded up to a whole row. Give exactly one.
-- `field`: the field that defines the strata; required by `"stratified"`.
+- `field`: the field that defines the strata, or a list of fields whose
+  combinations define them; required by `"stratified"`.
+- `max_strata`: the most strata a stratified sample may hold, 100,000 by
+  default. More raise `tabalyst.InputError`.
 - `seed`: makes a random or stratified selection reproducible.
 - `output`: the output filename; by default `<stem>.sample.csv` beside the source.
 - `delimiter`, `encoding`: how the CSV file is read and written.
@@ -69,6 +76,7 @@ tabalyst.generate_samples(
     encoding=None,
     config_path=None,
     force=False,
+    max_strata=100_000,
 )
 ```
 

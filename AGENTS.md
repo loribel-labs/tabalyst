@@ -48,7 +48,8 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/report_views.py`, `report_sections.py`, `report_labels.py`: what the
   report pages read from the document (observations, limits, patterns, row sample,
   qualified counts), computed at render time, and the words they print. See
-  `docs/dev/scan/design.md` 18.14.
+  `docs/dev/scan/design.md` 18.14. `report_relations.py` builds the Relationships
+  section (tables of a category against a feature, correlations) from `analyses`.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
 - `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation
@@ -59,7 +60,17 @@ support is not yet required. Record format changes in the relevant changelogs.
   is its boundary for the CLI and the API.
   `costmodel.py` holds the calibrated sizes, budgets and CPU classes (20.2),
   `secondpass.py` the time estimate and the confirmation (20.3). `relations.py` explores the pairs of numeric columns
-  on the row sample and bounds that work (20.12).
+  on the row sample and bounds that work (20.12); `crosstabs.py` does the same for the tables of a
+  category against a feature (20.13). `PairAnalyzer` (`analyzer.py`) is what both pair analyzers
+  implement; `samplerows.py` and `identifiers.py` hold what the two explorations share.
+  `stratification.py` and `stratmodels.py` are the advice on stratified sampling the plan can carry
+  (20.14); it is not an analyzer.
+- `src/tabalyst/scanner/features.py`: the classes of a category and of the features of a column
+  (`pattern`, `length`, `prefix`) and the pattern classifier shared with the validation;
+  `scanner/crosstab.py` the arithmetic of a table of counts (purity, Cramér's V), shared by the
+  exploration and the second pass (20.13).
+- `src/tabalyst/scanner/stratify.py`: the arithmetic of stratification shared by `sampling.py` and the
+  advice (classic allocation, saturating product of cardinalities; 20.14).
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of
   a source (plan against Scan, readable source, digest at the end; 20.6).
 - `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,

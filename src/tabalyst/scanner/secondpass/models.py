@@ -319,6 +319,207 @@ class PearsonResult(ScanModel):
         )
 
 
+class TableClass(ScanModel):
+    """A row or a column of a table: a category value or a class of a feature.
+    ``label`` is what a reader sees (the value, a pattern rendering, a length, a
+    prefix), ``other`` the class of everything the named ones do not take, and
+    ``type`` the native type of a category of a JSON file that is not a string."""
+
+    id: str
+    label: str
+    kind: Literal["value", "other"] = "value"
+    type: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("type",))
+
+
+class TableAxis(ScanModel):
+    """One axis of a table: the field it reads, the ``domain`` of the values it
+    reads (design 21) and its classes in the order of the counts."""
+
+    field: str
+    display: str
+    domain: Literal["analytical", "original"]
+    classes: list[TableClass]
+
+
+class TableFeature(ScanModel):
+    """The feature of the second column that makes the classes (REL-01):
+    ``prefix_length`` is the number of characters of a prefix."""
+
+    kind: Literal["pattern", "length", "prefix"]
+    version: int
+    prefix_length: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("prefix_length",))
+
+
+class TableExclusions(ScanModel):
+    """The rows left out of the table. ``category_missing`` has no category,
+    ``feature_missing`` no value in the second column, ``both_missing`` neither,
+    and ``unclassified`` a value the feature does not classify (not a string,
+    longer than the patterns read)."""
+
+    category_missing: int
+    feature_missing: int
+    both_missing: int
+    unclassified: int
+
+
+class CategorySummary(ScanModel):
+    """A category against the classes. ``rows`` are all its rows, ``classified``
+    those in the table, and ``coverage`` their share: a category whose values are
+    mostly missing says little. ``dominant`` is the index of the class that holds
+    most of it (a tie goes to the first class listed) and ``purity`` its share of
+    the classified rows; the other rows are its ``exceptions`` (REL-13)."""
+
+    rows: int
+    classified: int
+    feature_missing: int
+    unclassified: int
+    coverage: float | None = None
+    dominant: int | None = None
+    dominant_count: int
+    purity: float | None = None
+    exceptions: int
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("coverage", "dominant", "purity"))
+
+
+class PurityFigure(ScanModel):
+    """``dominant`` rows out of ``total``, and their share."""
+
+    dominant: int
+    total: int
+    value: float | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("value",))
+
+
+class TablePurity(ScanModel):
+    """The purity of the table in the direction category to class (``forward``)
+    and class to category (``reverse``), which is another figure (REL-13), and
+    the ``baseline``: the share of the most frequent class, which a rule that
+    always answered it would reach."""
+
+    forward: PurityFigure
+    reverse: PurityFigure
+    baseline: float | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("baseline",))
+
+
+class TableAssociation(ScanModel):
+    """Cramér's V of the table over the rows and columns that have a count (the
+    ``effective`` ones; the others stay in the table), or the ``reason`` there is
+    none: never 0 for lack of data (REL-14). ``corrected`` is the bias-corrected
+    V. A score is ``stable`` unless the expected counts are low (``low_share`` of
+    the cells under 5, or one under 1) on the axes that hold at least 5 rows; the
+    ``sparse`` axes, with fewer, only count here. An unstable score is never to be
+    read as strong."""
+
+    defined: bool
+    n: int
+    effective_categories: int
+    effective_classes: int
+    chi_square: float | None = None
+    degrees: int | None = None
+    cramers_v: float | None = None
+    corrected: float | None = None
+    low_share: float | None = None
+    stable: bool | None = None
+    sparse: int = 0
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            ("chi_square", "degrees", "cramers_v", "corrected", "low_share", "stable", "reason"),
+        )
+
+
+class ExceptionExample(ScanModel):
+    """A row of an exception: its record and the value of the second column,
+    cut at 64 characters."""
+
+    record: int
+    value: str
+
+
+class ExceptionCell(ScanModel):
+    """A cell that is not the dominant class of its category, with the exact
+    ``count`` of its rows and the first of them in source order."""
+
+    category: int
+    column: int
+    count: int
+    examples: list[ExceptionExample]
+
+
+class TableExceptions(ScanModel):
+    """The rows outside the dominant class of their category (REL-15): ``count``
+    of them in ``cells`` cells, the ``listed`` largest with their examples."""
+
+    count: int
+    cells: int
+    listed: list[ExceptionCell]
+
+
+class CandidateRule(ScanModel):
+    """A relation learned from the data: rows of ``category`` take the class
+    ``column`` with ``confidence`` over ``support`` classified rows, ``exceptions``
+    excepted. It is a candidate and never a rule of the data: a rule a user
+    approves is another thing, with its own provenance (REL-15)."""
+
+    status: Literal["candidate"] = "candidate"
+    provenance: Literal["learned"] = "learned"
+    category: int
+    column: int
+    support: int
+    confidence: float
+    exceptions: int
+
+
+class CrosstabResult(ScanModel):
+    """The table of the rows of each category by class of a feature of another
+    column, over every row (REL-11 to REL-15). The counts are exact; ``rows`` is
+    ``counted`` (the table) plus the ``excluded`` rows, and the margins add up to
+    ``counted``. Purity and Cramér's V are computed from the counts in float64.
+    It shows an association between two columns, not a cause. ``source`` says
+    whether the rows were read from the source or are the complete sample of the
+    Scan."""
+
+    kind: Literal["crosstab"] = "crosstab"
+    accuracy: Literal["exact_counts"] = "exact_counts"
+    precision: Literal["float64"] = "float64"
+    source: Literal["source", "samples"]
+    feature: TableFeature
+    categories: TableAxis
+    classes: TableAxis
+    rows: int
+    counted: int
+    excluded: TableExclusions
+    counts: list[list[int]]
+    row_totals: list[int]
+    column_totals: list[int]
+    by_category: list[CategorySummary]
+    purity: TablePurity
+    association: TableAssociation
+    exceptions: TableExceptions
+    rules: list[CandidateRule]
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
@@ -328,7 +529,8 @@ AnalysisOutput = Annotated[
     | FrequencyTable
     | PatternCounts
     | PeriodCounts
-    | PearsonResult,
+    | PearsonResult
+    | CrosstabResult,
     Field(discriminator="kind"),
 ]
 
@@ -351,7 +553,7 @@ class AnalysisResult(ScanModel):
     display: str
     method: str
     parameters: dict[str, int | str]
-    domain: Literal["analytical", "original"] = "analytical"
+    domain: Literal["analytical", "original", "mixed"] = "analytical"
     key: str
     status: AnalysisStatus
     reason: str | None = None

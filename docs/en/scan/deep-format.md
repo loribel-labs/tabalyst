@@ -302,11 +302,65 @@ nor means, and `reason` is `insufficient_pairs` (fewer than `min_pairs` common r
 `0` for lack of data. `source` is `samples` when the complete row sample of the scan
 held every row (CSV files of up to 1,000 rows), `source` when the file was read.
 
+**`crosstab`**: the table of the rows of each category by class of a feature of another
+field. See [A category against a feature](deep.md#a-category-against-a-feature-of-another-column).
+
+```json
+{
+  "kind": "crosstab",
+  "accuracy": "exact_counts",
+  "precision": "float64",
+  "source": "source",
+  "feature": {"kind": "prefix", "version": 1, "prefix_length": 2},
+  "categories": {"field": "column_1", "display": "region", "domain": "analytical",
+                 "classes": [{"id": "c1", "label": "QC"}, {"id": "other", "label": "other", "kind": "other"}]},
+  "classes": {"field": "column_2", "display": "client_id", "domain": "original",
+              "classes": [{"id": "x1", "label": "QC"}, {"id": "other", "label": "other", "kind": "other"}]},
+  "rows": 300, "counted": 299,
+  "excluded": {"category_missing": 0, "feature_missing": 1, "both_missing": 0, "unclassified": 0},
+  "counts": [[100, 0], [0, 0]],
+  "row_totals": [100, 0], "column_totals": [100, 0],
+  "by_category": [], "purity": {}, "association": {}, "exceptions": {}, "rules": []
+}
+```
+
+(Shortened: `by_category`, `purity`, `association`, `exceptions` and `rules` are described
+below and in the page above.) `rows = counted + category_missing + feature_missing +
+both_missing + unclassified`, and the margins add up to `counted`. The first axis,
+`categories`, is the rows of `counts`, the second, `classes`, its columns; the
+last class of each axis is `other`, which stays when no row falls in it. The `domain` of
+an axis is the domain of the values it reads: a category is `analytical`, a
+`pattern` or a `prefix` is `original` and a `length` is `analytical`. The analysis itself has the
+domain `mixed`.
+
+- `by_category[i]` has `rows`, `classified` (the rows in the table), `feature_missing`,
+  `unclassified`, `coverage` (`classified / rows`), `dominant` (the index of the class that
+  holds most of the category, the first in a tie), `dominant_count`, `purity`
+  (`dominant_count / classified`) and `exceptions` (`classified - dominant_count`).
+- `purity.forward` and `purity.reverse` have `dominant`, `total` and `value`; the reverse goes
+  from class to category. `purity.baseline` is the share of the most frequent class.
+- `association` has `defined`, `n`, `effective_categories`, `effective_classes` (the axes
+  that have a count), and when defined `chi_square`, `degrees`, `cramers_v`, `corrected` (the
+  bias-corrected V), `low_share` (the share of cells whose expected count is under 5, on
+  the axes of at least 5 rows), `stable` and `sparse` (the number of axes with fewer than
+  5 rows, which stay in the table and do not take part in `stable`). When `defined` is false there is no score and `reason` is `single_category`,
+  `single_class` or `too_few_rows`; a score is never written as `0` for lack of data.
+- `exceptions` has `count` (the rows outside the dominant class of their category), `cells`
+  and `listed`, the 20 largest cells, each with `category` and `column` (indexes), `count` and
+  `examples`: up to three `{record, value}` in file order, the value cut at 64 characters.
+- `rules` are candidates only: `status` `candidate`, `provenance` `learned`, `category`
+  and `column` (indexes), `support`, `confidence` and `exceptions`.
+
+The counts are exact and the figures computed from them (purity, V) are 64-bit floats
+(`precision`). `source` is `samples` when the complete row sample of the scan held every row
+(CSV files of up to 1,000 rows).
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
-its version, the field (and its partner, for a pair), the method with its effective parameters (the number of
-bins and the strategy are among them) and the domain of the values. It does not
+its version, the field (and its partner, for a pair or a table), the method with its effective parameters (the number of
+bins and the strategy are among them, and for a table the feature, its classes and the thresholds of its
+rules) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
 whose `base` is not the current scan's matches none of its keys, and is made
@@ -331,4 +385,7 @@ The results `pattern_counts` and `periods` were added with the executors of
 that of `pattern_validation`, without a new revision: the format is not published yet.
 The result `pearson`, the `partner` member of an analysis and the members `partner`,
 `exploration` and `relations` of the plan (see [Plan](plan.md#pairs-of-columns)) came with
-`pearson_correlation`, also without a new revision.
+`pearson_correlation`, also without a new revision. So did the result `crosstab`, the domain
+`mixed`, and `relations.tables`, the `feature` of a request and the candidates of
+`category_crosstab` in the plan (see [Plan](plan.md#tables-of-a-category-against-a-feature)),
+with the members `deep.crosstab` of the settings.

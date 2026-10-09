@@ -38,6 +38,24 @@ stratified sampling. Empty field values form their own stratum:
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
 ```
 
+Each stratum gets rows in proportion to its size, rounded so that the total is
+exactly the size asked for. There is no minimum of one row: on a very unbalanced
+field a rare stratum can get no row, and the command prints how many strata the
+file has, how many got rows and how many did not. Repeat `--field` to stratify by
+the combinations of several fields; a row belongs to the stratum of its values
+taken together.
+
+```console
+tabalyst sample customers.csv --sample-method stratified --field province --field language --rows 1000
+```
+
+A stratified sample holds one counter and one reservoir per stratum while the
+file streams, so it stops with an error when the file has more than 100,000
+strata (`--max-strata` changes the limit). Combinations of columns multiply
+quickly: [`tabalyst scan --plan --stratify-by`](../scan/plan.md#stratification-advice)
+tells beforehand which columns make good strata and how many strata a
+combination can make.
+
 Percentages round up to the next whole row. A 100% sample contains every data
 record. A header-only CSV therefore produces a header-only output at 100%.
 
@@ -74,4 +92,4 @@ tabalyst sample data.csv --sample-method random --rows 100 --delimiter ";" --enc
 
 Sampling validates the header, quoting and field count of every CSV record. It
 uses bounded memory: random sampling stores only the requested rows, while
-stratified sampling additionally stores one count per distinct field value.
+stratified sampling additionally stores one count per stratum, up to `--max-strata`.

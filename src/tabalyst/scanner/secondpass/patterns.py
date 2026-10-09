@@ -16,24 +16,15 @@ string is excluded and counted as such.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Sequence
 
+from tabalyst.scanner.features import PatternClassifier, ascii_regex
 from tabalyst.scanner.models import (
     FieldPatterns,
     FieldPatternsComplete,
     FieldResult,
-    PatternToken,
 )
-from tabalyst.scanner.patterninfer import (
-    GRAMMAR_VERSION,
-    MAX_TOKENS,
-    Matcher,
-    candidate_order,
-    compile_signature,
-    matches,
-    tokenize,
-)
+from tabalyst.scanner.patterninfer import GRAMMAR_VERSION, MAX_TOKENS, matches, tokenize
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import (
     PatternCounts,
@@ -42,34 +33,7 @@ from tabalyst.scanner.secondpass.models import (
     PatternTally,
 )
 
-# The ASCII reading of each class of the grammar. For an ASCII value the
-# letters of `letter_unicode` and `alphanumeric` are the ASCII ones.
-_ASCII_CLASS = {
-    "digit_ascii": "[0-9]",
-    "upper_ascii": "[A-Z]",
-    "lower_ascii": "[a-z]",
-    "letter_unicode": "[A-Za-z]",
-    "alphanumeric": "[0-9A-Za-z]",
-}
-
-
-def ascii_regex(signature: Sequence[PatternToken]) -> re.Pattern[str]:
-    """A regular expression that reads an ASCII value like ``matches`` does.
-
-    Every repeat is possessive (``{low,high}+``): it takes as many characters as
-    allowed and never gives one back, which is what the matcher of the grammar
-    does, so nothing backtracks whatever the value (PAT-07). The compiled form
-    runs in C, an order of magnitude faster than the token loop.
-    """
-    parts = []
-    for token in signature:
-        unit = (
-            f"(?:{re.escape(token.text or '')})"
-            if token.kind == "literal"
-            else _ASCII_CLASS[token.kind]
-        )
-        parts.append(f"{unit}{{{token.min},{token.max}}}+")
-    return re.compile("".join(parts))
+__all__ = ["PatternAccumulator", "ascii_regex", "derive_from_samples", "pattern_entry"]
 
 
 def pattern_entry(
@@ -87,36 +51,21 @@ class PatternAccumulator:
     and what the population leaves out."""
 
     __slots__ = (
+        "classifier",
         "entry",
         "excluded",
-        "matchers",
-        "max_length",
         "occurrences",
-        "order",
         "other",
         "overlaps",
-        "regexes",
         "values",
     )
 
     def __init__(self, entry: FieldPatternsComplete, max_value_length: int) -> None:
         self.entry = entry
-        self.max_length = max_value_length
-        candidates = entry.candidates
         # Candidates tried from the most specific: the first that reads a value
         # is the one it counts for, the others only tell of an overlap.
-        ranked = sorted(
-            range(len(candidates)),
-            key=lambda number: candidate_order(
-                candidates[number].signature, candidates[number].generalization, number
-            ),
-        )
-        self.order = ranked
-        self.matchers: list[Matcher] = [
-            compile_signature(candidate.signature) for candidate in candidates
-        ]
-        self.regexes = [ascii_regex(candidate.signature) for candidate in candidates]
-        self.occurrences = [0] * len(candidates)
+        self.classifier = PatternClassifier(entry, max_value_length)
+        self.occurrences = [0] * len(entry.candidates)
         self.other = 0
         self.values = 0
         self.overlaps: dict[tuple[int, ...], int] = {}
@@ -125,10 +74,15 @@ class PatternAccumulator:
     def add_strings(self, raws: Sequence[str], counts: Sequence[int]) -> None:
         """Account for the distinct content strings of a batch with their
         counts."""
-        limit = self.max_length
-        matchers = self.matchers
-        regexes = self.regexes
-        order = self.order
+        # The loop of ``PatternClassifier.classify`` is repeated here, not called:
+        # a call and a tuple for each distinct value cost a third more than the
+        # regular expressions themselves on a column of identifiers (measured at
+        # lot 8b), and the cost model of the validation stands on this loop.
+        classifier = self.classifier
+        limit = classifier.max_length
+        matchers = classifier.matchers
+        regexes = classifier.regexes
+        order = classifier.order
         excluded = self.excluded
         occurrences = self.occurrences
         overlaps = self.overlaps

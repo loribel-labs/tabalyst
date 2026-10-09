@@ -40,8 +40,15 @@ DEEP_SUFFIX = ".deep.json"
 ORIGINAL_DOMAIN_ANALYZERS = frozenset({"exact_distinct", "pattern_validation"})
 
 
-def analysis_domain(analyzer: str) -> Literal["analytical", "original"]:
+# A table reads a category in the analytical domain and a feature in the domain
+# its own axis names.
+MIXED_DOMAIN_ANALYZERS = frozenset({"category_crosstab"})
+
+
+def analysis_domain(analyzer: str) -> Literal["analytical", "original", "mixed"]:
     """The domain of the values an analyzer counts."""
+    if analyzer in MIXED_DOMAIN_ANALYZERS:
+        return "mixed"
     return "original" if analyzer in ORIGINAL_DOMAIN_ANALYZERS else "analytical"
 
 
