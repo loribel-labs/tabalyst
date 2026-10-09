@@ -10,6 +10,7 @@ from collections import Counter
 
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate, Memory
 from tabalyst.scanner.planner.reasons import reason_text
+from tabalyst.scanner.planner.secondpass import Confirmation, TimeEstimate
 
 
 def size_text(count: int) -> str:
@@ -22,6 +23,38 @@ def size_text(count: int) -> str:
         if value < 1024:
             return f"{value:.1f} {unit}"
     return f"{value / 1024:.1f} GiB"
+
+
+def duration_text(seconds: float) -> str:
+    """A duration as seconds, minutes or hours, rounded for a message."""
+    if seconds < 1:
+        return "under a second"
+    if seconds < 90:
+        return f"{round(seconds)} s"
+    if seconds < 5400:
+        return f"{round(seconds / 60)} min"
+    return f"{seconds / 3600:.1f} h"
+
+
+def _estimate(estimate: TimeEstimate) -> str:
+    low, high = duration_text(estimate.low_seconds), duration_text(estimate.high_seconds)
+    return high if low == high else f"{low} to {high}"
+
+
+def confirmation_lines(confirmation: Confirmation) -> list[str]:
+    """What a run of the plan would cost and whether it would ask first (R1)."""
+    lines: list[str] = []
+    if confirmation.estimate is not None:
+        lines.append(
+            f"Estimated time: {_estimate(confirmation.estimate)} "
+            "(a guide from the first pass, not a promise)."
+        )
+    if confirmation.required:
+        why = "; ".join(reason_text(code) for code in confirmation.reasons)
+        lines.append(f"Running it would ask for a confirmation first: {why}.")
+    else:
+        lines.append("Running it would not ask for a confirmation.")
+    return lines
 
 
 def _memory(memory: Memory) -> str:
@@ -37,9 +70,12 @@ def _line(candidate: Candidate) -> str:
     return f"{candidate.analyzer}{method}: {where}"
 
 
-def plan_text(plan: AnalysisPlan, source: str) -> str:
+def plan_text(
+    plan: AnalysisPlan, source: str, confirmation: Confirmation | None = None
+) -> str:
     """The plan of ``source`` as lines of text: what is selected, what is
-    already answered, what was left out and why, and the cost."""
+    already answered, what was left out and why, and the cost. With a
+    ``confirmation``, the estimated time and whether a run would ask first."""
     summary = plan.summary
     lines = [
         f"Plan for {source} (plan {plan.plan_id[:12]}, planner {plan.planner_version}).",
@@ -58,7 +94,11 @@ def plan_text(plan: AnalysisPlan, source: str) -> str:
         for candidate in selected:
             memory = candidate.costs.memory.max if candidate.costs else 0
             cpu = candidate.costs.cpu if candidate.costs else "-"
-            how = "asked for" if candidate.selection.requested else "automatic"
+            how = (
+                "asked for"
+                if candidate.selection.requested
+                else candidate.selection.reason
+            )
             note = "" if candidate.execution.available else ", not available yet"
             lines.append(
                 f"  {candidate.selection.priority}. {_line(candidate)} "
@@ -101,4 +141,6 @@ def plan_text(plan: AnalysisPlan, source: str) -> str:
             )
     else:
         lines.append("No second reading of the source is needed.")
+    if confirmation is not None:
+        lines += confirmation_lines(confirmation)
     return "\n".join(lines)

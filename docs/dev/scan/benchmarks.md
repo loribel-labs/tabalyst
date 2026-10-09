@@ -592,7 +592,57 @@ is far above the expected 160 MB. Planning cost is linear in the number of field
 candidates each, no value read); `facts_sha256` is the largest part and is the same function the
 Report already pays. The thresholds and the size constants are provisional until lot 6b.
 
-## JSON Inspect
+## Costs and budgets of the planner (lot 6b)
+
+Lot 6b touches no file of the first pass (`git diff --stat` of the lot has nothing under
+`scanner/` but `planner/`), so the Scan is not compared with an earlier commit. What is
+measured is the cost model, with `benchmarks/planner_costs.py` (results under
+`D:/GIT.test/tabalyst/artifacts/`), and the planner on the finished Scan of the combined file.
+
+```powershell
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py structures --entries 1000000
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py reader D:\GIT.test\tabalyst\csv\insurance-ontario.csv
+.\.venv\Scripts\python.exe benchmarks\planner_costs.py cpu --cells 1000000
+```
+
+**Bytes an entry holds** (`tracemalloc`, 200,000 and 1,000,000 entries, held at rest and peak
+while growing): a set of texts of 8, 12, 24, 48 and 64 characters 82.6 to 90.9, 86.6 to 94.9,
+98.6 to 106.9, 122.6 to 130.9 and 138.6 to 146.9 bytes (41 of header and terminator, the
+characters, and a slot of 25.5 at one million entries to 34 at 200,000), peak up to 104.6 for 12
+characters at 200,000 entries; a set of integers 65.6 to 73.9, peak 88.1; a table of counts
+98 to 101 for a key of 10 characters; a dense counter 8 bytes. The slot of a set lies between 27
+bytes (60% of load) and 53 (30%, right after it grew), and the old and the new table coexist
+while it grows: the model takes 27, 37 and 80 bytes for its minimum, expected and maximum.
+`EXACT_ENTRY_BYTES` of lot 6a (64) was 30% too low for a set of identifiers; `MATCHER_BYTES`
+(a compiled matcher measures 2.2 to 4.4 KB) went from 4,096 to 5,120.
+
+**Reading the source once** (peak traced memory while the reader yields and drops every item):
+7.3 MB for `insurance-ontario.csv` and `insurance-quebec.csv`, 8.2 MB for `worst-width-1m.csv`,
+4.2 MB for `synthetic-100k.json`, 19.0 MB for `long-text-60k.csv` (texts of up to 8,000
+characters). The reserve for the parser, counted once whatever the number of analyses, went from
+16 to 24 MiB.
+
+**Work added to a cell** (nanoseconds, loop overhead removed, values already parsed, one
+million cells, a machine busy with the test suite for the last run): a dense counter 15, a
+length 22, a bin 42, a period of a date 35, a table of counts 43, a set of unique texts 127 to
+154, a compiled matcher 98 per candidate. For comparison the first pass spends about 600 ns a
+cell in one process (20.6 s for 34 million cells) and reads at 8.5 million cells a second
+(4.0 s). The constants (`NS_PER_CELL`) round these up; they are proxies, replaced by the
+executor's own measures at lot 7a.
+
+**The planner on the combined file** (1,000,000 rows by 34 columns, 34 million cells, Scan
+stored by `tabalyst`, best of three, script `lot6b_perf_plan.py`):
+
+| Plan | Time | Candidates | Selected | Memory min, expected, max | Estimated time | Confirmation |
+| --- | ---: | ---: | ---: | --- | --- | --- |
+| Automatic | 11 ms | 126 (76 satisfied, 20 left out) | 30 | 31, 34 and 39 MiB | 3.9 to 7.8 s | no |
+| Forced | 11 ms | 126 (76 satisfied, 17 left out) | 33 | 54, 217 and 416 MiB | 4.2 to 9.0 s | yes, `memory_over_automatic` |
+
+With the model of lot 6a the automatic plan chose 33 analyses with a firm maximum of 216.5 MB;
+with the corrected sizes the three identifiers of a million values (127 to 129 MiB each) no
+longer fit the 128 MiB of an automatic choice and wait for `--deep`, which asks first. The
+estimates come from a reading phase of 5.6 s on the stored Scan (the baseline measured 4.0 s);
+the planner's own cost is unchanged by the lot and stays linear in the number of fields.
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL
 parcours (hash, event pass, Scan, report with a stored scan) are in

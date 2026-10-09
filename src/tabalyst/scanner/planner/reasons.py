@@ -39,6 +39,7 @@ SATISFIED = {
 # The decision on a candidate that is not satisfied.
 SELECTION = {
     "requested": "asked for explicitly",
+    "forced": "selected because the whole second pass was forced",
     "automatic": "useful and cheap enough to be chosen automatically",
     "not_applicable": "does not apply to this field",
     "not_requested": "automatic selection is off and it was not requested",
@@ -46,6 +47,14 @@ SELECTION = {
     "cpu_class": "its CPU class is above the automatic limit",
     "cells_budget": "the shared reading exceeds the automatic cell budget",
     "budget": "its memory does not fit in the budget with the analyses already selected",
+}
+
+# Why a selection asks for a confirmation before it starts (R1).
+CONFIRMATION = {
+    "memory_over_automatic": "its memory is above what an automatic choice may take",
+    "cells_over_automatic": "it reads more cells than an automatic choice may",
+    "cpu_over_automatic": "its CPU class is above the automatic limit",
+    "time_over_threshold": "its estimated time is above the threshold",
 }
 
 UTILITY = {
@@ -64,7 +73,7 @@ UTILITY = {
     "base_value": "a common analysis",
 }
 
-REASONS = {**NOT_APPLICABLE, **SATISFIED, **SELECTION, **UTILITY}
+REASONS = {**NOT_APPLICABLE, **SATISFIED, **SELECTION, **CONFIRMATION, **UTILITY}
 
 
 def reason_text(code: str) -> str:

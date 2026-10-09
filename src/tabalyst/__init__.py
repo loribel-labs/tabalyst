@@ -28,7 +28,9 @@ from tabalyst.scanner import ScanResult as ScanResult
 from tabalyst.scanner import scan as scan
 from tabalyst.scanner.planner import AnalysisPlan as AnalysisPlan
 from tabalyst.scanner.planner import AnalysisRequest as AnalysisRequest
+from tabalyst.scanner.planner import SecondPassPlan as SecondPassPlan
 from tabalyst.scanner.planner import plan_analyses as plan_analyses
+from tabalyst.scanner.planner import plan_second_pass as plan_second_pass
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
@@ -44,6 +46,7 @@ __all__ = [
     "ReportError",
     "ScanConfig",
     "ScanResult",
+    "SecondPassPlan",
     "TabalystError",
     "__version__",
     "analyze",
@@ -57,6 +60,7 @@ __all__ = [
     "inspect",
     "plan_analyses",
     "plan_document",
+    "plan_second_pass",
     "sample_csv",
     "scan",
 ]

@@ -10,10 +10,11 @@ from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
     COMPACT_MAX_LENGTH,
-    EXACT_ENTRY_BYTES,
     Analyzer,
     Assessment,
     costs,
+    set_entry,
+    text_length,
 )
 from tabalyst.scanner.planner.analyzers.common import (
     blocked,
@@ -21,6 +22,7 @@ from tabalyst.scanner.planner.analyzers.common import (
     result_state,
     uniqueness,
 )
+from tabalyst.scanner.planner.costmodel import NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, Memory, State, Utility
 
@@ -57,13 +59,15 @@ class ExactDistinct(Analyzer):
         estimate = facts.distinct_estimate
         maximum = max(facts.values, lower)
         expected = lower if estimate is None else min(max(round(estimate), lower), maximum)
+        key = str(assessment.parameters["key"])
+        shortest, mean, longest = text_length(facts)
         size = Memory(
-            min=lower * EXACT_ENTRY_BYTES,
-            expected=expected * EXACT_ENTRY_BYTES,
-            max=maximum * EXACT_ENTRY_BYTES,
+            min=lower * set_entry(key, shortest)[0],
+            expected=expected * set_entry(key, mean)[1],
+            max=maximum * set_entry(key, longest)[2],
         )
         return costs(
-            "low",
+            NS_PER_CELL["distinct_set"],
             [State(key=f"exact_set:{facts.where}", memory=size), result_state(self.id, facts)],
         )
 

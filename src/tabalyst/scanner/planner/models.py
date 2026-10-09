@@ -52,6 +52,8 @@ class Costs(ScanModel):
 
     memory: Memory
     cpu: CpuClass
+    # Nanoseconds the analysis adds to each cell it reads, from the cost model.
+    cell_ns: int
     states: list[State]
 
 
@@ -84,12 +86,15 @@ class Selection(ScanModel):
 
 class Execution(ScanModel):
     """How the analysis would run. A refusal to select never means the analysis
-    is impossible (PLAN-06)."""
+    is impossible (PLAN-06). ``on_limit`` is the policy when a limit is met
+    while running (D08): the result is ``limited`` with its reason, and the
+    count of what was read so far is never presented as complete."""
 
     requires_source: bool
     available: bool
     deterministic: bool
     reusable: bool
+    on_limit: Literal["limited"] = "limited"
 
 
 class Candidate(ScanModel):
@@ -134,19 +139,28 @@ class RequestedAnalysis(ScanModel):
 
 
 class Objective(ScanModel):
-    """What the plan was asked for."""
+    """What the plan was asked for. ``forced`` is a second pass that was asked
+    for as a whole (``--deep``): it takes every applicable analysis the hard
+    memory budget holds, whatever the automatic limits."""
 
     automatic: bool
+    forced: bool = False
     requested: list[RequestedAnalysis]
 
 
 class Budgets(ScanModel):
     """Deterministic budgets (design 20.2). Memory is charged with the firm
-    ``max`` bound of each state. ``max_cells`` (cells of the common reading) and
-    ``automatic_max_cpu`` only limit what the planner picks by itself. Values
-    are provisional until the calibration of lot 6b."""
+    ``max`` bound of each state.
+
+    ``memory_bytes`` is the hard budget: no selection exceeds it, whoever asked
+    for it (MEM-06). ``automatic_memory_bytes``, ``max_cells`` (cells of the
+    common reading) and ``automatic_max_cpu`` limit what the planner picks by
+    itself; a selection beyond them, because it was requested or forced,
+    requires a confirmation (R1). Values come from the cost model.
+    """
 
     memory_bytes: int
+    automatic_memory_bytes: int
     max_cells: int | None
     automatic_max_cpu: CpuClass
     overflow: Literal["reject"] = "reject"
@@ -172,6 +186,9 @@ class Summary(ScanModel):
     second_pass_required: bool
     executable: bool
     memory: Memory
+    # Codes of the automatic limits that the selection exceeds: empty for what
+    # the planner picked by itself, which is what makes a confirmation needed.
+    beyond_automatic: list[str]
 
 
 class AnalysisPlan(ScanModel):
@@ -184,6 +201,7 @@ class AnalysisPlan(ScanModel):
     planner: str = PLANNER_NAME
     planner_version: int = PLANNER_VERSION
     utility_version: int
+    cost_model_version: int
     plan_id: str
     base: PlanBase
     objective: Objective

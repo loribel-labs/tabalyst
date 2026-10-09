@@ -1,6 +1,6 @@
 ---
 title: Plan the analyses a scan could add
-description: What tabalyst scan --plan shows, how the planner chooses analyses under a memory budget, the decisions and reasons in a plan, and the Python functions that return it.
+description: What tabalyst scan --plan shows, how the planner chooses analyses under memory, cell and CPU limits, when a run would ask for a confirmation, the decisions and reasons in a plan, and the Python functions that return it.
 ---
 
 `tabalyst scan --plan` shows which further analyses would be useful and possible
@@ -23,17 +23,19 @@ Plan for basic.csv (plan 84f918d7e204, planner 1).
 22 candidates: 5 selected, 16 already answered by the scan, 1 left out.
 
 Selected:
-  1. pattern_validation [compiled_matcher]: rows / id (up to 5.0 KiB, CPU low, automatic, not available yet)
-  2. pattern_validation [compiled_matcher]: rows / name (up to 5.0 KiB, CPU low, automatic, not available yet)
-  3. pattern_validation [compiled_matcher]: rows / amount (up to 5.0 KiB, CPU low, automatic, not available yet)
-  4. pattern_validation [compiled_matcher]: rows / notes (up to 5.0 KiB, CPU low, automatic, not available yet)
-  5. temporal_distribution [period_counts]: rows / joined (up to 1.7 KiB, CPU very_low, automatic, not available yet)
+  1. pattern_validation [compiled_matcher]: rows / id (up to 6.0 KiB, CPU low, automatic, not available yet)
+  2. pattern_validation [compiled_matcher]: rows / name (up to 6.0 KiB, CPU low, automatic, not available yet)
+  3. pattern_validation [compiled_matcher]: rows / amount (up to 6.0 KiB, CPU low, automatic, not available yet)
+  4. pattern_validation [compiled_matcher]: rows / notes (up to 6.0 KiB, CPU low, automatic, not available yet)
+  5. temporal_distribution [period_counts]: rows / joined (up to 1.7 KiB, CPU low, automatic, not available yet)
 
 Not applicable:
   1 x the field mixes types, so a typed analysis would be unreliable
 
-A second reading of the source is needed (30 cells, CPU very_low). Memory: 16.0 MiB to 16.0 MiB, about 16.0 MiB.
+A second reading of the source is needed (30 cells, CPU very_low). Memory: 24.0 MiB to 24.0 MiB, about 24.0 MiB.
 The second pass is not available in this version: the plan only shows what it would do.
+Estimated time: under a second (a guide from the first pass, not a promise).
+Running it would not ask for a confirmation.
 ```
 
 ## What the plan contains
@@ -71,14 +73,64 @@ already proves, the likely size, and a firm maximum taken from the counts of
 the scan. The budget is charged with the maximum, so a selection never exceeds
 it. Memory that several analyses share is counted once, and the reading of the
 source is counted once whatever the number of analyses. These figures size the
-data structures of the analyses, not the whole process, and are provisional in
-the beta.
+data structures of the analyses, not the whole process. They come from
+measures of the structures Tabalyst uses, so a set of one million 12-character
+identifiers is charged about 133 MB, which is why an automatic plan leaves
+such exact counts out.
+
+Each analysis and the reading also get a CPU class, `very_low`, `low`,
+`moderate` or `high`, from the work they add to each cell. The classes are
+calibrated on proxies in the beta and will be re-measured when the analyses can
+run.
+
+## Automatic, requested and forced
+
+What the planner chooses by itself stays within limits that keep it cheap:
+
+| Limit | Automatic choice | Requested or forced |
+| --- | --- | --- |
+| Memory (firm maximum) | 128 MiB | 512 MiB, never exceeded |
+| Cells of the reading | 100 million | no limit |
+| CPU class | `moderate` at most | no limit |
+| Expected benefit | 45 out of 100 at least | only orders the analyses |
+
+The limits count memory in bytes and work in cells, never measured time, so the
+same scan gives the same plan on any machine.
+
+`--deep` plans the second pass as if it were forced: every analysis that
+applies and fits the 512 MiB budget, whatever the automatic limits.
+
+```console
+tabalyst scan customers.csv --plan --deep
+```
+
+`--deep` needs `--plan` for now, since the second pass cannot run yet. The
+selected analyses then say `forced` instead of `automatic`.
+
+## Estimated time and confirmation
+
+When a second reading is needed, the plan text ends with an estimated time, as
+a range, from how long the first pass took to read the file:
+
+```text
+Estimated time: 4 s to 9 s (a guide from the first pass, not a promise).
+Running it would ask for a confirmation first: its memory is above what an automatic choice may take.
+```
+
+The estimate is a guide: compression, disk cache and the width of the records
+change it. It is not part of the plan, which stays the same from one machine to
+another. A run would ask for a confirmation before starting when the selection
+goes beyond an automatic limit, because it was requested or forced, or when the
+upper end of the estimate reaches two minutes. What the planner chooses by
+itself never asks. With several files, the text ends with one line for all of
+them: the times add up and the memory is the largest.
 
 ## Options
 
 `--plan` accepts the options that choose how the file is read (`-c`,
 `--delimiter`, `--encoding`, `--collection`, `--workers`, `-q`, `--no-progress`).
 It refuses `-o`, `-d`, `--force` and `--counters`, which write.
+`--deep` is accepted with `--plan` only.
 
 ## Python API
 
@@ -102,5 +154,20 @@ print(plan.summary.second_pass_required)
 because it keeps fewer sample values than its scan. `requests` name analyses to
 choose first, and `automatic=False` selects nothing else. A request for an
 unknown analysis, dataset or field raises `tabalyst.ConfigurationError`.
-`tabalyst.generate_plans(inputs)` plans several sources, as the command does.
+`tabalyst.generate_plans(inputs)` plans several sources, as the command does;
+`forced=True` plans a forced second pass, and the result says whether running
+the plans together would require a confirmation (`requires_confirmation`).
 `plan.model_dump(mode="json")` gives the plan as JSON.
+
+`tabalyst.plan_second_pass(scan)` returns the plan with its estimated time and
+whether running it requires a confirmation. It never asks anything and runs
+nothing:
+
+```python
+second = tabalyst.plan_second_pass(scan, forced=True)
+print(second.estimate)
+print(second.requires_confirmation, second.confirmation.reasons)
+```
+
+The reasons are `memory_over_automatic`, `cells_over_automatic`,
+`cpu_over_automatic` and `time_over_threshold`.

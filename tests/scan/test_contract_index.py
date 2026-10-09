@@ -26,7 +26,7 @@ FILES = (
     "test_contract_html.py",
     "test_contract_planner.py",
 )
-REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10", "D01", "D02", "D03", "D13", "F01", "F02", "F03", "F04", "F06"]
+REQUIRED = [f"A0{n}" for n in range(1, 7)] + ["A10", "A11", "A14", "A18"] + [f"B{n:02d}" for n in range(1, 14)] + [f"C0{n}" for n in range(1, 10)] + ["C10", "D01", "D02", "D03", "D04", "D05", "D08", "D13", "F01", "F02", "F03", "F04", "F06"]
 
 
 def _declared() -> dict[str, list[str | None]]:

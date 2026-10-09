@@ -70,7 +70,8 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
-| O35 | Analyzers and planner | `scanner/planner/` holds a registry of analyzers and a planner that reads a Scan (never a Report, never the source) and returns a deterministic plan: candidates with applicability, costs (memory in three scenarios, CPU class), utility and a decision (`selected`, `already_satisfied`, `rejected`) with a reason code; selection under a firm memory budget; shared states counted once. The planner chooses on merit; `available` says whether an executor exists. Costs and thresholds are provisional until lot 6b. | Accepted 2026-10-08 (maintainer, lot 6a) | 20.5 |
+| O36 | Costs, budgets and confirmation | The cost model is calibrated on measures (`benchmarks/planner_costs.py`, the baselines of lot 0) and versioned (`cost_model_version`). Two memory levels: an automatic choice stays within 128 MiB, a request or a forced plan up to a hard budget of 512 MiB that nothing lifts (MEM-06). A selection beyond an automatic limit, or whose estimated time may reach 120 s on its upper bound, requires a confirmation; the time is an estimate kept out of the plan. Before a second reading the plan must belong to the Scan, the source must be readable and of the recorded size, and its digest is compared at the end of the reading. | Accepted 2026-10-08 (maintainer, lot 6b) | 20.2, 20.3, 20.6 |
+| O35 | Analyzers and planner | `scanner/planner/` holds a registry of analyzers and a planner that reads a Scan (never a Report, never the source) and returns a deterministic plan: candidates with applicability, costs (memory in three scenarios, CPU class), utility and a decision (`selected`, `already_satisfied`, `rejected`) with a reason code; selection under a firm memory budget; shared states counted once. The planner chooses on merit; `available` says whether an executor exists. Costs and thresholds were provisional until lot 6b (O36). | Accepted 2026-10-08 (maintainer, lot 6a) | 20.5 |
 | O34 | Observations and adaptive normalization | `observations` sits beside `derived` in the base: observations of versioned rules (`informational`, `candidate_anomaly`, `confirmed_issue`) apart from the limits of the scan, with `has_observations`, `has_quality_issues` and `has_limits`. A normalization stage that changed nothing takes the count of its input (`equals`), even after the table was released. | Accepted 2026-10-08 (maintainer, lot 4b) | 10, 18.13 |
 
 ## 2. Principles
@@ -1729,6 +1730,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-4b | New section 18.13 and decision O34, notes in 10, 12 (diagnostics), 15, 16.1, 19.2 and 19.7: `observations` in the base model beside `derived` (`scanner/quality.py`), observations of 13 versioned rules with a status (`informational`, `candidate_anomaly`, `confirmed_issue`), limits apart, summaries and the flags `has_observations`, `has_quality_issues`, `has_limits` for the scan and each dataset, settings `scan.observations` (`enabled`, `max_items`), left out of `facts_sha256` and carried by the Report; normalization stages gain `equals` (a stage that changed nothing takes the count of its input after the table was released) and `variant_groups` is exact and empty when no stage changed anything. | The exact `changed` counters prove what the dropped table cannot; QUAL-01 to QUAL-05 and D13. Maintainer decisions of lot 4b (flags at scan and dataset level, statuses of version 1, no severity, the stage keeps the envelope of its input without the estimate, thresholds as constants of the rule version, the Report keeps its issues until lot 5). |
 | 2026-10-08 | SJ-5 | New section 18.14 and notes in 9.10, 16.4, 18.11, 18.13, 19.3, 19.4b: the report pages read the observations, limits, patterns and row sample of the base through `report_sections` and `report_labels`; the projections `issues`, `preview`, `limits`, `with_issues` and `with_issues_column_count` are removed; `records.preview` and `scan.records.preview` are removed (the start of the row sample replaces them); `report.row_sample` and the reduced row sample of the Report; accuracy vocabulary; display budgets; integers are never rounded by the report. | Lot 5 of the Scan and JSON work: D19, HTML-01 to HTML-09, F01 to F04 and F06. Maintainer decisions of 2026-10-08 (remove the preview, 10 rows per part, remove the stored projections with "not computed" when the block is missing, "Quality issues" in the sense of QUAL-03, light Scan rendering through `report --scan`). |
 | 2026-10-08 | SJ-6a | New section 20.5 and decision O35, notes in 3 and 20.1: the registry of analyzers and the planner (`scanner/planner/`), six built-in analyzers with the rows of the decision tree, the plan (candidates, applicability, costs in three scenarios, utility, decision with a reason code, `already_satisfied` with its `satisfied_by`), selection under a firm memory budget with shared states and one common reading, `plan_analyses`, `plan_document`, `generate_plans` and `tabalyst scan --plan`; `facts_sha256` moves to `scanner/identity.py`. | Lot 6a of the Scan and JSON work: D11, PLAN-01 to PLAN-06, D01 to D03. Maintainer decisions of 2026-10-08 (placement in `scanner/planner/`, planning on merit with an `available` flag, `--plan` reuses or makes the first pass and never runs the second, provisional costs until lot 6b, public page now). |
+| 2026-10-08 | SJ-6b | New decision O36, sections 20.2 and 20.3 rewritten, new 20.6, notes in 20.1 and 20.5: the calibrated cost model (`scanner/planner/costmodel.py`, `cost_model_version`), two memory levels (128 MiB automatic, 512 MiB hard), the forced plan (`plan_analyses(forced=)`, `scan --plan --deep`), `summary.beyond_automatic`, `costs.cell_ns`, `execution.on_limit`, the time estimate kept out of the plan, the confirmation (`plan_second_pass`, `combine_confirmations`, `cli/confirm.py`, exit code 3) and the source guard (`source_guard.py`). | Lot 6b of the Scan and JSON work: COST-01 to COST-05, PASS2-01, PASS2-06, D04, D05, D08, rule R1. Maintainer decisions of 2026-10-08 (two memory levels, forced mode lifts the automatic limits, 120 s on the upper bound, `--yes` and `--deep` execution at lot 7a, exit code 3, no column budget before lot 8a). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2811,7 +2813,8 @@ when it validates a generation and consumes the Scan base only, never a Report
 | --- | --- |
 | `tabalyst scan` | First pass only. Never automatic. |
 | `tabalyst scan --deep` | Forces the second pass. With a valid Scan in the cache (source, configuration, engine), one pass; otherwise the first pass, then the second if the planner keeps analyses: at most two passes. Writes `<stem>.deep.json`. |
-| `tabalyst scan --plan` | Shows the plan without running it (20.5): from the current stored scan, or after the first pass; never the second pass. |
+| `tabalyst scan --plan` | Shows the plan without running it (20.5): from the current stored scan, or after the first pass; never the second pass. It also shows the estimated time and whether a run would ask for a confirmation. |
+| `tabalyst scan --plan --deep` | Plans the second pass as if forced (20.2): every applicable analysis the hard memory budget holds. `--deep` alone is refused until the second pass runs (lot 7a). |
 | `tabalyst report` | The planner decides whether a second pass has a benefit and a low cost, and what it holds. It names what it added or left out, and why. |
 | `tabalyst report --deep` | Forces the second pass. |
 
@@ -2819,22 +2822,102 @@ The Python API is `tabalyst.scan(..., deep=True)`; it never prompts.
 `deep.mode` (`auto`, `off`, `force`) is a configuration setting for scripts
 and CI, with no command-line option to skip the second pass.
 
-### 20.2 Deterministic budgets
+### 20.2 Deterministic budgets and the cost model
 
 Automatic selection uses deterministic quantities: memory in bytes, cells to
-process and number of columns, never measured time, so the same file gives the
-same plan on any machine. Estimated time only feeds messages. Thresholds are
-calibrated at lot 6b on the baselines and recorded here.
+process and CPU class, never measured time, so the same file gives the same plan
+on any machine. Estimated time only feeds messages and one threshold (20.3).
+The constants live in `scanner/planner/costmodel.py`; changing one changes
+`COST_MODEL_VERSION`, which the plan carries.
+
+| Limit | Automatic choice | Request or forced plan |
+| --- | --- | --- |
+| Memory, firm bound of the states plus the reading | 128 MiB (`automatic_memory_bytes`) | 512 MiB hard budget (`memory_bytes`), never lifted (MEM-06) |
+| Cells of the common reading | 100 million (`max_cells`) | no limit |
+| CPU class of an analysis and of the reading | `moderate` at most (`automatic_max_cpu`) | no limit |
+| Utility | 45 at least (`AUTOMATIC_MIN_UTILITY`) | none: it only orders the candidates |
+
+Why these values. 128 MiB keeps a Report that adds a second pass well under the
+peak of its first pass (715 MB with workers, 177 MB for the main process, on the
+1 M x 34 baseline). 512 MiB is the budget of the samples
+(`limits.max_sample_memory`). 100 million cells is about 12 s of reading and
+under a minute of work at the rates of the baseline (34 million cells read in
+4.0 s and analyzed in 20.6 s in one process), a low cost. The number of columns
+enters through the cells; a limit on selected columns comes with the pair
+analyses (lot 8a, COST-05).
+
+**Memory (COST-01, specification 11.3).** Sizes are payloads, measured with
+`tracemalloc` (`benchmarks/planner_costs.py`) and checked by
+`tests/scan/test_planner_costs.py`:
+
+| Structure | Model | Measured |
+| --- | --- | --- |
+| Text in a set | 41 bytes + characters + a slot of 27 (minimum), 37 (expected) or 80 bytes (maximum, with the old and the new table of a growing set) | 82 to 91 bytes for 8 characters, 139 to 147 for 64, peak up to 104 for 12 |
+| Integer in a set | 32 bytes + the same slots | 66 to 74 bytes, peak 88 |
+| Entry of a table of counts | 90 bytes + the key | 98 to 101 for a key of 10 characters |
+| Compiled matcher | 5,120 bytes | 2.2 to 4.4 KB |
+| Dense counter | 8 bytes a slot | 8 |
+| Reading the source once (`PARSER_RESERVE_BYTES`) | 24 MiB | 7 to 8 MB, 19 MB for texts of up to 8,000 characters |
+
+The exact set of lot 7b replaces the entry of the set with a measure of its own;
+until then a field of one million 12-character identifiers is charged 133 MB of
+firm bound (87 MB measured at rest).
+
+**CPU (COST-02 to COST-04).** The reading (parsing, normalization) is a common
+cost, counted once and classed by its cells: `very_low` up to 1 million cells,
+`low` up to 10 million, `moderate` up to 100 million, `high` above. Each analysis
+adds nanoseconds to every cell it reads (`NS_PER_CELL`); its class follows from
+them: `very_low` up to 50 ns, `low` up to 200, `moderate` up to 800, `high`
+above. They are measures of proxies on values already parsed (a dense counter 15 ns, a
+length 22, a bin 42, a period 35, a table of counts 43, a set of unique texts 127
+to 154, a compiled matcher 98 per candidate, loop overhead removed, rounded up),
+marked as such: the executor of lot 7a replaces them with its own.
+Matching a value tries each candidate of a pattern until one matches, so its
+cost grows with their number (one or two candidates are `low`, three to eight
+`moderate`, nine or more `high`).
+
+**Time (COST-03).** `estimate_time(plan, scan)` gives a range, outside the plan:
+the reading costs what the first pass spent reading (`run.timings.reading`, which
+also hashed and built records) at most and 60% of it at least for a CSV (parsing
+alone measured 47%, plus the digest that guards the source); the analyses add the
+modeled nanoseconds of the selected cells, scaled by how fast the first pass read
+compared with the reference machine (8.5 million cells a second, held between a
+quarter and four times) and taken between half and twice. It is a guide:
+compression, disk cache and the width of the records change it. The plan holds no
+time, so `plan_id` does not move from one machine to another.
 
 ### 20.3 Confirmation
 
-Forcing an operation whose estimate passes the thresholds (several minutes, or
-memory beyond the budget) shows the estimate and asks before starting; a batch
-asks once, with the total. Outside an interactive terminal nothing is asked:
-the command stops with an exit code and a message unless `--yes` is given.
-`--force` keeps its meaning (overwrite an output). The API returns the plan
-with `requires_confirmation` and the estimate, and executes only with an
-explicit parameter.
+Forcing an operation whose estimate passes the thresholds asks before starting;
+a batch asks once, with the total. Outside an interactive terminal nothing is
+asked: the command stops with exit code 3 and a message unless `--yes` is given.
+`--force` keeps its meaning (overwrite an output). The API returns the plan with
+`requires_confirmation` and the estimate, and executes only with an explicit
+parameter.
+
+A confirmation is required when:
+
+- the selection exceeds an automatic limit of 20.2, whoever asked for it: a
+  request, or a forced plan. The plan lists the codes in
+  `summary.beyond_automatic` (`memory_over_automatic`, `cells_over_automatic`,
+  `cpu_over_automatic`), deterministic like the rest of it; what the planner
+  picks by itself never has one;
+- or the upper bound of the estimated time reaches 120 seconds
+  (`DEFAULT_CONFIRM_SECONDS`, "several minutes"), code `time_over_threshold`. This
+  part depends on the machine and is therefore not in the plan.
+
+`plan_second_pass(scan, ..., forced=)` returns a `SecondPassPlan`: the plan, the
+`estimate` and the `confirmation` (`required`, `reasons`, `memory_max_bytes`),
+with `requires_confirmation`. `generate_plans` gives the same per source and
+`combine_confirmations` one for a batch: the times add up, since the files are
+read one after the other, the memory is the largest of them, and a batch whose
+files are each under the threshold can be over it together. The command side is
+`cli/confirm.py` (`confirm_second_pass`): proceed without a word when nothing
+needs confirming or with `--yes`; in a terminal (input and error output) show the
+estimate and ask, the default answer being no; elsewhere refuse with
+`EXIT_CONFIRMATION_REQUIRED` (3). `--yes` and the command that runs the second
+pass arrive with lot 7a, which wires the gate; `scan --plan` shows what a run
+would ask.
 
 ### 20.4 Second-pass document
 
@@ -2856,11 +2939,13 @@ nothing. The second pass (lot 7a) gives the analyzers an executor.
 scanner/planner/
 |-- models.py      AnalysisPlan, Candidate, Costs, Selection, Budgets
 |-- facts.py       FieldFacts: the view of a field that analyzers read
-|-- analyzer.py    Analyzer, Assessment, provisional size constants
+|-- analyzer.py    Analyzer, Assessment, entry sizes of sets and tables
+|-- costmodel.py   the calibrated sizes, budgets and CPU classes (20.2)
 |-- registry.py    AnalyzerRegistry (internal only, O21)
 |-- analyzers/     the built-in analyzers
 |-- planner.py     plan_analyses(), AnalysisRequest, selection
 |-- reasons.py     the codes the plan writes and their sentences
+|-- secondpass.py  time estimate, confirmation, plan_second_pass() (20.3)
 `-- render.py      plan_text(): the plan as text
 ```
 
@@ -2893,7 +2978,10 @@ withholds the values: no analysis is proposed for such a field.
 analyzer is relevant to, with `id` `analyzer:dataset:field`, its method and
 parameters (counts and domains, never values), its `outputs`, `applicability`,
 `utility`, `costs` (for an applicable one) and `execution` (`requires_source`,
-`available`, `deterministic`, `reusable`). Its `selection.state` is:
+`available`, `deterministic`, `reusable`). Its `costs` carry the memory, the CPU class and `cell_ns`, the nanoseconds it adds
+to each cell. Its `execution` carries `on_limit`, always `limited` (D08): a limit
+met while running makes the result `limited` with its reason, and the count of
+what was read so far is never published as complete. Its `selection.state` is:
 
 - `selected`: reason `requested` or `automatic`, with a `priority`, the order of
   choice.
@@ -2918,7 +3006,11 @@ suggests an identifier, 10 for an integer key; a histogram of an identifier-like
 field scores 15; a pattern validation that needs the source scores 40 plus 20
 when the shares come from a sample and 10 when values take no candidate; the
 others score 50 (60 for a dense histogram). A request is exempt from the utility,
-CPU and cell limits, never from the memory budget.
+CPU and cell limits and may use the hard memory budget, never go beyond it (20.2).
+With `forced` the planner takes, after the requests, every applicable analysis
+the hard budget holds, in the same order, with reason `forced`: the automatic
+limits and the utility do not apply, and the selection that goes beyond them is
+named in `summary.beyond_automatic`.
 
 **Memory (PLAN-04, 11.3).** Each candidate lists its `states`, each a key and
 three scenarios (`min`, `expected`, `max`); `max` is a firm bound taken from
@@ -2930,20 +3022,17 @@ frequencies and the histogram) is counted once, at its largest. The reading
 selected analysis `requires_source` (COST-01). The plan's `summary.memory` is
 that total. These are payloads of the structures, not process memory.
 
-**Provisional values (lot 6a).** The size constants (`TABLE_ENTRY_BYTES` 120,
-`EXACT_ENTRY_BYTES` 64, `MATCHER_BYTES` 4,096, `RESULT_BYTES` 1,024, the parser
-reserve of 16 MiB), the default memory budget (256 MiB), the CPU classes by cell
-count (up to 1, 10 and 100 million cells) and the utility scores are provisional.
-Lot 6b calibrates them on the baselines; lot 7b replaces the entry size of the
-exact set by a measure. The plan carries the budgets it used.
+**Values.** The sizes, the budgets, the CPU classes and the utility scores are the
+calibrated ones of 20.2 (lot 6b); the utility scores stay heuristic. Lot 7b replaces
+the entry size of the exact set with a measure.
 
-**Plan.** `AnalysisPlan` has `planner` and `planner_version`, `utility_version`,
+**Plan.** `AnalysisPlan` has `planner` and `planner_version`, `utility_version`, `cost_model_version`,
 a `plan_id` (the SHA-256 of the rest of the plan), `base` (the identity of the
 Scan: format revision, engine version, `source_sha256`, `config_sha256`,
-`facts_sha256`), `objective` (automatic or not, the requests with the number of
+`facts_sha256`), `objective` (automatic or not, forced or not, the requests with the number of
 candidates each matched), `budgets`, `common` (the shared reading: whether it is
 needed, its cells, its memory and its CPU class), `summary` (counts by decision,
-`second_pass_required`, `executable`, memory) and `candidates`. `executable` is
+`second_pass_required`, `executable`, memory, `beyond_automatic`) and `candidates`. `executable` is
 false while a selected analyzer is not `available`: the plan says what a second
 pass would do, and the second pass refuses what cannot run. A plan holds no
 date, no measured time and no value of the data; the same Scan, request and
@@ -2961,9 +3050,40 @@ and refuses `--output`, `--output-dir`, `--force` and `--counters`. The text goe
 to standard output, the scan outcome to standard error. The Python API raises
 `ConfigurationError` for a request naming an unknown analyzer, dataset or field.
 
-**Not in this lot.** The calibration of costs and thresholds, `--yes`,
-`requires_confirmation` and the validation of the source (lot 6b); the executor
-(7a to 7c); pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
+**Not in this lot.** The executor (7a to 7c), the command that runs the second pass
+with `--yes` (7a); pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
+
+### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
+
+`source_guard.py` holds the checks that stand between a plan and the source. A
+second pass never mixes two versions of the data.
+
+- **The plan belongs to the Scan** (`check_plan_base`, D04): the format revision,
+  engine version, source and configuration digests and `facts_sha256` of the plan
+  are those of the Scan offered; otherwise `StalePlan` names what differs.
+- **The source can be read again** (`SourceGuard.before`, D05): the file is
+  there, is a file, opens, and has the recorded size. Otherwise
+  `SourceNotReadable` (an `InputError`, exit code 4) says that the Scan and the
+  plan are still valid and that the source must be restored or scanned from a
+  readable copy; a different size is `StaleSource`. The content is not hashed in
+  advance: that would read the file twice.
+- **The digest closes the pass** (`SourceGuard.finish`): the executor hashes the
+  bytes it reads (the `HashingStream` of the readers) and compares them with the
+  Scan at the end. A difference, including a file rewritten during the reading,
+  raises `StaleSource`; the results are provisional until then, and a pass that
+  fails is discarded, never published beside the Scan.
+- **No materialization.** A source is always a file today. Nothing is copied to a
+  temporary file, by default or otherwise; a bounded, explicit copy for a source
+  that cannot be read twice (PASS2-06) is left to the day such a source exists.
+
+`prepare_second_pass(plan, scan, source)` runs the first two and returns the guard.
+
+D08 (a limit met by an exact distinct count) has two halves. The plan half is in
+force: a set whose firm bound does not fit the budget is rejected with `budget`
+and never selected, and `execution.on_limit` is `limited`. The executor half, a
+`limited` or `failed` result with its reason that never presents the count of a
+prefix as exact, is tested with the exact set (lot 7b); D04 and D05 likewise get
+their executor tests at lot 7a.
 
 ## 21. Original value domain (O32)
 

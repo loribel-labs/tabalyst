@@ -9,16 +9,17 @@ from __future__ import annotations
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
-    COUNTER_BYTES,
     DENSE_DOMAIN_MAX,
     LOW_CARDINALITY_MAX,
-    TABLE_ENTRY_BYTES,
     Analyzer,
     Assessment,
     costs,
     memory,
+    table_entry,
+    text_length,
 )
 from tabalyst.scanner.planner.analyzers.common import blocked, result_state
+from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
@@ -90,10 +91,18 @@ class ExactFrequencies(Analyzer):
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
         if assessment.method == "dense_counts":
             state = dense_state(facts, int(assessment.parameters["domain"]))
+            work = NS_PER_CELL["dense_counter"]
         else:
-            size = int(assessment.parameters["distinct"]) * TABLE_ENTRY_BYTES
-            state = State(key=f"frequencies:{facts.where}", memory=memory(size))
-        return costs("very_low", [state, result_state(self.id, facts)])
+            distinct = int(assessment.parameters["distinct"])
+            _, mean, longest = text_length(facts)
+            state = State(
+                key=f"frequencies:{facts.where}",
+                memory=memory(
+                    distinct * table_entry(mean), maximum=distinct * table_entry(longest)
+                ),
+            )
+            work = NS_PER_CELL["table"]
+        return costs(work, [state, result_state(self.id, facts)])
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         return Utility(score=50, reasons=["partial_counts"])

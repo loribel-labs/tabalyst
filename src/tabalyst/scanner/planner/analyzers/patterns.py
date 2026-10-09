@@ -9,19 +9,20 @@ from __future__ import annotations
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
-    COUNTER_BYTES,
-    MATCHER_BYTES,
     Analyzer,
     Assessment,
     costs,
     memory,
 )
 from tabalyst.scanner.planner.analyzers.common import result_state
+from tabalyst.scanner.planner.costmodel import (
+    COUNTER_BYTES,
+    MATCHER_BYTES,
+    NS_PER_CELL,
+)
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
-# Candidates above which matching every value is no longer a cheap pass.
-CHEAP_MATCHERS = 4
 _REASONS = {
     "exposure": "sensitive_exposure",
     "samples_withheld": "sensitive_exposure",
@@ -68,9 +69,10 @@ class PatternValidation(Analyzer):
         count = int(assessment.parameters["patterns"])
         # One counter and one matcher per candidate, and a counter for the rest.
         size = count * (COUNTER_BYTES + MATCHER_BYTES) + COUNTER_BYTES
-        cpu = "low" if count <= CHEAP_MATCHERS else "moderate"
+        # A value is tried against each candidate until one matches.
+        nanoseconds = count * NS_PER_CELL["matcher"]
         return costs(
-            cpu,
+            nanoseconds,
             [State(key=f"patterns:{facts.where}", memory=memory(size)), result_state(self.id, facts)],
         )
 

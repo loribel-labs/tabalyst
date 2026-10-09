@@ -34,6 +34,11 @@ from tabalyst.scanner.planner import (
     plan_text,
 )
 from tabalyst.scanner.planner.analyzer import costs, memory
+from tabalyst.scanner.planner.costmodel import (
+    INT_OBJECT_BYTES,
+    RESULT_BYTES,
+    SET_SLOT_BYTES,
+)
 from tabalyst.scanner.planner.models import State, Utility
 from tabalyst.scanner.planner.planner import (
     AUTOMATIC_MIN_UTILITY,
@@ -199,7 +204,8 @@ def test_an_identifier_gets_an_exact_distinct_count_and_no_histogram(tmp_path):
     assert set(distinct.utility.reasons) >= {"near_unique", "identifier_name", "integer_key"}
     assert (distinct.method, distinct.parameters) == ("compact_set", {"key": "integer"})
     assert distinct.costs.memory.min <= distinct.costs.memory.expected <= distinct.costs.memory.max
-    assert distinct.costs.memory.max == 600 * 64 + 1_024
+    # An integer object and the largest slot of a set (cost model), 600 times.
+    assert distinct.costs.memory.max == 600 * (INT_OBJECT_BYTES + SET_SLOT_BYTES[2]) + RESULT_BYTES
     histogram = _state(plan, "numeric_histogram", "customer_id")
     assert histogram.selection.state == "rejected"
     assert histogram.selection.reason == "low_utility"

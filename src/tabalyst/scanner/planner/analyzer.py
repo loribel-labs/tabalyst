@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Interface of an analyzer and the provisional cost constants (design 20.5).
+"""Interface of an analyzer and the sizes it shares (design 20.5, lot 6b).
 
 An analyzer describes what it could add to a Scan: when it applies, what is
 already answered, what it would cost, and how useful it is. It does not run
@@ -15,6 +15,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from tabalyst.scanner.planner.costmodel import (
+    CLASS_NS,
+    INT_OBJECT_BYTES,
+    SET_SLOT_BYTES,
+    STR_OBJECT_BYTES,
+    TABLE_ENTRY_BYTES,
+    cpu_class_for,
+)
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import (
     AssessmentKind,
@@ -25,13 +33,6 @@ from tabalyst.scanner.planner.models import (
     Utility,
 )
 
-# Provisional sizes in bytes, from specification 11.3 and calibrated at lot 6b
-# and, for exact distinct counts, at lot 7b. They size payloads, not processes.
-COUNTER_BYTES = 8
-TABLE_ENTRY_BYTES = 120
-EXACT_ENTRY_BYTES = 64
-MATCHER_BYTES = 4_096
-RESULT_BYTES = 1_024
 # Longest domain of integers counted by a dense array, and bins otherwise.
 DENSE_DOMAIN_MAX = 65_536
 BIN_COUNT = 100
@@ -66,8 +67,36 @@ def memory(minimum: int, expected: int | None = None, maximum: int | None = None
     return Memory(min=minimum, expected=expected, max=maximum)
 
 
-def costs(cpu: CpuClass, states: list[State]) -> Costs:
-    """The costs of an analysis: its states added scenario by scenario."""
+def text_length(facts: FieldFacts) -> tuple[int, int, int]:
+    """Characters of a stored text: the shortest, the mean and the longest, from
+    the exact length histogram. Without it the longest value an exact set holds
+    (``COMPACT_MAX_LENGTH``) bounds it."""
+    if facts.min_length is None or facts.mean_length is None or facts.max_length is None:
+        return (1, COMPACT_MAX_LENGTH // 2, COMPACT_MAX_LENGTH)
+    return (facts.min_length, round(facts.mean_length), facts.max_length)
+
+
+def set_entry(key: str, length: int) -> tuple[int, int, int]:
+    """Bytes of one entry of a set of ``key`` (``integer`` or ``text``) in the
+    three scenarios: the key object and its slot of the hash table."""
+    obj = INT_OBJECT_BYTES if key == "integer" else STR_OBJECT_BYTES + length
+    low, expected, high = SET_SLOT_BYTES
+    return (obj + low, obj + expected, obj + high)
+
+
+def table_entry(length: int) -> int:
+    """Bytes of one entry of a table of counts with a key of ``length``."""
+    return TABLE_ENTRY_BYTES + length
+
+
+def costs(work: CpuClass | int, states: list[State]) -> Costs:
+    """The costs of an analysis: its states added scenario by scenario, and the
+    nanoseconds it adds to each cell (a CPU class stands for the upper limit of
+    its range)."""
+    if isinstance(work, int):
+        nanoseconds, cpu = work, cpu_class_for(work)
+    else:
+        nanoseconds, cpu = CLASS_NS[work], work
     return Costs(
         memory=Memory(
             min=sum(state.memory.min for state in states),
@@ -75,6 +104,7 @@ def costs(cpu: CpuClass, states: list[State]) -> Costs:
             max=sum(state.memory.max for state in states),
         ),
         cpu=cpu,
+        cell_ns=nanoseconds,
         states=states,
     )
 

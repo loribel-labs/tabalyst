@@ -54,6 +54,10 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
   second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
   is its boundary for the CLI and the API.
+  `costmodel.py` holds the calibrated sizes, budgets and CPU classes (20.2),
+  `secondpass.py` the time estimate and the confirmation (20.3).
+- `src/tabalyst/source_guard.py`: checks before and after a second reading of
+  a source (plan against Scan, readable source, digest at the end; 20.6).
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision

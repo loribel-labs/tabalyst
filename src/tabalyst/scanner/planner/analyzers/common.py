@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import re
 
-from tabalyst.scanner.planner.analyzer import RESULT_BYTES, Assessment, memory
+from tabalyst.scanner.planner.analyzer import Assessment, memory
+from tabalyst.scanner.planner.costmodel import RESULT_BYTES
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import State
 
