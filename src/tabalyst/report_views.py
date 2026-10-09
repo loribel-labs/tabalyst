@@ -12,19 +12,30 @@ page is rendered (design 19.3).
 
 from typing import Literal
 
-from pydantic import FiniteFloat
+from pydantic import Field, FiniteFloat
 
 from tabalyst.models import ColumnProfile, DatasetProfile, ResultModel
-from tabalyst.scanner.models import FieldResult
+from tabalyst.scanner.models import (
+    FieldPatternsComplete,
+    FieldResult,
+    Observation,
+    QualitySummary,
+    RowSample,
+    SampleRow,
+)
+
+# An integer the scan counted keeps all its digits: the report never turns a
+# large counter into a float (F06). A float is finite.
+ExactNumber = int | FiniteFloat
 
 
 class NumericStats(ResultModel):
-    minimum: FiniteFloat
-    maximum: FiniteFloat
-    range: FiniteFloat
-    mean: FiniteFloat
+    minimum: ExactNumber
+    maximum: ExactNumber
+    range: ExactNumber
+    mean: ExactNumber
     # Null when the scan limited the median (its frequency table was released).
-    median: FiniteFloat | None
+    median: ExactNumber | None
 
 
 class DateFormatCount(ResultModel):
@@ -90,6 +101,170 @@ class StringProfile(ResultModel):
     representative_examples: list[str]
 
 
+class CardinalityView(ResultModel):
+    """Distinct values of a column, qualified (design 18.14): ``exact`` is the
+    count of the whole file; ``at_least`` a proven lower bound that a scan limit
+    stopped, with the KMV ``estimate`` when the scan made one; ``not_counted``
+    a limit that proved nothing."""
+
+    kind: Literal["exact", "at_least", "not_counted"]
+    # The exact count, or the lower bound.
+    value: int | None = None
+    estimate: float | None = None
+    # Relative standard error of the estimate.
+    error: float | None = None
+    upper_bound: int | None = None
+    reason: str | None = None
+    limit: int | None = None
+
+
+class QualityItem(ResultModel):
+    """One observation of the scan with the words the report gives it."""
+
+    observation: Observation
+    title: str
+    anchor: str
+    status_word: str
+    status_title: str
+    status_class: str
+    # Accuracy kind of the count (``report_labels``).
+    kind: str
+    noun: str
+    # Display name of the field, null for a finding about the dataset.
+    field_name: str | None = None
+    column_position: int | None = None
+
+
+class QualityGroup(ResultModel):
+    """The observations of one rule in a dataset, for the overview."""
+
+    rule: str
+    title: str
+    anchor: str
+    status_word: str
+    status_title: str
+    status_class: str
+    kind: str
+    noun: str
+    # Fields concerned, the sum of the counts, and what they are counted out of
+    # when a single observation has it.
+    fields: int
+    total: int
+    of: int | None
+    headline: str
+
+
+class QualityView(ResultModel):
+    """What the scan found in a dataset, read from ``observations``. Without
+    that block (``scan.observations.enabled`` false, or the build failed) the
+    report says the findings were not computed and invents none."""
+
+    available: bool
+    summary: QualitySummary | None = None
+    items: list[QualityItem] = Field(default_factory=list)
+    groups: list[QualityGroup] = Field(default_factory=list)
+    truncated: bool = False
+
+    @property
+    def counts(self) -> dict[str, int]:
+        """The listed items by status."""
+        counts = {"confirmed_issue": 0, "candidate_anomaly": 0, "informational": 0}
+        for item in self.items:
+            counts[item.observation.status] += 1
+        return counts
+
+
+class LimitView(ResultModel):
+    """A limit of the scan (design 18.13) with the words of the report."""
+
+    id: str
+    field_path: str | None = None
+    column_id: str | None = None
+    measure: str
+    label: str
+    reason: str
+    setting: str | None = None
+    note: str | None = None
+    limit: int | None = None
+    lower_bound: int | None = None
+    diagnostic: int | None = None
+
+
+class DiagnosticLocation(ResultModel):
+    record: int
+    # CSV line, or 0-based JSON element index; null when not applicable.
+    line: int | None = None
+    element: int | None = None
+
+
+class DiagnosticProfile(ResultModel):
+    code: str
+    level: Literal["fatal", "error", "warning"]
+    message: str
+    count: int
+    # Null for a diagnostic of the whole scan.
+    dataset: str | None
+    path: str | None
+    detector: str | None
+    locations: list[DiagnosticLocation]
+
+
+class LimitsView(ResultModel):
+    """What the scan could not establish in a dataset: its limits, the
+    structure it truncated and the diagnostics of the dataset and of the scan."""
+
+    # False when the document has no ``observations`` block: the limited
+    # measures are then not computed (the diagnostics still are listed).
+    available: bool
+    items: list[LimitView]
+    untracked_observations: int
+    depth_truncated_observations: int
+    diagnostics: list[DiagnosticProfile]
+
+    @property
+    def present(self) -> bool:
+        """Whether the limits section is shown: only when something was limited."""
+        return bool(
+            self.items
+            or self.diagnostics
+            or self.untracked_observations
+            or self.depth_truncated_observations
+        )
+
+
+class PatternView(ResultModel):
+    """The inferred patterns of one column (design 18.12) with the examples
+    they point to. ``missing`` means the document has no ``derived`` block."""
+
+    status: Literal["complete", "not_applicable", "failed", "missing"]
+    reason: str | None = None
+    reason_text: str | None = None
+    entry: FieldPatternsComplete | None = None
+    # Values of the examples that this document holds, by candidate: a Report
+    # keeps fewer sample values than its Scan, so some do not resolve.
+    examples: dict[str, list[str]] = Field(default_factory=dict)
+    unresolved: dict[str, int] = Field(default_factory=dict)
+
+
+class RowsView(ResultModel):
+    """The row sample the report shows (design 18.11 and 18.14). ``sample`` is
+    null when the scan kept none (``scan.records.sample.rows`` is 0)."""
+
+    sample: RowSample | None = None
+
+    @property
+    def rows(self) -> list[SampleRow]:
+        return self.sample.rows if self.sample is not None else []
+
+    @property
+    def counts(self) -> dict[str, int]:
+        """Rows shown per group; a row of two groups counts in both."""
+        return {
+            origin: sum(origin in row.origins for row in self.rows)
+            for origin in ("start", "middle", "end")
+        }
+
+
 class ColumnView(ColumnProfile):
     """A column projection with the canonical facts of its field (``field``,
     read as the scan wrote them) and the figures the pages derive from them."""
@@ -98,9 +273,32 @@ class ColumnView(ColumnProfile):
     numeric: NumericStats | None
     date_profile: DateProfile | None
     string_profile: StringProfile | None
+    distinct: CardinalityView
+    quality: list[QualityItem] = Field(default_factory=list)
+    limits: list[LimitView] = Field(default_factory=list)
+    patterns: PatternView
+
+    @property
+    def has_quality_issues(self) -> bool:
+        """A candidate anomaly or a confirmed issue (QUAL-01), not a remark."""
+        return any(
+            item.observation.status != "informational" for item in self.quality
+        )
+
+    @property
+    def has_observations(self) -> bool:
+        return bool(self.quality)
 
 
 class DatasetView(DatasetProfile):
     """A dataset projection whose columns are ``ColumnView`` objects."""
 
     columns: list[ColumnView]  # type: ignore[assignment]
+    quality: QualityView
+    limits: LimitsView
+    rows: RowsView
+    # Whether the document has a ``derived.patterns`` block.
+    patterns_available: bool
+    # Columns with the status of their quality issues, for the table filter.
+    quality_issue_column_count: int
+    observation_column_count: int

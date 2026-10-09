@@ -38,7 +38,11 @@ modified or sent anywhere.
 - Distinct values, representative examples, date formats and detected meanings
   such as enumerations, email addresses, phone numbers and postal codes.
 - CSV record widths, quoting, encoding and delimiter configuration.
-- A bounded raw-data preview, while every record is analyzed.
+- Findings classified as issues or remarks, with every count labelled exact,
+  at least, estimated or sample.
+- Structural patterns of text columns.
+- A bounded sample of raw rows (start, sampled and end), while every record is
+  analyzed.
 
 The report is built on [Tabalyst Scan](../scan/files.md). Values of
 sensitive fields, such as email addresses, are masked by default. Ambiguous

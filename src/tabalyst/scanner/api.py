@@ -247,7 +247,7 @@ def scan(
     Nothing is written. ``registry`` replaces the default detector registry
     (design 12.1). ``on_record`` receives each analyzed record, in reading
     order, before the engine: consumers that need record-level facts, such
-    as the report's preview and duplicate rows, get them in the same pass. It
+    as the report's duplicate rows, get them in the same pass. It
     must not modify the record.
 
     ``workers`` is the number of processes that analyze values: ``1`` scans

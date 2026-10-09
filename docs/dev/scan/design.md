@@ -664,8 +664,7 @@ Each dataset has a `records` block of record-level facts (section 16.2):
 ```json
 {"with_missing": {"count": 2, "records": [2, 5]},
  "empty": {"count": 1, "records": [5]},
- "duplicates": {"count": {"status": "complete", "value": 1}, "records": [3]},
- "preview": [{"record": 1, "values": {"column_1": ["1"], "column_2": [""]}}]}
+ "duplicates": {"count": {"status": "complete", "value": 1}, "records": [3]}}
 ```
 
 - The values of a record are its scalar observations (strings, numbers,
@@ -688,13 +687,13 @@ Each dataset has a `records` block of record-level facts (section 16.2):
 - `records` lists the first record indices, up to
   `limits.max_listed_records`.
 - `sample`: the row sample (section 18.11), a start, a bottom-k of the interior
-  and an end of whole rows; `preview` stays the first records only.
-- `preview`: the first `records.preview` records, values per field id as
-  canonical text (section 9.1), in observation order for items paths; a JSON
-  null is `null`; untracked paths and absent fields have no key. The exposure
-  gate applies at finalization (12.8): `content` strings, numbers and
-  booleans of a sensitive field are masked, or their cell is `null` under
-  `hide`; nulls and non-content strings stay as read.
+  and an end of whole rows, values per field id as canonical text (section 9.1),
+  in observation order for items paths; a JSON null is `null`; untracked paths
+  and absent fields have no key. The exposure gate applies at finalization
+  (12.8): `content` strings, numbers and booleans of a sensitive field are
+  masked, or their cell is `null` under `hide`; nulls and non-content strings
+  stay as read. The `preview` of the first records, which lots 5c to 3b kept
+  beside it, was removed at lot 5: the start of the sample holds the same cells.
 
 ### 9.11 Rates of the report (A03)
 
@@ -1320,7 +1319,7 @@ settings from it (section 16.4).
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
     "records": {
-      "preview": 10, "duplicates": true,
+      "duplicates": true,
       "sample": {"rows": 1000, "edge": 50, "cell_chars": 200, "max_bytes": 16777216}
     },
     "types": {"minimum_confidence": 0.95},
@@ -1465,8 +1464,7 @@ changelog is `docs/en/scan/format-changelog.md` (lot 4).
   "records": {"with_missing": {"count": 1, "records": [2]},
               "empty": {"count": 0, "records": []},
               "duplicates": {"count": {"status": "complete", "value": 0},
-                             "records": []},
-              "preview": []},
+                             "records": []}},
   "fields": [
     {
       "id": "f4",
@@ -1538,8 +1536,8 @@ Lot 4 details:
 report profile (revision 3) from the result (`report_profile.py`). Decided with
 the maintainer in lot 5a:
 
-- **One pass.** Record-level facts (preview, duplicate rows, empty rows,
-  rows with missing values) were collected through `scan(on_record=...)`;
+- **One pass.** Record-level facts (preview until lot 5, duplicate rows, empty
+  rows, rows with missing values) were collected through `scan(on_record=...)`;
   since lot 5c they are the `records` block of the scan (section 9.10),
   bounded by `limits.max_tracked_records`.
 - **Configuration.** Every analysis setting of the report, CSV reading
@@ -1560,8 +1558,8 @@ the maintainer in lot 5a:
   primary interpretation (12.4), except `number` and `boolean`, which repeat
   the technical type.
 - **Exposure (12.8).** The report applies the scan's exposure: masked or hidden
-  values in examples, value profiles and the preview of sensitive columns;
-  distinct counts stay raw. Missing cells of the preview stay as read.
+  values in examples, value profiles and the row sample of sensitive columns;
+  distinct counts stay raw. Missing cells of the row sample stay as read.
 - **Limits.** A limited distinct count or median is `null`, shown as
   `limited`, and the column is listed by the `limited_measures` issue. Records
   excluded under the `tolerant` policy are listed by the `excluded_records`
@@ -1727,6 +1725,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-3b | Sections 9.10, 15 and new 18.11: the row sample (`records.sample`, `RowSampler`, `RowPriority`), first rows, a bottom-k of the interior by a priority of the position and last rows, cells of the same row for every projected field, settings `records.sample` (`rows`, `edge`, `cell_chars`, `max_bytes`), the byte budget, the Report keeping the header only. | Lot 3b of the Scan and JSON work: ROW-01 to ROW-11 and C01 to C06. |
 | 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema, a `failed` entry per field with the `pattern_inference_failed` error. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
 | 2026-10-08 | SJ-4b | New section 18.13 and decision O34, notes in 10, 12 (diagnostics), 15, 16.1, 19.2 and 19.7: `observations` in the base model beside `derived` (`scanner/quality.py`), observations of 13 versioned rules with a status (`informational`, `candidate_anomaly`, `confirmed_issue`), limits apart, summaries and the flags `has_observations`, `has_quality_issues`, `has_limits` for the scan and each dataset, settings `scan.observations` (`enabled`, `max_items`), left out of `facts_sha256` and carried by the Report; normalization stages gain `equals` (a stage that changed nothing takes the count of its input after the table was released) and `variant_groups` is exact and empty when no stage changed anything. | The exact `changed` counters prove what the dropped table cannot; QUAL-01 to QUAL-05 and D13. Maintainer decisions of lot 4b (flags at scan and dataset level, statuses of version 1, no severity, the stage keeps the envelope of its input without the estimate, thresholds as constants of the rule version, the Report keeps its issues until lot 5). |
+| 2026-10-08 | SJ-5 | New section 18.14 and notes in 9.10, 16.4, 18.11, 18.13, 19.3, 19.4b: the report pages read the observations, limits, patterns and row sample of the base through `report_sections` and `report_labels`; the projections `issues`, `preview`, `limits`, `with_issues` and `with_issues_column_count` are removed; `records.preview` and `scan.records.preview` are removed (the start of the row sample replaces them); `report.row_sample` and the reduced row sample of the Report; accuracy vocabulary; display budgets; integers are never rounded by the report. | Lot 5 of the Scan and JSON work: D19, HTML-01 to HTML-09, F01 to F04 and F06. Maintainer decisions of 2026-10-08 (remove the preview, 10 rows per part, remove the stored projections with "not computed" when the block is missing, "Quality issues" in the sense of QUAL-03, light Scan rendering through `report --scan`). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2246,7 +2245,7 @@ Both give the same rows (a test compares them, and random batch sizes); only
   buffer, and for the start. A reader that reused the observations of a record
   would break the record path: none does (a test reads JSON and JSONL).
 - **Cells (ROW-06, ROW-09).** The cells of a record are its scalar observations as
-  canonical text per path, as the preview has them: a list when the path repeats
+  canonical text per path: a list when the path repeats
   (items of an array), `null` for a JSON null, no key for a path absent from the
   record. The cells of one path share `cell_chars` characters (200): the text
   that passes it is cut on a code point, the following values of the path are
@@ -2254,9 +2253,9 @@ Both give the same rows (a test compares them, and random batch sizes); only
   `truncated_cells`). A table row projects all its columns. `fields` lists the
   projected field ids (those with a scalar value); `fields_limited` says that
   untracked paths (`limits.max_fields`) are not.
-- **Exposure (12.8).** At the end, like the preview: `mask` merges, `hide` writes
+- **Exposure (12.8).** At the end: `mask` merges, `hide` writes
   a hidden cell as `null`; nulls and strings that are not content stay as read.
-  The original values stay in memory until the end, as the preview's do.
+  The original values stay in memory until the end.
 - **Budget (ROW-10, ROW-11, MEM-01 to MEM-06).** `records.sample.max_bytes` (16 MiB)
   is the budget of the rows kept by all the datasets of a scan, in bytes of a cost
   model (`rowsample.TABLE_ROW_BYTES`, `TABLE_CELL_BYTES` and `RECORD_*`, between
@@ -2292,11 +2291,13 @@ Both give the same rows (a test compares them, and random batch sizes); only
   Rows are in source order within each group: the start (with the rows that are
   also the end), the middle, the end. `threshold` (16 hexadecimal digits) is the
   largest priority kept, written once a row of the interior was not kept.
-- **Report (O27, 19.4).** The Report keeps the header and no row: `kept` 0,
-  `rows` empty, the same facts otherwise. `facts_sha256` leaves out `rows` and
-  `kept`; `complete_samples` is false for a base that dropped rows. The
-  Report's own "Data sample" still reads `records.preview` (section 9.10); lot 5
-  decides what it shows of the start, the middle and the end.
+- **Report (O27, 19.4, 18.14).** The Report keeps the header and the rows
+  `report.row_sample` asks for (`start`, `middle` and `end`, 10 each by default):
+  the first, the last, and the interior rows of smallest priority, an exact
+  subset of the Scan's. `kept` and `of` declare it, the facts are otherwise the
+  Scan's. `facts_sha256` leaves out `rows` and `kept`; `complete_samples` is
+  false for a base that dropped rows. The "Data sample" of the report shows
+  them in three labelled parts (18.14); `records.preview` no longer exists.
 - **Consumers.** `RowSample.interior()` (the rows an exploration may treat as a
   sample, C04) and `RowSample.covers(field_ids)` (false when a field is not
   projected, or has a cut or hidden cell in a row: C06) are the seams of the
@@ -2519,8 +2520,124 @@ was cut; and the counts that one fact gives again (`excluded_records`,
 It also verifies the `equals` rule of the normalization stages (section 10).
 
 Not in this lot: cross-column features (REL-01), which belong to the
-relationships (lots 8a and 8b), and the use of the observations by the Report,
-whose `issues` and `with_issues` stay as they are until lot 5.
+relationships (lots 8a and 8b). The Report reads the observations since lot 5
+(18.14): its `issues`, `with_issues` and `limits` are gone.
+
+### 18.14 The report reads the findings (lot 5, D19, HTML-01 to HTML-09, F01 to F06)
+
+The HTML report is rendered from the document alone (HTML-01, F01): the Scan base
+the Report holds, its `report` block and nothing else. No page recomputes a rule
+and none reads the source. Three modules own the reading:
+
+- `report_labels`: the words. The Scan carries codes; the labels of the
+  13 observation rules, the statuses, the accuracy kinds, the limits and the
+  reasons a field has no pattern are here and nowhere else.
+- `report_sections`: the builders of the views of one dataset or one column,
+  computed when a page is rendered and never stored: `QualityView` (the
+  observations of the dataset and of the whole scan, grouped by rule),
+  `LimitsView`, `PatternView`, `RowsView` and `CardinalityView`.
+- `report_views`: the view models (`ColumnView`, `DatasetView` and the others).
+
+**What the projections no longer hold.** `report.datasets[].issues`, `preview`,
+`limits`, `columns[].with_issues` and `summary.with_issues_column_count` are
+removed (revision 2 of the Report is not published). The observations of the
+base replace them: a column is *with issues* when an observation about its
+`field` has the status `candidate_anomaly` or `confirmed_issue` (QUAL-01), and a
+remark such as missing values is not an issue (QUAL-03). The limits of a
+dataset are `observations.limits`; its untracked and depth-truncated counts are
+read from the base `structure`; its diagnostics are those of the root, with the
+display path of their field. A document without `observations` (the setting is
+off or the build failed) shows "Not computed" where the findings would be and
+rebuilds nothing.
+
+**Accuracy vocabulary (HTML-03, HTML-04).** Five kinds, each a word and a
+shape in front of the word, never a color alone (HTML-09):
+
+| Kind | Word | Means |
+| --- | --- | --- |
+| `exact` | exact | counted on every value of the file |
+| `estimated` | estimated | a KMV estimate from the sample, shown with its relative error |
+| `sample` | sample | counted on a sample of the distinct values, not on the file |
+| `at_least` | at least | a limit stopped the count: a proven lower bound, written `≥ n` |
+| `not_computed` | not computed | the scan did not compute it |
+
+The kind of an observation is its `accuracy` (`exact`, `lower_bound`, `sample`).
+A candidate rule is a status (`Candidate anomaly`), not an accuracy. A group of
+observations is as sure as its least sure item. "Validated on the whole file"
+does not exist yet: a pattern share is `exact` when the inference read every
+distinct value (`coverage.basis` `all_distinct`) and `sample` otherwise, and
+the page says "Not validated against the whole file" (lot 7c adds the other).
+
+**Distinct values of a column (`cardinality_view`).** The count follows the last
+enabled analytical stage. A stage that changed nothing (`equals`, section 10) is
+the identity on the distinct values, so the raw count and its estimate still
+hold; a stage that changed something has its own count, which has no estimate.
+The view is `exact` (a number), `at_least` (the lower bound, and the estimate
+with its error when the scan made one) or `not_counted` (a limit that proved
+nothing). The tables write `≥ 51` and, below it, `≈ 2,031 est.`.
+
+**Observations section.** One table of the listed items with status, rule,
+column, `count` and `of` with the noun the population gives (`value_slots` are
+"values", `distinct_values` "distinct values"), accuracy and the references
+(records, patterns, limits, diagnostics). The overview groups the items by rule:
+the number is the sum of the counts, or the number of columns for the rules that
+are about a column (`empty_column`, `constant_column`), with `≥` when any item
+is a lower bound. A link goes to the section that shows the finding in detail,
+or to Observations when that section is absent.
+
+**Patterns section.** One row per candidate and one for the values no candidate
+takes, with the share of the distinct values read and its basis. Examples are
+the ids of the field's samples: a Report keeps the smallest priorities of the
+sample (19.4), so an example the Scan listed may not be among them; the page
+shows those that resolve and says how many do not (HTML-08: no invention). A
+field with no pattern says why (`PATTERN_REASONS`); a failed one is "not
+computed". Shares count distinct values, never occurrences of the file.
+
+**Row sample.** The first records, the interior rows and the last records of
+`records.sample`, each row with its logical record number and its part (`Start`,
+`Sampled`, `End`), so the edges are recognized and the middle is not mistaken for
+a uniform draw (HTML-05, ROW-07). `records.preview` is gone: the start of the
+row sample is the same cells, and `scan.records.preview` is refused with the
+place of its replacements (`scan.records.sample.edge`, `report.row_sample`).
+The Report keeps `report.row_sample` rows: `start` (the first), `end` (the
+last) and `middle` (the interior rows of smallest priority, which are the rows
+a bottom-k of that size would have kept: an exact subset of the Scan's, 19.4),
+10 each by default, 1,000 at most and never more than the Scan kept. `kept` and
+`of` declare it. `check_scan` accepts a reduced sample: the `threshold` and
+`truncated_cells` of the Scan are bounds of what the Report lists.
+
+**Display budgets (HTML-07, F04).** The document holds every row, finding and
+pattern it kept; a page prints at most `DISPLAY_LIMITS` of each (300 rows, 500
+findings and limits, 400 pattern rows) and says "Showing the first n of m". A table
+that can be long (`data-page-size`) starts with its first 25 rows and has a "Show
+more" button; filters and sorting still see every printed row. So the page cost
+does not grow with `report.value_examples.kept_per_column` or `report.row_sample`.
+
+**Large counters (Q6, F06).** The JSON holds Python integers, written with all
+their digits (the schema stays typed). The page never turns one into a float:
+`format_number` writes an integer exactly, `NumericStats` keeps `int | float`,
+and the sort keys are the text the report wrote. In the browser, an integer of
+more than 15 digits is compared as a `BigInt` by the sort and the numeric filters
+(`numCmp` in `report.js`). A float is already an approximation: it is shown
+rounded. A reader of `report.json` in JavaScript must parse integers beyond
+2^53 without loss: `JSON.parse` rounds them (documented in `json-profile.md`).
+
+**Escaping and keyboard (HTML-08, HTML-09).** Every value, column name, pattern
+literal and cell goes through Jinja autoescape, including the `data-*`
+attributes; the page has no other script than its own. A cell cut by the scan
+carries "… cut", a hidden cell "hidden", an absent one "absent". Every control
+is a native button, link or input; the tables keep their `tabindex` and
+`aria-sort`; the charts of the report carry a text alternative and their figures
+are in the tables.
+
+**Setting sentences.** The "Analysis settings" section states the real size of
+the samples the document keeps (the largest `values.samples.kept` of the dataset,
+not `kept_per_column`), the row sample the scan and the report kept, and whether
+the patterns and the observations were computed.
+
+Not in this lot: the validated coverage and the estimate over the row sample
+(lots 7c and 8b), the relationships (HTML-06, lot 8b), the analyses and the plan
+(lots 6a to 7c).
 
 ## 19. Scan and Report as one document family (O27, O29, O30)
 
@@ -2558,7 +2675,8 @@ reads scan documents only and says so.
 
 It holds the generation date (`generated_at`), the generator (`name`,
 `version`), `processing_seconds`, the presentation configuration (`report.config`:
-`string_analysis` and `value_examples`; `config` stays the Scan configuration),
+`string_analysis`, `value_examples` and, since lot 5, `row_sample`; `config` stays
+the Scan configuration),
 `base_scan` (19.5) and the projections `report.datasets`, one per dataset
 shown, identified by the dataset `id`, with columns identified by the field `id`.
 No statistic is stored twice: the copies `scan_details`, `numeric`,
@@ -2571,14 +2689,15 @@ values, categories, lengths, numeric, boolean and temporal facts from it) and th
 three figures the pages derive (`numeric`, `date_profile`, `string_profile`:
 percentages, length classes, examples by length). `DatasetView` is the dataset
 projection with `ColumnView` columns. The other projections (`summary`,
-`issues`, `preview`, `limits`, `structure`, the normalization and detector
-blocks of a column) are unchanged and stored.
+`structure`, the normalization and detector blocks of a column) are stored. Since
+lot 5 the views also hold the findings the pages read from the base
+(`report_sections`, 18.14) and the projections no longer hold `issues`,
+`preview`, `limits` or `with_issues`.
 The Python model is `ReportProfile` (the document): `profile.datasets` are the
 scan datasets and `profile.report.datasets` the projections. The `derived` and
 `observations` blocks of the Scan are at the root of the Report, carried as they
 are: the base of a Report keeps fewer values and cannot compute them again. The
-`issues` and `with_issues` of the projections do not read `observations` yet
-(lot 5).
+pages read `observations` (18.14).
 
 ### 19.4 Reduced samples (O27)
 
@@ -2613,6 +2732,7 @@ Names are never reused across the two, so a number is read for one tool only:
 | `scan.limits.max_samples` (K) | `scan` | Scan | Size of the bottom-k sample kept in the Scan document | 10,000 |
 | `report.value_examples.kept_per_column` | `report` | Report | Sample values kept per column in the Report document: the smallest priorities of the K of the base, so an exact subset (19.4); at most K, and a Report built from a Scan with a smaller K keeps all of it and declares `kept` and `of` | 100 |
 | `report.value_examples.*_result_size`, `inline_display_size`, `full_distribution_max_distinct` | `report` | Report | What the HTML shows and how examples are chosen | unchanged |
+| `report.row_sample.start`, `middle`, `end` | `report` | Report | Rows of the Scan row sample the Report keeps in its base and shows: the first, the interior rows of smallest priority, the last (at most what the Scan kept; 0 to 1,000 each) | 10, 10, 10 |
 
 `report.value_examples.kept_per_column` (1 to 1,000) replaces the role that `max_samples` had for
 the Report (the candidate pool of its examples, `candidate_sample_size` before

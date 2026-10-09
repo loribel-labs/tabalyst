@@ -662,10 +662,6 @@
           "title": "Missing Percent",
           "type": "number"
         },
-        "with_issues": {
-          "title": "With Issues",
-          "type": "boolean"
-        },
         "normalization": {
           "$ref": "#/$defs/NormalizationStats"
         },
@@ -740,7 +736,6 @@
         "type_error_percent",
         "missing_count",
         "missing_percent",
-        "with_issues",
         "normalization",
         "distinct_count",
         "examples",
@@ -1188,42 +1183,6 @@
       "title": "DatasetDateSummary",
       "type": "object"
     },
-    "DatasetLimits": {
-      "additionalProperties": false,
-      "description": "What the scan could not measure completely in a dataset.",
-      "properties": {
-        "measures": {
-          "items": {
-            "$ref": "#/$defs/MeasureLimit"
-          },
-          "title": "Measures",
-          "type": "array"
-        },
-        "untracked_observations": {
-          "title": "Untracked Observations",
-          "type": "integer"
-        },
-        "depth_truncated_observations": {
-          "title": "Depth Truncated Observations",
-          "type": "integer"
-        },
-        "diagnostics": {
-          "items": {
-            "$ref": "#/$defs/DiagnosticProfile"
-          },
-          "title": "Diagnostics",
-          "type": "array"
-        }
-      },
-      "required": [
-        "measures",
-        "untracked_observations",
-        "depth_truncated_observations",
-        "diagnostics"
-      ],
-      "title": "DatasetLimits",
-      "type": "object"
-    },
     "DatasetProfile": {
       "additionalProperties": false,
       "description": "One scan dataset: the rows of a CSV, or the records of a JSON document\nor collection (design 5).",
@@ -1262,23 +1221,6 @@
           "title": "Columns",
           "type": "array"
         },
-        "issues": {
-          "items": {
-            "$ref": "#/$defs/Issue"
-          },
-          "title": "Issues",
-          "type": "array"
-        },
-        "preview": {
-          "items": {
-            "$ref": "#/$defs/PreviewRow"
-          },
-          "title": "Preview",
-          "type": "array"
-        },
-        "limits": {
-          "$ref": "#/$defs/DatasetLimits"
-        },
         "structure": {
           "anyOf": [
             {
@@ -1295,10 +1237,7 @@
         "id",
         "kind",
         "summary",
-        "columns",
-        "issues",
-        "preview",
-        "limits"
+        "columns"
       ],
       "title": "DatasetProfile",
       "type": "object"
@@ -1507,10 +1446,6 @@
           "title": "Constant Column Count",
           "type": "integer"
         },
-        "with_issues_column_count": {
-          "title": "With Issues Column Count",
-          "type": "integer"
-        },
         "numeric_column_count": {
           "title": "Numeric Column Count",
           "type": "integer"
@@ -1565,7 +1500,6 @@
         "empty_row_count",
         "empty_column_count",
         "constant_column_count",
-        "with_issues_column_count",
         "numeric_column_count",
         "date_column_count",
         "string_column_count",
@@ -2144,122 +2078,6 @@
         "locations"
       ],
       "title": "Diagnostic",
-      "type": "object"
-    },
-    "DiagnosticLocation": {
-      "additionalProperties": false,
-      "properties": {
-        "record": {
-          "title": "Record",
-          "type": "integer"
-        },
-        "line": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Line"
-        },
-        "element": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Element"
-        }
-      },
-      "required": [
-        "record"
-      ],
-      "title": "DiagnosticLocation",
-      "type": "object"
-    },
-    "DiagnosticProfile": {
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "title": "Code",
-          "type": "string"
-        },
-        "level": {
-          "enum": [
-            "fatal",
-            "error",
-            "warning"
-          ],
-          "title": "Level",
-          "type": "string"
-        },
-        "message": {
-          "title": "Message",
-          "type": "string"
-        },
-        "count": {
-          "title": "Count",
-          "type": "integer"
-        },
-        "dataset": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Dataset"
-        },
-        "path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Path"
-        },
-        "detector": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Detector"
-        },
-        "locations": {
-          "items": {
-            "$ref": "#/$defs/DiagnosticLocation"
-          },
-          "title": "Locations",
-          "type": "array"
-        }
-      },
-      "required": [
-        "code",
-        "level",
-        "message",
-        "count",
-        "dataset",
-        "path",
-        "detector",
-        "locations"
-      ],
-      "title": "DiagnosticProfile",
       "type": "object"
     },
     "DigestInfo": {
@@ -3398,55 +3216,6 @@
       "title": "IpAddressSettings",
       "type": "object"
     },
-    "Issue": {
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "title": "Code",
-          "type": "string"
-        },
-        "severity": {
-          "enum": [
-            "info",
-            "warning"
-          ],
-          "title": "Severity",
-          "type": "string"
-        },
-        "message": {
-          "title": "Message",
-          "type": "string"
-        },
-        "count": {
-          "title": "Count",
-          "type": "integer"
-        },
-        "column_ids": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Column Ids",
-          "type": "array"
-        },
-        "row_numbers": {
-          "items": {
-            "type": "integer"
-          },
-          "title": "Row Numbers",
-          "type": "array"
-        }
-      },
-      "required": [
-        "code",
-        "severity",
-        "message",
-        "count",
-        "column_ids",
-        "row_numbers"
-      ],
-      "title": "Issue",
-      "type": "object"
-    },
     "ItemsSegment": {
       "additionalProperties": false,
       "properties": {
@@ -4063,67 +3832,6 @@
         "listed"
       ],
       "title": "LongTexts",
-      "type": "object"
-    },
-    "MeasureLimit": {
-      "additionalProperties": false,
-      "description": "A scan measure stopped by a limit (design 8 and 11).",
-      "properties": {
-        "column_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Column Id"
-        },
-        "path": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Path"
-        },
-        "measure": {
-          "title": "Measure",
-          "type": "string"
-        },
-        "reason": {
-          "title": "Reason",
-          "type": "string"
-        },
-        "limit": {
-          "title": "Limit",
-          "type": "integer"
-        },
-        "lower_bound": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Lower Bound"
-        }
-      },
-      "required": [
-        "column_id",
-        "path",
-        "measure",
-        "reason",
-        "limit",
-        "lower_bound"
-      ],
-      "title": "MeasureLimit",
       "type": "object"
     },
     "Missing": {
@@ -5337,85 +5045,12 @@
         },
         "value_examples": {
           "$ref": "#/$defs/ValueExamplesSettings"
+        },
+        "row_sample": {
+          "$ref": "#/$defs/tabalyst__config__RowSampleSettings"
         }
       },
       "title": "PresentationSettings",
-      "type": "object"
-    },
-    "PreviewRecord": {
-      "additionalProperties": false,
-      "properties": {
-        "record": {
-          "title": "Record",
-          "type": "integer"
-        },
-        "values": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "title": "Values",
-          "type": "object"
-        }
-      },
-      "required": [
-        "record",
-        "values"
-      ],
-      "title": "PreviewRecord",
-      "type": "object"
-    },
-    "PreviewRow": {
-      "additionalProperties": false,
-      "properties": {
-        "row_number": {
-          "title": "Row Number",
-          "type": "integer"
-        },
-        "values": {
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "title": "Values",
-          "type": "array"
-        },
-        "absent": {
-          "default": [],
-          "items": {
-            "type": "integer"
-          },
-          "title": "Absent",
-          "type": "array"
-        }
-      },
-      "required": [
-        "row_number",
-        "values"
-      ],
-      "title": "PreviewRow",
       "type": "object"
     },
     "QualitySummary": {
@@ -5555,20 +5190,13 @@
     "RecordSettings": {
       "additionalProperties": false,
       "properties": {
-        "preview": {
-          "default": 10,
-          "maximum": 1000,
-          "minimum": 0,
-          "title": "Preview",
-          "type": "integer"
-        },
         "duplicates": {
           "default": true,
           "title": "Duplicates",
           "type": "boolean"
         },
         "sample": {
-          "$ref": "#/$defs/RowSampleSettings"
+          "$ref": "#/$defs/tabalyst__scanner__config__RowSampleSettings"
         }
       },
       "title": "RecordSettings",
@@ -5586,13 +5214,6 @@
         "duplicates": {
           "$ref": "#/$defs/DuplicateRecords"
         },
-        "preview": {
-          "items": {
-            "$ref": "#/$defs/PreviewRecord"
-          },
-          "title": "Preview",
-          "type": "array"
-        },
         "sample": {
           "anyOf": [
             {
@@ -5608,8 +5229,7 @@
       "required": [
         "with_missing",
         "empty",
-        "duplicates",
-        "preview"
+        "duplicates"
       ],
       "title": "Records",
       "type": "object"
@@ -5814,42 +5434,6 @@
       "title": "RowSample",
       "type": "object"
     },
-    "RowSampleSettings": {
-      "additionalProperties": false,
-      "description": "Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last\nrows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.\n\n``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by\nthe whole scan.",
-      "properties": {
-        "rows": {
-          "default": 1000,
-          "maximum": 100000,
-          "minimum": 0,
-          "title": "Rows",
-          "type": "integer"
-        },
-        "edge": {
-          "default": 50,
-          "maximum": 50000,
-          "minimum": 0,
-          "title": "Edge",
-          "type": "integer"
-        },
-        "cell_chars": {
-          "default": 200,
-          "maximum": 100000,
-          "minimum": 1,
-          "title": "Cell Chars",
-          "type": "integer"
-        },
-        "max_bytes": {
-          "default": 16777216,
-          "maximum": 1099511627776,
-          "minimum": 1048576,
-          "title": "Max Bytes",
-          "type": "integer"
-        }
-      },
-      "title": "RowSampleSettings",
-      "type": "object"
-    },
     "RowSizes": {
       "additionalProperties": false,
       "description": "Sizes asked for: ``rows`` in all, ``edge`` first and ``edge`` last rows,\nand ``middle`` = ``rows`` - 2 * ``edge`` rows of the interior.",
@@ -6034,7 +5618,7 @@
     },
     "SampleRow": {
       "additionalProperties": false,
-      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` has the shape of ``PreviewRecord.values``: canonical text per\nfield id, a list when the path repeats, ``null`` for a JSON null or a hidden\ncell, no key for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
+      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` holds the canonical text per field id, through its exposure: a\nlist when the path repeats, ``null`` for a JSON null or a hidden cell, no\nkey for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
       "properties": {
         "record": {
           "title": "Record",
@@ -7446,6 +7030,35 @@
       "title": "YearCount",
       "type": "object"
     },
+    "tabalyst__config__RowSampleSettings": {
+      "additionalProperties": false,
+      "description": "Rows of the scan's row sample that the report keeps and shows: the first\n``start`` rows, the ``middle`` rows of the interior with the smallest\npriorities (an exact subset of the scan's) and the last ``end`` rows. At\nmost what the scan kept; presentation, so it never changes the scan.",
+      "properties": {
+        "start": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "middle": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Middle",
+          "type": "integer"
+        },
+        "end": {
+          "default": 10,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        }
+      },
+      "title": "RowSampleSettings",
+      "type": "object"
+    },
     "tabalyst__models__NormalizationStage": {
       "additionalProperties": false,
       "description": "One stage of the scan's normalization (design 10), ``raw`` first.",
@@ -7577,6 +7190,42 @@
         "truncated"
       ],
       "title": "VariantGroup",
+      "type": "object"
+    },
+    "tabalyst__scanner__config__RowSampleSettings": {
+      "additionalProperties": false,
+      "description": "Row sample of a dataset (design 18.11): ``edge`` first rows, ``edge`` last\nrows and a bottom-k of the interior, ``rows`` in all; 0 rows turns it off.\n\n``max_bytes`` is the budget, in bytes of a cost model, of the cells kept by\nthe whole scan.",
+      "properties": {
+        "rows": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "edge": {
+          "default": 50,
+          "maximum": 50000,
+          "minimum": 0,
+          "title": "Edge",
+          "type": "integer"
+        },
+        "cell_chars": {
+          "default": 200,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Cell Chars",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "default": 16777216,
+          "maximum": 1099511627776,
+          "minimum": 1048576,
+          "title": "Max Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "RowSampleSettings",
       "type": "object"
     },
     "tabalyst__scanner__models__NormalizationStage": {

@@ -28,10 +28,10 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Long texts (D06, LONG-01 to LONG-05) | Done at 2c: a value above `max_stored_value_length` still releases the table (`value_too_long`) and goes to a small bottom-k with preview, lengths, truncation flag and digest identity (`scanner/longtext.py`, `values.samples.long_texts`, design 18.6); the estimate adds the values and the long texts | Done | 2c |
 | Global memory budget (MEM-01 to MEM-06) | Done at 2c: `max_tracked_values` and `max_tracked_records` stay; the samples have a budget in bytes with sub-budgets (`scanner/memory.py`, `limits.max_sample_memory`), requested and effective sizes in the document, batches bounded by size (design 18.10, 13) | Done | 2c |
 | Samples by length (D07, LEN-01 to LEN-06) | Exact length histogram | Done at 3a: `scanner/lengthsample.py` (`LengthStrataSampler`), `values.samples.by_length` with ids shared with the sample and a pool, `other`, `partial` accuracy for a late stratum, sub-budget of an eighth, limits `max_samples_per_length` and `max_length_strata` (design 18.7, 18.9, 18.10); histogram Done | Done | 3a |
-| Row sample start, middle, end (D12, ROW-01 to ROW-11) | `records.preview`: first rows only | Done at 3b: `scanner/rowsample.py` (`RowSampler`, `RowPriority`), `records.sample` with first rows, a bottom-k of the interior by a priority of the position, last rows, projected cells of the same row, `interior_rows` scope, byte budget `records.sample.max_bytes`, the Report keeps the header only (design 18.11); `records.preview` stays for the Report page until lot 5 | Done | 3b |
+| Row sample start, middle, end (D12, ROW-01 to ROW-11) | `records.preview`: first rows only | Done at 3b: `scanner/rowsample.py` (`RowSampler`, `RowPriority`), `records.sample` with first rows, a bottom-k of the interior by a priority of the position, last rows, projected cells of the same row, `interior_rows` scope, byte budget `records.sample.max_bytes`, the Report keeps the rows `report.row_sample` asks for (design 18.11); `records.preview` removed at lot 5 | Done | 3b, 5 |
 | Pattern inference (D08) | Declarative patterns and shape signatures as detectors | Done at 4a: `scanner/patterninfer.py`, `derived.patterns` (grammar 1, candidates, exclusive classification, overlaps, exclusions), settings `scan.pattern_inference`, `run.timings.derived`; the Report carries `derived` (design 18.12) | 4a |
 | Exhaustive pattern validation (D08) | None | Add | 7c |
-| Observations, quality, limits (section 16) | Report issues only; scan has diagnostics | Done at 4b: `scanner/quality.py`, `observations` in the base (13 rules with a status, limits apart, summaries with `has_observations`, `has_quality_issues`, `has_limits`, settings `scan.observations`); the Report carries it and keeps its `issues` until lot 5 (design 18.13) | 4b, 5 |
+| Observations, quality, limits (section 16) | Report issues only; scan has diagnostics | Done at 4b: `scanner/quality.py`, `observations` in the base (13 rules with a status, limits apart, summaries with `has_observations`, `has_quality_issues`, `has_limits`, settings `scan.observations`); the Report carries it; since lot 5 its pages read the observations and its `issues`, `preview`, `limits` and `with_issues` are removed (design 18.13 and 18.14) | 4b, 5 |
 | Adaptive normalization (16.1) | Stage cardinalities derived from the raw table | Done at 4b: a stage that changed nothing has `equals` and the count of its input, even after the table was released; `variant_groups` exact and empty when no stage changed anything (design 10, D13) | 4b |
 | Cross-column features (REL-01, REL-02) | None | Not in 4b: they belong to the relationships | 8a, 8b |
 | Report as a superset of the Scan (D18, D20, D21, O29) | Done at 1b: `tabalyst.report` document, the Scan base at its paths plus the `report` block; copies of facts removed (the pages read them through views until 1c) | Done (1b), pages on the base (1c) | 1b, 1c |
@@ -44,10 +44,10 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Relationships (D13, D14) | None | Add | 8a, 8b |
 | Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
 | Explore access (D24) | Private DuckDB layer `projects/` | Adapted (1d): reads the Scan base only | 1d |
-| HTML from JSON alone (D19, F01) | `render_report` reads the profile | Modify with the new sections | 1c, 5 |
+| HTML from JSON alone (D19, F01 to F04) | `render_report` reads the profile | Done at 5: observations, limits, patterns, row sample and the qualified counts are read from the base (`report_sections`, `report_labels`), display budgets, escaping contract (design 18.14) | 1c, 5 |
 | Atomic writes (5.4, F05) | `write_text_atomic` | Done | |
 | Exposure after calculation (VAL-06) | `mask`, `hide`, `show` gate at finalization | Done, extended to samples at 2b: `kept < of` declares withheld originals, no threshold for a sensitive field | 2b |
-| Large integers in the HTML (F06, Q6) | Not decided | Decide before stability | 5 |
+| Large integers in the HTML (F06, Q6) | Floats shortened, integers rounded through floats | Decided and done at 5: integers are written exactly, compared as `BigInt` beyond 15 digits, documented for JSON readers (design 18.14) | 5 |
 
 ## Instrumentation names
 
@@ -71,7 +71,7 @@ the main process and are never summed with worker time.
 | Consumer | Reads | Concern for the work |
 | --- | --- | --- |
 | `scanner/` (engine, values, measures, workers, records, structure) | Builds the models | Hot path: guarded by the baselines |
-| `report_profile.py`, `models.py` (profile) | `ScanResult` fields | Copies of facts to remove (1b, 1c); the rates keep their meaning |
+| `report_profile.py`, `models.py` (profile) | `ScanResult` fields | Copies of facts removed (1b, 1c, 5); the rates keep their meaning |
 | `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Done at 1c: the pages read the base through `report_views` (`ColumnView.field`); HTML identical to 1b; browser check at desktop and mobile |
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity |

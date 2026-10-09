@@ -21,6 +21,11 @@
       "long_text_truncate_at": 30,
       "truncation_suffix": "...",
       "inline_display_size": 3
+    },
+    "row_sample": {
+      "start": 10,
+      "middle": 10,
+      "end": 10
     }
   },
   "scan": {
@@ -72,7 +77,6 @@
       "max_samples": 100
     },
     "records": {
-      "preview": 20,
       "duplicates": true
     },
     "exposure": {

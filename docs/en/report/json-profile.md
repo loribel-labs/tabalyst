@@ -1,6 +1,6 @@
 ---
 title: JSON profile
-description: Structure of the JSON profile written by tabalyst report, a Scan document with a report block, with its fields, column projections, issue codes and format versioning.
+description: Structure of the JSON profile written by tabalyst report, a Scan document with a report block, with its fields, column projections, the findings it carries and format versioning.
 ---
 
 Each `tabalyst report` run writes a JSON profile next to the HTML report, with
@@ -78,8 +78,7 @@ A shortened profile for a five-row `orders.csv`:
           "row_count": 5,
           "column_count": 6,
           "missing_count": 2,
-          "duplicate_row_count": 1,
-          "with_issues_column_count": 2
+          "duplicate_row_count": 1
         },
         "date_summary": { "...": "present when a column contains dates" },
         "columns": [
@@ -93,36 +92,12 @@ A shortened profile for a five-row `orders.csv`:
             "type_confidence": 0.75,
             "missing_count": 1,
             "missing_percent": 20.0,
-            "with_issues": true,
             "distinct_count": 3,
             "examples": ["25.00", "12.50", "not available"],
             "semantic_type": null,
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "duplicate_rows",
-            "severity": "warning",
-            "message": "Duplicate rows beyond their first occurrence",
-            "count": 1,
-            "column_ids": [],
-            "row_numbers": [4]
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": ["001", "Alice", "12.50", "2026-01-01", "true", "First"],
-            "absent": []
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": []
-        },
         "structure": null
       }
     ]
@@ -140,7 +115,7 @@ A shortened profile for a five-row `orders.csv`:
 | `engine`, `status`, `run`, `source`, `config`, `config_sha256`, `scope`, `diagnostics` | | The scan base, as in a [scan document](../scan/format.md). `config` is the effective scan configuration, the one recorded in the scan document for a report built with `--scan`. `source` is the file the scan read |
 | `datasets` | array | The scan datasets, with their records and fields: the measured facts. The samples of the fields are reduced (see [Reduced samples](#reduced-samples)) |
 | `derived` | object | Optional: the [inferred patterns](../scan/format.md#inferred-patterns) of the scan, carried as they are because the reduced samples cannot compute them again |
-| `observations` | object | Optional: the [observations and limits](../scan/format.md#observations-and-limits) of the scan, carried as they are. The `issues` of the columns do not read them yet |
+| `observations` | object | Optional: the [observations and limits](../scan/format.md#observations-and-limits) of the scan, carried as they are. The report reads its quality findings and its limits from them (see [Findings](#findings)) |
 | `report` | object | What the report adds (see below) |
 
 ## `report`
@@ -150,7 +125,7 @@ A shortened profile for a five-row `orders.csv`:
 | `generated_at` | UTC date and time of the report (ISO 8601) |
 | `generator` | `name` (`tabalyst`) and `version` of the Tabalyst that wrote the report |
 | `processing_seconds` | Scan and profile time, in seconds; for a report built from a scan document with `--scan`, the scan duration recorded in the document plus the time to read it and build the profile |
-| `config` | The presentation settings: `string_analysis` and `value_examples`. The analysis settings are the root `config`. See the [configuration](../reference/configuration.md) |
+| `config` | The presentation settings: `string_analysis`, `value_examples` and `row_sample`. The analysis settings are the root `config`. See the [configuration](../reference/configuration.md) |
 | `base_scan` | The identity of the scan base the report holds (see below) |
 | `datasets` | One projection per dataset shown, identified by the dataset `id` (see below) |
 
@@ -186,6 +161,12 @@ sampled, `of`. A scan has `kept` equal to `of`. The
 [samples by length](../scan/format.md#samples-by-length) of a field keep their
 lengths, counts and accuracy, and no values: each stratum has `kept` 0.
 
+The [row sample](../scan/format.md#row-sample) of a dataset (`records.sample`)
+keeps its header and the rows `report.config.row_sample` asks for: the first
+`start` rows, the last `end` rows and the `middle` rows of the interior with the
+smallest priorities, 10 of each by default, an exact subset of the scan's rows.
+`kept` says how many it lists and `of` how many the scan sampled.
+
 A report with `kept` below `of` renders and is read like any scan base, but it
 cannot be the input of a computation that reads samples: use the scan
 document of the source for it.
@@ -210,9 +191,6 @@ built by the commands have no `$` dataset for the rest of the document. See the
 | `summary` | object | Dataset-level counts (see below) |
 | `date_summary` | object or `null` | Dataset-level date counts, when at least one column contains date values |
 | `columns` | array | One profile per column, in file order for CSV and in order of discovery for JSON |
-| `issues` | array | Detected problems (see below) |
-| `preview` | array | The first records, with raw values; values of sensitive columns are masked or hidden |
-| `limits` | object | Measures stopped by a scan limit, structural truncation and scan diagnostics (see below) |
 | `structure` | object or `null` | Paths of a JSON dataset, containers included (see below); `null` for CSV files |
 
 In a JSON dataset, a column is a field that holds strings, numbers, booleans
@@ -231,7 +209,7 @@ Counts over the whole dataset:
 - missing values: `missing_count`, `missing_percent`;
 - normalization: `trim_count`, `collapse_internal_whitespace_count`;
 - structure: `duplicate_row_count`, `empty_row_count`, `empty_column_count`,
-  `constant_column_count`, `with_issues_column_count`;
+  `constant_column_count`;
 - `duplicate_row_status`: `complete`; `limited` when more distinct rows than
   `scan.limits.max_tracked_records` were read, `duplicate_row_count` then
   being a lower bound; or `disabled` when `scan.records.duplicates` is
@@ -258,13 +236,12 @@ Each column profile always contains:
 | `type_confidence` | Share of present values accepted by the inferred type, from 0 to 1. For `mixed` columns, the share of the largest type family; `null` for `empty` columns |
 | `type_error_count`, `type_error_percent` | Values outside the inferred type; `null` for `mixed` columns. The percentage is over the analyzable (non-missing) values of the column |
 | `missing_count`, `missing_percent` | Missing cells; for JSON, also the objects where the field is absent. The percentage is over the cells of the column (the rows of a CSV; for JSON, the occurrences of the field plus the objects where it is absent) |
-| `with_issues` | `true` when the column has missing values, its type is `mixed` or it holds ambiguous dates |
 | `normalization` | Values changed by each normalization stage and the variant groups (see below); missing cells are not counted |
 | `distinct_count` | Number of distinct values after normalization, even for a masked column; `null` when a scan limit stopped the count |
 | `examples` | A few representative values |
 | `value_profile` | Value occurrences, complete or sampled (see `selection`) |
 | `semantic_type` | `date` for date columns, otherwise the id of the scan's primary interpretation, such as `enumeration`, `email`, `phone` or `postal_code`, or `null` |
-| `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and `preview`; `null` otherwise |
+| `exposure` | `mask`, `hide` or `show` for a sensitive column, the way its values appear in `examples`, `value_profile` and the rows of the data sample; `null` otherwise |
 | `detectors` | The detectors that recognized values of the column, in scan order (see below); empty when none did |
 
 `value_profile.selection` is `complete` when all available frequencies are
@@ -336,54 +313,39 @@ as well as failed ones.
 | `details` | Detector-specific, exposure-controlled Scan metadata |
 | `adaptive` | Adaptive detection skip and probe metadata, when applicable |
 
-## `issues`
+## Findings
 
-Each issue has a `code`, a `severity` (`warning` or `info`), an English
-`message`, a `count`, the affected `column_ids` and up to 10 `row_numbers`.
-Row numbers count the records of the dataset from 1; a CSV header is not
-counted.
+The projections hold no list of problems: the report reads the findings of the
+scan, which the document carries as it is. They are the same ones in the
+`observations` block and in the pages of the HTML report.
 
-| `code` | Severity | Meaning |
-| --- | --- | --- |
-| `duplicate_rows` | warning | Rows repeating an earlier row, beyond its first occurrence |
-| `missing_values` | warning | Missing cells |
-| `empty_columns` | warning | Columns without any present value |
-| `mixed_types` | warning | Columns with mixed value types |
-| `ambiguous_dates` | warning | Date values matching more than one day-month order |
-| `ambiguous_headers` | warning | Blank or repeated column names |
-| `constant_columns` | info | Columns with a single distinct present value |
-| `trimmed_cells` | info | Cells changed by trimming surrounding whitespace |
-| `collapsed_whitespace` | info | Cells changed by collapsing repeated internal whitespace |
-| `limited_measures` | info | Columns with measures stopped by a scan limit |
-| `excluded_records` | warning | Records excluded by the `tolerant` error policy, not analyzed |
-| `variant_groups` | info | Values written in several ways that normalization compares as equal |
+- **Quality issues and remarks.** `observations.items` lists what the scan found,
+  each with a `rule`, a `status` (`confirmed_issue`, `candidate_anomaly` or
+  `informational`), the `field` and `dataset` it concerns, a `count` out of `of`
+  and its `accuracy` (`exact`, `lower_bound` or `sample`). A column has quality
+  issues when an item about its `field` is a confirmed issue or a candidate
+  anomaly; a remark, such as missing values, is not an issue. See
+  [observations and limits](../scan/format.md#observations-and-limits).
+- **Limits.** `observations.limits` lists what the scan could not establish:
+  `measure` (its place in the scan result, such as `values.cardinality`,
+  `numeric.median` or `structure.paths`), `reason` (such as `distinct_limit`,
+  `global_budget`, `value_too_long`, `field_limit`, `record_budget` or
+  `memory_budget`), `limit` and `lower_bound`, a proven minimum when there is
+  one. A limited measure is never presented as exact.
+- **Diagnostics.** `diagnostics`, at the root, are the technical events of the
+  scan, such as excluded records: `code`, `level`, `message`, `count`, `dataset`
+  (`null` for the whole scan), `field` and up to `scan.errors.max_locations`
+  `locations`.
+- **Structure counts.** `datasets[].structure.untracked_observations` counts the
+  values under paths beyond `scan.limits.max_fields` and
+  `depth_truncated_observations` the values deeper than `scan.limits.max_depth`,
+  counted but not analyzed.
+- **Rows.** `datasets[].records.sample.rows` lists the rows the report shows, each
+  with its logical `record` number, its `origins` (`start`, `middle`, `end`) and
+  its `values` by field id.
 
-An issue is listed only when its count is above zero, except `trimmed_cells`
-and `collapsed_whitespace`, which are always listed.
-
-## `preview`
-
-The first records of the dataset (10 by default, set by `scan.records.preview`
-in the [configuration](../reference/configuration.md)), each with its `row_number` and raw `values`
-in column order. The preview size does not affect the analysis, which always
-reads every record. In sensitive columns, values are masked (`mask`) or `null`
-(`hide`), as given by the column's `exposure`; missing cells stay as read.
-
-For JSON, a field absent from the record is `null` and its position (from 0)
-is listed in `absent`. A field under an array, such as `tags[]`, joins the
-values of the record with `, `. A JSON `null` is the text `null`.
-
-## `limits`
-
-What the scan could not measure completely in the dataset. A limited measure
-is never estimated.
-
-| Field | Content |
-| --- | --- |
-| `measures` | One item per limited measure: `column_id` and `path` of its field (both `null` for a measure of the dataset), `measure` (its place in the scan result, such as `values.cardinality`, `numeric.median` or `structure.paths`), `reason` (such as `distinct_limit`, `global_budget`, `value_too_long`, `field_limit` or `record_budget`), `limit` and `lower_bound`, a proven minimum or `null` |
-| `untracked_observations` | Values under paths beyond `scan.limits.max_fields`, counted but not analyzed |
-| `depth_truncated_observations` | Values deeper than `scan.limits.max_depth`, counted but not analyzed |
-| `diagnostics` | The scan diagnostics of this dataset and of the whole scan: `code`, `level` (`error` or `warning`), `message`, `count`, `dataset` (`null` for the whole scan), `path`, `detector` and up to `scan.errors.max_locations` `locations` (`record`, and `line` for CSV or `element` for JSON) |
+Without an `observations` block (`scan.observations.enabled` is `false`) the
+report says that the findings are not computed; it does not rebuild them.
 
 ## `structure`
 
@@ -414,6 +376,15 @@ Each item of `fields` has:
 | `arrays` | For arrays: `count`, `empty_count`, `minimum_length`, `maximum_length`, `mean_length` and `item_count`; `null` otherwise |
 | `column` | `true` when the field is also listed in `columns` |
 
+## Large integers
+
+Counters and numeric statistics are JSON integers written with all their digits,
+even beyond 2^53 (9,007,199,254,740,992). The HTML report writes them exactly
+and compares them exactly. A tool that reads the file with `JSON.parse` in
+JavaScript rounds integers beyond 2^53: use a parser that keeps large integers
+(for example by reading them as `BigInt`), or read the file in a language with
+arbitrary-size integers.
+
 ## Versioning
 
 - `format_version` names the experimental format family. The current value is
@@ -423,7 +394,7 @@ Each item of `fields` has:
 - Revisions can be incompatible, and no migration is provided. See the
   [JSON profile changelog](profile-changelog.md).
 
-The profile contains values from the source file, in `examples`,
-`value_profile` and `preview` of the report and in the samples of the base;
+The profile contains values from the source file, in `examples` and
+`value_profile` of the report, and in the samples and the row sample of the base;
 only sensitive columns are masked. Share it as
 you would share the data.

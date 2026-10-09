@@ -60,7 +60,6 @@ HARD_CAPS: dict[str, int] = {
     "max_tracked_records": 500_000_000,
     "max_listed_records": 10_000,
 }
-MAX_PREVIEW_RECORDS = 1_000
 MAX_PATTERNS = 200
 MAX_PATTERN_LENGTH = 1_000
 MAX_PATTERN_INPUT_LENGTH = 10_000
@@ -355,9 +354,19 @@ class RowSampleSettings(_Settings):
 
 
 class RecordSettings(_Settings):
-    preview: int = Field(default=10, ge=0, le=MAX_PREVIEW_RECORDS)
     duplicates: bool = True
     sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
+
+    @model_validator(mode="before")
+    @classmethod
+    def preview_moved_to_the_row_sample(cls, data):
+        # The first records are the start of the row sample since lot 5.
+        if isinstance(data, dict) and "preview" in data:
+            raise ValueError(
+                "preview moved to scan.records.sample.edge (rows kept by the "
+                "scan) and report.row_sample (rows the report shows)"
+            )
+        return data
 
 
 MAX_INFERRED_PATTERNS = 64

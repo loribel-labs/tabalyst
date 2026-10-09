@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-08T20:17:32.877166Z",
-    "duration_seconds": 0.037263,
+    "started_at": "2026-10-08T22:20:01.738683Z",
+    "duration_seconds": 0.037455,
     "timings": {
-      "reading": 0.014384,
-      "analysis": 0.008184,
-      "finalize": 0.011927,
-      "derived": 0.002369,
-      "other": 0.000399
+      "reading": 0.014489,
+      "analysis": 0.007995,
+      "finalize": 0.0124,
+      "derived": 0.002195,
+      "other": 0.000376
     },
     "workers": 1,
-    "peak_memory_bytes": 53153792
+    "peak_memory_bytes": 53841920
   },
   "source": {
     "format": "jsonl",
@@ -125,7 +125,6 @@
       "max_listed_records": 10
     },
     "records": {
-      "preview": 20,
       "duplicates": true,
       "sample": {
         "rows": 1000,
@@ -284,7 +283,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "5f490a6561dea3108d67ef0b1456b615ee51392f9324bdf279cb7af1401a1287",
+  "config_sha256": "ecac5a0214e9631f5ed199070d69e51cca9b05b3570f54e54528ee827630e87c",
   "scope": {
     "collections": null,
     "records_read": 303,
@@ -344,733 +343,6 @@
           },
           "records": []
         },
-        "preview": [
-          {
-            "record": 1,
-            "values": {
-              "f1": [
-                "evt-00001"
-              ],
-              "f2": [
-                "2026-03-01T08:00:16Z"
-              ],
-              "f3": [
-                "page_view"
-              ],
-              "f5": [
-                "33"
-              ],
-              "f6": [
-                null
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/login"
-              ],
-              "f13": [
-                "newsletter",
-                "beta",
-                "promo"
-              ]
-            }
-          },
-          {
-            "record": 2,
-            "values": {
-              "f1": [
-                "evt-00002"
-              ],
-              "f2": [
-                "2026-03-01T08:00:17Z"
-              ],
-              "f3": [
-                "purchase"
-              ],
-              "f5": [
-                null
-              ],
-              "f6": [
-                "DE"
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "Android"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/checkout"
-              ],
-              "f13": [
-                "mobile",
-                "beta"
-              ],
-              "f14": [
-                "79.2"
-              ],
-              "f15": [
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 3,
-            "values": {
-              "f1": [
-                "evt-00003"
-              ],
-              "f2": [
-                "2026-03-01T08:01:03Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "33"
-              ],
-              "f6": [
-                null
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "Linux"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/blog"
-              ],
-              "f13": [
-                "beta",
-                "mobile"
-              ]
-            }
-          },
-          {
-            "record": 4,
-            "values": {
-              "f1": [
-                "evt-00004"
-              ],
-              "f2": [
-                "2026-03-01T08:02:26Z"
-              ],
-              "f3": [
-                "error"
-              ],
-              "f5": [
-                "20"
-              ],
-              "f6": [
-                "FR"
-              ],
-              "f7": [
-                "team"
-              ],
-              "f9": [
-                "Linux"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/login"
-              ],
-              "f16": [
-                "500"
-              ]
-            }
-          },
-          {
-            "record": 5,
-            "values": {
-              "f1": [
-                "evt-00005"
-              ],
-              "f2": [
-                "2026-03-01T08:03:41Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "8"
-              ],
-              "f6": [
-                "US"
-              ],
-              "f7": [
-                "team"
-              ],
-              "f9": [
-                "iOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/login"
-              ],
-              "f13": [
-                "beta",
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 6,
-            "values": {
-              "f1": [
-                "evt-00006"
-              ],
-              "f2": [
-                "2026-03-01T08:04:47Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "37"
-              ],
-              "f6": [
-                "CA"
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "Windows"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/pricing"
-              ],
-              "f13": [
-                "beta",
-                "mobile",
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 7,
-            "values": {
-              "f1": [
-                "evt-00007"
-              ],
-              "f2": [
-                "2026-03-01T08:05:17Z"
-              ],
-              "f3": [
-                "page_view"
-              ],
-              "f5": [
-                "30"
-              ],
-              "f6": [
-                null
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "iOS"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/login"
-              ],
-              "f13": [
-                "newsletter",
-                "beta"
-              ]
-            }
-          },
-          {
-            "record": 8,
-            "values": {
-              "f1": [
-                "evt-00008"
-              ],
-              "f2": [
-                "2026-03-01T08:06:09Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "54"
-              ],
-              "f6": [
-                "DE"
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "Windows"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/checkout"
-              ],
-              "f13": [
-                "returning",
-                "mobile",
-                "beta"
-              ]
-            }
-          },
-          {
-            "record": 9,
-            "values": {
-              "f1": [
-                "evt-00009"
-              ],
-              "f2": [
-                "2026-03-01T08:07:38Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "50"
-              ],
-              "f6": [
-                "US"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "iOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/"
-              ],
-              "f13": [
-                "returning",
-                "beta"
-              ]
-            }
-          },
-          {
-            "record": 10,
-            "values": {
-              "f1": [
-                "evt-00010"
-              ],
-              "f2": [
-                "2026-03-01T08:07:51Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "51"
-              ],
-              "f6": [
-                "BE"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "Android"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/docs"
-              ],
-              "f13": [
-                "beta",
-                "promo",
-                "returning"
-              ]
-            }
-          },
-          {
-            "record": 11,
-            "values": {
-              "f1": [
-                "evt-00011"
-              ],
-              "f2": [
-                "2026-03-01T08:08:26Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "13"
-              ],
-              "f6": [
-                null
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/"
-              ]
-            }
-          },
-          {
-            "record": 12,
-            "values": {
-              "f1": [
-                "evt-00012"
-              ],
-              "f2": [
-                "2026-03-01T08:08:27Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "60"
-              ],
-              "f6": [
-                "FR"
-              ],
-              "f7": [
-                "team"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/"
-              ],
-              "f13": [
-                "returning",
-                "mobile"
-              ]
-            }
-          },
-          {
-            "record": 13,
-            "values": {
-              "f1": [
-                "evt-00013"
-              ],
-              "f2": [
-                "2026-03-01T08:08:28Z"
-              ],
-              "f3": [
-                "page_view"
-              ],
-              "f5": [
-                "37"
-              ],
-              "f6": [
-                "US"
-              ],
-              "f7": [
-                "team"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/checkout"
-              ],
-              "f13": [
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 14,
-            "values": {
-              "f1": [
-                "evt-00014"
-              ],
-              "f2": [
-                "2026-03-01T08:09:57Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "27"
-              ],
-              "f6": [
-                null
-              ],
-              "f7": [
-                "free"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/blog"
-              ],
-              "f13": [
-                "beta",
-                "mobile",
-                "returning"
-              ]
-            }
-          },
-          {
-            "record": 15,
-            "values": {
-              "f1": [
-                "evt-00015"
-              ],
-              "f2": [
-                "2026-03-01T08:10:23Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                null
-              ],
-              "f6": [
-                "FR"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "Windows"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/signup"
-              ],
-              "f13": [
-                "promo",
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 16,
-            "values": {
-              "f1": [
-                "evt-00016"
-              ],
-              "f2": [
-                "2026-03-01T08:11:29Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "20"
-              ],
-              "f6": [
-                "US"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "Windows"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/checkout"
-              ],
-              "f13": [
-                "mobile"
-              ]
-            }
-          },
-          {
-            "record": 17,
-            "values": {
-              "f1": [
-                "evt-00017"
-              ],
-              "f2": [
-                "2026-03-01T08:12:45Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "40"
-              ],
-              "f6": [
-                "DE"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "iOS"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/pricing"
-              ],
-              "f13": [
-                "promo",
-                "mobile",
-                "returning"
-              ]
-            }
-          },
-          {
-            "record": 18,
-            "values": {
-              "f1": [
-                "evt-00018"
-              ],
-              "f2": [
-                "2026-03-01T08:13:08Z"
-              ],
-              "f3": [
-                "page_view"
-              ],
-              "f5": [
-                "60"
-              ],
-              "f6": [
-                "FR"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "false"
-              ],
-              "f11": [
-                "/"
-              ],
-              "f13": [
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 19,
-            "values": {
-              "f1": [
-                "evt-00019"
-              ],
-              "f2": [
-                "2026-03-01T08:13:36Z"
-              ],
-              "f3": [
-                "click"
-              ],
-              "f5": [
-                "9"
-              ],
-              "f6": [
-                "CA"
-              ],
-              "f7": [
-                "team"
-              ],
-              "f9": [
-                "macOS"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/login"
-              ],
-              "f13": [
-                "promo",
-                "beta",
-                "mobile"
-              ]
-            }
-          },
-          {
-            "record": 20,
-            "values": {
-              "f1": [
-                "evt-00020"
-              ],
-              "f2": [
-                "2026-03-01T08:14:00Z"
-              ],
-              "f3": [
-                "page_view"
-              ],
-              "f5": [
-                null
-              ],
-              "f6": [
-                "US"
-              ],
-              "f7": [
-                "pro"
-              ],
-              "f9": [
-                "Android"
-              ],
-              "f10": [
-                "true"
-              ],
-              "f11": [
-                "/docs"
-              ],
-              "f13": [
-                "newsletter",
-                "beta"
-              ]
-            }
-          }
-        ],
         "sample": {
           "selection": "start_middle_end",
           "hash": {
@@ -1112,9 +384,40 @@
           "truncated_cells": 0,
           "bytes": 1089437,
           "max_bytes": 16777216,
-          "kept": 0,
+          "kept": 30,
           "of": 300,
-          "rows": []
+          "rows": [
+            {"record": 1, "origins": ["start"], "values": {"f1": ["evt-00001"], "f2": ["2026-03-01T08:00:16Z"], "f3": ["page_view"], "f5": ["33"], "f6": [null], "f7": ["free"], "f9": ["macOS"], "f10": ["false"], "f11": ["/login"], "f13": ["newsletter", "beta", "promo"]}},
+            {"record": 2, "origins": ["start"], "values": {"f1": ["evt-00002"], "f2": ["2026-03-01T08:00:17Z"], "f3": ["purchase"], "f5": [null], "f6": ["DE"], "f7": ["free"], "f9": ["Android"], "f10": ["true"], "f11": ["/checkout"], "f13": ["mobile", "beta"], "f14": ["79.2"], "f15": ["EUR"]}},
+            {"record": 3, "origins": ["start"], "values": {"f1": ["evt-00003"], "f2": ["2026-03-01T08:01:03Z"], "f3": ["click"], "f5": ["33"], "f6": [null], "f7": ["free"], "f9": ["Linux"], "f10": ["true"], "f11": ["/blog"], "f13": ["beta", "mobile"]}},
+            {"record": 4, "origins": ["start"], "values": {"f1": ["evt-00004"], "f2": ["2026-03-01T08:02:26Z"], "f3": ["error"], "f5": ["20"], "f6": ["FR"], "f7": ["team"], "f9": ["Linux"], "f10": ["true"], "f11": ["/login"], "f16": ["500"]}},
+            {"record": 5, "origins": ["start"], "values": {"f1": ["evt-00005"], "f2": ["2026-03-01T08:03:41Z"], "f3": ["click"], "f5": ["8"], "f6": ["US"], "f7": ["team"], "f9": ["iOS"], "f10": ["false"], "f11": ["/login"], "f13": ["beta", "newsletter"]}},
+            {"record": 6, "origins": ["start"], "values": {"f1": ["evt-00006"], "f2": ["2026-03-01T08:04:47Z"], "f3": ["click"], "f5": ["37"], "f6": ["CA"], "f7": ["free"], "f9": ["Windows"], "f10": ["false"], "f11": ["/pricing"], "f13": ["beta", "mobile", "newsletter"]}},
+            {"record": 7, "origins": ["start"], "values": {"f1": ["evt-00007"], "f2": ["2026-03-01T08:05:17Z"], "f3": ["page_view"], "f5": ["30"], "f6": [null], "f7": ["pro"], "f9": ["iOS"], "f10": ["true"], "f11": ["/login"], "f13": ["newsletter", "beta"]}},
+            {"record": 8, "origins": ["start"], "values": {"f1": ["evt-00008"], "f2": ["2026-03-01T08:06:09Z"], "f3": ["click"], "f5": ["54"], "f6": ["DE"], "f7": ["free"], "f9": ["Windows"], "f10": ["true"], "f11": ["/checkout"], "f13": ["returning", "mobile", "beta"]}},
+            {"record": 9, "origins": ["start"], "values": {"f1": ["evt-00009"], "f2": ["2026-03-01T08:07:38Z"], "f3": ["click"], "f5": ["50"], "f6": ["US"], "f7": ["pro"], "f9": ["iOS"], "f10": ["false"], "f11": ["/"], "f13": ["returning", "beta"]}},
+            {"record": 10, "origins": ["start"], "values": {"f1": ["evt-00010"], "f2": ["2026-03-01T08:07:51Z"], "f3": ["click"], "f5": ["51"], "f6": ["BE"], "f7": ["pro"], "f9": ["Android"], "f10": ["false"], "f11": ["/docs"], "f13": ["beta", "promo", "returning"]}},
+            {"record": 56, "origins": ["middle"], "values": {"f1": ["evt-00056"], "f2": ["2026-03-01T08:42:18Z"], "f3": ["page_view"], "f5": ["59"], "f6": ["US"], "f7": ["team"], "f9": ["Linux"], "f10": ["true"], "f11": ["/signup"], "f13": ["returning", "beta", "mobile"]}},
+            {"record": 87, "origins": ["middle"], "values": {"f1": ["evt-00087"], "f2": ["2026-03-01T09:09:28Z"], "f3": ["page_view"], "f5": ["1"], "f6": ["US"], "f7": ["pro"], "f9": ["iOS"], "f10": ["true"], "f11": ["/docs"], "f13": ["mobile"]}},
+            {"record": 111, "origins": ["middle"], "values": {"f1": ["evt-00111"], "f2": ["2026-03-01T09:24:02Z"], "f3": ["page_view"], "f5": ["17"], "f6": ["FR"], "f7": ["team"], "f9": ["iOS"], "f10": ["true"], "f11": ["/checkout"], "f13": ["beta", "returning"]}},
+            {"record": 114, "origins": ["middle"], "values": {"f1": ["evt-00114"], "f2": ["2026-03-01T09:26:20Z"], "f3": ["click"], "f5": ["44"], "f6": ["FR"], "f7": ["pro"], "f9": ["Android"], "f10": ["false"], "f11": ["/checkout"], "f13": ["newsletter", "beta"]}},
+            {"record": 126, "origins": ["middle"], "values": {"f1": ["evt-00125"], "f2": ["2026-03-01T09:33:16Z"], "f3": ["purchase"], "f5": ["18"], "f6": ["BE"], "f7": ["free"], "f9": ["macOS"], "f10": ["true"], "f11": ["/pricing"], "f13": ["newsletter", "promo"], "f14": ["248.12"], "f15": ["EUR"]}},
+            {"record": 151, "origins": ["middle"], "values": {"f1": ["evt-00150"], "f2": ["2026-03-01T09:49:24Z"], "f3": ["page_view"], "f5": [null], "f6": ["FR"], "f7": ["free"], "f9": ["iOS"], "f10": ["true"], "f11": ["/"]}},
+            {"record": 155, "origins": ["middle"], "values": {"f1": ["evt-00154"], "f2": ["2026-03-01T09:52:36Z"], "f3": ["error"], "f5": [null], "f6": [null], "f7": ["team"], "f9": ["macOS"], "f10": ["true"], "f11": ["/pricing"], "f13": ["mobile"], "f16": ["500"]}},
+            {"record": 168, "origins": ["middle"], "values": {"f1": ["evt-00167"], "f2": ["2026-03-01T10:03:05Z"], "f3": ["page_view"], "f5": ["50"], "f6": ["US"], "f7": ["pro"], "f9": ["Linux"], "f10": ["true"], "f11": ["/docs/install"], "f13": ["promo", "newsletter"]}},
+            {"record": 200, "origins": ["middle"], "values": {"f1": ["evt-00199"], "f2": ["2026-03-01T10:28:45Z"], "f3": ["page_view"], "f5": [null], "f6": ["BE"], "f7": ["team"], "f9": ["Linux"], "f10": ["false"], "f11": ["/blog"], "f13": ["returning", "beta"]}},
+            {"record": 236, "origins": ["middle"], "values": {"f1": ["evt-00234"], "f2": ["2026-03-01T10:57:37Z"], "f3": ["page_view"], "f5": ["29"], "f6": ["CA"], "f7": ["team"], "f9": ["macOS"], "f10": ["true"], "f11": ["/blog"], "f13": ["promo"]}},
+            {"record": 294, "origins": ["end"], "values": {"f1": ["evt-00291"], "f2": ["2026-03-01T11:38:27Z"], "f3": ["page_view"], "f5": ["5"], "f6": ["DE"], "f7": ["pro"], "f9": ["iOS"], "f10": ["true"], "f11": ["/docs"], "f17": ["B"]}},
+            {"record": 295, "origins": ["end"], "values": {"f1": ["evt-00292"], "f2": ["2026-03-01T11:38:31Z"], "f3": ["page_view"], "f5": ["38"], "f6": ["FR"], "f7": ["team"], "f9": ["Windows"], "f10": ["true"], "f11": ["/docs/install"], "f13": ["promo", "newsletter"], "f17": ["A"]}},
+            {"record": 296, "origins": ["end"], "values": {"f1": ["evt-00293"], "f2": ["2026-03-01T11:39:46Z"], "f3": ["click"], "f5": ["4"], "f6": ["FR"], "f7": ["free"], "f9": ["Linux"], "f10": ["true"], "f11": ["/blog"], "f13": ["promo"], "f17": ["A"]}},
+            {"record": 297, "origins": ["end"], "values": {"f1": ["evt-00294"], "f2": ["2026-03-01T11:40:26Z"], "f3": ["page_view"], "f5": ["25"], "f6": ["DE"], "f7": ["free"], "f9": ["Linux"], "f10": ["true"], "f11": ["/checkout"], "f13": ["promo", "returning", "newsletter"], "f17": ["A"]}},
+            {"record": 298, "origins": ["end"], "values": {"f1": ["evt-00295"], "f2": ["2026-03-01T11:41:16Z"], "f3": ["page_view"], "f5": ["44"], "f6": [null], "f7": ["free"], "f9": ["Windows"], "f10": ["true"], "f11": ["/pricing"], "f17": ["B"]}},
+            {"record": 299, "origins": ["end"], "values": {"f1": ["evt-00296"], "f2": ["2026-03-01T11:41:58Z"], "f3": ["page_view"], "f5": [null], "f6": ["FR"], "f7": ["team"], "f9": ["Windows"], "f10": ["false"], "f11": ["/pricing"], "f13": ["mobile", "beta"], "f17": ["A"]}},
+            {"record": 300, "origins": ["end"], "values": {"f1": ["evt-00297"], "f2": ["2026-03-01T11:42:00Z"], "f3": ["page_view"], "f5": ["58"], "f6": ["US"], "f7": ["free"], "f9": ["Android"], "f10": ["true"], "f11": ["/blog"], "f13": ["newsletter", "returning"], "f17": ["A"]}},
+            {"record": 301, "origins": ["end"], "values": {"f1": ["evt-00298"], "f2": ["2026-03-01T11:42:36Z"], "f3": ["page_view"], "f5": [null], "f6": [null], "f7": ["free"], "f9": ["Windows"], "f10": ["false"], "f11": ["/pricing"], "f13": ["newsletter"], "f17": ["A"]}},
+            {"record": 302, "origins": ["end"], "values": {"f1": ["evt-00299"], "f2": ["2026-03-01T11:42:37Z"], "f3": ["error"], "f5": ["10"], "f6": ["US"], "f7": ["pro"], "f9": ["Linux"], "f10": ["true"], "f11": ["/pricing"], "f13": ["newsletter", "returning", "beta"], "f16": ["404"], "f17": ["B"]}},
+            {"record": 303, "origins": ["end"], "values": {"f1": ["evt-00300"], "f2": ["2026-03-01T11:42:42Z"], "f3": ["click"], "f5": ["50"], "f6": ["FR"], "f7": ["free"], "f9": ["macOS"], "f10": ["false"], "f11": ["/login"], "f13": ["beta", "newsletter"], "f17": ["B"]}}
+          ]
         }
       },
       "fields": [
@@ -13251,12 +12554,12 @@
     "limits": []
   },
   "report": {
-    "generated_at": "2026-10-08T20:17:33.202155Z",
+    "generated_at": "2026-10-08T22:25:51.592256Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.3679,
+    "processing_seconds": 0.3242,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -13276,6 +12579,11 @@
         "long_text_truncate_at": 30,
         "truncation_suffix": "...",
         "inline_display_size": 3
+      },
+      "row_sample": {
+        "start": 10,
+        "middle": 10,
+        "end": 10
       }
     },
     "base_scan": {
@@ -13284,8 +12592,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
-      "config_sha256": "5f490a6561dea3108d67ef0b1456b615ee51392f9324bdf279cb7af1401a1287",
-      "facts_sha256": "1f4823962465a0e3f36a0568f84e9f883779626d512f018a6b6171aad45930d7"
+      "config_sha256": "ecac5a0214e9631f5ed199070d69e51cca9b05b3570f54e54528ee827630e87c",
+      "facts_sha256": "fa981d2fa6816ec68f45400ef8fac41628c883358c0bfa857aa004c5e95d9c81"
     },
     "datasets": [
       {
@@ -13304,7 +12612,6 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 1,
-          "with_issues_column_count": 6,
           "numeric_column_count": 3,
           "date_column_count": 1,
           "string_column_count": 10,
@@ -13354,7 +12661,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -13545,7 +12851,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -13794,7 +13099,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -13910,7 +13214,6 @@
             "type_error_percent": 0.0,
             "missing_count": 71,
             "missing_percent": 23.67,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14101,7 +13404,6 @@
             "type_error_percent": 0.0,
             "missing_count": 47,
             "missing_percent": 15.67,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14217,7 +13519,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14323,7 +13624,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14439,7 +13739,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14539,7 +13838,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14670,7 +13968,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14786,7 +14083,6 @@
             "type_error_percent": 0.0,
             "missing_count": 279,
             "missing_percent": 93.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -14982,7 +14278,6 @@
             "type_error_percent": 0.0,
             "missing_count": 279,
             "missing_percent": 93.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -15076,7 +14371,6 @@
             "type_error_percent": 0.0,
             "missing_count": 274,
             "missing_percent": 91.33,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -15182,7 +14476,6 @@
             "type_error_percent": 0.0,
             "missing_count": 270,
             "missing_percent": 90.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -15269,617 +14562,6 @@
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "excluded_records",
-            "severity": "warning",
-            "message": "Records excluded by the tolerant error policy, not analyzed",
-            "count": 3,
-            "column_ids": [],
-            "row_numbers": [
-              121,
-              201,
-              251
-            ]
-          },
-          {
-            "code": "missing_values",
-            "severity": "warning",
-            "message": "Missing cells",
-            "count": 1220,
-            "column_ids": [
-              "f5",
-              "f6",
-              "f14",
-              "f15",
-              "f16",
-              "f17"
-            ],
-            "row_numbers": [
-              1,
-              2,
-              3,
-              7,
-              11,
-              14,
-              15,
-              20,
-              24,
-              27
-            ]
-          },
-          {
-            "code": "trimmed_cells",
-            "severity": "info",
-            "message": "Cells changed by trimming surrounding whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "collapsed_whitespace",
-            "severity": "info",
-            "message": "Cells changed by collapsing repeated internal whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "constant_columns",
-            "severity": "info",
-            "message": "Columns with one distinct present value",
-            "count": 1,
-            "column_ids": [
-              "f15"
-            ],
-            "row_numbers": []
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": [
-              "evt-00001",
-              "2026-03-01T08:00:16Z",
-              "page_view",
-              "33",
-              "null",
-              "free",
-              "macOS",
-              "false",
-              "/login",
-              "newsletter, beta, promo",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 2,
-            "values": [
-              "evt-00002",
-              "2026-03-01T08:00:17Z",
-              "purchase",
-              "null",
-              "DE",
-              "free",
-              "Android",
-              "true",
-              "/checkout",
-              "mobile, beta",
-              "79.2",
-              "EUR",
-              null,
-              null
-            ],
-            "absent": [
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 3,
-            "values": [
-              "evt-00003",
-              "2026-03-01T08:01:03Z",
-              "click",
-              "33",
-              "null",
-              "free",
-              "Linux",
-              "true",
-              "/blog",
-              "beta, mobile",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 4,
-            "values": [
-              "evt-00004",
-              "2026-03-01T08:02:26Z",
-              "error",
-              "20",
-              "FR",
-              "team",
-              "Linux",
-              "true",
-              "/login",
-              null,
-              null,
-              null,
-              "500",
-              null
-            ],
-            "absent": [
-              9,
-              10,
-              11,
-              13
-            ]
-          },
-          {
-            "row_number": 5,
-            "values": [
-              "evt-00005",
-              "2026-03-01T08:03:41Z",
-              "click",
-              "8",
-              "US",
-              "team",
-              "iOS",
-              "false",
-              "/login",
-              "beta, newsletter",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 6,
-            "values": [
-              "evt-00006",
-              "2026-03-01T08:04:47Z",
-              "click",
-              "37",
-              "CA",
-              "free",
-              "Windows",
-              "false",
-              "/pricing",
-              "beta, mobile, newsletter",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 7,
-            "values": [
-              "evt-00007",
-              "2026-03-01T08:05:17Z",
-              "page_view",
-              "30",
-              "null",
-              "pro",
-              "iOS",
-              "true",
-              "/login",
-              "newsletter, beta",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 8,
-            "values": [
-              "evt-00008",
-              "2026-03-01T08:06:09Z",
-              "click",
-              "54",
-              "DE",
-              "free",
-              "Windows",
-              "true",
-              "/checkout",
-              "returning, mobile, beta",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 9,
-            "values": [
-              "evt-00009",
-              "2026-03-01T08:07:38Z",
-              "click",
-              "50",
-              "US",
-              "pro",
-              "iOS",
-              "false",
-              "/",
-              "returning, beta",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 10,
-            "values": [
-              "evt-00010",
-              "2026-03-01T08:07:51Z",
-              "click",
-              "51",
-              "BE",
-              "pro",
-              "Android",
-              "false",
-              "/docs",
-              "beta, promo, returning",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 11,
-            "values": [
-              "evt-00011",
-              "2026-03-01T08:08:26Z",
-              "click",
-              "13",
-              "null",
-              "pro",
-              "macOS",
-              "false",
-              "/",
-              null,
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              9,
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 12,
-            "values": [
-              "evt-00012",
-              "2026-03-01T08:08:27Z",
-              "click",
-              "60",
-              "FR",
-              "team",
-              "macOS",
-              "true",
-              "/",
-              "returning, mobile",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 13,
-            "values": [
-              "evt-00013",
-              "2026-03-01T08:08:28Z",
-              "page_view",
-              "37",
-              "US",
-              "team",
-              "macOS",
-              "false",
-              "/checkout",
-              "newsletter",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 14,
-            "values": [
-              "evt-00014",
-              "2026-03-01T08:09:57Z",
-              "click",
-              "27",
-              "null",
-              "free",
-              "macOS",
-              "false",
-              "/blog",
-              "beta, mobile, returning",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 15,
-            "values": [
-              "evt-00015",
-              "2026-03-01T08:10:23Z",
-              "click",
-              "null",
-              "FR",
-              "pro",
-              "Windows",
-              "true",
-              "/signup",
-              "promo, newsletter",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 16,
-            "values": [
-              "evt-00016",
-              "2026-03-01T08:11:29Z",
-              "click",
-              "20",
-              "US",
-              "pro",
-              "Windows",
-              "false",
-              "/checkout",
-              "mobile",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 17,
-            "values": [
-              "evt-00017",
-              "2026-03-01T08:12:45Z",
-              "click",
-              "40",
-              "DE",
-              "pro",
-              "iOS",
-              "true",
-              "/pricing",
-              "promo, mobile, returning",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 18,
-            "values": [
-              "evt-00018",
-              "2026-03-01T08:13:08Z",
-              "page_view",
-              "60",
-              "FR",
-              "pro",
-              "macOS",
-              "false",
-              "/",
-              "newsletter",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 19,
-            "values": [
-              "evt-00019",
-              "2026-03-01T08:13:36Z",
-              "click",
-              "9",
-              "CA",
-              "team",
-              "macOS",
-              "true",
-              "/login",
-              "promo, beta, mobile",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          },
-          {
-            "row_number": 20,
-            "values": [
-              "evt-00020",
-              "2026-03-01T08:14:00Z",
-              "page_view",
-              "null",
-              "US",
-              "pro",
-              "Android",
-              "true",
-              "/docs",
-              "newsletter, beta",
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              10,
-              11,
-              12,
-              13
-            ]
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": [
-            {
-              "code": "jsonl_invalid_line",
-              "level": "error",
-              "message": "Lines that are not valid JSON were excluded.",
-              "count": 2,
-              "dataset": "$[]",
-              "path": null,
-              "detector": null,
-              "locations": [
-                {
-                  "record": 121,
-                  "line": 121,
-                  "element": null
-                },
-                {
-                  "record": 251,
-                  "line": 251,
-                  "element": null
-                }
-              ]
-            },
-            {
-              "code": "jsonl_record_not_object",
-              "level": "error",
-              "message": "Lines holding valid JSON that is not an object were excluded: a record is a JSON object.",
-              "count": 1,
-              "dataset": "$[]",
-              "path": null,
-              "detector": null,
-              "locations": [
-                {
-                  "record": 201,
-                  "line": 201,
-                  "element": null
-                }
-              ]
-            }
-          ]
-        },
         "structure": {
           "record_types": {
             "object": 300

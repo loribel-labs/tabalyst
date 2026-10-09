@@ -29,6 +29,7 @@ from pydantic import (
 from tabalyst.errors import ConfigurationError
 
 KEPT_PER_COLUMN_MAX = 1000
+ROW_SAMPLE_GROUP_MAX = 1000
 
 
 class CsvConfig(BaseModel):
@@ -106,6 +107,19 @@ class StringAnalysisConfig(BaseModel):
         return self
 
 
+class RowSampleSettings(BaseModel):
+    """Rows of the scan's row sample that the report keeps and shows: the first
+    ``start`` rows, the ``middle`` rows of the interior with the smallest
+    priorities (an exact subset of the scan's) and the last ``end`` rows. At
+    most what the scan kept; presentation, so it never changes the scan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start: int = Field(default=10, ge=0, le=ROW_SAMPLE_GROUP_MAX)
+    middle: int = Field(default=10, ge=0, le=ROW_SAMPLE_GROUP_MAX)
+    end: int = Field(default=10, ge=0, le=ROW_SAMPLE_GROUP_MAX)
+
+
 class PresentationSettings(BaseModel):
     """Report presentation settings: the ``report`` object of configuration
     files."""
@@ -116,6 +130,7 @@ class PresentationSettings(BaseModel):
     value_examples: ValueExamplesSettings = Field(
         default_factory=ValueExamplesSettings
     )
+    row_sample: RowSampleSettings = Field(default_factory=RowSampleSettings)
 
 
 class OutputSettings(BaseModel):
@@ -143,7 +158,9 @@ class SettingsFile(BaseModel):
 
 # Settings that moved, with their new location. The analysis settings moved to
 # the ``scan`` object when the report moved onto Tabalyst Scan (profile revision
-# 3; ``preview_rows`` in revision 5, when the preview became part of the scan);
+# 3; ``preview_rows`` in revision 5, when the preview became part of the scan,
+# then lot 5 of the Scan and JSON work, when the first records became the start
+# of the row sample);
 # the presentation settings moved to the ``report`` object (revision 2 of the
 # report document). Specific paths come first: the first match is reported.
 MOVED_SETTINGS: dict[tuple[str, ...], str] = {
@@ -154,7 +171,7 @@ MOVED_SETTINGS: dict[tuple[str, ...], str] = {
     ("enum_detection",): "scan.detectors.enumeration",
     ("value_examples", "candidate_sample_size"): "scan.limits.max_samples",
     ("value_examples", "random_seed"): "scan.random_seed",
-    ("preview_rows",): "scan.records.preview",
+    ("preview_rows",): "scan.records.sample.edge and report.row_sample",
     ("string_analysis",): "report.string_analysis",
     ("value_examples",): "report.value_examples",
 }

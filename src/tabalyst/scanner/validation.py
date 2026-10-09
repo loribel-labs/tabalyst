@@ -99,8 +99,6 @@ def _check_dataset(
         block = getattr(records, name)
         if len(block.records) > block.count:
             problems.append(f"{where}.records.{name}: lists more records than counted")
-    if len(records.preview) > result.config.records.preview:
-        problems.append(f"{where}.records.preview: longer than records.preview")
     _check_row_sample(dataset, result, where, problems)
     for field in dataset.fields:
         _check_field(field, f"{where}.fields[{field.id}]", result, problems)
@@ -195,14 +193,22 @@ def _check_rows(
     ends = sum("end" in row.origins for row in sample.rows)
     if starts > edge or ends > edge or len(middle) > sample.middle_k:
         problems.append(f"{where}.rows: more rows than a group may hold")
-    if sample.truncated_cells != sum(len(row.truncated) for row in sample.rows):
+    cut = sum(len(row.truncated) for row in sample.rows)
+    reduced = sample.kept < sample.of
+    if cut > sample.truncated_cells or (cut != sample.truncated_cells and not reduced):
         problems.append(f"{where}.truncated_cells: must count the cut cells")
     if middle:
         priority = RowPriority(sample.hash.seed)
         worst = max(priority.at(index) for index in middle)
-        if sample.threshold is not None and int(sample.threshold, 16) != worst:
-            problems.append(f"{where}.threshold: must be the largest middle priority")
-    elif sample.threshold is not None:
+        if sample.threshold is not None:
+            written = int(sample.threshold, 16)
+            # A Report keeps the smallest priorities of the middle (design
+            # 19.4): its largest is at most the threshold of the Scan.
+            if written < worst or (written != worst and not reduced):
+                problems.append(
+                    f"{where}.threshold: must be the largest middle priority"
+                )
+    elif sample.threshold is not None and not reduced:
         problems.append(f"{where}.threshold: a sample without middle rows has none")
 
 

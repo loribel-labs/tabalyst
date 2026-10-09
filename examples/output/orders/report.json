@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T20:17:32.158660Z",
-    "duration_seconds": 0.029261,
+    "started_at": "2026-10-08T22:20:00.971897Z",
+    "duration_seconds": 0.028667,
     "timings": {
-      "reading": 0.012419,
-      "analysis": 0.003412,
-      "finalize": 0.010462,
-      "derived": 0.002571,
-      "other": 0.000398
+      "reading": 0.011881,
+      "analysis": 0.003251,
+      "finalize": 0.010726,
+      "derived": 0.002398,
+      "other": 0.000411
     },
     "workers": 1,
-    "peak_memory_bytes": 53280768
+    "peak_memory_bytes": 53329920
   },
   "source": {
     "format": "json",
@@ -127,7 +127,6 @@
       "max_listed_records": 10
     },
     "records": {
-      "preview": 20,
       "duplicates": true,
       "sample": {
         "rows": 1000,
@@ -286,7 +285,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "c45f2435a94d1b21a3d6dc0ae0c63c9c8657652a2ef1338378098df010a7dd94",
+  "config_sha256": "41457814799ce6b722db24877dce5fcf15d6022128f7c0bf6de8edd10a43f7f1",
   "scope": {
     "collections": {
       "mode": "explicit",
@@ -351,1170 +350,6 @@
           },
           "records": []
         },
-        "preview": [
-          {
-            "record": 1,
-            "values": {
-              "f1": [
-                "C0001"
-              ],
-              "f2": [
-                "Tania Robert"
-              ],
-              "f3": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lyon"
-              ],
-              "f7": [
-                "69003"
-              ],
-              "f8": [
-                "2025-03-04"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "returning"
-              ]
-            }
-          },
-          {
-            "record": 2,
-            "values": {
-              "f1": [
-                "C0002"
-              ],
-              "f2": [
-                "Samir Thomas"
-              ],
-              "f6": [
-                "Nantes"
-              ],
-              "f7": [
-                "44000"
-              ],
-              "f8": [
-                "2025-07-06"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "returning",
-                "newsletter"
-              ],
-              "f14": [
-                "O0002-1"
-              ],
-              "f15": [
-                "2026-01-07"
-              ],
-              "f16": [
-                "delivered"
-              ],
-              "f19": [
-                "Desk lamp"
-              ],
-              "f20": [
-                "1"
-              ],
-              "f21": [
-                "29.9"
-              ],
-              "f22": [
-                "29.9"
-              ],
-              "f23": [
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 3,
-            "values": {
-              "f1": [
-                "C0003"
-              ],
-              "f2": [
-                "Farid Dubois"
-              ],
-              "f3": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lyon"
-              ],
-              "f7": [
-                "69003"
-              ],
-              "f8": [
-                "2025-12-07"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "vip"
-              ],
-              "f14": [
-                "O0003-1",
-                "O0003-2"
-              ],
-              "f15": [
-                "2026-03-09",
-                "2026-01-20"
-              ],
-              "f16": [
-                "delivered",
-                "delivered"
-              ],
-              "f19": [
-                "Headphones",
-                "Backpack"
-              ],
-              "f20": [
-                "1",
-                "2"
-              ],
-              "f21": [
-                "89.0",
-                "54.0"
-              ],
-              "f22": [
-                "89.0",
-                "108.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 4,
-            "values": {
-              "f1": [
-                "C0004"
-              ],
-              "f2": [
-                "Chloé Robert"
-              ],
-              "f3": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-01-09"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "student",
-                "newsletter"
-              ]
-            }
-          },
-          {
-            "record": 5,
-            "values": {
-              "f1": [
-                "C0005"
-              ],
-              "f2": [
-                "Rose Petit"
-              ],
-              "f3": [
-                "aaaa.aaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Bordeaux"
-              ],
-              "f7": [
-                "33000"
-              ],
-              "f8": [
-                "2025-04-04"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "student"
-              ],
-              "f14": [
-                "O0005-1",
-                "O0005-2",
-                "O0005-3",
-                "O0005-4"
-              ],
-              "f15": [
-                "2026-05-25",
-                "2026-06-28",
-                "2026-02-07",
-                "2026-06-05"
-              ],
-              "f16": [
-                "shipped",
-                "delivered",
-                "delivered",
-                "delivered"
-              ],
-              "f19": [
-                "Backpack",
-                "Notebook",
-                "Notebook",
-                "Mug"
-              ],
-              "f20": [
-                "3",
-                "3",
-                "2",
-                "3"
-              ],
-              "f21": [
-                "54.0",
-                "4.5",
-                "4.5",
-                "8.0"
-              ],
-              "f22": [
-                "162.0",
-                "13.5",
-                "9.0",
-                "24.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 6,
-            "values": {
-              "f1": [
-                "C0006"
-              ],
-              "f2": [
-                "Inès Laurent"
-              ],
-              "f3": [
-                "aaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Toulouse"
-              ],
-              "f8": [
-                "2025-12-10"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f14": [
-                "O0006-1",
-                "O0006-2",
-                "O0006-3",
-                "O0006-4"
-              ],
-              "f15": [
-                "2026-01-08",
-                "2026-07-05",
-                "2026-06-27",
-                "2026-03-21"
-              ],
-              "f16": [
-                "cancelled",
-                "delivered",
-                "delivered",
-                "shipped"
-              ],
-              "f19": [
-                "Mug",
-                "Backpack",
-                "Notebook",
-                "Desk lamp"
-              ],
-              "f20": [
-                "2",
-                "2",
-                "2",
-                "3"
-              ],
-              "f21": [
-                "8.0",
-                "54.0",
-                "4.5",
-                "29.9"
-              ],
-              "f22": [
-                "16.0",
-                "108.0",
-                "9.0",
-                "89.7"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 7,
-            "values": {
-              "f1": [
-                "C0007"
-              ],
-              "f2": [
-                "David Dubois"
-              ],
-              "f3": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-08-20"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "newsletter"
-              ],
-              "f14": [
-                "O0007-1",
-                "O0007-2"
-              ],
-              "f15": [
-                "2026-05-16",
-                "2026-07-27"
-              ],
-              "f16": [
-                "shipped",
-                "cancelled"
-              ],
-              "f19": [
-                "Headphones",
-                "Desk lamp"
-              ],
-              "f20": [
-                "2",
-                "1"
-              ],
-              "f21": [
-                "89.0",
-                "29.9"
-              ],
-              "f22": [
-                "178.0",
-                null
-              ],
-              "f23": [
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 8,
-            "values": {
-              "f1": [
-                "C0008"
-              ],
-              "f2": [
-                "Ugo Durand"
-              ],
-              "f3": [
-                "aaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-09-28"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "returning"
-              ]
-            }
-          },
-          {
-            "record": 9,
-            "values": {
-              "f1": [
-                "C0009"
-              ],
-              "f2": [
-                "Jules Richard"
-              ],
-              "f3": [
-                "aaaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Nantes"
-              ],
-              "f7": [
-                "44000"
-              ],
-              "f8": [
-                "2025-10-28"
-              ],
-              "f9": [
-                null
-              ],
-              "f11": [
-                "student",
-                "returning"
-              ],
-              "f14": [
-                "O0009-1",
-                "O0009-2"
-              ],
-              "f15": [
-                "2026-06-12",
-                "2026-07-12"
-              ],
-              "f16": [
-                "delivered",
-                "delivered"
-              ],
-              "f19": [
-                "Headphones",
-                "Backpack"
-              ],
-              "f20": [
-                "2",
-                "3"
-              ],
-              "f21": [
-                "89.0",
-                "54.0"
-              ],
-              "f22": [
-                "178.0",
-                "162.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 10,
-            "values": {
-              "f1": [
-                "C0010"
-              ],
-              "f2": [
-                "William Durand"
-              ],
-              "f3": [
-                "aaaaaaa.aaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lyon"
-              ],
-              "f7": [
-                "69003"
-              ],
-              "f8": [
-                "2025-08-10"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "newsletter",
-                "b2b"
-              ],
-              "f14": [
-                "O0010-1",
-                "O0010-2",
-                "O0010-3",
-                "O0010-4"
-              ],
-              "f15": [
-                "2026-07-10",
-                "2026-01-07",
-                "2026-03-08",
-                "2026-04-06"
-              ],
-              "f16": [
-                "cancelled",
-                "delivered",
-                "delivered",
-                "delivered"
-              ],
-              "f19": [
-                "Mug",
-                "Backpack",
-                "Mug",
-                "Notebook"
-              ],
-              "f20": [
-                "3",
-                "3",
-                "2",
-                "2"
-              ],
-              "f21": [
-                "8.0",
-                "54.0",
-                "8.0",
-                "4.5"
-              ],
-              "f22": [
-                null,
-                "162.0",
-                "16.0",
-                "9.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 11,
-            "values": {
-              "f1": [
-                "C0011"
-              ],
-              "f2": [
-                "Emma Bernard"
-              ],
-              "f3": [
-                "aaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f6": [
-                "Lyon"
-              ],
-              "f7": [
-                "69003"
-              ],
-              "f8": [
-                "2025-07-15"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f14": [
-                "O0011-1"
-              ],
-              "f15": [
-                "2026-06-13"
-              ],
-              "f16": [
-                "delivered"
-              ],
-              "f19": [
-                "Backpack"
-              ],
-              "f20": [
-                "1"
-              ],
-              "f21": [
-                "54.0"
-              ],
-              "f22": [
-                "54.0"
-              ],
-              "f23": [
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 12,
-            "values": {
-              "f1": [
-                "C0012"
-              ],
-              "f2": [
-                "Nadia Bernard"
-              ],
-              "f3": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Paris"
-              ],
-              "f7": [
-                "75011"
-              ],
-              "f8": [
-                "2025-09-11"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "b2b"
-              ],
-              "f14": [
-                "O0012-1",
-                "O0012-2",
-                "O0012-3"
-              ],
-              "f15": [
-                "2026-06-15",
-                "2026-07-19",
-                "2026-02-12"
-              ],
-              "f16": [
-                "delivered",
-                "shipped",
-                "delivered"
-              ],
-              "f19": [
-                "Headphones",
-                "Desk lamp",
-                "Desk lamp"
-              ],
-              "f20": [
-                "3",
-                "3",
-                "1"
-              ],
-              "f21": [
-                "89.0",
-                "29.9",
-                "29.9"
-              ],
-              "f22": [
-                "267.0",
-                "89.7",
-                "29.9"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 13,
-            "values": {
-              "f1": [
-                "C0013"
-              ],
-              "f2": [
-                "Marc Bernard"
-              ],
-              "f3": [
-                "aaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Bordeaux"
-              ],
-              "f7": [
-                "33000"
-              ],
-              "f8": [
-                "2025-07-08"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "newsletter",
-                "returning"
-              ],
-              "f14": [
-                "O0013-1"
-              ],
-              "f15": [
-                "2026-05-24"
-              ],
-              "f16": [
-                "delivered"
-              ],
-              "f19": [
-                "Mug"
-              ],
-              "f20": [
-                "3"
-              ],
-              "f21": [
-                "8.0"
-              ],
-              "f22": [
-                "24.0"
-              ],
-              "f23": [
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 14,
-            "values": {
-              "f1": [
-                "C0014"
-              ],
-              "f2": [
-                "Pauline Robert"
-              ],
-              "f3": [
-                "aaaaaaa.aaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f8": [
-                "2025-11-20"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f14": [
-                "O0014-1",
-                "O0014-2",
-                "O0014-3"
-              ],
-              "f15": [
-                "2026-05-08",
-                "2026-08-09",
-                "2026-08-20"
-              ],
-              "f16": [
-                "shipped",
-                "delivered",
-                "shipped"
-              ],
-              "f19": [
-                "Notebook",
-                "Notebook",
-                "Backpack"
-              ],
-              "f20": [
-                "2",
-                "1",
-                "2"
-              ],
-              "f21": [
-                "4.5",
-                "4.5",
-                "54.0"
-              ],
-              "f22": [
-                "9.0",
-                "4.5",
-                "108.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 15,
-            "values": {
-              "f1": [
-                "C0015"
-              ],
-              "f2": [
-                "Quentin Simon"
-              ],
-              "f3": [
-                "aaaaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Nantes"
-              ],
-              "f7": [
-                "44000"
-              ],
-              "f8": [
-                "2025-06-20"
-              ],
-              "f9": [
-                "true"
-              ],
-              "f11": [
-                "student"
-              ],
-              "f14": [
-                "O0015-1",
-                "O0015-2"
-              ],
-              "f15": [
-                "2026-01-01",
-                "2026-02-22"
-              ],
-              "f16": [
-                "delivered",
-                "cancelled"
-              ],
-              "f19": [
-                "Mug",
-                "Mug"
-              ],
-              "f20": [
-                "1",
-                "2"
-              ],
-              "f21": [
-                "8.0",
-                "8.0"
-              ],
-              "f22": [
-                "8.0",
-                "16.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 16,
-            "values": {
-              "f1": [
-                "C0016"
-              ],
-              "f2": [
-                "Nadia Petit"
-              ],
-              "f3": [
-                "aaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-12-07"
-              ],
-              "f9": [
-                "false"
-              ]
-            }
-          },
-          {
-            "record": 17,
-            "values": {
-              "f1": [
-                "C0017"
-              ],
-              "f2": [
-                "William Petit"
-              ],
-              "f3": [
-                "aaaaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-08-11"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "vip",
-                "returning"
-              ],
-              "f14": [
-                "O0017-1"
-              ],
-              "f15": [
-                "2026-02-22"
-              ],
-              "f16": [
-                "delivered"
-              ],
-              "f19": [
-                "Backpack"
-              ],
-              "f20": [
-                "1"
-              ],
-              "f21": [
-                "54.0"
-              ],
-              "f22": [
-                "54.0"
-              ],
-              "f23": [
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 18,
-            "values": {
-              "f1": [
-                "C0018"
-              ],
-              "f2": [
-                "Karim Laurent"
-              ],
-              "f3": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f6": [
-                "Lille"
-              ],
-              "f7": [
-                "59000"
-              ],
-              "f8": [
-                "2025-01-04"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "vip",
-                "b2b"
-              ],
-              "f14": [
-                "O0018-1",
-                "O0018-2"
-              ],
-              "f15": [
-                "2026-03-20",
-                "2026-02-20"
-              ],
-              "f16": [
-                "delivered",
-                "delivered"
-              ],
-              "f19": [
-                "Headphones",
-                "Headphones"
-              ],
-              "f20": [
-                "1",
-                "1"
-              ],
-              "f21": [
-                "89.0",
-                "89.0"
-              ],
-              "f22": [
-                "89.0",
-                "89.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 19,
-            "values": {
-              "f1": [
-                "C0019"
-              ],
-              "f2": [
-                "Bruno Leroy"
-              ],
-              "f3": [
-                "aaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Bordeaux"
-              ],
-              "f8": [
-                "2025-07-20"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f11": [
-                "returning"
-              ],
-              "f14": [
-                "O0019-1",
-                "O0019-2",
-                "O0019-3"
-              ],
-              "f15": [
-                "2026-06-02",
-                "2026-05-18",
-                "2026-04-09"
-              ],
-              "f16": [
-                "delivered",
-                "cancelled",
-                "delivered"
-              ],
-              "f19": [
-                "Headphones",
-                "Backpack",
-                "Backpack"
-              ],
-              "f20": [
-                "2",
-                "1",
-                "1"
-              ],
-              "f21": [
-                "89.0",
-                "54.0",
-                "54.0"
-              ],
-              "f22": [
-                "178.0",
-                null,
-                "54.0"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          },
-          {
-            "record": 20,
-            "values": {
-              "f1": [
-                "C0020"
-              ],
-              "f2": [
-                "Quentin Dubois"
-              ],
-              "f3": [
-                "aaaaaaa.aaaaaa99@aaaa.aaaaaaa"
-              ],
-              "f4": [
-                "+99 9 99 99 99 99"
-              ],
-              "f6": [
-                "Toulouse"
-              ],
-              "f8": [
-                "2025-06-03"
-              ],
-              "f9": [
-                "false"
-              ],
-              "f14": [
-                "O0020-1",
-                "O0020-2",
-                "O0020-3"
-              ],
-              "f15": [
-                "2026-08-16",
-                "2026-01-18",
-                "2026-07-22"
-              ],
-              "f16": [
-                "delivered",
-                "shipped",
-                "delivered"
-              ],
-              "f19": [
-                "Desk lamp",
-                "Notebook",
-                "Notebook"
-              ],
-              "f20": [
-                "2",
-                "3",
-                "1"
-              ],
-              "f21": [
-                "29.9",
-                "4.5",
-                "4.5"
-              ],
-              "f22": [
-                "59.8",
-                "13.5",
-                "4.5"
-              ],
-              "f23": [
-                "EUR",
-                "EUR",
-                "EUR"
-              ]
-            }
-          }
-        ],
         "sample": {
           "selection": "start_middle_end",
           "hash": {
@@ -1559,9 +394,30 @@
           "truncated_cells": 0,
           "bytes": 378917,
           "max_bytes": 16777216,
-          "kept": 0,
+          "kept": 20,
           "of": 60,
-          "rows": []
+          "rows": [
+            {"record": 1, "origins": ["start"], "values": {"f1": ["C0001"], "f2": ["Tania Robert"], "f3": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-03-04"], "f9": ["true"], "f11": ["returning"]}},
+            {"record": 2, "origins": ["start"], "values": {"f1": ["C0002"], "f2": ["Samir Thomas"], "f6": ["Nantes"], "f7": ["44000"], "f8": ["2025-07-06"], "f9": ["false"], "f11": ["returning", "newsletter"], "f14": ["O0002-1"], "f15": ["2026-01-07"], "f16": ["delivered"], "f19": ["Desk lamp"], "f20": ["1"], "f21": ["29.9"], "f22": ["29.9"], "f23": ["EUR"]}},
+            {"record": 3, "origins": ["start"], "values": {"f1": ["C0003"], "f2": ["Farid Dubois"], "f3": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-12-07"], "f9": ["true"], "f11": ["vip"], "f14": ["O0003-1", "O0003-2"], "f15": ["2026-03-09", "2026-01-20"], "f16": ["delivered", "delivered"], "f19": ["Headphones", "Backpack"], "f20": ["1", "2"], "f21": ["89.0", "54.0"], "f22": ["89.0", "108.0"], "f23": ["EUR", "EUR"]}},
+            {"record": 4, "origins": ["start"], "values": {"f1": ["C0004"], "f2": ["Chloé Robert"], "f3": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lille"], "f7": ["59000"], "f8": ["2025-01-09"], "f9": ["false"], "f11": ["student", "newsletter"]}},
+            {"record": 5, "origins": ["start"], "values": {"f1": ["C0005"], "f2": ["Rose Petit"], "f3": ["aaaa.aaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Bordeaux"], "f7": ["33000"], "f8": ["2025-04-04"], "f9": ["true"], "f11": ["student"], "f14": ["O0005-1", "O0005-2", "O0005-3", "O0005-4"], "f15": ["2026-05-25", "2026-06-28", "2026-02-07", "2026-06-05"], "f16": ["shipped", "delivered", "delivered", "delivered"], "f19": ["Backpack", "Notebook", "Notebook", "Mug"], "f20": ["3", "3", "2", "3"], "f21": ["54.0", "4.5", "4.5", "8.0"], "f22": ["162.0", "13.5", "9.0", "24.0"], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 6, "origins": ["start"], "values": {"f1": ["C0006"], "f2": ["Inès Laurent"], "f3": ["aaaa.aaaaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Toulouse"], "f8": ["2025-12-10"], "f9": ["false"], "f14": ["O0006-1", "O0006-2", "O0006-3", "O0006-4"], "f15": ["2026-01-08", "2026-07-05", "2026-06-27", "2026-03-21"], "f16": ["cancelled", "delivered", "delivered", "shipped"], "f19": ["Mug", "Backpack", "Notebook", "Desk lamp"], "f20": ["2", "2", "2", "3"], "f21": ["8.0", "54.0", "4.5", "29.9"], "f22": ["16.0", "108.0", "9.0", "89.7"], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 7, "origins": ["start"], "values": {"f1": ["C0007"], "f2": ["David Dubois"], "f3": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "f6": ["Lille"], "f7": ["59000"], "f8": ["2025-08-20"], "f9": ["true"], "f11": ["newsletter"], "f14": ["O0007-1", "O0007-2"], "f15": ["2026-05-16", "2026-07-27"], "f16": ["shipped", "cancelled"], "f19": ["Headphones", "Desk lamp"], "f20": ["2", "1"], "f21": ["89.0", "29.9"], "f22": ["178.0", null], "f23": ["EUR", "EUR"]}},
+            {"record": 8, "origins": ["start"], "values": {"f1": ["C0008"], "f2": ["Ugo Durand"], "f3": ["aaa.aaaaaa9@aaaa.aaaaaaa"], "f6": ["Lille"], "f7": ["59000"], "f8": ["2025-09-28"], "f9": ["false"], "f11": ["returning"]}},
+            {"record": 9, "origins": ["start"], "values": {"f1": ["C0009"], "f2": ["Jules Richard"], "f3": ["aaaaa.aaaaaaa9@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Nantes"], "f7": ["44000"], "f8": ["2025-10-28"], "f9": [null], "f11": ["student", "returning"], "f14": ["O0009-1", "O0009-2"], "f15": ["2026-06-12", "2026-07-12"], "f16": ["delivered", "delivered"], "f19": ["Headphones", "Backpack"], "f20": ["2", "3"], "f21": ["89.0", "54.0"], "f22": ["178.0", "162.0"], "f23": ["EUR", "EUR"]}},
+            {"record": 10, "origins": ["start"], "values": {"f1": ["C0010"], "f2": ["William Durand"], "f3": ["aaaaaaa.aaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-08-10"], "f9": ["true"], "f11": ["newsletter", "b2b"], "f14": ["O0010-1", "O0010-2", "O0010-3", "O0010-4"], "f15": ["2026-07-10", "2026-01-07", "2026-03-08", "2026-04-06"], "f16": ["cancelled", "delivered", "delivered", "delivered"], "f19": ["Mug", "Backpack", "Mug", "Notebook"], "f20": ["3", "3", "2", "2"], "f21": ["8.0", "54.0", "8.0", "4.5"], "f22": [null, "162.0", "16.0", "9.0"], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 51, "origins": ["end"], "values": {"f1": ["C0051"], "f2": ["Jules Robert"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lille"], "f7": ["59000"], "f8": ["2025-04-09"], "f9": ["true"], "f11": ["vip"], "f14": ["O0051-1"], "f15": ["2026-07-15"], "f16": ["cancelled"], "f19": ["Backpack"], "f20": ["1"], "f21": ["54.0"], "f22": [null], "f23": ["EUR"]}},
+            {"record": 52, "origins": ["end"], "values": {"f1": ["C0052"], "f2": ["Marc Dubois"], "f3": ["aaaa.aaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Bordeaux"], "f7": ["33000"], "f8": ["2025-01-05"], "f9": ["true"], "f11": ["returning", "b2b"], "f14": ["O0052-1", "O0052-2", "O0052-3", "O0052-4"], "f15": ["2026-03-14", "2026-02-07", "2026-05-16", "2026-02-11"], "f16": ["cancelled", "delivered", "delivered", "delivered"], "f19": ["Desk lamp", "Backpack", "Headphones", "Notebook"], "f20": ["3", "2", "2", "3"], "f21": ["29.9", "54.0", "89.0", "4.5"], "f22": [null, "108.0", "178.0", "13.5"], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 53, "origins": ["end"], "values": {"f1": ["C0053"], "f2": ["David Simon"], "f3": ["aaaaa.aaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-12-25"], "f9": ["false"], "f11": ["vip"], "f14": ["O0053-1", "O0053-2"], "f15": ["2026-06-14", "2026-05-03"], "f16": ["shipped", "delivered"], "f19": ["Notebook", "Notebook"], "f20": ["2", "1"], "f21": ["4.5", "4.5"], "f22": ["9.0", "4.5"], "f23": ["EUR", "EUR"]}},
+            {"record": 54, "origins": ["end"], "values": {"f1": ["C0054"], "f2": ["Bruno Bernard"], "f3": ["aaaaa.aaaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lille"], "f8": ["2025-07-01"], "f9": ["true"], "f11": ["vip", "student"], "f14": ["O0054-1", "O0054-2"], "f15": ["2026-07-04", "2026-02-03"], "f16": ["delivered", "cancelled"], "f19": ["Notebook", "Desk lamp"], "f20": ["2", "1"], "f21": ["4.5", "29.9"], "f22": ["9.0", "29.9"], "f23": ["EUR", "EUR"]}},
+            {"record": 55, "origins": ["end"], "values": {"f1": ["C0055"], "f2": ["David Robert"], "f3": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-11-06"], "f9": ["false"], "f11": ["returning", "vip"], "f14": ["O0055-1"], "f15": ["2026-08-10"], "f16": ["shipped"], "f19": ["Backpack"], "f20": ["1"], "f21": ["54.0"], "f22": ["54.0"], "f23": ["EUR"]}},
+            {"record": 56, "origins": ["end"], "values": {"f1": ["C0056"], "f2": ["Rose Moreau"], "f3": ["aaaa.aaaaaa99@aaaa.aaaaaaa"], "f6": ["Lyon"], "f7": ["69003"], "f8": ["2025-05-15"], "f9": ["true"], "f11": ["vip", "b2b"], "f14": ["O0056-1", "O0056-2", "O0056-3", "O0056-4"], "f15": ["2026-02-15", "2026-03-21", "2026-08-28", "2026-05-19"], "f16": ["delivered", "delivered", "delivered", "delivered"], "f19": ["Desk lamp", "Desk lamp", "Headphones", "Headphones"], "f20": ["2", "1", "2", "1"], "f21": ["29.9", "29.9", "89.0", "89.0"], "f22": ["59.8", "29.9", "178.0", "89.0"], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 57, "origins": ["end"], "values": {"f1": ["C0057"], "f2": ["Ugo Richard"], "f3": ["aaa.aaaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Nantes"], "f7": ["44000"], "f8": ["2025-08-21"], "f9": ["true"], "f11": ["returning", "student"], "f14": ["O0057-1", "O0057-2", "O0057-3", "O0057-4"], "f15": ["2026-05-05", "2026-03-10", "2026-08-06", "2026-05-14"], "f16": ["cancelled", "delivered", "delivered", "cancelled"], "f19": ["Backpack", "Headphones", "Notebook", "Headphones"], "f20": ["1", "2", "1", "3"], "f21": ["54.0", "89.0", "4.5", "89.0"], "f22": ["54.0", "178.0", "4.5", null], "f23": ["EUR", "EUR", "EUR", "EUR"]}},
+            {"record": 58, "origins": ["end"], "values": {"f1": ["C0058"], "f2": ["Karim Laurent"], "f3": ["aaaaa.aaaaaaa99@aaaa.aaaaaaa"], "f4": ["+99 9 99 99 99 99"], "f6": ["Bordeaux"], "f7": ["33000"], "f8": ["2025-01-18"], "f9": ["true"], "f11": ["vip"], "f14": ["O0058-1"], "f15": ["2026-08-04"], "f16": ["delivered"], "f19": ["Mug"], "f20": ["1"], "f21": ["8.0"], "f22": ["8.0"], "f23": ["EUR"]}},
+            {"record": 59, "origins": ["end"], "values": {"f1": ["C0059"], "f2": ["Farid Dubois"], "f3": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "f6": ["Lille"], "f7": ["59000"], "f8": ["2025-07-14"], "f9": ["false"], "f11": ["vip"], "f14": ["O0059-1"], "f15": ["2026-02-24"], "f16": ["cancelled"], "f19": ["Desk lamp"], "f20": ["3"], "f21": ["29.9"], "f22": ["89.7"], "f23": ["EUR"]}},
+            {"record": 60, "origins": ["end"], "values": {"f1": ["C0060"], "f2": ["Samir Robert"], "f3": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "f6": ["Bordeaux"], "f7": ["33000"], "f8": ["2025-08-26"], "f9": ["false"], "f11": ["returning"]}}
+          ]
         }
       },
       "fields": [
@@ -17521,12 +16377,12 @@
     ]
   },
   "report": {
-    "generated_at": "2026-10-08T20:17:32.283530Z",
+    "generated_at": "2026-10-08T22:25:50.680585Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1654,
+    "processing_seconds": 0.1195,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -17546,6 +16402,11 @@
         "long_text_truncate_at": 30,
         "truncation_suffix": "...",
         "inline_display_size": 3
+      },
+      "row_sample": {
+        "start": 10,
+        "middle": 10,
+        "end": 10
       }
     },
     "base_scan": {
@@ -17554,8 +16415,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
-      "config_sha256": "c45f2435a94d1b21a3d6dc0ae0c63c9c8657652a2ef1338378098df010a7dd94",
-      "facts_sha256": "09703a651fdf3d3ef3b989edc2b924c54c719f794e84c77e1596c8a6cb1e38c9"
+      "config_sha256": "41457814799ce6b722db24877dce5fcf15d6022128f7c0bf6de8edd10a43f7f1",
+      "facts_sha256": "dde15f42864b24f9ee85147f59053fe3bee59a23ca656f096a5b564f3fd7bf5c"
     },
     "datasets": [
       {
@@ -17574,7 +16435,6 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 1,
-          "with_issues_column_count": 5,
           "numeric_column_count": 4,
           "date_column_count": 2,
           "string_column_count": 10,
@@ -17630,7 +16490,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -17821,7 +16680,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18012,7 +16870,6 @@
             "type_error_percent": 0.0,
             "missing_count": 4,
             "missing_percent": 6.67,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18236,7 +17093,6 @@
             "type_error_percent": 0.0,
             "missing_count": 20,
             "missing_percent": 33.33,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18374,7 +17230,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18495,7 +17350,6 @@
             "type_error_percent": 0.0,
             "missing_count": 9,
             "missing_percent": 15.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18711,7 +17565,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -18960,7 +17813,6 @@
             "type_error_percent": 0.0,
             "missing_count": 4,
             "missing_percent": 6.67,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19060,7 +17912,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19176,7 +18027,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19367,7 +18217,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19616,7 +18465,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19722,7 +18570,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19838,7 +18685,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -19944,7 +18790,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -20060,7 +18905,6 @@
             "type_error_percent": 0.0,
             "missing_count": 11,
             "missing_percent": 9.24,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -20226,7 +19070,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -20307,586 +19150,6 @@
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "missing_values",
-            "severity": "warning",
-            "message": "Missing cells",
-            "count": 48,
-            "column_ids": [
-              "f3",
-              "f4",
-              "f7",
-              "f9",
-              "f22"
-            ],
-            "row_numbers": [
-              7,
-              9,
-              10,
-              19,
-              25,
-              30,
-              33,
-              36,
-              39,
-              45
-            ]
-          },
-          {
-            "code": "trimmed_cells",
-            "severity": "info",
-            "message": "Cells changed by trimming surrounding whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "collapsed_whitespace",
-            "severity": "info",
-            "message": "Cells changed by collapsing repeated internal whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "constant_columns",
-            "severity": "info",
-            "message": "Columns with one distinct present value",
-            "count": 1,
-            "column_ids": [
-              "f23"
-            ],
-            "row_numbers": []
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": [
-              "C0001",
-              "Tania Robert",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lyon",
-              "69003",
-              "2025-03-04",
-              "true",
-              "returning",
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ]
-          },
-          {
-            "row_number": 2,
-            "values": [
-              "C0002",
-              "Samir Thomas",
-              null,
-              null,
-              "Nantes",
-              "44000",
-              "2025-07-06",
-              "false",
-              "returning, newsletter",
-              "O0002-1",
-              "2026-01-07",
-              "delivered",
-              "Desk lamp",
-              "1",
-              "29.9",
-              "29.9",
-              "EUR"
-            ],
-            "absent": [
-              2,
-              3
-            ]
-          },
-          {
-            "row_number": 3,
-            "values": [
-              "C0003",
-              "Farid Dubois",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lyon",
-              "69003",
-              "2025-12-07",
-              "true",
-              "vip",
-              "O0003-1, O0003-2",
-              "2026-03-09, 2026-01-20",
-              "delivered, delivered",
-              "Headphones, Backpack",
-              "1, 2",
-              "89.0, 54.0",
-              "89.0, 108.0",
-              "EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 4,
-            "values": [
-              "C0004",
-              "Chloé Robert",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lille",
-              "59000",
-              "2025-01-09",
-              "false",
-              "student, newsletter",
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ]
-          },
-          {
-            "row_number": 5,
-            "values": [
-              "C0005",
-              "Rose Petit",
-              "aaaa.aaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Bordeaux",
-              "33000",
-              "2025-04-04",
-              "true",
-              "student",
-              "O0005-1, O0005-2, O0005-3, O0005-4",
-              "2026-05-25, 2026-06-28, 2026-02-07, 2026-06-05",
-              "shipped, delivered, delivered, delivered",
-              "Backpack, Notebook, Notebook, Mug",
-              "3, 3, 2, 3",
-              "54.0, 4.5, 4.5, 8.0",
-              "162.0, 13.5, 9.0, 24.0",
-              "EUR, EUR, EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 6,
-            "values": [
-              "C0006",
-              "Inès Laurent",
-              "aaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Toulouse",
-              null,
-              "2025-12-10",
-              "false",
-              null,
-              "O0006-1, O0006-2, O0006-3, O0006-4",
-              "2026-01-08, 2026-07-05, 2026-06-27, 2026-03-21",
-              "cancelled, delivered, delivered, shipped",
-              "Mug, Backpack, Notebook, Desk lamp",
-              "2, 2, 2, 3",
-              "8.0, 54.0, 4.5, 29.9",
-              "16.0, 108.0, 9.0, 89.7",
-              "EUR, EUR, EUR, EUR"
-            ],
-            "absent": [
-              5,
-              8
-            ]
-          },
-          {
-            "row_number": 7,
-            "values": [
-              "C0007",
-              "David Dubois",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              null,
-              "Lille",
-              "59000",
-              "2025-08-20",
-              "true",
-              "newsletter",
-              "O0007-1, O0007-2",
-              "2026-05-16, 2026-07-27",
-              "shipped, cancelled",
-              "Headphones, Desk lamp",
-              "2, 1",
-              "89.0, 29.9",
-              "178.0, null",
-              "EUR, EUR"
-            ],
-            "absent": [
-              3
-            ]
-          },
-          {
-            "row_number": 8,
-            "values": [
-              "C0008",
-              "Ugo Durand",
-              "aaa.aaaaaa9@aaaa.aaaaaaa",
-              null,
-              "Lille",
-              "59000",
-              "2025-09-28",
-              "false",
-              "returning",
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              3,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ]
-          },
-          {
-            "row_number": 9,
-            "values": [
-              "C0009",
-              "Jules Richard",
-              "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Nantes",
-              "44000",
-              "2025-10-28",
-              "null",
-              "student, returning",
-              "O0009-1, O0009-2",
-              "2026-06-12, 2026-07-12",
-              "delivered, delivered",
-              "Headphones, Backpack",
-              "2, 3",
-              "89.0, 54.0",
-              "178.0, 162.0",
-              "EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 10,
-            "values": [
-              "C0010",
-              "William Durand",
-              "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lyon",
-              "69003",
-              "2025-08-10",
-              "true",
-              "newsletter, b2b",
-              "O0010-1, O0010-2, O0010-3, O0010-4",
-              "2026-07-10, 2026-01-07, 2026-03-08, 2026-04-06",
-              "cancelled, delivered, delivered, delivered",
-              "Mug, Backpack, Mug, Notebook",
-              "3, 3, 2, 2",
-              "8.0, 54.0, 8.0, 4.5",
-              "null, 162.0, 16.0, 9.0",
-              "EUR, EUR, EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 11,
-            "values": [
-              "C0011",
-              "Emma Bernard",
-              "aaaa.aaaaaaa99@aaaa.aaaaaaa",
-              null,
-              "Lyon",
-              "69003",
-              "2025-07-15",
-              "true",
-              null,
-              "O0011-1",
-              "2026-06-13",
-              "delivered",
-              "Backpack",
-              "1",
-              "54.0",
-              "54.0",
-              "EUR"
-            ],
-            "absent": [
-              3,
-              8
-            ]
-          },
-          {
-            "row_number": 12,
-            "values": [
-              "C0012",
-              "Nadia Bernard",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Paris",
-              "75011",
-              "2025-09-11",
-              "false",
-              "b2b",
-              "O0012-1, O0012-2, O0012-3",
-              "2026-06-15, 2026-07-19, 2026-02-12",
-              "delivered, shipped, delivered",
-              "Headphones, Desk lamp, Desk lamp",
-              "3, 3, 1",
-              "89.0, 29.9, 29.9",
-              "267.0, 89.7, 29.9",
-              "EUR, EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 13,
-            "values": [
-              "C0013",
-              "Marc Bernard",
-              "aaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Bordeaux",
-              "33000",
-              "2025-07-08",
-              "false",
-              "newsletter, returning",
-              "O0013-1",
-              "2026-05-24",
-              "delivered",
-              "Mug",
-              "3",
-              "8.0",
-              "24.0",
-              "EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 14,
-            "values": [
-              "C0014",
-              "Pauline Robert",
-              "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lille",
-              null,
-              "2025-11-20",
-              "false",
-              null,
-              "O0014-1, O0014-2, O0014-3",
-              "2026-05-08, 2026-08-09, 2026-08-20",
-              "shipped, delivered, shipped",
-              "Notebook, Notebook, Backpack",
-              "2, 1, 2",
-              "4.5, 4.5, 54.0",
-              "9.0, 4.5, 108.0",
-              "EUR, EUR, EUR"
-            ],
-            "absent": [
-              5,
-              8
-            ]
-          },
-          {
-            "row_number": 15,
-            "values": [
-              "C0015",
-              "Quentin Simon",
-              "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Nantes",
-              "44000",
-              "2025-06-20",
-              "true",
-              "student",
-              "O0015-1, O0015-2",
-              "2026-01-01, 2026-02-22",
-              "delivered, cancelled",
-              "Mug, Mug",
-              "1, 2",
-              "8.0, 8.0",
-              "8.0, 16.0",
-              "EUR, EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 16,
-            "values": [
-              "C0016",
-              "Nadia Petit",
-              "aaaaa.aaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lille",
-              "59000",
-              "2025-12-07",
-              "false",
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null,
-              null
-            ],
-            "absent": [
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16
-            ]
-          },
-          {
-            "row_number": 17,
-            "values": [
-              "C0017",
-              "William Petit",
-              "aaaaaaa.aaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Lille",
-              "59000",
-              "2025-08-11",
-              "false",
-              "vip, returning",
-              "O0017-1",
-              "2026-02-22",
-              "delivered",
-              "Backpack",
-              "1",
-              "54.0",
-              "54.0",
-              "EUR"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 18,
-            "values": [
-              "C0018",
-              "Karim Laurent",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              null,
-              "Lille",
-              "59000",
-              "2025-01-04",
-              "false",
-              "vip, b2b",
-              "O0018-1, O0018-2",
-              "2026-03-20, 2026-02-20",
-              "delivered, delivered",
-              "Headphones, Headphones",
-              "1, 1",
-              "89.0, 89.0",
-              "89.0, 89.0",
-              "EUR, EUR"
-            ],
-            "absent": [
-              3
-            ]
-          },
-          {
-            "row_number": 19,
-            "values": [
-              "C0019",
-              "Bruno Leroy",
-              "aaaaa.aaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Bordeaux",
-              null,
-              "2025-07-20",
-              "false",
-              "returning",
-              "O0019-1, O0019-2, O0019-3",
-              "2026-06-02, 2026-05-18, 2026-04-09",
-              "delivered, cancelled, delivered",
-              "Headphones, Backpack, Backpack",
-              "2, 1, 1",
-              "89.0, 54.0, 54.0",
-              "178.0, null, 54.0",
-              "EUR, EUR, EUR"
-            ],
-            "absent": [
-              5
-            ]
-          },
-          {
-            "row_number": 20,
-            "values": [
-              "C0020",
-              "Quentin Dubois",
-              "aaaaaaa.aaaaaa99@aaaa.aaaaaaa",
-              "+99 9 99 99 99 99",
-              "Toulouse",
-              null,
-              "2025-06-03",
-              "false",
-              null,
-              "O0020-1, O0020-2, O0020-3",
-              "2026-08-16, 2026-01-18, 2026-07-22",
-              "delivered, shipped, delivered",
-              "Desk lamp, Notebook, Notebook",
-              "2, 3, 1",
-              "29.9, 4.5, 4.5",
-              "59.8, 13.5, 4.5",
-              "EUR, EUR, EUR"
-            ],
-            "absent": [
-              5,
-              8
-            ]
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": []
-        },
         "structure": {
           "record_types": {
             "object": 60

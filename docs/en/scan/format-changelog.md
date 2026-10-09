@@ -75,7 +75,7 @@ Also in revision 2, before its release:
   reproducible choice of rows of the interior, with the cells of the same record for every
   projected field (see [Row sample](format.md#row-sample)). New settings
   `records.sample.rows` (1,000), `edge` (50), `cell_chars` (200) and `max_bytes` (16 MiB).
-  `records.preview` is unchanged. A Report keeps the block without its rows.
+  A Report keeps the block with a subset of its rows.
 - `derived.patterns` (optional): the structural patterns inferred from the
   samples of each text field, with their signature, rendering, coverage of the
   distinct values, overlaps and what was excluded (see
@@ -95,6 +95,11 @@ Also in revision 2, before its release:
   count it takes, and keeps that count even when the table of distinct values
   was released; `variant_groups` is complete and empty when no stage changed
   any string (see [Normalization stages](format.md#normalization-stages)).
+- `records.preview` is removed: the first records are the start of the
+  [row sample](format.md#row-sample), with the same cells. The setting
+  `scan.records.preview` is refused with the place of its replacements
+  (`scan.records.sample.edge`, and `report.row_sample` for the rows a report
+  shows).
 - `run.counters` (optional): the work of the samplers, written by
   `tabalyst scan --counters`.
 - The scan document is written without indentation by default; the new

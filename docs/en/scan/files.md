@@ -231,7 +231,7 @@ This writes `customers.html` and `customers.json` beside the scan document,
 named after the source it records; a JSON source `orders.json` gives
 `orders.report.html`. The report is the one `tabalyst report customers.csv`
 writes with the same scan settings, since the scan document holds everything
-it needs, including duplicate rows and the preview. `-o`, `-d`, `--force` and
+it needs, including duplicate rows and the row sample. `-o`, `-d`, `--force` and
 wildcards work as for sources:
 
 ```console

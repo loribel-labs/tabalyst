@@ -96,22 +96,9 @@ def test_A11_a_consumer_of_the_base_receives_a_report(tmp_path):
     assert [(d.id, [f.id for f in d.fields]) for d in base.datasets] == [
         (d.id, [f.id for f in d.fields]) for d in expected.datasets
     ]
-    # The Report keeps the header of the row sample and none of its rows.
-    assert [d.records.sample.kept for d in base.datasets] == [0]
-    assert base.datasets == [
-        d.model_copy(
-            update={
-                "records": d.records.model_copy(
-                    update={
-                        "sample": d.records.sample.model_copy(
-                            update={"kept": 0, "rows": []}
-                        )
-                    }
-                )
-            }
-        )
-        for d in expected.datasets
-    ]  # envelopes included
+    # A file of a few rows keeps every row of its row sample.
+    assert [d.records.sample.kept for d in base.datasets] == [4]
+    assert base.datasets == expected.datasets  # envelopes included
     assert check_scan(base) == []
     assert from_report.report is not None and from_scan.report is None
 
@@ -182,9 +169,21 @@ def test_a_report_with_all_its_values_is_complete(tmp_path):
 
 
 def test_a_report_without_the_rows_of_its_row_sample_is_not_complete(tmp_path):
-    _, report_file = _written(tmp_path)
+    config = write_json(
+        tmp_path,
+        "rows.json",
+        {"report": {"row_sample": {"start": 0, "middle": 0, "end": 0}}},
+    )
+    _, report_file = _written(tmp_path, config_path=config)
 
     assert load_document(report_file).capabilities.complete_samples is False
+
+
+def test_a_report_with_every_row_of_a_small_sample_is_complete(tmp_path):
+    _, report_file = _written(tmp_path)
+
+    assert load_document(report_file).capabilities.complete_samples is True
+    assert check_scan(load_base(report_file)) == []
 
 
 @pytest.mark.scan_json_lot("1b")

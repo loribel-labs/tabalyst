@@ -45,6 +45,10 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/report_profile.py`: report profile built from a Scan result,
   without file or presentation concerns.
 - `src/tabalyst/models.py`: Pydantic models serialized to the experimental JSON profile.
+- `src/tabalyst/report_views.py`, `report_sections.py`, `report_labels.py`: what the
+  report pages read from the document (observations, limits, patterns, row sample,
+  qualified counts), computed at render time, and the words they print. See
+  `docs/dev/scan/design.md` 18.14.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
 - `src/tabalyst/config.py`: validated configuration and defaults.

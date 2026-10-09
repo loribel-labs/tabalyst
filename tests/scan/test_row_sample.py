@@ -456,18 +456,27 @@ def test_the_validator_names_a_tampered_sample(tmp_path):
     assert any("memory_budget" in p for p in problems(lambda s: s.update(reason="other")))
 
 
-def test_the_report_base_keeps_the_header_of_the_sample_and_no_row(tmp_path):
+def test_the_report_base_keeps_the_header_of_the_sample_and_the_rows_it_asks_for(
+    tmp_path,
+):
+    from tabalyst.config import RowSampleSettings
     from tabalyst.report_profile import report_base
 
     result = scan(_csv(tmp_path, 300))
 
     base = report_base(result, 100)
+    none = report_base(result, 100, RowSampleSettings(start=0, middle=0, end=0))
 
     sample = base.datasets[0].records.sample
     original = result.datasets[0].records.sample
-    assert sample.kept == 0 and sample.rows == [] and sample.of == original.of > 0
+    # Ten rows of each part by default, a subset of the Scan's rows.
+    assert sample.kept == len(sample.rows) == 30 and sample.of == original.of > 0
+    assert all(row in original.rows for row in sample.rows)
     assert sample.population == original.population
     assert check_scan(base) == []
+    empty = none.datasets[0].records.sample
+    assert empty.kept == 0 and empty.rows == [] and empty.of == original.of
+    assert check_scan(none) == []
     assert original.kept == original.of  # the scan itself is untouched
     assert facts_sha256(base) == facts_sha256(result)
     assert complete_samples(result) and not complete_samples(base)

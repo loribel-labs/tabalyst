@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T20:17:29.559653Z",
-    "duration_seconds": 0.269647,
+    "started_at": "2026-10-08T22:01:12.036205Z",
+    "duration_seconds": 0.313556,
     "timings": {
-      "reading": 0.019673,
-      "analysis": 0.021854,
-      "finalize": 0.218927,
-      "derived": 0.008772,
-      "other": 0.000422
+      "reading": 0.019181,
+      "analysis": 0.025194,
+      "finalize": 0.25799,
+      "derived": 0.010287,
+      "other": 0.000904
     },
     "workers": 1,
-    "peak_memory_bytes": 71544832
+    "peak_memory_bytes": 71680000
   },
   "source": {
     "format": "csv",
@@ -166,7 +166,6 @@
       "max_listed_records": 10
     },
     "records": {
-      "preview": 20,
       "duplicates": true,
       "sample": {
         "rows": 1000,
@@ -325,7 +324,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
+  "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
   "scope": {
     "collections": null,
     "records_read": 3000,
@@ -387,2148 +386,6 @@
             2627
           ]
         },
-        "preview": [
-          {
-            "record": 1,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00000281"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Lucie"
-              ],
-              "column_5": [
-                "Roy"
-              ],
-              "column_6": [
-                "1961-03-31"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "4682"
-              ],
-              "column_10": [
-                "chemin"
-              ],
-              "column_11": [
-                "des Tulipes"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "245"
-              ],
-              "column_14": [
-                "Montréal"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "H4A 9M3"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aa9999@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000000281"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2020-07-16"
-              ],
-              "column_24": [
-                "2026-12-28"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1234.18"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "chèque"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2020-07-08"
-              ],
-              "column_31": [
-                "2024-10-24"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 2,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00000432"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Suzanne"
-              ],
-              "column_5": [
-                "Taylor"
-              ],
-              "column_6": [
-                "1983-01-14"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "518"
-              ],
-              "column_10": [
-                "rue"
-              ],
-              "column_11": [
-                "des Trois-Lacs"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "405"
-              ],
-              "column_14": [
-                "Lévis"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G6V 8P2"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaa9999@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000000432"
-              ],
-              "column_22": [
-                "vie"
-              ],
-              "column_23": [
-                "2027-06-02"
-              ],
-              "column_24": [
-                "2021-11-27"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1123.69"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-003"
-              ],
-              "column_30": [
-                "2021-11-09"
-              ],
-              "column_31": [
-                "2021-11-22"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 3,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00000538"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Juliette"
-              ],
-              "column_5": [
-                "Michaud"
-              ],
-              "column_6": [
-                "1941-09-10"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "2943"
-              ],
-              "column_10": [
-                "avenue"
-              ],
-              "column_11": [
-                "des Vents"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Granby"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "J2H 0H3"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaa99@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000000538"
-              ],
-              "column_22": [
-                "voyage"
-              ],
-              "column_23": [
-                "2016-09-30"
-              ],
-              "column_24": [
-                "2022-07-20"
-              ],
-              "column_25": [
-                "résilié"
-              ],
-              "column_26": [
-                "379.29"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2016-09-16"
-              ],
-              "column_31": [
-                "2017-04-05"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 4,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-0000072"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Oliivier"
-              ],
-              "column_5": [
-                "Landry"
-              ],
-              "column_6": [
-                "1936-12-13"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "6132"
-              ],
-              "column_10": [
-                "route"
-              ],
-              "column_11": [
-                "des Prairies"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "519"
-              ],
-              "column_14": [
-                "Repentigny"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "J5Y 2J3"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000000726"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2023-03-29"
-              ],
-              "column_24": [
-                "2027-05-07"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "-744.79"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-004"
-              ],
-              "column_30": [
-                "2023-03-04"
-              ],
-              "column_31": [
-                "2024-06-01"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 5,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00000892"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Nicole"
-              ],
-              "column_5": [
-                "Tremblay"
-              ],
-              "column_6": [
-                "1943-04-16"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "9307"
-              ],
-              "column_10": [
-                "chemin"
-              ],
-              "column_11": [
-                "des Ormes"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Québec"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G2B 7V8"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000000892"
-              ],
-              "column_22": [
-                "voyage"
-              ],
-              "column_23": [
-                "2017-05-26"
-              ],
-              "column_24": [
-                "2018-11-19"
-              ],
-              "column_25": [
-                "résilié"
-              ],
-              "column_26": [
-                "241.17"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-004"
-              ],
-              "column_30": [
-                "2017-05-12"
-              ],
-              "column_31": [
-                "2019-10-29"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 6,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001006"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Luke"
-              ],
-              "column_5": [
-                "Pham"
-              ],
-              "column_6": [
-                "1979-07-29"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "en"
-              ],
-              "column_9": [
-                "2174"
-              ],
-              "column_10": [
-                "Street"
-              ],
-              "column_11": [
-                "Riverside"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Winnipeg"
-              ],
-              "column_15": [
-                "MB"
-              ],
-              "column_16": [
-                "Manitoba"
-              ],
-              "column_17": [
-                "R3C 4S8"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001006"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2025-05-17"
-              ],
-              "column_24": [
-                "2026-07-30"
-              ],
-              "column_25": [
-                "expiré"
-              ],
-              "column_26": [
-                "695.97"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-008"
-              ],
-              "column_30": [
-                "2025-04-17"
-              ],
-              "column_31": [
-                "2026-06-07"
-              ],
-              "column_32": [
-                "2026-05-13"
-              ],
-              "column_33": [
-                "24940.92"
-              ],
-              "column_34": [
-                "rejeté"
-              ]
-            }
-          },
-          {
-            "record": 7,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001095"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Émile"
-              ],
-              "column_5": [
-                "Lavoie"
-              ],
-              "column_6": [
-                "1996-03-27"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "909"
-              ],
-              "column_10": [
-                "rue"
-              ],
-              "column_11": [
-                "du Lac"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "358"
-              ],
-              "column_14": [
-                "Lévis"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G6V 8A4"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaa.aaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001095"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2025-03-16"
-              ],
-              "column_24": [
-                "2027-01-30"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1144.35"
-              ],
-              "column_27": [
-                "annuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-005"
-              ],
-              "column_30": [
-                "2025-02-28"
-              ],
-              "column_31": [
-                "2025-10-06"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 8,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001384"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Catherine"
-              ],
-              "column_5": [
-                "Gagné"
-              ],
-              "column_6": [
-                "1958-01-22"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "6362"
-              ],
-              "column_10": [
-                "promenade"
-              ],
-              "column_11": [
-                "des Geais-Bleus"
-              ],
-              "column_12": [
-                "Ouest"
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Lévis"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G6W 9E4"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaa@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001384"
-              ],
-              "column_22": [
-                "voyage"
-              ],
-              "column_23": [
-                "2018-07-30"
-              ],
-              "column_24": [
-                ""
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "433.12"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2018-07-08"
-              ],
-              "column_31": [
-                "2026-01-16"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 9,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001430"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Jack"
-              ],
-              "column_5": [
-                "Chowdhury"
-              ],
-              "column_6": [
-                "1987-11-05"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "en"
-              ],
-              "column_9": [
-                "7641"
-              ],
-              "column_10": [
-                "Place"
-              ],
-              "column_11": [
-                "Pine"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Toronto"
-              ],
-              "column_15": [
-                "ON"
-              ],
-              "column_16": [
-                "Ontario"
-              ],
-              "column_17": [
-                "M6G 7M3"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaa99@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001430"
-              ],
-              "column_22": [
-                "habitation"
-              ],
-              "column_23": [
-                "2022-06-11"
-              ],
-              "column_24": [
-                ""
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1509.17"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2022-06-10"
-              ],
-              "column_31": [
-                "2023-02-24"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 10,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI--00001642"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Catherine"
-              ],
-              "column_5": [
-                "Caron"
-              ],
-              "column_6": [
-                "1981-09-04"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "528"
-              ],
-              "column_10": [
-                "rue"
-              ],
-              "column_11": [
-                "de l'Aube"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Montréal"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "H4A 4S8"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001642"
-              ],
-              "column_22": [
-                "voyage"
-              ],
-              "column_23": [
-                "2022-09-27"
-              ],
-              "column_24": [
-                "2027-05-13"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "405.78"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-004"
-              ],
-              "column_30": [
-                "2022-09-11"
-              ],
-              "column_31": [
-                "2023-08-08"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 11,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001668"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "sofia"
-              ],
-              "column_5": [
-                "baker"
-              ],
-              "column_6": [
-                "1942-02-06"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "en"
-              ],
-              "column_9": [
-                "1544"
-              ],
-              "column_10": [
-                "Avenue"
-              ],
-              "column_11": [
-                "oak"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "557"
-              ],
-              "column_14": [
-                "chateauguay"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "quebec"
-              ],
-              "column_17": [
-                "J6J 3K7"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaaaa@aaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001668"
-              ],
-              "column_22": [
-                "vie"
-              ],
-              "column_23": [
-                "2024-09-11"
-              ],
-              "column_24": [
-                "2027-07-11"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1043.75"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-006"
-              ],
-              "column_30": [
-                "2024-08-24"
-              ],
-              "column_31": [
-                "2026-04-01"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 12,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001783"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Aria"
-              ],
-              "column_5": [
-                "Thompson"
-              ],
-              "column_6": [
-                "1995-03-16"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "en"
-              ],
-              "column_9": [
-                "876"
-              ],
-              "column_10": [
-                "Avenue"
-              ],
-              "column_11": [
-                "School"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Ottawg"
-              ],
-              "column_15": [
-                "ON"
-              ],
-              "column_16": [
-                "Ontario"
-              ],
-              "column_17": [
-                "K1A 4T0"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaa99@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001783"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2017-07-01"
-              ],
-              "column_24": [
-                "2027-04-23"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "672.10"
-              ],
-              "column_27": [
-                "annuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-004"
-              ],
-              "column_30": [
-                "2017-06-04"
-              ],
-              "column_31": [
-                "2019-07-31"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 13,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00001927"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Jean"
-              ],
-              "column_5": [
-                "Côté"
-              ],
-              "column_6": [
-                "1994-09-21"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "2629"
-              ],
-              "column_10": [
-                "route"
-              ],
-              "column_11": [
-                "de la Traverse"
-              ],
-              "column_12": [
-                "Nord"
-              ],
-              "column_13": [
-                "991"
-              ],
-              "column_14": [
-                "Mnotréal"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "H2X 4P4"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaa@aaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000001927"
-              ],
-              "column_22": [
-                "habitation"
-              ],
-              "column_23": [
-                "2021-02-26"
-              ],
-              "column_24": [
-                "2027-02-23"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "2727.70"
-              ],
-              "column_27": [
-                "annuelle"
-              ],
-              "column_28": [
-                "chèque"
-              ],
-              "column_29": [
-                "AG-PR-007"
-              ],
-              "column_30": [
-                "2021-02-03"
-              ],
-              "column_31": [
-                "2022-11-27"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 14,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00002289"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Maxime"
-              ],
-              "column_5": [
-                "Gagnon"
-              ],
-              "column_6": [
-                "1959-11-12"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "5066"
-              ],
-              "column_10": [
-                "avenue"
-              ],
-              "column_11": [
-                "du Parc"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "244"
-              ],
-              "column_14": [
-                "Québec"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G2B 5E5"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaaaaaa@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000002289"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2026-01-07"
-              ],
-              "column_24": [
-                "2026-12-24"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1428.63"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2025-12-16"
-              ],
-              "column_31": [
-                "2026-02-28"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 15,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00002347"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Émile"
-              ],
-              "column_5": [
-                "Rodriguez"
-              ],
-              "column_6": [
-                "1996-05-21"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "2985"
-              ],
-              "column_10": [
-                "rue"
-              ],
-              "column_11": [
-                "des Saules"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "283"
-              ],
-              "column_14": [
-                "Québec"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G2B 9H7"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaa.aaaaaaaaa@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000002347"
-              ],
-              "column_22": [
-                "voyage"
-              ],
-              "column_23": [
-                "2023-02-16"
-              ],
-              "column_24": [
-                ""
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "652.13"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-004"
-              ],
-              "column_30": [
-                "2023-02-05"
-              ],
-              "column_31": [
-                "2026-02-01"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 16,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00002991"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Michael"
-              ],
-              "column_5": [
-                "Walker"
-              ],
-              "column_6": [
-                "2001-11-15"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "en"
-              ],
-              "column_9": [
-                "9868"
-              ],
-              "column_10": [
-                "Way"
-              ],
-              "column_11": [
-                "Spring"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Québec"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G2B 2E7"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaa_aaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000002991"
-              ],
-              "column_22": [
-                "vie"
-              ],
-              "column_23": [
-                "2025-08-01"
-              ],
-              "column_24": [
-                "2027-03-08"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "2798.92"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-005"
-              ],
-              "column_30": [
-                "2025-08-01"
-              ],
-              "column_31": [
-                "2026-01-05"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 17,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00003000"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Marie"
-              ],
-              "column_5": [
-                "Patel"
-              ],
-              "column_6": [
-                "1979-11-10"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "4453"
-              ],
-              "column_10": [
-                "rue"
-              ],
-              "column_11": [
-                "du Havre"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                "868"
-              ],
-              "column_14": [
-                "Québec"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "G1V 4H0"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaa9999@aaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000003000"
-              ],
-              "column_22": [
-                "habitation"
-              ],
-              "column_23": [
-                "2020-01-28"
-              ],
-              "column_24": [
-                "2027-03-15"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "2147.32"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-006"
-              ],
-              "column_30": [
-                "2020-01-16"
-              ],
-              "column_31": [
-                "2022-09-15"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 18,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00003159"
-              ],
-              "column_3": [
-                "Mme"
-              ],
-              "column_4": [
-                "Anne"
-              ],
-              "column_5": [
-                "Paquette"
-              ],
-              "column_6": [
-                "1943-03-15"
-              ],
-              "column_7": [
-                "F"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "2897"
-              ],
-              "column_10": [
-                "croissant"
-              ],
-              "column_11": [
-                "du Moulin"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Montréal"
-              ],
-              "column_15": [
-                "QC"
-              ],
-              "column_16": [
-                "Québec"
-              ],
-              "column_17": [
-                "H4A 3C2"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaa99@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000003159"
-              ],
-              "column_22": [
-                "auto"
-              ],
-              "column_23": [
-                "2024-12-20"
-              ],
-              "column_24": [
-                "2027-04-15"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1731.59"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "carte"
-              ],
-              "column_29": [
-                "AG-PR-007"
-              ],
-              "column_30": [
-                "2024-12-08"
-              ],
-              "column_31": [
-                "2026-02-09"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 19,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00003200"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Sylvain"
-              ],
-              "column_5": [
-                "Silva"
-              ],
-              "column_6": [
-                "1966-09-14"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "26"
-              ],
-              "column_10": [
-                "carré"
-              ],
-              "column_11": [
-                "des Lilas"
-              ],
-              "column_12": [
-                ""
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Hamilton"
-              ],
-              "column_15": [
-                "ON"
-              ],
-              "column_16": [
-                "Ontario"
-              ],
-              "column_17": [
-                "L8S 1B2"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaa_aaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000003200"
-              ],
-              "column_22": [
-                "vie"
-              ],
-              "column_23": [
-                "2026-06-14"
-              ],
-              "column_24": [
-                "2027-05-14"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "4319.82"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-003"
-              ],
-              "column_30": [
-                "2026-05-19"
-              ],
-              "column_31": [
-                "2026-06-08"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 20,
-            "values": {
-              "column_1": [
-                "principal"
-              ],
-              "column_2": [
-                "CLI-00003271"
-              ],
-              "column_3": [
-                "M."
-              ],
-              "column_4": [
-                "Jean-Philippe"
-              ],
-              "column_5": [
-                "Ouellet"
-              ],
-              "column_6": [
-                "1978-04-11"
-              ],
-              "column_7": [
-                "M"
-              ],
-              "column_8": [
-                "fr"
-              ],
-              "column_9": [
-                "6502"
-              ],
-              "column_10": [
-                "avenue"
-              ],
-              "column_11": [
-                "des Champs"
-              ],
-              "column_12": [
-                "Ouest"
-              ],
-              "column_13": [
-                ""
-              ],
-              "column_14": [
-                "Fredericton"
-              ],
-              "column_15": [
-                "NB"
-              ],
-              "column_16": [
-                "Nouveau-Brunswick"
-              ],
-              "column_17": [
-                "E3B 3G8"
-              ],
-              "column_18": [
-                "CA"
-              ],
-              "column_19": [
-                "aaaaaaaaaaaa.aaaaaaa@aaaaaaa.aaaaaaa"
-              ],
-              "column_20": [
-                "+9-999-999-9999"
-              ],
-              "column_21": [
-                "CTR-1000003271"
-              ],
-              "column_22": [
-                "vie"
-              ],
-              "column_23": [
-                "2024-02-22"
-              ],
-              "column_24": [
-                "2026-11-10"
-              ],
-              "column_25": [
-                "actif"
-              ],
-              "column_26": [
-                "1253.03"
-              ],
-              "column_27": [
-                "mensuelle"
-              ],
-              "column_28": [
-                "prélèvement"
-              ],
-              "column_29": [
-                "AG-PR-001"
-              ],
-              "column_30": [
-                "2024-02-04"
-              ],
-              "column_31": [
-                "2025-05-28"
-              ],
-              "column_32": [
-                ""
-              ],
-              "column_33": [
-                ""
-              ],
-              "column_34": [
-                ""
-              ]
-            }
-          }
-        ],
         "sample": {
           "selection": "start_middle_end",
           "hash": {
@@ -2591,9 +448,40 @@
           "truncated_cells": 0,
           "bytes": 2477121,
           "max_bytes": 16777216,
-          "kept": 0,
+          "kept": 30,
           "of": 1000,
-          "rows": []
+          "rows": [
+            {"record": 1, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00000281"], "column_3": ["Mme"], "column_4": ["Lucie"], "column_5": ["Roy"], "column_6": ["1961-03-31"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["4682"], "column_10": ["chemin"], "column_11": ["des Tulipes"], "column_12": [""], "column_13": ["245"], "column_14": ["Montréal"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["H4A 9M3"], "column_18": ["CA"], "column_19": ["aa9999@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000000281"], "column_22": ["auto"], "column_23": ["2020-07-16"], "column_24": ["2026-12-28"], "column_25": ["actif"], "column_26": ["1234.18"], "column_27": ["mensuelle"], "column_28": ["chèque"], "column_29": ["AG-PR-001"], "column_30": ["2020-07-08"], "column_31": ["2024-10-24"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00000432"], "column_3": ["Mme"], "column_4": ["Suzanne"], "column_5": ["Taylor"], "column_6": ["1983-01-14"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["518"], "column_10": ["rue"], "column_11": ["des Trois-Lacs"], "column_12": [""], "column_13": ["405"], "column_14": ["Lévis"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G6V 8P2"], "column_18": ["CA"], "column_19": ["aaa9999@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000000432"], "column_22": ["vie"], "column_23": ["2027-06-02"], "column_24": ["2021-11-27"], "column_25": ["actif"], "column_26": ["1123.69"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-003"], "column_30": ["2021-11-09"], "column_31": ["2021-11-22"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 3, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00000538"], "column_3": ["Mme"], "column_4": ["Juliette"], "column_5": ["Michaud"], "column_6": ["1941-09-10"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["2943"], "column_10": ["avenue"], "column_11": ["des Vents"], "column_12": [""], "column_13": [""], "column_14": ["Granby"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J2H 0H3"], "column_18": ["CA"], "column_19": ["aaa99@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000000538"], "column_22": ["voyage"], "column_23": ["2016-09-30"], "column_24": ["2022-07-20"], "column_25": ["résilié"], "column_26": ["379.29"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-001"], "column_30": ["2016-09-16"], "column_31": ["2017-04-05"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 4, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-0000072"], "column_3": ["M."], "column_4": ["Oliivier"], "column_5": ["Landry"], "column_6": ["1936-12-13"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["6132"], "column_10": ["route"], "column_11": ["des Prairies"], "column_12": [""], "column_13": ["519"], "column_14": ["Repentigny"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J5Y 2J3"], "column_18": ["CA"], "column_19": ["aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000000726"], "column_22": ["auto"], "column_23": ["2023-03-29"], "column_24": ["2027-05-07"], "column_25": ["actif"], "column_26": ["-744.79"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-004"], "column_30": ["2023-03-04"], "column_31": ["2024-06-01"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 5, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00000892"], "column_3": ["Mme"], "column_4": ["Nicole"], "column_5": ["Tremblay"], "column_6": ["1943-04-16"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["9307"], "column_10": ["chemin"], "column_11": ["des Ormes"], "column_12": [""], "column_13": [""], "column_14": ["Québec"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G2B 7V8"], "column_18": ["CA"], "column_19": ["aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000000892"], "column_22": ["voyage"], "column_23": ["2017-05-26"], "column_24": ["2018-11-19"], "column_25": ["résilié"], "column_26": ["241.17"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-004"], "column_30": ["2017-05-12"], "column_31": ["2019-10-29"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 6, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00001006"], "column_3": ["M."], "column_4": ["Luke"], "column_5": ["Pham"], "column_6": ["1979-07-29"], "column_7": ["M"], "column_8": ["en"], "column_9": ["2174"], "column_10": ["Street"], "column_11": ["Riverside"], "column_12": [""], "column_13": [""], "column_14": ["Winnipeg"], "column_15": ["MB"], "column_16": ["Manitoba"], "column_17": ["R3C 4S8"], "column_18": ["CA"], "column_19": ["aaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000001006"], "column_22": ["auto"], "column_23": ["2025-05-17"], "column_24": ["2026-07-30"], "column_25": ["expiré"], "column_26": ["695.97"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-008"], "column_30": ["2025-04-17"], "column_31": ["2026-06-07"], "column_32": ["2026-05-13"], "column_33": ["24940.92"], "column_34": ["rejeté"]}},
+            {"record": 7, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00001095"], "column_3": ["M."], "column_4": ["Émile"], "column_5": ["Lavoie"], "column_6": ["1996-03-27"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["909"], "column_10": ["rue"], "column_11": ["du Lac"], "column_12": [""], "column_13": ["358"], "column_14": ["Lévis"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G6V 8A4"], "column_18": ["CA"], "column_19": ["aaaaa.aaaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000001095"], "column_22": ["auto"], "column_23": ["2025-03-16"], "column_24": ["2027-01-30"], "column_25": ["actif"], "column_26": ["1144.35"], "column_27": ["annuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-005"], "column_30": ["2025-02-28"], "column_31": ["2025-10-06"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 8, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00001384"], "column_3": ["Mme"], "column_4": ["Catherine"], "column_5": ["Gagné"], "column_6": ["1958-01-22"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["6362"], "column_10": ["promenade"], "column_11": ["des Geais-Bleus"], "column_12": ["Ouest"], "column_13": [""], "column_14": ["Lévis"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G6W 9E4"], "column_18": ["CA"], "column_19": ["aaaaaa@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000001384"], "column_22": ["voyage"], "column_23": ["2018-07-30"], "column_24": [""], "column_25": ["actif"], "column_26": ["433.12"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-001"], "column_30": ["2018-07-08"], "column_31": ["2026-01-16"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 9, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI-00001430"], "column_3": ["M."], "column_4": ["Jack"], "column_5": ["Chowdhury"], "column_6": ["1987-11-05"], "column_7": ["M"], "column_8": ["en"], "column_9": ["7641"], "column_10": ["Place"], "column_11": ["Pine"], "column_12": [""], "column_13": [""], "column_14": ["Toronto"], "column_15": ["ON"], "column_16": ["Ontario"], "column_17": ["M6G 7M3"], "column_18": ["CA"], "column_19": ["aaaa99@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000001430"], "column_22": ["habitation"], "column_23": ["2022-06-11"], "column_24": [""], "column_25": ["actif"], "column_26": ["1509.17"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-001"], "column_30": ["2022-06-10"], "column_31": ["2023-02-24"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 10, "origins": ["start"], "values": {"column_1": ["principal"], "column_2": ["CLI--00001642"], "column_3": ["Mme"], "column_4": ["Catherine"], "column_5": ["Caron"], "column_6": ["1981-09-04"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["528"], "column_10": ["rue"], "column_11": ["de l'Aube"], "column_12": [""], "column_13": [""], "column_14": ["Montréal"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["H4A 4S8"], "column_18": ["CA"], "column_19": ["aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000001642"], "column_22": ["voyage"], "column_23": ["2022-09-27"], "column_24": ["2027-05-13"], "column_25": ["actif"], "column_26": ["405.78"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-004"], "column_30": ["2022-09-11"], "column_31": ["2023-08-08"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 405, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00067822"], "column_3": ["Mme"], "column_4": ["Diane"], "column_5": ["Cloutier"], "column_6": ["1991-05-15"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["1230"], "column_10": ["rang"], "column_11": ["des Champs"], "column_12": [""], "column_13": [""], "column_14": ["Mascouche"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J7K 1R4"], "column_18": ["CA"], "column_19": ["aa9999@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000067822"], "column_22": ["auto"], "column_23": ["2023-07-30"], "column_24": ["2027-06-03"], "column_25": ["actif"], "column_26": ["601.95"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-004"], "column_30": ["2023-07-07"], "column_31": ["2024-09-30"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 427, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00072311"], "column_3": ["Mme"], "column_4": ["Amelia"], "column_5": ["Wilson"], "column_6": ["2003-09-05"], "column_7": ["F"], "column_8": ["en"], "column_9": ["6959"], "column_10": ["Way"], "column_11": ["Forest"], "column_12": ["East"], "column_13": ["412"], "column_14": ["Halifax"], "column_15": ["NS"], "column_16": ["Nouvelle-Écosse"], "column_17": ["J2T 8A3"], "column_18": ["CA"], "column_19": ["aaaaaa.aaaaaa@aaaaa.aaaaaaa"], "column_20": ["+9  999-999-9999"], "column_21": ["CTR-1000072311"], "column_22": ["voyage"], "column_23": ["2023-12-27"], "column_24": [""], "column_25": ["actif"], "column_26": ["481.20"], "column_27": ["mensuelle"], "column_28": ["chèque"], "column_29": ["AG-PR-002"], "column_30": ["2023-12-13"], "column_31": ["2024-02-23"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 470, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00080291"], "column_3": ["M."], "column_4": ["Pierre"], "column_5": ["Tremblay"], "column_6": ["2000-06-02"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["31"], "column_10": ["chemin"], "column_11": ["du Marais"], "column_12": [""], "column_13": ["66"], "column_14": ["Ottawa"], "column_15": ["ON"], "column_16": ["Ontario"], "column_17": ["K2P 1W5"], "column_18": ["CA"], "column_19": ["aaaaaaaaaaaaaa@aaaaaa.aaaaaaa"], "column_20": ["+9  999-999-9999"], "column_21": ["CTR-1000080291"], "column_22": ["auto"], "column_23": ["2024-05-14"], "column_24": ["2027-03-08"], "column_25": ["actif"], "column_26": ["1353.96"], "column_27": ["mensuelle"], "column_28": ["carte"], "column_29": ["AG-PR-001"], "column_30": ["2024-05-12"], "column_31": ["2025-02-27"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 493, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00084392"], "column_3": ["M."], "column_4": ["Jacques"], "column_5": ["Bélanger"], "column_6": ["1965-01-15"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["9431"], "column_10": ["terrasse"], "column_11": ["des Bouleaux"], "column_12": ["Est"], "column_13": ["52"], "column_14": ["Gatineau"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J8Y 6J2"], "column_18": ["CA"], "column_19": ["aaaaaaa9999@aaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000084392"], "column_22": ["habitation"], "column_23": ["2020-10-02"], "column_24": ["2027-04-21"], "column_25": ["actif"], "column_26": ["896.34"], "column_27": ["semestrielle"], "column_28": ["chèque"], "column_29": ["AG-PR-002"], "column_30": ["2020-09-07"], "column_31": ["2025-08-20"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 782, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00136873"], "column_3": ["M."], "column_4": ["Benjamin"], "column_5": ["White"], "column_6": ["1954-10-26"], "column_7": ["M"], "column_8": ["en"], "column_9": ["9953"], "column_10": ["Street"], "column_11": ["Oak"], "column_12": [""], "column_13": [""], "column_14": ["Toronto"], "column_15": ["ON"], "column_16": ["Ontario"], "column_17": ["M5V 7L0"], "column_18": ["CA"], "column_19": ["aaaaaaaa999@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000136873"], "column_22": ["auto"], "column_23": ["2018-10-21"], "column_24": [""], "column_25": ["actif"], "column_26": ["823.09"], "column_27": ["annuelle"], "column_28": ["carte"], "column_29": ["AG-PR-003"], "column_30": ["2018-09-30"], "column_31": ["2020-03-29"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 1305, "origins": ["middle"], "values": {"column_1": ["quebec"], "column_2": ["QC-0001-3244"], "column_3": ["M."], "column_4": ["Philippe"], "column_5": ["Gagnon"], "column_6": ["20-05-1961"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["8878"], "column_10": ["croissant"], "column_11": ["du Lac"], "column_12": [""], "column_13": ["712"], "column_14": ["Sherbrooke"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J1H 8Y4"], "column_18": ["CA"], "column_19": ["aaaaaa999@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000013244"], "column_22": ["habitation"], "column_23": ["29-09-2021"], "column_24": ["25-07-2024"], "column_25": ["expiré"], "column_26": ["1198.18"], "column_27": ["mensuelle"], "column_28": ["virement"], "column_29": ["AG-QC-002"], "column_30": ["16-09-2021"], "column_31": ["14-03-2025"], "column_32": ["13-11-2023"], "column_33": [""], "column_34": ["ouvert"]}},
+            {"record": 1761, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00044863"], "column_3": ["M."], "column_4": ["Thomas"], "column_5": ["Lessard"], "column_6": ["1967-11-05"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["8629"], "column_10": ["terrasse"], "column_11": ["des Hirondelles"], "column_12": [""], "column_13": ["239"], "column_14": ["Mascouche"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J7K 7R8"], "column_18": ["CA"], "column_19": ["aaa99@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000044863"], "column_22": ["auto"], "column_23": ["2022-04-06"], "column_24": ["2022-12-10"], "column_25": ["expiré"], "column_26": ["771.43"], "column_27": ["mensuelle"], "column_28": ["carte"], "column_29": ["AG-PR-004"], "column_30": ["2022-03-24"], "column_31": ["2022-09-13"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2020, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00093666"], "column_3": ["M."], "column_4": ["Éric"], "column_5": ["Poirier"], "column_6": ["1971-10-07"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["3484"], "column_10": ["avenue"], "column_11": ["de la Rivière"], "column_12": [""], "column_13": [""], "column_14": ["Terrebonne"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J6W 1P3"], "column_18": ["CA"], "column_19": ["aaaaaaaa@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000093666"], "column_22": ["habitation"], "column_23": ["2024-05-15"], "column_24": ["2027-05-17"], "column_25": ["actif"], "column_26": ["2062.62"], "column_27": ["semestrielle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-002"], "column_30": ["2024-04-26"], "column_31": ["2024-08-20"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2044, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00099720"], "column_3": ["M."], "column_4": ["Sébastien"], "column_5": ["Gagnon"], "column_6": ["1961-01-05"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["9247"], "column_10": ["boulevard"], "column_11": ["du Ruisseau"], "column_12": [""], "column_13": [""], "column_14": ["Salaberry-de-Valleyfield"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J6S 6G0"], "column_18": ["CA"], "column_19": ["aaaaaaaaa9999@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000099720"], "column_22": ["voyage"], "column_23": ["2020-05-05"], "column_24": ["2027-06-26"], "column_25": ["actif"], "column_26": ["284.02"], "column_27": ["annuelle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-003"], "column_30": ["2020-04-27"], "column_31": ["2023-10-07"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2277, "origins": ["middle"], "values": {"column_1": ["principal"], "column_2": ["CLI-00143567"], "column_3": ["M."], "column_4": ["Alexandre"], "column_5": ["Wright"], "column_6": ["1972-10-12"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["7065"], "column_10": ["route"], "column_11": ["des Lilas"], "column_12": [""], "column_13": [""], "column_14": ["Victoriaville"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G6S 4B1"], "column_18": ["CA"], "column_19": ["aaaaaaaaa.aaaaaa@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-1000143567"], "column_22": ["auto"], "column_23": ["2022-06-22"], "column_24": ["2027-07-15"], "column_25": ["actif"], "column_26": ["1501.65"], "column_27": ["trimestrielle"], "column_28": ["prélèvement"], "column_29": ["AG-PR-001"], "column_30": ["2022-05-24"], "column_31": ["2026-05-30"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2991, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-8991"], "column_3": ["M."], "column_4": ["Jean"], "column_5": ["Gatuhier"], "column_6": ["17-04-1965"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["1105"], "column_10": ["allée"], "column_11": ["du Havre"], "column_12": [""], "column_13": [""], "column_14": ["Joliette"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J6E 7L1"], "column_18": ["CA"], "column_19": ["aaaa.aaaaaaaa@aaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000048991"], "column_22": ["auto"], "column_23": ["05-12-2024"], "column_24": ["26-02-2027"], "column_25": ["actif"], "column_26": ["1863.83"], "column_27": ["mensuelle"], "column_28": ["virement"], "column_29": ["AG-QC-001"], "column_30": ["05-11-2024"], "column_31": ["27-06-2025"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2992, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9092"], "column_3": ["M."], "column_4": ["William"], "column_5": ["Roy"], "column_6": ["07-12-1967"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["1771"], "column_10": ["avenue"], "column_11": ["des Lilas"], "column_12": [""], "column_13": [""], "column_14": ["Québec"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G2B 2V2"], "column_18": ["CA"], "column_19": ["aaa99@aaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049092"], "column_22": ["auto"], "column_23": ["15-02-2022"], "column_24": ["18-12-2026"], "column_25": ["actif"], "column_26": ["1333.26"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-QC-001"], "column_30": ["28-01-2022"], "column_31": ["18-08-2023"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2993, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9318"], "column_3": ["Mme"], "column_4": ["Willow"], "column_5": ["Anderson"], "column_6": ["21-11-1979"], "column_7": ["F"], "column_8": ["en"], "column_9": ["7051"], "column_10": ["Avenue"], "column_11": ["Westwood"], "column_12": ["South"], "column_13": [""], "column_14": ["Châteauguay"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J6J 0Z9"], "column_18": ["CA"], "column_19": ["aaaaaa9999@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049318"], "column_22": ["habitation"], "column_23": ["13-08-2022"], "column_24": [""], "column_25": ["actif"], "column_26": ["2529.06"], "column_27": ["annuelle"], "column_28": ["prélèvement"], "column_29": ["AG-QC-002"], "column_30": ["12-08-2022"], "column_31": ["02-01-2026"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2994, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9339"], "column_3": ["M."], "column_4": ["Alexis"], "column_5": ["Leclerc"], "column_6": ["17-12-1968"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["4984"], "column_10": ["avenue"], "column_11": ["des Cèdres"], "column_12": [""], "column_13": ["577"], "column_14": ["Dollard-des-Ormeaux"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["H9B 1L5"], "column_18": ["CA"], "column_19": ["aaaaaa.aaaaaaa@aaaaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049339"], "column_22": ["vie"], "column_23": ["18-05-2018"], "column_24": ["29-01-2027"], "column_25": ["actif"], "column_26": ["1094.54"], "column_27": ["mensuelle"], "column_28": ["chèque"], "column_29": ["AG-QC-005"], "column_30": ["16-05-2018"], "column_31": ["15-09-2026"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2995, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9483"], "column_3": ["M."], "column_4": ["Alain"], "column_5": ["Tremblay"], "column_6": ["14-01-1983"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["5904"], "column_10": ["rang"], "column_11": ["de la Falaise"], "column_12": [""], "column_13": ["246"], "column_14": ["Magog"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J1X 5N2"], "column_18": ["CA"], "column_19": ["aaaaa9999@aaaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049483"], "column_22": ["voyage"], "column_23": ["22-06-2022"], "column_24": ["26-07-2027"], "column_25": ["actif"], "column_26": ["457.90"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-QC-001"], "column_30": ["09-06-2022"], "column_31": ["20-09-2023"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2996, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9582"], "column_3": ["Mme"], "column_4": ["Élis  e"], "column_5": ["Sato"], "column_6": ["19-09-1951"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["9143"], "column_10": ["carré"], "column_11": ["du Versant"], "column_12": ["Nord"], "column_13": ["27"], "column_14": ["Montréal"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["H2X 4Y6"], "column_18": ["CA"], "column_19": ["aaaaa99@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049582"], "column_22": ["habitation"], "column_23": ["28-07-2018"], "column_24": ["09-05-2027"], "column_25": ["actif"], "column_26": ["546.63"], "column_27": ["mensuelle"], "column_28": ["prélèvement"], "column_29": ["AG-QC-001"], "column_30": ["12-07-2018"], "column_31": ["13-01-2024"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2997, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9671"], "column_3": ["M."], "column_4": ["Simon"], "column_5": ["Fournier"], "column_6": ["22-12-1997"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["5688"], "column_10": ["rue"], "column_11": ["de la Rivièrre"], "column_12": ["Nord"], "column_13": ["261"], "column_14": ["Gatineau"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J9A 3H2"], "column_18": ["CA"], "column_19": ["aaaaa-aaaaaaaa@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049671"], "column_22": ["voyage"], "column_23": ["10-05-2025"], "column_24": ["01-04-2027"], "column_25": ["actif"], "column_26": ["355.36"], "column_27": ["mensuelle"], "column_28": ["chèque"], "column_29": ["AG-QC-001"], "column_30": ["20-04-2025"], "column_31": ["17-07-2026"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2998, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9698"], "column_3": ["Mme"], "column_4": ["Anne"], "column_5": ["Gauthier"], "column_6": ["20-09-1967"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["4516"], "column_10": ["rang"], "column_11": ["de la Pinède"], "column_12": [""], "column_13": [""], "column_14": ["Sherbrooke"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J1H 6Z0"], "column_18": ["CA"], "column_19": ["aa999@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049698"], "column_22": ["auto"], "column_23": ["27-06-2017"], "column_24": [""], "column_25": ["actif"], "column_26": ["388.59"], "column_27": ["trimestrielle"], "column_28": ["prélèvement"], "column_29": ["AG-QC-002"], "column_30": ["08-06-2017"], "column_31": ["18-08-2021"], "column_32": [""], "column_33": [""], "column_34": [""]}},
+            {"record": 2999, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9731"], "column_3": ["M."], "column_4": ["Pierre"], "column_5": ["Gagné"], "column_6": ["01-10-1976"], "column_7": ["M"], "column_8": ["fr"], "column_9": ["2280"], "column_10": ["route"], "column_11": ["du Moulin"], "column_12": [""], "column_13": [""], "column_14": ["Shawinigan"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["G9N 6H7"], "column_18": ["CA"], "column_19": ["aaaaaa@aaaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049731"], "column_22": ["auto"], "column_23": ["06-08-2025"], "column_24": ["26-04-2027"], "column_25": ["suspendu"], "column_26": ["266.01"], "column_27": ["mensuelle"], "column_28": ["carte"], "column_29": ["AG-QC-001"], "column_30": ["11-07-2025"], "column_31": ["05-04-2026"], "column_32": ["28-01-2026"], "column_33": ["10654.50"], "column_34": ["fermé"]}},
+            {"record": 3000, "origins": ["end"], "values": {"column_1": ["quebec"], "column_2": ["QC-0004-9871"], "column_3": ["Mme"], "column_4": ["Sophie"], "column_5": ["Morin"], "column_6": ["01-10-1949"], "column_7": ["F"], "column_8": ["fr"], "column_9": ["5013"], "column_10": ["avenue"], "column_11": ["du Parc"], "column_12": [""], "column_13": [""], "column_14": ["Gatineau"], "column_15": ["QC"], "column_16": ["Québec"], "column_17": ["J8Y 1Z0"], "column_18": ["CA"], "column_19": ["aaa999@aaaaa.aaaaaaa"], "column_20": ["+9-999-999-9999"], "column_21": ["CTR-3000049871"], "column_22": ["auto"], "column_23": ["25-04-2026"], "column_24": ["05-05-2026"], "column_25": ["résilié"], "column_26": ["1971.55"], "column_27": ["mensuelle"], "column_28": ["virement"], "column_29": ["AG-QC-005"], "column_30": ["14-04-2026"], "column_31": ["15-04-2026"], "column_32": [""], "column_33": [""], "column_34": [""]}}
+          ]
         }
       },
       "fields": [
@@ -48178,12 +46066,12 @@
     ]
   },
   "report": {
-    "generated_at": "2026-10-08T20:17:30.347629Z",
+    "generated_at": "2026-10-08T22:25:53.304974Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 1.07,
+    "processing_seconds": 0.7583,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -48203,6 +46091,11 @@
         "long_text_truncate_at": 30,
         "truncation_suffix": "...",
         "inline_display_size": 3
+      },
+      "row_sample": {
+        "start": 10,
+        "middle": 10,
+        "end": 10
       }
     },
     "base_scan": {
@@ -48211,8 +46104,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
-      "facts_sha256": "21c86bfd520d5bde0023013701dd69cb82e9691f43b981382d9d3fa875f53045"
+      "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
+      "facts_sha256": "13ad6dff0a20058fdb2ef91f7311a28fb11e35628e3a90c15ad3a8896ab32409"
     },
     "datasets": [
       {
@@ -48231,7 +46124,6 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 0,
-          "with_issues_column_count": 15,
           "numeric_column_count": 4,
           "date_column_count": 6,
           "string_column_count": 24,
@@ -48332,7 +46224,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -48478,7 +46369,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -48669,7 +46559,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -48808,7 +46697,6 @@
             "type_error_percent": 0.0,
             "missing_count": 7,
             "missing_percent": 0.23,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -49212,7 +47100,6 @@
             "type_error_percent": 0.0,
             "missing_count": 4,
             "missing_percent": 0.13,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -49597,7 +47484,6 @@
             "type_error_percent": 0.1,
             "missing_count": 6,
             "missing_percent": 0.2,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -49892,7 +47778,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -50031,7 +47916,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -50170,7 +48054,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -50419,7 +48302,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -50761,7 +48643,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -51285,7 +49166,6 @@
             "type_error_percent": 0.0,
             "missing_count": 2280,
             "missing_percent": 76.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -51461,7 +49341,6 @@
             "type_error_percent": 0.0,
             "missing_count": 1928,
             "missing_percent": 64.27,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -51710,7 +49589,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -52118,7 +49996,6 @@
             "type_error_percent": 0.0,
             "missing_count": 3,
             "missing_percent": 0.1,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -52385,7 +50262,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -52682,7 +50558,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -52986,7 +50861,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -53142,7 +51016,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -53415,7 +51288,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -53564,7 +51436,6 @@
             "type_error_percent": 0.0,
             "missing_count": 9,
             "missing_percent": 0.3,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -53755,7 +51626,6 @@
             "type_error_percent": 0.0,
             "missing_count": 2,
             "missing_percent": 0.07,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -53920,7 +51790,6 @@
             "type_error_percent": 0.23,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -54212,7 +52081,6 @@
             "type_error_percent": 0.12,
             "missing_count": 502,
             "missing_percent": 16.73,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -54515,7 +52383,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -54679,7 +52546,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -54928,7 +52794,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -55092,7 +52957,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -55307,7 +53171,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -55581,7 +53444,6 @@
             "type_error_percent": 0.2,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -55876,7 +53738,6 @@
             "type_error_percent": 0.1,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -56175,7 +54036,6 @@
             "type_error_percent": 0.24,
             "missing_count": 2580,
             "missing_percent": 86.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -56455,7 +54315,6 @@
             "type_error_percent": 0.0,
             "missing_count": 2651,
             "missing_percent": 88.37,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -56704,7 +54563,6 @@
             "type_error_percent": 0.0,
             "missing_count": 2560,
             "missing_percent": 85.33,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -56802,923 +54660,6 @@
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "duplicate_rows",
-            "severity": "warning",
-            "message": "Duplicate rows beyond their first occurrence",
-            "count": 8,
-            "column_ids": [],
-            "row_numbers": [
-              1521,
-              1814,
-              1999,
-              2064,
-              2268,
-              2527,
-              2543,
-              2627
-            ]
-          },
-          {
-            "code": "missing_values",
-            "severity": "warning",
-            "message": "Missing cells",
-            "count": 12532,
-            "column_ids": [
-              "column_4",
-              "column_5",
-              "column_6",
-              "column_12",
-              "column_13",
-              "column_15",
-              "column_21",
-              "column_22",
-              "column_24",
-              "column_32",
-              "column_33",
-              "column_34"
-            ],
-            "row_numbers": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10
-            ]
-          },
-          {
-            "code": "trimmed_cells",
-            "severity": "info",
-            "message": "Cells changed by trimming surrounding whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "collapsed_whitespace",
-            "severity": "info",
-            "message": "Cells changed by collapsing repeated internal whitespace",
-            "count": 129,
-            "column_ids": [
-              "column_4",
-              "column_5",
-              "column_11",
-              "column_14",
-              "column_17",
-              "column_19",
-              "column_20"
-            ],
-            "row_numbers": []
-          },
-          {
-            "code": "variant_groups",
-            "severity": "info",
-            "message": "Values written in several ways that normalization compares as equal",
-            "count": 74,
-            "column_ids": [
-              "column_4",
-              "column_5",
-              "column_10",
-              "column_11",
-              "column_14",
-              "column_15",
-              "column_16",
-              "column_17",
-              "column_18",
-              "column_28"
-            ],
-            "row_numbers": []
-          },
-          {
-            "code": "ambiguous_dates",
-            "severity": "warning",
-            "message": "Date values matching more than one day-month order",
-            "count": 1630,
-            "column_ids": [
-              "column_6",
-              "column_23",
-              "column_24",
-              "column_30",
-              "column_31",
-              "column_32"
-            ],
-            "row_numbers": []
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": [
-              "principal",
-              "CLI-00000281",
-              "Mme",
-              "Lucie",
-              "Roy",
-              "1961-03-31",
-              "F",
-              "fr",
-              "4682",
-              "chemin",
-              "des Tulipes",
-              "",
-              "245",
-              "Montréal",
-              "QC",
-              "Québec",
-              "H4A 9M3",
-              "CA",
-              "aa9999@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000000281",
-              "auto",
-              "2020-07-16",
-              "2026-12-28",
-              "actif",
-              "1234.18",
-              "mensuelle",
-              "chèque",
-              "AG-PR-001",
-              "2020-07-08",
-              "2024-10-24",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 2,
-            "values": [
-              "principal",
-              "CLI-00000432",
-              "Mme",
-              "Suzanne",
-              "Taylor",
-              "1983-01-14",
-              "F",
-              "fr",
-              "518",
-              "rue",
-              "des Trois-Lacs",
-              "",
-              "405",
-              "Lévis",
-              "QC",
-              "Québec",
-              "G6V 8P2",
-              "CA",
-              "aaa9999@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000000432",
-              "vie",
-              "2027-06-02",
-              "2021-11-27",
-              "actif",
-              "1123.69",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-003",
-              "2021-11-09",
-              "2021-11-22",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 3,
-            "values": [
-              "principal",
-              "CLI-00000538",
-              "Mme",
-              "Juliette",
-              "Michaud",
-              "1941-09-10",
-              "F",
-              "fr",
-              "2943",
-              "avenue",
-              "des Vents",
-              "",
-              "",
-              "Granby",
-              "QC",
-              "Québec",
-              "J2H 0H3",
-              "CA",
-              "aaa99@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000000538",
-              "voyage",
-              "2016-09-30",
-              "2022-07-20",
-              "résilié",
-              "379.29",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-001",
-              "2016-09-16",
-              "2017-04-05",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 4,
-            "values": [
-              "principal",
-              "CLI-0000072",
-              "M.",
-              "Oliivier",
-              "Landry",
-              "1936-12-13",
-              "M",
-              "fr",
-              "6132",
-              "route",
-              "des Prairies",
-              "",
-              "519",
-              "Repentigny",
-              "QC",
-              "Québec",
-              "J5Y 2J3",
-              "CA",
-              "aaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000000726",
-              "auto",
-              "2023-03-29",
-              "2027-05-07",
-              "actif",
-              "-744.79",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-004",
-              "2023-03-04",
-              "2024-06-01",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 5,
-            "values": [
-              "principal",
-              "CLI-00000892",
-              "Mme",
-              "Nicole",
-              "Tremblay",
-              "1943-04-16",
-              "F",
-              "fr",
-              "9307",
-              "chemin",
-              "des Ormes",
-              "",
-              "",
-              "Québec",
-              "QC",
-              "Québec",
-              "G2B 7V8",
-              "CA",
-              "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000000892",
-              "voyage",
-              "2017-05-26",
-              "2018-11-19",
-              "résilié",
-              "241.17",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-004",
-              "2017-05-12",
-              "2019-10-29",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 6,
-            "values": [
-              "principal",
-              "CLI-00001006",
-              "M.",
-              "Luke",
-              "Pham",
-              "1979-07-29",
-              "M",
-              "en",
-              "2174",
-              "Street",
-              "Riverside",
-              "",
-              "",
-              "Winnipeg",
-              "MB",
-              "Manitoba",
-              "R3C 4S8",
-              "CA",
-              "aaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001006",
-              "auto",
-              "2025-05-17",
-              "2026-07-30",
-              "expiré",
-              "695.97",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-008",
-              "2025-04-17",
-              "2026-06-07",
-              "2026-05-13",
-              "24940.92",
-              "rejeté"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 7,
-            "values": [
-              "principal",
-              "CLI-00001095",
-              "M.",
-              "Émile",
-              "Lavoie",
-              "1996-03-27",
-              "M",
-              "fr",
-              "909",
-              "rue",
-              "du Lac",
-              "",
-              "358",
-              "Lévis",
-              "QC",
-              "Québec",
-              "G6V 8A4",
-              "CA",
-              "aaaaa.aaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001095",
-              "auto",
-              "2025-03-16",
-              "2027-01-30",
-              "actif",
-              "1144.35",
-              "annuelle",
-              "prélèvement",
-              "AG-PR-005",
-              "2025-02-28",
-              "2025-10-06",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 8,
-            "values": [
-              "principal",
-              "CLI-00001384",
-              "Mme",
-              "Catherine",
-              "Gagné",
-              "1958-01-22",
-              "F",
-              "fr",
-              "6362",
-              "promenade",
-              "des Geais-Bleus",
-              "Ouest",
-              "",
-              "Lévis",
-              "QC",
-              "Québec",
-              "G6W 9E4",
-              "CA",
-              "aaaaaa@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001384",
-              "voyage",
-              "2018-07-30",
-              "",
-              "actif",
-              "433.12",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-001",
-              "2018-07-08",
-              "2026-01-16",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 9,
-            "values": [
-              "principal",
-              "CLI-00001430",
-              "M.",
-              "Jack",
-              "Chowdhury",
-              "1987-11-05",
-              "M",
-              "en",
-              "7641",
-              "Place",
-              "Pine",
-              "",
-              "",
-              "Toronto",
-              "ON",
-              "Ontario",
-              "M6G 7M3",
-              "CA",
-              "aaaa99@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001430",
-              "habitation",
-              "2022-06-11",
-              "",
-              "actif",
-              "1509.17",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-001",
-              "2022-06-10",
-              "2023-02-24",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 10,
-            "values": [
-              "principal",
-              "CLI--00001642",
-              "Mme",
-              "Catherine",
-              "Caron",
-              "1981-09-04",
-              "F",
-              "fr",
-              "528",
-              "rue",
-              "de l'Aube",
-              "",
-              "",
-              "Montréal",
-              "QC",
-              "Québec",
-              "H4A 4S8",
-              "CA",
-              "aaaaaaaaaaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001642",
-              "voyage",
-              "2022-09-27",
-              "2027-05-13",
-              "actif",
-              "405.78",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-004",
-              "2022-09-11",
-              "2023-08-08",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 11,
-            "values": [
-              "principal",
-              "CLI-00001668",
-              "Mme",
-              "sofia",
-              "baker",
-              "1942-02-06",
-              "F",
-              "en",
-              "1544",
-              "Avenue",
-              "oak",
-              "",
-              "557",
-              "chateauguay",
-              "QC",
-              "quebec",
-              "J6J 3K7",
-              "CA",
-              "aaaaaaaaaa@aaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001668",
-              "vie",
-              "2024-09-11",
-              "2027-07-11",
-              "actif",
-              "1043.75",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-006",
-              "2024-08-24",
-              "2026-04-01",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 12,
-            "values": [
-              "principal",
-              "CLI-00001783",
-              "Mme",
-              "Aria",
-              "Thompson",
-              "1995-03-16",
-              "F",
-              "en",
-              "876",
-              "Avenue",
-              "School",
-              "",
-              "",
-              "Ottawg",
-              "ON",
-              "Ontario",
-              "K1A 4T0",
-              "CA",
-              "aaaaaaaa99@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001783",
-              "auto",
-              "2017-07-01",
-              "2027-04-23",
-              "actif",
-              "672.10",
-              "annuelle",
-              "prélèvement",
-              "AG-PR-004",
-              "2017-06-04",
-              "2019-07-31",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 13,
-            "values": [
-              "principal",
-              "CLI-00001927",
-              "M.",
-              "Jean",
-              "Côté",
-              "1994-09-21",
-              "M",
-              "fr",
-              "2629",
-              "route",
-              "de la Traverse",
-              "Nord",
-              "991",
-              "Mnotréal",
-              "QC",
-              "Québec",
-              "H2X 4P4",
-              "CA",
-              "aaaaaaaa@aaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000001927",
-              "habitation",
-              "2021-02-26",
-              "2027-02-23",
-              "actif",
-              "2727.70",
-              "annuelle",
-              "chèque",
-              "AG-PR-007",
-              "2021-02-03",
-              "2022-11-27",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 14,
-            "values": [
-              "principal",
-              "CLI-00002289",
-              "M.",
-              "Maxime",
-              "Gagnon",
-              "1959-11-12",
-              "M",
-              "fr",
-              "5066",
-              "avenue",
-              "du Parc",
-              "",
-              "244",
-              "Québec",
-              "QC",
-              "Québec",
-              "G2B 5E5",
-              "CA",
-              "aaaaaaaaaaaa@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000002289",
-              "auto",
-              "2026-01-07",
-              "2026-12-24",
-              "actif",
-              "1428.63",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-001",
-              "2025-12-16",
-              "2026-02-28",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 15,
-            "values": [
-              "principal",
-              "CLI-00002347",
-              "M.",
-              "Émile",
-              "Rodriguez",
-              "1996-05-21",
-              "M",
-              "fr",
-              "2985",
-              "rue",
-              "des Saules",
-              "",
-              "283",
-              "Québec",
-              "QC",
-              "Québec",
-              "G2B 9H7",
-              "CA",
-              "aaaaa.aaaaaaaaa@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000002347",
-              "voyage",
-              "2023-02-16",
-              "",
-              "actif",
-              "652.13",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-004",
-              "2023-02-05",
-              "2026-02-01",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 16,
-            "values": [
-              "principal",
-              "CLI-00002991",
-              "M.",
-              "Michael",
-              "Walker",
-              "2001-11-15",
-              "M",
-              "en",
-              "9868",
-              "Way",
-              "Spring",
-              "",
-              "",
-              "Québec",
-              "QC",
-              "Québec",
-              "G2B 2E7",
-              "CA",
-              "aaaaaaa_aaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000002991",
-              "vie",
-              "2025-08-01",
-              "2027-03-08",
-              "actif",
-              "2798.92",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-005",
-              "2025-08-01",
-              "2026-01-05",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 17,
-            "values": [
-              "principal",
-              "CLI-00003000",
-              "Mme",
-              "Marie",
-              "Patel",
-              "1979-11-10",
-              "F",
-              "fr",
-              "4453",
-              "rue",
-              "du Havre",
-              "",
-              "868",
-              "Québec",
-              "QC",
-              "Québec",
-              "G1V 4H0",
-              "CA",
-              "aaaaa9999@aaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000003000",
-              "habitation",
-              "2020-01-28",
-              "2027-03-15",
-              "actif",
-              "2147.32",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-006",
-              "2020-01-16",
-              "2022-09-15",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 18,
-            "values": [
-              "principal",
-              "CLI-00003159",
-              "Mme",
-              "Anne",
-              "Paquette",
-              "1943-03-15",
-              "F",
-              "fr",
-              "2897",
-              "croissant",
-              "du Moulin",
-              "",
-              "",
-              "Montréal",
-              "QC",
-              "Québec",
-              "H4A 3C2",
-              "CA",
-              "aaaa99@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000003159",
-              "auto",
-              "2024-12-20",
-              "2027-04-15",
-              "actif",
-              "1731.59",
-              "mensuelle",
-              "carte",
-              "AG-PR-007",
-              "2024-12-08",
-              "2026-02-09",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 19,
-            "values": [
-              "principal",
-              "CLI-00003200",
-              "M.",
-              "Sylvain",
-              "Silva",
-              "1966-09-14",
-              "M",
-              "fr",
-              "26",
-              "carré",
-              "des Lilas",
-              "",
-              "",
-              "Hamilton",
-              "ON",
-              "Ontario",
-              "L8S 1B2",
-              "CA",
-              "aaaaaaa_aaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000003200",
-              "vie",
-              "2026-06-14",
-              "2027-05-14",
-              "actif",
-              "4319.82",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-003",
-              "2026-05-19",
-              "2026-06-08",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 20,
-            "values": [
-              "principal",
-              "CLI-00003271",
-              "M.",
-              "Jean-Philippe",
-              "Ouellet",
-              "1978-04-11",
-              "M",
-              "fr",
-              "6502",
-              "avenue",
-              "des Champs",
-              "Ouest",
-              "",
-              "Fredericton",
-              "NB",
-              "Nouveau-Brunswick",
-              "E3B 3G8",
-              "CA",
-              "aaaaaaaaaaaa.aaaaaaa@aaaaaaa.aaaaaaa",
-              "+9-999-999-9999",
-              "CTR-1000003271",
-              "vie",
-              "2024-02-22",
-              "2026-11-10",
-              "actif",
-              "1253.03",
-              "mensuelle",
-              "prélèvement",
-              "AG-PR-001",
-              "2024-02-04",
-              "2025-05-28",
-              "",
-              "",
-              ""
-            ],
-            "absent": []
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": []
-        },
         "structure": null
       }
     ]

@@ -33,6 +33,18 @@ async function openFilter(page, table, index) {
 (async () => {
   const report = JSON.parse(await fs.readFile(process.argv[3], 'utf8'));
   const profile = report.report.datasets[0];
+  const base = report.datasets.find(dataset => dataset.id === profile.id);
+  // The page reads the document alone (F01): every figure checked below is
+  // recomputed from the JSON, never from the page.
+  const observations = report.observations;
+  const mine = item => !item.dataset || item.dataset === profile.id;
+  const issueFields = new Set(
+    (observations ? observations.items : [])
+      .filter(item => mine(item) && item.status !== 'informational' && item.field)
+      .map(item => item.field),
+  );
+  const listed = observations ? observations.items.filter(mine) : [];
+  const sampleRows = base.records.sample ? base.records.sample.rows : [];
   const browser = await chromium.launch({
     headless: true,
     channel: process.env.TABALYST_BROWSER || 'msedge',
@@ -59,7 +71,7 @@ async function openFilter(page, table, index) {
       assert.equal(await page.locator('.side').evaluate(el => getComputedStyle(el).position), 'sticky');
       assert.equal(await page.locator('.foot').count(), 1);
       assert.ok((await page.locator('.foot').innerText()).includes('Gregory Borelli'));
-      assert.equal(await page.locator('.rep-tab').count(), 9);
+      assert.ok((await page.locator('.rep-tab').count()) >= 10);
       assert.equal(await page.locator('#columns-table tbody tr').count(), profile.columns.length);
       assert.equal(await page.locator('a.brand[href="https://tabalyst.com/"]').count(), 2);
       const firstColumnRow = page.locator('#columns-table tbody tr').first();
@@ -70,7 +82,7 @@ async function openFilter(page, table, index) {
       assert.equal(hoverBackgrounds[0], hoverBackgrounds[1]);
       assert.equal(
         await page.locator('[data-seg="columns-table"] [data-mode="issue"] .c').innerText(),
-        String(profile.summary.with_issues_column_count),
+        String(profile.columns.filter(column => issueFields.has(column.id)).length),
       );
 
       const percent = page.locator('.pct .l').first();
@@ -88,7 +100,7 @@ async function openFilter(page, table, index) {
       assert.equal(percentLayout.countIsRightOfCenter, true);
 
       await page.locator('[data-seg="columns-table"] [data-mode="issue"]').click();
-      const expectedIssues = profile.columns.filter(column => column.with_issues);
+      const expectedIssues = profile.columns.filter(column => issueFields.has(column.id));
       assert.deepEqual(await visibleRows(page, 'columns-table'), expectedIssues.map(column => column.name));
 
       const firstIssue = expectedIssues[0];
@@ -137,12 +149,43 @@ async function openFilter(page, table, index) {
         await page.locator('#structure-table tbody tr').count(),
         profile.structure ? profile.structure.fields.length : 0,
       );
-      const limits = profile.limits;
+      const measures = observations ? observations.limits.filter(mine) : [];
+      const diagnostics = report.diagnostics.filter(item => !item.dataset || item.dataset === profile.id);
       assert.equal(
         await page.locator('#limits').count(),
-        limits.measures.length || limits.diagnostics.length || limits.untracked_observations
-          || limits.depth_truncated_observations ? 1 : 0,
+        measures.length || diagnostics.length || base.structure.untracked_observations
+          || base.structure.depth_truncated_observations ? 1 : 0,
       );
+
+      // Observations: one row per listed finding, paged by 25 and shown by
+      // keyboard; the status is written, never only colored.
+      const shownFindings = Math.min(listed.length, 500);
+      assert.equal(await page.locator('#observation-table tbody tr').count(), shownFindings);
+      assert.equal(
+        await page.locator('#observation-table tbody tr:not([hidden])').count(),
+        Math.min(shownFindings, 25),
+      );
+      if (shownFindings > 25) {
+        const pager = page.locator('[data-more="observation-table"]');
+        await pager.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(
+          await page.locator('#observation-table tbody tr:not([hidden])').count(),
+          Math.min(shownFindings, 50),
+        );
+      }
+      if (shownFindings) {
+        assert.ok((await page.locator('#observation-table tbody tr .st').first().innerText()).length > 0);
+        assert.ok((await page.locator('#observation-table tbody tr .acc').first().innerText()).length > 0);
+      }
+
+      // Data sample: the rows of the document, in three labelled parts.
+      assert.equal(await page.locator('#sample-table tbody tr').count(), Math.min(sampleRows.length, 300));
+      const parts = await page.locator('#sample-table tbody tr td:nth-child(2)').allInnerTexts();
+      assert.ok(parts.every(text => ['Start', 'Sampled', 'End'].some(word => text.includes(word))));
+
+      // Escaping: nothing of the data runs, and tags in values stay text.
+      assert.equal(await page.evaluate(() => document.querySelectorAll('.dtable td script, .dtable td img').length), 0);
 
       const firstPanel = page.locator('#overview');
       const collapse = firstPanel.locator('.collapse');

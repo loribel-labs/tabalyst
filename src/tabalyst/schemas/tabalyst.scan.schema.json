@@ -4361,45 +4361,6 @@
       "title": "Presence",
       "type": "object"
     },
-    "PreviewRecord": {
-      "additionalProperties": false,
-      "properties": {
-        "record": {
-          "title": "Record",
-          "type": "integer"
-        },
-        "values": {
-          "additionalProperties": {
-            "anyOf": [
-              {
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "title": "Values",
-          "type": "object"
-        }
-      },
-      "required": [
-        "record",
-        "values"
-      ],
-      "title": "PreviewRecord",
-      "type": "object"
-    },
     "QualitySummary": {
       "additionalProperties": false,
       "description": "What was found, whole scan (``dataset`` absent) or one dataset, counted\nbefore ``scan.observations.max_items`` cuts the lists. ``has_observations``\nis any observation, ``has_quality_issues`` a candidate anomaly or a\nconfirmed issue, ``has_limits`` any limit; they stand for the counts.",
@@ -4537,13 +4498,6 @@
     "RecordSettings": {
       "additionalProperties": false,
       "properties": {
-        "preview": {
-          "default": 10,
-          "maximum": 1000,
-          "minimum": 0,
-          "title": "Preview",
-          "type": "integer"
-        },
         "duplicates": {
           "default": true,
           "title": "Duplicates",
@@ -4568,13 +4522,6 @@
         "duplicates": {
           "$ref": "#/$defs/DuplicateRecords"
         },
-        "preview": {
-          "items": {
-            "$ref": "#/$defs/PreviewRecord"
-          },
-          "title": "Preview",
-          "type": "array"
-        },
         "sample": {
           "anyOf": [
             {
@@ -4590,8 +4537,7 @@
       "required": [
         "with_missing",
         "empty",
-        "duplicates",
-        "preview"
+        "duplicates"
       ],
       "title": "Records",
       "type": "object"
@@ -4955,7 +4901,7 @@
     },
     "SampleRow": {
       "additionalProperties": false,
-      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` has the shape of ``PreviewRecord.values``: canonical text per\nfield id, a list when the path repeats, ``null`` for a JSON null or a hidden\ncell, no key for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
+      "description": "A row of the row sample: its position in the dataset (the record index),\nthe groups it belongs to and the cells of the projected fields.\n\n``values`` holds the canonical text per field id, through its exposure: a\nlist when the path repeats, ``null`` for a JSON null or a hidden cell, no\nkey for a field absent from the record. ``truncated`` lists the\nfields whose cell was cut at ``cell_chars`` (design 18.11).",
       "properties": {
         "record": {
           "title": "Record",

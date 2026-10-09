@@ -46,7 +46,10 @@ def test_report_generates_html_json_and_history(tmp_path):
     assert "2 rows and 2 columns" in result.stderr
     profile_json = html.with_suffix(".json")
     data = json.loads(profile_json.read_text(encoding="utf-8"))
-    assert data["report"]["datasets"][0]["preview"][0]["values"][0] == "001"
+    assert data["datasets"][0]["records"]["sample"]["rows"][0]["values"] == {
+        "column_1": ["001"],
+        "column_2": ["3"],
+    }
     generated_html = html.read_text(encoding="utf-8")
     assert "Tabalyst Design Model · Signature v1.0" in generated_html
     assert "cdn." not in generated_html
@@ -297,7 +300,7 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
                 "scan": {
                     "csv": {"delimiter": ";", "encoding": "cp1252"},
                     "values": {"null_markers": ["NULL"]},
-                    "records": {"preview": 0},
+                    "records": {"sample": {"rows": 0}},
                 },
             }
         )
@@ -325,7 +328,7 @@ def test_config_and_cli_input_overrides_are_applied(tmp_path):
     assert result.exit_code == 0, result.output
     data = json.loads(output.with_suffix(".json").read_text(encoding="utf-8"))
     assert data["report"]["datasets"][0]["summary"]["missing_count"] == 1
-    assert data["report"]["datasets"][0]["preview"] == []
+    assert "sample" not in data["datasets"][0]["records"]
     assert data["source"]["csv"]["delimiter"] == ","
     assert data["source"]["encoding"] == "utf-8"
 

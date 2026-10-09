@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T20:17:33.812116Z",
-    "duration_seconds": 0.021894,
+    "started_at": "2026-10-08T22:20:52.950546Z",
+    "duration_seconds": 0.021892,
     "timings": {
-      "reading": 0.002674,
-      "analysis": 0.010436,
-      "finalize": 0.007294,
-      "derived": 0.00112,
-      "other": 0.00037
+      "reading": 0.010917,
+      "analysis": 0.002059,
+      "finalize": 0.00737,
+      "derived": 0.001168,
+      "other": 0.000378
     },
     "workers": 1,
-    "peak_memory_bytes": 53231616
+    "peak_memory_bytes": 53080064
   },
   "source": {
     "format": "excel",
@@ -142,7 +142,6 @@
       "max_listed_records": 10
     },
     "records": {
-      "preview": 20,
       "duplicates": true,
       "sample": {
         "rows": 1000,
@@ -301,7 +300,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "c1c58bdf265626e32d18867fcdde3339af9a656aaca5e3253c6ff752403fea86",
+  "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -354,648 +353,6 @@
           },
           "records": []
         },
-        "preview": [
-          {
-            "record": 1,
-            "values": {
-              "column_1": [
-                "SO-0001"
-              ],
-              "column_2": [
-                "2026-01-03"
-              ],
-              "column_3": [
-                "Bruno Martin"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "4"
-              ],
-              "column_8": [
-                "28.56"
-              ],
-              "column_9": [
-                "false"
-              ]
-            }
-          },
-          {
-            "record": 2,
-            "values": {
-              "column_1": [
-                "SO-0002"
-              ],
-              "column_2": [
-                "2026-01-05"
-              ],
-              "column_3": [
-                "Bruno Laurent"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "East"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "1"
-              ],
-              "column_8": [
-                "20.49"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 3,
-            "values": {
-              "column_1": [
-                "SO-0003"
-              ],
-              "column_2": [
-                "2026-01-07"
-              ],
-              "column_3": [
-                "Ana Laurent"
-              ],
-              "column_4": [
-                "aaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "West"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "127.43"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 4,
-            "values": {
-              "column_1": [
-                "SO-0004"
-              ],
-              "column_2": [
-                "2026-01-09"
-              ],
-              "column_3": [
-                "Hugo Laurent"
-              ],
-              "column_4": [
-                "aaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "3"
-              ],
-              "column_8": [
-                "126.87"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 5,
-            "values": {
-              "column_1": [
-                "SO-0005"
-              ],
-              "column_2": [
-                "2026-01-11"
-              ],
-              "column_3": [
-                "Chloe Bernard"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "2"
-              ],
-              "column_8": [
-                "70.87"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 6,
-            "values": {
-              "column_1": [
-                "SO-0006"
-              ],
-              "column_2": [
-                "2026-01-13"
-              ],
-              "column_3": [
-                "Farid Laurent"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "12"
-              ],
-              "column_8": [
-                "84.86"
-              ],
-              "column_9": [
-                "false"
-              ]
-            }
-          },
-          {
-            "record": 7,
-            "values": {
-              "column_1": [
-                "SO-0007"
-              ],
-              "column_2": [
-                "2026-01-15"
-              ],
-              "column_3": [
-                "Gaelle Martin"
-              ],
-              "column_4": [
-                "aaaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "Center"
-              ],
-              "column_6": [
-                "store"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "112.86"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 8,
-            "values": {
-              "column_1": [
-                "SO-0008"
-              ],
-              "column_2": [
-                "2026-01-17"
-              ],
-              "column_3": [
-                "David Simon"
-              ],
-              "column_4": [
-                "aaaaa.aaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "North"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "44.11"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 9,
-            "values": {
-              "column_1": [
-                "SO-0009"
-              ],
-              "column_2": [
-                "2026-01-19"
-              ],
-              "column_3": [
-                "Bruno Michel"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaa9@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "West"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "7"
-              ],
-              "column_8": [
-                "52.92"
-              ],
-              "column_9": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 10,
-            "values": {
-              "column_1": [
-                "SO-0010"
-              ],
-              "column_2": [
-                "2026-01-21"
-              ],
-              "column_3": [
-                "Farid Bernard"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "store"
-              ],
-              "column_7": [
-                "4"
-              ],
-              "column_8": [
-                "121.95"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 11,
-            "values": {
-              "column_1": [
-                "SO-0011"
-              ],
-              "column_2": [
-                "2026-01-23"
-              ],
-              "column_3": [
-                "Bruno Laurent"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "West"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "12"
-              ],
-              "column_8": [
-                "47.09"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 12,
-            "values": {
-              "column_1": [
-                "SO-0012"
-              ],
-              "column_2": [
-                "2026-01-25"
-              ],
-              "column_3": [
-                "Emma Simon"
-              ],
-              "column_4": [
-                "aaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "Center"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "61.07"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 13,
-            "values": {
-              "column_1": [
-                "SO-0013"
-              ],
-              "column_2": [
-                "2026-01-27"
-              ],
-              "column_3": [
-                "Ana Bernard"
-              ],
-              "column_4": [
-                "aaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "North"
-              ],
-              "column_6": [
-                "store"
-              ],
-              "column_7": [
-                "7"
-              ],
-              "column_8": [
-                "51.12"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 14,
-            "values": {
-              "column_1": [
-                "SO-0014"
-              ],
-              "column_2": [
-                "2026-01-29"
-              ],
-              "column_3": [
-                "Farid Bernard"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "East"
-              ],
-              "column_6": [
-                "store"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "84.76"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 15,
-            "values": {
-              "column_1": [
-                "SO-0015"
-              ],
-              "column_2": [
-                "2026-01-31"
-              ],
-              "column_3": [
-                "David Simon"
-              ],
-              "column_4": [
-                "aaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "Center"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "5"
-              ],
-              "column_8": [
-                "135.47"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 16,
-            "values": {
-              "column_1": [
-                "SO-0016"
-              ],
-              "column_2": [
-                "2026-02-02"
-              ],
-              "column_3": [
-                "Gaelle Dubois"
-              ],
-              "column_4": [
-                "aaaaaa.aaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "West"
-              ],
-              "column_6": [
-                "web"
-              ],
-              "column_7": [
-                "9"
-              ],
-              "column_8": [
-                "90.86"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 17,
-            "values": {
-              "column_1": [
-                "SO-0017"
-              ],
-              "column_2": [
-                "2026-02-04"
-              ],
-              "column_3": [
-                "Bruno Bernard"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "West"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "7"
-              ],
-              "column_8": [
-                "108.97"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 18,
-            "values": {
-              "column_1": [
-                "SO-0018"
-              ],
-              "column_2": [
-                "2026-02-06"
-              ],
-              "column_3": [
-                "Hugo Laurent"
-              ],
-              "column_4": [
-                "aaaa.aaaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "South"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "1"
-              ],
-              "column_8": [
-                "123.73"
-              ],
-              "column_9": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 19,
-            "values": {
-              "column_1": [
-                "SO-0019"
-              ],
-              "column_2": [
-                "2026-02-08"
-              ],
-              "column_3": [
-                "Bruno Simon"
-              ],
-              "column_4": [
-                "aaaaa.aaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "Center"
-              ],
-              "column_6": [
-                "store"
-              ],
-              "column_7": [
-                "11"
-              ],
-              "column_8": [
-                "63.87"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          },
-          {
-            "record": 20,
-            "values": {
-              "column_1": [
-                "SO-0020"
-              ],
-              "column_2": [
-                "2026-02-10"
-              ],
-              "column_3": [
-                "Chloe Moreau"
-              ],
-              "column_4": [
-                "aaaaa.aaaaaa99@aaaa.aaaaaaa"
-              ],
-              "column_5": [
-                "North"
-              ],
-              "column_6": [
-                "phone"
-              ],
-              "column_7": [
-                "12"
-              ],
-              "column_8": [
-                "50.36"
-              ],
-              "column_9": [
-                "true"
-              ]
-            }
-          }
-        ],
         "sample": {
           "selection": "start_middle_end",
           "hash": {
@@ -1032,9 +389,40 @@
           "truncated_cells": 0,
           "bytes": 384618,
           "max_bytes": 16777216,
-          "kept": 0,
+          "kept": 30,
           "of": 120,
-          "rows": []
+          "rows": [
+            {"record": 1, "origins": ["start"], "values": {"column_1": ["SO-0001"], "column_2": ["2026-01-03"], "column_3": ["Bruno Martin"], "column_4": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["web"], "column_7": ["4"], "column_8": ["28.56"], "column_9": ["false"]}},
+            {"record": 2, "origins": ["start"], "values": {"column_1": ["SO-0002"], "column_2": ["2026-01-05"], "column_3": ["Bruno Laurent"], "column_4": ["aaaaa.aaaaaaa9@aaaa.aaaaaaa"], "column_5": ["East"], "column_6": ["web"], "column_7": ["1"], "column_8": ["20.49"], "column_9": ["true"]}},
+            {"record": 3, "origins": ["start"], "values": {"column_1": ["SO-0003"], "column_2": ["2026-01-07"], "column_3": ["Ana Laurent"], "column_4": ["aaa.aaaaaaa9@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["phone"], "column_7": ["11"], "column_8": ["127.43"], "column_9": ["true"]}},
+            {"record": 4, "origins": ["start"], "values": {"column_1": ["SO-0004"], "column_2": ["2026-01-09"], "column_3": ["Hugo Laurent"], "column_4": ["aaaa.aaaaaaa9@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["web"], "column_7": ["3"], "column_8": ["126.87"], "column_9": ["true"]}},
+            {"record": 5, "origins": ["start"], "values": {"column_1": ["SO-0005"], "column_2": ["2026-01-11"], "column_3": ["Chloe Bernard"], "column_4": ["aaaaa.aaaaaaa9@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["web"], "column_7": ["2"], "column_8": ["70.87"], "column_9": ["true"]}},
+            {"record": 6, "origins": ["start"], "values": {"column_1": ["SO-0006"], "column_2": ["2026-01-13"], "column_3": ["Farid Laurent"], "column_4": ["aaaaa.aaaaaaa9@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["web"], "column_7": ["12"], "column_8": ["84.86"], "column_9": ["false"]}},
+            {"record": 7, "origins": ["start"], "values": {"column_1": ["SO-0007"], "column_2": ["2026-01-15"], "column_3": ["Gaelle Martin"], "column_4": ["aaaaaa.aaaaaa9@aaaa.aaaaaaa"], "column_5": ["Center"], "column_6": ["store"], "column_7": ["11"], "column_8": ["112.86"], "column_9": ["true"]}},
+            {"record": 8, "origins": ["start"], "values": {"column_1": ["SO-0008"], "column_2": ["2026-01-17"], "column_3": ["David Simon"], "column_4": ["aaaaa.aaaaa9@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["web"], "column_7": ["11"], "column_8": ["44.11"], "column_9": ["true"]}},
+            {"record": 9, "origins": ["start"], "values": {"column_1": ["SO-0009"], "column_2": ["2026-01-19"], "column_3": ["Bruno Michel"], "column_4": ["aaaaa.aaaaaa9@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["web"], "column_7": ["7"], "column_8": ["52.92"], "column_9": [""]}},
+            {"record": 10, "origins": ["start"], "values": {"column_1": ["SO-0010"], "column_2": ["2026-01-21"], "column_3": ["Farid Bernard"], "column_4": ["aaaaa.aaaaaaa99@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["store"], "column_7": ["4"], "column_8": ["121.95"], "column_9": ["true"]}},
+            {"record": 52, "origins": ["middle"], "values": {"column_1": ["SO-0052"], "column_2": ["2026-04-15"], "column_3": ["Emma Laurent"], "column_4": ["aaaa.aaaaaaa99@aaaa.aaaaaaa"], "column_5": ["East"], "column_6": ["store"], "column_7": ["1"], "column_8": ["20.24"], "column_9": ["true"]}},
+            {"record": 56, "origins": ["middle"], "values": {"column_1": ["SO-0056"], "column_2": ["2026-04-23"], "column_3": ["Ana Dubois"], "column_4": ["aaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["web"], "column_7": ["6"], "column_8": ["40.97"], "column_9": ["true"]}},
+            {"record": 57, "origins": ["middle"], "values": {"column_1": ["SO-0057"], "column_2": ["2026-04-25"], "column_3": ["Bruno Dubois"], "column_4": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["Center"], "column_6": ["store"], "column_7": ["10"], "column_8": ["135.91"], "column_9": ["true"]}},
+            {"record": 58, "origins": ["middle"], "values": {"column_1": ["SO-0058"], "column_2": ["2026-04-27"], "column_3": ["David Michel"], "column_4": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["web"], "column_7": ["7"], "column_8": ["8.36"], "column_9": ["true"]}},
+            {"record": 60, "origins": ["middle"], "values": {"column_1": ["SO-0060"], "column_2": ["2026-05-01"], "column_3": ["Bruno Moreau"], "column_4": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["store"], "column_7": ["4"], "column_8": ["39.12"], "column_9": ["true"]}},
+            {"record": 62, "origins": ["middle"], "values": {"column_1": ["SO-0062"], "column_2": ["2026-05-05"], "column_3": ["Emma Michel"], "column_4": ["aaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["store"], "column_7": ["6"], "column_8": ["116.9"], "column_9": ["true"]}},
+            {"record": 63, "origins": ["middle"], "values": {"column_1": ["SO-0063"], "column_2": ["2026-05-07"], "column_3": ["Farid Martin"], "column_4": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["store"], "column_7": ["3"], "column_8": ["106.18"], "column_9": [""]}},
+            {"record": 67, "origins": ["middle"], "values": {"column_1": ["SO-0067"], "column_2": ["2026-05-15"], "column_3": ["David Dubois"], "column_4": ["aaaaa.aaaaaa99@aaaa.aaaaaaa"], "column_5": ["East"], "column_6": ["web"], "column_7": ["11"], "column_8": ["166.06"], "column_9": ["true"]}},
+            {"record": 69, "origins": ["middle"], "values": {"column_1": ["SO-0069"], "column_2": ["2026-05-19"], "column_3": ["Emma Laurent"], "column_4": ["aaaa.aaaaaaa99@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["web"], "column_7": ["7"], "column_8": ["121.03"], "column_9": ["true"]}},
+            {"record": 70, "origins": ["middle"], "values": {"column_1": ["SO-0070"], "column_2": ["2026-05-21"], "column_3": ["Chloe Laurent"], "column_4": ["aaaaa.aaaaaaa99@aaaa.aaaaaaa"], "column_5": ["Center"], "column_6": ["store"], "column_7": ["7"], "column_8": ["100.44"], "column_9": ["false"]}},
+            {"record": 111, "origins": ["end"], "values": {"column_1": ["SO-0111"], "column_2": ["2026-03-14"], "column_3": ["David Dubois"], "column_4": ["aaaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["phone"], "column_7": ["9"], "column_8": ["171.35"], "column_9": ["true"]}},
+            {"record": 112, "origins": ["end"], "values": {"column_1": ["SO-0112"], "column_2": ["2026-03-16"], "column_3": ["David Bernard"], "column_4": ["aaaaa.aaaaaaa999@aaaa.aaaaaaa"], "column_5": ["East"], "column_6": ["store"], "column_7": ["12"], "column_8": ["107.77"], "column_9": ["true"]}},
+            {"record": 113, "origins": ["end"], "values": {"column_1": ["SO-0113"], "column_2": ["2026-03-18"], "column_3": ["Emma Martin"], "column_4": ["aaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["store"], "column_7": ["4"], "column_8": ["67.52"], "column_9": ["true"]}},
+            {"record": 114, "origins": ["end"], "values": {"column_1": ["SO-0114"], "column_2": ["2026-03-20"], "column_3": ["Chloe Dubois"], "column_4": ["aaaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["web"], "column_7": ["9"], "column_8": ["55.42"], "column_9": ["true"]}},
+            {"record": 115, "origins": ["end"], "values": {"column_1": ["SO-0115"], "column_2": ["2026-03-22"], "column_3": ["Hugo Martin"], "column_4": ["aaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["phone"], "column_7": ["5"], "column_8": ["86.61"], "column_9": ["true"]}},
+            {"record": 116, "origins": ["end"], "values": {"column_1": ["SO-0116"], "column_2": ["2026-03-24"], "column_3": ["Chloe Martin"], "column_4": ["aaaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["South"], "column_6": ["store"], "column_7": ["2"], "column_8": ["148.69"], "column_9": ["true"]}},
+            {"record": 117, "origins": ["end"], "values": {"column_1": ["SO-0117"], "column_2": ["2026-03-26"], "column_3": ["Bruno Laurent"], "column_4": ["aaaaa.aaaaaaa999@aaaa.aaaaaaa"], "column_5": ["North"], "column_6": ["web"], "column_7": ["3"], "column_8": ["146.76"], "column_9": [""]}},
+            {"record": 118, "origins": ["end"], "values": {"column_1": ["SO-0118"], "column_2": ["2026-03-28"], "column_3": ["Emma Martin"], "column_4": ["aaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["West"], "column_6": ["web"], "column_7": ["9"], "column_8": ["138.54"], "column_9": ["true"]}},
+            {"record": 119, "origins": ["end"], "values": {"column_1": ["SO-0119"], "column_2": ["2026-03-30"], "column_3": ["David Michel"], "column_4": ["aaaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["Center"], "column_6": ["store"], "column_7": ["8"], "column_8": ["163.9"], "column_9": ["true"]}},
+            {"record": 120, "origins": ["end"], "values": {"column_1": ["SO-0120"], "column_2": ["2026-04-01"], "column_3": ["Gaelle Dubois"], "column_4": ["aaaaaa.aaaaaa999@aaaa.aaaaaaa"], "column_5": ["Center"], "column_6": ["phone"], "column_7": ["1"], "column_8": ["111.3"], "column_9": ["true"]}}
+          ]
         }
       },
       "fields": [
@@ -9237,12 +8625,12 @@
     ]
   },
   "report": {
-    "generated_at": "2026-10-08T20:17:33.884544Z",
+    "generated_at": "2026-10-08T22:25:52.252822Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.1034,
+    "processing_seconds": 0.0736,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -9262,6 +8650,11 @@
         "long_text_truncate_at": 30,
         "truncation_suffix": "...",
         "inline_display_size": 3
+      },
+      "row_sample": {
+        "start": 10,
+        "middle": 10,
+        "end": 10
       }
     },
     "base_scan": {
@@ -9270,8 +8663,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "c1c58bdf265626e32d18867fcdde3339af9a656aaca5e3253c6ff752403fea86",
-      "facts_sha256": "f2c61d8686b766a92238836f84f4d13adc6cff0c610211c3de45feca82a9c663"
+      "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
+      "facts_sha256": "e732719d85d56c9be88bd27cdbe25f7d196fb5be8a9c4f409efa2a58851f2376"
     },
     "datasets": [
       {
@@ -9290,7 +8683,6 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 0,
-          "with_issues_column_count": 1,
           "numeric_column_count": 2,
           "date_column_count": 1,
           "string_column_count": 5,
@@ -9344,7 +8736,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -9535,7 +8926,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -9784,7 +9174,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10115,7 +9504,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10384,7 +9772,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10500,7 +9887,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10606,7 +9992,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10758,7 +10143,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -10949,7 +10333,6 @@
             "type_error_percent": 0.0,
             "missing_count": 13,
             "missing_percent": 10.83,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -11036,353 +10419,6 @@
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "missing_values",
-            "severity": "warning",
-            "message": "Missing cells",
-            "count": 13,
-            "column_ids": [
-              "column_9"
-            ],
-            "row_numbers": [
-              9,
-              18,
-              27,
-              36,
-              45,
-              54,
-              63,
-              72,
-              81,
-              90
-            ]
-          },
-          {
-            "code": "trimmed_cells",
-            "severity": "info",
-            "message": "Cells changed by trimming surrounding whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "collapsed_whitespace",
-            "severity": "info",
-            "message": "Cells changed by collapsing repeated internal whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": [
-              "SO-0001",
-              "2026-01-03",
-              "Bruno Martin",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "South",
-              "web",
-              "4",
-              "28.56",
-              "false"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 2,
-            "values": [
-              "SO-0002",
-              "2026-01-05",
-              "Bruno Laurent",
-              "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "East",
-              "web",
-              "1",
-              "20.49",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 3,
-            "values": [
-              "SO-0003",
-              "2026-01-07",
-              "Ana Laurent",
-              "aaa.aaaaaaa9@aaaa.aaaaaaa",
-              "West",
-              "phone",
-              "11",
-              "127.43",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 4,
-            "values": [
-              "SO-0004",
-              "2026-01-09",
-              "Hugo Laurent",
-              "aaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "South",
-              "web",
-              "3",
-              "126.87",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 5,
-            "values": [
-              "SO-0005",
-              "2026-01-11",
-              "Chloe Bernard",
-              "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "South",
-              "web",
-              "2",
-              "70.87",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 6,
-            "values": [
-              "SO-0006",
-              "2026-01-13",
-              "Farid Laurent",
-              "aaaaa.aaaaaaa9@aaaa.aaaaaaa",
-              "South",
-              "web",
-              "12",
-              "84.86",
-              "false"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 7,
-            "values": [
-              "SO-0007",
-              "2026-01-15",
-              "Gaelle Martin",
-              "aaaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "Center",
-              "store",
-              "11",
-              "112.86",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 8,
-            "values": [
-              "SO-0008",
-              "2026-01-17",
-              "David Simon",
-              "aaaaa.aaaaa9@aaaa.aaaaaaa",
-              "North",
-              "web",
-              "11",
-              "44.11",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 9,
-            "values": [
-              "SO-0009",
-              "2026-01-19",
-              "Bruno Michel",
-              "aaaaa.aaaaaa9@aaaa.aaaaaaa",
-              "West",
-              "web",
-              "7",
-              "52.92",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 10,
-            "values": [
-              "SO-0010",
-              "2026-01-21",
-              "Farid Bernard",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "South",
-              "store",
-              "4",
-              "121.95",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 11,
-            "values": [
-              "SO-0011",
-              "2026-01-23",
-              "Bruno Laurent",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "West",
-              "phone",
-              "12",
-              "47.09",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 12,
-            "values": [
-              "SO-0012",
-              "2026-01-25",
-              "Emma Simon",
-              "aaaa.aaaaa99@aaaa.aaaaaaa",
-              "Center",
-              "web",
-              "11",
-              "61.07",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 13,
-            "values": [
-              "SO-0013",
-              "2026-01-27",
-              "Ana Bernard",
-              "aaa.aaaaaaa99@aaaa.aaaaaaa",
-              "North",
-              "store",
-              "7",
-              "51.12",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 14,
-            "values": [
-              "SO-0014",
-              "2026-01-29",
-              "Farid Bernard",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "East",
-              "store",
-              "11",
-              "84.76",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 15,
-            "values": [
-              "SO-0015",
-              "2026-01-31",
-              "David Simon",
-              "aaaaa.aaaaa99@aaaa.aaaaaaa",
-              "Center",
-              "phone",
-              "5",
-              "135.47",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 16,
-            "values": [
-              "SO-0016",
-              "2026-02-02",
-              "Gaelle Dubois",
-              "aaaaaa.aaaaaa99@aaaa.aaaaaaa",
-              "West",
-              "web",
-              "9",
-              "90.86",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 17,
-            "values": [
-              "SO-0017",
-              "2026-02-04",
-              "Bruno Bernard",
-              "aaaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "West",
-              "phone",
-              "7",
-              "108.97",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 18,
-            "values": [
-              "SO-0018",
-              "2026-02-06",
-              "Hugo Laurent",
-              "aaaa.aaaaaaa99@aaaa.aaaaaaa",
-              "South",
-              "phone",
-              "1",
-              "123.73",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 19,
-            "values": [
-              "SO-0019",
-              "2026-02-08",
-              "Bruno Simon",
-              "aaaaa.aaaaa99@aaaa.aaaaaaa",
-              "Center",
-              "store",
-              "11",
-              "63.87",
-              "true"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 20,
-            "values": [
-              "SO-0020",
-              "2026-02-10",
-              "Chloe Moreau",
-              "aaaaa.aaaaaa99@aaaa.aaaaaaa",
-              "North",
-              "phone",
-              "12",
-              "50.36",
-              "true"
-            ],
-            "absent": []
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": []
-        },
         "structure": null
       }
     ]

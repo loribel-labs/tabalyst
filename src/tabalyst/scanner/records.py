@@ -32,19 +32,17 @@ from array import array
 
 from tabalyst.scanner.config import ScanConfig
 from tabalyst.scanner.field import StringClassifier
-from tabalyst.scanner.measures import canonical_text
 from tabalyst.scanner.models import (
     Complete,
     Disabled,
     DuplicateRecords,
     Limited,
-    PreviewRecord,
     RecordList,
     Records,
 )
 from tabalyst.scanner.observations import Record, RecordBatch
 from tabalyst.scanner.paths import ROOT, FieldPath
-from tabalyst.scanner.rowsample import RowBudget, RowSampler, expose_cells
+from tabalyst.scanner.rowsample import RowBudget, RowSampler
 
 CONTAINER_TYPES = frozenset({"object", "array"})
 # Paths numbered for the digests; later paths use their ``repr``.
@@ -177,7 +175,6 @@ class RecordContext:
         "listed",
         "missing",
         "null_missing",
-        "preview",
         "row_budget",
         "sample",
         "seed",
@@ -189,7 +186,6 @@ class RecordContext:
         # String categories counted as missing (design section 7).
         self.missing = frozenset(config.values.missing) - {"absent", "null"}
         self.null_missing = "null" in config.values.missing
-        self.preview = config.records.preview
         self.duplicates = config.records.duplicates
         self.listed = config.limits.max_listed_records
         self.budget = DuplicateBudget(config.limits.max_tracked_records)
@@ -220,7 +216,6 @@ class RecordFacts:
         "empty_records",
         "missing_count",
         "missing_records",
-        "preview",
         "untracked",
     )
 
@@ -236,8 +231,6 @@ class RecordFacts:
             if context.sample.rows
             else None
         )
-        # Observed scalar values of the first records, per path.
-        self.preview: list[tuple[int, dict[FieldPath, list[tuple[str, str | None]]]]] = []
         self.missing_count = 0
         self.missing_records: list[int] = []
         self.empty_count = 0
@@ -250,8 +243,6 @@ class RecordFacts:
     def add(self, record: Record) -> None:
         context = self._context
         index = record.index
-        keep_preview = len(self.preview) < context.preview
-        values: dict[FieldPath, list[tuple[str, str | None]]] = {}
         missing = scalars = 0
         for observation in record.observations:
             native = observation.type
@@ -259,19 +250,9 @@ class RecordFacts:
                 continue
             scalars += 1
             if native == "null":
-                text = None
                 missing += context.null_missing
             elif native == "string":
-                text = observation.value
-                missing += context.is_missing(text)
-            elif keep_preview:
-                text = canonical_text(native, observation.value)
-            else:
-                continue
-            if keep_preview:
-                values.setdefault(observation.path, []).append((native, text))
-        if keep_preview:
-            self.preview.append((index, values))
+                missing += context.is_missing(observation.value)
         listed = context.listed
         if missing:
             self.missing_count += 1
@@ -295,18 +276,6 @@ class RecordFacts:
         rows = batch.rows
         start = batch.start
         paths = self._table.paths[1:]
-        room = context.preview - len(self.preview)
-        if room > 0:
-            for offset, row in enumerate(rows[:room]):
-                self.preview.append(
-                    (
-                        start + offset,
-                        {
-                            path: [("string", value)]
-                            for path, value in zip(paths, row, strict=True)
-                        },
-                    )
-                )
         missing = context.missing
         if irregular:
             category = context.strings.category
@@ -377,12 +346,6 @@ class RecordFacts:
             ),
             empty=RecordList(count=self.empty_count, records=self.empty_records),
             duplicates=DuplicateRecords(count=count, records=self.duplicate_records),
-            preview=[
-                PreviewRecord(
-                    record=index, values=self._exposed(observed, ids, exposures)
-                )
-                for index, observed in self.preview
-            ],
             sample=(
                 None
                 if self._sample is None
@@ -395,13 +358,3 @@ class RecordFacts:
                 )
             ),
         )
-
-    def _exposed(
-        self,
-        observed: dict[FieldPath, list[tuple[str, str | None]]],
-        ids: dict[FieldPath, str],
-        exposures: dict[FieldPath, str | None],
-    ) -> dict[str, list[str | None] | None]:
-        """Preview values of the listed fields, through their exposure (design
-        12.8)."""
-        return expose_cells(observed, ids, exposures, self._context.is_content)

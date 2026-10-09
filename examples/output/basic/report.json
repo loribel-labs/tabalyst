@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-08T20:17:28.990277Z",
-    "duration_seconds": 0.01254,
+    "started_at": "2026-10-08T22:20:50.772091Z",
+    "duration_seconds": 0.012507,
     "timings": {
-      "reading": 0.000404,
-      "analysis": 0.000153,
-      "finalize": 0.010936,
-      "derived": 0.00068,
-      "other": 0.000367
+      "reading": 0.000445,
+      "analysis": 0.000578,
+      "finalize": 0.01044,
+      "derived": 0.000683,
+      "other": 0.000361
     },
     "workers": 1,
-    "peak_memory_bytes": 50515968
+    "peak_memory_bytes": 51040256
   },
   "source": {
     "format": "csv",
@@ -138,7 +138,6 @@
       "max_listed_records": 10
     },
     "records": {
-      "preview": 20,
       "duplicates": true,
       "sample": {
         "rows": 1000,
@@ -297,7 +296,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
+  "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -343,123 +342,6 @@
             4
           ]
         },
-        "preview": [
-          {
-            "record": 1,
-            "values": {
-              "column_1": [
-                "001"
-              ],
-              "column_2": [
-                "Alice"
-              ],
-              "column_3": [
-                "12.50"
-              ],
-              "column_4": [
-                "2026-01-01"
-              ],
-              "column_5": [
-                "true"
-              ],
-              "column_6": [
-                "First order"
-              ]
-            }
-          },
-          {
-            "record": 2,
-            "values": {
-              "column_1": [
-                "002"
-              ],
-              "column_2": [
-                "Bob"
-              ],
-              "column_3": [
-                ""
-              ],
-              "column_4": [
-                "2026-02-01"
-              ],
-              "column_5": [
-                "false"
-              ],
-              "column_6": [
-                ""
-              ]
-            }
-          },
-          {
-            "record": 3,
-            "values": {
-              "column_1": [
-                "003"
-              ],
-              "column_2": [
-                "Charlie"
-              ],
-              "column_3": [
-                "25.00"
-              ],
-              "column_4": [
-                "2026-03-01"
-              ],
-              "column_5": [
-                "true"
-              ],
-              "column_6": [
-                "Two items, one order"
-              ]
-            }
-          },
-          {
-            "record": 4,
-            "values": {
-              "column_1": [
-                "003"
-              ],
-              "column_2": [
-                "Charlie"
-              ],
-              "column_3": [
-                "25.00"
-              ],
-              "column_4": [
-                "2026-03-01"
-              ],
-              "column_5": [
-                "true"
-              ],
-              "column_6": [
-                "Two items, one order"
-              ]
-            }
-          },
-          {
-            "record": 5,
-            "values": {
-              "column_1": [
-                "004"
-              ],
-              "column_2": [
-                "Dana"
-              ],
-              "column_3": [
-                "not available"
-              ],
-              "column_4": [
-                "2026-04-01"
-              ],
-              "column_5": [
-                "true"
-              ],
-              "column_6": [
-                "Pending review"
-              ]
-            }
-          }
-        ],
         "sample": {
           "selection": "start_middle_end",
           "hash": {
@@ -493,9 +375,15 @@
           "truncated_cells": 0,
           "bytes": 3005,
           "max_bytes": 16777216,
-          "kept": 0,
+          "kept": 5,
           "of": 5,
-          "rows": []
+          "rows": [
+            {"record": 1, "origins": ["start", "end"], "values": {"column_1": ["001"], "column_2": ["Alice"], "column_3": ["12.50"], "column_4": ["2026-01-01"], "column_5": ["true"], "column_6": ["First order"]}},
+            {"record": 2, "origins": ["start", "end"], "values": {"column_1": ["002"], "column_2": ["Bob"], "column_3": [""], "column_4": ["2026-02-01"], "column_5": ["false"], "column_6": [""]}},
+            {"record": 3, "origins": ["start", "end"], "values": {"column_1": ["003"], "column_2": ["Charlie"], "column_3": ["25.00"], "column_4": ["2026-03-01"], "column_5": ["true"], "column_6": ["Two items, one order"]}},
+            {"record": 4, "origins": ["start", "end"], "values": {"column_1": ["003"], "column_2": ["Charlie"], "column_3": ["25.00"], "column_4": ["2026-03-01"], "column_5": ["true"], "column_6": ["Two items, one order"]}},
+            {"record": 5, "origins": ["start", "end"], "values": {"column_1": ["004"], "column_2": ["Dana"], "column_3": ["not available"], "column_4": ["2026-04-01"], "column_5": ["true"], "column_6": ["Pending review"]}}
+          ]
         }
       },
       "fields": [
@@ -5251,12 +5139,12 @@
     "limits": []
   },
   "report": {
-    "generated_at": "2026-10-08T20:17:29.012544Z",
+    "generated_at": "2026-10-08T22:25:50.019380Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0385,
+    "processing_seconds": 0.0275,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -5276,6 +5164,11 @@
         "long_text_truncate_at": 30,
         "truncation_suffix": "...",
         "inline_display_size": 3
+      },
+      "row_sample": {
+        "start": 10,
+        "middle": 10,
+        "end": 10
       }
     },
     "base_scan": {
@@ -5284,8 +5177,8 @@
       "format_revision": 2,
       "engine_version": "0.6.2",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "f4efcdb5fbd41f465d70f84db265dc8063ac0b39edb9fbbfa010a1eeea139613",
-      "facts_sha256": "20dfca41e20abd6d6265d458fad5207d71dc082afc59b4effc94706f9fb2424d"
+      "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
+      "facts_sha256": "5b24151f7b3c153e903549f972ffd75593b81ffc8f28e4c0b3cb095354ffebd4"
     },
     "datasets": [
       {
@@ -5304,7 +5197,6 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 0,
-          "with_issues_column_count": 2,
           "numeric_column_count": 0,
           "date_column_count": 1,
           "string_column_count": 3,
@@ -5354,7 +5246,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -5465,7 +5356,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -5577,7 +5467,6 @@
             "type_error_percent": null,
             "missing_count": 1,
             "missing_percent": 20.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -5735,7 +5624,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -5898,7 +5786,6 @@
             "type_error_percent": 0.0,
             "missing_count": 0,
             "missing_percent": 0.0,
-            "with_issues": false,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -6041,7 +5928,6 @@
             "type_error_percent": 0.0,
             "missing_count": 1,
             "missing_percent": 20.0,
-            "with_issues": true,
             "normalization": {
               "trim_count": 0,
               "trim_percent": 0.0,
@@ -6134,125 +6020,6 @@
             "detectors": []
           }
         ],
-        "issues": [
-          {
-            "code": "duplicate_rows",
-            "severity": "warning",
-            "message": "Duplicate rows beyond their first occurrence",
-            "count": 1,
-            "column_ids": [],
-            "row_numbers": [
-              4
-            ]
-          },
-          {
-            "code": "missing_values",
-            "severity": "warning",
-            "message": "Missing cells",
-            "count": 2,
-            "column_ids": [
-              "column_3",
-              "column_6"
-            ],
-            "row_numbers": [
-              2
-            ]
-          },
-          {
-            "code": "trimmed_cells",
-            "severity": "info",
-            "message": "Cells changed by trimming surrounding whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "collapsed_whitespace",
-            "severity": "info",
-            "message": "Cells changed by collapsing repeated internal whitespace",
-            "count": 0,
-            "column_ids": [],
-            "row_numbers": []
-          },
-          {
-            "code": "mixed_types",
-            "severity": "warning",
-            "message": "Columns with mixed value types",
-            "count": 1,
-            "column_ids": [
-              "column_3"
-            ],
-            "row_numbers": []
-          }
-        ],
-        "preview": [
-          {
-            "row_number": 1,
-            "values": [
-              "001",
-              "Alice",
-              "12.50",
-              "2026-01-01",
-              "true",
-              "First order"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 2,
-            "values": [
-              "002",
-              "Bob",
-              "",
-              "2026-02-01",
-              "false",
-              ""
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 3,
-            "values": [
-              "003",
-              "Charlie",
-              "25.00",
-              "2026-03-01",
-              "true",
-              "Two items, one order"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 4,
-            "values": [
-              "003",
-              "Charlie",
-              "25.00",
-              "2026-03-01",
-              "true",
-              "Two items, one order"
-            ],
-            "absent": []
-          },
-          {
-            "row_number": 5,
-            "values": [
-              "004",
-              "Dana",
-              "not available",
-              "2026-04-01",
-              "true",
-              "Pending review"
-            ],
-            "absent": []
-          }
-        ],
-        "limits": {
-          "measures": [],
-          "untracked_observations": 0,
-          "depth_truncated_observations": 0,
-          "diagnostics": []
-        },
         "structure": null
       }
     ]
