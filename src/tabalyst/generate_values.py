@@ -30,7 +30,7 @@ def _date_bound(value: Any, fallback: str, *, timestamp: bool) -> date | datetim
     except (TypeError, ValueError) as exc:
         label = "datetime" if timestamp else "date"
         raise ConfigurationError(f"{label} bounds must be ISO values") from exc
-    if parsed.isoformat() != text or (timestamp and parsed.tzinfo is not None):
+    if parsed.isoformat() != text or (isinstance(parsed, datetime) and parsed.tzinfo is not None):
         raise ConfigurationError("Date bounds must be canonical local ISO values")
     return parsed
 
@@ -60,15 +60,17 @@ def _value(kind: str, config: dict, index: int, rng: random.Random,
         timestamp = kind == "datetime"
         default_min = "1970-01-01T00:00:00" if timestamp else "1970-01-01"
         default_max = f"{as_of_date}T23:59:59" if timestamp else as_of_date
-        lower = _date_bound(config.get("min"), default_min, timestamp=timestamp)
-        upper = _date_bound(config.get("max"), default_max, timestamp=timestamp)
-        if upper < lower:
+        date_lower = _date_bound(config.get("min"), default_min, timestamp=timestamp)
+        date_upper = _date_bound(config.get("max"), default_max, timestamp=timestamp)
+        if date_upper < date_lower:
             raise ConfigurationError(f"{kind} requires min <= max")
+        picked_date: date
         if timestamp:
-            value = lower + timedelta(seconds=rng.randint(0, int((upper - lower).total_seconds())))
+            assert isinstance(date_lower, datetime) and isinstance(date_upper, datetime)
+            picked_date = date_lower + timedelta(seconds=rng.randint(0, int((date_upper - date_lower).total_seconds())))
         else:
-            value = lower + timedelta(days=rng.randint(0, (upper - lower).days))
-        return value.strftime(config["format"]) if "format" in config else value.isoformat()
+            picked_date = date_lower + timedelta(days=rng.randint(0, (date_upper - date_lower).days))
+        return picked_date.strftime(config["format"]) if "format" in config else picked_date.isoformat()
     if kind == "text":
         alphabet = string.ascii_letters + string.digits
         return "".join(rng.choices(alphabet, k=config.get("length", 12)))
@@ -112,9 +114,9 @@ def generate_rows(dataset: str, columns: list[dict], count: int, seed: int,
     common = CommonProvider(references or CommonReferences()) if any(
         c["generate"]["kind"] == "common" for c in columns
     ) else None
-    insurance = insurance_provider or (InsuranceProvider(references or CommonReferences()) if any(
-        c["generate"]["kind"] == "insurance" for c in columns
-    ) else None)
+    insurance = insurance_provider
+    if insurance is None and any(c["generate"]["kind"] == "insurance" for c in columns):
+        raise ConfigurationError("Insurance generation requires a validated package provider")
     group_streams = {
         c["generate"]["group"]: _stream(seed, dataset, c["generate"]["group"], "common")
         for c in columns if c["generate"]["kind"] == "common"
@@ -164,6 +166,7 @@ def generate_rows(dataset: str, columns: list[dict], count: int, seed: int,
                     group_values[group] = method(*args)
                 value = group_values[group][generator["field"]]
             elif kind == "insurance":
+                assert insurance is not None
                 group = generator["group"]
                 if group not in group_values:
                     group_values[group] = insurance.row(

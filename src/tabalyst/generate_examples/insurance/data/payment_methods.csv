@@ -1,0 +1,5 @@
+payment_method,label_fr,weight
+prélèvement,Prélèvement bancaire,550
+carte,Carte de paiement,250
+virement,Virement bancaire,150
+chèque,Chèque,50

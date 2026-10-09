@@ -238,9 +238,10 @@ require `--force`, and an input file is never overwritten.
 
 ## Tabalyst Generate
 
-Generate synthetic CSV data from a versioned YAML definition. The packaged
-`crm` example writes one contacts file; `insurance`
-writes three branch files and a combined file:
+The published 0.6.2 release generates synthetic CSV data from a
+`definition_version: 1` YAML file or a packaged example. The packaged `crm`
+example writes one contacts file; `insurance` writes three branch files and a
+combined file:
 
 ```console
 tabalyst generate --example crm -o crm-contacts.csv
@@ -248,15 +249,21 @@ tabalyst generate --example insurance --rows 3000 -d insurance-output/
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
 ```
 
-You can pass `examples/generate/input/crm.yaml` or
-`examples/generate/input/insurance.yaml` instead of `--example`. A selected anomaly
+In the development checkout, you can pass `examples/generate/crm/` or
+`examples/generate/insurance/` instead of `--example`. That checkout uses the
+new package format and rejects version 1 YAML files. A selected anomaly
 profile writes an altered CSV, a cell change log and a summary beside the
 untouched clean CSV. Insurance's profile changes only the combined file.
 `--rows 3000` apportions 2,182, 273 and 545 rows to the three branches.
 Existing outputs require `--force`.
 
-Run `python examples/generate/generate_examples.py` to generate every YAML
-from `examples/generate/input/` into ignored local output folders.
+Run `python examples/generate/generate_examples.py` in the development checkout
+to generate the four column packages into ignored local output folders. The
+Computer package is also available by path there, with 40, 70 and 111-column
+profiles and synchronized EN/FR CSVs; it has no `--example computer`. See
+[`examples/generate/README.md`](examples/generate/README.md) for commands and
+[`docs/dev/generate/computer.md`](docs/dev/generate/computer.md) for the
+unreleased contract.
 
 Insurance preserves the 33 source columns and the combined `filiale` column of
 the existing public demo, but its generated rows are different. The branch date

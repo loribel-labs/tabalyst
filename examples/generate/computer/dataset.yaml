@@ -9,6 +9,44 @@ generation_profiles:
   portable_only: {}
 output_profiles:
   compact: [product_id, sku, brand, product_family, model, generation, model_year, computer_type, form_factor, product_segment, cpu_brand, cpu_family, cpu_model, cpu_cores, cpu_threads, gpu_brand, gpu_family, gpu_model, gpu_type, gpu_vram_gb, memory_type, memory_gb, storage_type, storage_gb, display_size_in, display_type, display_resolution, display_refresh_rate_hz, operating_system, color, weight_kg, currency, list_price, current_price, stock_quantity, stock_status, release_date, rating, review_count, market]
+  standard: [product_id, sku, mpn, brand, product_family, model, generation,
+    model_year, computer_type, form_factor, product_segment, product_category,
+    product_subcategory, cpu_brand, cpu_family, cpu_model, cpu_architecture,
+    cpu_cores, cpu_threads, cpu_max_clock_ghz, gpu_brand, gpu_family, gpu_model,
+    gpu_type, gpu_vram_gb, memory_type, memory_gb, storage_type, storage_gb,
+    display_size_in, display_type, display_resolution, display_refresh_rate_hz,
+    display_brightness_nits, display_touch, display_finish, os_family,
+    operating_system, npu_tops, ai_pc_class, wifi_standard, bluetooth_version,
+    ethernet_speed, usb_a_ports, usb_c_ports, hdmi_ports, battery_wh,
+    power_adapter_w, color, weight_kg, chassis_material, camera_type,
+    keyboard_layout, biometric_type, currency, list_price, current_price,
+    discount_percent, price_tier, condition, stock_quantity, stock_status,
+    warranty_period, release_date, product_age_months,
+    product_lifecycle_status, rating, review_count, market, language]
+  extended: [product_id, sku, mpn, brand, product_family, model, generation,
+    model_year, computer_type, form_factor, product_segment, product_category,
+    product_subcategory, cpu_brand, cpu_family, cpu_model, cpu_architecture,
+    cpu_cores, cpu_threads, cpu_max_clock_ghz, gpu_brand, gpu_family, gpu_model,
+    gpu_type, gpu_vram_gb, memory_type, memory_gb, storage_type, storage_gb,
+    display_size_in, display_type, display_resolution, display_refresh_rate_hz,
+    display_brightness_nits, display_aspect_ratio, display_touch, display_finish,
+    display_hdr, display_color_gamut, os_family, operating_system, npu_brand,
+    npu_family, npu_tops, ai_pc_class, copilot_plus_pc, wifi_standard,
+    bluetooth_version, ethernet_speed, cellular_type, docking_support,
+    usb_a_ports, usb_c_ports, thunderbolt_ports, hdmi_ports, displayport_ports,
+    ethernet_port, card_reader_type, memory_slots_total, memory_slots_used,
+    m2_slots_total, m2_slots_used, upgradeability_level, battery_wh,
+    power_adapter_w, color, weight_kg, width_mm, depth_mm, height_mm,
+    chassis_material, chassis_finish, camera_type, microphone_type,
+    speaker_configuration, keyboard_type, keyboard_layout, biometric_type,
+    trusted_platform, currency, list_price, current_price, discount_percent,
+    price_tier, condition, stock_quantity, stock_status, warranty_period,
+    promotion_type, promotion_status, lowest_price_30d, highest_price_30d,
+    average_price_30d, price_change_30d_percent, release_date,
+    product_age_months, product_generation, product_lifecycle_status, rating,
+    review_count, popularity_level, sales_rank, units_sold_30d,
+    conversion_rate, return_rate, market, language, seller, seller_type,
+    warehouse, shipping_availability]
 datasets:
   - id: computers
     mode: generated

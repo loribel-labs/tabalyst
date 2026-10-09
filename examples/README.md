@@ -8,8 +8,11 @@ examples/
 |-- config.json
 |-- generate/
 |   |-- generate_examples.py
-|   |-- input/ (three transitional YAML definitions)
 |   |-- crm/ (versioned CRM package)
+|   |-- insurance/ (versioned Insurance package)
+|   |-- common-references/ (reference provider fixture)
+|   |-- cohorts-anomalies/ (cohort and anomaly fixture)
+|   |-- computer/ (local Computer package)
 |   `-- output/ (generated locally; ignored by Git)
 |-- input/
 |   |-- basic.csv
@@ -76,13 +79,13 @@ also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel
-contains the runtime package, report resources, the CRM package and the
-transitional Insurance YAML. CRM and Insurance are local development
-demos. Generate is under development
-and is not advertised as a released feature. The CRM data is synthetic, with
+contains the runtime package, report resources, and the CRM and Insurance
+packages when built from this development checkout. The published 0.6.2 release
+uses definition version 1. The CRM data is synthetic, with
 reserved `.example` domains and fictional phone numbers. The configured 20,000
 rows, generic account names and CRM audit story were approved for the example
-on 2026-10-05. Generate remains local development work until a release.
+on 2026-10-05. Generate is published; the package format and Computer remain
+local development work until a later release.
 
 To review the CRM export outside the checkout:
 
@@ -97,14 +100,13 @@ variants. The mutation summary counts requested, applied and skipped changes.
 Neither tool currently diagnoses cross-column CRM rules such as stage versus
 probability.
 
-`examples/generate/input/common-references.yaml` is a lot 3R development fixture.
+`examples/generate/common-references/` is a reference provider fixture.
 It generates coherent synthetic Canadian person, address and contact fields
 from packaged references. Its prefixes and area codes are synthetic, email
 domains end in `.example`, and phone line numbers use reserved `555-01xx`.
-The Insurance example is now complete in `examples/generate/input/insurance.yaml`
-and the packaged `--example insurance` copy. Its seven domain tables are in
-`src/tabalyst/generate_resources/insurance/`; their provenance is in
-`insurance/SOURCES.md`. To review 3,000 rows outside the checkout:
+The Insurance example lives in `examples/generate/insurance/` and the packaged
+`--example insurance` copy. Its seven domain tables and provenance are in
+`insurance/data/` and `insurance/SOURCES.md`. To review 3,000 rows outside the checkout:
 
 ```console
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d OUTPUT_DIR
@@ -118,17 +120,16 @@ and has different rows and identifiers. Do not replace
 `examples/input/insurance-customers.csv` or its report without a separate
 decision to change the published demo.
 
-`examples/generate/input/cohorts-anomalies.yaml` is a lot 4 development fixture. It
+`examples/generate/cohorts-anomalies/` is a cohort and anomaly fixture. It
 shows two normal status conventions in the clean CSV and a separate `dirty`
 profile that writes an altered CSV, cell-level change log and summary. Run it
-with `tabalyst generate examples/generate/input/cohorts-anomalies.yaml --anomaly-profile dirty -d OUTPUT_DIR`.
+with `tabalyst generate examples/generate/cohorts-anomalies/ --anomaly-profile dirty -d OUTPUT_DIR`.
 Keep `OUTPUT_DIR` outside the repository for one-off local trials. The packaged
-Insurance YAML is the same complete example as the visible file.
+Insurance package is identical to the visible directory.
 
 The CRM development package lives at `examples/generate/crm/`, with the same
 manifest and schemas packaged for `--example crm`. It preserves the 400-account
-pool, 26 columns, cohorts and measured anomalies. Insurance remains on v1 in
-this lot.
+pool, 26 columns, cohorts and measured anomalies.
 
 The Computer development package lives at `examples/generate/computer/`. It is
 loaded by path and is not a packaged `--example`. From an installed Tabalyst
@@ -140,8 +141,13 @@ tabalyst generate COMPUTER_PACKAGE -d OUTPUT_DIR --rows 10000 --seed 42
 ```
 
 The command writes aligned `computers-en.csv`, `computers-fr.csv`, and
-`computers.meta.json`. The first milestone offers only the 40-column `compact`
-profile and the paired `en,fr` locales. A JSON `--request FILE` can select
+`computers.meta.json`. The local Computer package offers the 40-column
+`compact`, 70-column `standard`, and 111-column `extended`
+profiles with paired `en,fr` locales. The extended profile currently adds
+hardware, connectivity, physical specifications, and synthetic commerce,
+distribution and e-commerce measures. Use `--output-profile extended` to
+review these fields.
+A JSON `--request FILE` can select
 `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`,
 and `locales`; explicit CLI options override the request. Keep both the package
 and output folder outside the checkout when testing a wheel.
@@ -149,10 +155,9 @@ and output folder outside the checkout when testing a wheel.
 ## Regenerate all Generate examples
 
 Run the script from the repository root with an editable installation of
-Tabalyst. It reads the transitional YAML files in `examples/generate/input/`
-and the CRM package, then writes into
-`examples/generate/output/<definition>/`. The output folder is ignored by Git.
-By default it uses each YAML's declared row counts and generates every declared
+Tabalyst. It reads the four column packages, then writes into
+`examples/generate/output/<package>/`. The output folder is ignored by Git.
+By default it uses each package's declared row counts and generates every declared
 anomaly profile along with its clean CSV. Insurance therefore writes 275,000
 combined rows; allow enough disk space for the clean and altered copies.
 
@@ -163,5 +168,5 @@ python examples/generate/generate_examples.py
 Existing outputs are protected; pass `--force` to replace generated files.
 For a quick review run, `--rows 30` overrides each definition's row count,
 and `--output-dir PATH` writes outside the checkout. `--clean-only` skips the
-profile passes. A definition with several profiles gets one subfolder per
+profile passes. A package with several profiles gets one subfolder per
 profile so its clean files cannot collide.

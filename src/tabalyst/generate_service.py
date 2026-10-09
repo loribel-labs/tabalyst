@@ -17,15 +17,15 @@ from dataclasses import dataclass
 from datetime import date
 from importlib.resources import files
 from pathlib import Path
+from typing import cast
 
 from tabalyst import __version__
 from tabalyst.batch import apply_default_file_mode, path_key, validate_outputs
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.generate_columns_package import load_columns_definition
-from tabalyst.generate_computer_output import COMPACT_COLUMNS, write_computer_csvs
+from tabalyst.generate_computer_output import PROFILE_COLUMNS, write_computer_csvs
 from tabalyst.generate_csv import write_csv
-from tabalyst.generate_definition import GenerateDefinition, load_generate_definition
-from tabalyst.generate_insurance import SCHEMAS as INSURANCE_SCHEMAS
+from tabalyst.generate_definition import GenerateDefinition
 from tabalyst.generate_insurance import InsuranceProvider
 from tabalyst.generate_package import MAX_ROWS, DatasetPackage, load_generate_package
 from tabalyst.generate_references import SCHEMAS, CommonReferences
@@ -85,8 +85,7 @@ class GenerateResult:
 def _example_path(example: str) -> Path:
     if example not in {"crm", "insurance"}:
         raise ConfigurationError(f"Unknown Generate example: {example}")
-    name = "crm" if example == "crm" else "insurance.yaml"
-    return Path(str(files("tabalyst").joinpath("generate_examples", name)))
+    return Path(str(files("tabalyst").joinpath("generate_examples", example)))
 
 
 def _apportion(total: int, weights: dict[str, int]) -> dict[str, int]:
@@ -109,10 +108,17 @@ def _apportion(total: int, weights: dict[str, int]) -> dict[str, int]:
     return result
 
 
+def _package_datasets(package: DatasetPackage) -> list[dict[str, object]]:
+    raw = package.manifest["datasets"]
+    if not isinstance(raw, list) or any(not isinstance(item, dict) for item in raw):
+        raise ConfigurationError("PACKAGE_SCHEMA: invalid datasets")
+    return cast(list[dict[str, object]], raw)
+
+
 def validate_generate_package(path: str | Path) -> ValidationResult:
     """Validate a package without planning or creating outputs."""
     package = load_generate_package(path)
-    if package.id == "crm":
+    if any(dataset.get("row_source") == "columns" for dataset in _package_datasets(package)):
         load_columns_definition(package)
     return ValidationResult(package.id, tuple(sorted(package.input_paths)))
 
@@ -175,11 +181,11 @@ def _computer_plan(
     generation_profiles = package.manifest.get("generation_profiles")
     if not isinstance(effective_generation, str) or not isinstance(generation_profiles, dict) or effective_generation not in generation_profiles:
         raise ConfigurationError(f"Unknown generation profile: {effective_generation}")
-    if effective_output != "compact":
+    if not isinstance(effective_output, str) or effective_output not in PROFILE_COLUMNS:
         raise ConfigurationError(f"Unsupported Computer output profile: {effective_output}")
     profiles = package.manifest.get("output_profiles")
-    if not isinstance(profiles, dict) or profiles.get("compact") != list(COMPACT_COLUMNS):
-        raise ConfigurationError("PACKAGE_OUTPUT: compact profile differs from Computer register")
+    if not isinstance(profiles, dict) or profiles.get(effective_output) != list(PROFILE_COLUMNS[effective_output]):
+        raise ConfigurationError(f"PACKAGE_OUTPUT: {effective_output} profile differs from Computer register")
     if not isinstance(effective_market, str) or effective_market not in {"ca", "us"}:
         raise ConfigurationError(f"Unsupported Computer market: {effective_market}")
     if effective_locales != ["en", "fr"]:
@@ -237,7 +243,8 @@ def build_generate_plan(
     package: DatasetPackage | None = None
     if source_path.is_dir() or source_path.name == "dataset.yaml":
         package = load_generate_package(source_path)
-        if package.id != "crm":
+        if any(dataset.get("row_source") == "catalog_steps"
+               for dataset in _package_datasets(package)):
             if anomaly_profile is not None:
                 raise ConfigurationError("Computer anomaly profiles are not implemented.")
             return _computer_plan(
@@ -254,9 +261,11 @@ def build_generate_plan(
             return GeneratePlan(definition, (), {}, 0, definition.defaults.get("as_of_date", "2000-01-01"),
                                 None, force, package)
     else:
-        if validate_only:
-            raise ConfigurationError("--validate-only requires a package path.")
-        definition = load_generate_definition(source_path)
+        raise ConfigurationError(
+            f"PACKAGE_FORMAT: {source_path} is not a Generate package; "
+            "definition_version: 1 YAML is unsupported. Supply a package directory "
+            "or its dataset.yaml."
+        )
     if request is not None or generation_profile is not None or output_profile is not None or market is not None or locales is not None:
         raise ConfigurationError("Package request and profile options require a package path.")
     if (output is None) == (output_dir is None):
@@ -321,8 +330,6 @@ def build_generate_plan(
         protected.extend(package.input_paths)
     protected.extend(Path(str(files("tabalyst").joinpath("generate_resources", *name.split("/"))))
                      for name in SCHEMAS)
-    protected.extend(Path(str(files("tabalyst").joinpath("generate_resources", "insurance", name)))
-                     for name in INSURANCE_SCHEMAS)
     validate_outputs(
         ((definition.source, artifact.path) for artifact in artifacts),
         sources=protected,
@@ -353,7 +360,6 @@ def _publish_artifacts(
     else:
         source = plan.definition.source
         sources = {source, *(Path(str(files("tabalyst").joinpath("generate_resources", *name.split("/")))) for name in SCHEMAS)}
-        sources.update(Path(str(files("tabalyst").joinpath("generate_resources", "insurance", name))) for name in INSURANCE_SCHEMAS)
         if plan.package is not None:
             sources.update(plan.package.input_paths)
     validate_outputs(
@@ -485,7 +491,8 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
     )
     if needs_insurance and references is None:
         references = CommonReferences()
-    insurance = InsuranceProvider(references) if needs_insurance and references is not None else None
+    insurance = (InsuranceProvider(references, plan.package)
+                 if needs_insurance and references is not None and plan.package is not None else None)
     pools = {
         entity["id"]: list(generate_rows(
             f"entity:{entity['id']}", entity["columns"], entity["count"],
@@ -528,10 +535,13 @@ def generate_datasets(plan: GeneratePlan | ComputerPlan) -> GenerateResult:
             )
             summary.update({
                 "definition_id": plan.definition.id,
-                "definition_version": 1,
                 "tabalyst_version": __version__,
                 "as_of_date": plan.as_of_date,
             })
+            if plan.package is not None:
+                summary.update({"format": "tabalyst.generate.package",
+                                "format_version": "0.1.0",
+                                "package_version": plan.package.package_version})
             summaries[artifact.dataset_id] = summary
             anomaly_counts[artifact.dataset_id] = summary["changed_cells"]
             return

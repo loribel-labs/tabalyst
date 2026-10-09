@@ -51,6 +51,23 @@ def test_api_plans_three_files_and_applies_request_overrides(tmp_path: Path) -> 
     assert metadata["request"]["market"] == "us"
 
 
+def test_standard_profile_is_selectable_through_request_and_cli(tmp_path: Path) -> None:
+    request = tmp_path / "request.json"
+    request.write_text(json.dumps({"rows": 2, "output_profile": "standard"}), encoding="utf-8")
+    plan = build_generate_plan(PACKAGE, request=request, output_dir=tmp_path / "api")
+    assert isinstance(plan, ComputerPlan)
+    assert plan.output_profile == "standard"
+    result = generate_datasets(plan)
+    with result.paths[0].open(encoding="utf-8", newline="") as stream:
+        assert len(next(csv.reader(stream))) == 70
+    runner = CliRunner()
+    created = runner.invoke(app, ["generate", str(PACKAGE), "-d", str(tmp_path / "cli"),
+                                  "--output-profile", "standard", "--rows", "2"])
+    assert created.exit_code == 0, created.output
+    with (tmp_path / "cli" / "computers-fr.csv").open(encoding="utf-8", newline="") as stream:
+        assert len(next(csv.reader(stream))) == 70
+
+
 def test_cli_validates_without_destination_and_generates(tmp_path: Path) -> None:
     runner = CliRunner()
     validated = runner.invoke(app, ["generate", str(PACKAGE), "--validate-only"])

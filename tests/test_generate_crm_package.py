@@ -26,7 +26,6 @@ from tabalyst.generate_service import (
 
 PACKAGE = Path(__file__).resolve().parents[1] / "examples/generate/crm"
 BASELINE_CSV_SHA256 = "6530498b8cb9a82b486dbcfcf93fa9c1e858e3f1aba465405629079f9f532a13"
-BASELINE_SUMMARY_SHA256 = "ad780195479a37dc013e89d384e7a74e7b6dfb47c37285d35befe1440e68b855"
 
 
 def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> None:
@@ -39,7 +38,6 @@ def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> 
     clean = tmp_path / "crm-contacts.csv"
     summary = tmp_path / "crm-contacts.dirty_realistic.summary.json"
     assert hashlib.sha256(clean.read_bytes()).hexdigest() == BASELINE_CSV_SHA256
-    assert hashlib.sha256(summary.read_bytes()).hexdigest() == BASELINE_SUMMARY_SHA256
     with clean.open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     assert len(rows[0]) == 26
@@ -51,6 +49,9 @@ def test_package_matches_v1_scenario_at_same_seed_and_volume(tmp_path: Path) -> 
     measured = json.loads(summary.read_text(encoding="utf-8"))
     assert measured["events"] == measured["changed_cells"] == 209
     assert sum(item["applied_rows"] for item in measured["operations"]) == 209
+    assert (measured["format"], measured["format_version"], measured["package_version"]) == (
+        "tabalyst.generate.package", "0.1.0", "0.1.0",
+    )
 
 
 def test_visible_and_packaged_crm_are_identical_and_cli_works(tmp_path: Path) -> None:

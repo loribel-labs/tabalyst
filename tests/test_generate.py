@@ -9,16 +9,17 @@ from importlib.resources import files
 from pathlib import Path
 
 import pytest
+from generate_package_fixture import write_columns_package
 from typer.testing import CliRunner
 
 from tabalyst.cli.app import app
 from tabalyst.errors import ConfigurationError, InputError, ReportError
 from tabalyst.generate_csv import write_csv
-from tabalyst.generate_definition import load_generate_definition
 from tabalyst.generate_service import (
     _publish_artifacts,
     build_generate_plan,
     generate_datasets,
+    validate_generate_package,
 )
 
 SIMPLE = """\
@@ -35,42 +36,20 @@ datasets:
 
 
 def definition(tmp_path: Path, text: str = SIMPLE) -> Path:
-    path = tmp_path / "definition.yaml"
-    path.write_text(text, encoding="utf-8")
-    return path
+    return write_columns_package(tmp_path, text)
 
 
-@pytest.mark.parametrize(
-    "change, message",
-    [
-        ("definition_version: 1\ndefinition_version: 1\n", "Duplicate key"),
-        ("definition_version: 2\n", "definition_version"),
-        ("definition_version: 1\nunknown: 1\n", "unknown key"),
-        ("!!python/object/apply:os.system ['exit 1']", "invalid YAML"),
-        ("definition_version: 1\nid: x\ndatasets: [*missing]", "aliases are unsupported"),
-        ("definition_version: 1\n---\nid: x", "invalid YAML"),
-        (SIMPLE.replace("rows: 3", "rows: true"), "rows"),
-        (SIMPLE.replace("id: contacts", "id: ../bad"), "safe lower-case"),
-        (SIMPLE.replace("kind: sequence", "kind: bogus"), "unknown generator"),
-        (SIMPLE.replace("type: string", "type: bogus"), "physical type"),
-        (SIMPLE.replace("name: id", "name: id\n        depends_on: [missing]"), "unknown column"),
-    ],
-)
-def test_invalid_definition_has_source_location(tmp_path: Path, change: str, message: str) -> None:
-    path = definition(tmp_path, change)
-    with pytest.raises(ConfigurationError, match=message) as caught:
-        load_generate_definition(path)
-    assert str(path) in str(caught.value)
-    assert ":" in str(caught.value)
-
-
-def test_recursive_alias_and_bounds(tmp_path: Path) -> None:
-    path = definition(tmp_path, "a: &a [*a]")
-    with pytest.raises(ConfigurationError, match="aliases"):
-        load_generate_definition(path)
-    path.write_bytes(b" " * 1_048_577)
-    with pytest.raises(ConfigurationError, match="exceeds"):
-        load_generate_definition(path)
+def test_v1_yaml_is_rejected_by_api_and_cli(tmp_path: Path) -> None:
+    source = tmp_path / "legacy.yaml"
+    source.write_text(SIMPLE, encoding="utf-8")
+    with pytest.raises(ConfigurationError, match="PACKAGE_FORMAT.*definition_version: 1"):
+        build_generate_plan(source, output=tmp_path / "out.csv")
+    with pytest.raises(ConfigurationError, match="PACKAGE_FORMAT.*definition_version: 1"):
+        validate_generate_package(source)
+    result = CliRunner().invoke(app, ["generate", str(source), "-o", str(tmp_path / "out.csv")])
+    assert result.exit_code != 0
+    assert "PACKAGE_FORMAT" in result.output
+    assert not (tmp_path / "out.csv").exists()
 
 
 def test_plan_examples_and_apportion(tmp_path: Path) -> None:
@@ -90,13 +69,12 @@ def test_plan_examples_and_apportion(tmp_path: Path) -> None:
 
 def test_packaged_examples_match_visible_sources() -> None:
     root = Path(__file__).resolve().parents[1]
-    installed = files("tabalyst").joinpath("generate_examples", "insurance.yaml")
-    visible = root / "examples" / "generate" / "input" / "insurance.yaml"
-    assert installed.read_bytes() == visible.read_bytes()
-    crm = root / "examples" / "generate" / "crm"
-    for source in crm.rglob("*.yaml"):
-        packaged = files("tabalyst").joinpath("generate_examples", "crm", *source.relative_to(crm).parts)
-        assert packaged.read_bytes() == source.read_bytes()
+    for name in ("crm", "insurance"):
+        visible = root / "examples" / "generate" / name
+        for source in visible.rglob("*"):
+            if source.is_file():
+                packaged = files("tabalyst").joinpath("generate_examples", name, *source.relative_to(visible).parts)
+                assert packaged.read_bytes() == source.read_bytes()
 
 
 def test_bad_options_and_collisions(tmp_path: Path) -> None:
@@ -112,10 +90,8 @@ def test_bad_options_and_collisions(tmp_path: Path) -> None:
         build_generate_plan(path, output=output, as_of_date="2026-02-30")
     with pytest.raises(ConfigurationError, match="Unknown anomaly"):
         build_generate_plan(path, output=output, anomaly_profile="bad")
-    csv_named_definition = tmp_path / "definition.csv"
-    csv_named_definition.write_text(SIMPLE, encoding="utf-8")
-    with pytest.raises(InputError, match="overwrite an input"):
-        build_generate_plan(csv_named_definition, output=csv_named_definition)
+    with pytest.raises(InputError, match="inside its source package"):
+        build_generate_plan(path, output=path / "contacts.csv")
     output.write_text("old", encoding="utf-8")
     with pytest.raises(ReportError, match="--force"):
         build_generate_plan(path, output=output)
@@ -263,7 +239,7 @@ def test_elementary_invalid_parameters(tmp_path: Path, generator: str, message: 
                             "type: date" if "kind: date" in generator else "type: string")
     source = source.replace("{kind: sequence, prefix: C, width: 3}", generator)
     with pytest.raises(ConfigurationError, match=message):
-        load_generate_definition(definition(tmp_path, source))
+        validate_generate_package(definition(tmp_path, source))
 
 
 CRM_RELATIONS = """\
@@ -368,4 +344,4 @@ def test_relation_validation(tmp_path: Path, change: str, message: str) -> None:
     else:
         source = CRM_RELATIONS.replace("depends_on: [signup]", "depends_on: []", 1)
     with pytest.raises(ConfigurationError, match=message):
-        load_generate_definition(definition(tmp_path, source))
+        validate_generate_package(definition(tmp_path, source))

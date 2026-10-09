@@ -1,6 +1,8 @@
 tables:
   computer_type: {role: dictionary, file: data/computer_type.csv, schema: schemas/computer_type.yaml}
-  product_segment: {role: dictionary, file: data/product_segment.csv, schema: schemas/localized.yaml}
+  product_segment: {role: dictionary, file: data/product_segment.csv, schema: schemas/product_segment.yaml}
+  product_category: {role: dictionary, file: data/product_category.csv, schema: schemas/localized.yaml}
+  product_subcategory: {role: dictionary, file: data/product_subcategory.csv, schema: schemas/product_subcategory.yaml}
   brand: {role: dictionary, file: data/brand.csv, schema: schemas/localized.yaml}
   product_family: {role: dictionary, file: data/product_family.csv, schema: schemas/product_family.yaml}
   product_model: {role: dictionary, file: data/product_model.csv, schema: schemas/product_model.yaml}
@@ -12,7 +14,15 @@ tables:
   storage: {role: dictionary, file: data/storage.csv, schema: schemas/storage.yaml}
   display: {role: dictionary, file: data/display.csv, schema: schemas/display.yaml}
   operating_system: {role: dictionary, file: data/operating_system.csv, schema: schemas/operating_system.yaml}
+  standard_specs: {role: resource, file: data/standard_specs.csv, schema: schemas/standard_specs.yaml}
+  extended_specs: {role: resource, file: data/extended_specs.csv, schema: schemas/extended_specs.yaml}
   color: {role: dictionary, file: data/color.csv, schema: schemas/localized.yaml}
+  seller_type: {role: dictionary, file: data/seller_type.csv, schema: schemas/localized.yaml}
+  seller: {role: dictionary, file: data/seller.csv, schema: schemas/seller.yaml}
+  warehouse: {role: dictionary, file: data/warehouse.csv, schema: schemas/warehouse.yaml}
+  promotion_type: {role: dictionary, file: data/promotion_type.csv, schema: schemas/localized.yaml}
+  promotion_status: {role: dictionary, file: data/promotion_status.csv, schema: schemas/localized.yaml}
+  shipping_availability: {role: dictionary, file: data/shipping_availability.csv, schema: schemas/localized.yaml}
   generation_cpu: {role: weighted_relation, file: data/generation_cpu.csv, schema: schemas/generation_cpu.yaml}
   generation_gpu: {role: weighted_relation, file: data/generation_gpu.csv, schema: schemas/generation_gpu.yaml}
   generation_memory: {role: weighted_relation, file: data/generation_memory.csv, schema: schemas/generation_memory.yaml}

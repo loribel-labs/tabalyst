@@ -519,6 +519,9 @@ def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
 def load_generate_package(path: Path | str) -> DatasetPackage:
     """Load and index a package after validating its tables and references."""
     source = Path(path)
+    if source.is_file() and source.name != "dataset.yaml":
+        _fail("PACKAGE_FORMAT", source,
+              "definition_version: 1 YAML is unsupported; supply a package directory or dataset.yaml")
     manifest_path = source / "dataset.yaml" if source.is_dir() else source
     if manifest_path.name != "dataset.yaml" or not manifest_path.is_file():
         _fail("PACKAGE_FILE_MISSING", manifest_path, "expected dataset.yaml")

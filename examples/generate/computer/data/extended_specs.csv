@@ -1,0 +1,3 @@
+id,cellular_type,docking_support,thunderbolt_ports,displayport_ports,ethernet_port,card_reader_type,memory_slots_total,memory_slots_used,m2_slots_total,m2_slots_used,upgradeability_level,width_mm,depth_mm,height_mm,chassis_finish,microphone_type,speaker_configuration,keyboard_type,trusted_platform
+aster_arc_14_g1,lte,true,2,0,false,sd,2,2,2,1,moderate,320,225,18,anodized,dual_array,stereo,integrated,tpm_2_0
+brindle_bay_desk_g1,none,false,0,2,true,none,4,2,3,1,high,180,360,380,powder_coated,none,none,external,tpm_2_0
