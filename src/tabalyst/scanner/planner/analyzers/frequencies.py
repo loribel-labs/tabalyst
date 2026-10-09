@@ -2,14 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Exact frequencies of a field whose scan lists only part of its counts."""
+"""Exact frequencies of a field whose scan lists only part of its counts.
+
+The table is keyed by native type and analytical text, so it is always a table
+of counts: counters of integers would merge ``7``, ``007`` and the integer 7,
+and at most 1,000 distinct values make a table smaller than any dense array.
+"""
 
 from __future__ import annotations
 
 from typing import ClassVar
 
 from tabalyst.scanner.planner.analyzer import (
-    DENSE_DOMAIN_MAX,
     LOW_CARDINALITY_MAX,
     Analyzer,
     Assessment,
@@ -18,30 +22,14 @@ from tabalyst.scanner.planner.analyzer import (
     table_entry,
     text_length,
 )
-from tabalyst.scanner.planner.analyzers.common import blocked, result_state
-from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
+from tabalyst.scanner.planner.analyzers.common import (
+    blocked,
+    replay_state,
+    result_state,
+)
+from tabalyst.scanner.planner.costmodel import FREQUENCY_KEY_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
-
-
-def dense_domain(facts: FieldFacts) -> int | None:
-    """Number of integers between the minimum and maximum of an integer field
-    when a dense array of counters can hold them, else ``None``."""
-    if (
-        facts.technical_type != "integer"
-        or facts.numeric != "complete"
-        or facts.numeric_min is None
-        or facts.numeric_max is None
-    ):
-        return None
-    domain = int(facts.numeric_max) - int(facts.numeric_min) + 1
-    return domain if 0 < domain <= DENSE_DOMAIN_MAX else None
-
-
-def dense_state(facts: FieldFacts, domain: int) -> State:
-    """The array of counters that the frequencies and the histogram of a
-    small integer domain share (specification 11.2)."""
-    return State(key=f"dense_counts:{facts.where}", memory=memory(domain * COUNTER_BYTES))
 
 
 class ExactFrequencies(Analyzer):
@@ -49,6 +37,7 @@ class ExactFrequencies(Analyzer):
 
     id: ClassVar[str] = "exact_frequencies"
     outputs: ClassVar[tuple[str, ...]] = ("frequencies", "mode", "proportions")
+    available: ClassVar[bool] = True
 
     def relevant(self, facts: FieldFacts) -> bool:
         return True
@@ -79,30 +68,24 @@ class ExactFrequencies(Analyzer):
         distinct = facts.frequencies_distinct
         if distinct is None or distinct > LOW_CARDINALITY_MAX:
             return Assessment("not_applicable", ("high_cardinality",))
-        domain = dense_domain(facts)
-        if domain is not None:
-            return Assessment(
-                "applicable", method="dense_counts", parameters={"domain": domain}
-            )
         return Assessment(
             "applicable", method="hash_table", parameters={"distinct": distinct}
         )
 
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
-        if assessment.method == "dense_counts":
-            state = dense_state(facts, int(assessment.parameters["domain"]))
-            work = NS_PER_CELL["dense_counter"]
-        else:
-            distinct = int(assessment.parameters["distinct"])
-            _, mean, longest = text_length(facts)
-            state = State(
-                key=f"frequencies:{facts.where}",
-                memory=memory(
-                    distinct * table_entry(mean), maximum=distinct * table_entry(longest)
-                ),
-            )
-            work = NS_PER_CELL["table"]
-        return costs(work, [state, result_state(self.id, facts)])
+        distinct = int(assessment.parameters["distinct"])
+        _, mean, longest = text_length(facts)
+        entry = FREQUENCY_KEY_BYTES
+        state = State(
+            key=f"frequencies:{facts.where}",
+            memory=memory(
+                distinct * (table_entry(mean) + entry),
+                maximum=distinct * (table_entry(longest) + entry),
+            ),
+        )
+        return costs(
+            NS_PER_CELL["table"], [state, replay_state(facts), result_state(self.id, facts)]
+        )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         return Utility(score=50, reasons=["partial_counts"])

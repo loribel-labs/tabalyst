@@ -16,6 +16,7 @@ import json
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from tabalyst.config import DeepSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.identity import facts_sha256
 from tabalyst.scanner.models import ScanResult
@@ -345,6 +346,7 @@ def plan_analyses(
     forced: bool = False,
     budgets: Budgets | None = None,
     registry: AnalyzerRegistry | None = None,
+    deep: DeepSettings | None = None,
 ) -> AnalysisPlan:
     """Plan the analyses that could be added to a finished Scan.
 
@@ -354,12 +356,13 @@ def plan_analyses(
     takes instead every applicable analysis the hard budget holds, whatever the
     automatic limits and the utility, which only orders them. Raises
     ``ConfigurationError`` for a request that names an unknown analyzer,
-    dataset or field. Reads the Scan only; nothing is run or written.
+    dataset or field. ``deep`` holds the settings that parametrize the methods
+    (the bins of a histogram). Reads the Scan only; nothing is run or written.
     """
     registry = default_registry() if registry is None else registry
     budgets = default_budgets() if budgets is None else budgets
     _check_requests(requests, registry, scan)
-    analyzers = [analyzer() for analyzer in registry]
+    analyzers = [analyzer(deep) for analyzer in registry]
     facts_list = scan_facts(scan)
 
     entries: list[_Entry] = []

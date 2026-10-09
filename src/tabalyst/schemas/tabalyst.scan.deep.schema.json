@@ -1,0 +1,1529 @@
+{
+  "$defs": {
+    "AnalysisPlan": {
+      "additionalProperties": false,
+      "description": "What to add to a Scan, why, and at what cost.\n\n``plan_id`` is the SHA-256 of the rest of the plan. ``executable`` is false\nwhile a selected analysis has no implementation in this version.",
+      "properties": {
+        "planner": {
+          "default": "tabalyst.planner",
+          "title": "Planner",
+          "type": "string"
+        },
+        "planner_version": {
+          "default": 1,
+          "title": "Planner Version",
+          "type": "integer"
+        },
+        "utility_version": {
+          "title": "Utility Version",
+          "type": "integer"
+        },
+        "cost_model_version": {
+          "title": "Cost Model Version",
+          "type": "integer"
+        },
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "base": {
+          "$ref": "#/$defs/PlanBase"
+        },
+        "objective": {
+          "$ref": "#/$defs/Objective"
+        },
+        "budgets": {
+          "$ref": "#/$defs/Budgets"
+        },
+        "common": {
+          "$ref": "#/$defs/CommonCost"
+        },
+        "summary": {
+          "$ref": "#/$defs/Summary"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/Candidate"
+          },
+          "title": "Candidates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "utility_version",
+        "cost_model_version",
+        "plan_id",
+        "base",
+        "objective",
+        "budgets",
+        "common",
+        "summary",
+        "candidates"
+      ],
+      "title": "AnalysisPlan",
+      "type": "object"
+    },
+    "AnalysisResult": {
+      "additionalProperties": false,
+      "description": "One analysis of one field. ``key`` identifies its inputs (design 20.4):\nthe Scan, the analyzer and its version, the field, the method and its\neffective parameters, and the domain of the values. A result is reused\nwhen the key is the same, whatever the budgets. ``reason`` and ``detail``\nexplain a status that is not ``complete``; a detail never holds a value\nof the data.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "analyzer": {
+          "title": "Analyzer",
+          "type": "string"
+        },
+        "analyzer_version": {
+          "title": "Analyzer Version",
+          "type": "integer"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "domain": {
+          "default": "analytical",
+          "enum": [
+            "analytical",
+            "original"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "limited",
+            "failed",
+            "skipped"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "bins": "#/$defs/BinnedHistogram",
+                  "dense_counts": "#/$defs/DenseHistogram",
+                  "distinct": "#/$defs/DistinctCount",
+                  "distinct_limited": "#/$defs/DistinctLimited",
+                  "frequencies": "#/$defs/FrequencyTable",
+                  "lengths": "#/$defs/LengthDistribution"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/DenseHistogram"
+                },
+                {
+                  "$ref": "#/$defs/BinnedHistogram"
+                },
+                {
+                  "$ref": "#/$defs/LengthDistribution"
+                },
+                {
+                  "$ref": "#/$defs/DistinctCount"
+                },
+                {
+                  "$ref": "#/$defs/DistinctLimited"
+                },
+                {
+                  "$ref": "#/$defs/FrequencyTable"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        }
+      },
+      "required": [
+        "id",
+        "analyzer",
+        "analyzer_version",
+        "dataset",
+        "field",
+        "display",
+        "method",
+        "parameters",
+        "key",
+        "status"
+      ],
+      "title": "AnalysisResult",
+      "type": "object"
+    },
+    "Applicability": {
+      "additionalProperties": false,
+      "description": "Whether the analysis concerns the field; ``reasons`` are codes.",
+      "properties": {
+        "state": {
+          "enum": [
+            "applicable",
+            "not_applicable"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "reasons"
+      ],
+      "title": "Applicability",
+      "type": "object"
+    },
+    "BinnedHistogram": {
+      "additionalProperties": false,
+      "description": "Counts per bin, exact for the declared classification (HIST-05): bin\n``i`` is ``[edges[i], edges[i+1])`` and the last one is closed on the right\nso that the maximum belongs to it. The distribution inside a bin is\nunknown, so the median and quantiles are estimates with their bounds.\n\n``strategy`` is the one in force and ``requested_strategy`` the one asked\nfor; they differ, with ``reason``, when the sample could not place the\nbounds. ``bounds_source`` says where the inner bounds come from: ``range``\n(equal widths between the exact minimum and maximum), ``rows`` (quantiles\nof the row sample) or ``distinct`` (quantiles of the bottom-k sample).\n``edges`` are written as numbers; the classification used the exact bounds,\nso an edge that is not representable may be rounded here.",
+      "properties": {
+        "kind": {
+          "const": "bins",
+          "default": "bins",
+          "title": "Kind",
+          "type": "string"
+        },
+        "strategy": {
+          "enum": [
+            "linear",
+            "sample_quantile"
+          ],
+          "title": "Strategy",
+          "type": "string"
+        },
+        "requested_strategy": {
+          "enum": [
+            "linear",
+            "sample_quantile"
+          ],
+          "title": "Requested Strategy",
+          "type": "string"
+        },
+        "bounds_source": {
+          "enum": [
+            "range",
+            "rows",
+            "distinct"
+          ],
+          "title": "Bounds Source",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Max"
+        },
+        "edges": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "counts": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "array"
+        },
+        "outside": {
+          "$ref": "#/$defs/OutsideBins"
+        },
+        "median": {
+          "$ref": "#/$defs/Quantile"
+        },
+        "quantiles": {
+          "items": {
+            "$ref": "#/$defs/Quantile"
+          },
+          "title": "Quantiles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "strategy",
+        "requested_strategy",
+        "bounds_source",
+        "count",
+        "min",
+        "max",
+        "edges",
+        "counts",
+        "outside",
+        "median",
+        "quantiles"
+      ],
+      "title": "BinnedHistogram",
+      "type": "object"
+    },
+    "Budgets": {
+      "additionalProperties": false,
+      "description": "Deterministic budgets (design 20.2). Memory is charged with the firm\n``max`` bound of each state.\n\n``memory_bytes`` is the hard budget: no selection exceeds it, whoever asked\nfor it (MEM-06). ``automatic_memory_bytes``, ``max_cells`` (cells of the\ncommon reading) and ``automatic_max_cpu`` limit what the planner picks by\nitself; a selection beyond them, because it was requested or forced,\nrequires a confirmation (R1). Values come from the cost model.",
+      "properties": {
+        "memory_bytes": {
+          "title": "Memory Bytes",
+          "type": "integer"
+        },
+        "automatic_memory_bytes": {
+          "title": "Automatic Memory Bytes",
+          "type": "integer"
+        },
+        "max_cells": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Cells"
+        },
+        "automatic_max_cpu": {
+          "enum": [
+            "very_low",
+            "low",
+            "moderate",
+            "high"
+          ],
+          "title": "Automatic Max Cpu",
+          "type": "string"
+        },
+        "overflow": {
+          "const": "reject",
+          "default": "reject",
+          "title": "Overflow",
+          "type": "string"
+        }
+      },
+      "required": [
+        "memory_bytes",
+        "automatic_memory_bytes",
+        "max_cells",
+        "automatic_max_cpu"
+      ],
+      "title": "Budgets",
+      "type": "object"
+    },
+    "Candidate": {
+      "additionalProperties": false,
+      "description": "One analysis of one field with its decision. ``method`` and ``parameters``\nare absent for an analysis that does not apply; ``costs`` too.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "analyzer": {
+          "title": "Analyzer",
+          "type": "string"
+        },
+        "analyzer_version": {
+          "title": "Analyzer Version",
+          "type": "integer"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "parameters": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputs",
+          "type": "array"
+        },
+        "applicability": {
+          "$ref": "#/$defs/Applicability"
+        },
+        "utility": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Utility"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "costs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Costs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "selection": {
+          "$ref": "#/$defs/Selection"
+        },
+        "execution": {
+          "$ref": "#/$defs/Execution"
+        }
+      },
+      "required": [
+        "id",
+        "analyzer",
+        "analyzer_version",
+        "dataset",
+        "field",
+        "display",
+        "outputs",
+        "applicability",
+        "selection",
+        "execution"
+      ],
+      "title": "Candidate",
+      "type": "object"
+    },
+    "CommonCost": {
+      "additionalProperties": false,
+      "description": "The reading shared by every selected analysis: parsed once, whatever the\nnumber of analyses (COST-01).",
+      "properties": {
+        "requires_source": {
+          "title": "Requires Source",
+          "type": "boolean"
+        },
+        "cells": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cells"
+        },
+        "memory_bytes": {
+          "title": "Memory Bytes",
+          "type": "integer"
+        },
+        "cpu": {
+          "anyOf": [
+            {
+              "enum": [
+                "very_low",
+                "low",
+                "moderate",
+                "high"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cpu"
+        }
+      },
+      "required": [
+        "requires_source",
+        "cells",
+        "memory_bytes",
+        "cpu"
+      ],
+      "title": "CommonCost",
+      "type": "object"
+    },
+    "Costs": {
+      "additionalProperties": false,
+      "description": "What one analysis adds to the common reading (COST-01): its states and\nits CPU class.",
+      "properties": {
+        "memory": {
+          "$ref": "#/$defs/Memory"
+        },
+        "cpu": {
+          "enum": [
+            "very_low",
+            "low",
+            "moderate",
+            "high"
+          ],
+          "title": "Cpu",
+          "type": "string"
+        },
+        "cell_ns": {
+          "title": "Cell Ns",
+          "type": "integer"
+        },
+        "states": {
+          "items": {
+            "$ref": "#/$defs/State"
+          },
+          "title": "States",
+          "type": "array"
+        }
+      },
+      "required": [
+        "memory",
+        "cpu",
+        "cell_ns",
+        "states"
+      ],
+      "title": "Costs",
+      "type": "object"
+    },
+    "DeepRun": {
+      "additionalProperties": false,
+      "description": "What the latest run did. ``source_verified`` says that the digest of the\nreading was compared with the Scan's (PASS2-01); a run that read nothing,\nbecause every result was reused, has none. ``cells_read`` counts the cells of\nthe fields the analyses read, not of the whole source.",
+      "properties": {
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "duration_seconds": {
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "timings": {
+          "$ref": "#/$defs/DeepTimings"
+        },
+        "workers": {
+          "title": "Workers",
+          "type": "integer"
+        },
+        "peak_memory_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Peak Memory Bytes"
+        },
+        "source_read": {
+          "title": "Source Read",
+          "type": "boolean"
+        },
+        "source_verified": {
+          "title": "Source Verified",
+          "type": "boolean"
+        },
+        "records_read": {
+          "title": "Records Read",
+          "type": "integer"
+        },
+        "cells_read": {
+          "title": "Cells Read",
+          "type": "integer"
+        },
+        "executed": {
+          "title": "Executed",
+          "type": "integer"
+        },
+        "reused": {
+          "title": "Reused",
+          "type": "integer"
+        },
+        "skipped": {
+          "title": "Skipped",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "started_at",
+        "duration_seconds",
+        "timings",
+        "workers",
+        "peak_memory_bytes",
+        "source_read",
+        "source_verified",
+        "records_read",
+        "cells_read",
+        "executed",
+        "reused",
+        "skipped"
+      ],
+      "title": "DeepRun",
+      "type": "object"
+    },
+    "DeepSettings": {
+      "additionalProperties": false,
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "properties": {
+        "bins": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Bins",
+          "type": "integer"
+        },
+        "bin_strategy": {
+          "default": "linear",
+          "enum": [
+            "linear",
+            "sample_quantile"
+          ],
+          "title": "Bin Strategy",
+          "type": "string"
+        }
+      },
+      "title": "DeepSettings",
+      "type": "object"
+    },
+    "DeepTimings": {
+      "additionalProperties": false,
+      "description": "Where the seconds of a run went: reading and parsing the source, then the\nanalyses; the rest is setup and assembly.",
+      "properties": {
+        "reading": {
+          "title": "Reading",
+          "type": "number"
+        },
+        "analysis": {
+          "title": "Analysis",
+          "type": "number"
+        },
+        "other": {
+          "title": "Other",
+          "type": "number"
+        }
+      },
+      "required": [
+        "reading",
+        "analysis",
+        "other"
+      ],
+      "title": "DeepTimings",
+      "type": "object"
+    },
+    "DenseHistogram": {
+      "additionalProperties": false,
+      "description": "Exact count of every integer of a small domain: the cardinality, the\nmode, the median and every quantile follow from it exactly (HIST-07).\n``values`` lists the integers that occur, in ascending order.",
+      "properties": {
+        "kind": {
+          "const": "dense_counts",
+          "default": "dense_counts",
+          "title": "Kind",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/ValueCountNumber"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "modes": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Modes",
+          "type": "array"
+        },
+        "modes_truncated": {
+          "title": "Modes Truncated",
+          "type": "boolean"
+        },
+        "median": {
+          "$ref": "#/$defs/Quantile"
+        },
+        "quantiles": {
+          "items": {
+            "$ref": "#/$defs/Quantile"
+          },
+          "title": "Quantiles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "min",
+        "max",
+        "distinct",
+        "values",
+        "modes",
+        "modes_truncated",
+        "median",
+        "quantiles"
+      ],
+      "title": "DenseHistogram",
+      "type": "object"
+    },
+    "DistinctCount": {
+      "additionalProperties": false,
+      "description": "Exact number of distinct original values of a field (EXACT-07), in the\ndomain of the Scan's cardinality (design 21): decoded, before any\nnormalization. ``values`` is V, the content values the cardinality is taken\nover (empty, blank, marker and null cells are not values), ``redundant`` is\n``values - distinct``: the occurrences beyond the first of each value, not\nthe number of values that occur more than once. ``unique`` is ``distinct ==\nvalues`` for this domain.",
+      "properties": {
+        "kind": {
+          "const": "distinct",
+          "default": "distinct",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "redundant": {
+          "title": "Redundant",
+          "type": "integer"
+        },
+        "unique": {
+          "title": "Unique",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "values",
+        "distinct",
+        "redundant",
+        "unique"
+      ],
+      "title": "DistinctCount",
+      "type": "object"
+    },
+    "DistinctLimited": {
+      "additionalProperties": false,
+      "description": "What a stopped exact count proves (D08): the distinct values met in the\n``values_read`` values before the memory budget stopped the field. It is a\nlower bound, never the cardinality.",
+      "properties": {
+        "kind": {
+          "const": "distinct_limited",
+          "default": "distinct_limited",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "lower_bound",
+          "default": "lower_bound",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "values_read": {
+          "title": "Values Read",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "title": "Lower Bound",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "values_read",
+        "lower_bound"
+      ],
+      "title": "DistinctLimited",
+      "type": "object"
+    },
+    "Execution": {
+      "additionalProperties": false,
+      "description": "How the analysis would run. A refusal to select never means the analysis\nis impossible (PLAN-06). ``on_limit`` is the policy when a limit is met\nwhile running (D08): the result is ``limited`` with its reason, and the\ncount of what was read so far is never presented as complete.",
+      "properties": {
+        "requires_source": {
+          "title": "Requires Source",
+          "type": "boolean"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "deterministic": {
+          "title": "Deterministic",
+          "type": "boolean"
+        },
+        "reusable": {
+          "title": "Reusable",
+          "type": "boolean"
+        },
+        "on_limit": {
+          "const": "limited",
+          "default": "limited",
+          "title": "On Limit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requires_source",
+        "available",
+        "deterministic",
+        "reusable"
+      ],
+      "title": "Execution",
+      "type": "object"
+    },
+    "FrequencyTable": {
+      "additionalProperties": false,
+      "description": "Exact count of every distinct analytical value of a field, each with its\nnative type, from the most to the least frequent (ties by text, then by\ntype), as the Scan orders its listing. ``modes`` are the values tied for the\nmost frequent, ten at most.",
+      "properties": {
+        "kind": {
+          "const": "frequencies",
+          "default": "frequencies",
+          "title": "Kind",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/ValueCount"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "modes": {
+          "items": {
+            "$ref": "#/$defs/ValueCount"
+          },
+          "title": "Modes",
+          "type": "array"
+        },
+        "modes_truncated": {
+          "title": "Modes Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "count",
+        "distinct",
+        "values",
+        "modes",
+        "modes_truncated"
+      ],
+      "title": "FrequencyTable",
+      "type": "object"
+    },
+    "LengthCount": {
+      "additionalProperties": false,
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "length",
+        "count"
+      ],
+      "title": "LengthCount",
+      "type": "object"
+    },
+    "LengthDistribution": {
+      "additionalProperties": false,
+      "description": "Exact count of every length, in characters of the analytical text, of the\ncontent strings of the field: the domain of ``string_lengths`` in the Scan.",
+      "properties": {
+        "kind": {
+          "const": "lengths",
+          "default": "lengths",
+          "title": "Kind",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min_length": {
+          "title": "Min Length",
+          "type": "integer"
+        },
+        "max_length": {
+          "title": "Max Length",
+          "type": "integer"
+        },
+        "mean_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Mean Length"
+        },
+        "median_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Median Length"
+        },
+        "length_histogram": {
+          "items": {
+            "$ref": "#/$defs/LengthCount"
+          },
+          "title": "Length Histogram",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "min_length",
+        "max_length",
+        "mean_length",
+        "median_length",
+        "length_histogram"
+      ],
+      "title": "LengthDistribution",
+      "type": "object"
+    },
+    "Memory": {
+      "additionalProperties": false,
+      "description": "Bytes of a state in three scenarios. ``max`` is a firm bound taken from\nthe counts of the Scan, ``min`` what the Scan already proves and\n``expected`` the likely size. They are payloads of the structures, not a\npromise of process memory.",
+      "properties": {
+        "min": {
+          "title": "Min",
+          "type": "integer"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "integer"
+        },
+        "max": {
+          "title": "Max",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min",
+        "expected",
+        "max"
+      ],
+      "title": "Memory",
+      "type": "object"
+    },
+    "Objective": {
+      "additionalProperties": false,
+      "description": "What the plan was asked for. ``forced`` is a second pass that was asked\nfor as a whole (``--deep``): it takes every applicable analysis the hard\nmemory budget holds, whatever the automatic limits.",
+      "properties": {
+        "automatic": {
+          "title": "Automatic",
+          "type": "boolean"
+        },
+        "forced": {
+          "default": false,
+          "title": "Forced",
+          "type": "boolean"
+        },
+        "requested": {
+          "items": {
+            "$ref": "#/$defs/RequestedAnalysis"
+          },
+          "title": "Requested",
+          "type": "array"
+        }
+      },
+      "required": [
+        "automatic",
+        "requested"
+      ],
+      "title": "Objective",
+      "type": "object"
+    },
+    "OutsideBins": {
+      "additionalProperties": false,
+      "description": "Values beyond the bounds of the Scan. A source that is the one the Scan\nread has none; a count here would make the result ``failed``.",
+      "properties": {
+        "below": {
+          "title": "Below",
+          "type": "integer"
+        },
+        "above": {
+          "title": "Above",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "below",
+        "above"
+      ],
+      "title": "OutsideBins",
+      "type": "object"
+    },
+    "PlanBase": {
+      "additionalProperties": false,
+      "description": "The Scan the plan stands on (design 19.5).",
+      "properties": {
+        "format_revision": {
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "source_sha256": {
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "config_sha256": {
+          "title": "Config Sha256",
+          "type": "string"
+        },
+        "facts_sha256": {
+          "title": "Facts Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "format_revision",
+        "engine_version",
+        "source_sha256",
+        "config_sha256",
+        "facts_sha256"
+      ],
+      "title": "PlanBase",
+      "type": "object"
+    },
+    "Quantile": {
+      "additionalProperties": false,
+      "description": "A quantile by linear interpolation between the two ranks around it\n(``(n - 1) * level``): for the median, the value at the middle rank, or the\nmean of the two central values when the count is even. ``exact`` when the\ncounts are per value; ``estimated`` when read from bins, with ``lower`` and\n``upper`` that the value cannot leave.",
+      "properties": {
+        "level": {
+          "title": "Level",
+          "type": "number"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Value"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "estimated"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        }
+      },
+      "required": [
+        "level",
+        "value",
+        "accuracy"
+      ],
+      "title": "Quantile",
+      "type": "object"
+    },
+    "RequestedAnalysis": {
+      "additionalProperties": false,
+      "description": "An explicit request. ``dataset`` and ``field`` are absent for every\ndataset or field; ``candidates`` counts what it matched, 0 when the\nanalysis does not concern any field asked for.",
+      "properties": {
+        "analyzer": {
+          "title": "Analyzer",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "candidates": {
+          "title": "Candidates",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "analyzer",
+        "candidates"
+      ],
+      "title": "RequestedAnalysis",
+      "type": "object"
+    },
+    "Selection": {
+      "additionalProperties": false,
+      "description": "The decision on a candidate. ``reason`` is a code (design 20.5);\n``priority`` numbers the selected candidates in the order they were chosen;\n``satisfied_by`` locates the fact of the Scan that already answers it.",
+      "properties": {
+        "state": {
+          "enum": [
+            "selected",
+            "already_satisfied",
+            "rejected"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "requested": {
+          "title": "Requested",
+          "type": "boolean"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        },
+        "satisfied_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Satisfied By"
+        }
+      },
+      "required": [
+        "state",
+        "reason",
+        "requested"
+      ],
+      "title": "Selection",
+      "type": "object"
+    },
+    "State": {
+      "additionalProperties": false,
+      "description": "A piece of memory an analysis needs. Two candidates with the same ``key``\nshare it, and the plan counts it once (PLAN-04).",
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "memory": {
+          "$ref": "#/$defs/Memory"
+        }
+      },
+      "required": [
+        "key",
+        "memory"
+      ],
+      "title": "State",
+      "type": "object"
+    },
+    "Summary": {
+      "additionalProperties": false,
+      "description": "Counts of the candidates by decision, and what the selection needs.",
+      "properties": {
+        "candidates": {
+          "title": "Candidates",
+          "type": "integer"
+        },
+        "selected": {
+          "title": "Selected",
+          "type": "integer"
+        },
+        "already_satisfied": {
+          "title": "Already Satisfied",
+          "type": "integer"
+        },
+        "rejected": {
+          "title": "Rejected",
+          "type": "integer"
+        },
+        "second_pass_required": {
+          "title": "Second Pass Required",
+          "type": "boolean"
+        },
+        "executable": {
+          "title": "Executable",
+          "type": "boolean"
+        },
+        "memory": {
+          "$ref": "#/$defs/Memory"
+        },
+        "beyond_automatic": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Beyond Automatic",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidates",
+        "selected",
+        "already_satisfied",
+        "rejected",
+        "second_pass_required",
+        "executable",
+        "memory",
+        "beyond_automatic"
+      ],
+      "title": "Summary",
+      "type": "object"
+    },
+    "Utility": {
+      "additionalProperties": false,
+      "description": "A versioned heuristic from 0 to 100 with its reasons. It orders the\ncandidates; it is not a measure of the data.",
+      "properties": {
+        "score": {
+          "title": "Score",
+          "type": "integer"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "score",
+        "reasons"
+      ],
+      "title": "Utility",
+      "type": "object"
+    },
+    "ValueCount": {
+      "additionalProperties": false,
+      "description": "An analytical value in its canonical text, with its native type.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "type",
+        "count"
+      ],
+      "title": "ValueCount",
+      "type": "object"
+    },
+    "ValueCountNumber": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "ValueCountNumber",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.scan.deep, format 0.2.0 revision 1: analyses added to a Scan by reading its source again.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.scan.deep",
+      "default": "tabalyst.scan.deep",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "base": {
+      "$ref": "#/$defs/PlanBase"
+    },
+    "settings": {
+      "$ref": "#/$defs/DeepSettings"
+    },
+    "settings_sha256": {
+      "title": "Settings Sha256",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/AnalysisPlan"
+    },
+    "run": {
+      "$ref": "#/$defs/DeepRun"
+    },
+    "analyses": {
+      "items": {
+        "$ref": "#/$defs/AnalysisResult"
+      },
+      "title": "Analyses",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "base",
+    "settings",
+    "settings_sha256",
+    "plan",
+    "run",
+    "analyses",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst Scan second pass",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

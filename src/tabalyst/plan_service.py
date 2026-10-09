@@ -14,6 +14,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from tabalyst.config import deep_settings
 from tabalyst.errors import TabalystError
 from tabalyst.progress import ProgressCallback
 from tabalyst.scan_document import load_document
@@ -29,7 +30,7 @@ from tabalyst.scanner.planner import (
     plan_analyses,
     plan_second_pass,
 )
-from tabalyst.service import ConfigPath
+from tabalyst.service import ConfigPath, _config_paths
 
 
 @dataclass(frozen=True)
@@ -104,6 +105,7 @@ def generate_plans(
     (``forced`` plans a second pass asked for as a whole). A failed source does
     not stop the others.
     """
+    deep = deep_settings(_config_paths(config_path))
     batch = generate_scans(
         input_specs,
         config_path=config_path,
@@ -119,7 +121,7 @@ def generate_plans(
     failures = list(batch.failures)
     for success in batch.successes:
         try:
-            second = plan_second_pass(success.result, forced=forced)
+            second = plan_second_pass(success.result, forced=forced, deep=deep)
         except TabalystError as exc:
             failures.append(ScanFailure(job=success.job, error=exc))
         else:

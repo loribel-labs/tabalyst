@@ -15,7 +15,11 @@ from tabalyst.scanner.planner.analyzer import (
     costs,
     memory,
 )
-from tabalyst.scanner.planner.analyzers.common import blocked, result_state
+from tabalyst.scanner.planner.analyzers.common import (
+    blocked,
+    replay_state,
+    result_state,
+)
 from tabalyst.scanner.planner.costmodel import COUNTER_BYTES, NS_PER_CELL
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
@@ -27,6 +31,7 @@ class LengthDistribution(Analyzer):
 
     id: ClassVar[str] = "length_distribution"
     outputs: ClassVar[tuple[str, ...]] = ("length_histogram",)
+    available: ClassVar[bool] = True
 
     def relevant(self, facts: FieldFacts) -> bool:
         return facts.technical_type in ("text", "mixed")
@@ -54,7 +59,7 @@ class LengthDistribution(Analyzer):
         state = State(key=f"lengths:{facts.where}", memory=memory(size))
         return costs(
             NS_PER_CELL["length_counter"],
-            [state, result_state(self.id, facts)],
+            [state, replay_state(facts), result_state(self.id, facts)],
         )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:

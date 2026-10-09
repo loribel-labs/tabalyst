@@ -58,6 +58,12 @@ support is not yet required. Record format changes in the relevant changelogs.
   `secondpass.py` the time estimate and the confirmation (20.3).
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of
   a source (plan against Scan, readable source, digest at the end; 20.6).
+- `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,
+  replay of the first pass's reading of a cell, exact histograms and
+  quantiles, the exact distinct count of the original values and the exact
+  frequencies) and its document `<stem>.deep.json` (`docs/dev/scan/design.md`
+  20.4, 20.7 and 20.8); `src/tabalyst/deep_service.py` is its boundary for the CLI
+  and the API.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision

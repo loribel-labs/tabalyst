@@ -6,8 +6,9 @@ description: What tabalyst scan --plan shows, how the planner chooses analyses u
 `tabalyst scan --plan` shows which further analyses would be useful and possible
 for a file, what each would cost, and which ones the scan already answers. It
 runs none of them and writes nothing beside the source. The plan is experimental
-in the beta: the analyses it proposes cannot be run yet, so it shows what a
-later release will add.
+in the beta. Two of the analyses it proposes, the histograms of numeric fields and
+the length distribution, can be run with [`tabalyst scan --deep`](deep.md); the
+others cannot be run yet, so the plan also shows what a later release will add.
 
 ```console
 tabalyst scan customers.csv --plan
@@ -23,17 +24,17 @@ Plan for basic.csv (plan 84f918d7e204, planner 1).
 22 candidates: 5 selected, 16 already answered by the scan, 1 left out.
 
 Selected:
-  1. pattern_validation [compiled_matcher]: rows / id (up to 6.0 KiB, CPU low, automatic, not available yet)
-  2. pattern_validation [compiled_matcher]: rows / name (up to 6.0 KiB, CPU low, automatic, not available yet)
-  3. pattern_validation [compiled_matcher]: rows / amount (up to 6.0 KiB, CPU low, automatic, not available yet)
-  4. pattern_validation [compiled_matcher]: rows / notes (up to 6.0 KiB, CPU low, automatic, not available yet)
-  5. temporal_distribution [period_counts]: rows / joined (up to 1.7 KiB, CPU low, automatic, not available yet)
+  1. pattern_validation [compiled_matcher]: rows / id (up to 6.0 KiB, CPU very_low, automatic, not available yet)
+  2. pattern_validation [compiled_matcher]: rows / name (up to 6.0 KiB, CPU very_low, automatic, not available yet)
+  3. pattern_validation [compiled_matcher]: rows / amount (up to 6.0 KiB, CPU very_low, automatic, not available yet)
+  4. pattern_validation [compiled_matcher]: rows / notes (up to 6.0 KiB, CPU very_low, automatic, not available yet)
+  5. temporal_distribution [period_counts]: rows / joined (up to 1.7 KiB, CPU very_low, automatic, not available yet)
 
 Not applicable:
   1 x the field mixes types, so a typed analysis would be unreliable
 
 A second reading of the source is needed (30 cells, CPU very_low). Memory: 24.0 MiB to 24.0 MiB, about 24.0 MiB.
-The second pass is not available in this version: the plan only shows what it would do.
+5 of the selected analyses cannot run in this version; tabalyst scan --deep runs the others.
 Estimated time: under a second (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 ```
@@ -45,10 +46,10 @@ the analyses that concern it:
 
 | Analysis | What it adds |
 | --- | --- |
-| `exact_frequencies` | The exact count of every distinct value |
-| `numeric_histogram` | The spread of the numbers, with exact median and quantiles when the integers have a small range |
-| `length_distribution` | The lengths of the text |
-| `exact_distinct` | The exact number of distinct values of an identifier-like field |
+| `exact_frequencies` | The exact count of every distinct value of a field of at most 1,000 values (runs with `--deep`) |
+| `numeric_histogram` | The spread of the numbers, with exact median and quantiles when the integers have a small range (runs with `--deep`) |
+| `length_distribution` | The lengths of the text (runs with `--deep`) |
+| `exact_distinct` | The exact number of distinct values of an identifier-like field (runs with `--deep`) |
 | `pattern_validation` | The structural patterns counted on every occurrence, not only on a sample of the distinct values |
 | `temporal_distribution` | The dates counted by day, month or year |
 
@@ -80,8 +81,10 @@ such exact counts out.
 
 Each analysis and the reading also get a CPU class, `very_low`, `low`,
 `moderate` or `high`, from the work they add to each cell. The classes are
-calibrated on proxies in the beta and will be re-measured when the analyses can
-run.
+measured on the second pass for the histograms and the length distribution; the
+other analyses still use estimates that the second pass will replace when they
+can run. A counter of integers or a bin costs about 1 microsecond a cell, as much
+as the first pass spends on a cell, which is why both are `moderate`.
 
 ## Automatic, requested and forced
 
@@ -104,8 +107,9 @@ applies and fits the 512 MiB budget, whatever the automatic limits.
 tabalyst scan customers.csv --plan --deep
 ```
 
-`--deep` needs `--plan` for now, since the second pass cannot run yet. The
-selected analyses then say `forced` instead of `automatic`.
+The selected analyses then say `forced` instead of `automatic`. The plan lists
+the analyses that cannot run yet, and says so at the end; `tabalyst scan
+--deep` without `--plan` [runs the second pass](deep.md) with those that can.
 
 ## Estimated time and confirmation
 
@@ -130,7 +134,7 @@ them: the times add up and the memory is the largest.
 `--plan` accepts the options that choose how the file is read (`-c`,
 `--delimiter`, `--encoding`, `--collection`, `--workers`, `-q`, `--no-progress`).
 It refuses `-o`, `-d`, `--force` and `--counters`, which write.
-`--deep` is accepted with `--plan` only.
+`--deep` shows the forced plan with `--plan`, and runs the second pass without it.
 
 ## Python API
 
@@ -170,4 +174,8 @@ print(second.requires_confirmation, second.confirmation.reasons)
 ```
 
 The reasons are `memory_over_automatic`, `cells_over_automatic`,
-`cpu_over_automatic` and `time_over_threshold`.
+`cpu_over_automatic` and `time_over_threshold`. The number of bins of a
+histogram comes from the `deep` settings of a [configuration
+file](../reference/configuration.md#deep-settings); `plan_second_pass(scan,
+deep=tabalyst.DeepSettings(bins=50))` takes them explicitly. Running a plan is
+described in [the second pass](deep.md#python-api).

@@ -35,9 +35,14 @@ from tabalyst.scanner.planner import (
 )
 from tabalyst.scanner.planner.analyzer import costs, memory
 from tabalyst.scanner.planner.costmodel import (
-    INT_OBJECT_BYTES,
+    EDGE_BYTES,
+    EXACT_SET_FIXED_BYTES,
+    REPLAY_ENTRY_BYTES,
+    REPLAY_MEMO_ENTRIES,
     RESULT_BYTES,
     SET_SLOT_BYTES,
+    SET_SMALL_EXTRA_BYTES,
+    STR_OBJECT_BYTES,
 )
 from tabalyst.scanner.planner.models import State, Utility
 from tabalyst.scanner.planner.planner import (
@@ -114,8 +119,18 @@ def test_a_registry_refuses_what_is_not_an_analyzer_and_a_known_id():
         registry.register(Mute)
 
 
-def test_the_built_in_analyzers_are_not_executable_yet():
-    assert not any(a.available for a in default_registry())
+def test_only_the_analyzers_with_an_executor_are_runnable():
+    registry = default_registry()
+
+    runnable = registry.runnable()
+
+    assert {a.id for a in runnable} == {
+        "exact_frequencies",
+        "numeric_histogram",
+        "length_distribution",
+        "exact_distinct",
+    }
+    assert [a.id for a in registry if a.available] == [a.id for a in runnable]
 
 
 # Decision tree -----------------------------------------------------------------
@@ -145,7 +160,7 @@ def test_a_constant_number_reuses_its_statistics_and_does_not_divide_by_zero(tmp
     assert histogram.costs is None
 
 
-def test_a_small_integer_domain_uses_dense_counters_shared_with_the_frequencies(tmp_path):
+def test_a_small_integer_domain_has_dense_counters_and_a_table_of_frequencies(tmp_path):
     # 300 distinct values: more than the scan lists as frequencies (100) and than
     # its sample keeps (20), yet few enough for a table or an array of counters.
     rows = [str(1 + index % 300) for index in range(900)]
@@ -156,11 +171,14 @@ def test_a_small_integer_domain_uses_dense_counters_shared_with_the_frequencies(
     histogram = _state(plan, "numeric_histogram", "qty")
     frequencies = _state(plan, "exact_frequencies", "qty")
     assert (histogram.method, histogram.parameters) == ("dense_counts", {"domain": 300})
-    assert (frequencies.method, frequencies.parameters) == ("dense_counts", {"domain": 300})
+    # The frequencies are keyed by native type and analytical text: counters of
+    # integers would merge "7", "007" and the integer 7, so it is a table.
+    assert (frequencies.method, frequencies.parameters) == ("hash_table", {"distinct": 300})
     assert histogram.selection.state == frequencies.selection.state == "selected"
-    # The counters are one state, counted once.
+    # The reading of the field is shared by the two analyses, counted once.
     shared = {s.key for s in histogram.costs.states} & {s.key for s in frequencies.costs.states}
-    assert len(shared) == 1
+    assert shared == {"replay:datasets/rows/fields/column_1"}
+    table = next(s for s in frequencies.costs.states if s.key.startswith("frequencies:"))
     results = 2 * 1_024
     dense = 300 * 8
     others = sum(
@@ -170,7 +188,8 @@ def test_a_small_integer_domain_uses_dense_counters_shared_with_the_frequencies(
         and (c.analyzer, c.display) not in {("numeric_histogram", "qty"), ("exact_frequencies", "qty")}
         for s in c.costs.states
     )
-    assert unique_state_bytes(plan) == dense + results + others
+    replay = REPLAY_MEMO_ENTRIES * REPLAY_ENTRY_BYTES
+    assert unique_state_bytes(plan) == dense + table.memory.max + results + replay + others
 
 
 def test_numbers_with_a_wide_range_are_binned_with_a_fixed_memory(tmp_path):
@@ -179,8 +198,10 @@ def test_numbers_with_a_wide_range_are_binned_with_a_fixed_memory(tmp_path):
 
     histogram = _state(plan_analyses(result), "numeric_histogram", "price")
 
-    assert (histogram.method, histogram.parameters) == ("linear_bins", {"bins": 100})
-    assert histogram.costs.memory.max == 100 * 8 + 16 + 1_024
+    assert (histogram.method, histogram.parameters) == ("bins", {"bins": 100, "strategy": "linear"})
+    bins = 100 * 8 + 101 * EDGE_BYTES
+    replay = REPLAY_MEMO_ENTRIES * REPLAY_ENTRY_BYTES
+    assert histogram.costs.memory.max == bins + replay + 1_024
 
 
 def test_a_column_that_mixes_types_gets_no_typed_analysis(tmp_path):
@@ -204,8 +225,11 @@ def test_an_identifier_gets_an_exact_distinct_count_and_no_histogram(tmp_path):
     assert set(distinct.utility.reasons) >= {"near_unique", "identifier_name", "integer_key"}
     assert (distinct.method, distinct.parameters) == ("compact_set", {"key": "integer"})
     assert distinct.costs.memory.min <= distinct.costs.memory.expected <= distinct.costs.memory.max
-    # An integer object and the largest slot of a set (cost model), 600 times.
-    assert distinct.costs.memory.max == 600 * (INT_OBJECT_BYTES + SET_SLOT_BYTES[2]) + RESULT_BYTES
+    # The firm bound charges a text of the longest length at the largest slot,
+    # the supplement of a small set and the empty containers, 600 times, since
+    # a value may be outside the compact key (design 20.8).
+    entry = STR_OBJECT_BYTES + 6 + SET_SLOT_BYTES[2] + SET_SMALL_EXTRA_BYTES
+    assert distinct.costs.memory.max == EXACT_SET_FIXED_BYTES + 600 * entry + RESULT_BYTES
     histogram = _state(plan, "numeric_histogram", "customer_id")
     assert histogram.selection.state == "rejected"
     assert histogram.selection.reason == "low_utility"
@@ -432,11 +456,17 @@ def test_a_plan_says_whether_its_selection_can_run(tmp_path):
     result = scan_csv(tmp_path, "t", ["a", "b", "c"])
     numbers = scan_csv(tmp_path, "price", [f"{index * 3.5:.1f}" for index in range(100)])
 
+    class Waiting(_Fake):
+        id: ClassVar[str] = "waiting"
+        available: ClassVar[bool] = False
+
     runnable = plan_analyses(result, registry=AnalyzerRegistry([_Fake]))
-    pending = plan_analyses(numbers)
+    pending = plan_analyses(result, registry=AnalyzerRegistry([_Fake, Waiting]))
+    shipped = plan_analyses(numbers)
 
     assert runnable.summary.selected == 1 and runnable.summary.executable is True
-    assert pending.summary.selected >= 1 and pending.summary.executable is False
+    assert pending.summary.selected == 2 and pending.summary.executable is False
+    assert shipped.summary.selected >= 1 and shipped.summary.executable is True
 
 
 # Plan as a document ------------------------------------------------------------

@@ -15,6 +15,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from tabalyst.config import DeepSettings
 from tabalyst.scanner.planner.costmodel import (
     CLASS_NS,
     INT_OBJECT_BYTES,
@@ -35,7 +36,6 @@ from tabalyst.scanner.planner.models import (
 
 # Longest domain of integers counted by a dense array, and bins otherwise.
 DENSE_DOMAIN_MAX = 65_536
-BIN_COUNT = 100
 # A field with at most this many distinct values has a table of frequencies
 # of a size the planner accepts without being an identifier.
 LOW_CARDINALITY_MAX = 1_000
@@ -115,7 +115,8 @@ class Analyzer(ABC):
     ``available`` is false until an executor exists; the planner chooses on
     merit and the plan says whether its selection can run. ``deterministic``
     and ``reusable`` answer PLAN-02: the result does not depend on the run, and
-    one computed for the same base and parameters can be reused.
+    one computed for the same base and parameters can be reused. ``settings``
+    are the ``deep`` settings, which parametrize the methods that have some.
     """
 
     id: ClassVar[str]
@@ -124,6 +125,9 @@ class Analyzer(ABC):
     available: ClassVar[bool] = False
     deterministic: ClassVar[bool] = True
     reusable: ClassVar[bool] = True
+
+    def __init__(self, settings: DeepSettings | None = None) -> None:
+        self.settings = DeepSettings() if settings is None else settings
 
     @abstractmethod
     def relevant(self, facts: FieldFacts) -> bool:

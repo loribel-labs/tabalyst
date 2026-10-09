@@ -154,6 +154,18 @@ byte order mark by default:
 tabalyst scan data.csv --delimiter ";" --encoding cp1252
 ```
 
+## Add histograms with a second pass
+
+```console
+tabalyst scan customers.csv --deep
+```
+
+`--deep` reads the file a second time and writes `deep.json` beside the scan, with
+the histogram, the exact or estimated median and the quantiles of the numeric
+fields, the exact number of distinct values of identifier-like fields and the
+exact count of every value of some small fields. The scan is not changed. It asks first when the run is costly. See [Add
+histograms and exact medians](deep.md).
+
 ## Errors and partial scans
 
 By default, a CSV record with the wrong number of fields, or a JSON object with

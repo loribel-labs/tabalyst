@@ -6,16 +6,19 @@
 
 A configuration file has one object per tool: ``scan`` (what Scan measures
 and keeps), ``report`` (what the report presents) and, at the top level, the
-``csv`` settings of ``tabalyst sample`` (``SettingsFile``). The report is built
+``csv`` settings of ``tabalyst sample``, the ``output`` settings and the ``deep``
+settings of the second pass (``SettingsFile``). The report is built
 on Tabalyst Scan, so its analysis settings live in ``scan``, never in
 ``report`` (``tabalyst.report_config``).
 """
 
 import codecs
+import hashlib
 import json
 from collections.abc import Iterable
 from itertools import pairwise
 from pathlib import Path
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -144,16 +147,47 @@ class OutputSettings(BaseModel):
     json_indent: bool = False
 
 
+BinStrategy = Literal["linear", "sample_quantile"]
+BINS_MIN = 2
+BINS_MAX = 1_000
+
+
+class DeepSettings(BaseModel):
+    """What the second pass computes beyond the plan: the number of bins of a
+    histogram and where their bounds come from.
+
+    ``linear`` splits the exact range of the Scan into bins of equal width;
+    ``sample_quantile`` places the inner bounds at quantiles of the row sample
+    (the shape of the occurrences) or, without enough rows, of the bottom-k
+    sample (the distinct values), for a very skewed distribution. The outer
+    bounds are always the exact minimum and maximum, and the counts per bin
+    are exact in both.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    bins: int = Field(default=100, ge=BINS_MIN, le=BINS_MAX)
+    bin_strategy: BinStrategy = "linear"
+
+    def sha256(self) -> str:
+        """Digest of the settings, for the document that used them."""
+        canonical = json.dumps(
+            self.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+        )
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 class SettingsFile(BaseModel):
     """Settings of a configuration file besides its ``scan`` object: ``csv``
-    for ``tabalyst sample``, the ``report`` presentation settings and the
-    ``output`` settings."""
+    for ``tabalyst sample``, the ``report`` presentation settings, the
+    ``output`` settings and the ``deep`` settings of the second pass."""
 
     model_config = ConfigDict(extra="forbid")
 
     csv: CsvConfig = Field(default_factory=CsvConfig)
     report: PresentationSettings = Field(default_factory=PresentationSettings)
     output: OutputSettings = Field(default_factory=OutputSettings)
+    deep: DeepSettings = Field(default_factory=DeepSettings)
 
 
 # Settings that moved, with their new location. The analysis settings moved to
@@ -293,6 +327,12 @@ def settings_from_layer(merged: dict) -> SettingsFile:
         raise ConfigurationError(
             f"Invalid merged configuration: {validation_message(exc)}"
         ) from exc
+
+
+def deep_settings(paths: Iterable[Path]) -> DeepSettings:
+    """The ``deep`` settings of the configuration files (second pass)."""
+    top_level, _ = load_config_layers(paths)
+    return settings_from_layer(top_level).deep
 
 
 def json_indent(paths: Iterable[Path]) -> bool:

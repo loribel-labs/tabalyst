@@ -9,7 +9,11 @@ from __future__ import annotations
 import re
 
 from tabalyst.scanner.planner.analyzer import Assessment, memory
-from tabalyst.scanner.planner.costmodel import RESULT_BYTES
+from tabalyst.scanner.planner.costmodel import (
+    REPLAY_ENTRY_BYTES,
+    REPLAY_MEMO_ENTRIES,
+    RESULT_BYTES,
+)
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import State
 
@@ -34,6 +38,13 @@ def blocked(facts: FieldFacts) -> Assessment | None:
 def result_state(analyzer: str, facts: FieldFacts) -> State:
     """The small result object every analysis keeps, never shared."""
     return State(key=f"result:{analyzer}:{facts.where}", memory=memory(RESULT_BYTES))
+
+
+def replay_state(facts: FieldFacts) -> State:
+    """What reading the strings of a field costs the second pass: the cells of
+    the raw strings it remembers. Shared by the analyses of the field."""
+    size = REPLAY_MEMO_ENTRIES * REPLAY_ENTRY_BYTES
+    return State(key=f"replay:{facts.where}", memory=memory(0, size // 4, size))
 
 
 def name_suggests_identifier(name: str) -> bool:

@@ -8,7 +8,10 @@ description: The Python functions that scan a CSV, JSON, JSONL or Excel source -
 documents. `tabalyst.plan_analyses()`, `tabalyst.plan_document()` and
 `tabalyst.plan_second_pass()` plan the analyses a scan could still receive, with
 their estimated time and whether running them would require a confirmation (see
-[Plan the analyses](../../scan/plan.md)). The command is [`tabalyst scan`](../cli/scan.md); the result is
+[Plan the analyses](../../scan/plan.md)). `tabalyst.generate_deep()`,
+`tabalyst.prepare_deep()`, `tabalyst.execute_deep()` and
+`tabalyst.run_second_pass()` run the second pass of a scan and never prompt (see
+[Add histograms and exact medians](../../scan/deep.md#python-api)). The command is [`tabalyst scan`](../cli/scan.md); the result is
 described in the [scan format](../../scan/format.md).
 
 ```python
