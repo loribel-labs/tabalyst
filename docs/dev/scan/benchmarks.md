@@ -819,3 +819,29 @@ from 0.76 to 1.19 MB (the embedded second-pass document, with the plan of 126 ca
 HTML from 0.65 to 0.76 MB. On `examples/input/insurance-customers.csv` (3,000 rows) the report
 takes 1.8 s against 1.7 s without it (the second pass is 0.07 s of 29 analyses). The lever, if the overhead is too much, is the automatic
 budget of 20.2, which is deterministic and recorded in the plan.
+
+## Pairs of numeric columns (lot 8a)
+
+`benchmarks/planner_costs.py executor` on the combined file (1,000,000 x 34, one reading,
+`pearson` among the analyses of a forced plan):
+
+| Measure | Value |
+| --- | ---: |
+| Planning of the forced plan, exploration of the pairs included | 0.021 s |
+| Pairs run | 2 (3,000,000 cells handled: 3 columns, each converted once) |
+| Reading | 4.9 s |
+| Analysis (conversion of the columns and the co-moments) | 5.9 s |
+| Per cell of a column of a pair, shared columns counted for every pair | 1,467 ns |
+| Firm bound of the model | 1.16 MB |
+| Peak traced | 7.95 MB (the reading included, which the model counts apart) |
+
+`NS_PER_CELL["pearson"]` is 1,500 ns, class `moderate`, rounded up from 1,467; a column shared by
+several pairs is read once, so the estimate of a plan with shared columns is an upper bound.
+`COST_MODEL_VERSION` is 5. The exploration of the row sample is bounded by
+`deep.pearson.max_columns` (50) and `max_work` (1,000,000 pairs times rows), and costs well
+under a second: 21 ms here.
+
+**Overhead of the Report with pairs** (`benchmarks/report_overhead.py`, same file and cases as lot 7c): `off` 19.8 s,
+`auto` 36.4 s (second pass 16.2 s, 30 analyses, 12 million cells read, no pair reached the automatic bound on this
+file), `warm` 1.85 s. The pairs add nothing here to the +84% measured at lot 7c, which stays to be decided by the
+maintainer; the planning of the pairs costs 21 ms.

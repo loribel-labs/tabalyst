@@ -236,6 +236,12 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | --- | --- | --- |
 | `deep.bins` | `100` | Number of bins of the histogram of a numeric field that is not counted per integer. From 2 to 1,000 |
 | `deep.mode` | `auto` | What `tabalyst report` does about the second pass. `auto`: the planner adds the analyses that are useful and cheap. `off`: none, for a script that must read each file once. `force`: the same as `--deep`, with its confirmation. `tabalyst scan --deep` is an explicit request and runs whatever the mode |
+| `deep.pearson.max_columns` | `50` | Numeric columns of a dataset explored for pairs, from 2 to 200. The least present columns beyond it are left out, and the plan counts them |
+| `deep.pearson.max_work` | `1000000` | Pairs times rows compared by the exploration of the row sample. It lowers the number of columns explored when `max_columns` is not enough |
+| `deep.pearson.max_candidates` | `20` | Pairs the plan lists at most, the best first. A forced second pass takes them all |
+| `deep.pearson.automatic_pairs` | `8` | Pairs `tabalyst report` picks by itself at most; `0` picks none. A pair is picked when the lower end of its 95% interval is 0.45 or more |
+| `deep.pearson.explore_min_pairs` | `30` | Rows both columns need in the sample for the exploration to score a pair |
+| `deep.pearson.min_pairs` | `10` | Rows both columns need in the file for a coefficient to be defined. Changing it computes the pairs again |
 | `deep.bin_strategy` | `linear` | `linear`: bins of equal width between the exact minimum and maximum. `sample_quantile`: inner edges at the quantiles of the sample kept by the scan, for a very skewed distribution; it falls back to `linear` when the sample is too small, and says so |
 
 The counts per bin are exact with either strategy.

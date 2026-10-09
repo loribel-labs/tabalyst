@@ -11,11 +11,11 @@ budgets give the same plan on any machine.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_serializer
 
-from tabalyst.scanner.models import ScanModel
+from tabalyst.scanner.models import ScanModel, _omit_none
 
 PLANNER_NAME = "tabalyst.planner"
 PLANNER_VERSION = 1
@@ -97,9 +97,34 @@ class Execution(ScanModel):
     on_limit: Literal["limited"] = "limited"
 
 
+class Exploration(ScanModel):
+    """What the row sample says of a pair of numeric columns (design 20.12,
+    REL-05): the rows both columns have a number in (``pairs``), the
+    coefficient over them and its interval, or the ``reason`` it is not defined.
+    It is an exploration of ``scope`` rows and says nothing of the population
+    beyond them: a pair not detected here may still hold elsewhere. The figures
+    are rounded to six decimals, which keeps the plan the same on any machine.
+    ``score`` is the lower bound of the absolute coefficient that the planner
+    ranks by."""
+
+    scope: Literal["interior_rows", "all_rows"]
+    pairs: int
+    coefficient: float | None = None
+    lower: float | None = None
+    upper: float | None = None
+    score: float | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("coefficient", "lower", "upper", "score", "reason"))
+
+
 class Candidate(ScanModel):
     """One analysis of one field with its decision. ``method`` and ``parameters``
-    are absent for an analysis that does not apply; ``costs`` too."""
+    are absent for an analysis that does not apply; ``costs`` too. An analysis
+    of a pair of fields names the second one in ``partner`` (and ``display``
+    names both) and carries the ``exploration`` that proposed it."""
 
     id: str
     analyzer: str
@@ -115,6 +140,12 @@ class Candidate(ScanModel):
     costs: Costs | None = None
     selection: Selection
     execution: Execution
+    partner: str | None = None
+    exploration: Exploration | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("partner", "exploration"))
 
 
 class PlanBase(ScanModel):
@@ -135,7 +166,12 @@ class RequestedAnalysis(ScanModel):
     analyzer: str
     dataset: str | None = None
     field: str | None = None
+    partner: str | None = None
     candidates: int
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("partner",))
 
 
 class Objective(ScanModel):
@@ -164,6 +200,8 @@ class Budgets(ScanModel):
     max_cells: int | None
     automatic_max_cpu: CpuClass
     overflow: Literal["reject"] = "reject"
+    # Pairs of columns the planner picks by itself (design 20.12).
+    automatic_pairs: int = 8
 
 
 class CommonCost(ScanModel):
@@ -191,6 +229,46 @@ class Summary(ScanModel):
     beyond_automatic: list[str]
 
 
+class ExploredDataset(ScanModel):
+    """The exploration of the pairs of one dataset (design 20.12, REL-06).
+
+    ``rows`` are the rows of the sample the pairs were scored on, ``scope`` which
+    rows they are. ``numeric`` columns were looked at; those left out are counted
+    by reason in ``excluded`` (``constant``, ``sensitive_exposure``,
+    ``repeated_path``, ``identifier_like``, ``not_in_sample``, ``too_few_values``,
+    ``column_budget``) and ``columns`` were kept. Of the ``possible`` pairs,
+    ``evaluated`` were scored, ``undefined`` of them have no coefficient (their
+    reasons counted in ``undefined_reasons``) and ``listed`` are candidates of
+    the plan. ``work`` is the pairs times the rows compared, the post-processing
+    budget (COST-05). ``unavailable`` says why the dataset was not explored."""
+
+    dataset: str
+    scope: Literal["interior_rows", "all_rows"] | None = None
+    rows: int = 0
+    numeric: int = 0
+    columns: int = 0
+    excluded: dict[str, int] = Field(default_factory=dict)
+    possible: int = 0
+    evaluated: int = 0
+    undefined: int = 0
+    undefined_reasons: dict[str, int] = Field(default_factory=dict)
+    listed: int = 0
+    work: int = 0
+    unavailable: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("scope", "unavailable"))
+
+
+class Relations(ScanModel):
+    """What the planner looked at to propose pairs: one entry per dataset with
+    at least two numeric columns."""
+
+    method: Literal["pearson"] = "pearson"
+    datasets: list[ExploredDataset]
+
+
 class AnalysisPlan(ScanModel):
     """What to add to a Scan, why, and at what cost.
 
@@ -208,4 +286,9 @@ class AnalysisPlan(ScanModel):
     budgets: Budgets
     common: CommonCost
     summary: Summary
+    relations: Relations | None = None
     candidates: list[Candidate]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("relations",))

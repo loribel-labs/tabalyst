@@ -6,6 +6,7 @@
 
 from tabalyst._version import __version__
 from tabalyst.config import DeepSettings as DeepSettings
+from tabalyst.config import PearsonSettings as PearsonSettings
 from tabalyst.deep_service import execute_deep as execute_deep
 from tabalyst.deep_service import generate_deep as generate_deep
 from tabalyst.deep_service import prepare_deep as prepare_deep
@@ -56,6 +57,7 @@ __all__ = [
     "GenerateResult",
     "InputError",
     "InspectResult",
+    "PearsonSettings",
     "ReportError",
     "ScanConfig",
     "ScanResult",

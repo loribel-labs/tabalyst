@@ -152,9 +152,34 @@ BINS_MIN = 2
 BINS_MAX = 1_000
 
 
+class PearsonSettings(BaseModel):
+    """How pairs of numeric columns are explored and which are kept (design
+    20.12, REL-04 to REL-06).
+
+    The exploration reads the row sample, never the source. ``max_columns``
+    and ``max_work`` (pairs times rows compared) bound its cost: the columns
+    beyond them are left out, and the plan says so. ``max_candidates`` pairs at
+    most are written in the plan, the best first; ``automatic_pairs`` of them
+    at most are chosen without being asked. ``explore_min_pairs`` is the
+    smallest number of rows a pair needs in the sample to be scored and
+    ``min_pairs`` the smallest number a coefficient over every row needs to be
+    defined; the second is part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_columns: int = Field(default=50, ge=2, le=200)
+    max_work: int = Field(default=1_000_000, ge=1)
+    max_candidates: int = Field(default=20, ge=0, le=1_000)
+    automatic_pairs: int = Field(default=8, ge=0, le=1_000)
+    explore_min_pairs: int = Field(default=30, ge=4)
+    min_pairs: int = Field(default=10, ge=3)
+
+
 class DeepSettings(BaseModel):
     """What the second pass computes beyond the plan: the number of bins of a
-    histogram and where their bounds come from.
+    histogram and where their bounds come from, and how pairs of numeric
+    columns are chosen.
 
     ``linear`` splits the exact range of the Scan into bins of equal width;
     ``sample_quantile`` places the inner bounds at quantiles of the row sample
@@ -168,6 +193,7 @@ class DeepSettings(BaseModel):
 
     bins: int = Field(default=100, ge=BINS_MIN, le=BINS_MAX)
     bin_strategy: BinStrategy = "linear"
+    pearson: PearsonSettings = Field(default_factory=PearsonSettings)
 
     def sha256(self) -> str:
         """Digest of the settings, for the document that used them."""

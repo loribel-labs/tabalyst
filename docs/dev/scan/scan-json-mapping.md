@@ -44,7 +44,8 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Validation of patterns (D08, PAT-07 to PAT-11) | Inference from the samples only | Done at 7c: `secondpass/patterns.py` (compiled matcher, exclusive classification, overlaps, reconciliation, derivation from the exact counts of the Scan) and the result `pattern_counts` (design 20.9) | 7c |
 | Dates by period (TIME-01 to TIME-03, D12) | `temporal` block of the first pass (kinds, min, max, years) | Done at 7c: `secondpass/periods.py`, `CellReader.cells(dates=)` and the result `periods` (design 20.10) | 7c |
 | Report chain (D02, A13, A14, 18.2) | None | Done at 7c: `report_chain.py`, `report --deep`, `--yes`, `deep.mode`, the `analyses` member of the Report and its pages (design 20.11) | 7c |
-| Relationships (D13, D14) | None | Add | 8a, 8b |
+| Pearson on selected pairs (D13, D14, REL-04 to REL-10, COST-05, E01, E02) | None | Done at 8a: `planner/relations.py` (exploration of the row sample, column and work budgets, `relations` in the plan), `scanner/pearson.py` (stable co-moments), `secondpass/pearson.py` (`ColumnFeed`, `PairAccumulator`), the result `pearson`, `deep.pearson` settings (design 20.12) | 8a |
+| Categories, patterns and features (D14, REL-01 to REL-03, REL-11 to REL-16, E03 to E05) | None | Add | 8b |
 | Stratification help (D16, D17) and smart sampling (D15) | `tabalyst sample` modes only | Add | 9, 10a, 10b |
 | Explore access (D24) | Private DuckDB layer `projects/` | Adapted (1d): reads the Scan base only | 1d |
 | HTML from JSON alone (D19, F01 to F04) | `render_report` reads the profile | Done at 5: observations, limits, patterns, row sample and the qualified counts are read from the base (`report_sections`, `report_labels`), display budgets, escaping contract (design 18.14) | 1c, 5 |
@@ -79,6 +80,7 @@ the main process and are never summed with worker time.
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
 | `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity; `generate_scans(refresh=)` and `ScanSuccess.reused` (6a) |
 | `plan_service.py` | None | `plan_document`, `generate_plans`: the planner for the CLI and the API (6a); reads the `deep` settings (7a) |
+| `scanner/pearson.py`, `planner/relations.py`, `planner/analyzers/pearson.py`, `secondpass/pearson.py` | None | The pairs of numeric columns: arithmetic, exploration, analyzer and accumulators (8a) |
 | `report_chain.py`, `deep_store.py`, `report_deep.py` | None | The second pass inside Report, its writer and its views (7c) |
 | `deep_service.py` | None | `prepare_deep`, `execute_deep`, `generate_deep`, `ConfirmationRequired`: the second pass for the CLI and the API, which never prompts (7a) |
 | `scanner/readers/factory.py`, `scanner/process.py` | Moved out of `scanner/api.py` (`open_reader`, `peak_memory_bytes`) | Shared by the first and the second pass; no change to the loop of the first pass (7a) |

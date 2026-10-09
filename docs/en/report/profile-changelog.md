@@ -68,7 +68,10 @@ The profile becomes a superset of the Scan document: it has `format:
   pass did](json-profile.md#analyses): who decided it, the outcome, and the second
   pass document with its plan and its results. The HTML report adds the Second pass
   section, the validated occurrences of each pattern, the dates per period, and the
-  exact distinct count and median that a scan limit had stopped.
+  exact distinct count and median that a scan limit had stopped. The second pass
+  document inside `analyses` also holds the correlation of pairs of numeric columns
+  (`partner` on an analysis, the result `pearson`, `relations` and `exploration` in
+  the plan).
 - The HTML report adds the Observations and Patterns sections, qualifies every
   count as exact, estimated, sample, at least or not computed, and writes
   integers with all their digits (see

@@ -35,6 +35,7 @@ from tabalyst.scanner.planner.costmodel import (
 )
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
+from tabalyst.scanner.planner.relations import column_floats
 from tabalyst.scanner.process import peak_memory_bytes
 from tabalyst.scanner.readers.factory import open_reader
 from tabalyst.scanner.secondpass.accumulators import (
@@ -61,6 +62,7 @@ from tabalyst.scanner.secondpass.patterns import (
     derive_from_samples,
     pattern_entry,
 )
+from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
@@ -77,6 +79,7 @@ Accumulator = (
     | FrequencyAccumulator
     | PatternAccumulator
     | PeriodAccumulator
+    | PairAccumulator
 )
 
 
@@ -110,6 +113,9 @@ class _Job:
     field: FieldResult
     route: FieldRoute | None = None
     accumulator: Accumulator | None = None
+    # The second column of a pair, which reads through feeds and no route.
+    partner: FieldResult | None = None
+    reads_pair: bool = False
     # Why the job could not be set up: it fails without reading.
     failure: tuple[str, str] | None = None
 
@@ -144,6 +150,7 @@ def _entry(
         analyzer_version=candidate.analyzer_version,
         dataset=candidate.dataset,
         field=candidate.field,
+        partner=candidate.partner,
         display=candidate.display,
         method=candidate.method or "",
         parameters=candidate.parameters,
@@ -165,6 +172,41 @@ def _grant(candidate: Candidate) -> int:
         for state in candidate.costs.states
         if state.key.startswith(EXACT_SET_STATE_PREFIX)
     )
+
+
+def _setup_pair(
+    job: _Job,
+    cells: CellReader,
+    feeds: dict[tuple[str, FieldPath], ColumnFeed],
+) -> None:
+    """The accumulator of a pair. A pair whose rows the complete sample of the
+    Scan holds is counted from them now and reads nothing; the others get the
+    feed of each column, shared with the other pairs that use it."""
+    candidate, dataset = job.candidate, job.dataset
+    first, second = job.field, job.partner
+    assert second is not None
+    min_pairs = int(candidate.parameters["min_pairs"])
+    if not candidate.execution.requires_source:
+        sample = dataset.records.sample
+        ids = [first.id, second.id]
+        if sample is None or not sample.complete or not sample.covers(ids):
+            raise ScanMismatch("the scan no longer holds every row of the pair")
+        columns = [column_floats(sample.rows, field_id, cells, lenient=False) for field_id in ids]
+        left, right = ColumnFeed(cells), ColumnFeed(cells)
+        left.numbers, right.numbers = columns[0][1], columns[1][1]
+        pair = PairAccumulator(left, right, min_pairs)
+        pair.add(columns[0][0], columns[1][0])
+        job.accumulator = pair
+        return
+    columns_of = []
+    for field in (first, second):
+        where = (dataset.id, field_path(field.path))
+        feed = feeds.get(where)
+        if feed is None:
+            feed = feeds[where] = ColumnFeed(cells)
+        columns_of.append(feed)
+    job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs)
+    job.reads_pair = True
 
 
 def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> None:
@@ -263,6 +305,14 @@ def _finish(job: _Job) -> _Finished:
     if isinstance(accumulator, PatternAccumulator):
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(field.values.count, source))
+    if isinstance(accumulator, PairAccumulator):
+        partner = job.partner
+        assert partner is not None
+        if field.numeric.status != "complete" or partner.numeric.status != "complete":
+            raise ScanMismatch("the numeric measure of the scan is not complete")
+        accumulator.check(field.numeric.value, partner.numeric.value)
+        source = "source" if job.candidate.execution.requires_source else "samples"
+        return _Finished("complete", accumulator.result(source))
     if isinstance(accumulator, PeriodAccumulator):
         assert field.temporal.status == "complete"
         stats = field.temporal.value
@@ -291,6 +341,11 @@ def _conclude(job: _Job) -> AnalysisResult:
         return _entry(candidate, key, "failed", reason=reason, detail=detail)
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
+    pair = job.accumulator
+    if isinstance(pair, PairAccumulator):
+        broken = pair.failure or pair.first.failure or pair.second.failure
+        if broken is not None:
+            return _entry(candidate, key, "failed", reason="analysis_error", detail=broken)
     try:
         finished = _finish(job)
     except Exception as exc:  # noqa: BLE001 - one analysis fails alone
@@ -383,7 +438,12 @@ def run_second_pass(
             skipped.append(candidate.id)
         else:
             dataset, field = fields[(candidate.dataset, candidate.field)]
-            jobs.append(_Job(candidate, key, dataset, field))
+            partner = (
+                None
+                if candidate.partner is None
+                else fields[(candidate.dataset, candidate.partner)][1]
+            )
+            jobs.append(_Job(candidate, key, dataset, field, partner=partner))
 
     read_jobs: list[_Job] = []
     reading = [0.0]
@@ -401,10 +461,14 @@ def run_second_pass(
             )
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
+        feeds: dict[tuple[str, FieldPath], ColumnFeed] = {}
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
             try:
+                if job.candidate.analyzer == "pearson_correlation":
+                    _setup_pair(job, cells, feeds)
+                    continue
                 _setup(job, cells, pool, scan)
             except ScanMismatch as exc:
                 job.failure = ("scan_mismatch", str(exc))
@@ -433,7 +497,7 @@ def run_second_pass(
             else:
                 route.numeric = accumulator
             job.route = route
-        read_jobs = [job for job in jobs if job.route is not None]
+        read_jobs = [job for job in jobs if job.route is not None or job.reads_pair]
         if read_jobs:
             guard: SourceGuard = prepare_second_pass(plan, scan, source)
             emit_progress(
@@ -447,7 +511,12 @@ def run_second_pass(
             reader = open_reader(
                 source, scan.config, byte_progress(on_progress, source, scan.source.size_bytes)
             )
-            router = Router(routes)
+            pairs = [
+                (job.dataset.id, job.accumulator)
+                for job in read_jobs
+                if isinstance(job.accumulator, PairAccumulator) and job.reads_pair
+            ]
+            router = Router(routes, feeds, pairs)
             consume_started = perf_counter()
             router.consume(_timed(reader, reading))
             consume = perf_counter() - consume_started

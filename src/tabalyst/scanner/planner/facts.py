@@ -22,6 +22,7 @@ from tabalyst.scanner.models import (
     FieldPatternsFailed,
     FieldPatternsNotApplicable,
     FieldResult,
+    ItemsSegment,
     ScanResult,
 )
 
@@ -72,6 +73,10 @@ class FieldFacts:
     numeric: str
     numeric_min: float | None
     numeric_max: float | None
+    # Numbers the scan counted for the field, and whether its path repeats in a
+    # record (items of an array), which no pair of columns may use.
+    numeric_count: int
+    repeated: bool
     lengths: str
     min_length: int | None
     mean_length: float | None
@@ -177,6 +182,8 @@ def _facts(
         numeric=numeric.status,
         numeric_min=numeric.value.min if numeric.status == "complete" else None,
         numeric_max=numeric.value.max if numeric.status == "complete" else None,
+        numeric_count=numeric.value.count if numeric.status == "complete" else 0,
+        repeated=any(isinstance(segment, ItemsSegment) for segment in field.path),
         lengths=lengths.status,
         min_length=lengths.value.min_length if lengths.status == "complete" else None,
         mean_length=float(lengths.value.mean_length) if lengths.status == "complete" else None,

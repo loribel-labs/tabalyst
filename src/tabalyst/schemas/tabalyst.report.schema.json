@@ -134,6 +134,17 @@
         "summary": {
           "$ref": "#/$defs/Summary"
         },
+        "relations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Relations"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "candidates": {
           "items": {
             "$ref": "#/$defs/Candidate"
@@ -179,6 +190,18 @@
         "field": {
           "title": "Field",
           "type": "string"
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partner"
         },
         "display": {
           "title": "Display",
@@ -261,6 +284,7 @@
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
                   "pattern_counts": "#/$defs/PatternCounts",
+                  "pearson": "#/$defs/PearsonResult",
                   "periods": "#/$defs/PeriodCounts"
                 },
                 "propertyName": "kind"
@@ -289,6 +313,9 @@
                 },
                 {
                   "$ref": "#/$defs/PeriodCounts"
+                },
+                {
+                  "$ref": "#/$defs/PearsonResult"
                 }
               ]
             },
@@ -685,6 +712,11 @@
           "default": "reject",
           "title": "Overflow",
           "type": "string"
+        },
+        "automatic_pairs": {
+          "default": 8,
+          "title": "Automatic Pairs",
+          "type": "integer"
         }
       },
       "required": [
@@ -791,7 +823,7 @@
     },
     "Candidate": {
       "additionalProperties": false,
-      "description": "One analysis of one field with its decision. ``method`` and ``parameters``\nare absent for an analysis that does not apply; ``costs`` too.",
+      "description": "One analysis of one field with its decision. ``method`` and ``parameters``\nare absent for an analysis that does not apply; ``costs`` too. An analysis\nof a pair of fields names the second one in ``partner`` (and ``display``\nnames both) and carries the ``exploration`` that proposed it.",
       "properties": {
         "id": {
           "title": "Id",
@@ -880,6 +912,29 @@
         },
         "execution": {
           "$ref": "#/$defs/Execution"
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partner"
+        },
+        "exploration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Exploration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2390,7 +2445,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, and how pairs of numeric\ncolumns are chosen.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -2407,6 +2462,9 @@
           ],
           "title": "Bin Strategy",
           "type": "string"
+        },
+        "pearson": {
+          "$ref": "#/$defs/PearsonSettings"
         }
       },
       "title": "DeepSettings",
@@ -3509,6 +3567,187 @@
         "reusable"
       ],
       "title": "Execution",
+      "type": "object"
+    },
+    "Exploration": {
+      "additionalProperties": false,
+      "description": "What the row sample says of a pair of numeric columns (design 20.12,\nREL-05): the rows both columns have a number in (``pairs``), the\ncoefficient over them and its interval, or the ``reason`` it is not defined.\nIt is an exploration of ``scope`` rows and says nothing of the population\nbeyond them: a pair not detected here may still hold elsewhere. The figures\nare rounded to six decimals, which keeps the plan the same on any machine.\n``score`` is the lower bound of the absolute coefficient that the planner\nranks by.",
+      "properties": {
+        "scope": {
+          "enum": [
+            "interior_rows",
+            "all_rows"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "pairs": {
+          "title": "Pairs",
+          "type": "integer"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coefficient"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "scope",
+        "pairs"
+      ],
+      "title": "Exploration",
+      "type": "object"
+    },
+    "ExploredDataset": {
+      "additionalProperties": false,
+      "description": "The exploration of the pairs of one dataset (design 20.12, REL-06).\n\n``rows`` are the rows of the sample the pairs were scored on, ``scope`` which\nrows they are. ``numeric`` columns were looked at; those left out are counted\nby reason in ``excluded`` (``constant``, ``sensitive_exposure``,\n``repeated_path``, ``identifier_like``, ``not_in_sample``, ``too_few_values``,\n``column_budget``) and ``columns`` were kept. Of the ``possible`` pairs,\n``evaluated`` were scored, ``undefined`` of them have no coefficient (their\nreasons counted in ``undefined_reasons``) and ``listed`` are candidates of\nthe plan. ``work`` is the pairs times the rows compared, the post-processing\nbudget (COST-05). ``unavailable`` says why the dataset was not explored.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "interior_rows",
+                "all_rows"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "rows": {
+          "default": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "numeric": {
+          "default": 0,
+          "title": "Numeric",
+          "type": "integer"
+        },
+        "columns": {
+          "default": 0,
+          "title": "Columns",
+          "type": "integer"
+        },
+        "excluded": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded",
+          "type": "object"
+        },
+        "possible": {
+          "default": 0,
+          "title": "Possible",
+          "type": "integer"
+        },
+        "evaluated": {
+          "default": 0,
+          "title": "Evaluated",
+          "type": "integer"
+        },
+        "undefined": {
+          "default": 0,
+          "title": "Undefined",
+          "type": "integer"
+        },
+        "undefined_reasons": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Undefined Reasons",
+          "type": "object"
+        },
+        "listed": {
+          "default": 0,
+          "title": "Listed",
+          "type": "integer"
+        },
+        "work": {
+          "default": 0,
+          "title": "Work",
+          "type": "integer"
+        },
+        "unavailable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable"
+        }
+      },
+      "required": [
+        "dataset"
+      ],
+      "title": "ExploredDataset",
       "type": "object"
     },
     "ExposureSettings": {
@@ -6278,6 +6517,229 @@
       "title": "PatternToken",
       "type": "object"
     },
+    "PearsonExclusions": {
+      "additionalProperties": false,
+      "description": "The rows a pair leaves out, because a value is missing: ``first_missing``\nhas a number in the second column only, ``second_missing`` in the first only,\n``both_missing`` in neither. A value is missing when the row has none, or\nit is not a number, or the number does not fit a float64.",
+      "properties": {
+        "first_missing": {
+          "title": "First Missing",
+          "type": "integer"
+        },
+        "second_missing": {
+          "title": "Second Missing",
+          "type": "integer"
+        },
+        "both_missing": {
+          "title": "Both Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "first_missing",
+        "second_missing",
+        "both_missing"
+      ],
+      "title": "PearsonExclusions",
+      "type": "object"
+    },
+    "PearsonResult": {
+      "additionalProperties": false,
+      "description": "Pearson correlation of two numeric columns over every row where both\nhave a number (REL-07 to REL-09). ``rows`` are the rows examined, ``pairs``\nthose that count (``pairwise_complete``) and ``excluded`` the others, so that\n``rows`` is ``pairs`` plus the three exclusions. The means and spreads are\nthose of the common rows, not the Scan's. Without ``min_pairs`` common rows,\nor when a column does not vary over them, there is no ``coefficient`` and\nthe ``reason`` says why: never 0. The counts are exact; the coefficient is\ncomputed in float64 (``precision``), from stable co-moments. It measures a\nlinear association, not a cause (REL-10). ``source`` says whether the rows\nwere read from the source or are the complete sample of the Scan.",
+      "properties": {
+        "kind": {
+          "const": "pearson",
+          "default": "pearson",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact_counts",
+          "default": "exact_counts",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "precision": {
+          "const": "float64",
+          "default": "float64",
+          "title": "Precision",
+          "type": "string"
+        },
+        "rule": {
+          "const": "pairwise_complete",
+          "default": "pairwise_complete",
+          "title": "Rule",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "min_pairs": {
+          "title": "Min Pairs",
+          "type": "integer"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "pairs": {
+          "title": "Pairs",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/PearsonExclusions"
+        },
+        "defined": {
+          "title": "Defined",
+          "type": "boolean"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coefficient"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "mean_first": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean First"
+        },
+        "mean_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Second"
+        },
+        "std_first": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std First"
+        },
+        "std_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std Second"
+        },
+        "covariance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Covariance"
+        }
+      },
+      "required": [
+        "source",
+        "min_pairs",
+        "rows",
+        "pairs",
+        "excluded",
+        "defined"
+      ],
+      "title": "PearsonResult",
+      "type": "object"
+    },
+    "PearsonSettings": {
+      "additionalProperties": false,
+      "description": "How pairs of numeric columns are explored and which are kept (design\n20.12, REL-04 to REL-06).\n\nThe exploration reads the row sample, never the source. ``max_columns``\nand ``max_work`` (pairs times rows compared) bound its cost: the columns\nbeyond them are left out, and the plan says so. ``max_candidates`` pairs at\nmost are written in the plan, the best first; ``automatic_pairs`` of them\nat most are chosen without being asked. ``explore_min_pairs`` is the\nsmallest number of rows a pair needs in the sample to be scored and\n``min_pairs`` the smallest number a coefficient over every row needs to be\ndefined; the second is part of the key of a result.",
+      "properties": {
+        "max_columns": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Columns",
+          "type": "integer"
+        },
+        "max_work": {
+          "default": 1000000,
+          "minimum": 1,
+          "title": "Max Work",
+          "type": "integer"
+        },
+        "max_candidates": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Candidates",
+          "type": "integer"
+        },
+        "automatic_pairs": {
+          "default": 8,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Automatic Pairs",
+          "type": "integer"
+        },
+        "explore_min_pairs": {
+          "default": 30,
+          "minimum": 4,
+          "title": "Explore Min Pairs",
+          "type": "integer"
+        },
+        "min_pairs": {
+          "default": 10,
+          "minimum": 3,
+          "title": "Min Pairs",
+          "type": "integer"
+        }
+      },
+      "title": "PearsonSettings",
+      "type": "object"
+    },
     "PercentageSettings": {
       "additionalProperties": false,
       "description": "Conventions of the number part of percentages, set independently of\n``detectors.number``.",
@@ -6815,6 +7277,30 @@
       "title": "Records",
       "type": "object"
     },
+    "Relations": {
+      "additionalProperties": false,
+      "description": "What the planner looked at to propose pairs: one entry per dataset with\nat least two numeric columns.",
+      "properties": {
+        "method": {
+          "const": "pearson",
+          "default": "pearson",
+          "title": "Method",
+          "type": "string"
+        },
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/ExploredDataset"
+          },
+          "title": "Datasets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "datasets"
+      ],
+      "title": "Relations",
+      "type": "object"
+    },
     "ReportBlock": {
       "additionalProperties": false,
       "description": "What a Report adds to the Scan base.",
@@ -6907,6 +7393,18 @@
           ],
           "default": null,
           "title": "Field"
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Partner"
         },
         "candidates": {
           "title": "Candidates",

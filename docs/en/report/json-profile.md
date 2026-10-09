@@ -132,6 +132,11 @@ and cheap, and `--deep` forces it. This member says what happened and holds the
 | `reason` | Why, for `disabled`, `unavailable` and `failed`; a sentence |
 | `deep` | The second pass document: its `plan` lists every candidate analysis with the decision on it and its reason (kept, already answered by the scan, or left out), and `analyses` holds the results, each with its `status` and `reason` |
 
+The results include the correlation of the pairs of numeric columns that the plan kept
+(`pearson_correlation`, see [Correlation between two columns](../scan/deep.md#correlation-between-two-columns)):
+an entry of `analyses` names both fields (`field` and `partner`) and the plan has a
+`relations` member that says which columns were explored.
+
 A report built with `--scan` reads no source: the analyses that need it are
 `skipped` with the reason `source_not_read`. A report written before the second
 pass existed has no `analyses`, and its HTML has no Second pass section.

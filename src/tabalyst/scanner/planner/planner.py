@@ -19,8 +19,12 @@ from dataclasses import dataclass
 from tabalyst.config import DeepSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner.identity import facts_sha256
-from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.models import DatasetResult, ScanResult
 from tabalyst.scanner.planner.analyzer import Analyzer, Assessment
+from tabalyst.scanner.planner.analyzers.pearson import (
+    PAIR_SEPARATOR,
+    PearsonCorrelation,
+)
 from tabalyst.scanner.planner.costmodel import (
     COST_MODEL_VERSION,
     DEFAULT_AUTOMATIC_MEMORY_BYTES,
@@ -39,9 +43,12 @@ from tabalyst.scanner.planner.models import (
     CommonCost,
     Costs,
     Execution,
+    Exploration,
+    ExploredDataset,
     Memory,
     Objective,
     PlanBase,
+    Relations,
     RequestedAnalysis,
     Selection,
     State,
@@ -49,6 +56,11 @@ from tabalyst.scanner.planner.models import (
     Utility,
 )
 from tabalyst.scanner.planner.registry import AnalyzerRegistry, default_registry
+from tabalyst.scanner.planner.relations import (
+    PairProposal,
+    explicit_proposal,
+    explore_dataset,
+)
 
 UTILITY_VERSION = 1
 # The lowest utility the planner picks by itself (a forced plan ignores it).
@@ -58,20 +70,27 @@ AUTOMATIC_MIN_UTILITY = 45
 @dataclass(frozen=True, slots=True)
 class AnalysisRequest:
     """An analysis asked for explicitly. ``dataset`` and ``field`` (an id or a
-    display path) narrow it; absent, it concerns every dataset or field."""
+    display path) narrow it; absent, it concerns every dataset or field. For an
+    analysis of pairs, ``field`` and ``partner`` name one pair, which may be
+    absent from what the exploration proposes; ``field`` alone asks for the
+    proposed pairs that use it."""
 
     analyzer: str
     dataset: str | None = None
     field: str | None = None
+    partner: str | None = None
 
 
-def default_budgets() -> Budgets:
-    """The budgets of the planner, calibrated on the baselines (design 20.2)."""
+def default_budgets(deep: DeepSettings | None = None) -> Budgets:
+    """The budgets of the planner, calibrated on the baselines (design 20.2);
+    the number of pairs it picks by itself comes from the ``deep`` settings."""
+    deep = DeepSettings() if deep is None else deep
     return Budgets(
         memory_bytes=DEFAULT_MEMORY_BUDGET_BYTES,
         automatic_memory_bytes=DEFAULT_AUTOMATIC_MEMORY_BYTES,
         max_cells=DEFAULT_MAX_CELLS,
         automatic_max_cpu="moderate",
+        automatic_pairs=deep.pearson.automatic_pairs,
     )
 
 
@@ -87,10 +106,16 @@ class _Entry:
     utility: Utility | None = None
     requested: bool = False
     selection: Selection | None = None
+    # The second field of a pair and what the sample says of it.
+    partner: FieldFacts | None = None
+    exploration: Exploration | None = None
 
     @property
     def id(self) -> str:
-        return f"{self.analyzer.id}:{self.facts.dataset}:{self.facts.field}"
+        field = self.facts.field
+        if self.partner is not None:
+            field = f"{field}{PAIR_SEPARATOR}{self.partner.field}"
+        return f"{self.analyzer.id}:{self.facts.dataset}:{field}"
 
 
 class _Ledger:
@@ -172,6 +197,20 @@ def _matches(request: AnalysisRequest, facts: FieldFacts, analyzer: Analyzer) ->
     )
 
 
+def _pair_matches(request: AnalysisRequest, first: FieldFacts, second: FieldFacts) -> bool:
+    """Whether a request for pairs concerns the pair (in either order)."""
+    if request.dataset not in (None, first.dataset):
+        return False
+    if request.field is None:
+        return True
+    members = ({first.field, first.display}, {second.field, second.display})
+    if request.partner is None:
+        return any(request.field in member for member in members)
+    return (request.field in members[0] and request.partner in members[1]) or (
+        request.field in members[1] and request.partner in members[0]
+    )
+
+
 def _check_requests(
     requests: Sequence[AnalysisRequest],
     registry: AnalyzerRegistry,
@@ -193,6 +232,24 @@ def _check_requests(
                 for field in dataset.fields
             ):
                 raise ConfigurationError(f"Unknown field {request.field!r}.")
+        if request.partner is not None:
+            if request.analyzer != PearsonCorrelation.id:
+                raise ConfigurationError(f"{request.analyzer!r} does not analyze pairs of fields.")
+            if request.field is None:
+                raise ConfigurationError("A partner needs the field it pairs with.")
+            if request.partner == request.field:
+                raise ConfigurationError("A pair needs two different fields.")
+            scope = (
+                [datasets[request.dataset]] if request.dataset is not None else datasets.values()
+            )
+            if not any(
+                {request.field, request.partner}
+                <= {name for field in dataset.fields for name in (field.id, field.display)}
+                for dataset in scope
+            ):
+                raise ConfigurationError(
+                    f"No dataset has both {request.field!r} and {request.partner!r}."
+                )
 
 
 def _decide(
@@ -261,6 +318,7 @@ def _decide(
     )
     limit = CPU_ORDER.index(budgets.automatic_max_cpu)
     reading_too_long = CPU_ORDER.index(cell_class(cells)) > limit
+    automatic_pairs = 0
     for entry in [*cheap, *costly]:
         assert entry.costs is not None and entry.utility is not None
         if forced:
@@ -278,8 +336,12 @@ def _decide(
             reject(entry, "cells_budget")
         elif entry.assessment.requires_source and reading_too_long:
             reject(entry, "cpu_class")
+        elif entry.partner is not None and automatic_pairs >= budgets.automatic_pairs:
+            reject(entry, "pairs_budget")
         else:
             try_select(entry, "automatic", automatic_memory)
+            if entry.partner is not None and entry.selection.state == "selected":  # type: ignore[union-attr]
+                automatic_pairs += 1
     return ledger
 
 
@@ -318,7 +380,13 @@ def _candidate(entry: _Entry) -> Candidate:
         analyzer_version=analyzer.version,
         dataset=facts.dataset,
         field=facts.field,
-        display=facts.display,
+        display=(
+            facts.display
+            if entry.partner is None
+            else f"{facts.display} and {entry.partner.display}"
+        ),
+        partner=None if entry.partner is None else entry.partner.field,
+        exploration=entry.exploration,
         method=assessment.method,
         parameters=assessment.parameters,
         outputs=list(analyzer.outputs),
@@ -336,6 +404,77 @@ def _candidate(entry: _Entry) -> Candidate:
             reusable=analyzer.reusable,
         ),
     )
+
+
+def _pair_entries(
+    scan: ScanResult,
+    analyzer: PearsonCorrelation,
+    facts_list: Sequence[FieldFacts],
+    requests: Sequence[AnalysisRequest],
+    start: int,
+) -> tuple[list[_Entry], list[ExploredDataset]]:
+    """The candidates of the pairs of numeric columns: the best the exploration
+    of each dataset found, then the pairs a request named that it did not list
+    (REL-06). Reads the row sample of the Scan and nothing else."""
+    # The second pass imports the planner, so it is imported late.
+    from tabalyst.scanner.secondpass.replay import CellReader
+
+    settings = analyzer.settings.pearson
+    reader = CellReader(scan.config)
+    # JSON writes its native numbers as text in the sample: a decimal reads them.
+    lenient = scan.source.format != "csv"
+    by_dataset: dict[str, list[FieldFacts]] = {}
+    for facts in facts_list:
+        by_dataset.setdefault(facts.dataset, []).append(facts)
+    proposals: list[PairProposal] = []
+    blocks: list[ExploredDataset] = []
+    for dataset in scan.datasets:
+        block, listed = explore_dataset(
+            dataset, by_dataset.get(dataset.id, []), reader, settings, lenient
+        )
+        if block is not None:
+            blocks.append(block)
+        proposals.extend(listed)
+    known = {(p.first.dataset, p.first.field, p.second.field) for p in proposals}
+    datasets: dict[str, DatasetResult] = {dataset.id: dataset for dataset in scan.datasets}
+    for request in requests:
+        if request.analyzer != analyzer.id or request.field is None or request.partner is None:
+            continue
+        for dataset_id, members in by_dataset.items():
+            if request.dataset not in (None, dataset_id):
+                continue
+            first = next((f for f in members if request.field in (f.field, f.display)), None)
+            second = next((f for f in members if request.partner in (f.field, f.display)), None)
+            if first is None or second is None:
+                continue
+            if members.index(first) > members.index(second):
+                first, second = second, first
+            if (dataset_id, first.field, second.field) in known:
+                continue
+            known.add((dataset_id, first.field, second.field))
+            proposals.append(
+                explicit_proposal(datasets[dataset_id], first, second, reader, settings, lenient)
+            )
+    entries: list[_Entry] = []
+    for proposal in proposals:
+        if proposal.reasons:
+            assessment = Assessment("not_applicable", proposal.reasons)
+        else:
+            # Only a CSV file writes the cells of its sample as the reading does.
+            assessment = analyzer.assess_pair(proposal.from_samples and not lenient)
+        entry = _Entry(
+            start + len(entries),
+            analyzer,
+            proposal.first,
+            assessment,
+            partner=proposal.second,
+            exploration=proposal.exploration,
+        )
+        if assessment.kind == "applicable":
+            entry.costs = analyzer.estimate_pair(proposal.first, proposal.second, assessment)
+            entry.utility = analyzer.utility_pair(proposal.exploration)
+        entries.append(entry)
+    return entries, blocks
 
 
 def plan_analyses(
@@ -360,14 +499,29 @@ def plan_analyses(
     (the bins of a histogram). Reads the Scan only; nothing is run or written.
     """
     registry = default_registry() if registry is None else registry
-    budgets = default_budgets() if budgets is None else budgets
+    deep = DeepSettings() if deep is None else deep
+    budgets = default_budgets(deep) if budgets is None else budgets
     _check_requests(requests, registry, scan)
     analyzers = [analyzer(deep) for analyzer in registry]
     facts_list = scan_facts(scan)
 
     entries: list[_Entry] = []
     matched = [0] * len(requests)
+    explored: list[ExploredDataset] = []
     for analyzer in analyzers:
+        if isinstance(analyzer, PearsonCorrelation):
+            pairs, blocks = _pair_entries(scan, analyzer, facts_list, requests, len(entries))
+            for entry in pairs:
+                assert entry.partner is not None
+                for index, request in enumerate(requests):
+                    if request.analyzer == analyzer.id and _pair_matches(
+                        request, entry.facts, entry.partner
+                    ):
+                        entry.requested = True
+                        matched[index] += 1
+            entries.extend(pairs)
+            explored.extend(blocks)
+            continue
         for facts in facts_list:
             if not analyzer.relevant(facts):
                 continue
@@ -407,6 +561,7 @@ def plan_analyses(
                     analyzer=request.analyzer,
                     dataset=request.dataset,
                     field=request.field,
+                    partner=request.partner,
                     candidates=matched[index],
                 )
                 for index, request in enumerate(requests)
@@ -424,6 +579,7 @@ def plan_analyses(
             memory=ledger.total(),
             beyond_automatic=_beyond_automatic(selected, ledger, budgets, cells),
         ),
+        relations=Relations(datasets=explored) if explored else None,
         candidates=candidates,
     )
     return plan.model_copy(update={"plan_id": plan_id(plan)})

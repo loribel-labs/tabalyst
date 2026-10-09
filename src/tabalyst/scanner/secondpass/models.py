@@ -262,6 +262,63 @@ class PeriodCounts(ScanModel):
     periods: list[PeriodCount]
 
 
+class PearsonExclusions(ScanModel):
+    """The rows a pair leaves out, because a value is missing: ``first_missing``
+    has a number in the second column only, ``second_missing`` in the first only,
+    ``both_missing`` in neither. A value is missing when the row has none, or
+    it is not a number, or the number does not fit a float64."""
+
+    first_missing: int
+    second_missing: int
+    both_missing: int
+
+
+class PearsonResult(ScanModel):
+    """Pearson correlation of two numeric columns over every row where both
+    have a number (REL-07 to REL-09). ``rows`` are the rows examined, ``pairs``
+    those that count (``pairwise_complete``) and ``excluded`` the others, so that
+    ``rows`` is ``pairs`` plus the three exclusions. The means and spreads are
+    those of the common rows, not the Scan's. Without ``min_pairs`` common rows,
+    or when a column does not vary over them, there is no ``coefficient`` and
+    the ``reason`` says why: never 0. The counts are exact; the coefficient is
+    computed in float64 (``precision``), from stable co-moments. It measures a
+    linear association, not a cause (REL-10). ``source`` says whether the rows
+    were read from the source or are the complete sample of the Scan."""
+
+    kind: Literal["pearson"] = "pearson"
+    accuracy: Literal["exact_counts"] = "exact_counts"
+    precision: Literal["float64"] = "float64"
+    rule: Literal["pairwise_complete"] = "pairwise_complete"
+    source: Literal["source", "samples"]
+    min_pairs: int
+    rows: int
+    pairs: int
+    excluded: PearsonExclusions
+    defined: bool
+    coefficient: float | None = None
+    reason: str | None = None
+    mean_first: float | None = None
+    mean_second: float | None = None
+    std_first: float | None = None
+    std_second: float | None = None
+    covariance: float | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            (
+                "coefficient",
+                "reason",
+                "mean_first",
+                "mean_second",
+                "std_first",
+                "std_second",
+                "covariance",
+            ),
+        )
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
@@ -270,7 +327,8 @@ AnalysisOutput = Annotated[
     | DistinctLimited
     | FrequencyTable
     | PatternCounts
-    | PeriodCounts,
+    | PeriodCounts
+    | PearsonResult,
     Field(discriminator="kind"),
 ]
 
@@ -288,6 +346,8 @@ class AnalysisResult(ScanModel):
     analyzer_version: int
     dataset: str
     field: str
+    # The second field of an analysis of a pair.
+    partner: str | None = None
     display: str
     method: str
     parameters: dict[str, int | str]
@@ -300,7 +360,7 @@ class AnalysisResult(ScanModel):
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("reason", "detail", "result"))
+        return _omit_none(handler(self), ("partner", "reason", "detail", "result"))
 
 
 class DeepTimings(ScanModel):
