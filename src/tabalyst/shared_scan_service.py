@@ -115,3 +115,33 @@ def current_scan(
         except OSError as exc:
             raise ReportError(f"Cannot write scan file {path}: {exc}") from exc
         return SharedScan(result, path, False, notices)
+
+
+def stored_scan(
+    source: Path, config: ScanConfig, *, location: StorageLocation | None = None
+) -> ScanResult | None:
+    """The current stored Scan of ``source`` for ``config``, or ``None``.
+
+    It never scans and never writes: a command that only wants to use a Scan when
+    one is there (design 20.16, D23) asks this. A document of another format, of
+    another source content, configuration or engine is not current.
+    """
+    source = source.resolve()
+    location = location or StorageLocation.local()
+    path = location.shared_scan_path(source)
+    if not path.exists():
+        return None
+    try:
+        result = load_scan(path)
+    except (UnsupportedScanDocument, OSError):
+        return None
+    if result.source.name != source.name:
+        return None
+    try:
+        fresh = compare_source(source, result.source)
+    except OSError:
+        return None
+    if fresh.state is not SourceState.FRESH or fresh.sha256 is None:
+        return None
+    wanted = expected_identity(fresh.sha256, config, source_format=source_format_of(source))
+    return result if wanted == scan_identity(result) else None

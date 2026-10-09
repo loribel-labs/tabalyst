@@ -62,8 +62,9 @@ def test_scan_writes_shared_scan_document_without_database(tmp_path, monkeypatch
         "id",
         "city",
     ]
-    # Nothing else, such as a temporary file, is left beside the source.
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["customers.csv", "storage"]
+    # Nothing else than the page, such as a temporary file, is left beside the source.
+    names = sorted(path.name for path in tmp_path.iterdir())
+    assert names == ["customers.csv", "customers.scan.html", "storage"]
 
 
 def test_scan_accepts_json_sources_and_collections(tmp_path):

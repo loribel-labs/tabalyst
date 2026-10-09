@@ -258,7 +258,9 @@ The counts per bin are exact with either strategy.
 ## Smart settings
 
 The top-level `smart` object configures the plan of a smart sample, in [Plan the
-analyses a scan could add](../scan/plan.md#smart-sample-plan). It is not part of the
+analyses a scan could add](../scan/plan.md#smart-sample-plan), and the sample that
+[`tabalyst sample --sample-method smart`](../sample/index.md#cover-rare-cases-with-a-smart-sample)
+builds from it. It is not part of the
 `scan` object or of `deep`: changing it never makes a stored scan or a second-pass
 result stale.
 

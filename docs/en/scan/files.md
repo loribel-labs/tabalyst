@@ -19,6 +19,31 @@ so memory depends on the configured limits, not on the number of records. The
 structure of the result is described in the
 [scan format reference](format.md).
 
+## The web page of a scan
+
+`tabalyst scan` also writes the web page of the scan, so that you can read what the
+scan found without a report:
+
+```console
+tabalyst scan customers.csv
+```
+
+This writes `customers.scan.html` beside the source. With `-o` the page is beside
+the scan document with the same name (`scans/customers.scan.json` gives
+`scans/customers.scan.html`), and with `-d` in that folder. It is the page that
+[`tabalyst report --scan`](#report-from-a-scan) gives, built from the scan alone and
+without reading the source: the analyses of a [second pass](../scan/deep.md) show
+when you scan with `--deep` and are marked as not run otherwise. Pass `--no-html`
+to skip it. The page of a scan in the local storage is replaced at every scan; the page of a
+standalone scan (`-o` or `-d`) needs `--force` like its document.
+
+Only an explicit `tabalyst scan` writes a page. A scan that another command makes
+by itself, such as a report, a sample or a plan, writes none.
+
+Writing the page adds a second or two after the scan (1.9 s on a million rows and
+34 columns, 1.3 s on 90,000 rows); the scan itself is not slower. A page that cannot
+be written is a warning: the scan document is already written.
+
 ## Scan JSON files
 
 Files ending in `.json` are read as JSON, files ending in `.jsonl` or `.ndjson`

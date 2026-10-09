@@ -478,6 +478,18 @@ second-pass document, so it has its own identity. `plan_service.generate_plans(s
 the plan of analyses and `scan --plan --smart` prints it. It reads no source; the selection of the rows is
 lot 10b.
 
+
+`scan_page.py` (lot 10b, design 16.8) writes the web page of an explicit `tabalyst scan`: `generate_scans(html=True)`
+renders `build_profile` with no analyses and writes `<stem>.scan.html` beside the scan document; the report, the plan and
+the sample scan with `html=False`. With `--deep` the page is written again after the second pass.
+
+`scanner/smart/` also holds the selection of the rows (lot 10b, design 20.16): `evaluate.py` turns the
+predicates of the plan into tests on the cells of a row, `select.py` is the bounded pool of candidates and the
+greedy cover, `execute.py` the one guarded reading, `estimate.py` the time and the confirmation, `result.py`
+the report `tabalyst.sample`. `smart_service.py` is the boundary of the CLI and the API (`prepare_smart_samples`,
+`execute_smart_samples`); `sampling.py` only gains the method and `write_sample_csv`. `generate_samples` reads a
+current stored Scan to stop an excessive `stratified` run (`shared_scan_service.stored_scan`, D23).
+
 `report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
 Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
 writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the

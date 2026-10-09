@@ -1,0 +1,2014 @@
+{
+  "$defs": {
+    "Awaiting": {
+      "additionalProperties": false,
+      "description": "Targets that only an enrichment (the second pass) can bring.",
+      "properties": {
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "analyzer": {
+          "title": "Analyzer",
+          "type": "string"
+        },
+        "analyses": {
+          "title": "Analyses",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "family",
+        "analyzer",
+        "analyses"
+      ],
+      "title": "Awaiting",
+      "type": "object"
+    },
+    "CandidateBudget": {
+      "additionalProperties": false,
+      "description": "The candidate rows the selection would hold in memory: a few per target\nand the reserve. ``bytes_expected`` counts the rows as source text (the mean\nrow size of the source), not the memory of the process; ``fits`` says whether\nit stays within ``budget_bytes``. When it does not, ``per_target_effective``\nis the number of candidates per target the budget allows, at least one.",
+      "properties": {
+        "per_target": {
+          "title": "Per Target",
+          "type": "integer"
+        },
+        "per_target_effective": {
+          "title": "Per Target Effective",
+          "type": "integer"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "row_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row Bytes"
+        },
+        "bytes_expected": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bytes Expected"
+        },
+        "budget_bytes": {
+          "title": "Budget Bytes",
+          "type": "integer"
+        },
+        "fits": {
+          "title": "Fits",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "per_target",
+        "per_target_effective",
+        "rows",
+        "budget_bytes",
+        "fits"
+      ],
+      "title": "CandidateBudget",
+      "type": "object"
+    },
+    "Catalog": {
+      "additionalProperties": false,
+      "description": "What the targets of one family say about one column: whether they list\nevery value it can take (E09) or only the ones the Scan saw (E12).",
+      "properties": {
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "guarantee": {
+          "enum": [
+            "catalog_complete",
+            "known_values_only",
+            "none"
+          ],
+          "title": "Guarantee",
+          "type": "string"
+        },
+        "targets": {
+          "title": "Targets",
+          "type": "integer"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "dataset",
+        "field",
+        "display",
+        "complete",
+        "guarantee",
+        "targets",
+        "reasons"
+      ],
+      "title": "Catalog",
+      "type": "object"
+    },
+    "Coverage": {
+      "additionalProperties": false,
+      "description": "What the sample covers of the catalog of targets of the plan (SMART-12).\n\n``scope`` names it: the targets of the plan, not every phenomenon of the data\n(SMART-13). ``evaluable`` leaves out the targets the sample could not test.",
+      "properties": {
+        "scope": {
+          "const": "target_catalog",
+          "default": "target_catalog",
+          "title": "Scope",
+          "type": "string"
+        },
+        "defined": {
+          "title": "Defined",
+          "type": "integer"
+        },
+        "evaluable": {
+          "title": "Evaluable",
+          "type": "integer"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "integer"
+        },
+        "covered": {
+          "title": "Covered",
+          "type": "integer"
+        },
+        "weighted": {
+          "$ref": "#/$defs/Weighted"
+        },
+        "mandatory": {
+          "$ref": "#/$defs/MandatoryCoverage"
+        },
+        "families": {
+          "items": {
+            "$ref": "#/$defs/FamilyCoverage"
+          },
+          "title": "Families",
+          "type": "array"
+        },
+        "missing": {
+          "items": {
+            "$ref": "#/$defs/Missing"
+          },
+          "title": "Missing",
+          "type": "array"
+        },
+        "missing_total": {
+          "title": "Missing Total",
+          "type": "integer"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification"
+        }
+      },
+      "required": [
+        "defined",
+        "evaluable",
+        "observed",
+        "covered",
+        "weighted",
+        "mandatory",
+        "families",
+        "missing",
+        "missing_total",
+        "verification"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    },
+    "CsvSourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "title": "Delimiter",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        },
+        "bom": {
+          "title": "Bom",
+          "type": "boolean"
+        },
+        "line_ending": {
+          "anyOf": [
+            {
+              "enum": [
+                "lf",
+                "crlf",
+                "cr",
+                "mixed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Line Ending"
+        }
+      },
+      "required": [
+        "delimiter",
+        "quote",
+        "header",
+        "bom",
+        "line_ending"
+      ],
+      "title": "CsvSourceInfo",
+      "type": "object"
+    },
+    "EngineInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "normalization_version": {
+          "title": "Normalization Version",
+          "type": "integer"
+        },
+        "detectors": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Detectors",
+          "type": "object"
+        }
+      },
+      "required": [
+        "version",
+        "normalization_version",
+        "detectors"
+      ],
+      "title": "EngineInfo",
+      "type": "object"
+    },
+    "Enrichment": {
+      "additionalProperties": false,
+      "description": "The state of the second-pass document the targets may stand on.\n``requested`` says that a second pass was asked for before the sample;\n``awaiting`` is then what it would add.",
+      "properties": {
+        "deep": {
+          "enum": [
+            "current",
+            "stale",
+            "absent"
+          ],
+          "title": "Deep",
+          "type": "string"
+        },
+        "used": {
+          "title": "Used",
+          "type": "integer"
+        },
+        "requested": {
+          "title": "Requested",
+          "type": "boolean"
+        },
+        "awaiting": {
+          "items": {
+            "$ref": "#/$defs/Awaiting"
+          },
+          "title": "Awaiting",
+          "type": "array"
+        }
+      },
+      "required": [
+        "deep",
+        "used",
+        "requested",
+        "awaiting"
+      ],
+      "title": "Enrichment",
+      "type": "object"
+    },
+    "ExcelSourceInfo": {
+      "additionalProperties": false,
+      "description": "The table read from a workbook: where it is and what its header says.",
+      "properties": {
+        "dataset_path": {
+          "title": "Dataset Path",
+          "type": "string"
+        },
+        "sheet": {
+          "title": "Sheet",
+          "type": "string"
+        },
+        "table": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Table"
+        },
+        "range": {
+          "title": "Range",
+          "type": "string"
+        },
+        "header_row": {
+          "title": "Header Row",
+          "type": "integer"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dataset_path",
+        "sheet",
+        "table",
+        "range",
+        "header_row",
+        "header"
+      ],
+      "title": "ExcelSourceInfo",
+      "type": "object"
+    },
+    "FamilyCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "defined": {
+          "title": "Defined",
+          "type": "integer"
+        },
+        "evaluable": {
+          "title": "Evaluable",
+          "type": "integer"
+        },
+        "covered": {
+          "title": "Covered",
+          "type": "integer"
+        },
+        "weight": {
+          "title": "Weight",
+          "type": "number"
+        },
+        "weight_covered": {
+          "title": "Weight Covered",
+          "type": "number"
+        }
+      },
+      "required": [
+        "family",
+        "defined",
+        "evaluable",
+        "covered",
+        "weight",
+        "weight_covered"
+      ],
+      "title": "FamilyCoverage",
+      "type": "object"
+    },
+    "FamilySummary": {
+      "additionalProperties": false,
+      "description": "The targets of one family: defined, mandatory, left out by the budget.",
+      "properties": {
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "targets": {
+          "title": "Targets",
+          "type": "integer"
+        },
+        "mandatory": {
+          "title": "Mandatory",
+          "type": "integer"
+        },
+        "not_evaluable": {
+          "title": "Not Evaluable",
+          "type": "integer"
+        },
+        "dropped": {
+          "title": "Dropped",
+          "type": "integer"
+        },
+        "total_weight": {
+          "title": "Total Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "family",
+        "targets",
+        "mandatory",
+        "not_evaluable",
+        "dropped",
+        "total_weight"
+      ],
+      "title": "FamilySummary",
+      "type": "object"
+    },
+    "Frequency": {
+      "additionalProperties": false,
+      "description": "How many rows the target covers, when that is known, and how.",
+      "properties": {
+        "accuracy": {
+          "enum": [
+            "exact",
+            "lower_bound",
+            "indicator",
+            "unknown"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Count"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        }
+      },
+      "required": [
+        "accuracy"
+      ],
+      "title": "Frequency",
+      "type": "object"
+    },
+    "MandatoryCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "defined": {
+          "title": "Defined",
+          "type": "integer"
+        },
+        "covered": {
+          "title": "Covered",
+          "type": "integer"
+        },
+        "missing": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defined",
+        "covered",
+        "missing"
+      ],
+      "title": "MandatoryCoverage",
+      "type": "object"
+    },
+    "Missing": {
+      "additionalProperties": false,
+      "description": "A target the sample does not cover, with why (SMART-11).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "obligation": {
+          "enum": [
+            "mandatory",
+            "optional"
+          ],
+          "title": "Obligation",
+          "type": "string"
+        },
+        "weight": {
+          "title": "Weight",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "obligation",
+        "weight",
+        "reason"
+      ],
+      "title": "Missing",
+      "type": "object"
+    },
+    "PassStep": {
+      "additionalProperties": false,
+      "description": "One reading of the source, or one that is not needed, with the reason.",
+      "properties": {
+        "name": {
+          "enum": [
+            "scan",
+            "second_pass",
+            "selection"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "needed": {
+          "title": "Needed",
+          "type": "boolean"
+        },
+        "reads_source": {
+          "title": "Reads Source",
+          "type": "boolean"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "needed",
+        "reads_source",
+        "reason"
+      ],
+      "title": "PassStep",
+      "type": "object"
+    },
+    "Passes": {
+      "additionalProperties": false,
+      "description": "The readings of the source from now to the sample, announced before any\nof them starts (E14): ``total`` counts those still needed.",
+      "properties": {
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/PassStep"
+          },
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "total",
+        "steps"
+      ],
+      "title": "Passes",
+      "type": "object"
+    },
+    "PlanBase": {
+      "additionalProperties": false,
+      "description": "The Scan the plan stands on (design 19.5).",
+      "properties": {
+        "format_revision": {
+          "title": "Format Revision",
+          "type": "integer"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "source_sha256": {
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "config_sha256": {
+          "title": "Config Sha256",
+          "type": "string"
+        },
+        "facts_sha256": {
+          "title": "Facts Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "format_revision",
+        "engine_version",
+        "source_sha256",
+        "config_sha256",
+        "facts_sha256"
+      ],
+      "title": "PlanBase",
+      "type": "object"
+    },
+    "Pool": {
+      "additionalProperties": false,
+      "description": "The candidate rows held while reading. ``refused_rows`` are those the\nbudget turned away (SMART-11).",
+      "properties": {
+        "per_target": {
+          "title": "Per Target",
+          "type": "integer"
+        },
+        "candidate_rows": {
+          "title": "Candidate Rows",
+          "type": "integer"
+        },
+        "peak_bytes": {
+          "title": "Peak Bytes",
+          "type": "integer"
+        },
+        "budget_bytes": {
+          "title": "Budget Bytes",
+          "type": "integer"
+        },
+        "refused_rows": {
+          "title": "Refused Rows",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "per_target",
+        "candidate_rows",
+        "peak_bytes",
+        "budget_bytes",
+        "refused_rows"
+      ],
+      "title": "Pool",
+      "type": "object"
+    },
+    "Predicate": {
+      "additionalProperties": false,
+      "description": "What makes a row cover a target, as a kind and the references that fix it\n(a sampled entry, a pattern, a bin). ``source`` is where the references\npoint: the Scan, or the second-pass document. Never a value of the data.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "value_equals",
+            "value_missing",
+            "pattern_matches",
+            "pattern_other",
+            "length_min",
+            "length_max",
+            "numeric_min",
+            "numeric_max",
+            "numeric_zero",
+            "numeric_sign",
+            "numeric_bin",
+            "date_min",
+            "date_max",
+            "date_kind",
+            "date_year",
+            "observation",
+            "relation_exception"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source": {
+          "default": "scan",
+          "enum": [
+            "scan",
+            "second_pass"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Predicate",
+      "type": "object"
+    },
+    "SampleOutput": {
+      "additionalProperties": false,
+      "description": "The CSV file written: its name, rows (without the header), columns.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "columns": {
+          "title": "Columns",
+          "type": "integer"
+        },
+        "encoding": {
+          "title": "Encoding",
+          "type": "string"
+        },
+        "delimiter": {
+          "title": "Delimiter",
+          "type": "string"
+        },
+        "order": {
+          "const": "source",
+          "default": "source",
+          "title": "Order",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "rows",
+        "columns",
+        "encoding",
+        "delimiter"
+      ],
+      "title": "SampleOutput",
+      "type": "object"
+    },
+    "SamplePasses": {
+      "additionalProperties": false,
+      "description": "The readings of the source this sample cost: the first pass when no\ncurrent Scan was stored, and the selection.",
+      "properties": {
+        "scan": {
+          "title": "Scan",
+          "type": "boolean"
+        },
+        "selection": {
+          "default": true,
+          "title": "Selection",
+          "type": "boolean"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "scan",
+        "total"
+      ],
+      "title": "SamplePasses",
+      "type": "object"
+    },
+    "SampleRequest": {
+      "additionalProperties": false,
+      "description": "What was asked for: ``rows`` of the dataset, or ``percent`` of them.",
+      "properties": {
+        "method": {
+          "const": "smart",
+          "default": "smart",
+          "title": "Method",
+          "type": "string"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "percent": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Percent"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "seed"
+      ],
+      "title": "SampleRequest",
+      "type": "object"
+    },
+    "SampleRun": {
+      "additionalProperties": false,
+      "properties": {
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "duration_seconds": {
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "timings": {
+          "$ref": "#/$defs/SampleTimings"
+        },
+        "peak_memory_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Peak Memory Bytes"
+        },
+        "records_read": {
+          "title": "Records Read",
+          "type": "integer"
+        },
+        "cells_read": {
+          "title": "Cells Read",
+          "type": "integer"
+        },
+        "source_verified": {
+          "title": "Source Verified",
+          "type": "boolean"
+        },
+        "passes": {
+          "$ref": "#/$defs/SamplePasses"
+        }
+      },
+      "required": [
+        "started_at",
+        "duration_seconds",
+        "timings",
+        "peak_memory_bytes",
+        "records_read",
+        "cells_read",
+        "source_verified",
+        "passes"
+      ],
+      "title": "SampleRun",
+      "type": "object"
+    },
+    "SampleTimings": {
+      "additionalProperties": false,
+      "properties": {
+        "reading": {
+          "title": "Reading",
+          "type": "number"
+        },
+        "selection": {
+          "title": "Selection",
+          "type": "number"
+        },
+        "other": {
+          "title": "Other",
+          "type": "number"
+        }
+      },
+      "required": [
+        "reading",
+        "selection",
+        "other"
+      ],
+      "title": "SampleTimings",
+      "type": "object"
+    },
+    "SamplingPlan": {
+      "additionalProperties": false,
+      "description": "What a smart sample of one dataset would aim for, and what it would take.\n\n``plan_id`` is the SHA-256 of the rest of the plan. The same Scan, second-pass\ndocument, request and settings give the same plan on any machine.",
+      "properties": {
+        "planner": {
+          "default": "tabalyst.smart",
+          "title": "Planner",
+          "type": "string"
+        },
+        "planner_version": {
+          "default": 1,
+          "title": "Planner Version",
+          "type": "integer"
+        },
+        "weights_version": {
+          "title": "Weights Version",
+          "type": "integer"
+        },
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "base": {
+          "$ref": "#/$defs/PlanBase"
+        },
+        "settings": {
+          "$ref": "#/$defs/SmartSettings"
+        },
+        "settings_sha256": {
+          "title": "Settings Sha256",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "size": {
+          "$ref": "#/$defs/Sizes"
+        },
+        "reserve": {
+          "$ref": "#/$defs/tabalyst__scanner__smart__models__Reserve"
+        },
+        "candidates": {
+          "$ref": "#/$defs/CandidateBudget"
+        },
+        "conflict": {
+          "const": "mandatory_first",
+          "default": "mandatory_first",
+          "title": "Conflict",
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/$defs/SelectionMethod"
+        },
+        "enrichment": {
+          "$ref": "#/$defs/Enrichment"
+        },
+        "passes": {
+          "$ref": "#/$defs/Passes"
+        },
+        "summary": {
+          "$ref": "#/$defs/Summary"
+        },
+        "catalogs": {
+          "items": {
+            "$ref": "#/$defs/Catalog"
+          },
+          "title": "Catalogs",
+          "type": "array"
+        },
+        "targets": {
+          "items": {
+            "$ref": "#/$defs/Target"
+          },
+          "title": "Targets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "weights_version",
+        "plan_id",
+        "base",
+        "settings",
+        "settings_sha256",
+        "dataset",
+        "size",
+        "reserve",
+        "candidates",
+        "method",
+        "enrichment",
+        "passes",
+        "summary",
+        "catalogs",
+        "targets"
+      ],
+      "title": "SamplingPlan",
+      "type": "object"
+    },
+    "Selection": {
+      "additionalProperties": false,
+      "properties": {
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "by_cover": {
+          "title": "By Cover",
+          "type": "integer"
+        },
+        "by_reserve": {
+          "title": "By Reserve",
+          "type": "integer"
+        },
+        "shortfall": {
+          "title": "Shortfall",
+          "type": "integer"
+        },
+        "reserve": {
+          "$ref": "#/$defs/tabalyst__scanner__smart__result__Reserve"
+        },
+        "pool": {
+          "$ref": "#/$defs/Pool"
+        }
+      },
+      "required": [
+        "rows",
+        "by_cover",
+        "by_reserve",
+        "shortfall",
+        "reserve",
+        "pool"
+      ],
+      "title": "Selection",
+      "type": "object"
+    },
+    "SelectionMethod": {
+      "additionalProperties": false,
+      "description": "How the sample of lot 10b chooses: a greedy cover over a bounded pool, no\noptimum promised (SMART-07), with a deterministic tie-break.",
+      "properties": {
+        "name": {
+          "default": "weighted_cover",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "seed"
+      ],
+      "title": "SelectionMethod",
+      "type": "object"
+    },
+    "Sizes": {
+      "additionalProperties": false,
+      "description": "The sizes of the sample. ``mandatory_bound`` is the number of mandatory\ntargets the Scan can evaluate: one row each is always enough, and rows that\ncover several targets need fewer. ``useful_maximum`` is the size beyond\nwhich the reserve would be the only thing added; ``records`` the rows of the\ndataset.",
+      "properties": {
+        "requested": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested"
+        },
+        "mandatory_bound": {
+          "title": "Mandatory Bound",
+          "type": "integer"
+        },
+        "useful_maximum": {
+          "title": "Useful Maximum",
+          "type": "integer"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "mandatory_bound",
+        "useful_maximum",
+        "records"
+      ],
+      "title": "Sizes",
+      "type": "object"
+    },
+    "SmartBaseWeights": {
+      "additionalProperties": false,
+      "description": "The base weight of each kind of target (design 20.15). A weight grows\nwith its base and with the rarity of what the target stands for, up to\n``SmartWeights.cap``.",
+      "properties": {
+        "confirmed_issue": {
+          "default": 10.0,
+          "minimum": 0,
+          "title": "Confirmed Issue",
+          "type": "number"
+        },
+        "candidate_anomaly": {
+          "default": 6.0,
+          "minimum": 0,
+          "title": "Candidate Anomaly",
+          "type": "number"
+        },
+        "value": {
+          "default": 5.0,
+          "minimum": 0,
+          "title": "Value",
+          "type": "number"
+        },
+        "relation_exception": {
+          "default": 5.0,
+          "minimum": 0,
+          "title": "Relation Exception",
+          "type": "number"
+        },
+        "pattern": {
+          "default": 4.0,
+          "minimum": 0,
+          "title": "Pattern",
+          "type": "number"
+        },
+        "extreme": {
+          "default": 4.0,
+          "minimum": 0,
+          "title": "Extreme",
+          "type": "number"
+        },
+        "signal": {
+          "default": 3.0,
+          "minimum": 0,
+          "title": "Signal",
+          "type": "number"
+        },
+        "bin": {
+          "default": 2.0,
+          "minimum": 0,
+          "title": "Bin",
+          "type": "number"
+        }
+      },
+      "title": "SmartBaseWeights",
+      "type": "object"
+    },
+    "SmartSettings": {
+      "additionalProperties": false,
+      "description": "How the plan of a smart sample defines its targets (design 20.15).\n\nA column of at most ``max_enum_values`` distinct values gets one target per\nvalue; a numeric column is cut into ``numeric_bins`` bins of equal width\nbetween its minimum and maximum. The plan keeps ``candidates_per_target`` rows\nper target in memory at most, in ``max_candidate_bytes`` bytes, and\n``reserve_share`` of the rows asked for are a reserve of ordinary rows. At\nmost ``max_targets`` targets are kept, the heaviest first.",
+      "properties": {
+        "max_enum_values": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Enum Values",
+          "type": "integer"
+        },
+        "numeric_bins": {
+          "default": 10,
+          "maximum": 100,
+          "minimum": 2,
+          "title": "Numeric Bins",
+          "type": "integer"
+        },
+        "candidates_per_target": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Candidates Per Target",
+          "type": "integer"
+        },
+        "reserve_share": {
+          "default": 0.2,
+          "maximum": 0.9,
+          "minimum": 0,
+          "title": "Reserve Share",
+          "type": "number"
+        },
+        "max_targets": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Targets",
+          "type": "integer"
+        },
+        "max_candidate_bytes": {
+          "default": 67108864,
+          "minimum": 1,
+          "title": "Max Candidate Bytes",
+          "type": "integer"
+        },
+        "weights": {
+          "$ref": "#/$defs/SmartWeights"
+        }
+      },
+      "title": "SmartSettings",
+      "type": "object"
+    },
+    "SmartWeights": {
+      "additionalProperties": false,
+      "description": "The weight of a target: ``min(cap, base * (1 + gain * rarity))``, where\n``rarity`` goes from 0 (the target covers every row) to 1 (it covers a share\nof ``floor`` rows or less) and is ``unknown_rarity`` when the frequency of\nthe target is not known. Monotone in the share and in the base.",
+      "properties": {
+        "base": {
+          "$ref": "#/$defs/SmartBaseWeights"
+        },
+        "gain": {
+          "default": 1.0,
+          "minimum": 0,
+          "title": "Gain",
+          "type": "number"
+        },
+        "floor": {
+          "default": 1e-06,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Floor",
+          "type": "number"
+        },
+        "cap": {
+          "default": 20.0,
+          "exclusiveMinimum": 0,
+          "title": "Cap",
+          "type": "number"
+        },
+        "unknown_rarity": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unknown Rarity",
+          "type": "number"
+        }
+      },
+      "title": "SmartWeights",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "enum": [
+            "csv",
+            "json",
+            "jsonl",
+            "excel"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size_bytes": {
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "modified_at": {
+          "format": "date-time",
+          "title": "Modified At",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "encoding": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Encoding"
+        },
+        "shape": {
+          "$ref": "#/$defs/SourceShape"
+        },
+        "csv": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CsvSourceInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "excel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExcelSourceInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "format",
+        "name",
+        "size_bytes",
+        "modified_at",
+        "sha256",
+        "encoding",
+        "shape",
+        "csv"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "SourceShape": {
+      "additionalProperties": false,
+      "description": "Global size of the source, whatever the dataset.",
+      "properties": {
+        "lines": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Lines"
+        },
+        "records": {
+          "title": "Records",
+          "type": "integer"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Columns"
+        },
+        "fields": {
+          "title": "Fields",
+          "type": "integer"
+        },
+        "datasets": {
+          "title": "Datasets",
+          "type": "integer"
+        },
+        "cells": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cells"
+        },
+        "missing_cells": {
+          "title": "Missing Cells",
+          "type": "integer"
+        },
+        "records_with_missing": {
+          "title": "Records With Missing",
+          "type": "integer"
+        },
+        "empty_records": {
+          "title": "Empty Records",
+          "type": "integer"
+        },
+        "duplicate_records": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duplicate Records"
+        }
+      },
+      "required": [
+        "lines",
+        "records",
+        "columns",
+        "fields",
+        "datasets",
+        "cells",
+        "missing_cells",
+        "records_with_missing",
+        "empty_records",
+        "duplicate_records"
+      ],
+      "title": "SourceShape",
+      "type": "object"
+    },
+    "Summary": {
+      "additionalProperties": false,
+      "description": "Counts of the targets kept. ``dropped`` are the ones the budget of\ntargets left out, the lightest first (SMART-11).",
+      "properties": {
+        "targets": {
+          "title": "Targets",
+          "type": "integer"
+        },
+        "mandatory": {
+          "title": "Mandatory",
+          "type": "integer"
+        },
+        "optional": {
+          "title": "Optional",
+          "type": "integer"
+        },
+        "not_evaluable": {
+          "title": "Not Evaluable",
+          "type": "integer"
+        },
+        "dropped": {
+          "title": "Dropped",
+          "type": "integer"
+        },
+        "total_weight": {
+          "title": "Total Weight",
+          "type": "number"
+        },
+        "families": {
+          "items": {
+            "$ref": "#/$defs/FamilySummary"
+          },
+          "title": "Families",
+          "type": "array"
+        }
+      },
+      "required": [
+        "targets",
+        "mandatory",
+        "optional",
+        "not_evaluable",
+        "dropped",
+        "total_weight",
+        "families"
+      ],
+      "title": "Summary",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "description": "One thing a smart sample aims to cover (SRS 15.3).\n\n``origin`` is the observation or the analysis the target comes from, and\n``needs`` the documents it stands on. ``reason`` explains a target that is\n``not_evaluable`` by the sample.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "low_cardinality",
+            "structured_string",
+            "numeric",
+            "date",
+            "quality",
+            "relations"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "displays": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Displays",
+          "type": "array"
+        },
+        "predicate": {
+          "$ref": "#/$defs/Predicate"
+        },
+        "frequency": {
+          "$ref": "#/$defs/Frequency"
+        },
+        "weight": {
+          "$ref": "#/$defs/Weight"
+        },
+        "obligation": {
+          "enum": [
+            "mandatory",
+            "optional"
+          ],
+          "title": "Obligation",
+          "type": "string"
+        },
+        "minimum": {
+          "default": 1,
+          "title": "Minimum",
+          "type": "integer"
+        },
+        "feasibility": {
+          "enum": [
+            "ready",
+            "not_evaluable"
+          ],
+          "title": "Feasibility",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "evidence": {
+          "enum": [
+            "exact",
+            "sample",
+            "second_pass"
+          ],
+          "title": "Evidence",
+          "type": "string"
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin"
+        },
+        "needs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Needs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "dataset",
+        "fields",
+        "displays",
+        "predicate",
+        "frequency",
+        "weight",
+        "obligation",
+        "feasibility",
+        "evidence",
+        "needs"
+      ],
+      "title": "Target",
+      "type": "object"
+    },
+    "TargetEntry": {
+      "additionalProperties": false,
+      "description": "What happened to one target of the plan. ``expected`` is the number of\nrows the plan counted exactly, and ``agrees`` whether the reading found as\nmany (a difference means the test and the Scan disagree).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "covered",
+            "not_covered",
+            "not_evaluable",
+            "unresolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "candidates": {
+          "default": 0,
+          "title": "Candidates",
+          "type": "integer"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "agrees": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agrees"
+        }
+      },
+      "required": [
+        "id",
+        "status"
+      ],
+      "title": "TargetEntry",
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "description": "The targets whose rows the plan counted exactly, against what the reading\nfound. ``disagreed`` lists the targets that differ.",
+      "properties": {
+        "checked": {
+          "title": "Checked",
+          "type": "integer"
+        },
+        "agreed": {
+          "title": "Agreed",
+          "type": "integer"
+        },
+        "disagreed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Disagreed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "checked",
+        "agreed",
+        "disagreed"
+      ],
+      "title": "Verification",
+      "type": "object"
+    },
+    "Weight": {
+      "additionalProperties": false,
+      "description": "The weight of a target and what it is made of (design 20.15).",
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "base": {
+          "title": "Base",
+          "type": "number"
+        },
+        "rarity": {
+          "title": "Rarity",
+          "type": "number"
+        },
+        "capped": {
+          "title": "Capped",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "version",
+        "value",
+        "base",
+        "rarity",
+        "capped"
+      ],
+      "title": "Weight",
+      "type": "object"
+    },
+    "Weighted": {
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "title": "Total",
+          "type": "number"
+        },
+        "covered": {
+          "title": "Covered",
+          "type": "number"
+        },
+        "share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Share"
+        }
+      },
+      "required": [
+        "total",
+        "covered",
+        "share"
+      ],
+      "title": "Weighted",
+      "type": "object"
+    },
+    "tabalyst__scanner__smart__models__Reserve": {
+      "additionalProperties": false,
+      "description": "The rows kept for ordinary data, the bottom-k reserve of rows. They are\na share of the sample asked for, and give way to mandatory targets: the\nreserve never prevents a coverage that is achievable (SMART-10).",
+      "properties": {
+        "share": {
+          "title": "Share",
+          "type": "number"
+        },
+        "rows_requested": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rows Requested"
+        },
+        "rows_granted": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rows Granted"
+        },
+        "reduced_by_mandatory": {
+          "default": false,
+          "title": "Reduced By Mandatory",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "share"
+      ],
+      "title": "Reserve",
+      "type": "object"
+    },
+    "tabalyst__scanner__smart__result__Reserve": {
+      "additionalProperties": false,
+      "description": "Ordinary rows of the sample. ``planned`` is what the plan granted;\n``taken`` what the sample holds, more when targets needed fewer rows than\nthey were given (``adjusted``).",
+      "properties": {
+        "planned": {
+          "title": "Planned",
+          "type": "integer"
+        },
+        "taken": {
+          "title": "Taken",
+          "type": "integer"
+        },
+        "adjusted": {
+          "title": "Adjusted",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "planned",
+        "taken",
+        "adjusted"
+      ],
+      "title": "Reserve",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Document tabalyst.sample, format 0.2.0 revision 1: the report of a smart sample, with its plan and the coverage obtained.",
+  "properties": {
+    "format": {
+      "const": "tabalyst.sample",
+      "default": "tabalyst.sample",
+      "title": "Format",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "0.2.0",
+      "default": "0.2.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "format_revision": {
+      "const": 1
+    },
+    "status": {
+      "const": "complete",
+      "default": "complete",
+      "title": "Status",
+      "type": "string"
+    },
+    "engine": {
+      "$ref": "#/$defs/EngineInfo"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    },
+    "request": {
+      "$ref": "#/$defs/SampleRequest"
+    },
+    "output": {
+      "$ref": "#/$defs/SampleOutput"
+    },
+    "run": {
+      "$ref": "#/$defs/SampleRun"
+    },
+    "plan": {
+      "$ref": "#/$defs/SamplingPlan"
+    },
+    "selection": {
+      "$ref": "#/$defs/Selection"
+    },
+    "coverage": {
+      "$ref": "#/$defs/Coverage"
+    },
+    "statements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Statements",
+      "type": "array"
+    },
+    "targets": {
+      "items": {
+        "$ref": "#/$defs/TargetEntry"
+      },
+      "title": "Targets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine",
+    "source",
+    "request",
+    "output",
+    "run",
+    "plan",
+    "selection",
+    "coverage",
+    "statements",
+    "targets",
+    "status",
+    "format",
+    "format_version",
+    "format_revision"
+  ],
+  "title": "Tabalyst smart sample",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

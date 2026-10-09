@@ -83,6 +83,7 @@ tabalyst.generate_scans(
     counters=False,
     project_storage=False,
     refresh=True,
+    html=False,
 )
 ```
 
@@ -98,6 +99,10 @@ Returns a [batch result](index.md#batch-functions) whose successes hold the
 - `project_storage`: `True` stores the scans in the reusable storage of the
   command, as `tabalyst scan` does without `-o` or `-d`, instead of writing
   standalone documents.
+- `html`: also write the [web page of each scan](../../scan/files.md#the-web-page-of-a-scan)
+  beside its document, or beside the source for a scan in the storage. A page that
+  cannot be written is a warning in `warnings`. Off by default: only the command
+  asks for it.
 - `refresh`: with `project_storage`, `False` reuses the stored scan when it is
   current for the source, the settings and the version, instead of scanning
   again. A successful job then has `reused`.

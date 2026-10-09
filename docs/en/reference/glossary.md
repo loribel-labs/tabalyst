@@ -62,6 +62,8 @@ Keep these exactly as written in every language:
 | smart sample | échantillon smart | A sample that aims to cover the diversity and the rare cases of a file; its proportions do not estimate the population |
 | target | cible | A thing a smart sample aims to cover: a value, a pattern, an extreme, a period, a problem the scan found. It has a weight and is mandatory or optional |
 | smart sample plan | plan d'échantillon smart | What `tabalyst scan --plan --smart` adds to a plan: the targets, their weights, the sizes, the reserve and the readings of the source |
+| coverage (of a smart sample) | couverture | What a smart sample holds of the targets of its plan, by family and weighted by their weights. It is the coverage of the catalog of targets, not of every phenomenon of the data |
+| reserve | réserve | The ordinary rows of a smart sample, chosen by a seeded hash of their position, so that it does not hold only rare cases. It gives way to mandatory targets |
 | analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
 | forced plan | plan forcé | A plan that takes every applicable analysis within the hard memory budget, whatever the limits of an automatic choice (`tabalyst scan --plan --deep`) |
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |

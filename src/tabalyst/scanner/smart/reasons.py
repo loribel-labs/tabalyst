@@ -33,6 +33,27 @@ FEASIBILITY: dict[str, str] = {
     "needs_variant_keys": "recognizing a variant needs the normalized key of every value",
 }
 
+# Why a target is not covered by the sample (``TargetEntry.reason`` of a target
+# that is ``not_covered``): the sample is too small for it, the budget of
+# candidate rows turned its rows away, or no row of the source covers it.
+MISSES: dict[str, str] = {
+    "size": "the sample is too small: heavier targets took the rows",
+    "budget": "the budget of candidate rows turned its rows away",
+    "not_observed": (
+        "no row of the source covers it, which the Scan could not tell "
+        "(a bin of equal width can be empty)"
+    ),
+}
+
+# Why a target the plan called ready could not be tested while reading
+# (``TargetEntry.reason`` of an ``unresolved`` target).
+UNRESOLVED: dict[str, str] = {
+    "not_a_column": "its field is not a column of a CSV file",
+    "reference_missing": "what the target refers to is no longer in the Scan",
+    "scan_mismatch": "what the Scan holds no longer allows the test",
+    "unsupported_predicate": "this version cannot test the predicate on a row",
+}
+
 # Why a reading of the source is, or is not, needed (``PassStep.reason``).
 PASSES: dict[str, str] = {
     "scan_stored": "a current Scan is stored: it is not read again",
@@ -62,3 +83,8 @@ def catalog_text(code: str) -> str:
 def pass_text(code: str) -> str:
     """The sentence of a reason of a reading."""
     return PASSES.get(code, code)
+
+
+def miss_text(code: str) -> str:
+    """The sentence of the reason a target is not covered."""
+    return MISSES.get(code) or UNRESOLVED.get(code) or FEASIBILITY.get(code, code)

@@ -36,6 +36,25 @@ class SampleMethod(StrEnum):
     LAST = "last"
     RANDOM = "random"
     STRATIFIED = "stratified"
+    SMART = "smart"
+
+
+@dataclass(frozen=True)
+class SmartSummary:
+    """What a smart sample covers of the catalog of targets of its plan (design
+    20.16): not of every phenomenon of the data, and not in the proportions of the
+    population."""
+
+    targets: int
+    evaluable: int
+    covered: int
+    weighted_share: float | None
+    mandatory: int
+    mandatory_covered: int
+    reserve_rows: int
+    passes: int
+    scan_ran: bool
+    duration_seconds: float
 
 
 @dataclass(frozen=True)
@@ -59,6 +78,9 @@ class SampleResult:
     strata_known: int | None = None
     strata_selected: int | None = None
     strata_uncovered: int | None = None
+    # A smart sample writes a report beside its CSV file and sums it up here.
+    report: Path | None = None
+    smart: SmartSummary | None = None
 
 
 @dataclass(frozen=True)
@@ -265,6 +287,41 @@ def _select_rows(
     return [row for _, row in selected]
 
 
+def write_sample_csv(
+    output: Path,
+    header: Sequence[str],
+    rows: Sequence[Sequence[str]],
+    source: Path,
+    config: CsvConfig,
+) -> None:
+    """Write a sample next to its source's conventions (delimiter, and a byte-order
+    mark only if the source had one), through a temporary file that replaces the
+    output once complete."""
+    writer_encoding = _output_encoding(source, config.encoding)
+    temporary: Path | None = None
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding=writer_encoding,
+            newline="",
+            dir=output.parent,
+            prefix=f".{output.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as stream:
+            temporary = Path(stream.name)
+            apply_default_file_mode(temporary)
+            writer = csv.writer(stream, delimiter=config.delimiter)
+            writer.writerow(header)
+            writer.writerows(rows)
+        os.replace(temporary, output)
+    except OSError as exc:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+        raise ReportError(f"Cannot write sample to {output}: {exc}") from exc
+
+
 def default_sample_output(source: Path) -> Path:
     """Return the conventional sample filename beside a source file."""
 
@@ -336,6 +393,11 @@ def sample_csv(
     selected_method = validate_sample_options(
         method, rows=rows, percent=percent, field=field, max_strata=max_strata
     )
+    if selected_method is SampleMethod.SMART:
+        raise InputError(
+            "A smart sample needs the Scan of the file: use generate_samples, "
+            "or tabalyst sample --sample-method smart."
+        )
     fields = stratification_fields(field)
 
     try:
@@ -355,29 +417,7 @@ def sample_csv(
         source_path, config, scan, selected_method, size, seed, allocations
     )
 
-    writer_encoding = _output_encoding(source_path, config.encoding)
-    temporary: Path | None = None
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(
-            "w",
-            encoding=writer_encoding,
-            newline="",
-            dir=output_path.parent,
-            prefix=f".{output_path.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as stream:
-            temporary = Path(stream.name)
-            apply_default_file_mode(temporary)
-            writer = csv.writer(stream, delimiter=config.delimiter)
-            writer.writerow(scan.headers)
-            writer.writerows(selected)
-        os.replace(temporary, output_path)
-    except OSError as exc:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
-        raise ReportError(f"Cannot write sample to {output_path}: {exc}") from exc
+    write_sample_csv(output_path, scan.headers, selected, source_path, config)
 
     rate = (size / scan.row_count * 100) if scan.row_count else 0.0
     known = selected_count = uncovered = None

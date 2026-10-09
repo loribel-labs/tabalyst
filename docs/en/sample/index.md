@@ -1,6 +1,6 @@
 ---
 title: Tabalyst Sample
-description: Create smaller first, last, random or stratified CSV samples with Tabalyst.
+description: Create smaller first, last, random, stratified or smart CSV samples with Tabalyst, and read the report of what a smart sample covers.
 ---
 
 Use `tabalyst sample` to create a smaller CSV without changing the source file.
@@ -51,10 +51,72 @@ tabalyst sample customers.csv --sample-method stratified --field province --fiel
 
 A stratified sample holds one counter and one reservoir per stratum while the
 file streams, so it stops with an error when the file has more than 100,000
-strata (`--max-strata` changes the limit). Combinations of columns multiply
+strata (`--max-strata` changes the limit). When a current stored scan already
+shows that the columns make more strata than that, the command stops before it
+reads the file, with the advice; it never makes a scan for this. Pass
+`--max-strata` yourself to run it anyway: a product of cardinalities is a bound,
+and the combinations that exist can be far fewer. Combinations of columns multiply
 quickly: [`tabalyst scan --plan --stratify-by`](../scan/plan.md#stratification-advice)
 tells beforehand which columns make good strata and how many strata a
 combination can make.
+
+## Cover rare cases with a smart sample
+
+A random sample can miss a value that appears once in a million rows. A smart
+sample is built to keep the diversity of the file instead: every value of a
+column that has few values, the shortest and longest texts, the smallest and
+largest numbers, each pattern, each format of date and the cases the scan found
+odd. Its proportions are not those of the file, so never estimate the population
+from it.
+
+```console
+tabalyst sample customers.csv --sample-method smart --rows 1000
+```
+
+This writes `customers.sample.csv` and, beside it, `customers.sample.json`: the
+[report of the sample](format.md), which says what the sample was aimed at and
+what it covers. The sample needs the [scan](../scan/index.md) of the file. A
+current stored scan is reused; otherwise the file is scanned first, and the
+command says so before it starts. A smart sample therefore reads the source twice
+at most: once to scan and once to choose the rows. It never runs a
+[second pass](../scan/deep.md) by itself; a current one is used to know more about
+the numbers, the patterns and the relations between columns.
+
+The sample is built in three steps:
+
+1. The scan gives the **targets**: things worth having in the sample, each with a
+   weight. A rare target weighs more than a frequent one, up to a ceiling. The
+   values of a column whose every value is known are **mandatory**. See the
+   [plan](../scan/plan.md#smart-sample-plan), which you can read beforehand.
+2. Reading the file, the command keeps a few candidate rows for each target in
+   a bounded amount of memory, and a pool of ordinary rows chosen by a seeded hash
+   of their position. A row that covers several targets is kept once.
+3. It chooses the rows that cover the most weight not yet covered, the mandatory
+   targets first, and fills the rest of the size with ordinary rows. A fifth of
+   the size is set aside for them by default, and the share gives way to mandatory
+   targets when the size is small. The rows are written in the order of the file,
+   whole, with no column added.
+
+The choice is a heuristic on a bounded pool: it measures the coverage it obtains
+and promises no optimum. When the size is too small for every target, the heavier
+ones win and the report lists the others with the reason. The command prints how
+many targets are covered, how many of the mandatory ones, how many ordinary rows
+the sample holds and how many readings of the file it cost.
+
+The same seed gives the same file. `--seed` changes the choice among equal
+candidates and the ordinary rows; by default it is the seed of the scan.
+
+Reading a large file can take minutes. When the estimate reaches two minutes the
+command shows it and asks before it starts. Outside a terminal it never asks: it
+stops with exit code 3 unless you pass `--yes`.
+
+Smart sampling reads CSV files only. The [`smart` settings](../reference/configuration.md#smart-settings)
+change the number of candidates per target, the share of ordinary rows and the
+memory the candidate rows may take.
+
+A rare phenomenon the scan has no target for can still be missing. The report
+names what it covers precisely: the catalog of targets of the plan, not every
+phenomenon of the data.
 
 Percentages round up to the next whole row. A 100% sample contains every data
 record. A header-only CSV therefore produces a header-only output at 100%.
