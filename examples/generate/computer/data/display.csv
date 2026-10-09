@@ -1,5 +1,5 @@
-id,en,fr,display_type,touch,size_in,resolution,refresh_rate_hz
-panel_14_fhd,14-inch Full HD,"Écran 14 po, Full HD",ips,true,14,1920x1080,60
-panel_14_qhd,14-inch Quad HD,Écran 14 pouces Quad HD,ips,false,14,2560x1440,120
-monitor_24_fhd,24-inch Full HD,Écran 24 pouces Full HD,ips,false,24,1920x1080,60
-monitor_27_qhd,27-inch Quad HD,Écran 27 pouces Quad HD,ips,false,27,2560x1440,120
+id,en,fr,display_type,touch,size_in,resolution,refresh_rate_hz,brightness_nits,finish,aspect_ratio,hdr,color_gamut
+panel_14_fhd,14-inch Full HD,"Écran 14 po, Full HD",ips,true,14,1920x1080,60,300,glossy,16:9,false,srgb
+panel_14_qhd,14-inch Quad HD,Écran 14 pouces Quad HD,ips,false,14,2560x1440,120,400,matte,16:9,true,dci_p3
+monitor_24_fhd,24-inch Full HD,Écran 24 pouces Full HD,ips,false,24,1920x1080,60,250,matte,16:9,false,srgb
+monitor_27_qhd,27-inch Quad HD,Écran 27 pouces Quad HD,ips,false,27,2560x1440,120,350,matte,16:9,true,dci_p3

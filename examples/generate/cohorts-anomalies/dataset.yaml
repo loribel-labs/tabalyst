@@ -1,0 +1,45 @@
+format: tabalyst.generate.package
+format_version: 0.1.0
+id: cohorts_anomalies
+package_version: 0.1.0
+catalog: catalog.yaml
+defaults:
+  seed: 19
+  as_of_date: '2026-09-30'
+entities:
+- id: accounts
+  count: 5
+  generator: company
+  schema: schemas/accounts.yaml
+datasets:
+- id: contacts
+  mode: generated
+  row_source: columns
+  rows: 40
+  schema: schemas/contacts.yaml
+cohorts:
+- id: current
+  weight: 3
+  formats:
+    status:
+      active: Active
+- id: legacy
+  weight: 1
+  formats:
+    status:
+      active: ACT
+anomaly_profiles:
+  dirty:
+    targets:
+    - contacts
+    operations:
+    - kind: set_missing
+      column: email
+      rate: 0.25
+    - kind: duplicate
+      column: contact_id
+      rate: 0.25
+    - kind: format
+      column: status
+      value: lower
+      rate: 1

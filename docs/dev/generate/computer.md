@@ -1,11 +1,61 @@
 # Generate package contract: Computer, CRM, and Insurance
 
-This is the accepted design contract for the next Generate package format. It
-defines the behavior to implement in the Computer lots and the later CRM and
-Insurance migrations. The current release still reads `definition_version: 1`;
-this document does not describe a released command or user-facing format. See
-[`design.md`](design.md) for that implementation. The old reader is removed
-only after both examples have migrated, before releasing the new format.
+This is the accepted design contract for the Generate package format. Computer,
+CRM and Insurance now use it in the development checkout. The published 0.6.2
+release still reads `definition_version: 1`; this document does not describe a
+released format. See [`design.md`](design.md) for the historical v1 contract.
+The development CLI and API reject v1 definitions after the Insurance migration.
+
+## Run the development packages
+
+Install this checkout in an isolated environment. The source is a package
+directory or its `dataset.yaml`; `--example crm` and `--example insurance` use
+bundled copies. Computer is a visible, path-only fixture and is not bundled as
+`--example computer`. Keep the output directory outside the source package.
+
+```console
+tabalyst generate examples/generate/computer --validate-only
+tabalyst generate examples/generate/computer -d OUTPUT_DIR --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example crm -o OUTPUT_DIR/contacts.csv --rows 500
+tabalyst generate --example insurance -d OUTPUT_DIR/insurance --rows 3000 --anomaly-profile dirty_realistic
+```
+
+Computer writes `computers-en.csv`, `computers-fr.csv`, and
+`computers.meta.json`. The two CSVs project the same internal offer; only
+localized labels differ. The default `compact`, `standard`, and `extended`
+profiles contain 40, 70, and 111 columns. `--request FILE` accepts a JSON
+object with `rows`, `seed`, `as_of_date`, `generation_profile`,
+`output_profile`, `market`, and `locales`. Explicit CLI options override that
+request. The development CLI also accepts `--market ca|us` and
+`--locales en,fr`; `--anomaly-profile` is for column packages and is not
+implemented for Computer.
+
+The service boundary is `tabalyst.build_generate_plan(...)` followed by
+`tabalyst.generate_datasets(plan)`. For a Computer package, use
+`package_path` or pass the directory as the first argument:
+
+```python
+from tabalyst import build_generate_plan, generate_datasets
+
+plan = build_generate_plan(
+    package_path="examples/generate/computer",
+    output_dir="OUTPUT_DIR",
+    rows=10000,
+    seed=42,
+    output_profile="extended",
+)
+result = generate_datasets(plan)
+print(result.paths)
+```
+
+Planning validates the inputs and all destinations before writing. Existing
+artifacts require `force=True` in the API or `--force` in the CLI. Generation
+stages outputs and restores previous files on publication failure as far as
+possible; whole-batch atomicity is not promised. Both interfaces reject an old
+`definition_version: 1` file with `PACKAGE_FORMAT`. There is no automatic
+conversion: author a `dataset.yaml`, `catalog.yaml`, and schemas, then verify
+the domain outputs against the old definition before release. The published
+0.6.2 release still accepts the old definition and does not support packages.
 
 ## Package identity and files
 
@@ -210,8 +260,8 @@ In the Computer development lot, `--request FILE` reads a bounded UTF-8 JSON
 object with optional `dataset`, `rows`, `seed`, `as_of_date`,
 `generation_profile`, `output_profile`, `market`, and `locales` keys. The
 effective value order is explicit CLI/API option, request, then package default.
-Computer currently requires `dataset: "computers"`, paired `en`/`fr` locales,
-and the `compact` output profile. It accepts `ca` and `us` markets. A Computer
+Computer currently requires `dataset: "computers"` and paired `en`/`fr` locales;
+it offers `compact` and `standard` output profiles. It accepts `ca` and `us` markets. A Computer
 run requires `-d`; its destination cannot be inside the source package.
 
 ```text
@@ -226,8 +276,8 @@ request=..., output_dir=..., overrides=..., force=False) -> GeneratePlan`,
 `generate_datasets(plan) -> GenerateResult`, and
 `validate_generate_package(path) -> ValidationResult`. It accepts a local
 package path or packaged example name, never an unvalidated YAML mapping. The
-result reports paths, row counts, and anomaly counts. The v1 reader may coexist
-during development; the final CLI and API reject `definition_version: 1` with
+result reports paths, row counts, and anomaly counts. The v1 reader coexisted
+during early development lots; after lot 10 the CLI and API reject `definition_version: 1` with
 an explicit format error. There is no automatic converter or fallback reader.
 
 Computer's first run produces `computers-en.csv`, `computers-fr.csv`, and
@@ -325,8 +375,8 @@ does not yet render localized labels or write CSV.
 The lot 7 development writer projects that derived record to the declared
 40-column `compact` profile. It writes EN and FR from the same internal row,
 localizing only dictionary labels, with UTF-8 and LF bytes. The package fixture
-declares `output_profiles.compact`; `standard` and `extended` remain reserved for
-lots 11–14 and fail explicitly until their values exist. The writer accepts
+declares `output_profiles.compact`; lot 11 adds `standard` while `extended`
+remains reserved for lots 12–14. The writer accepts
 caller-supplied paths and emits a deterministic metadata JSON with effective
 request, output counts and profile, package resource SHA-256 digests, engine
 version, and Python minor version. Service/CLI planning and publication belong
@@ -415,11 +465,36 @@ product_id,sku,brand,product_family,model,generation,model_year,computer_type,fo
 mpn,product_category,product_subcategory,cpu_architecture,cpu_max_clock_ghz,display_brightness_nits,display_touch,display_finish,os_family,npu_tops,ai_pc_class,wifi_standard,bluetooth_version,ethernet_speed,usb_a_ports,usb_c_ports,hdmi_ports,battery_wh,power_adapter_w,chassis_material,camera_type,keyboard_layout,biometric_type,discount_percent,price_tier,condition,warranty_period,product_age_months,product_lifecycle_status,language
 ```
 
+The development `standard` fixture joins category and subcategory through the
+selected segment, CPU architecture/clock/NPU through the selected CPU, display
+brightness/finish through the selected display, and connectivity, ports, power,
+chassis, camera, biometrics and warranty through the selected generation's
+`standard_specs` row. `none` is an actual value for absent Ethernet, camera,
+biometrics or NPU class; an inapplicable desktop battery is an empty cell.
+`ai_pc_class` requires at least 40 NPU TOPS. `product_age_months` is computed
+from release date and `as_of_date`; `price_tier` is synthetic and
+market-adjusted. `language` describes the market offer (`en_fr` for `ca`, `en`
+for `us`), so it is identical in both localized CSVs.
+
 `extended` contains these 41 additional columns:
 
 ```text
 display_aspect_ratio,display_hdr,display_color_gamut,npu_brand,npu_family,copilot_plus_pc,cellular_type,docking_support,thunderbolt_ports,displayport_ports,ethernet_port,card_reader_type,memory_slots_total,memory_slots_used,m2_slots_total,m2_slots_used,upgradeability_level,width_mm,depth_mm,height_mm,chassis_finish,microphone_type,speaker_configuration,keyboard_type,trusted_platform,product_generation,popularity_level,sales_rank,conversion_rate,seller_type,warehouse,units_sold_30d,return_rate,seller,promotion_type,promotion_status,lowest_price_30d,highest_price_30d,average_price_30d,price_change_30d_percent,shipping_availability
 ```
+
+The final 16 extended fields describe synthetic offers at `as_of_date`, not
+observed market activity. Generation class follows product age; sales and
+popularity use deterministic offer streams, with out-of-stock sales limited to
+five units in the trailing period. Conversion and return rates are bounded
+synthetic fractions. Seller and warehouse belong to the selected market, and
+shipping availability follows stock. A nonzero discount has an active
+promotion; zero discount has no promotion. The 30-day price summary is derived
+from the current price and up to two earlier synthetic snapshots. Before a
+product has been available for 30 days, only its current price contributes.
+The change percentage compares current price to the oldest available snapshot.
+All prices use the offer's market currency. Seller, seller type, warehouse,
+promotion and shipping labels come from the package dictionaries and are
+localized without changing their underlying IDs or numeric values.
 
 The complete 111-column register fixes the output order. Each profile is a
 projection of this order, rather than appending its additional fields:
@@ -427,3 +502,33 @@ projection of this order, rather than appending its additional fields:
 ```text
 product_id,sku,mpn,brand,product_family,model,generation,model_year,computer_type,form_factor,product_segment,product_category,product_subcategory,cpu_brand,cpu_family,cpu_model,cpu_architecture,cpu_cores,cpu_threads,cpu_max_clock_ghz,gpu_brand,gpu_family,gpu_model,gpu_type,gpu_vram_gb,memory_type,memory_gb,storage_type,storage_gb,display_size_in,display_type,display_resolution,display_refresh_rate_hz,display_brightness_nits,display_aspect_ratio,display_touch,display_finish,display_hdr,display_color_gamut,os_family,operating_system,npu_brand,npu_family,npu_tops,ai_pc_class,copilot_plus_pc,wifi_standard,bluetooth_version,ethernet_speed,cellular_type,docking_support,usb_a_ports,usb_c_ports,thunderbolt_ports,hdmi_ports,displayport_ports,ethernet_port,card_reader_type,memory_slots_total,memory_slots_used,m2_slots_total,m2_slots_used,upgradeability_level,battery_wh,power_adapter_w,color,weight_kg,width_mm,depth_mm,height_mm,chassis_material,chassis_finish,camera_type,microphone_type,speaker_configuration,keyboard_type,keyboard_layout,biometric_type,trusted_platform,currency,list_price,current_price,discount_percent,price_tier,condition,stock_quantity,stock_status,warranty_period,promotion_type,promotion_status,lowest_price_30d,highest_price_30d,average_price_30d,price_change_30d_percent,release_date,product_age_months,product_generation,product_lifecycle_status,rating,review_count,popularity_level,sales_rank,units_sold_30d,conversion_rate,return_rate,market,language,seller,seller_type,warehouse,shipping_availability
 ```
+
+## Development corpus audit and volume measurement
+
+The local Computer package is deliberately small: two fictional machine
+branches with two candidates per selection. It exercises the full 111-column
+register; it is not a representative sample of the computer market. The
+`compact`, `standard`, and `extended` projections have 40, 70, and 111 columns,
+respectively, and the tests require strict inclusion in register order.
+
+`benchmarks/computer_corpus.py` audits every declared CSV/YAML resource, its
+digest in metadata, both localized CSVs, row identity, selected offer invariants,
+distributions, and three synthetic numeric correlations. Its 10,000-row
+thresholds check the fixture's 3:1 type weighting, the discrete GPU/16 GB
+exclusion, and the expected directions of memory/price, reviews/sales, and
+sales/rank. These are fixture checks, not market claims or performance promises.
+The benchmark mode samples the generation process tree's resident memory with
+`psutil`, then runs the audit and saves `audit.json`. Run it with the development
+environment and an output directory outside the checkout:
+
+```console
+python benchmarks/computer_corpus.py examples/generate/computer EXTERNAL_OUTPUT_DIR --rows 10000
+python benchmarks/computer_corpus.py examples/generate/computer EXTERNAL_OUTPUT_DIR --rows 10000 --audit-only
+```
+
+Use a fresh output directory for each generation run. Timing includes package
+validation, staging, and publication, but excludes the subsequent CSV audit.
+The measured memory is sampled peak resident memory of the Python process tree;
+it is not a formal upper bound between samples. Larger runs stream CSV rows but
+produce two substantial output files. Keep their results and all Scan/Report
+outputs outside the checkout.

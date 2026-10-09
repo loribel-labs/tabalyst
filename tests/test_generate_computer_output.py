@@ -7,6 +7,7 @@
 import csv
 import hashlib
 import json
+import re
 import tracemalloc
 from datetime import date
 from pathlib import Path
@@ -16,7 +17,11 @@ import pytest
 from tabalyst.generate_computer import derive_computer_row
 from tabalyst.generate_computer_output import (
     COMPACT_COLUMNS,
+    EXTENDED_ADDITIONS,
+    EXTENDED_COLUMNS,
     LABEL_FIELDS,
+    STANDARD_ADDITIONS,
+    STANDARD_COLUMNS,
     render_computer_row,
     write_computer_csvs,
 )
@@ -50,7 +55,7 @@ def test_compact_profiles_align_locales_and_keep_canonical_values(tmp_path: Path
     assert [row["product_id"] for row in english] == [row["product_id"] for row in french]
 
 
-def test_render_uses_only_declared_labels_and_rejects_later_profiles() -> None:
+def test_render_uses_only_declared_labels_and_rejects_unavailable_profiles() -> None:
     package = load_generate_package(PACKAGE)
     selected = select_catalog_row(package, "computers", 42, 0, "balanced")
     internal = derive_computer_row(package, selected, "computers", 42, 0,
@@ -61,11 +66,125 @@ def test_render_uses_only_declared_labels_and_rejects_later_profiles() -> None:
     assert french["computer_type"] == "Portable"
     assert english["sku"] == french["sku"] == internal["sku"]
     assert english["list_price"] == french["list_price"] == str(internal["list_price"])
-    for profile in ("standard", "extended", "missing"):
+    for profile in ("missing",):
         with pytest.raises(ValueError, match="unsupported Computer output profile"):
             render_computer_row(package, internal, "en", profile)
     with pytest.raises(ValueError, match="unsupported locale"):
         render_computer_row(package, internal, "de")
+
+
+def test_standard_profile_preserves_register_order_types_and_locale_alignment(tmp_path: Path) -> None:
+    package = load_generate_package(PACKAGE)
+    contract = (PACKAGE.parents[2] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
+    blocks = re.findall(r"```text\n([^`]+)\n```", contract)
+    compact_register, additions_register, _, complete_register = (
+        tuple(block.strip().split(",")) for block in blocks[-4:]
+    )
+    assert compact_register == COMPACT_COLUMNS
+    assert additions_register == STANDARD_ADDITIONS
+    assert tuple(field for field in complete_register if field in set(STANDARD_COLUMNS)) == STANDARD_COLUMNS
+    assert len(COMPACT_COLUMNS) == 40
+    assert len(STANDARD_ADDITIONS) == 30
+    assert len(STANDARD_COLUMNS) == 70
+    assert set(STANDARD_COLUMNS) == set(COMPACT_COLUMNS) | set(STANDARD_ADDITIONS)
+    assert package.manifest["output_profiles"]["standard"] == list(STANDARD_COLUMNS)
+    en, fr, meta = (tmp_path / name for name in ("en.csv", "fr.csv", "meta.json"))
+    write_computer_csvs(package, {"en": en, "fr": fr}, meta,
+                        rows=100, output_profile="standard")
+    with en.open(encoding="utf-8", newline="") as stream:
+        english = list(csv.DictReader(stream))
+    with fr.open(encoding="utf-8", newline="") as stream:
+        french = list(csv.DictReader(stream))
+    assert len(english) == len(french) == 100
+    assert tuple(english[0]) == tuple(french[0]) == STANDARD_COLUMNS
+    for left, right in zip(english, french, strict=True):
+        assert all(left[field] == right[field] for field in STANDARD_COLUMNS
+                   if field not in LABEL_FIELDS)
+        assert left["product_category"] == "Computer"
+        assert right["product_category"] == "Ordinateur"
+        assert left["language"] == right["language"] == "en_fr"
+        assert left["display_touch"] in {"true", "false"}
+        assert int(left["npu_tops"]) >= 0
+        assert float(left["cpu_max_clock_ghz"]) >= 1
+        assert int(left["display_brightness_nits"]) > 0
+        assert int(left["product_age_months"]) >= 0
+        assert left["ai_pc_class"] == ("npu_capable" if int(left["npu_tops"]) >= 40 else "none")
+        assert left["current_price"] == right["current_price"]
+        if left["computer_type"] == "Laptop":
+            assert left["battery_wh"] and left["camera_type"] != "none"
+        else:
+            assert left["battery_wh"] == "" and left["camera_type"] == "none"
+    assert json.loads(meta.read_text(encoding="utf-8"))["outputs"]["en"]["columns"] == 70
+
+
+def test_standard_keeps_every_compact_cell_for_the_same_request(tmp_path: Path) -> None:
+    package = load_generate_package(PACKAGE)
+    for profile in ("compact", "standard"):
+        paths = {locale: tmp_path / f"{profile}-{locale}.csv" for locale in ("en", "fr")}
+        write_computer_csvs(package, paths, tmp_path / f"{profile}.json",
+                            rows=10, output_profile=profile)
+    for locale in ("en", "fr"):
+        with (tmp_path / f"compact-{locale}.csv").open(encoding="utf-8", newline="") as source:
+            compact = list(csv.DictReader(source))
+        with (tmp_path / f"standard-{locale}.csv").open(encoding="utf-8", newline="") as source:
+            standard = list(csv.DictReader(source))
+        for left, right in zip(compact, standard, strict=True):
+            assert left == {field: right[field] for field in COMPACT_COLUMNS}
+
+
+def test_extended_hardware_profile_follows_register_and_aligns_locales(tmp_path: Path) -> None:
+    package = load_generate_package(PACKAGE)
+    contract = (PACKAGE.parents[2] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
+    blocks = re.findall(r"```text\n([^`]+)\n```", contract)
+    _, _, extended_register, complete_register = (
+        tuple(block.strip().split(",")) for block in blocks[-4:]
+    )
+    assert EXTENDED_ADDITIONS == extended_register[:len(EXTENDED_ADDITIONS)]
+    assert len(EXTENDED_COLUMNS) == 111
+    assert set(EXTENDED_COLUMNS) == set(STANDARD_COLUMNS) | set(EXTENDED_ADDITIONS)
+    assert tuple(field for field in complete_register if field in set(EXTENDED_COLUMNS)) == EXTENDED_COLUMNS
+    profiles = package.manifest["output_profiles"]
+    assert isinstance(profiles, dict)
+    assert profiles["extended"] == list(EXTENDED_COLUMNS)
+    for profile in ("standard", "extended"):
+        paths = {locale: tmp_path / f"{profile}-{locale}.csv" for locale in ("en", "fr")}
+        write_computer_csvs(package, paths, tmp_path / f"{profile}.json",
+                            rows=100, output_profile=profile)
+    for locale in ("en", "fr"):
+        with (tmp_path / f"standard-{locale}.csv").open(encoding="utf-8", newline="") as source:
+            standard = list(csv.DictReader(source))
+        with (tmp_path / f"extended-{locale}.csv").open(encoding="utf-8", newline="") as source:
+            extended = list(csv.DictReader(source))
+        assert tuple(extended[0]) == EXTENDED_COLUMNS
+        for left, right in zip(standard, extended, strict=True):
+            assert left == {field: right[field] for field in STANDARD_COLUMNS}
+    with (tmp_path / "extended-en.csv").open(encoding="utf-8", newline="") as source:
+        english = list(csv.DictReader(source))
+    with (tmp_path / "extended-fr.csv").open(encoding="utf-8", newline="") as source:
+        french = list(csv.DictReader(source))
+    for left, right in zip(english, french, strict=True):
+        assert all(left[field] == right[field] for field in EXTENDED_COLUMNS
+                   if field not in LABEL_FIELDS)
+        assert left["copilot_plus_pc"] == ("true" if int(left["npu_tops"]) >= 40 else "false")
+        assert left["display_hdr"] in {"true", "false"}
+        assert left["docking_support"] in {"true", "false"}
+        assert left["ethernet_port"] == ("false" if left["ethernet_speed"] == "none" else "true")
+        assert 1 <= int(left["memory_slots_used"]) <= int(left["memory_slots_total"])
+        assert 1 <= int(left["m2_slots_used"]) <= int(left["m2_slots_total"])
+        assert all(float(left[field]) > 0 for field in ("width_mm", "depth_mm", "height_mm"))
+        if left["computer_type"] == "Laptop":
+            assert left["cellular_type"] == "lte"
+            assert left["keyboard_type"] == "integrated"
+            assert float(left["height_mm"]) < 50
+        else:
+            assert left["cellular_type"] == "none"
+            assert left["keyboard_type"] == "external"
+        assert left["seller"] != right["seller"]
+        assert left["warehouse"] != right["warehouse"]
+        assert left["shipping_availability"] != right["shipping_availability"]
+    assert {row["computer_type"] for row in english} == {"Laptop", "Desktop"}
+    assert {row["display_hdr"] for row in english} == {"true", "false"}
+    assert {row["npu_brand"] for row in english} >= {"", "Aster", "Brindle"}
 
 
 def test_csv_bytes_and_metadata_are_reproducible(tmp_path: Path) -> None:
@@ -109,7 +228,8 @@ def test_streaming_memory_does_not_scale_with_row_count(tmp_path: Path) -> None:
         tracemalloc.start()
         write_computer_csvs(package, {"en": tmp_path / "en.csv",
                                       "fr": tmp_path / "fr.csv"},
-                            tmp_path / "meta.json", rows=count)
+                            tmp_path / "meta.json", rows=count,
+                            output_profile="extended")
         _, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
         peaks.append(peak)

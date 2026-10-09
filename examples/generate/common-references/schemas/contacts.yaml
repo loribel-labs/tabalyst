@@ -1,0 +1,113 @@
+columns:
+- name: id
+  type: string
+  generate:
+    kind: sequence
+    prefix: C
+    width: 4
+- name: first_name
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: first_name
+    profile: mixed
+    name: common.person
+- name: family_name
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: family_name
+    profile: mixed
+    name: common.person
+- name: sex
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: sex
+    profile: mixed
+    name: common.person
+- name: person_language
+  type: string
+  generate:
+    kind: provider
+    group: person
+    field: language
+    profile: mixed
+    name: common.person
+- name: street
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: street
+    name: common.address
+- name: unit
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: unit
+    name: common.address
+- name: city
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: city
+    name: common.address
+- name: city_id
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: city_id
+    name: common.address
+- name: province_code
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: province_code
+    name: common.address
+- name: postal_code
+  type: string
+  generate:
+    kind: provider
+    group: address
+    field: postal_code
+    name: common.address
+- name: email
+  type: string
+  depends_on:
+  - first_name
+  - family_name
+  - province_code
+  - person_language
+  generate:
+    kind: provider
+    group: contact
+    field: email
+    first: first_name
+    last: family_name
+    province: province_code
+    language: person_language
+    name: common.contact
+- name: phone
+  type: string
+  depends_on:
+  - first_name
+  - family_name
+  - province_code
+  - person_language
+  generate:
+    kind: provider
+    group: contact
+    field: phone
+    first: first_name
+    last: family_name
+    province: province_code
+    language: person_language
+    name: common.contact

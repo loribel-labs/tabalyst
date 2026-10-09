@@ -1,0 +1,22 @@
+columns:
+- name: contact_id
+  type: string
+  generate:
+    kind: sequence
+    prefix: C
+- name: account_id
+  type: string
+  generate:
+    kind: reference
+    entity: accounts
+    field: account_id
+- name: status
+  type: string
+  generate:
+    kind: constant
+    value: active
+- name: email
+  type: string
+  generate:
+    kind: sequence
+    prefix: user

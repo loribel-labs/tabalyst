@@ -1,0 +1,68 @@
+format: tabalyst.generate.package
+format_version: 0.1.0
+id: insurance
+package_version: 0.1.0
+catalog: catalog.yaml
+defaults:
+  rows: 275000
+  seed: 20260916
+  as_of_date: '2026-09-16'
+datasets:
+- id: insurance-principal
+  mode: generated
+  row_source: columns
+  rows: 200000
+  source: principal
+  schema: schemas/customers.yaml
+- id: insurance-ontario
+  mode: generated
+  row_source: columns
+  rows: 25000
+  source: ontario
+  schema: schemas/customers.yaml
+- id: insurance-quebec
+  mode: generated
+  row_source: columns
+  rows: 50000
+  source: quebec
+  schema: schemas/customers.yaml
+- id: insurance-combined
+  mode: combine
+  inputs:
+  - insurance-principal
+  - insurance-ontario
+  - insurance-quebec
+  source_column: filiale
+anomaly_profiles:
+  dirty_realistic:
+    targets:
+    - insurance-combined
+    operations:
+    - kind: set_missing
+      column: courriel
+      rate: 0.04
+    - kind: duplicate
+      column: courriel
+      rate: 0.02
+    - kind: format
+      column: telephone
+      value: phone_spaces
+      rate: 0.05
+    - kind: set_missing
+      column: code_postal
+      rate: 0.02
+    - kind: replace
+      column: pays_code
+      value: Canada
+      rate: 0.02
+    - kind: format
+      column: type_contrat
+      value: upper
+      rate: 0.03
+    - kind: set_missing
+      column: prime_annuelle
+      rate: 0.01
+    - kind: format
+      column: nom
+      value: upper
+      rate: 0.02

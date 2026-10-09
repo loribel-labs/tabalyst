@@ -1,0 +1,12 @@
+type: resource
+columns:
+  payment_method:
+    type: string
+    required: true
+    unique: true
+  label_fr:
+    type: string
+    required: true
+  weight:
+    type: integer
+    required: true

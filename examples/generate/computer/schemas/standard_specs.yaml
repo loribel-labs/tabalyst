@@ -1,0 +1,15 @@
+type: resource
+columns:
+  id: {type: string, required: true, unique: true, references: model_generation.id}
+  wifi_standard: {type: string, required: true}
+  bluetooth_version: {type: string, required: true}
+  ethernet_speed: {type: string, required: true}
+  usb_a_ports: {type: integer, required: true, min: 0}
+  usb_c_ports: {type: integer, required: true, min: 0}
+  hdmi_ports: {type: integer, required: true, min: 0}
+  battery_wh: {type: number, required: false, min: 0}
+  power_adapter_w: {type: integer, required: true, min: 1}
+  chassis_material: {type: string, required: true}
+  camera_type: {type: string, required: true}
+  biometric_type: {type: string, required: true}
+  warranty_period: {type: integer, required: true, min: 1}

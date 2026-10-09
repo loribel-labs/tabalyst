@@ -1,0 +1,5 @@
+status,label_fr,amount_policy,is_terminal,weight
+ouvert,Ouvert,optional,false,150
+en_cours,En cours,optional,false,300
+fermé,Fermé,required,true,500
+rejeté,Rejeté,optional,true,50

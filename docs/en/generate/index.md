@@ -4,7 +4,7 @@ description: How to create synthetic CSV datasets from a YAML definition or the 
 ---
 
 Tabalyst Generate creates synthetic CSV datasets for tests, demonstrations and
-teaching. Install Tabalyst 0.6.2 or later to use `tabalyst generate`.
+teaching. Install Tabalyst 0.6.2 to use `tabalyst generate`.
 
 ```console
 tabalyst generate --example crm -o crm-contacts.csv
@@ -25,8 +25,9 @@ tabalyst generate examples/generate/input/crm.yaml -o contacts.csv
 ```
 
 The definition must use `definition_version: 1` and declare its datasets and
-columns. See the editable [CRM and insurance definitions](https://github.com/loribel-labs/tabalyst/tree/main/examples/generate/input)
-for complete examples. The definition format is experimental during beta.
+columns. The [0.6.2 CRM and Insurance definitions](https://github.com/loribel-labs/tabalyst/tree/v0.6.2/examples/generate/input)
+are editable examples. The definition format is experimental during beta.
+The packaged CRM and Insurance examples need no separate file.
 
 ## Create an anomaly variant
 
