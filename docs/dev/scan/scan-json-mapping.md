@@ -38,7 +38,7 @@ Status: **Done** (exists, kept), **Modify** (exists, changes), **Add** (new).
 | Common loader (A02, A11) | Done at 1b: `scan_document.load_document` and `load_base` read a Scan or a Report (`scan_reuse.load_scan` still reads Scan documents) | Done | 1b |
 | Reduced Report samples (O27) | Done at 1b: `values.samples` has `kept` and `of`; the Report keeps the 100 values it uses | Done at 1c: `report.value_examples.kept_per_column` (design 19.4b) | 1b, 1c, 5 |
 | Cache identity (CACHE) | Source SHA-256, configuration hash, engine version (`scanner/identity.py`) | Done, extended for the second pass | 7a |
-| Planner (D11) | None | Add | 6a, 6b |
+| Planner (D11) | None | Done at 6a: registry of six analyzers and the planner (`scanner/planner/`, design 20.5), costs and thresholds provisional | Done (6a), calibrated at 6b | 6a, 6b |
 | Second pass, histograms, medians (D02, D09, D10, D22) | None | Add | 7a |
 | Exact distinct of short identifiers (D03) | Exact only up to the tracking limit | Add | 7b |
 | Relationships (D13, D14) | None | Add | 8a, 8b |
@@ -74,11 +74,12 @@ the main process and are never summed with worker time.
 | `report_profile.py`, `models.py` (profile) | `ScanResult` fields | Copies of facts removed (1b, 1c, 5); the rates keep their meaning |
 | `templates/report.html`, `templates/column.html`, `static/` | Profile fields, including `scan_details`, `string_profile`, `date_profile`, `numeric` | Done at 1c: the pages read the base through `report_views` (`ColumnView.field`); HTML identical to 1b; browser check at desktop and mobile |
 | `reporting.py`, `service.py` | Profile and `ScanResult` | Common loader (1b) |
-| `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity |
+| `scan_reuse.py`, `shared_scan_service.py`, `scan_service.py` | Scan documents, identity, staleness | Revision refusal kept (A06); loader and second pass identity; `generate_scans(refresh=)` and `ScanSuccess.reused` (6a) |
+| `plan_service.py` | None | `plan_document`, `generate_plans`: the planner for the CLI and the API (6a) |
 | `inspector/resolution.py` | Configuration resolved for JSON sources | Unchanged |
 | `projects/` (`_codec`, `_validation`, `_queries`, `_generation`, `_publication`, `_staging`, `_session`) | Models, invariants, codecs | Adapted (1d): `validate_database` runs `check_scan`; no codec or schema change |
 | `sampling.py`, `sampling_service.py` | Scan for `stratified` and later `smart` | Chain with the planner (9, 10a) |
-| `cli/scan.py`, `cli/` | Options, output | `--deep`, `--plan`, `--yes` (6b, 7a) |
+| `cli/scan.py`, `cli/` | Options, output | `--plan` (6a); `--deep`, `--yes` (6b, 7a) |
 | `examples/output/`, copies for the site | Report JSON and HTML | Regenerate each lot; follow-up in `tabalyst-studio` |
 | `tests/scan/`, `tests/test_reporting.py`, `tests/browser/report.cjs` | Everything above | Contract tests gated by lot |
 

@@ -32,6 +32,7 @@ table at the end of this section shows which options each kind of file uses.
 | `--no-progress` | Disable the progress line |
 | `--workers N` | Worker processes that analyze values: `1` for one process. Files of 16 MiB or more use one per spare processor by default |
 | `--counters` | Add the work counters of the samplers to `run.counters` in the scan document (see [Scan format](../../scan/format.md#counters-of-a-run)). The scan always runs again |
+| `--plan` | Show the analyses a second pass could add, what they would cost and which the scan already answers, without running them. Uses the stored scan when it is current, otherwise makes it. Refuses `-o`, `-d`, `--force` and `--counters`. See [Plan the analyses](../../scan/plan.md) |
 | `--help` | Show the options and exit |
 
 ### Options for CSV files
@@ -53,7 +54,7 @@ A JSONL file has one dataset, its lines, so it has no collection to choose.
 
 | Option | CSV | JSON | JSONL | Excel |
 | --- | :---: | :---: | :---: | :---: |
-| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters` | yes | yes | yes | yes |
+| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters`, `--plan` | yes | yes | yes | yes |
 | `--delimiter`, `--encoding` | yes | - | - | - |
 | `--collection` | - | yes, repeatable | - | yes, once |
 
@@ -70,6 +71,13 @@ tabalyst scan customers.csv
 tabalyst scan data/*.csv -d scans
 tabalyst scan customers.csv -o scans/customers-2026.scan.json --force
 tabalyst scan orders.json
+```
+
+### Plan the analyses
+
+```console
+tabalyst scan customers.csv --plan
+tabalyst scan orders.json --collection customers --plan
 ```
 
 ### Choosing a collection

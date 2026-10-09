@@ -5,7 +5,8 @@ description: The Python functions that scan a CSV, JSON, JSONL or Excel source -
 
 `tabalyst.scan()` scans one source in memory and writes nothing.
 `tabalyst.generate_scans()` scans several sources and writes their scan
-documents. The command is [`tabalyst scan`](../cli/scan.md); the result is
+documents. `tabalyst.plan_analyses()` and `tabalyst.plan_document()` plan the
+analyses a scan could still receive (see [Plan the analyses](../../scan/plan.md)). The command is [`tabalyst scan`](../cli/scan.md); the result is
 described in the [scan format](../../scan/format.md).
 
 ```python
@@ -76,6 +77,7 @@ tabalyst.generate_scans(
     workers=None,
     counters=False,
     project_storage=False,
+    refresh=True,
 )
 ```
 
@@ -91,6 +93,9 @@ Returns a [batch result](index.md#batch-functions) whose successes hold the
 - `project_storage`: `True` stores the scans in the reusable storage of the
   command, as `tabalyst scan` does without `-o` or `-d`, instead of writing
   standalone documents.
+- `refresh`: with `project_storage`, `False` reuses the stored scan when it is
+  current for the source, the settings and the version, instead of scanning
+  again. A successful job then has `reused`.
 - `config_path`, `force`, `on_progress`: see the [conventions](index.md#conventions).
 - `workers`, `counters`: as for `scan()`.
 

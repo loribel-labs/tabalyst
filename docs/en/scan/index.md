@@ -36,6 +36,8 @@ are written atomically: an interrupted scan never leaves a partial file.
   sources, reuse, settings and the Python API.
 - [Scan format](format.md): the structure of the scan document, and its
   [changelog](format-changelog.md).
+- [Plan the analyses](plan.md): `tabalyst scan --plan`, the analyses a scan
+  could still receive and what they would cost.
 - [Manage query caches](cache.md): `tabalyst cache info` and
   `tabalyst cache clean`.
 - [Configuration](../reference/configuration.md): the `scan` settings.

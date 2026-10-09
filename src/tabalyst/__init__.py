@@ -13,6 +13,8 @@ from tabalyst.generate_service import generate_datasets as generate_datasets
 from tabalyst.inspect_service import InspectResult as InspectResult
 from tabalyst.inspect_service import generate_inspections as generate_inspections
 from tabalyst.inspect_service import inspect as inspect
+from tabalyst.plan_service import generate_plans as generate_plans
+from tabalyst.plan_service import plan_document as plan_document
 from tabalyst.report_config import ReportConfig as ReportConfig
 from tabalyst.report_service import generate_reports as generate_reports
 from tabalyst.reporting import render_report as render_report
@@ -24,11 +26,16 @@ from tabalyst.scan_service import generate_scans as generate_scans
 from tabalyst.scanner import ScanConfig as ScanConfig
 from tabalyst.scanner import ScanResult as ScanResult
 from tabalyst.scanner import scan as scan
+from tabalyst.scanner.planner import AnalysisPlan as AnalysisPlan
+from tabalyst.scanner.planner import AnalysisRequest as AnalysisRequest
+from tabalyst.scanner.planner import plan_analyses as plan_analyses
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
 
 __all__ = [
+    "AnalysisPlan",
+    "AnalysisRequest",
     "ConfigurationError",
     "GeneratePlan",
     "GenerateResult",
@@ -43,10 +50,13 @@ __all__ = [
     "build_generate_plan",
     "generate_datasets",
     "generate_inspections",
+    "generate_plans",
     "generate_reports",
     "generate_samples",
     "generate_scans",
     "inspect",
+    "plan_analyses",
+    "plan_document",
     "sample_csv",
     "scan",
 ]

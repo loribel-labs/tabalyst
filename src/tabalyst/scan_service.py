@@ -52,6 +52,8 @@ class ScanSuccess:
     job: ScanJob
     result: ScanResult
     warnings: tuple[str, ...] = ()
+    # The shared scan document was current and not scanned again.
+    reused: bool = False
 
 
 @dataclass(frozen=True)
@@ -131,6 +133,7 @@ def generate_scans(
     workers: int | None = None,
     counters: bool = False,
     project_storage: bool = False,
+    refresh: bool = True,
 ) -> BatchScanResult:
     """Scan one or more CSV or JSON files and write one scan document each.
 
@@ -141,7 +144,9 @@ def generate_scans(
     (design inspect 11): a source whose collection cannot be decided fails
     alone. The whole batch is rejected before any scan when an output is
     unsafe; afterwards, a failed source does not stop the others. ``workers``
-    and ``counters`` are passed to ``tabalyst.scan()``.
+    and ``counters`` are passed to ``tabalyst.scan()``. With ``project_storage``
+    the scan goes to the shared storage and is scanned again unless
+    ``refresh`` is false and the stored document is current.
     """
     config_paths = _config_paths(config_path)
     top_level, scan_layer = load_config_layers(config_paths)
@@ -196,6 +201,7 @@ def generate_scans(
 
         try:
             warnings: tuple[str, ...] = ()
+            reused = False
             job_config = config
             check = None
             if source_format_of(job.source) != "csv":
@@ -220,10 +226,11 @@ def generate_scans(
                     workers=workers,
                     counters=counters,
                     json_indent=indent,
-                    refresh=True,
+                    refresh=refresh,
                     check=check,
                 )
                 result = shared.result
+                reused = shared.reused
                 completed_job = ScanJob(job.source, shared.path)
                 warnings += shared.warnings
             else:
@@ -261,7 +268,14 @@ def generate_scans(
                 detail=str(exc),
             )
         else:
-            successes.append(ScanSuccess(job=completed_job, result=result, warnings=warnings))
+            successes.append(
+                ScanSuccess(
+                    job=completed_job,
+                    result=result,
+                    warnings=warnings,
+                    reused=reused,
+                )
+            )
             emit_progress(
                 on_progress,
                 job.source,

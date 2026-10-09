@@ -57,6 +57,8 @@ Keep these exactly as written in every language:
 | scan | analyse | The complete description of a source written by `tabalyst scan` |
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
+| analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
+| already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |
 | duplicate record | enregistrement en double | A record equal to an earlier record of its dataset |
 | record | enregistrement | One CSV row, one element of a JSON collection, one object line of a JSONL file or one data row of an Excel table |
 | collection | collection | A JSON array whose elements are analyzed as records; a JSONL file is one collection, `$[]` |

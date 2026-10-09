@@ -19,7 +19,9 @@ from tabalyst.cli.terminal import (
     error_text,
 )
 from tabalyst.errors import TabalystError
+from tabalyst.plan_service import BatchPlanResult, generate_plans
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
+from tabalyst.scanner.planner import plan_text
 
 
 def _plural(count: int, word: str) -> str:
@@ -107,6 +109,26 @@ def _print_batch_result(
         )
 
 
+def _print_plans(batch: BatchPlanResult, *, quiet: bool) -> None:
+    """The plans on standard output, what produced them on standard error."""
+    for warning_source, warning in batch.warnings:
+        typer.echo(f"Warning [{warning_source}]: {warning}", err=True)
+    for index, success in enumerate(batch.successes):
+        if not quiet:
+            how = "reused" if success.reused else "scanned"
+            typer.echo(f"Scan: {success.job.output} ({how})", err=True)
+        for warning in success.warnings:
+            typer.echo(f"Warning [{success.job.source}]: {warning}", err=True)
+        if index:
+            typer.echo("")
+        typer.echo(plan_text(success.plan, success.job.source.name))
+    for failure in batch.failures:
+        typer.echo(
+            f"Error [{failure.job.source}]: {error_text(failure.error, 'scan')}",
+            err=True,
+        )
+
+
 def scan_command(
     inputs: Annotated[
         list[str],
@@ -188,14 +210,53 @@ def scan_command(
             help="Add the work counters of the samplers to run.counters.",
         ),
     ] = False,
+    plan: Annotated[
+        bool,
+        typer.Option(
+            "--plan",
+            help=(
+                "Show the analyses a second pass could add, without running "
+                "them. Uses the current stored scan or makes one."
+            ),
+        ),
+    ] = False,
 ) -> None:
     """Scan CSV and JSON files into a complete JSON description of their data."""
     if quiet and verbose:
         raise typer.BadParameter("--quiet and --verbose cannot be used together.")
+    if plan:
+        for name, given in (
+            ("--output", output is not None),
+            ("--output-dir", output_dir is not None),
+            ("--force", force),
+            ("--counters", counters),
+        ):
+            if given:
+                raise typer.BadParameter(f"{name} cannot be used with --plan: a plan writes nothing.")
 
     progress = ProgressPrinter(
         enabled=not quiet and not no_progress and sys.stderr.isatty()
     )
+    if plan:
+        try:
+            plans = generate_plans(
+                inputs,
+                config_path=config,
+                delimiter=delimiter,
+                encoding=encoding,
+                collections=collection_paths(collection),
+                on_progress=progress,
+                workers=workers,
+            )
+        except TabalystError as exc:
+            typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
+            raise typer.Exit(error_exit_code(exc)) from exc
+        _print_plans(plans, quiet=quiet)
+        if plans.failures:
+            raise typer.Exit(
+                batch_exit_code(failure.error for failure in plans.failures)
+            )
+        return
     try:
         batch = generate_scans(
             inputs,

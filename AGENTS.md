@@ -51,6 +51,9 @@ support is not yet required. Record format changes in the relevant changelogs.
   `docs/dev/scan/design.md` 18.14.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
+- `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
+  second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
+  is its boundary for the CLI and the API.
 - `src/tabalyst/config.py`: validated configuration and defaults.
 - `src/tabalyst/service.py`: reusable analysis boundary for the CLI and future API adapters.
 - `src/tabalyst/batch.py`: glob resolution, output planning, collision

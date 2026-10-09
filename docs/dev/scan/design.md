@@ -70,6 +70,7 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O35 | Analyzers and planner | `scanner/planner/` holds a registry of analyzers and a planner that reads a Scan (never a Report, never the source) and returns a deterministic plan: candidates with applicability, costs (memory in three scenarios, CPU class), utility and a decision (`selected`, `already_satisfied`, `rejected`) with a reason code; selection under a firm memory budget; shared states counted once. The planner chooses on merit; `available` says whether an executor exists. Costs and thresholds are provisional until lot 6b. | Accepted 2026-10-08 (maintainer, lot 6a) | 20.5 |
 | O34 | Observations and adaptive normalization | `observations` sits beside `derived` in the base: observations of versioned rules (`informational`, `candidate_anomaly`, `confirmed_issue`) apart from the limits of the scan, with `has_observations`, `has_quality_issues` and `has_limits`. A normalization stage that changed nothing takes the count of its input (`equals`), even after the table was released. | Accepted 2026-10-08 (maintainer, lot 4b) | 10, 18.13 |
 
 ## 2. Principles
@@ -140,6 +141,7 @@ src/tabalyst/scanner/
 |-- exposure.py        sensitive value gate
 |-- technical.py       technical type inference
 |-- workers.py         worker processes of parallel scans (lot 6)
+|-- planner/           registry of analyzers and plan of the second pass (lot 6a, 20.5)
 |-- detectors/         base, registry, shape classifier, built-ins, patterns
 `-- models.py          Pydantic result models
 ```
@@ -1726,6 +1728,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-08 | SJ-4a | New section 18.12 and notes in 12.7, 18.6, 21, 15, 16.1: pattern inference from the samples (`scanner/patterninfer.py`), `derived.patterns` in the base model (`ScanResult.derived`, carried by the Report, left out of `facts_sha256`), grammar version 1, candidates with exclusive classification and overlaps, settings `scan.pattern_inference`, `run.timings.derived`, validator and schema, a `failed` entry per field with the `pattern_inference_failed` error. | Lot 4a of the Scan and JSON work: D08, PAT-01 to PAT-06, C07 to C10. Defaults of the plan accepted by the maintainer on 2026-10-08 (placement in `derived`, active by default, no pattern for exposed fields, no row sample estimate, quoted literals in the rendering, literal after 5 values). |
 | 2026-10-08 | SJ-4b | New section 18.13 and decision O34, notes in 10, 12 (diagnostics), 15, 16.1, 19.2 and 19.7: `observations` in the base model beside `derived` (`scanner/quality.py`), observations of 13 versioned rules with a status (`informational`, `candidate_anomaly`, `confirmed_issue`), limits apart, summaries and the flags `has_observations`, `has_quality_issues`, `has_limits` for the scan and each dataset, settings `scan.observations` (`enabled`, `max_items`), left out of `facts_sha256` and carried by the Report; normalization stages gain `equals` (a stage that changed nothing takes the count of its input after the table was released) and `variant_groups` is exact and empty when no stage changed anything. | The exact `changed` counters prove what the dropped table cannot; QUAL-01 to QUAL-05 and D13. Maintainer decisions of lot 4b (flags at scan and dataset level, statuses of version 1, no severity, the stage keeps the envelope of its input without the estimate, thresholds as constants of the rule version, the Report keeps its issues until lot 5). |
 | 2026-10-08 | SJ-5 | New section 18.14 and notes in 9.10, 16.4, 18.11, 18.13, 19.3, 19.4b: the report pages read the observations, limits, patterns and row sample of the base through `report_sections` and `report_labels`; the projections `issues`, `preview`, `limits`, `with_issues` and `with_issues_column_count` are removed; `records.preview` and `scan.records.preview` are removed (the start of the row sample replaces them); `report.row_sample` and the reduced row sample of the Report; accuracy vocabulary; display budgets; integers are never rounded by the report. | Lot 5 of the Scan and JSON work: D19, HTML-01 to HTML-09, F01 to F04 and F06. Maintainer decisions of 2026-10-08 (remove the preview, 10 rows per part, remove the stored projections with "not computed" when the block is missing, "Quality issues" in the sense of QUAL-03, light Scan rendering through `report --scan`). |
+| 2026-10-08 | SJ-6a | New section 20.5 and decision O35, notes in 3 and 20.1: the registry of analyzers and the planner (`scanner/planner/`), six built-in analyzers with the rows of the decision tree, the plan (candidates, applicability, costs in three scenarios, utility, decision with a reason code, `already_satisfied` with its `satisfied_by`), selection under a firm memory budget with shared states and one common reading, `plan_analyses`, `plan_document`, `generate_plans` and `tabalyst scan --plan`; `facts_sha256` moves to `scanner/identity.py`. | Lot 6a of the Scan and JSON work: D11, PLAN-01 to PLAN-06, D01 to D03. Maintainer decisions of 2026-10-08 (placement in `scanner/planner/`, planning on merit with an `available` flag, `--plan` reuses or makes the first pass and never runs the second, provisional costs until lot 6b, public page now). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2808,7 +2811,7 @@ when it validates a generation and consumes the Scan base only, never a Report
 | --- | --- |
 | `tabalyst scan` | First pass only. Never automatic. |
 | `tabalyst scan --deep` | Forces the second pass. With a valid Scan in the cache (source, configuration, engine), one pass; otherwise the first pass, then the second if the planner keeps analyses: at most two passes. Writes `<stem>.deep.json`. |
-| `tabalyst scan --plan` | Shows the plan without running it. |
+| `tabalyst scan --plan` | Shows the plan without running it (20.5): from the current stored scan, or after the first pass; never the second pass. |
 | `tabalyst report` | The planner decides whether a second pass has a benefit and a low cost, and what it holds. It names what it added or left out, and why. |
 | `tabalyst report --deep` | Forces the second pass. |
 
@@ -2840,6 +2843,127 @@ rewritten. It carries the identity of its base (19.5), the plan, the execution
 and the analyses, each with its own envelope. A change of source, schema or
 configuration invalidates it (A09). A Report embeds what it needs under
 `analyses`.
+
+### 20.5 Analyzers and the plan (lot 6a, D11, PLAN-01 to PLAN-06, O35)
+
+The planner says what is useful and possible to add to a finished Scan; the Scan
+says what was observed. It lives in `scanner/planner/` and reads a `ScanResult`
+in memory or from the cache, never a Report (19.4: `plan_document` refuses one
+whose samples are reduced) and never the source. It runs nothing and writes
+nothing. The second pass (lot 7a) gives the analyzers an executor.
+
+```text
+scanner/planner/
+|-- models.py      AnalysisPlan, Candidate, Costs, Selection, Budgets
+|-- facts.py       FieldFacts: the view of a field that analyzers read
+|-- analyzer.py    Analyzer, Assessment, provisional size constants
+|-- registry.py    AnalyzerRegistry (internal only, O21)
+|-- analyzers/     the built-in analyzers
+|-- planner.py     plan_analyses(), AnalysisRequest, selection
+|-- reasons.py     the codes the plan writes and their sentences
+`-- render.py      plan_text(): the plan as text
+```
+
+**Analyzer (PLAN-02).** A class with an `id`, a `version`, its `outputs`,
+`available` (false until an executor exists), `deterministic` and `reusable`,
+and four methods: `relevant(facts)` (does the analyzer concern this kind of
+field at all, so a plan has no row for a text field and a histogram),
+`assess(facts)` (`applicable`, `satisfied` or `not_applicable`, with reasons, a
+method, its parameters and whether it `requires_source`), `estimate` (the
+costs) and `utility` (0 to 100 with reasons). An analyzer reads `FieldFacts`
+only: a field's type, counts, cardinality, frequencies, sample selection,
+numeric, length, temporal and pattern facts, exposure. It never sees a value.
+
+**Built-in analyzers and the rows of the decision tree (11.2).**
+
+| Analyzer | Applies to | Already satisfied when | Not applicable when | Method |
+| --- | --- | --- | --- | --- |
+| `exact_frequencies` | any field | `frequencies` complete and not truncated (`counts_complete`), or every distinct original value is listed with its exact count in the samples (`counts_in_samples`) | no values, exposure, more than 1,000 distinct values or a released table (`high_cardinality`), a frequency measure that is off or failed (`measure_unavailable`) | `dense_counts` for an integer domain of at most 65,536 values, else `hash_table` |
+| `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (exact median, mode, quantiles from one state) or `linear_bins` (100) |
+| `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
+| `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure, long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` or `text` |
+| `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher`; reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
+| `temporal_distribution` | date, mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` |
+
+A mixed type never gets a typed analysis automatically (specification 11.2):
+the rejection is explained, not silent (PLAN-01). Exposure `mask` or `hide`
+withholds the values: no analysis is proposed for such a field.
+
+**Candidate and decision.** One candidate per (analyzer, dataset, field) the
+analyzer is relevant to, with `id` `analyzer:dataset:field`, its method and
+parameters (counts and domains, never values), its `outputs`, `applicability`,
+`utility`, `costs` (for an applicable one) and `execution` (`requires_source`,
+`available`, `deterministic`, `reusable`). Its `selection.state` is:
+
+- `selected`: reason `requested` or `automatic`, with a `priority`, the order of
+  choice.
+- `already_satisfied` (PLAN-03): reason as in the table, and `satisfied_by`, the
+  path of the fact in the Scan that answers it. It is never run again.
+- `rejected`: reason `not_applicable` (see `applicability.reasons`),
+  `not_requested`, `low_utility`, `cpu_class`, `cells_budget` or `budget`. A
+  rejection means budget, utility or prerequisite, not that the analysis is
+  impossible (PLAN-06). `selection.requested` stays true for a request refused.
+
+**Selection (PLAN-04, PLAN-05).** Requested analyses that fit the memory budget
+come first, in candidate order. With `automatic` (the default) the planner then
+takes the analyses of CPU class `very_low` or `low` by decreasing utility, then
+the others by utility per byte, but only those whose utility reaches 45
+(`AUTOMATIC_MIN_UTILITY`), whose CPU class does not exceed
+`budgets.automatic_max_cpu` and, when `budgets.max_cells` is set, while the
+shared reading stays within it (an analysis that reads no source is not limited
+by cells). Ties are broken by candidate order. Utility is a
+heuristic, version `utility_version` 1, with its reasons: `exact_distinct`
+scores 20, plus 40 for near-unique values (20 from half), 25 for a name that
+suggests an identifier, 10 for an integer key; a histogram of an identifier-like
+field scores 15; a pattern validation that needs the source scores 40 plus 20
+when the shares come from a sample and 10 when values take no candidate; the
+others score 50 (60 for a dense histogram). A request is exempt from the utility,
+CPU and cell limits, never from the memory budget.
+
+**Memory (PLAN-04, 11.3).** Each candidate lists its `states`, each a key and
+three scenarios (`min`, `expected`, `max`); `max` is a firm bound taken from
+the counts of the Scan (an exact distinct set cannot exceed the number of
+values read) and is what the budget is charged. A state used by several
+candidates (the dense counters of an integer domain are shared by the
+frequencies and the histogram) is counted once, at its largest. The reading
+(parsing) is a common cost, `PARSER_RESERVE_BYTES`, counted once and only when a
+selected analysis `requires_source` (COST-01). The plan's `summary.memory` is
+that total. These are payloads of the structures, not process memory.
+
+**Provisional values (lot 6a).** The size constants (`TABLE_ENTRY_BYTES` 120,
+`EXACT_ENTRY_BYTES` 64, `MATCHER_BYTES` 4,096, `RESULT_BYTES` 1,024, the parser
+reserve of 16 MiB), the default memory budget (256 MiB), the CPU classes by cell
+count (up to 1, 10 and 100 million cells) and the utility scores are provisional.
+Lot 6b calibrates them on the baselines; lot 7b replaces the entry size of the
+exact set by a measure. The plan carries the budgets it used.
+
+**Plan.** `AnalysisPlan` has `planner` and `planner_version`, `utility_version`,
+a `plan_id` (the SHA-256 of the rest of the plan), `base` (the identity of the
+Scan: format revision, engine version, `source_sha256`, `config_sha256`,
+`facts_sha256`), `objective` (automatic or not, the requests with the number of
+candidates each matched), `budgets`, `common` (the shared reading: whether it is
+needed, its cells, its memory and its CPU class), `summary` (counts by decision,
+`second_pass_required`, `executable`, memory) and `candidates`. `executable` is
+false while a selected analyzer is not `available`: the plan says what a second
+pass would do, and the second pass refuses what cannot run. A plan holds no
+date, no measured time and no value of the data; the same Scan, request and
+budgets give the same plan on any machine, with any number of workers. The
+plan is not a document of its own yet: lot 7a writes it into the second-pass
+document (20.4) and gives it a schema and a changelog.
+
+**Entry points.** `plan_analyses(scan, requests=, automatic=, budgets=,
+registry=)`, `plan_document(path_or_dict, ...)` (the loader of 19.2 and
+`require_complete_samples`), `generate_plans(inputs, ...)` and
+`tabalyst scan --plan`. The command reuses the stored scan when it is current
+(source, settings, engine) and otherwise runs the first pass and stores it like
+`tabalyst scan`; it never runs the second pass, writes nothing beside the source
+and refuses `--output`, `--output-dir`, `--force` and `--counters`. The text goes
+to standard output, the scan outcome to standard error. The Python API raises
+`ConfigurationError` for a request naming an unknown analyzer, dataset or field.
+
+**Not in this lot.** The calibration of costs and thresholds, `--yes`,
+`requires_confirmation` and the validation of the source (lot 6b); the executor
+(7a to 7c); pair analyzers and features (8a, 8b); sampling targets (9 to 10b).
 
 ## 21. Original value domain (O32)
 
