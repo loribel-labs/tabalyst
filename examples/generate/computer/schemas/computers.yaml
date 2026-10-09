@@ -1,0 +1,15 @@
+columns:
+  - {name: computer_type_id, type: string, from: computer_type_id}
+  - {name: product_segment_id, type: string, from: product_segment_id}
+  - {name: brand_id, type: string, from: brand_id}
+  - {name: product_family_id, type: string, from: product_family_id}
+  - {name: product_model_id, type: string, from: product_model_id}
+  - {name: generation_id, type: string, from: generation_id}
+  - {name: form_factor_id, type: string, from: form_factor_id}
+  - {name: cpu_id, type: string, from: cpu_id}
+  - {name: gpu_id, type: string, from: gpu_id}
+  - {name: memory_id, type: string, from: memory_id}
+  - {name: storage_id, type: string, from: storage_id}
+  - {name: display_id, type: string, from: display_id}
+  - {name: operating_system_id, type: string, from: operating_system_id}
+  - {name: color_id, type: string, from: color_id}

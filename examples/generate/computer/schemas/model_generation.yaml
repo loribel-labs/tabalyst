@@ -1,0 +1,7 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  product_model_id: {type: string, required: true, references: product_model.id}
+  model_year: {type: integer, required: true, min: 2020, max: 2030}

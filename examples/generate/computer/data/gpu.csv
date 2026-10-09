@@ -1,0 +1,5 @@
+id,en,fr,brand_id,family,model,gpu_type,vram_gb
+aster_integrated,Aster Integrated,Aster Intégré,aster,Graphics,Integrated,integrated,0
+aster_discrete,Aster Discrete,Aster Dédié,aster,Graphics,Discrete,discrete,6
+brindle_integrated,Brindle Integrated,Brindle Intégré,brindle,Graphics,Integrated,integrated,0
+brindle_discrete,Brindle Discrete,Brindle Dédié,brindle,Graphics,Discrete,discrete,8

@@ -1,6 +1,7 @@
 # Generate examples
 
-`input/` holds four editable YAML definitions. Run all of them from the
+`input/` holds three transitional YAML definitions; `crm/` holds the CRM package.
+Run all of them from the
 repository root with an editable Tabalyst installation:
 
 ```console
@@ -19,6 +20,7 @@ Without `--force`, an existing generated file stops the run before any new
 definition is executed. If a YAML later declares several profiles, each gets
 its own subfolder to avoid filename collisions.
 
-The copies of `input/crm.yaml` and `input/insurance.yaml` under
-`src/tabalyst/generate_examples/` are packaged for the `--example` CLI option.
-Keep each pair byte-identical when editing either definition.
+The CRM package under `src/tabalyst/generate_examples/crm/` is packaged for
+`--example crm`. Keep it identical to the visible `crm/` package. The
+Insurance YAML under `src/tabalyst/generate_examples/` remains transitional;
+keep it identical to `input/insurance.yaml`.

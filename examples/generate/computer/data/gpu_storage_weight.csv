@@ -1,0 +1,5 @@
+gpu_id,storage_id,weight
+aster_integrated,ssd_512,2
+aster_discrete,ssd_1024,4
+brindle_integrated,ssd_512,2
+brindle_discrete,ssd_1024,4

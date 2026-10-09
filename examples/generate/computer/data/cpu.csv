@@ -1,0 +1,5 @@
+id,en,fr,brand_id,family,model,cores,threads
+aster_c4,Aster C4,Aster C4,aster,C,C4,4,8
+aster_c8,Aster C8,Aster C8,aster,C,C8,8,16
+brindle_c6,Brindle C6,Brindle C6,brindle,C,C6,6,12
+brindle_c10,Brindle C10,Brindle C10,brindle,C,C10,10,20

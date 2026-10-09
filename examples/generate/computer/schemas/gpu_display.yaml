@@ -1,0 +1,4 @@
+type: relation
+columns:
+  gpu_id: {type: string, required: true, references: gpu.id}
+  display_id: {type: string, required: true, references: display.id}

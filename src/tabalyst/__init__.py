@@ -6,10 +6,15 @@
 
 from tabalyst._version import __version__
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
+from tabalyst.generate_service import ComputerPlan as ComputerPlan
 from tabalyst.generate_service import GeneratePlan as GeneratePlan
 from tabalyst.generate_service import GenerateResult as GenerateResult
+from tabalyst.generate_service import ValidationResult as ValidationResult
 from tabalyst.generate_service import build_generate_plan as build_generate_plan
 from tabalyst.generate_service import generate_datasets as generate_datasets
+from tabalyst.generate_service import (
+    validate_generate_package as validate_generate_package,
+)
 from tabalyst.inspect_service import InspectResult as InspectResult
 from tabalyst.inspect_service import generate_inspections as generate_inspections
 from tabalyst.inspect_service import inspect as inspect
@@ -29,6 +34,7 @@ from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
 
 __all__ = [
+    "ComputerPlan",
     "ConfigurationError",
     "GeneratePlan",
     "GenerateResult",
@@ -38,6 +44,7 @@ __all__ = [
     "ScanConfig",
     "ScanResult",
     "TabalystError",
+    "ValidationResult",
     "__version__",
     "analyze",
     "build_generate_plan",
@@ -49,4 +56,5 @@ __all__ = [
     "inspect",
     "sample_csv",
     "scan",
+    "validate_generate_package",
 ]

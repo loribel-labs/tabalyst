@@ -1,0 +1,7 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  memory_type: {type: string, required: true}
+  capacity_gb: {type: integer, required: true, min: 1}
