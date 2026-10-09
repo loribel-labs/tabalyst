@@ -59,6 +59,9 @@ Keep these exactly as written in every language:
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
 | stratum, strata | strate, strates | A group of rows that share the value of the stratification field, or the combination of values of several fields |
 | stratification advice | aide à la stratification | What `tabalyst scan --plan --stratify` adds to a plan: which columns make good strata and how risky a combination of columns is |
+| smart sample | échantillon smart | A sample that aims to cover the diversity and the rare cases of a file; its proportions do not estimate the population |
+| target | cible | A thing a smart sample aims to cover: a value, a pattern, an extreme, a period, a problem the scan found. It has a weight and is mandatory or optional |
+| smart sample plan | plan d'échantillon smart | What `tabalyst scan --plan --smart` adds to a plan: the targets, their weights, the sizes, the reserve and the readings of the source |
 | analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
 | forced plan | plan forcé | A plan that takes every applicable analysis within the hard memory budget, whatever the limits of an automatic choice (`tabalyst scan --plan --deep`) |
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |

@@ -460,6 +460,14 @@ selection. It reads the facts and the row sample of the Scan, and the arithmetic
 so that the advice describes the rule the sample applies. The sample counts its strata before it
 reads rows again and stops at `max_strata`.
 
+`scanner/smart/` (lot 10a, design 20.15) is the plan of a smart sample, `SamplingPlan`: targets by family
+(`targets.py`), their weights (`weights.py`, monotone and capped), the sizes, the reserve, the budget of
+candidate rows and the readings of the source (`plan.py`), and its text (`render.py`). It is not an
+analyzer and not a member of `AnalysisPlan`: it reads the Scan and, when it is current for that Scan, the
+second-pass document, so it has its own identity. `plan_service.generate_plans(smart=)` builds it beside
+the plan of analyses and `scan --plan --smart` prints it. It reads no source; the selection of the rows is
+lot 10b.
+
 `report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
 Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
 writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the

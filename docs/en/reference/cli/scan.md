@@ -35,7 +35,8 @@ table at the end of this section shows which options each kind of file uses.
 | `--plan` | Show the analyses a second pass could add, what they would cost and which the scan already answers, without running them. Uses the stored scan when it is current, otherwise makes it. Refuses `-o`, `-d`, `--force` and `--counters`. See [Plan the analyses](../../scan/plan.md) |
 | `--stratify` | With `--plan`, add the [stratification advice](../../scan/plan.md#stratification-advice): which columns make good strata for `tabalyst sample`, and how many strata each makes |
 | `--stratify-by FIELDS` | With `--plan`, assess the strata of several columns together, as a comma-separated list. Repeat it for other combinations. Implies `--stratify` |
-| `--sample-size N` | With `--stratify`, the number of rows the sample would hold, to count the strata it would leave without a row |
+| `--smart` | With `--plan`, add the [smart sample plan](../../scan/plan.md#smart-sample-plan): the targets a smart sample would aim to cover, their weights, and the readings of the source it would take. With `--deep`, the second pass counts among them |
+| `--sample-size N` | With `--stratify`, `--stratify-by` or `--smart`, the number of rows the sample would hold |
 | `--deep` | Run the second pass: read each file again and add histograms, exact distinct counts and exact frequencies to `deep.json`, beside the scan. It asks first when it is costly. With `--plan`, show the second pass as if it were forced, with the estimated time and whether a run would ask. See [Add histograms and exact medians](../../scan/deep.md) |
 | `-y`, `--yes` | With `--deep`, start a costly second pass without asking. Outside a terminal, a costly second pass does not start without it |
 | `--help` | Show the options and exit |
@@ -59,7 +60,7 @@ A JSONL file has one dataset, its lines, so it has no collection to choose.
 
 | Option | CSV | JSON | JSONL | Excel |
 | --- | :---: | :---: | :---: | :---: |
-| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters`, `--plan`, `--stratify`, `--stratify-by`, `--sample-size`, `--deep` | yes | yes | yes | yes |
+| `-o`, `-d`, `-c`, `-f`, `-q`, `-v`, `--no-progress`, `--workers`, `--counters`, `--plan`, `--stratify`, `--stratify-by`, `--smart`, `--sample-size`, `--deep` | yes | yes | yes | yes |
 | `--delimiter`, `--encoding` | yes | - | - | - |
 | `--collection` | - | yes, repeatable | - | yes, once |
 

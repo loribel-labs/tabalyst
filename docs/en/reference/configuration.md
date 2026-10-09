@@ -255,6 +255,32 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 
 The counts per bin are exact with either strategy.
 
+## Smart settings
+
+The top-level `smart` object configures the plan of a smart sample, in [Plan the
+analyses a scan could add](../scan/plan.md#smart-sample-plan). It is not part of the
+`scan` object or of `deep`: changing it never makes a stored scan or a second-pass
+result stale.
+
+```json
+{"smart": {"reserve_share": 0.3, "weights": {"cap": 12}}}
+```
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `smart.max_enum_values` | `100` | Most distinct values a column may have to get one target per value. From 1 to 10,000 |
+| `smart.numeric_bins` | `10` | Bins of equal width between the minimum and the maximum of a numeric column, from 2 to 100. A column with fewer than three possible bins gets none |
+| `smart.candidates_per_target` | `2` | Rows the selection holds in memory for each target, from 1 to 3 |
+| `smart.reserve_share` | `0.2` | Share of the rows asked for that is kept for ordinary rows, from 0 to 0.9. It gives way to mandatory targets |
+| `smart.max_targets` | `10000` | Targets the plan keeps at most, the heaviest first; the plan counts the others |
+| `smart.max_candidate_bytes` | `67108864` | Memory the candidate rows may take, in bytes of source text |
+| `smart.weights.gain`, `smart.weights.floor`, `smart.weights.cap`, `smart.weights.unknown_rarity` | `1`, `0.000001`, `20`, `0.5` | A target weighs `min(cap, base * (1 + gain * rarity))`. The rarity goes from 0 (the target covers every row) to 1 (it covers a share of `floor` or less); it is `unknown_rarity` when the frequency is not known |
+| `smart.weights.base.*` | see below | The base weight of each kind of target |
+
+The base weights are `confirmed_issue` 10, `candidate_anomaly` 6, `value` 5,
+`relation_exception` 5, `pattern` 4, `extreme` 4, `signal` 3 and `bin` 2. A weight never falls
+when the target gets rarer or when its base rises, and never passes `cap`.
+
 ## Sample settings
 
 ```json

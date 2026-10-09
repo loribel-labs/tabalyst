@@ -40,6 +40,9 @@ from tabalyst.scanner.planner import plan_analyses as plan_analyses
 from tabalyst.scanner.planner import plan_second_pass as plan_second_pass
 from tabalyst.scanner.secondpass import DeepResult as DeepResult
 from tabalyst.scanner.secondpass import run_second_pass as run_second_pass
+from tabalyst.scanner.smart import SamplingPlan as SamplingPlan
+from tabalyst.scanner.smart import Smart as Smart
+from tabalyst.scanner.smart import plan_sampling as plan_sampling
 from tabalyst.service import analyze
 from tabalyst.service import analyze_csv as analyze_csv
 from tabalyst.service import analyze_scan as analyze_scan
@@ -60,9 +63,11 @@ __all__ = [
     "InspectResult",
     "PearsonSettings",
     "ReportError",
+    "SamplingPlan",
     "ScanConfig",
     "ScanResult",
     "SecondPassPlan",
+    "Smart",
     "SourceNotReadable",
     "StalePlan",
     "StaleSource",
@@ -82,6 +87,7 @@ __all__ = [
     "inspect",
     "plan_analyses",
     "plan_document",
+    "plan_sampling",
     "plan_second_pass",
     "prepare_deep",
     "run_second_pass",

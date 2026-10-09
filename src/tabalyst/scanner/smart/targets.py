@@ -1,0 +1,641 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""The targets of a smart sample, by family (design 20.15, specification 15.2).
+
+A target is a thing worth having in the sample: a value of a category, a pattern,
+an extreme, a period, a problem the Scan found, an exception to a learned
+relation. They are built from the finished Scan and, when it is current, the
+second-pass document, before the source is read again (SMART-04). A target names
+what it stands for by reference into those documents and never holds a value of
+the data.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
+from typing import Literal
+
+from tabalyst.config import SmartSettings
+from tabalyst.scanner.models import (
+    CardinalityComplete,
+    CardinalityLimited,
+    DatasetResult,
+    FieldPatternsComplete,
+    FieldResult,
+    Observation,
+    ScanResult,
+)
+from tabalyst.scanner.secondpass.models import (
+    AnalysisResult,
+    BinnedHistogram,
+    CrosstabResult,
+    DeepResult,
+    DenseHistogram,
+    PatternCounts,
+)
+from tabalyst.scanner.smart.models import (
+    Catalog,
+    Evidence,
+    Family,
+    Feasibility,
+    Frequency,
+    FrequencyAccuracy,
+    Obligation,
+    Predicate,
+    PredicateKind,
+    Target,
+)
+from tabalyst.scanner.smart.weights import BaseKind, weight_of
+
+# More periods than this are a distribution, not a list of targets.
+MAX_PERIODS = 30
+
+# What the Scan observed that a sample can recognize on a row, by rule of the
+# observation; and what it cannot yet, with the reason. The other rules describe
+# a column or the file (presence, names, normalization remarks), not a row.
+EVALUABLE_RULES = frozenset(
+    {"mixed_types", "type_outliers", "ambiguous_dates", "minority_pattern"}
+)
+NOT_EVALUABLE_RULES = {
+    "duplicate_rows": "needs_row_digest",
+    "variant_groups": "needs_variant_keys",
+}
+
+# Analyzers of the second pass that bring or sharpen the targets of a family.
+ENRICHES: dict[str, Family] = {
+    "numeric_histogram": "numeric",
+    "pattern_validation": "structured_string",
+    "category_crosstab": "relations",
+}
+
+
+@dataclass
+class TargetSet:
+    """What the builders found, before the budget of targets is applied."""
+
+    targets: list[Target] = dataclass_field(default_factory=list)
+    catalogs: list[Catalog] = dataclass_field(default_factory=list)
+
+
+def _share(count: int, records: int) -> float | None:
+    if records <= 0:
+        return None
+    # Twelve decimals: the weight reads this share, and a floor below 1e-6 must
+    # still tell a value seen once from one seen four times in ten million rows.
+    return round(min(1.0, count / records), 12)
+
+
+class _Builder:
+    def __init__(
+        self,
+        scan: ScanResult,
+        dataset: DatasetResult,
+        deep: DeepResult | None,
+        settings: SmartSettings,
+    ) -> None:
+        self.scan = scan
+        self.dataset = dataset
+        self.deep = deep
+        self.settings = settings
+        self.records = dataset.record_count
+        self.fields = {field.id: field for field in dataset.fields}
+        self.result = TargetSet()
+        # Columns whose every value has a target: the other families have
+        # nothing to add to them.
+        self.enumerated: set[str] = set()
+        # Several tables can share the same two columns (one per feature), so the
+        # analyses are a list, not a map keyed by the columns.
+        self.analyses: list[AnalysisResult] = []
+        if deep is not None:
+            self.analyses = [
+                a for a in deep.analyses if a.dataset == dataset.id and a.status == "complete"
+            ]
+
+    def analysis(self, analyzer: str, field_id: str) -> AnalysisResult | None:
+        """The result of an analyzer on one field, when the second pass has it."""
+        for item in self.analyses:
+            if item.analyzer == analyzer and item.field == field_id and item.partner is None:
+                return item
+        return None
+
+    def withheld(self, field: FieldResult) -> bool:
+        return field.exposure in ("mask", "hide")
+
+    def add(
+        self,
+        family: Family,
+        field_ids: list[str],
+        kind: PredicateKind,
+        discriminator: str,
+        *,
+        base: BaseKind,
+        frequency: Frequency,
+        evidence: Evidence,
+        obligation: Obligation = "optional",
+        source: Literal["scan", "second_pass"] = "scan",
+        ref: str | None = None,
+        params: dict[str, int | str] | None = None,
+        origin: str | None = None,
+        feasibility: Feasibility = "ready",
+        reason: str | None = None,
+    ) -> None:
+        name = ":".join(
+            [family, self.dataset.id, "+".join(field_ids) or "-", kind, discriminator]
+        ).rstrip(":")
+        displays = [self.fields[i].display for i in field_ids if i in self.fields]
+        self.result.targets.append(
+            Target(
+                id=name,
+                family=family,
+                dataset=self.dataset.id,
+                fields=field_ids,
+                displays=displays,
+                predicate=Predicate(kind=kind, source=source, ref=ref, params=params or {}),
+                frequency=frequency,
+                weight=weight_of(base, frequency.share, self.settings.weights),
+                obligation=obligation,
+                feasibility=feasibility,
+                reason=reason,
+                evidence=evidence,
+                origin=origin,
+                needs=["scan"] if source == "scan" and evidence != "second_pass" else ["scan", "second_pass"],
+            )
+        )
+
+    def counted(
+        self, count: int, accuracy: FrequencyAccuracy = "exact", method: str = "exact_count"
+    ) -> Frequency:
+        return Frequency(
+            accuracy=accuracy, count=count, share=_share(count, self.records), method=method
+        )
+
+    def catalog(
+        self,
+        family: Family,
+        field: FieldResult,
+        *,
+        complete: bool,
+        targets: int,
+        reasons: list[str],
+    ) -> None:
+        if targets == 0:
+            guarantee: Literal["catalog_complete", "known_values_only", "none"] = "none"
+        else:
+            guarantee = "catalog_complete" if complete else "known_values_only"
+        self.result.catalogs.append(
+            Catalog(
+                family=family,
+                dataset=self.dataset.id,
+                field=field.id,
+                display=field.display,
+                complete=complete and targets > 0,
+                guarantee=guarantee,
+                targets=targets,
+                reasons=reasons,
+            )
+        )
+
+    # Families ------------------------------------------------------------
+
+    def low_cardinality(self, field: FieldResult) -> None:
+        if self.withheld(field):
+            self.catalog("low_cardinality", field, complete=False, targets=0, reasons=["exposure"])
+            return
+        samples = field.values.samples
+        cardinality = field.values.cardinality
+        missing = field.missing.count
+        if field.values.count == 0:
+            self.catalog("low_cardinality", field, complete=False, targets=0, reasons=["no_values"])
+            return
+        exhaustive = False
+        if isinstance(cardinality, CardinalityComplete):
+            distinct: int | None = cardinality.value
+            exhaustive = (
+                samples.selection == "all"
+                and samples.kept == samples.of
+                and samples.long_texts is None
+            )
+        elif isinstance(cardinality, CardinalityLimited) and cardinality.estimate is not None:
+            distinct = round(cardinality.estimate.value)
+        else:
+            distinct = None
+        if distinct is None:
+            self.catalog(
+                "low_cardinality", field, complete=False, targets=0, reasons=["domain_unknown"]
+            )
+            return
+        if distinct > self.settings.max_enum_values or len(samples.listed) > self.settings.max_enum_values:
+            self.catalog(
+                "low_cardinality", field, complete=False, targets=0, reasons=["high_cardinality"]
+            )
+            return
+        if not samples.listed:
+            self.catalog("low_cardinality", field, complete=False, targets=0, reasons=["long_texts"])
+            return
+        if distinct < 2 and missing == 0:
+            self.catalog(
+                "low_cardinality", field, complete=False, targets=0, reasons=["single_value"]
+            )
+            return
+        obligation: Obligation = "mandatory" if exhaustive else "optional"
+        where = f"datasets/{self.dataset.id}/fields/{field.id}/values/samples"
+        for entry in samples.listed:
+            accuracy: FrequencyAccuracy = "exact" if entry.count_accuracy == "exact" else "indicator"
+            self.add(
+                "low_cardinality",
+                [field.id],
+                "value_equals",
+                str(entry.id),
+                base="value",
+                frequency=self.counted(entry.count, accuracy),
+                evidence="exact",
+                obligation=obligation,
+                ref=where,
+                params={"entry": entry.id},
+            )
+        count = len(samples.listed)
+        if missing > 0:
+            self.add(
+                "low_cardinality",
+                [field.id],
+                "value_missing",
+                "",
+                base="value",
+                frequency=self.counted(missing),
+                evidence="exact",
+                obligation=obligation,
+                ref=f"datasets/{self.dataset.id}/fields/{field.id}/missing",
+            )
+            count += 1
+        self.catalog(
+            "low_cardinality",
+            field,
+            complete=exhaustive,
+            targets=count,
+            reasons=[] if exhaustive else ["domain_not_exhaustive"],
+        )
+        if exhaustive:
+            self.enumerated.add(field.id)
+
+    def structured_string(self) -> None:
+        if self.scan.derived is None or self.scan.derived.patterns is None:
+            return
+        for entry in self.scan.derived.patterns.fields:
+            if entry.dataset != self.dataset.id or not isinstance(entry, FieldPatternsComplete):
+                continue
+            field = self.fields.get(entry.field)
+            if field is None or self.withheld(field) or field.id in self.enumerated:
+                continue
+            validated = self.analysis("pattern_validation", field.id)
+            counts = (
+                validated.result
+                if validated is not None and isinstance(validated.result, PatternCounts)
+                else None
+            )
+            tallies = {t.id: t.occurrences for t in counts.candidates} if counts else {}
+            evidence: Evidence = "second_pass" if counts else (
+                "exact" if entry.population.complete and not entry.limits else "sample"
+            )
+            where = f"derived/patterns/{self.dataset.id}/{field.id}"
+            made = 0
+            for candidate in entry.candidates:
+                if counts is not None and candidate.id in tallies:
+                    frequency = self.counted(
+                        tallies[candidate.id], method="pattern_validation"
+                    )
+                else:
+                    frequency = Frequency(
+                        accuracy="indicator",
+                        share=round(candidate.coverage.share, 12),
+                        method="distinct_share",
+                    )
+                self.add(
+                    "structured_string",
+                    [field.id],
+                    "pattern_matches",
+                    candidate.id,
+                    base="pattern",
+                    frequency=frequency,
+                    evidence=evidence,
+                    ref=where,
+                    params={"pattern": candidate.id},
+                )
+                made += 1
+            if entry.other.distinct > 0:
+                if counts is not None:
+                    frequency = self.counted(counts.other, method="pattern_validation")
+                else:
+                    frequency = Frequency(
+                        accuracy="indicator",
+                        share=round(entry.other.share, 12),
+                        method="distinct_share",
+                    )
+                self.add(
+                    "structured_string",
+                    [field.id],
+                    "pattern_other",
+                    "",
+                    base="pattern",
+                    frequency=frequency,
+                    evidence=evidence,
+                    ref=where,
+                )
+                made += 1
+            complete = entry.population.complete and not entry.limits
+            self.catalog(
+                "structured_string",
+                field,
+                complete=complete,
+                targets=made,
+                reasons=[] if complete else ["sample_basis"],
+            )
+
+    def lengths(self, field: FieldResult) -> None:
+        envelope = field.string_lengths
+        if envelope.status != "complete" or field.technical_type.type not in ("text", "mixed"):
+            return
+        stats = envelope.value
+        if stats.min_length >= stats.max_length:
+            return
+        by_length = {item.length: item.count for item in stats.length_histogram}
+        lengths: list[tuple[PredicateKind, int]] = [
+            ("length_min", stats.min_length),
+            ("length_max", stats.max_length),
+        ]
+        for kind, length in lengths:
+            self.add(
+                "structured_string",
+                [field.id],
+                kind,
+                "",
+                base="extreme",
+                frequency=self.counted(by_length.get(length, 0), method="length_histogram"),
+                evidence="exact",
+                ref=f"datasets/{self.dataset.id}/fields/{field.id}/string_lengths",
+                # The histogram counts the analytical text (design 21): a selection
+                # that measured the original value would count other rows.
+                params={"domain": "analytical"},
+            )
+
+    def numeric(self, field: FieldResult) -> None:
+        envelope = field.numeric
+        if (
+            envelope.status != "complete"
+            or field.technical_type.type not in ("integer", "number")
+            or envelope.value.count == 0
+        ):
+            return
+        stats = envelope.value
+        where = f"datasets/{self.dataset.id}/fields/{field.id}/numeric"
+        validated = self.analysis("numeric_histogram", field.id)
+        histogram = validated.result if validated is not None else None
+        dense = histogram.values if isinstance(histogram, DenseHistogram) else None
+        at = {item.value: item.count for item in dense} if dense is not None else {}
+        if stats.min < stats.max:
+            extremes: list[tuple[PredicateKind, int | float]] = [
+                ("numeric_min", stats.min),
+                ("numeric_max", stats.max),
+            ]
+            for kind, value in extremes:
+                known = value in at
+                self.add(
+                    "numeric",
+                    [field.id],
+                    kind,
+                    "",
+                    base="extreme",
+                    frequency=(
+                        self.counted(at[int(value)], method="dense_counts")
+                        if known
+                        else Frequency(accuracy="unknown")
+                    ),
+                    evidence="second_pass" if known else "exact",
+                    ref=where,
+                )
+        if stats.zero > 0 and stats.zero < stats.count:
+            self.add(
+                "numeric",
+                [field.id],
+                "numeric_zero",
+                "",
+                base="signal",
+                frequency=self.counted(stats.zero, method="numeric_stats"),
+                evidence="exact",
+                ref=where,
+            )
+        if stats.negative > 0 and stats.positive > 0:
+            for sign, count in (("negative", stats.negative), ("positive", stats.positive)):
+                self.add(
+                    "numeric",
+                    [field.id],
+                    "numeric_sign",
+                    sign,
+                    base="signal",
+                    frequency=self.counted(count, method="numeric_stats"),
+                    evidence="exact",
+                    ref=where,
+                    params={"sign": sign},
+                )
+        bins = self._bins(stats.min, stats.max)
+        if bins < 3:
+            return
+        counts = self._bin_counts(histogram, stats.min, stats.max, bins)
+        for index in range(bins):
+            self.add(
+                "numeric",
+                [field.id],
+                "numeric_bin",
+                str(index),
+                base="bin",
+                frequency=(
+                    self.counted(counts[index], method="histogram")
+                    if counts is not None
+                    else Frequency(accuracy="unknown")
+                ),
+                evidence="second_pass" if counts is not None else "exact",
+                ref=where,
+                params={"bin": index, "of": bins},
+            )
+
+    def _bins(self, low: float, high: float) -> int:
+        bins = self.settings.numeric_bins
+        if isinstance(low, int) and isinstance(high, int):
+            bins = min(bins, high - low + 1)
+        return bins
+
+    @staticmethod
+    def _bin_counts(
+        histogram: object, low: float, high: float, bins: int
+    ) -> list[int] | None:
+        """Rows per equal-width bin of the exact range, from a histogram of the
+        second pass that places its values exactly; ``None`` otherwise."""
+        if high <= low:
+            return None
+        if isinstance(histogram, DenseHistogram):
+            counts = [0] * bins
+            for item in histogram.values:
+                index = min(bins - 1, ((item.value - histogram.min) * bins) // (histogram.max - histogram.min))
+                counts[index] += item.count
+            return counts
+        if (
+            isinstance(histogram, BinnedHistogram)
+            and histogram.strategy == "linear"
+            and histogram.bounds_source == "range"
+            and histogram.requested_strategy == "linear"
+            and len(histogram.counts) % bins == 0
+        ):
+            step = len(histogram.counts) // bins
+            return [sum(histogram.counts[i * step : (i + 1) * step]) for i in range(bins)]
+        return None
+
+    def dates(self, field: FieldResult) -> None:
+        envelope = field.temporal
+        if envelope.status != "complete" or field.values.count == 0:
+            return
+        stats = envelope.value
+        if stats.count == 0 or stats.count / field.values.count < 0.8:
+            return
+        where = f"datasets/{self.dataset.id}/fields/{field.id}/temporal"
+        several = len(stats.kinds) > 1
+        for position, kind in enumerate(stats.kinds):
+            params: dict[str, int | str] = {"kind": kind.kind}
+            bounds: list[PredicateKind] = ["date_min", "date_max"]
+            for predicate in bounds:
+                self.add(
+                    "date",
+                    [field.id],
+                    predicate,
+                    kind.kind,
+                    base="extreme",
+                    frequency=Frequency(accuracy="unknown"),
+                    evidence="exact",
+                    ref=where,
+                    params=params,
+                )
+            if several:
+                self.add(
+                    "date",
+                    [field.id],
+                    "date_kind",
+                    kind.kind,
+                    base="bin",
+                    frequency=self.counted(kind.count, method="temporal_kinds"),
+                    evidence="exact",
+                    ref=where,
+                    params=params,
+                )
+            if kind.years is not None and 1 < len(kind.years) <= MAX_PERIODS:
+                for year_index, year in enumerate(kind.years):
+                    self.add(
+                        "date",
+                        [field.id],
+                        "date_year",
+                        f"{kind.kind}:{year_index}",
+                        base="bin",
+                        frequency=self.counted(year.count, method="temporal_years"),
+                        evidence="exact",
+                        ref=f"{where}/kinds/{position}/years/{year_index}",
+                        params={"kind": kind.kind, "index": year_index},
+                    )
+
+    def quality(self) -> None:
+        observations = self.scan.observations
+        if observations is None:
+            return
+        for item in observations.items:
+            if item.dataset != self.dataset.id or item.status == "informational":
+                continue
+            self._observation(item)
+
+    def _observation(self, item: Observation) -> None:
+        if item.rule in EVALUABLE_RULES:
+            feasibility: Feasibility = "ready"
+            reason = None
+        elif item.rule in NOT_EVALUABLE_RULES:
+            feasibility = "not_evaluable"
+            reason = NOT_EVALUABLE_RULES[item.rule]
+        else:
+            return
+        field = self.fields.get(item.field) if item.field is not None else None
+        if item.field is not None and (field is None or self.withheld(field)):
+            return
+        exact_population = item.population in (
+            "records",
+            "occurrences",
+            "content_strings",
+            "value_slots",
+        )
+        share = _share(item.count, item.of) if item.of else None
+        accuracy: FrequencyAccuracy
+        if not exact_population or item.accuracy == "sample":
+            accuracy = "indicator"
+        else:
+            accuracy = "exact" if item.accuracy == "exact" else "lower_bound"
+        confirmed = item.status == "confirmed_issue"
+        self.add(
+            "quality",
+            [] if item.field is None else [item.field],
+            "observation",
+            item.id,
+            base="confirmed_issue" if confirmed else "candidate_anomaly",
+            frequency=Frequency(
+                accuracy=accuracy, count=item.count, share=share, method=item.rule
+            ),
+            evidence="exact" if item.accuracy == "exact" else "sample",
+            obligation="mandatory" if confirmed and feasibility == "ready" else "optional",
+            ref=f"observations/items/{item.id}",
+            params={"rule": item.rule},
+            origin=item.id,
+            feasibility=feasibility,
+            reason=reason,
+        )
+
+    def relations(self) -> None:
+        for analysis in self.analyses:
+            result = analysis.result
+            field_id, partner = analysis.field, analysis.partner
+            if analysis.analyzer != "category_crosstab" or partner is None:
+                continue
+            if not isinstance(result, CrosstabResult) or field_id not in self.fields:
+                continue
+            for position, cell in enumerate(result.exceptions.listed):
+                self.add(
+                    "relations",
+                    [field_id, partner],
+                    "relation_exception",
+                    f"{analysis.id}:{position}",
+                    base="relation_exception",
+                    frequency=self.counted(cell.count, method="crosstab_exceptions"),
+                    evidence="second_pass",
+                    source="second_pass",
+                    ref=f"analyses/{analysis.id}",
+                    params={"category": cell.category, "column": cell.column},
+                    origin=analysis.id,
+                )
+
+
+def build_targets(
+    scan: ScanResult,
+    dataset: DatasetResult,
+    deep: DeepResult | None,
+    settings: SmartSettings,
+) -> TargetSet:
+    """Every target of a dataset, the families in order, before the budget of
+    targets and the sort. ``deep`` is a second-pass document that is current for
+    ``scan``, or ``None``."""
+    builder = _Builder(scan, dataset, deep, settings)
+    for field in dataset.fields:
+        builder.low_cardinality(field)
+    builder.structured_string()
+    for field in dataset.fields:
+        if builder.withheld(field) or field.id in builder.enumerated:
+            continue
+        builder.lengths(field)
+        builder.numeric(field)
+        builder.dates(field)
+    builder.quality()
+    builder.relations()
+    return builder.result

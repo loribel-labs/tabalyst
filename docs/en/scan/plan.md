@@ -1,6 +1,6 @@
 ---
 title: Plan the analyses a scan could add
-description: What tabalyst scan --plan shows, how the planner chooses analyses under memory, cell and CPU limits, when a run would ask for a confirmation, the decisions and reasons in a plan, and the Python functions that return it.
+description: What tabalyst scan --plan shows, how the planner chooses analyses under memory, cell and CPU limits, when a run would ask for a confirmation, the decisions and reasons in a plan, the advice on stratified sampling and the plan of a smart sample, and the Python functions that return it.
 ---
 
 `tabalyst scan --plan` shows which further analyses would be useful and possible
@@ -190,6 +190,63 @@ saturated). A high bound proves a risk, not an explosion: the combinations that 
 can be far fewer. For a `high` or `excessive` risk the advice suggests
 `reduce_fields`, `set_explicit_limit` (`--max-strata`) and `use_smart`.
 
+## Smart sample plan
+
+```console
+tabalyst scan customers.csv --plan --smart --sample-size 1000
+```
+
+`--smart` adds the plan of a smart sample to the plan. A smart sample aims to
+cover the diversity and the rare cases of a file, not to look like it: its
+proportions do not estimate the population. The plan says what the sample would
+aim for and what it would cost; it reads the scan and the second-pass document if
+it is current, never the source, and writes nothing. `tabalyst sample` does not
+choose the rows of a smart sample yet.
+
+The plan lists **targets**, each a thing worth having in the sample, with a
+`weight` and an `obligation`:
+
+| Family | Targets |
+| --- | --- |
+| `low_cardinality` | each distinct value of a column of at most 100 values, and its missing cells |
+| `structured_string` | each inferred pattern and the values no pattern takes, the shortest and the longest length |
+| `numeric` | the minimum, the maximum, zero, each sign when both occur, ten bins of equal width |
+| `date` | the earliest and the latest date, each format when several occur, each year |
+| `quality` | each candidate anomaly or confirmed issue of the scan that a row can show |
+| `relations` | the exceptions to a [table of a category against a feature](#tables-of-a-category-against-a-feature), when the second pass has computed it |
+
+A target names what it stands for by reference into the scan and never holds a
+value of your data. A rare target weighs more than a frequent one, up to a
+ceiling; a target whose frequency is unknown gets a neutral weight, and its
+`frequency` says `unknown`. A target is `mandatory` when the plan can promise
+it: the values of a column whose table of values is complete, and the confirmed
+issues. The others are `optional`. A target the sample cannot recognize yet, such
+as a duplicate row, says `not_evaluable` and why.
+
+Each column has a catalog that says what the targets promise. `catalog_complete`:
+every value the column can take has a target. `known_values_only`: only the values
+the scan saw have one, and no value outside them is promised (the scan stopped
+tracking the distinct values of that column). A column with too many values, a
+single value, or values that exposure withholds gets no target, and its reason.
+The plan covers its targets, not every phenomenon of the data.
+
+The plan also gives:
+
+- `size`: the rows asked for, the number of mandatory targets (one row each is
+  enough, and rows that cover several targets need fewer) and the size beyond which
+  only the reserve grows;
+- `reserve`: the share of the rows (20% by default) kept for ordinary rows. It
+  gives way to the mandatory targets;
+- `candidates`: the rows the selection would hold in memory, a few per target, and
+  whether they stay within the budget;
+- `passes`: the readings of the source from now to the sample, each with its
+  reason. A smart sample reads the source once more to choose its rows. A second
+  pass asked for before it, with `--deep`, is a reading of its own, announced with
+  what it would add: the sample does not run it by itself. A stored second-pass
+  document that is current is used and adds no reading.
+
+The weights and the limits are the [`smart` settings](../reference/configuration.md#smart-settings).
+
 ## Memory and cost
 
 Each analysis lists the memory it needs in three cases: at least what the scan
@@ -294,6 +351,10 @@ unknown analysis, dataset or field raises `tabalyst.ConfigurationError`.
 `stratify=tabalyst.Stratify(combinations=[("province", "language")],
 sample_size=1000)` adds the [stratification advice](#stratification-advice) as
 `plan.stratification`; without it the plan has no such member.
+`tabalyst.plan_sampling(scan, size=1000)` returns the [smart sample plan](#smart-sample-plan)
+of a scan result; `deep=` gives the second-pass result it may use, and `dataset=` names the
+dataset of a scan that has several. `tabalyst.generate_plans(inputs, smart=tabalyst.Smart(size=1000))`
+gives it as `sampling` in each success.
 `tabalyst.generate_plans(inputs)` plans several sources, as the command does;
 `forced=True` plans a forced second pass, and the result says whether running
 the plans together would require a confirmation (`requires_confirmation`).
