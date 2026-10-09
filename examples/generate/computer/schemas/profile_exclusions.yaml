@@ -1,0 +1,8 @@
+type: constraint
+columns:
+  scope_id: {type: string, required: true}
+  condition_field: {type: string, required: true}
+  condition_id: {type: string, required: true}
+  target_field: {type: string, required: true}
+  target_id: {type: string, required: true}
+  action: {type: string, required: true}

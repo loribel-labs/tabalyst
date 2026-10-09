@@ -1,0 +1,14 @@
+format: tabalyst.generate.package
+format_version: 0.1.0
+id: common_references
+package_version: 0.1.0
+catalog: catalog.yaml
+defaults:
+  seed: 42
+  as_of_date: '2026-10-05'
+datasets:
+- id: contacts
+  mode: generated
+  row_source: columns
+  rows: 100
+  schema: schemas/contacts.yaml

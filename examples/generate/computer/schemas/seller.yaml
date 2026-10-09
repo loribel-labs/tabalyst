@@ -1,0 +1,7 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  market: {type: string, required: true}
+  seller_type_id: {type: string, required: true, references: seller_type.id}

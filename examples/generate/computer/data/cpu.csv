@@ -1,0 +1,5 @@
+id,en,fr,brand_id,family,model,architecture,cores,threads,max_clock_ghz,npu_tops,npu_brand,npu_family
+aster_c4,Aster C4,Aster C4,aster,C,C4,x86_64,4,8,3.8,0,,
+aster_c8,Aster C8,Aster C8,aster,C,C8,x86_64,8,16,4.6,42,aster,Neural C
+brindle_c6,Brindle C6,Brindle C6,brindle,C,C6,x86_64,6,12,4.0,0,,
+brindle_c10,Brindle C10,Brindle C10,brindle,C,C10,x86_64,10,20,4.8,45,brindle,Neural B

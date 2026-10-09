@@ -1,0 +1,15 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  brand_id: {type: string, required: true, references: brand.id}
+  family: {type: string, required: true}
+  model: {type: string, required: true}
+  architecture: {type: string, required: true}
+  cores: {type: integer, required: true, min: 1}
+  threads: {type: integer, required: true, min: 1}
+  max_clock_ghz: {type: number, required: true, min: 1}
+  npu_tops: {type: integer, required: true, min: 0}
+  npu_brand: {type: string, required: false, references: brand.id}
+  npu_family: {type: string, required: false}

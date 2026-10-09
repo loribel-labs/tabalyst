@@ -1,0 +1,14 @@
+type: resource
+columns:
+  filiale:
+    type: string
+    required: true
+  contract_type:
+    type: string
+    required: true
+  weight:
+    type: integer
+    required: true
+unique:
+- filiale
+- contract_type

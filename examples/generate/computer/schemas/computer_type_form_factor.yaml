@@ -1,0 +1,5 @@
+type: relation
+columns:
+  computer_type_id: {type: string, required: true, references: computer_type.id}
+  form_factor_id: {type: string, required: true, references: form_factor.id}
+unique: [computer_type_id, form_factor_id]

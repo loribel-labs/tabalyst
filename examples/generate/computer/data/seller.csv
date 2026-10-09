@@ -1,0 +1,5 @@
+id,en,fr,market,seller_type_id
+ca_direct,Northstar Direct,Northstar direct,ca,manufacturer
+ca_retail,Maple Tech,Tech Érable,ca,retailer
+us_direct,Northstar US,Northstar États-Unis,us,manufacturer
+us_retail,Harbor Computing,Informatique Havre,us,retailer

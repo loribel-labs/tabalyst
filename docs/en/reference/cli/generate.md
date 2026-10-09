@@ -4,7 +4,7 @@ description: The inputs, outputs and options of the tabalyst generate command.
 ---
 
 `tabalyst generate` validates a YAML definition and writes synthetic CSV data.
-It is available in Tabalyst 0.6.2 and later. See
+It is available in Tabalyst 0.6.2. See
 [Tabalyst Generate](../../generate/index.md) for a walkthrough.
 
 ```text
@@ -12,7 +12,7 @@ tabalyst generate DEFINITION.yaml (-o FILE.csv | -d DIR) [options]
 tabalyst generate --example crm (-o FILE.csv | -d DIR) [options]
 ```
 
-Provide exactly one definition source: a YAML file or `--example crm` or
+Provide exactly one definition source: a YAML file, `--example crm`, or
 `--example insurance`. Exactly one destination is required.
 
 | Option | Meaning |

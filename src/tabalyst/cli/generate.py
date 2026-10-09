@@ -17,7 +17,7 @@ from tabalyst.generate_service import build_generate_plan, generate_datasets
 def generate_command(
     definition: Annotated[
         Path | None,
-        typer.Argument(help="YAML Generate definition."),
+        typer.Argument(help="Generate definition or package directory."),
     ] = None,
     example: Annotated[
         str | None,
@@ -47,18 +47,47 @@ def generate_command(
         str | None,
         typer.Option("--anomaly-profile", help="Selected anomaly profile."),
     ] = None,
+    request: Annotated[
+        Path | None,
+        typer.Option("--request", help="JSON generation request."),
+    ] = None,
+    generation_profile: Annotated[
+        str | None,
+        typer.Option("--generation-profile", help="Catalog selection profile."),
+    ] = None,
+    output_profile: Annotated[
+        str | None,
+        typer.Option("--output-profile", help="Output column profile."),
+    ] = None,
+    market: Annotated[
+        str | None,
+        typer.Option("--market", help="Offer market: ca or us."),
+    ] = None,
+    locales: Annotated[
+        str | None,
+        typer.Option("--locales", help="Computer locales: en,fr."),
+    ] = None,
+    validate_only: Annotated[
+        bool,
+        typer.Option("--validate-only", help="Validate a package without writing."),
+    ] = False,
     force: Annotated[
         bool,
         typer.Option("--force", "-f", help="Replace existing artifacts."),
     ] = False,
 ) -> None:
-    """Validate and generate datasets from a YAML definition."""
+    """Validate and generate datasets from a definition or package."""
     try:
         plan = build_generate_plan(
             definition, example=example, output=output, output_dir=output_dir,
             rows=rows, seed=seed, as_of_date=as_of_date,
-            anomaly_profile=anomaly_profile, force=force,
+            anomaly_profile=anomaly_profile, force=force, request=request,
+            generation_profile=generation_profile, output_profile=output_profile,
+            market=market, locales=locales, validate_only=validate_only,
         )
+        if validate_only:
+            typer.echo("Valid Generate package.", err=True)
+            return
         result = generate_datasets(plan)
     except TabalystError as exc:
         typer.echo(f"Error: {exc}", err=True)

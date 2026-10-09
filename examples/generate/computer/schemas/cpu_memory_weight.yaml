@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  cpu_id: {type: string, required: true, references: cpu.id}
+  memory_id: {type: string, required: true, references: memory.id}
+  weight: {type: number, required: true}
