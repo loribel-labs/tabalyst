@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-09T18:52:52.165578Z",
-    "duration_seconds": 0.00719,
+    "started_at": "2026-10-09T19:34:19.897792Z",
+    "duration_seconds": 0.004222,
     "timings": {
-      "reading": 0.000426,
-      "analysis": 0.000142,
-      "finalize": 0.003216,
-      "derived": 0.000707,
-      "other": 0.002699
+      "reading": 0.000441,
+      "analysis": 0.000146,
+      "finalize": 0.002603,
+      "derived": 0.000677,
+      "other": 0.000355
     },
     "workers": 1,
-    "peak_memory_bytes": 56074240
+    "peak_memory_bytes": 57667584
   },
   "source": {
     "format": "csv",
@@ -6179,15 +6179,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-09T18:52:52.192507Z",
-        "duration_seconds": 0.002198,
+        "started_at": "2026-10-09T19:34:19.914187Z",
+        "duration_seconds": 0.002244,
         "timings": {
-          "reading": 0.000389,
-          "analysis": 6.2e-05,
-          "other": 0.001747
+          "reading": 0.000511,
+          "analysis": 6e-05,
+          "other": 0.001673
         },
         "workers": 1,
-        "peak_memory_bytes": 58626048,
+        "peak_memory_bytes": 60116992,
         "source_read": true,
         "source_verified": true,
         "records_read": 5,
@@ -6396,12 +6396,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-09T18:52:52.199000Z",
+    "generated_at": "2026-10-09T19:34:19.914187Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.0357,
+    "processing_seconds": 0.0371,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

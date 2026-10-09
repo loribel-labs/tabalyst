@@ -264,10 +264,72 @@ class DeepSection(DeepSettings):
         return DeepSettings.model_validate(self.model_dump(exclude={"mode"}))
 
 
+class SmartBaseWeights(BaseModel):
+    """The base weight of each kind of target (design 20.15). A weight grows
+    with its base and with the rarity of what the target stands for, up to
+    ``SmartWeights.cap``."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    confirmed_issue: float = Field(default=10.0, ge=0)
+    candidate_anomaly: float = Field(default=6.0, ge=0)
+    value: float = Field(default=5.0, ge=0)
+    relation_exception: float = Field(default=5.0, ge=0)
+    pattern: float = Field(default=4.0, ge=0)
+    extreme: float = Field(default=4.0, ge=0)
+    signal: float = Field(default=3.0, ge=0)
+    bin: float = Field(default=2.0, ge=0)
+
+
+class SmartWeights(BaseModel):
+    """The weight of a target: ``min(cap, base * (1 + gain * rarity))``, where
+    ``rarity`` goes from 0 (the target covers every row) to 1 (it covers a share
+    of ``floor`` rows or less) and is ``unknown_rarity`` when the frequency of
+    the target is not known. Monotone in the share and in the base."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    base: SmartBaseWeights = Field(default_factory=SmartBaseWeights)
+    gain: float = Field(default=1.0, ge=0)
+    floor: float = Field(default=1e-6, gt=0, lt=1)
+    cap: float = Field(default=20.0, gt=0)
+    unknown_rarity: float = Field(default=0.5, ge=0, le=1)
+
+
+class SmartSettings(BaseModel):
+    """How the plan of a smart sample defines its targets (design 20.15).
+
+    A column of at most ``max_enum_values`` distinct values gets one target per
+    value; a numeric column is cut into ``numeric_bins`` bins of equal width
+    between its minimum and maximum. The plan keeps ``candidates_per_target`` rows
+    per target in memory at most, in ``max_candidate_bytes`` bytes, and
+    ``reserve_share`` of the rows asked for are a reserve of ordinary rows. At
+    most ``max_targets`` targets are kept, the heaviest first.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_enum_values: int = Field(default=100, ge=1, le=10_000)
+    numeric_bins: int = Field(default=10, ge=2, le=100)
+    candidates_per_target: int = Field(default=2, ge=1, le=3)
+    reserve_share: float = Field(default=0.2, ge=0, le=0.9)
+    max_targets: int = Field(default=10_000, ge=1, le=1_000_000)
+    max_candidate_bytes: int = Field(default=64 * 1024 * 1024, ge=1)
+    weights: SmartWeights = Field(default_factory=SmartWeights)
+
+    def sha256(self) -> str:
+        """Digest of the settings, for the plan that used them."""
+        canonical = json.dumps(
+            self.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+        )
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 class SettingsFile(BaseModel):
     """Settings of a configuration file besides its ``scan`` object: ``csv``
     for ``tabalyst sample``, the ``report`` presentation settings, the
-    ``output`` settings and the ``deep`` settings of the second pass."""
+    ``output`` settings, the ``deep`` settings of the second pass and the
+    ``smart`` settings of the plan of a smart sample."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -275,6 +337,7 @@ class SettingsFile(BaseModel):
     report: PresentationSettings = Field(default_factory=PresentationSettings)
     output: OutputSettings = Field(default_factory=OutputSettings)
     deep: DeepSection = Field(default_factory=DeepSection)
+    smart: SmartSettings = Field(default_factory=SmartSettings)
 
 
 # Settings that moved, with their new location. The analysis settings moved to
@@ -420,6 +483,12 @@ def deep_settings(paths: Iterable[Path]) -> DeepSettings:
     """The ``deep`` settings of the configuration files (second pass)."""
     top_level, _ = load_config_layers(paths)
     return settings_from_layer(top_level).deep.settings()
+
+
+def smart_settings(paths: Iterable[Path]) -> SmartSettings:
+    """The ``smart`` settings of the configuration files (plan of a smart sample)."""
+    top_level, _ = load_config_layers(paths)
+    return settings_from_layer(top_level).smart
 
 
 def deep_mode(paths: Iterable[Path]) -> DeepMode:

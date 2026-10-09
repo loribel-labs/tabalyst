@@ -70,6 +70,7 @@ lot, with the reason recorded in section 17.
 | O31 | Second pass | `tabalyst scan --deep` forces a second pass written to a separate `<stem>.deep.json`; `tabalyst report` lets the planner decide under deterministic budgets; `tabalyst scan` never starts it. | Proposed 2026-10-06 | 20 |
 | O32 | Original value domain | Bottom-k, patterns and smart sampling rest on original values; detectors and listings keep the analytical value, with the domain named in each block. | Proposed 2026-10-06 | 21 |
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
+| O43 | Targets and the plan of a smart sample | The plan of a smart sample is a document of its own, `SamplingPlan` (`scanner/smart/`), not a member of `AnalysisPlan`: it reads a Scan and, when it is current, the second-pass document, and has its own `plan_id`. It lists the targets of one dataset by family (low cardinality, structured strings, numeric, dates, quality, relations), each with a predicate named by reference into the Scan (never a value of the data), a frequency with its accuracy, a weight and an obligation. The weight is `min(cap, base * (1 + gain * rarity))`, monotone in the share and in the base, capped, configurable (`smart.weights`) and versioned; mandatory targets are the values of an exhaustive enumeration and the confirmed issues. A reserve of ordinary rows (20 % by default) gives way to mandatory targets. The plan announces the readings of the source (scan, second pass, selection) and never merges them; it never runs a second pass by itself. The `smart` settings are a top-level object of the configuration file. | Accepted 2026-10-09 (maintainer, lot 10a) | 15 of the specification, 20.15 |
 | O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
 | O41 | Tables of a category against a feature | A table is a candidate of `category_crosstab`: the category is its `field`, the column of the feature its `partner`, the feature (`pattern`, `length`, `prefix`) a parameter, and the order matters (`>` in the id). The classes come from the Scan alone, at the plan and at the run, and end with the explicit class `other`, so nothing creates an axis while the source streams (REL-12). Rows left out are counted by cause and `rows = counted + excluded` is checked. The planner ranks by the bias-corrected Cramér's V on the row sample, picks by itself the best feature of two columns (`redundant_feature` for the others) and at most eight tables; the result gives the counts with their margins, the coverage and the purity of each category in both directions, the exceptions with exact counts and their first rows, Cramér's V (never 0 for lack of data, `stable` or not) and candidate rules. A `PairAnalyzer` replaces the special case of the correlation in the planner. The report prints one block per pair of columns in a Relationships section. | Accepted 2026-10-09 (maintainer, lot 8b) | 18.14, 20.2, 20.5, 20.12, 20.13 |
 | O40 | Pairs of numeric columns | A pair is a candidate with a `partner` and an `exploration`, the score the row sample gives it. The planner scores all the pairs of the eligible columns on the sample when it makes the plan (no change to the Scan, no cost to the first pass), bounded by columns and by pairs times rows compared (COST-05), lists the best (`max_candidates`) and describes what it did in `relations`. `pearson_correlation` counts the common rows of a pair over the whole source with stable co-moments merged by batch, `pairwise_complete`, and gives an undefined result with its reason, never 0, when the rows or the variance are not enough (REL-07 to REL-09). A complete sample of a CSV file answers without reading. Pairs are ranked by the lower end of a 95% interval and the planner picks eight at most by itself. | Accepted 2026-10-09 (maintainer, lot 8a) | 20.2, 20.4, 20.5, 20.12 |
@@ -1743,6 +1744,7 @@ Decided with the maintainer in lot 5d, for the sections deferred by lot 5b:
 | 2026-10-09 | SJ-8a | New decision O40, new section 20.12, notes in 20.2 and 20.5: the pair analyses (`planner/relations.py`: exploration of the row sample, column and work budgets, `relations` in the plan, candidates with `partner` and `exploration`; `scanner/pearson.py`: stable co-moments, Chan merge, Fisher interval; `secondpass/pearson.py`: `ColumnFeed`, `PairAccumulator`, the result `pearson`; `Router` hands aligned rows to the pairs), `deep.pearson` settings (`PearsonSettings`), `Budgets.automatic_pairs`, `AnalysisRequest.partner`, `NS_PER_CELL["pearson"]`, `cost_model_version` 5. | Lot 8a of the Scan and JSON work: D13, D14, REL-04 to REL-10, COST-05, E01, E02. Maintainer decision of 2026-10-09 (followed the assistant's recommendations: exploration at plan time, complete sample without reading, float64, defaults of `deep.pearson`, automatic pairs limited to eight). |
 | 2026-10-09 | SJ-8b | New decision O41, new section 20.13, notes in 18.12, 18.14, 20.2 and 20.5: the tables of a category against a feature (`scanner/features.py`: the classes of a category and of the features `pattern`, `length` and `prefix`, `PatternClassifier` shared with the validation; `scanner/crosstab.py`: margins, purity in both directions, Cramér's V and its bias-corrected form; `planner/crosstabs.py`: exploration of the row sample, `planner/samplerows.py` and `planner/identifiers.py` split out of the exploration of the pairs; `planner/analyzers/crosstab.py`; `secondpass/crosstab.py`: `CodeFeed`, `CrosstabAccumulator`; the result `crosstab`), `PairAnalyzer` and `PairProposal` in the planner, several feeds on a column in the router, `Relations.tables`, `Budgets.automatic_tables`, `AnalysisRequest.feature`, `deep.crosstab` settings (`CrosstabSettings`), the domain `mixed`, the Relationships section of the report (`report_relations.py`, sections renumbered), `NS_PER_CELL` of the three features, `cost_model_version` 6. | Lot 8b of the Scan and JSON work: D14, REL-01 to REL-03, REL-11 to REL-16, E03 to E05, HTML-06. Maintainer decision of 2026-10-09 (approved the plan and its defaults: nulls outside the table, one automatic feature per pair of columns, prefix of two characters from the Scan, 0.45 and 0.9 thresholds, three examples per cell, no separate estimate over the row sample). |
 | 2026-10-09 | SJ-9 | New decision O42, new section 20.14, notes in 20.5: the help with stratification (`scanner/stratify.py`: `allocate_strata` moved from `sampling.py`, `saturating_product`, `size_for_every_stratum`; `planner/stratification.py` and `planner/stratmodels.py`: `Stratify`, `advise_stratification`, `with_stratification`, `AnalysisPlan.stratification`; `reasons.STRATIFICATION`), several fields and `max_strata` in `sample`, the balance of strata in `SampleResult`, `scan --plan --stratify`, `--stratify-by` and `--sample-size`. | Lot 9 of the Scan and JSON work: D16, D17, STRAT-01 to STRAT-08, E06 to E08. Maintainer decision of 2026-10-09 ("ok" to the plan and its defaults: CLI options on `scan --plan`, no HTML in this lot, thresholds 50, 1,000, 10,000 and 100,000, a missing value as a stratum of its own). |
+| 2026-10-09 | SJ-10a | New decision O43, new section 20.15, notes in 20.5 and 20.14: the targets and the plan of a smart sample (`scanner/smart/`: `SamplingPlan`, the six families of targets, `weights.py`, `plan_sampling`, `Smart`, `sampling_plan_text`), the `smart` settings (`SmartSettings`, `SmartWeights`, `smart_settings`), `PlanSuccess.sampling`, `generate_plans(smart=)`, `scan --plan --smart`. | Lot 10a of the Scan and JSON work: D15, SMART-01 to SMART-04, 15 of the specification, E09, E12, E14. Maintainer decision of 2026-10-09 ("ok avec tout": an autonomous plan document, a top-level `smart` object, the relations family in this lot, D23 left to lot 10b). |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3200,7 +3202,9 @@ every `PairAnalyzer` for its pairs; `relations` has a member for each (`datasets
 
 **Stratification (lot 9).** The plan can carry advice on stratified sampling, `stratification` (20.14). It is not an analyzer: it has no executor and takes no part in the selection.
 
-**Not yet.** Sampling targets (10a and 10b).
+**Smart sampling (lot 10a).** The targets and the plan of a smart sample are `SamplingPlan` (20.15). They are not analyzers and take no part in the selection of the analyses.
+
+**Not yet.** The selection of the rows of a smart sample (10b).
 
 ### 20.6 The source before and after a second reading (lot 6b, PASS2-01, PASS2-06, O36)
 
@@ -3827,7 +3831,99 @@ data. It is a recommendation with its basis and uncertainty (specification 11.1)
 repeated field or a sample size below 1 raises `ConfigurationError`.
 
 **Not yet.** The Report prints nothing of the advice (lot 11); `sample` does not read a stored Scan to refuse an
-excessive risk by itself (lot 10a, D23); `balanced` and `coverage` strategies stay extensions (specification 14).
+excessive risk by itself (lot 10b, D23); `balanced` and `coverage` strategies stay extensions (specification 14).
+
+### 20.15 Targets and the plan of a smart sample (lot 10a, D15, SMART-01 to SMART-04, 15 of the specification, E09, E12, E14, O43)
+
+A smart sample is a sample of diversity and diagnosis (SMART-01): its proportions do not estimate the population. Lot 10a
+defines what it would aim for and what it would cost; the selection of the rows is lot 10b. The plan is
+`SamplingPlan` (`scanner/smart/models.py`), built by `plan_sampling(scan, deep=, dataset=, size=, seed=, settings=,
+enrichment=, scan_stored=)` from a finished Scan and, when it is current, its second-pass document. It reads no source and
+writes nothing, holds no date, no measured time and no value of the data, and the same Scan, second-pass document, request
+and settings give the same plan (and `plan_id`, the SHA-256 of the rest) on any machine. A Report is refused as an input
+(`plan_sampling_document`, 19.4). It is not a member of `AnalysisPlan`: it reads a document the planner does not, and a
+plan of analyses must keep its identity.
+
+```text
+scanner/smart/
+|-- models.py    SamplingPlan, Target, Predicate, Frequency, Weight, Catalog, Sizes, Reserve, Passes
+|-- targets.py   the builders of the six families
+|-- weights.py   rarity() and weight_of(): monotone, capped, versioned
+|-- plan.py      plan_sampling(), Smart (the request), the budget of targets, sizes, passes
+|-- reasons.py   the codes the plan writes and their sentences
+`-- render.py    sampling_plan_text()
+```
+
+**Target (SRS 15.3).** `id` (`family:dataset:fields:kind:discriminator`), `family`, `dataset`, `fields` and `displays`,
+`predicate`, `frequency`, `weight`, `obligation` (`mandatory` or `optional`), `minimum` (one row), `feasibility` (`ready`
+or `not_evaluable`, with a `reason`), `evidence` (`exact`: established on every value; `sample`: discovered on a sample;
+`second_pass`: counted by the second pass), `origin` (the observation or the analysis it comes from) and `needs` (`scan`,
+and `second_pass` when it stands on that document). A predicate has a `kind` and a `version` (`PREDICATE_VERSION`, which
+the sample of lot 10b reads), a `source` and a `ref` into the Scan (or the second-pass document), and `params` that fix it
+(a sampled entry, a pattern, a bin: an index or an identifier, never a value). A `frequency` has an `accuracy`: `exact`,
+`lower_bound`, `indicator` (a share of distinct values or of another population, which tells how rare the target is
+without being its frequency) or `unknown`.
+
+| Family | Targets | Comes from | Mandatory |
+| --- | --- | --- | --- |
+| `low_cardinality` | one `value_equals` per distinct original value, `value_missing` | `values.samples` of a column of at most `smart.max_enum_values` (100) values | when the table lists every value (`samples.selection == all`, exact cardinality) |
+| `structured_string` | `pattern_matches` per inferred candidate, `pattern_other`, `length_min`, `length_max` | `derived.patterns`; the exact length histogram; the counts of `pattern_validation` when the second pass has them | never |
+| `numeric` | `numeric_min`, `numeric_max`, `numeric_zero`, `numeric_sign` (when both signs occur), `numeric_bin` | the numeric measure; `smart.numeric_bins` (10) bins of equal width between the exact minimum and maximum, never fewer than three | never |
+| `date` | `date_min`, `date_max` per kind, `date_kind` when several formats occur, `date_year` (at most 30 years) | the temporal measure | never |
+| `quality` | `observation`, one per candidate anomaly or confirmed issue that a row can show | `observations` | the confirmed issues the sample can recognize |
+| `relations` | `relation_exception`, one per listed exception cell of a table | `category_crosstab` results of the second-pass document | never |
+
+A column whose every value has a target (`catalog_complete`) gets no pattern, length, numeric or date target: they would
+only repeat it. A column masked or hidden by exposure gets no target (`exposure`). The observations a row cannot show
+(excluded records, ambiguous header, presence and normalization remarks) are not targets; those a row could show but the
+sample cannot recognize yet (`duplicate_rows`, `variant_groups`) are targets with `feasibility: not_evaluable` and a reason
+(SMART-11). The ordinary population is not a target but a reserve (below).
+
+**Catalogs (E09, E12, SMART-13).** `catalogs` has one entry per column and family: `complete`, `guarantee`
+(`catalog_complete`: every value the column can take has a target, so a large enough sample covers them all;
+`known_values_only`: only the values the Scan saw, no value outside them is promised; `none`) and the `reasons` in
+`reasons.CATALOG`. A column whose table of values overflowed but whose KMV estimate stays within `max_enum_values` gets
+targets for the values the Scan sampled, all optional, with `domain_not_exhaustive`. A column whose count is not tracked and
+not estimated gets none (`domain_unknown`). The plan covers the catalog of targets, not every phenomenon of the data.
+
+**Weight (SMART-02, SRS 15.3).** `weight = min(cap, base * (1 + gain * rarity))`, with `rarity` from 0 (a share of 1) to 1 (a
+share of `floor` or less) on a logarithmic scale, and `unknown_rarity` (0.5) when the frequency is unknown. It never falls
+when the share of the target falls or when its base rises, and never passes `cap`. The bases are by kind: confirmed issue
+10, candidate anomaly 6, value 5, relation exception 5, pattern 4, extreme 4, sign and zero 3, bin 2; `gain` 1, `floor`
+1e-6, `cap` 20. Everything is in `smart.weights`, written in the plan (`settings`, `settings_sha256`) with the version of the
+formula (`weights_version`, 1). The values are initial and to be validated on the demos. Rarity is not an error: a rare
+target weighs more but is not called an anomaly.
+
+**Plan.** `settings`; `size` (`requested`; `mandatory_bound`: the mandatory targets, a row each, an upper bound that rows
+covering several targets beat; `useful_maximum`: the size beyond which only the reserve grows; `records`); `reserve`
+(`share` 0.2 by default, `rows_requested`, `rows_granted`, `reduced_by_mandatory`); `conflict` (`mandatory_first`: the reserve
+never prevents an achievable mandatory coverage, SMART-10); `candidates` (`per_target` 2, the rows held in memory,
+`row_bytes` as the mean size of a source row, `bytes_expected` as source text and not as process memory, `budget_bytes`,
+`fits` and `per_target_effective` when it does not); `method` (`weighted_cover`, version, seed: that of the Scan unless
+asked); `summary` (counts by family, `dropped`); `catalogs`; `targets` sorted by obligation, then decreasing weight, then
+id. At most `smart.max_targets` (10,000) targets are kept: the lightest are left out and counted, and a catalog that lost
+targets says `target_budget`. No time estimate and no confirmation threshold yet: they need the executor of lot 10b.
+
+**Readings of the source (SMART-04, 15.6, E14).** `passes.steps` lists `scan` (needed only when no current Scan is stored,
+`scan_stored`), `second_pass` and `selection` (always), each with a reason, and `passes.total` counts those needed. The
+targets are built before the sample reads the source again. A second-pass document that is current for the Scan (same
+`PlanBase`) feeds the targets and adds no reading; a stale one is ignored and reported (`enrichment.deep: stale`). A second
+pass asked for before the sample (`enrichment=` the plan of analyses, `--smart --deep` on the command line) and not yet
+stored is announced as a reading of its own, with what it would bring in `enrichment.awaiting` (numeric bins sharpened,
+patterns counted, relations); the targets it would bring are not listed until it has run. Merging the second pass and the
+selection in one reading is not offered: a row rejected before a statistic was known cannot be selected afterwards.
+Smart never runs a second pass by itself (R1).
+
+**Entry points.** `tabalyst scan --plan --smart` and `--sample-size N` (the text, `sampling_plan_text`, after the plan of
+analyses; `--deep` counts the second pass among the readings); `tabalyst.plan_sampling`, `tabalyst.SamplingPlan`,
+`tabalyst.Smart` (the request: dataset, size, seed), `generate_plans(smart=)` whose `PlanSuccess.sampling` carries the plan.
+`ConfigurationError` for an unknown or ambiguous dataset or a size below 1. The `smart` object of the configuration file is
+`SmartSettings` (`max_enum_values`, `numeric_bins`, `candidates_per_target`, `reserve_share`, `max_targets`,
+`max_candidate_bytes`, `weights`); it is not part of `deep` and does not enter the key of a second-pass result. The plan is
+not written on disk in this lot, so it has no JSON Schema yet: the report of lot 10b (SMART-12) will carry it.
+
+**Not yet.** The selection of the rows, the report of what was covered, the time estimate and the HTML (lot 10b); a sample
+that reads a stored Scan to refuse an excessive stratification risk (lot 10b, D23); `sample --sample-method smart`.
 
 ## 21. Original value domain (O32)
 

@@ -71,6 +71,10 @@ support is not yet required. Record format changes in the relevant changelogs.
   exploration and the second pass (20.13).
 - `src/tabalyst/scanner/stratify.py`: the arithmetic of stratification shared by `sampling.py` and the
   advice (classic allocation, saturating product of cardinalities; 20.14).
+- `src/tabalyst/scanner/smart/`: the targets and the plan of a smart sample (`SamplingPlan`: targets by
+  family, monotone capped weights, sizes, reserve, candidate budget, readings of the source; 20.15). It
+  reads a Scan and a current second-pass document, never the source; the selection of the rows is the
+  next lot.
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of
   a source (plan against Scan, readable source, digest at the end; 20.6).
 - `src/tabalyst/scanner/secondpass/`: executor of the second pass (one reading,

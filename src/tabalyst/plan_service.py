@@ -14,7 +14,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from tabalyst.config import deep_settings
+from tabalyst.config import deep_settings, smart_settings
 from tabalyst.errors import TabalystError
 from tabalyst.progress import ProgressCallback
 from tabalyst.scan_document import load_document
@@ -32,6 +32,8 @@ from tabalyst.scanner.planner import (
     plan_second_pass,
     with_stratification,
 )
+from tabalyst.scanner.secondpass import deep_path_for, load_deep
+from tabalyst.scanner.smart import SamplingPlan, Smart, plan_sampling
 from tabalyst.service import ConfigPath, _config_paths
 
 
@@ -44,6 +46,8 @@ class PlanSuccess:
     estimate: TimeEstimate | None
     confirmation: Confirmation
     warnings: tuple[str, ...] = ()
+    # The plan of a smart sample, when it was asked for (design 20.15).
+    sampling: SamplingPlan | None = None
 
     @property
     def requires_confirmation(self) -> bool:
@@ -98,6 +102,7 @@ def generate_plans(
     workers: int | None = None,
     forced: bool = False,
     stratify: Stratify | None = None,
+    smart: Smart | None = None,
 ) -> BatchPlanResult:
     """Plan the analyses of one or more sources.
 
@@ -106,10 +111,14 @@ def generate_plans(
     ``tabalyst scan`` does. The second pass never runs and nothing is asked: the
     result says whether running the plans, together, requires a confirmation
     (``forced`` plans a second pass asked for as a whole). ``stratify`` adds the
-    advice on stratified sampling to each plan (design 20.14). A failed source
-    does not stop the others.
+    advice on stratified sampling to each plan (design 20.14), and ``smart`` the
+    plan of a smart sample (design 20.15), which announces the readings of the
+    source it would take: with ``forced``, the second pass is counted among
+    them unless its document is current. A failed source does not stop the
+    others.
     """
     deep = deep_settings(_config_paths(config_path))
+    smart_config = None if smart is None else smart_settings(_config_paths(config_path))
     batch = generate_scans(
         input_specs,
         config_path=config_path,
@@ -131,6 +140,22 @@ def generate_plans(
                     second,
                     plan=with_stratification(second.plan, success.result, stratify),
                 )
+            sampling = None
+            if smart is not None:
+                stored = (
+                    None
+                    if success.job.output is None
+                    else load_deep(deep_path_for(success.job.output))
+                )
+                sampling = plan_sampling(
+                    success.result,
+                    deep=stored,
+                    dataset=smart.dataset,
+                    size=smart.size,
+                    seed=smart.seed,
+                    settings=smart_config,
+                    enrichment=second.plan if forced else None,
+                )
         except TabalystError as exc:
             failures.append(ScanFailure(job=success.job, error=exc))
         else:
@@ -142,6 +167,7 @@ def generate_plans(
                     second.estimate,
                     second.confirmation,
                     success.warnings,
+                    sampling,
                 )
             )
     return BatchPlanResult(

@@ -35,6 +35,7 @@ from tabalyst.plan_service import BatchPlanResult, generate_plans
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
 from tabalyst.scanner.planner import Stratify, plan_text
 from tabalyst.scanner.planner.render import confirmation_lines, estimate_text
+from tabalyst.scanner.smart import Smart, sampling_plan_text
 
 
 def _counts(success: ScanSuccess) -> tuple[str, str, str]:
@@ -133,6 +134,9 @@ def _print_plans(batch: BatchPlanResult, *, quiet: bool) -> None:
         typer.echo(
             plan_text(success.plan, success.job.source.name, success.confirmation)
         )
+        if success.sampling is not None:
+            typer.echo("")
+            typer.echo(sampling_plan_text(success.sampling, success.job.source.name))
     if len(batch.successes) > 1 and batch.confirmation is not None:
         typer.echo("")
         typer.echo("All together:")
@@ -402,14 +406,26 @@ def scan_command(
             ),
         ),
     ] = None,
+    smart: Annotated[
+        bool,
+        typer.Option(
+            "--smart",
+            help=(
+                "With --plan, add the plan of a smart sample: the targets it "
+                "would aim to cover, their weights and the readings of the "
+                "source it would take. With --deep, the second pass counts "
+                "among them."
+            ),
+        ),
+    ] = False,
     sample_size: Annotated[
         int | None,
         typer.Option(
             "--sample-size",
             min=1,
             help=(
-                "With --stratify, the number of rows the sample would hold, to "
-                "count the strata it would leave without a row."
+                "With --stratify, --stratify-by or --smart, the number of rows "
+                "the sample would hold."
             ),
         ),
     ] = None,
@@ -444,13 +460,15 @@ def scan_command(
             "--yes only goes with --deep, to start the second pass without asking."
         )
     advise = stratify or bool(stratify_by)
-    if (advise or sample_size is not None) and not plan:
+    if (advise or smart or sample_size is not None) and not plan:
         raise typer.BadParameter(
-            "--stratify, --stratify-by and --sample-size go with --plan: "
+            "--stratify, --smart and --sample-size go with --plan: "
             "the advice is part of the plan."
         )
-    if sample_size is not None and not advise:
-        raise typer.BadParameter("--sample-size goes with --stratify or --stratify-by.")
+    if sample_size is not None and not (advise or smart):
+        raise typer.BadParameter(
+            "--sample-size goes with --stratify, --stratify-by or --smart."
+        )
     if plan:
         for name, given in (
             ("--output", output is not None),
@@ -504,6 +522,7 @@ def scan_command(
                     if advise
                     else None
                 ),
+                smart=Smart(size=sample_size) if smart else None,
             )
         except TabalystError as exc:
             typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)
