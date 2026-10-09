@@ -35,12 +35,18 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.exactset import ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
+
+# The columns of the pairs and tables, converted once whatever the number of
+# analyses that read them, and the analyses that read two of them.
+Feed = ColumnFeed | CodeFeed
+PairLike = PairAccumulator | CrosstabAccumulator
 
 
 def field_path(segments: Iterable[PathSegment]) -> FieldPath:
@@ -209,26 +215,31 @@ class Router:
     def __init__(
         self,
         routes: dict[tuple[str, FieldPath], FieldRoute],
-        feeds: dict[tuple[str, FieldPath], ColumnFeed] | None = None,
-        pairs: Sequence[tuple[str, PairAccumulator]] = (),
+        feeds: dict[tuple[str, FieldPath, str], Feed] | None = None,
+        pairs: Sequence[tuple[str, PairLike]] = (),
     ) -> None:
         self.routes: dict[str, dict[FieldPath, FieldRoute]] = {}
         for (dataset, path), route in routes.items():
             self.routes.setdefault(dataset, {})[path] = route
-        self.feeds: dict[str, dict[FieldPath, ColumnFeed]] = {}
-        for (dataset, path), feed in (feeds or {}).items():
-            self.feeds.setdefault(dataset, {})[path] = feed
-        self.pairs: dict[str, list[PairAccumulator]] = {}
+        self.feeds: dict[str, dict[FieldPath, list[Feed]]] = {}
+        for (dataset, path, _), feed in (feeds or {}).items():
+            self.feeds.setdefault(dataset, {}).setdefault(path, []).append(feed)
+        self.pairs: dict[str, list[PairLike]] = {}
         for dataset, pair in pairs:
             self.pairs.setdefault(dataset, []).append(pair)
         self.records_read = 0
         self._columns: dict[str, list[tuple[int, FieldRoute]]] = {}
-        self._feed_columns: dict[str, list[tuple[int, ColumnFeed]]] = {}
+        self._feed_columns: dict[str, list[tuple[int, Feed]]] = {}
         self._buffered: dict[str, int] = {}
 
     @property
     def cells_read(self) -> int:
-        fed = sum(feed.values for feeds in self.feeds.values() for feed in feeds.values())
+        fed = sum(
+            feed.values
+            for paths in self.feeds.values()
+            for feeds in paths.values()
+            for feed in feeds
+        )
         return fed + sum(
             route.values for fields in self.routes.values() for route in fields.values()
         )
@@ -254,9 +265,9 @@ class Router:
         ]
         feeds = self.feeds.get(item.dataset, {})
         self._feed_columns[item.dataset] = [
-            (index, feeds[declared.path])
+            (index, feed)
             for index, declared in enumerate(item.fields)
-            if declared.path in feeds
+            for feed in feeds.get(declared.path, ())
         ]
 
     def _batch(self, batch: RecordBatch) -> None:
@@ -270,18 +281,22 @@ class Router:
                 route.failure = type(exc).__name__
         columns = self._feed_columns.get(batch.dataset)
         if columns:
-            converted: dict[int, list[float | None]] = {}
+            converted: dict[int, Sequence[float | None] | Sequence[int]] = {}
             for index, feed in columns:
                 if feed.failure is not None:
                     continue
                 try:
-                    converted[id(feed)] = feed.convert([row[index] for row in batch.rows])
+                    converted[id(feed)] = feed.convert(
+                        [row[index] for row in batch.rows], batch.start
+                    )
                 except Exception as exc:  # noqa: BLE001 - one column fails with its pairs
                     feed.failure = type(exc).__name__
             self._hand(batch.dataset, lambda feed: converted.get(id(feed)))
 
     def _hand(
-        self, dataset: str, rows_of: Callable[[ColumnFeed], Sequence[float | None] | None]
+        self,
+        dataset: str,
+        rows_of: Callable[[Feed], Sequence[float | None] | Sequence[int] | None],
     ) -> None:
         """Give each pair the aligned rows of its two columns. A pair whose
         column failed is left as it was: its job fails when it is concluded."""
@@ -292,7 +307,7 @@ class Router:
             if first is None or second is None:
                 continue
             try:
-                pair.add(first, second)
+                pair.add(first, second)  # type: ignore[arg-type]
             except Exception as exc:  # noqa: BLE001 - one pair fails alone
                 pair.failure = type(exc).__name__
 
@@ -313,8 +328,9 @@ class Router:
                         route.native(native_type, observation.value)
                 except Exception as exc:  # noqa: BLE001 - one field fails alone
                     route.failure = type(exc).__name__
-            feed = feeds.get(observation.path) if feeds else None
-            if feed is not None and feed.failure is None and not feed.seen:
+            for feed in feeds.get(observation.path, ()) if feeds else ():
+                if feed.failure is not None or feed.seen:
+                    continue
                 try:
                     if native_type == "string":
                         feed.push_string(observation.value)  # type: ignore[arg-type]
@@ -323,8 +339,9 @@ class Router:
                 except Exception as exc:  # noqa: BLE001 - one column fails with its pairs
                     feed.failure = type(exc).__name__
         if feeds:
-            for feed in feeds.values():
-                feed.end_record()
+            for column in feeds.values():
+                for feed in column:
+                    feed.end_record(record.index)
             count = self._buffered.get(record.dataset, 0) + 1
             self._buffered[record.dataset] = count
             if count >= PAIR_FEED_ROWS:
@@ -336,6 +353,7 @@ class Router:
         if not feeds or not self._buffered.get(dataset):
             return
         self._hand(dataset, lambda feed: feed.rows if feed.failure is None else None)
-        for feed in feeds.values():
-            feed.rows = []
+        for column in feeds.values():
+            for feed in column:
+                feed.reset()
         self._buffered[dataset] = 0

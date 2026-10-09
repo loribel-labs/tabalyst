@@ -57,7 +57,7 @@ class ColumnFeed:
         self.seen = False
         self.failure: str | None = None
 
-    def convert(self, strings: Sequence[str]) -> list[float | None]:
+    def convert(self, strings: Sequence[str], start: int = 0) -> list[float | None]:
         """The float of each string of consecutive records, ``None`` for a
         string that is not a number."""
         self.values += len(strings)
@@ -109,11 +109,15 @@ class ColumnFeed:
         self.numbers += 1
         self.pending = to_float(native_number(native_type, value))
 
-    def end_record(self) -> None:
+    def end_record(self, index: int = 0) -> None:
         """Close the row of the record: what it held, or nothing."""
         self.rows.append(self.pending)
         self.pending = None
         self.seen = False
+
+    def reset(self) -> None:
+        """Forget the rows handed to the pairs."""
+        self.rows = []
 
 
 class PairAccumulator:

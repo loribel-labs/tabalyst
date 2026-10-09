@@ -16,6 +16,7 @@ from typing import Any, Literal
 from pydantic import Field, model_serializer
 
 from tabalyst.scanner.models import ScanModel, _omit_none
+from tabalyst.scanner.planner.stratmodels import Stratification
 
 PLANNER_NAME = "tabalyst.planner"
 PLANNER_VERSION = 1
@@ -120,6 +121,32 @@ class Exploration(ScanModel):
         return _omit_none(handler(self), ("coefficient", "lower", "upper", "score", "reason"))
 
 
+class TableExploration(ScanModel):
+    """What the row sample says of a table of a category against a feature of
+    another column (design 20.13, REL-05): the ``rows`` classified in both
+    axes, the effective ``categories`` and ``classes`` (axes with a count), and
+    the association, or the ``reason`` it is not defined. It says nothing of
+    the population beyond the ``scope`` rows: a relation not detected here may
+    still hold elsewhere. ``score`` is the bias-corrected Cramér's V the planner
+    ranks by, and ``stable`` says whether the sample has the counts to trust it (a
+    table that is not is still listed: the whole file may have them). Figures are
+    rounded to six decimals."""
+
+    scope: Literal["interior_rows", "all_rows"]
+    rows: int
+    categories: int = 0
+    classes: int = 0
+    purity: float | None = None
+    cramers_v: float | None = None
+    score: float | None = None
+    stable: bool | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("purity", "cramers_v", "score", "stable", "reason"))
+
+
 class Candidate(ScanModel):
     """One analysis of one field with its decision. ``method`` and ``parameters``
     are absent for an analysis that does not apply; ``costs`` too. An analysis
@@ -141,7 +168,7 @@ class Candidate(ScanModel):
     selection: Selection
     execution: Execution
     partner: str | None = None
-    exploration: Exploration | None = None
+    exploration: Exploration | TableExploration | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
@@ -167,11 +194,12 @@ class RequestedAnalysis(ScanModel):
     dataset: str | None = None
     field: str | None = None
     partner: str | None = None
+    feature: str | None = None
     candidates: int
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("partner",))
+        return _omit_none(handler(self), ("partner", "feature"))
 
 
 class Objective(ScanModel):
@@ -200,8 +228,10 @@ class Budgets(ScanModel):
     max_cells: int | None
     automatic_max_cpu: CpuClass
     overflow: Literal["reject"] = "reject"
-    # Pairs of columns the planner picks by itself (design 20.12).
+    # Pairs of columns and tables the planner picks by itself (design 20.12,
+    # 20.13).
     automatic_pairs: int = 8
+    automatic_tables: int = 8
 
 
 class CommonCost(ScanModel):
@@ -261,12 +291,55 @@ class ExploredDataset(ScanModel):
         return _omit_none(handler(self), ("scope", "unavailable"))
 
 
-class Relations(ScanModel):
-    """What the planner looked at to propose pairs: one entry per dataset with
-    at least two numeric columns."""
+class ExploredTables(ScanModel):
+    """The exploration of the tables of one dataset (design 20.13, REL-11).
 
-    method: Literal["pearson"] = "pearson"
-    datasets: list[ExploredDataset]
+    ``categories`` columns are eligible categories and ``features`` the tables
+    of a column against a feature that were possible: of the columns looked at,
+    those left out are counted by reason in ``excluded_categories`` and
+    ``excluded_features``. Of the ``possible`` tables, ``evaluated`` were scored
+    on ``rows`` rows of the sample (``scope`` says which), ``undefined`` have no
+    score (reasons in ``undefined_reasons``) and ``listed`` are candidates of
+    the plan. ``work`` is the tables times the rows coded, the post-processing
+    budget (COST-05); ``cells`` the largest table of the plan, rows by classes,
+    counters included. ``unavailable`` says why the dataset was not explored."""
+
+    dataset: str
+    scope: Literal["interior_rows", "all_rows"] | None = None
+    rows: int = 0
+    categories: int = 0
+    columns: int = 0
+    excluded_categories: dict[str, int] = Field(default_factory=dict)
+    excluded_features: dict[str, int] = Field(default_factory=dict)
+    possible: int = 0
+    evaluated: int = 0
+    undefined: int = 0
+    undefined_reasons: dict[str, int] = Field(default_factory=dict)
+    listed: int = 0
+    work: int = 0
+    cells: int = 0
+    unavailable: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("scope", "unavailable"))
+
+
+class Relations(ScanModel):
+    """What the planner looked at to propose pairs of columns (``datasets``: one
+    entry per dataset with at least two numeric columns) and tables of a
+    category against a feature (``tables``: one per dataset with a category)."""
+
+    datasets: list[ExploredDataset] = Field(default_factory=list)
+    tables: list[ExploredTables] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        for name in ("datasets", "tables"):
+            if not data.get(name):
+                data.pop(name, None)
+        return data
 
 
 class AnalysisPlan(ScanModel):
@@ -287,8 +360,10 @@ class AnalysisPlan(ScanModel):
     common: CommonCost
     summary: Summary
     relations: Relations | None = None
+    # Advice on stratified sampling, present when it was asked for (20.14).
+    stratification: Stratification | None = None
     candidates: list[Candidate]
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("relations",))
+        return _omit_none(handler(self), ("relations", "stratification"))

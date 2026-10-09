@@ -12,8 +12,9 @@ anything here; the second pass (lot 7a) gives the available ones an executor.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from tabalyst.config import DeepSettings
 from tabalyst.scanner.planner.costmodel import (
@@ -27,12 +28,22 @@ from tabalyst.scanner.planner.costmodel import (
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import (
     AssessmentKind,
+    Budgets,
     Costs,
     CpuClass,
+    Exploration,
+    ExploredDataset,
+    ExploredTables,
     Memory,
     State,
+    TableExploration,
     Utility,
 )
+
+if TYPE_CHECKING:
+    # The second pass imports the planner: these are only types here.
+    from tabalyst.scanner.models import ScanResult
+    from tabalyst.scanner.secondpass.replay import CellReader
 
 # Longest domain of integers counted by a dense array, and bins otherwise.
 DENSE_DOMAIN_MAX = 65_536
@@ -145,3 +156,100 @@ class Analyzer(ABC):
     @abstractmethod
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         """Usefulness of an applicable analysis, with its reasons."""
+
+
+@dataclass(frozen=True, slots=True)
+class AnalysisRequest:
+    """An analysis asked for explicitly. ``dataset`` and ``field`` (an id or a
+    display path) narrow it; absent, it concerns every dataset or field. For an
+    analysis of pairs, ``field`` and ``partner`` name one pair, which may be
+    absent from what the exploration proposes; ``field`` alone asks for the
+    proposed pairs that use it. For a table of a category against a feature
+    (design 20.13), ``field`` is the category, ``partner`` the column and
+    ``feature`` the feature (``pattern``, ``length`` or ``prefix``)."""
+
+    analyzer: str
+    dataset: str | None = None
+    field: str | None = None
+    partner: str | None = None
+    feature: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class PairProposal:
+    """A pair the planner puts in the plan: the two fields, what the sample says
+    of them and, when the pair cannot be analyzed, why. ``feature`` names the
+    feature of the second column in a table, and ``redundant`` says that another
+    feature of the same pair of columns scored higher (REL-16)."""
+
+    first: FieldFacts
+    second: FieldFacts
+    exploration: Exploration | TableExploration | None
+    reasons: tuple[str, ...] = ()
+    # Both columns are fully in a complete sample: the Scan alone answers.
+    from_samples: bool = False
+    feature: str | None = None
+    redundant: bool = False
+
+
+class PairAnalyzer(Analyzer):
+    """An analysis of two columns of a dataset (lots 8a and 8b).
+
+    It has no candidate per field: the planner asks ``explore`` for the pairs
+    the row sample proposes and the ones a request names, then ``assess_pair``,
+    ``estimate_pair`` and ``utility_pair`` for each. ``relations`` is the member
+    of the plan's ``relations`` block that holds the exploration.
+    """
+
+    relations: ClassVar[str]
+    # Whether a request may name a feature.
+    features: ClassVar[bool] = False
+    # Whether the two columns have an order that a request must respect.
+    directed: ClassVar[bool] = False
+    # The reason the plan gives to the pairs beyond the count it picks by itself.
+    budget_reason: ClassVar[str] = "pairs_budget"
+
+    def relevant(self, facts: FieldFacts) -> bool:
+        return False
+
+    def assess(self, facts: FieldFacts) -> Assessment:
+        return Assessment("not_applicable", ("not_numeric",))
+
+    def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
+        raise NotImplementedError("a pair is estimated as a pair")
+
+    def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
+        raise NotImplementedError("a pair is rated as a pair")
+
+    @abstractmethod
+    def automatic_limit(self, budgets: Budgets) -> int:
+        """How many of its pairs the planner picks by itself."""
+
+    @abstractmethod
+    def explore(
+        self,
+        scan: ScanResult,
+        facts: Sequence[FieldFacts],
+        requests: Sequence[AnalysisRequest],
+        reader: CellReader,
+        lenient: bool,
+    ) -> tuple[list[PairProposal], list[ExploredDataset] | list[ExploredTables]]:
+        """The pairs to list: the best the exploration of each dataset found,
+        then those a request named that it did not list (REL-06), and the blocks
+        that describe the exploration. Reads the row sample of the Scan only."""
+
+    @abstractmethod
+    def assess_pair(self, proposal: PairProposal, lenient: bool) -> Assessment:
+        """Whether a proposed pair applies and how."""
+
+    @abstractmethod
+    def estimate_pair(self, proposal: PairProposal, assessment: Assessment) -> Costs:
+        """Costs of an applicable pair."""
+
+    @abstractmethod
+    def utility_pair(self, proposal: PairProposal) -> Utility:
+        """Usefulness of an applicable pair, with its reasons."""
+
+    @abstractmethod
+    def matches(self, request: AnalysisRequest, proposal: PairProposal) -> bool:
+        """Whether a request for this analyzer concerns the pair."""

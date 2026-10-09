@@ -618,3 +618,41 @@ def test_a_partner_is_refused_for_an_analysis_of_a_single_field(tmp_path):
             requests=[AnalysisRequest("numeric_histogram", field="a", partner="b")],
             registry=default_registry().runnable(),
         )
+
+
+def test_a_source_that_changed_after_the_scan_is_refused_before_a_pair_is_counted(tmp_path):
+    from tabalyst.source_guard import StaleSource
+
+    rows = correlated_rows(400, columns=2, noise=0.4)
+    result = scan_csv(tmp_path, "a,b", rows)
+    reduced = result.model_copy(
+        update={
+            "datasets": [
+                d.model_copy(
+                    update={
+                        "records": d.records.model_copy(
+                            update={"sample": d.records.sample.model_copy(update={"complete": False})}
+                        )
+                    }
+                )
+                for d in result.datasets
+            ]
+        }
+    )
+    plan = pair_plan(reduced, "a", "b")
+    source = tmp_path / "data.csv"
+    source.write_text(source.read_text(encoding="utf-8") + "1.0,2.0\n", encoding="utf-8")
+
+    with pytest.raises(StaleSource):
+        run_second_pass(reduced, source, plan)
+
+
+def test_a_masked_column_makes_the_pair_not_applicable(tmp_path):
+    result = scan_csv(tmp_path, "a,b", correlated_rows(400, columns=2, noise=0.4))
+    masked = with_field(result, "a", exposure="mask")
+
+    plan = pair_plan(masked, "a", "b")
+
+    [pair] = [c for c in pairs_of(plan) if c.selection.requested]
+    assert pair.applicability.state == "not_applicable"
+    assert pair.applicability.reasons == ["sensitive_exposure"]

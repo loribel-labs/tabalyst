@@ -782,6 +782,57 @@
         "dirty": true,
         "state": "5bedfd1f+working"
       }
+    },
+    {
+      "timestamp": "2026-10-09T17:31:59.202507Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.4029,
+      "total_seconds": 0.5512,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T17:49:25.257897Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.382,
+      "total_seconds": 0.5357,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
+    },
+    {
+      "timestamp": "2026-10-09T18:52:58.416595Z",
+      "tabalyst_version": "0.6.2",
+      "source_file": "web-events.jsonl",
+      "html_file": "report.html",
+      "json_file": "report.json",
+      "rows": 300,
+      "columns": 14,
+      "analysis_seconds": 0.3914,
+      "total_seconds": 0.5406,
+      "git": {
+        "available": true,
+        "commit": "cd659e84af9f57af5595e7cac64842869cb1add4",
+        "dirty": true,
+        "state": "cd659e84+working"
+      }
     }
   ]
 }

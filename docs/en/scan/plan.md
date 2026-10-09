@@ -107,6 +107,89 @@ least present columns are left out and counted as `column_budget`. The planner l
 20 pairs at most (`max_candidates`) and picks 8 at most by itself
 (`automatic_pairs`); a pair it did not pick says `pairs_budget`.
 
+## Tables of a category against a feature
+
+`category_crosstab` concerns a column of a few values, the category, and another
+column, whose pattern, length or prefix (its **feature**) it counts for each
+category. Like a pair, a table is a candidate with a `partner` (the column of the
+feature), here with the feature in its parameters, and its exploration says what the
+row sample shows. The order matters: `column_1>column_2` is the category `column_1`
+against the column `column_2`.
+
+```json
+{"id": "category_crosstab:rows:column_1>column_2:pattern",
+ "display": "region and client_id (pattern)", "partner": "column_2",
+ "parameters": {"feature": "pattern", "max_categories": 30, "examples": 3,
+                "rule_purity": 90, "rule_support": 30},
+ "exploration": {"scope": "interior_rows", "rows": 900, "categories": 12,
+                 "classes": 5, "purity": 0.964853, "cramers_v": 0.944099,
+                 "score": 0.938529, "stable": true}}
+```
+
+`score` is the corrected Cramér's V of the table on the sample, which ranks the
+tables and gives the benefit (100 times the score, 45 at least for an automatic
+choice); `stable` says whether the sample has the counts to trust it, and a table
+that does not is still listed, since the whole file may have them. `rows` are the sample rows that have a category and a value to classify.
+A table without a score, because only one category or one class has rows or there
+are too few of them, carries a `reason` and is not listed unless you asked for it.
+The plan holds the number of classes and never their labels: no value of your data.
+
+The plan's `relations.tables` member says what the exploration did for each dataset
+with a column that can be a category: the rows it used, how many categories and
+columns it kept, those it left out by reason (`sensitive_exposure`, `repeated_path`,
+`identifier_like`, `near_unique`, `single_value`, `too_many_categories`,
+`no_frequencies`, `not_in_sample`, and for the features `not_text`, `no_pattern`,
+`few_lengths`, `few_prefixes`, `column_budget`), the tables that were possible, scored
+and left undefined (by reason), the tables listed, the `work` spent (tables times rows
+coded) and `cells`, the largest table in rows times classes.
+
+The work is bounded like the rest: `deep.crosstab.max_columns` (50) and
+`deep.crosstab.max_work` (1,000,000 tables times rows). The planner lists 20 tables
+at most (`max_candidates`) and picks 8 at most by itself (`automatic_tables`; the
+others say `tables_budget`). Of the features of the same two columns, it picks by itself
+only the best: the others say `redundant_feature`, and a request or `--deep` takes them all.
+
+## Stratification advice
+
+```console
+tabalyst scan customers.csv --plan --stratify-by province,language --sample-size 1000
+```
+
+`--stratify` adds advice for [stratified sampling](../sample/index.md) to the plan,
+and `--stratify-by` also assesses the strata of several columns together (a
+comma-separated list, repeated for other combinations). It reads the scan only:
+the source is not read again, and the advice is a recommendation, not a fact of the
+data. The advice is not part of the choice of analyses and is not written in the
+second-pass document.
+
+For each column, it says whether it can be a key by itself and why not when it
+cannot: an identifier, nearly unique values, a single value, more than 50 distinct
+values, a count the scan stopped tracking, or values that exposure withholds. For a
+column that can, it gives:
+
+- `strata`, the distinct values plus one stratum for the missing values (a missing
+  value is a stratum of its own, as `tabalyst sample` makes it), with its `strata_basis`:
+  `exact`, `estimate` (the scan only estimated the count) or `bound`;
+- `smallest_share` and `largest_share`, from the exact frequencies, and
+  `size_for_every_stratum`, the sample size from which the rarest stratum cannot
+  get zero rows;
+- with `--sample-size`, `uncovered_at_size`: the strata the proportional allocation
+  would leave without a row. `rare_strata` warns that some can be absent from a small
+  sample. `stratified` keeps its classic meaning and promises no minimum of one row.
+
+For a combination of columns, it gives `strata_bound`, the largest number of
+combinations the columns allow: the product of their numbers of strata, computed
+with saturating arithmetic (it never overflows; `saturated` says that the product
+passed 2^63 - 1) and capped by the number of records. When a count is only an
+estimate the product is labelled `estimated_strata`, and the bound uses the certain
+maximum of each column instead. The row sample gives `observed`, the combinations
+it holds: at least that many exist, or exactly that many when the sample holds every
+row (`observed_exact`). `risk` is `low`, `moderate` (above 1,000 strata), `high`
+(above 10,000) or `excessive` (above 100,000, the states a sample may hold, or
+saturated). A high bound proves a risk, not an explosion: the combinations that exist
+can be far fewer. For a `high` or `excessive` risk the advice suggests
+`reduce_fields`, `set_explicit_limit` (`--max-strata`) and `use_smart`.
+
 ## Memory and cost
 
 Each analysis lists the memory it needs in three cases: at least what the scan
@@ -127,7 +210,9 @@ spends on a cell, which is why both are `moderate`; so are a pattern validation
 (about 0.9 microsecond, and a little more for each candidate pattern) and a count
 of dates by period (about 1.6 microseconds). A pair of numeric columns costs
 about 1.5 microseconds for each cell of its two columns, also `moderate`; a column
-that several pairs share is read once.
+that several pairs share is read once. A table costs from 0.3 to 0.6 microsecond for each cell of its
+two columns, according to its feature, which is `low`, and a column is converted once for all the
+tables that use it.
 
 ## Automatic, requested and forced
 
@@ -201,8 +286,14 @@ because it keeps fewer sample values than its scan. `requests` name analyses to
 choose first, and `automatic=False` selects nothing else. A request for a pair names
 both columns, `tabalyst.AnalysisRequest("pearson_correlation", field="price",
 partner="cost")`, and works for a pair the sample did not show; with `field` alone
-it asks for the listed pairs that use the column. A request for an
+it asks for the listed pairs that use the column. A request for a table names the
+category, the column and the feature,
+`tabalyst.AnalysisRequest("category_crosstab", field="region", partner="client_id",
+feature="pattern")`; without `feature` it asks for the three. A request for an
 unknown analysis, dataset or field raises `tabalyst.ConfigurationError`.
+`stratify=tabalyst.Stratify(combinations=[("province", "language")],
+sample_size=1000)` adds the [stratification advice](#stratification-advice) as
+`plan.stratification`; without it the plan has no such member.
 `tabalyst.generate_plans(inputs)` plans several sources, as the command does;
 `forced=True` plans a forced second pass, and the result says whether running
 the plans together would require a confirmation (`requires_confirmation`).

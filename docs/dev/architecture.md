@@ -441,6 +441,25 @@ the row sample of the Scan when the plan is made, within its own column and work
 arithmetic (`scanner/pearson.py`) is shared by the two stages. A complete sample of a CSV file
 answers without reading the source.
 
+`secondpass/crosstab.py` (lot 8b, design 20.13) holds the tables of a category against a feature:
+`CodeFeed` converts a column into classes once per batch for every table that uses it (the `Router`
+accepts several feeds on one column: the category, the pattern and the length of the same column),
+and `CrosstabAccumulator` counts the pairs of codes of a batch, keeps the first rows of every cell and
+builds the result (margins, purity in both directions, exceptions, Cramér's V, candidate rules).
+The classes are the Scan's (`scanner/features.py`: the candidates of the inferred patterns, the lengths
+of the exact histogram, the prefixes of the listed values, the exact frequencies of a category), so
+the planner and the executor agree and no axis is created while the source streams. The tables are
+chosen by `planner/crosstabs.py` on the row sample, as the pairs are by `planner/relations.py`; both
+explorations are proposed by a `PairAnalyzer`, which is how the planner asks any analysis of two
+columns for its candidates. `report_relations.py` prints the result in the Relationships section.
+
+`planner/stratification.py` (lot 9, design 20.14) is the advice on stratified sampling a plan can carry
+(`plan.stratification`). It is not an analyzer: it has no executor and does not take part in the
+selection. It reads the facts and the row sample of the Scan, and the arithmetic it shares with
+`sampling.py` is `scanner/stratify.py` (the classic allocation, a saturating product of cardinalities),
+so that the advice describes the rule the sample applies. The sample counts its strata before it
+reads rows again and stops at `max_strata`.
+
 `report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
 Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
 writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the

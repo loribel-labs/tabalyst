@@ -176,10 +176,47 @@ class PearsonSettings(BaseModel):
     min_pairs: int = Field(default=10, ge=3)
 
 
+class CrosstabSettings(BaseModel):
+    """How tables of a category against a feature of another column are explored
+    and computed (design 20.13, REL-01 to REL-03, REL-11 to REL-16).
+
+    A table has at most ``max_categories`` category rows (the most frequent
+    values, the rest is ``other``) and at most ``max_classes`` class columns,
+    ``other`` included for the lengths and the prefixes; a column with more than
+    ``max_distinct`` distinct values is not a category. ``prefix_length`` is the
+    number of characters of a prefix. ``examples`` exceptions are kept per cell.
+    A category whose dominant class takes ``rule_purity`` percent of at least
+    ``rule_support`` classified rows gives a candidate rule. The exploration
+    reads the row sample, never the source: ``max_columns`` and ``max_work``
+    (tables times rows coded) bound its cost, ``max_candidates`` tables at most
+    are written in the plan and ``automatic_tables`` of them at most are chosen
+    without being asked. ``explore_min_rows`` is the smallest number of rows a
+    table needs in the sample to be scored.
+
+    Everything that changes a result is part of the key of that result; the
+    budgets of the exploration are not.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_categories: int = Field(default=30, ge=2, le=200)
+    max_classes: int = Field(default=12, ge=3, le=50)
+    max_distinct: int = Field(default=100, ge=2, le=1_000)
+    prefix_length: int = Field(default=2, ge=1, le=8)
+    examples: int = Field(default=3, ge=0, le=10)
+    rule_purity: int = Field(default=90, ge=50, le=100)
+    rule_support: int = Field(default=30, ge=1)
+    max_columns: int = Field(default=50, ge=2, le=200)
+    max_work: int = Field(default=1_000_000, ge=1)
+    max_candidates: int = Field(default=20, ge=0, le=1_000)
+    automatic_tables: int = Field(default=8, ge=0, le=1_000)
+    explore_min_rows: int = Field(default=30, ge=4)
+
+
 class DeepSettings(BaseModel):
     """What the second pass computes beyond the plan: the number of bins of a
     histogram and where their bounds come from, and how pairs of numeric
-    columns are chosen.
+    columns and tables of categories are chosen.
 
     ``linear`` splits the exact range of the Scan into bins of equal width;
     ``sample_quantile`` places the inner bounds at quantiles of the row sample
@@ -194,6 +231,7 @@ class DeepSettings(BaseModel):
     bins: int = Field(default=100, ge=BINS_MIN, le=BINS_MAX)
     bin_strategy: BinStrategy = "linear"
     pearson: PearsonSettings = Field(default_factory=PearsonSettings)
+    crosstab: CrosstabSettings = Field(default_factory=CrosstabSettings)
 
     def sha256(self) -> str:
         """Digest of the settings, for the document that used them."""

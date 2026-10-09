@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from tabalyst.scanner.planner.analyzer import Analyzer
+from tabalyst.scanner.planner.analyzers.crosstab import CategoryCrosstab
 from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
 from tabalyst.scanner.planner.analyzers.frequencies import ExactFrequencies
 from tabalyst.scanner.planner.analyzers.histogram import NumericHistogram
@@ -23,4 +24,5 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     PatternValidation,
     TemporalDistribution,
     PearsonCorrelation,
+    CategoryCrosstab,
 )

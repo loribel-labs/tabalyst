@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-import re
-
 from tabalyst.scanner.planner.analyzer import Assessment, memory
 from tabalyst.scanner.planner.costmodel import (
     REPLAY_ENTRY_BYTES,
@@ -15,14 +13,13 @@ from tabalyst.scanner.planner.costmodel import (
     RESULT_BYTES,
 )
 from tabalyst.scanner.planner.facts import FieldFacts
-from tabalyst.scanner.planner.models import State
-
-# Name tokens that suggest an identifier. Only a secondary hint (specification
-# 11.2): a name never decides alone.
-IDENTIFIER_TOKENS = frozenset(
-    {"id", "uid", "uuid", "guid", "key", "code", "ref", "reference", "no", "num", "number"}
+from tabalyst.scanner.planner.identifiers import (  # noqa: F401 - re-exported for the analyzers
+    IDENTIFIER_TOKENS,
+    identifier_like,
+    name_suggests_identifier,
+    uniqueness,
 )
-_TOKENS = re.compile(r"[^0-9a-z]+")
+from tabalyst.scanner.planner.models import State
 
 
 def blocked(facts: FieldFacts) -> Assessment | None:
@@ -50,26 +47,3 @@ def replay_state(
     largest of their sizes."""
     size = entries * entry_bytes
     return State(key=f"replay:{facts.where}", memory=memory(0, size // 4, size))
-
-
-def name_suggests_identifier(name: str) -> bool:
-    """Whether a token of the field name is one of ``IDENTIFIER_TOKENS``."""
-    spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", name)
-    return any(token in IDENTIFIER_TOKENS for token in _TOKENS.split(spaced.lower()))
-
-
-def uniqueness(facts: FieldFacts) -> float | None:
-    """Share of the values that are distinct, from the exact count, the KMV
-    estimate or the proven lower bound, in that order; ``None`` if unknown."""
-    if facts.values == 0:
-        return None
-    for known in (facts.distinct, facts.distinct_estimate, facts.distinct_lower_bound):
-        if known is not None:
-            return min(1.0, known / facts.values)
-    return None
-
-
-def identifier_like(facts: FieldFacts) -> bool:
-    """Almost unique values under a name that suggests an identifier."""
-    share = uniqueness(facts)
-    return share is not None and share >= 0.9 and name_suggests_identifier(facts.name)

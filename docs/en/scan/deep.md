@@ -8,8 +8,9 @@ scan does not hold: histograms of numeric fields, with exact or estimated
 medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
-counted on every value, the dates counted per period and the correlation of
-pairs of numeric columns. It writes them to a
+counted on every value, the dates counted per period, the correlation of
+pairs of numeric columns and tables of a category against the pattern, length or
+prefix of another column. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
 experimental in the beta. [`tabalyst report`](../reference/cli/report.md#second-pass)
 runs it by itself for the analyses that are useful and cheap, and puts the results
@@ -46,6 +47,7 @@ stored.
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
+| `category_crosstab` | A column of a few values and another text or integer column | The count of the rows of each category in each pattern, length or prefix of the other column, with the purity of each category, the exceptions, Cramér's V and candidate rules |
 
 A scan always holds the length histogram of a text field unless it was limited
 or turned off, so `length_distribution` is rare. `tabalyst scan --plan --deep`
@@ -151,6 +153,114 @@ pair, even one that the sample did not show.
 rows), the sample is the file: the pair is computed from it and the source is not
 read again (`source` is `samples`).
 
+## A category against a feature of another column
+
+A column of a few values, such as a region, can determine the shape of another
+column, such as a client identifier. The second pass counts, over every row, how
+many rows of each category fall in each class of a **feature** of that other
+column: the pattern that reads its value, its length, or its first characters. It
+does not try every combination of the file. It first scores them on the rows the
+scan sampled, which needs no reading of the source, keeps the best ones, and reads
+the file once for them.
+
+```json
+{"kind": "crosstab", "accuracy": "exact_counts", "precision": "float64",
+ "source": "source", "feature": {"kind": "pattern", "version": 1},
+ "categories": {"field": "column_1", "display": "region", "domain": "analytical",
+  "classes": [{"id": "c1", "label": "BC"}, {"id": "c2", "label": "ON"},
+              {"id": "c3", "label": "QC"}, {"id": "other", "label": "other", "kind": "other"}]},
+ "classes": {"field": "column_2", "display": "client_id", "domain": "original",
+  "classes": [{"id": "p1", "label": "XX9999"}, {"id": "p2", "label": "999999"},
+              {"id": "p3", "label": "9999-XX"}, {"id": "other", "label": "other", "kind": "other"}]},
+ "rows": 300, "counted": 299,
+ "excluded": {"category_missing": 0, "feature_missing": 1,
+              "both_missing": 0, "unclassified": 0},
+ "counts": [[0, 1, 99, 0], [2, 95, 2, 0], [96, 3, 1, 0], [0, 0, 0, 0]],
+ "row_totals": [100, 99, 100, 0], "column_totals": [98, 99, 102, 0],
+ "by_category": [{"rows": 100, "classified": 100, "feature_missing": 0,
+   "unclassified": 0, "coverage": 1.0, "dominant": 2, "dominant_count": 99,
+   "purity": 0.99, "exceptions": 1}],
+ "purity": {"forward": {"dominant": 290, "total": 299, "value": 0.96990},
+            "reverse": {"dominant": 290, "total": 299, "value": 0.96990},
+            "baseline": 0.34114},
+ "association": {"defined": true, "n": 299, "effective_categories": 3,
+   "effective_classes": 3, "chi_square": 545.385, "degrees": 4,
+   "cramers_v": 0.95500, "corrected": 0.95468, "low_share": 0.0, "stable": true},
+ "exceptions": {"count": 9, "cells": 5, "listed": [{"category": 2, "column": 1,
+   "count": 3, "examples": [{"record": 25, "value": "384512"}]}]},
+ "rules": [{"status": "candidate", "provenance": "learned", "category": 2,
+   "column": 0, "support": 100, "confidence": 0.96, "exceptions": 4}]}
+```
+
+(The example is shortened: a real result lists every category in `by_category`,
+every cell in `counts` and up to three rows per exception.)
+
+**What is counted.** The classes are fixed before the file is read, from what the
+scan holds, so no row can create a new one: the categories are the most frequent
+values of the column (at most 30), the classes of a `pattern` are the patterns the
+scan inferred, those of a `length` the lengths it counted, those of a `prefix` the
+most frequent first two characters of the values it lists. Whatever is not one of
+them is `other`, which stays in the table with zeros when no row falls in it. Rows
+with no category, no value, or a value the feature cannot classify (a JSON number
+has no pattern) are left out of the table and counted by cause in `excluded`, so
+`rows` is `counted` plus the exclusions.
+
+**What it says.** Each cell is the exact count of rows. The page of the report
+shows the share of each category in every class before any score.
+
+- `coverage` of a category is the share of its rows that have a value to classify;
+  a category whose values are mostly missing says little.
+- `dominant` is the class that holds most of a category (a tie goes to the first
+  class listed) and its `purity` the share of the category's classified rows in it.
+  The other rows are its `exceptions`, with exact counts and the first three rows of
+  each cell, in file order, with the record number.
+- `purity.forward` is the same figure for the whole table, from category to class;
+  `reverse` goes from class to category and is another number. `baseline` is the
+  share of the most frequent class: a purity close to it says nothing.
+- `association` is Cramér's V, the strength of the association from 0 to 1, over
+  the categories and classes that have rows (an empty `other` takes no part), and
+  `corrected` the same corrected for the number of rows and classes, which is what
+  Tabalyst ranks by. With one category or one class, or too few rows, there is no
+  score and `reason` says why (`single_category`, `single_class`, `too_few_rows`):
+  it is never `0`. A score is `stable` unless the expected counts are low (more than
+  a fifth of the cells under 5, or one under 1) on the categories and classes that
+  hold at least 5 rows; the `sparse` ones, with fewer, are counted but do not make a
+  score unstable. An unstable score is not to be called strong.
+- `rules` are the **candidate rules** the table suggests: a category whose dominant
+  class is a real pattern, length or prefix (not `other`), with at least 30 counted
+  rows of which 90% are in it. A rule is learned from the data, not validated by
+  anyone, and the exceptions are its counterexamples. A rule that you approve is a
+  different thing.
+
+An association is not a cause, and the pattern of an identifier that follows its
+region is a fact about the file, not a constraint of the source system.
+
+**Several features of the same two columns.** The pattern, the length and the
+prefix of an identifier often say the same thing. `tabalyst report` picks by itself
+only the feature with the best score for two columns, and the report prints one
+block for them with the leading feature first and the others folded; a request, or
+`--deep`, computes them all, and every measure stays in the document.
+
+**How the tables are chosen.** A **category** has the exact frequencies of its values
+in the scan, from 2 to 100 distinct values, is not hidden by exposure, does not repeat
+inside a record, does not look like an identifier, and has repeated values (at most
+half of them are distinct). The **column** of a feature is a text, mixed or integer
+column that the scan gives classes for: patterns inferred, more than one length, more
+than one prefix among the values it lists. The plan counts the columns it left out, by
+reason. A table is ranked by its corrected Cramér's V on the interior rows of the
+sample (a complete sample, which holds every row of a small file, is used whole). A
+relation that this sample does not show can still hold in the file: "not found in the
+sample" does not mean "absent".
+
+**What is automatic.** `tabalyst report` picks by itself the tables whose corrected
+V is 0.45 or more, eight at most, one feature for two columns. `--deep` takes every
+table the plan lists, twenty at most, after asking if the estimate calls for it. The
+API can ask for any table, even one that the sample did not show.
+
+**Small files.** When the scan sampled every row of a CSV file (up to 1,000 rows), the
+sample is the file: the table is computed from it and the source is not read again
+(`source` is `samples`).
+
 ## Exact distinct count
 
 A scan stops counting the distinct values of a field after 100,000 of them (the
@@ -209,7 +319,10 @@ sets the bins:
 
 The `deep.pearson` object chooses the pairs of numeric columns: how many
 columns are explored, how much work that may take and how many pairs the plan lists
-or picks by itself. See [Deep settings](../reference/configuration.md#deep-settings).
+or picks by itself. The `deep.crosstab` object does the same for the tables of a
+category against a feature, and sets their classes (the categories kept, the length
+of a prefix) and the thresholds of the candidate rules. See [Deep
+settings](../reference/configuration.md#deep-settings).
 
 `bin_strategy: "sample_quantile"` places the inner edges where the sample of
 rows kept by the scan has its quantiles, which suits a very skewed distribution

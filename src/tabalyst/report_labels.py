@@ -200,6 +200,21 @@ ANALYSIS_LABELS = {
     "pattern_validation": "Pattern validation",
     "temporal_distribution": "Distribution over time",
     "pearson_correlation": "Correlation between two columns",
+    "category_crosstab": "Category against a feature of a column",
+}
+# The features of a column that a table reads (design 20.13), as a noun phrase.
+FEATURE_WORDS = {
+    "pattern": "pattern",
+    "length": "length",
+    "prefix": "prefix",
+}
+# The word for a bias-corrected Cramér's V below each limit; above the last, "strong".
+STRENGTH_LIMITS = ((0.10, "negligible"), (0.30, "weak"), (0.50, "moderate"))
+# Why an association has no score (``TableAssociation.reason``), in words.
+TABLE_REASONS = {
+    "too_few_rows": "too few rows are classified in both columns",
+    "single_category": "only one category has rows",
+    "single_class": "only one class has rows",
 }
 # Why a correlation has no coefficient (``PearsonResult.reason``), in words.
 PEARSON_REASONS = {

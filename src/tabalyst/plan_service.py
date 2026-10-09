@@ -11,7 +11,7 @@ from a document or from the shared cache, and returns the plan (design 20).
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from tabalyst.config import deep_settings
@@ -25,10 +25,12 @@ from tabalyst.scanner.planner import (
     AnalyzerRegistry,
     Budgets,
     Confirmation,
+    Stratify,
     TimeEstimate,
     combine_confirmations,
     plan_analyses,
     plan_second_pass,
+    with_stratification,
 )
 from tabalyst.service import ConfigPath, _config_paths
 
@@ -95,6 +97,7 @@ def generate_plans(
     on_progress: ProgressCallback | None = None,
     workers: int | None = None,
     forced: bool = False,
+    stratify: Stratify | None = None,
 ) -> BatchPlanResult:
     """Plan the analyses of one or more sources.
 
@@ -102,8 +105,9 @@ def generate_plans(
     settings and the engine; otherwise the first pass runs and is stored, as
     ``tabalyst scan`` does. The second pass never runs and nothing is asked: the
     result says whether running the plans, together, requires a confirmation
-    (``forced`` plans a second pass asked for as a whole). A failed source does
-    not stop the others.
+    (``forced`` plans a second pass asked for as a whole). ``stratify`` adds the
+    advice on stratified sampling to each plan (design 20.14). A failed source
+    does not stop the others.
     """
     deep = deep_settings(_config_paths(config_path))
     batch = generate_scans(
@@ -122,6 +126,11 @@ def generate_plans(
     for success in batch.successes:
         try:
             second = plan_second_pass(success.result, forced=forced, deep=deep)
+            if stratify is not None:
+                second = replace(
+                    second,
+                    plan=with_stratification(second.plan, success.result, stratify),
+                )
         except TabalystError as exc:
             failures.append(ScanFailure(job=success.job, error=exc))
         else:

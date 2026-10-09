@@ -27,6 +27,7 @@ from tabalyst.report_labels import (
     OUTCOME_WORDS,
 )
 from tabalyst.report_profile import build_views
+from tabalyst.report_relations import relations_view
 from tabalyst.report_sections import (
     cardinality_view,
     limits_view,
@@ -67,7 +68,7 @@ def cell_text(values: list[str | None]) -> str:
 
 # Most rows a section prints, whatever the report keeps: the document holds
 # them all, the page stays light (HTML-07). A paged table shows 25 at a time.
-DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300}
+DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300, "relations": 20}
 
 
 def format_seconds(seconds: float) -> str:
@@ -168,6 +169,7 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                 quality_issue_column_count=sum(c.has_quality_issues for c in columns),
                 observation_column_count=sum(c.has_observations for c in columns),
                 second_pass=second_pass_view(profile.analyses, projection.id),
+                relations=relations_view(profile.analyses, projection.id),
             )
         )
     return views

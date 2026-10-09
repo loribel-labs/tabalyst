@@ -251,6 +251,14 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         # Pairs of numeric columns (lot 8a): the cost is per cell of a column
         # of the pair; a column shared by several pairs is read once.
         "pearson": lambda c: c.analyzer == "pearson_correlation",
+        # Tables of a category against a feature (lot 8b): one cost per feature,
+        # per cell of either column of the table.
+        "crosstab_pattern": lambda c: c.analyzer == "category_crosstab"
+        and c.parameters["feature"] == "pattern",
+        "crosstab_length": lambda c: c.analyzer == "category_crosstab"
+        and c.parameters["feature"] == "length",
+        "crosstab_prefix": lambda c: c.analyzer == "category_crosstab"
+        and c.parameters["feature"] == "prefix",
     }
     out: dict[str, object] = {
         "source": source.name,
@@ -295,14 +303,14 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
             "ns_per_cell": round(best.timings.analysis / best.cells_read * 1e9, 1),
             **(
                 {
-                    "ns_per_cell_of_a_pair": round(
+                    "ns_per_cell_of_a_pair_or_table": round(
                         best.timings.analysis
                         / (len(chosen) * scanned.datasets[0].record_count * 2)
                         * 1e9,
                         1,
                     )
                 }
-                if label == "pearson"
+                if label == "pearson" or label.startswith("crosstab")
                 else {}
             ),
             **(

@@ -52,6 +52,17 @@
           ],
           "default": null
         },
+        "stratification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stratification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "candidates": {
           "items": {
             "$ref": "#/$defs/Candidate"
@@ -136,7 +147,8 @@
           "default": "analytical",
           "enum": [
             "analytical",
-            "original"
+            "original",
+            "mixed"
           ],
           "title": "Domain",
           "type": "string"
@@ -185,6 +197,7 @@
               "discriminator": {
                 "mapping": {
                   "bins": "#/$defs/BinnedHistogram",
+                  "crosstab": "#/$defs/CrosstabResult",
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
                   "distinct_limited": "#/$defs/DistinctLimited",
@@ -223,6 +236,9 @@
                 },
                 {
                   "$ref": "#/$defs/PearsonResult"
+                },
+                {
+                  "$ref": "#/$defs/CrosstabResult"
                 }
               ]
             },
@@ -443,6 +459,11 @@
           "default": 8,
           "title": "Automatic Pairs",
           "type": "integer"
+        },
+        "automatic_tables": {
+          "default": 8,
+          "title": "Automatic Tables",
+          "type": "integer"
         }
       },
       "required": [
@@ -564,10 +585,14 @@
               "$ref": "#/$defs/Exploration"
             },
             {
+              "$ref": "#/$defs/TableExploration"
+            },
+            {
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "title": "Exploration"
         }
       },
       "required": [
@@ -583,6 +608,432 @@
         "execution"
       ],
       "title": "Candidate",
+      "type": "object"
+    },
+    "CandidateRule": {
+      "additionalProperties": false,
+      "description": "A relation learned from the data: rows of ``category`` take the class\n``column`` with ``confidence`` over ``support`` classified rows, ``exceptions``\nexcepted. It is a candidate and never a rule of the data: a rule a user\napproves is another thing, with its own provenance (REL-15).",
+      "properties": {
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "title": "Status",
+          "type": "string"
+        },
+        "provenance": {
+          "const": "learned",
+          "default": "learned",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "integer"
+        },
+        "column": {
+          "title": "Column",
+          "type": "integer"
+        },
+        "support": {
+          "title": "Support",
+          "type": "integer"
+        },
+        "confidence": {
+          "title": "Confidence",
+          "type": "number"
+        },
+        "exceptions": {
+          "title": "Exceptions",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "category",
+        "column",
+        "support",
+        "confidence",
+        "exceptions",
+        "status"
+      ],
+      "title": "CandidateRule",
+      "type": "object"
+    },
+    "CategorySummary": {
+      "additionalProperties": false,
+      "description": "A category against the classes. ``rows`` are all its rows, ``classified``\nthose in the table, and ``coverage`` their share: a category whose values are\nmostly missing says little. ``dominant`` is the index of the class that holds\nmost of it (a tie goes to the first class listed) and ``purity`` its share of\nthe classified rows; the other rows are its ``exceptions`` (REL-13).",
+      "properties": {
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "classified": {
+          "title": "Classified",
+          "type": "integer"
+        },
+        "feature_missing": {
+          "title": "Feature Missing",
+          "type": "integer"
+        },
+        "unclassified": {
+          "title": "Unclassified",
+          "type": "integer"
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coverage"
+        },
+        "dominant": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dominant"
+        },
+        "dominant_count": {
+          "title": "Dominant Count",
+          "type": "integer"
+        },
+        "purity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Purity"
+        },
+        "exceptions": {
+          "title": "Exceptions",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "classified",
+        "feature_missing",
+        "unclassified",
+        "dominant_count",
+        "exceptions"
+      ],
+      "title": "CategorySummary",
+      "type": "object"
+    },
+    "ColumnAdvice": {
+      "additionalProperties": false,
+      "description": "Whether one column is a good stratification key, and why.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "candidate": {
+          "title": "Candidate",
+          "type": "boolean"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "risk": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "moderate",
+                "high",
+                "excessive"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risk"
+        },
+        "strata": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Strata"
+        },
+        "strata_basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "exact",
+                "bound",
+                "estimate"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Strata Basis"
+        },
+        "strata_bound": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Strata Bound"
+        },
+        "missing_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Share"
+        },
+        "smallest_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Smallest Share"
+        },
+        "largest_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Largest Share"
+        },
+        "size_for_every_stratum": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size For Every Stratum"
+        },
+        "uncovered_at_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uncovered At Size"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "display",
+        "candidate",
+        "reasons"
+      ],
+      "title": "ColumnAdvice",
+      "type": "object"
+    },
+    "CombinationAdvice": {
+      "additionalProperties": false,
+      "description": "The strata of several columns taken together.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "displays": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Displays",
+          "type": "array"
+        },
+        "strata_bound": {
+          "title": "Strata Bound",
+          "type": "integer"
+        },
+        "saturated": {
+          "title": "Saturated",
+          "type": "boolean"
+        },
+        "strata_estimate": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Strata Estimate"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "observed_exact": {
+          "default": false,
+          "title": "Observed Exact",
+          "type": "boolean"
+        },
+        "sample_rows": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Rows"
+        },
+        "sample_scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Scope"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "moderate",
+            "high",
+            "excessive"
+          ],
+          "title": "Risk",
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "suggestions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggestions",
+          "type": "array"
+        },
+        "widest_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Widest Field"
+        },
+        "mean_quota": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean Quota"
+        }
+      },
+      "required": [
+        "dataset",
+        "fields",
+        "displays",
+        "strata_bound",
+        "saturated",
+        "risk",
+        "reasons",
+        "suggestions"
+      ],
+      "title": "CombinationAdvice",
       "type": "object"
     },
     "CommonCost": {
@@ -673,6 +1124,213 @@
       "title": "Costs",
       "type": "object"
     },
+    "CrosstabResult": {
+      "additionalProperties": false,
+      "description": "The table of the rows of each category by class of a feature of another\ncolumn, over every row (REL-11 to REL-15). The counts are exact; ``rows`` is\n``counted`` (the table) plus the ``excluded`` rows, and the margins add up to\n``counted``. Purity and Cramér's V are computed from the counts in float64.\nIt shows an association between two columns, not a cause. ``source`` says\nwhether the rows were read from the source or are the complete sample of the\nScan.",
+      "properties": {
+        "kind": {
+          "const": "crosstab",
+          "default": "crosstab",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact_counts",
+          "default": "exact_counts",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "precision": {
+          "const": "float64",
+          "default": "float64",
+          "title": "Precision",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "feature": {
+          "$ref": "#/$defs/TableFeature"
+        },
+        "categories": {
+          "$ref": "#/$defs/TableAxis"
+        },
+        "classes": {
+          "$ref": "#/$defs/TableAxis"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "counted": {
+          "title": "Counted",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/TableExclusions"
+        },
+        "counts": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "title": "Counts",
+          "type": "array"
+        },
+        "row_totals": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Row Totals",
+          "type": "array"
+        },
+        "column_totals": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Column Totals",
+          "type": "array"
+        },
+        "by_category": {
+          "items": {
+            "$ref": "#/$defs/CategorySummary"
+          },
+          "title": "By Category",
+          "type": "array"
+        },
+        "purity": {
+          "$ref": "#/$defs/TablePurity"
+        },
+        "association": {
+          "$ref": "#/$defs/TableAssociation"
+        },
+        "exceptions": {
+          "$ref": "#/$defs/TableExceptions"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/CandidateRule"
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source",
+        "feature",
+        "categories",
+        "classes",
+        "rows",
+        "counted",
+        "excluded",
+        "counts",
+        "row_totals",
+        "column_totals",
+        "by_category",
+        "purity",
+        "association",
+        "exceptions",
+        "rules"
+      ],
+      "title": "CrosstabResult",
+      "type": "object"
+    },
+    "CrosstabSettings": {
+      "additionalProperties": false,
+      "description": "How tables of a category against a feature of another column are explored\nand computed (design 20.13, REL-01 to REL-03, REL-11 to REL-16).\n\nA table has at most ``max_categories`` category rows (the most frequent\nvalues, the rest is ``other``) and at most ``max_classes`` class columns,\n``other`` included for the lengths and the prefixes; a column with more than\n``max_distinct`` distinct values is not a category. ``prefix_length`` is the\nnumber of characters of a prefix. ``examples`` exceptions are kept per cell.\nA category whose dominant class takes ``rule_purity`` percent of at least\n``rule_support`` classified rows gives a candidate rule. The exploration\nreads the row sample, never the source: ``max_columns`` and ``max_work``\n(tables times rows coded) bound its cost, ``max_candidates`` tables at most\nare written in the plan and ``automatic_tables`` of them at most are chosen\nwithout being asked. ``explore_min_rows`` is the smallest number of rows a\ntable needs in the sample to be scored.\n\nEverything that changes a result is part of the key of that result; the\nbudgets of the exploration are not.",
+      "properties": {
+        "max_categories": {
+          "default": 30,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Categories",
+          "type": "integer"
+        },
+        "max_classes": {
+          "default": 12,
+          "maximum": 50,
+          "minimum": 3,
+          "title": "Max Classes",
+          "type": "integer"
+        },
+        "max_distinct": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Max Distinct",
+          "type": "integer"
+        },
+        "prefix_length": {
+          "default": 2,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Prefix Length",
+          "type": "integer"
+        },
+        "examples": {
+          "default": 3,
+          "maximum": 10,
+          "minimum": 0,
+          "title": "Examples",
+          "type": "integer"
+        },
+        "rule_purity": {
+          "default": 90,
+          "maximum": 100,
+          "minimum": 50,
+          "title": "Rule Purity",
+          "type": "integer"
+        },
+        "rule_support": {
+          "default": 30,
+          "minimum": 1,
+          "title": "Rule Support",
+          "type": "integer"
+        },
+        "max_columns": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Columns",
+          "type": "integer"
+        },
+        "max_work": {
+          "default": 1000000,
+          "minimum": 1,
+          "title": "Max Work",
+          "type": "integer"
+        },
+        "max_candidates": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Candidates",
+          "type": "integer"
+        },
+        "automatic_tables": {
+          "default": 8,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Automatic Tables",
+          "type": "integer"
+        },
+        "explore_min_rows": {
+          "default": 30,
+          "minimum": 4,
+          "title": "Explore Min Rows",
+          "type": "integer"
+        }
+      },
+      "title": "CrosstabSettings",
+      "type": "object"
+    },
     "DeepRun": {
       "additionalProperties": false,
       "description": "What the latest run did. ``source_verified`` says that the digest of the\nreading was compared with the Scan's (PASS2-01); a run that read nothing,\nbecause every result was reused, has none. ``cells_read`` counts the cells of\nthe fields the analyses read, not of the whole source.",
@@ -752,7 +1410,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, and how pairs of numeric\ncolumns are chosen.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, and how pairs of numeric\ncolumns and tables of categories are chosen.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -772,6 +1430,9 @@
         },
         "pearson": {
           "$ref": "#/$defs/PearsonSettings"
+        },
+        "crosstab": {
+          "$ref": "#/$defs/CrosstabSettings"
         }
       },
       "title": "DeepSettings",
@@ -943,6 +1604,59 @@
         "lower_bound"
       ],
       "title": "DistinctLimited",
+      "type": "object"
+    },
+    "ExceptionCell": {
+      "additionalProperties": false,
+      "description": "A cell that is not the dominant class of its category, with the exact\n``count`` of its rows and the first of them in source order.",
+      "properties": {
+        "category": {
+          "title": "Category",
+          "type": "integer"
+        },
+        "column": {
+          "title": "Column",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "examples": {
+          "items": {
+            "$ref": "#/$defs/ExceptionExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "column",
+        "count",
+        "examples"
+      ],
+      "title": "ExceptionCell",
+      "type": "object"
+    },
+    "ExceptionExample": {
+      "additionalProperties": false,
+      "description": "A row of an exception: its record and the value of the second column,\ncut at 64 characters.",
+      "properties": {
+        "record": {
+          "title": "Record",
+          "type": "integer"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record",
+        "value"
+      ],
+      "title": "ExceptionExample",
       "type": "object"
     },
     "Execution": {
@@ -1160,6 +1874,115 @@
         "dataset"
       ],
       "title": "ExploredDataset",
+      "type": "object"
+    },
+    "ExploredTables": {
+      "additionalProperties": false,
+      "description": "The exploration of the tables of one dataset (design 20.13, REL-11).\n\n``categories`` columns are eligible categories and ``features`` the tables\nof a column against a feature that were possible: of the columns looked at,\nthose left out are counted by reason in ``excluded_categories`` and\n``excluded_features``. Of the ``possible`` tables, ``evaluated`` were scored\non ``rows`` rows of the sample (``scope`` says which), ``undefined`` have no\nscore (reasons in ``undefined_reasons``) and ``listed`` are candidates of\nthe plan. ``work`` is the tables times the rows coded, the post-processing\nbudget (COST-05); ``cells`` the largest table of the plan, rows by classes,\ncounters included. ``unavailable`` says why the dataset was not explored.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "interior_rows",
+                "all_rows"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "rows": {
+          "default": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "categories": {
+          "default": 0,
+          "title": "Categories",
+          "type": "integer"
+        },
+        "columns": {
+          "default": 0,
+          "title": "Columns",
+          "type": "integer"
+        },
+        "excluded_categories": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded Categories",
+          "type": "object"
+        },
+        "excluded_features": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded Features",
+          "type": "object"
+        },
+        "possible": {
+          "default": 0,
+          "title": "Possible",
+          "type": "integer"
+        },
+        "evaluated": {
+          "default": 0,
+          "title": "Evaluated",
+          "type": "integer"
+        },
+        "undefined": {
+          "default": 0,
+          "title": "Undefined",
+          "type": "integer"
+        },
+        "undefined_reasons": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Undefined Reasons",
+          "type": "object"
+        },
+        "listed": {
+          "default": 0,
+          "title": "Listed",
+          "type": "integer"
+        },
+        "work": {
+          "default": 0,
+          "title": "Work",
+          "type": "integer"
+        },
+        "cells": {
+          "default": 0,
+          "title": "Cells",
+          "type": "integer"
+        },
+        "unavailable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable"
+        }
+      },
+      "required": [
+        "dataset"
+      ],
+      "title": "ExploredTables",
       "type": "object"
     },
     "FrequencyTable": {
@@ -1872,6 +2695,38 @@
       "title": "PlanBase",
       "type": "object"
     },
+    "PurityFigure": {
+      "additionalProperties": false,
+      "description": "``dominant`` rows out of ``total``, and their share.",
+      "properties": {
+        "dominant": {
+          "title": "Dominant",
+          "type": "integer"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "dominant",
+        "total"
+      ],
+      "title": "PurityFigure",
+      "type": "object"
+    },
     "Quantile": {
       "additionalProperties": false,
       "description": "A quantile by linear interpolation between the two ranks around it\n(``(n - 1) * level``): for the median, the value at the middle rank, or the\nmean of the two central values when the count is even. ``exact`` when the\ncounts are per value; ``estimated`` when read from bins, with ``lower`` and\n``upper`` that the value cannot leave.",
@@ -1940,25 +2795,23 @@
     },
     "Relations": {
       "additionalProperties": false,
-      "description": "What the planner looked at to propose pairs: one entry per dataset with\nat least two numeric columns.",
+      "description": "What the planner looked at to propose pairs of columns (``datasets``: one\nentry per dataset with at least two numeric columns) and tables of a\ncategory against a feature (``tables``: one per dataset with a category).",
       "properties": {
-        "method": {
-          "const": "pearson",
-          "default": "pearson",
-          "title": "Method",
-          "type": "string"
-        },
         "datasets": {
           "items": {
             "$ref": "#/$defs/ExploredDataset"
           },
           "title": "Datasets",
           "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/ExploredTables"
+          },
+          "title": "Tables",
+          "type": "array"
         }
       },
-      "required": [
-        "datasets"
-      ],
       "title": "Relations",
       "type": "object"
     },
@@ -2005,6 +2858,18 @@
           ],
           "default": null,
           "title": "Partner"
+        },
+        "feature": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Feature"
         },
         "candidates": {
           "title": "Candidates",
@@ -2091,6 +2956,99 @@
       "title": "State",
       "type": "object"
     },
+    "Stratification": {
+      "additionalProperties": false,
+      "description": "Advice for ``stratified`` sampling and for the choice of its columns.",
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "limits": {
+          "$ref": "#/$defs/StratificationLimits"
+        },
+        "sample_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Size"
+        },
+        "columns": {
+          "items": {
+            "$ref": "#/$defs/ColumnAdvice"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "combinations": {
+          "items": {
+            "$ref": "#/$defs/CombinationAdvice"
+          },
+          "title": "Combinations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "version",
+        "limits",
+        "columns",
+        "combinations"
+      ],
+      "title": "Stratification",
+      "type": "object"
+    },
+    "StratificationLimits": {
+      "additionalProperties": false,
+      "description": "The deterministic thresholds the advice was made with.",
+      "properties": {
+        "max_strata_per_column": {
+          "title": "Max Strata Per Column",
+          "type": "integer"
+        },
+        "moderate_above": {
+          "title": "Moderate Above",
+          "type": "integer"
+        },
+        "high_above": {
+          "title": "High Above",
+          "type": "integer"
+        },
+        "max_states": {
+          "title": "Max States",
+          "type": "integer"
+        },
+        "max_fields": {
+          "title": "Max Fields",
+          "type": "integer"
+        },
+        "explore_min_rows": {
+          "title": "Explore Min Rows",
+          "type": "integer"
+        },
+        "missing": {
+          "const": "own_stratum",
+          "default": "own_stratum",
+          "title": "Missing",
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_strata_per_column",
+        "moderate_above",
+        "high_above",
+        "max_states",
+        "max_fields",
+        "explore_min_rows"
+      ],
+      "title": "StratificationLimits",
+      "type": "object"
+    },
     "Summary": {
       "additionalProperties": false,
       "description": "Counts of the candidates by decision, and what the selection needs.",
@@ -2141,6 +3099,422 @@
         "beyond_automatic"
       ],
       "title": "Summary",
+      "type": "object"
+    },
+    "TableAssociation": {
+      "additionalProperties": false,
+      "description": "Cramér's V of the table over the rows and columns that have a count (the\n``effective`` ones; the others stay in the table), or the ``reason`` there is\nnone: never 0 for lack of data (REL-14). ``corrected`` is the bias-corrected\nV. A score is ``stable`` unless the expected counts are low (``low_share`` of\nthe cells under 5, or one under 1) on the axes that hold at least 5 rows; the\n``sparse`` axes, with fewer, only count here. An unstable score is never to be\nread as strong.",
+      "properties": {
+        "defined": {
+          "title": "Defined",
+          "type": "boolean"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "effective_categories": {
+          "title": "Effective Categories",
+          "type": "integer"
+        },
+        "effective_classes": {
+          "title": "Effective Classes",
+          "type": "integer"
+        },
+        "chi_square": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chi Square"
+        },
+        "degrees": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Degrees"
+        },
+        "cramers_v": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cramers V"
+        },
+        "corrected": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corrected"
+        },
+        "low_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Low Share"
+        },
+        "stable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stable"
+        },
+        "sparse": {
+          "default": 0,
+          "title": "Sparse",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "defined",
+        "n",
+        "effective_categories",
+        "effective_classes"
+      ],
+      "title": "TableAssociation",
+      "type": "object"
+    },
+    "TableAxis": {
+      "additionalProperties": false,
+      "description": "One axis of a table: the field it reads, the ``domain`` of the values it\nreads (design 21) and its classes in the order of the counts.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "display": {
+          "title": "Display",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "analytical",
+            "original"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "classes": {
+          "items": {
+            "$ref": "#/$defs/TableClass"
+          },
+          "title": "Classes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "display",
+        "domain",
+        "classes"
+      ],
+      "title": "TableAxis",
+      "type": "object"
+    },
+    "TableClass": {
+      "additionalProperties": false,
+      "description": "A row or a column of a table: a category value or a class of a feature.\n``label`` is what a reader sees (the value, a pattern rendering, a length, a\nprefix), ``other`` the class of everything the named ones do not take, and\n``type`` the native type of a category of a JSON file that is not a string.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "default": "value",
+          "enum": [
+            "value",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "TableClass",
+      "type": "object"
+    },
+    "TableExceptions": {
+      "additionalProperties": false,
+      "description": "The rows outside the dominant class of their category (REL-15): ``count``\nof them in ``cells`` cells, the ``listed`` largest with their examples.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "cells": {
+          "title": "Cells",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/ExceptionCell"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "cells",
+        "listed"
+      ],
+      "title": "TableExceptions",
+      "type": "object"
+    },
+    "TableExclusions": {
+      "additionalProperties": false,
+      "description": "The rows left out of the table. ``category_missing`` has no category,\n``feature_missing`` no value in the second column, ``both_missing`` neither,\nand ``unclassified`` a value the feature does not classify (not a string,\nlonger than the patterns read).",
+      "properties": {
+        "category_missing": {
+          "title": "Category Missing",
+          "type": "integer"
+        },
+        "feature_missing": {
+          "title": "Feature Missing",
+          "type": "integer"
+        },
+        "both_missing": {
+          "title": "Both Missing",
+          "type": "integer"
+        },
+        "unclassified": {
+          "title": "Unclassified",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "category_missing",
+        "feature_missing",
+        "both_missing",
+        "unclassified"
+      ],
+      "title": "TableExclusions",
+      "type": "object"
+    },
+    "TableExploration": {
+      "additionalProperties": false,
+      "description": "What the row sample says of a table of a category against a feature of\nanother column (design 20.13, REL-05): the ``rows`` classified in both\naxes, the effective ``categories`` and ``classes`` (axes with a count), and\nthe association, or the ``reason`` it is not defined. It says nothing of\nthe population beyond the ``scope`` rows: a relation not detected here may\nstill hold elsewhere. ``score`` is the bias-corrected Cramér's V the planner\nranks by, and ``stable`` says whether the sample has the counts to trust it (a\ntable that is not is still listed: the whole file may have them). Figures are\nrounded to six decimals.",
+      "properties": {
+        "scope": {
+          "enum": [
+            "interior_rows",
+            "all_rows"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "categories": {
+          "default": 0,
+          "title": "Categories",
+          "type": "integer"
+        },
+        "classes": {
+          "default": 0,
+          "title": "Classes",
+          "type": "integer"
+        },
+        "purity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Purity"
+        },
+        "cramers_v": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cramers V"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "stable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stable"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "scope",
+        "rows"
+      ],
+      "title": "TableExploration",
+      "type": "object"
+    },
+    "TableFeature": {
+      "additionalProperties": false,
+      "description": "The feature of the second column that makes the classes (REL-01):\n``prefix_length`` is the number of characters of a prefix.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "pattern",
+            "length",
+            "prefix"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "prefix_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prefix Length"
+        }
+      },
+      "required": [
+        "kind",
+        "version"
+      ],
+      "title": "TableFeature",
+      "type": "object"
+    },
+    "TablePurity": {
+      "additionalProperties": false,
+      "description": "The purity of the table in the direction category to class (``forward``)\nand class to category (``reverse``), which is another figure (REL-13), and\nthe ``baseline``: the share of the most frequent class, which a rule that\nalways answered it would reach.",
+      "properties": {
+        "forward": {
+          "$ref": "#/$defs/PurityFigure"
+        },
+        "reverse": {
+          "$ref": "#/$defs/PurityFigure"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline"
+        }
+      },
+      "required": [
+        "forward",
+        "reverse"
+      ],
+      "title": "TablePurity",
       "type": "object"
     },
     "Utility": {

@@ -44,6 +44,9 @@ class AnalyzerRegistry:
         reports only what it can run."""
         return AnalyzerRegistry(analyzer for analyzer in self if analyzer.available)
 
+    def __getitem__(self, identifier: str) -> type[Analyzer]:
+        return self._classes[identifier]
+
     def __iter__(self) -> Iterator[type[Analyzer]]:
         return iter(self._classes.values())
 

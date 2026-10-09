@@ -57,6 +57,8 @@ Keep these exactly as written in every language:
 | scan | analyse | The complete description of a source written by `tabalyst scan` |
 | scan document | document d'analyse | The project's `scan.json` or a standalone `.scan.json` export written by `tabalyst scan` |
 | stale scan | analyse périmée | A scan document whose source or settings changed since it was written |
+| stratum, strata | strate, strates | A group of rows that share the value of the stratification field, or the combination of values of several fields |
+| stratification advice | aide à la stratification | What `tabalyst scan --plan --stratify` adds to a plan: which columns make good strata and how risky a combination of columns is |
 | analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
 | forced plan | plan forcé | A plan that takes every applicable analysis within the hard memory budget, whatever the limits of an automatic choice (`tabalyst scan --plan --deep`) |
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |
@@ -67,6 +69,14 @@ Keep these exactly as written in every language:
 | pair of columns | paire de colonnes | Two numeric columns of one dataset analyzed together. The planner scores the pairs on the row sample, lists the best and the second pass computes their correlation over every row |
 | common rows | lignes communes | The rows where both columns of a pair have a number; the means and the coefficient of a pair are those of these rows only (`pairwise_complete`) |
 | undefined coefficient | coefficient non défini | A correlation that cannot be computed, because too few common rows or a column that does not vary; the result says why and never writes `0` |
+| category | catégorie | A column of a few repeated values, such as a region, whose value is the row of a table; its exact frequencies come from the scan |
+| feature | caractéristique dérivée | What a table reads of a column to make its classes: the `pattern` that reads the value, its `length` or its `prefix` |
+| table of a category against a feature | table croisée | The exact count of the rows of each category in each class of a feature of another column, computed by the second pass over every row (`category_crosstab`) |
+| class | classe | A column of a table: a pattern, a length or a prefix; the last one is always `other`, what the others do not take |
+| purity | pureté | The share of the classified rows of a category that sit in its dominant class; the purity of a table is that of all its categories together, and it differs from category to class and from class to category |
+| exception | exception | A row outside the dominant class of its category, counted exactly and shown with its first rows |
+| candidate rule | règle candidate | A relation learned from the data, such as "region QC reads pattern XX9999", that nobody validated; it is not a rule of the data |
+| Cramér's V | V de Cramér | The strength of the association of two columns in a table, from 0 to 1, computed from the counts; the corrected form does not grow with the number of classes and is what Tabalyst ranks by. It is not defined, never 0, when a single category or class has rows |
 | exact distinct count | nombre exact de valeurs distinctes | The number of different original values of a field, counted exactly by the second pass when the scan only estimated it; `redundant` is the occurrences beyond the first of each value |
 | histogram | histogramme | The count of the values of a numeric field per integer or per bin, exact, with a median and quantiles that are exact or estimated |
 | already satisfied | déjà satisfaite | An analysis whose answer the scan already holds, so the plan does not select it |

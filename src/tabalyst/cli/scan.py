@@ -33,7 +33,7 @@ from tabalyst.deep_service import (
 from tabalyst.errors import TabalystError
 from tabalyst.plan_service import BatchPlanResult, generate_plans
 from tabalyst.scan_service import BatchScanResult, ScanSuccess, generate_scans
-from tabalyst.scanner.planner import plan_text
+from tabalyst.scanner.planner import Stratify, plan_text
 from tabalyst.scanner.planner.render import confirmation_lines, estimate_text
 
 
@@ -380,6 +380,39 @@ def scan_command(
             ),
         ),
     ] = False,
+    stratify: Annotated[
+        bool,
+        typer.Option(
+            "--stratify",
+            help=(
+                "With --plan, add advice on stratified sampling: which columns "
+                "make good keys and how many strata each makes."
+            ),
+        ),
+    ] = False,
+    stratify_by: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--stratify-by",
+            metavar="FIELDS",
+            help=(
+                "With --plan, assess the strata of several columns together, "
+                "given as a comma-separated list. Repeat it for other "
+                "combinations. Implies --stratify."
+            ),
+        ),
+    ] = None,
+    sample_size: Annotated[
+        int | None,
+        typer.Option(
+            "--sample-size",
+            min=1,
+            help=(
+                "With --stratify, the number of rows the sample would hold, to "
+                "count the strata it would leave without a row."
+            ),
+        ),
+    ] = None,
     deep: Annotated[
         bool,
         typer.Option(
@@ -410,6 +443,14 @@ def scan_command(
         raise typer.BadParameter(
             "--yes only goes with --deep, to start the second pass without asking."
         )
+    advise = stratify or bool(stratify_by)
+    if (advise or sample_size is not None) and not plan:
+        raise typer.BadParameter(
+            "--stratify, --stratify-by and --sample-size go with --plan: "
+            "the advice is part of the plan."
+        )
+    if sample_size is not None and not advise:
+        raise typer.BadParameter("--sample-size goes with --stratify or --stratify-by.")
     if plan:
         for name, given in (
             ("--output", output is not None),
@@ -452,6 +493,17 @@ def scan_command(
                 on_progress=progress,
                 workers=workers,
                 forced=deep,
+                stratify=(
+                    Stratify(
+                        combinations=tuple(
+                            tuple(name.strip() for name in item.split(",") if name.strip())
+                            for item in stratify_by or ()
+                        ),
+                        sample_size=sample_size,
+                    )
+                    if advise
+                    else None
+                ),
             )
         except TabalystError as exc:
             typer.echo(f"Error: {error_text(exc, 'scan')}", err=True)

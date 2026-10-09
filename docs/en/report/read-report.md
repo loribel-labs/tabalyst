@@ -234,6 +234,28 @@ validated figure is the number of values of the whole file that no pattern reads
 That is an observation about structure, not an error. A column with no pattern,
 such as a number or a masked column, says why on its own page.
 
+## Relationships
+
+**Purpose:** show how one column goes with another, from the second pass. The section
+appears when the second pass computed a table of a category against a feature, or a
+correlation of two numeric columns, and sits before the Second pass section.
+
+| Report part | Meaning | What to check |
+| --- | --- | --- |
+| Heading | The category and the column it is read against, with the number of features computed. | The same two columns are one block, whatever the number of features: the pattern, the length and the prefix of an identifier often say the same thing. The best one comes first and the others are folded. |
+| Metrics | Classified rows (and the rows left out), purity, association and exceptions. | Purity is the share of each category's rows in its dominant class; compare it with what the most frequent class would give. |
+| Table of counts | For each category, the exact count of its rows in each class and its share, with its total, coverage and purity. | The percentages come first: read them before the score. The dominant class of each category is underlined. A class that is empty for every category is `other`, hidden when it is empty. |
+| Exceptions | The rows outside the dominant class of their category, with exact counts and the first rows in file order. | They are the rows to look at to decide whether a pattern is a rule of the data. |
+| Candidate rules | Relations learned from the data, such as "when region is QC, client_id reads XX9999". | They are candidates, learned and not validated. |
+| Correlations | The coefficient of pairs of numeric columns, over the rows where both have a number. | A correlation is a linear association, not a cause. |
+
+The association is Cramér's V, corrected for the number of rows and classes, with a
+word: negligible, weak, moderate or strong. When the counts are too low to trust it,
+it says *Unstable: low counts* instead of a word. A category or class of fewer than
+5 rows does not cause it by itself. A table with only one category or one class has no score and says why. Every
+count is exact. A note under the tables says what the planner explored on the rows the
+scan sampled: a relation that sample does not show can still exist in the file.
+
 ## Second pass
 
 **Purpose:** say what the second pass added to the report and what it left out. The
