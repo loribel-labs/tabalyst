@@ -1,11 +1,11 @@
 # Tabalyst Generate design
 
-This is the implementation contract for Tabalyst Generate. The definition
-format is experimental during beta. The first release is to include packaged
-`crm` and `insurance` examples; neither is evidence that Report detects every
-business rule represented in the data.
+This is the historical implementation contract for Generate definition version
+1, shipped in Tabalyst 0.6.2. The development checkout now uses the versioned
+package contract in [`computer.md`](computer.md) for Computer, CRM and Insurance.
+The v1 reader is removed there; this record remains for parity review.
 
-## Command and service boundary
+## Historical v1 command and service boundary
 
 ```text
 tabalyst generate DEFINITION.yaml (-o FILE.csv | -d DIR) [options]
@@ -242,7 +242,8 @@ identical CSV bytes.
 
 ## Lot 5: CRM development demo
 
-The packaged and visible `crm.yaml` definitions are identical. They generate a
+In the released v1 format, the packaged and visible `crm.yaml` definitions
+were identical. They generated a
 single `crm-contacts` CSV with 26 columns and 400 shared synthetic accounts.
 Contact names and account locations use the packaged common references;
 contact email and phone depend on the selected account province. The account

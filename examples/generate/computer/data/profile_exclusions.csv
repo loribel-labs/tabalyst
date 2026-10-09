@@ -1,0 +1,4 @@
+scope_id,condition_field,condition_id,target_field,target_id,action
+portable_only,computer_type_id,desktop,form_factor_id,tower,exclude
+global,memory_id,mem_16,gpu_id,aster_discrete,exclude
+global,memory_id,mem_16,gpu_id,brindle_discrete,exclude

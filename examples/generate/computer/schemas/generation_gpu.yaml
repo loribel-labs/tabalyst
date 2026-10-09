@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  generation_id: {type: string, required: true, references: model_generation.id}
+  gpu_id: {type: string, required: true, references: gpu.id}
+  weight: {type: number, required: true}

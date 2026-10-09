@@ -12,10 +12,15 @@ from tabalyst.deep_service import generate_deep as generate_deep
 from tabalyst.deep_service import prepare_deep as prepare_deep
 from tabalyst.deep_store import ConfirmationRequired as ConfirmationRequired
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
+from tabalyst.generate_service import ComputerPlan as ComputerPlan
 from tabalyst.generate_service import GeneratePlan as GeneratePlan
 from tabalyst.generate_service import GenerateResult as GenerateResult
+from tabalyst.generate_service import ValidationResult as ValidationResult
 from tabalyst.generate_service import build_generate_plan as build_generate_plan
 from tabalyst.generate_service import generate_datasets as generate_datasets
+from tabalyst.generate_service import (
+    validate_generate_package as validate_generate_package,
+)
 from tabalyst.inspect_service import InspectResult as InspectResult
 from tabalyst.inspect_service import generate_inspections as generate_inspections
 from tabalyst.inspect_service import inspect as inspect
@@ -53,6 +58,7 @@ from tabalyst.source_guard import StaleSource as StaleSource
 __all__ = [
     "AnalysisPlan",
     "AnalysisRequest",
+    "ComputerPlan",
     "ConfigurationError",
     "ConfirmationRequired",
     "DeepResult",
@@ -73,6 +79,7 @@ __all__ = [
     "StaleSource",
     "Stratify",
     "TabalystError",
+    "ValidationResult",
     "__version__",
     "analyze",
     "build_generate_plan",
@@ -93,4 +100,5 @@ __all__ = [
     "run_second_pass",
     "sample_csv",
     "scan",
+    "validate_generate_package",
 ]

@@ -1,0 +1,10 @@
+type: dictionary
+columns:
+  id: {type: string, required: true, unique: true}
+  en: {type: string, required: true}
+  fr: {type: string, required: true}
+  brand_id: {type: string, required: true, references: brand.id}
+  family: {type: string, required: true}
+  model: {type: string, required: true}
+  gpu_type: {type: string, required: true}
+  vram_gb: {type: integer, required: true, min: 0}

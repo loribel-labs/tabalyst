@@ -1,0 +1,5 @@
+type: relation
+columns:
+  computer_type_id: {type: string, required: true, references: computer_type.id}
+  product_segment_id: {type: string, required: true, references: product_segment.id}
+unique: [computer_type_id, product_segment_id]

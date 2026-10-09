@@ -1,0 +1,15 @@
+type: resource
+columns:
+  status:
+    type: string
+    required: true
+    unique: true
+  label_fr:
+    type: string
+    required: true
+  date_end_policy:
+    type: string
+    required: true
+  weight:
+    type: integer
+    required: true
