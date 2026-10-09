@@ -17,7 +17,7 @@ from typer.testing import CliRunner
 
 from tabalyst.cli import app
 from tabalyst.report_config import ReportConfig
-from tabalyst.reporting import render_report
+from tabalyst.reporting import dataset_views, render_report
 from tabalyst.service import analyze_csv
 
 pytestmark = pytest.mark.lot("5b")
@@ -90,14 +90,26 @@ def test_json_columns_are_scalar_fields_named_by_path(tmp_path):
     assert customers.summary.duplicate_row_count == 1
 
 
-def test_json_preview_shows_absent_joined_and_masked_values(tmp_path):
-    customers = _datasets(analyze_csv(_orders(tmp_path)))["$.customers[]"]
+def test_json_rows_show_absent_joined_and_masked_values(tmp_path):
+    profile = analyze_csv(_orders(tmp_path))
 
-    first, second, _ = customers.preview
-    assert first.values == ["1", "aaa@aaaaaaa.aaa", "a, b", "Paris", "3, null"]
-    assert first.absent == []
-    assert second.values == ["2", "aaa@aaaaaaa.aaa", None, None, None]
-    assert second.absent == [2, 3, 4]
+    rows = {
+        dataset.id: dataset.rows.rows for dataset in dataset_views(profile)
+    }["$.customers[]"]
+    first, second, _ = rows
+    ids = [column.id for column in dataset_views(profile)[1].columns]
+    # A cell is a list of texts: the values of an items path, a JSON null as null.
+    assert [first.values[field] for field in ids] == [
+        ["1"],
+        ["aaa@aaaaaaa.aaa"],
+        ["a", "b"],
+        ["Paris"],
+        ["3", None],
+    ]
+    # An absent member has no cell.
+    assert [field in second.values for field in ids] == [True, True, False, False, False]
+    html = render_report(profile)
+    assert "a, b" in html and "3, null" in html and ">absent<" in html
 
 
 def test_json_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
@@ -107,8 +119,8 @@ def test_json_records_excluded_by_the_tolerant_policy_are_an_issue(tmp_path):
 
     (dataset,) = profile.report.datasets
     assert dataset.summary.row_count == 2
-    issue = {issue.code: issue for issue in dataset.issues}["excluded_records"]
-    assert (issue.count, issue.row_numbers) == (1, [2])
+    finding = {item.rule: item for item in profile.observations.items}["excluded_records"]
+    assert (finding.count, finding.records) == (1, [2])
 
 
 def test_detectors_are_listed_per_column(tmp_path):

@@ -7,6 +7,8 @@
 The document is the Scan base at the same paths, plus a ``report`` block with
 the generation data, the presentation settings and the projections by dataset
 and field identifier. Built from a Tabalyst Scan result by ``report_profile.py``.
+The findings of the Scan (observations, limits, patterns) and its row sample are
+read from the base, never copied into the projections.
 """
 
 from datetime import datetime
@@ -140,7 +142,6 @@ class ColumnProfile(ResultModel):
     type_error_percent: float | None
     missing_count: int
     missing_percent: float
-    with_issues: bool
     normalization: NormalizationStats
     # Null when a scan limit released the frequency table of the column.
     distinct_count: int | None
@@ -168,7 +169,6 @@ class DatasetSummary(ResultModel):
     empty_row_count: int
     empty_column_count: int
     constant_column_count: int
-    with_issues_column_count: int
     numeric_column_count: int
     date_column_count: int
     string_column_count: int
@@ -195,68 +195,6 @@ class DatasetDateSummary(ResultModel):
     not_date_count: int
     maximum_column_ambiguous_count: int
     columns: list[DatasetDateColumnSummary]
-
-
-class Issue(ResultModel):
-    code: str
-    severity: Literal["info", "warning"]
-    message: str
-    count: int
-    column_ids: list[str]
-    row_numbers: list[int]
-
-
-class PreviewRow(ResultModel):
-    row_number: int
-    # Null for a hidden value of a sensitive column, or a JSON value absent
-    # from the record; the values of an items path are joined with ", ".
-    values: list[str | None]
-    # Positions (0-based) of the values absent from a JSON record.
-    absent: list[int] = []
-
-
-class MeasureLimit(ResultModel):
-    """A scan measure stopped by a limit (design 8 and 11)."""
-
-    # Null for a measure of the dataset.
-    column_id: str | None
-    # Display path of the scan field, null for a measure of the dataset.
-    path: str | None
-    # Location of the envelope in the scan result, such as
-    # ``values.cardinality`` or ``normalization.stages.casefold.cardinality``.
-    measure: str
-    reason: str
-    limit: int
-    lower_bound: int | None
-
-
-class DiagnosticLocation(ResultModel):
-    record: int
-    # CSV line, or 0-based JSON element index; null when not applicable.
-    line: int | None = None
-    element: int | None = None
-
-
-class DiagnosticProfile(ResultModel):
-    code: str
-    level: Literal["fatal", "error", "warning"]
-    message: str
-    count: int
-    # Null for a diagnostic of the whole scan.
-    dataset: str | None
-    path: str | None
-    detector: str | None
-    locations: list[DiagnosticLocation]
-
-
-class DatasetLimits(ResultModel):
-    """What the scan could not measure completely in a dataset."""
-
-    measures: list[MeasureLimit]
-    untracked_observations: int
-    depth_truncated_observations: int
-    # Diagnostics of this dataset and of the whole scan.
-    diagnostics: list[DiagnosticProfile]
 
 
 class ArrayProfile(ResultModel):
@@ -313,9 +251,6 @@ class DatasetProfile(ResultModel):
     summary: DatasetSummary
     date_summary: DatasetDateSummary | None = None
     columns: list[ColumnProfile]
-    issues: list[Issue]
-    preview: list[PreviewRow]
-    limits: DatasetLimits
     structure: DatasetStructure | None = None
 
 

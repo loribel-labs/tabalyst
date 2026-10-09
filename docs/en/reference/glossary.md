@@ -29,11 +29,11 @@ Keep these exactly as written in every language:
 | dataset | jeu de données | The tabular data being analyzed |
 | source file | fichier source | The CSV file given to Tabalyst |
 | dataset overview | vue d'ensemble du jeu de données | The report section summarizing the whole dataset |
-| data sample | échantillon de données | The first rows shown in the report |
-| raw preview | aperçu brut | Source values before normalization |
+| data sample | échantillon de données | The rows of the row sample shown in the report: the start, sampled rows and the end |
+| raw values | valeurs brutes | Source values before normalization |
 | missing value | valeur manquante | An empty value or a configured missing marker |
-| issue | anomalie | A detected data quality problem |
-| with issues | avec anomalies | A column with missing values, ambiguous dates or of inferred type `mixed` |
+| quality issue | anomalie de qualité | An observation that is a confirmed issue or a candidate anomaly; a remark is not one |
+| with quality issues | avec anomalies de qualité | A column with a confirmed issue or a candidate anomaly, such as an inferred type `mixed` or ambiguous dates |
 | observation | observation | A finding of a scan about the data, with a status: informational, candidate anomaly or confirmed issue |
 | limit | limite | What a scan could not establish, such as a count stopped by a scan limit; never a defect of the data |
 | value normalization | normalisation des valeurs | Cleaning applied before analysis, such as whitespace trimming |

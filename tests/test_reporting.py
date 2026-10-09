@@ -30,9 +30,17 @@ def isolated_storage(monkeypatch, tmp_path):
 
 def test_report_numbers_use_scientific_notation_only_above_threshold():
     assert format_number(10**10) == "10,000,000,000"
-    assert format_number(12_345_678_901) == "1.2346e+10"
-    assert format_number(-123_456_789_012) == "-1.2346e+11"
+    assert format_number(12_345_678_901.5) == "1.2346e+10"
+    assert format_number(-123_456_789_012.5) == "-1.2346e+11"
     assert format_number(1234.5) == "1,234.5"
+
+
+def test_integers_are_never_shortened_or_rounded():
+    # F06: only a float, which already is an approximation, is shortened.
+    assert format_number(12_345_678_901) == "12,345,678,901"
+    assert format_number(-123_456_789_012) == "-123,456,789,012"
+    assert format_number(9_007_199_254_740_993) == "9,007,199,254,740,993"
+    assert format_number(10**30 + 1) == "1,000,000,000,000,000,000,000,000,000,001"
 
 
 def test_report_metadata_formats_duration_and_source_size_compactly():
@@ -72,7 +80,8 @@ def test_csv_content_cannot_inject_markup(tmp_path):
     assert payload not in html
     assert "<img src=x" not in html
     assert "&lt;script&gt;" in html
-    assert profile.report.datasets[0].preview[0].values[0] == payload
+    first = profile.datasets[0].records.sample.rows[0]
+    assert first.values["column_1"] == [payload]
 
 
 def test_header_only_report_is_renderable(tmp_path):
@@ -114,8 +123,8 @@ def test_report_includes_sidebar_navigation_for_each_report_section(tmp_path):
     assert '<section class="panel" id="columns"' in html
     assert '<section class="panel" id="sample"' in html
     assert 'Numeric analysis' in html
-    assert html.count('class="rep-tab"') == 9
-    for section in ("overview", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
+    assert html.count('class="rep-tab"') == 10
+    for section in ("overview", "observations", "columns", "transformations", "numeric", "dates", "strings", "detectors", "sample", "settings"):
         assert f'href="#{section}"' in html
 
     assert 'data-label="Median"' in html
@@ -132,7 +141,7 @@ def test_report_omits_navigation_for_absent_analysis_sections(tmp_path):
     assert 'href="#numeric"' not in html
     assert 'href="#dates"' not in html
     assert 'href="#strings"' in html
-    assert html.count('<div class="metric') == 4
+    assert html.split('id="observations"')[0].count('<div class="metric') == 4
 
 
 def test_numeric_sort_and_filter_values_are_not_display_rounded(tmp_path):

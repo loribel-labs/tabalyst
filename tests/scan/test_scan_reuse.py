@@ -67,8 +67,10 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
         tmp_path,
         "config.json",
         {
-            "report": {"value_examples": {"inline_display_size": 2}},
-            "scan": {"records": {"preview": 2}},
+            "report": {
+                "value_examples": {"inline_display_size": 2},
+                "row_sample": {"start": 2, "middle": 0, "end": 0},
+            },
         },
     )
     scan_document = _scan(source, "--config", config)
@@ -114,7 +116,7 @@ def test_report_from_a_scan_never_reads_the_source(tmp_path, monkeypatch):
     profile = analyze_scan(scan_document)
 
     assert profile.report.datasets[0].summary.row_count == 3
-    assert profile.config.records.preview == 10
+    assert profile.config.records.sample.edge == 50
 
 
 def test_a_missing_source_is_accepted(tmp_path):
@@ -125,7 +127,12 @@ def test_a_missing_source_is_accepted(tmp_path):
     profile = analyze_scan(scan_document)
 
     assert profile.source.name == "data.csv"
-    assert profile.report.datasets[0].preview[0].values == ["1", "aaa@aaaaaaa.aaa", "Paris"]
+    first = profile.datasets[0].records.sample.rows[0]
+    assert [first.values[field.id] for field in profile.datasets[0].fields] == [
+        ["1"],
+        ["aaa@aaaaaaa.aaa"],
+        ["Paris"],
+    ]
 
 
 def test_a_source_of_another_size_is_stale(tmp_path):

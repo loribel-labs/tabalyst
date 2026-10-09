@@ -199,9 +199,9 @@ def test_report_command_on_a_jsonl_source(tmp_path):
     dataset_profile = report["report"]["datasets"][0]
     assert dataset_profile["id"] == "$[]"
     assert dataset_profile["summary"]["row_count"] == 2
-    issues = {item["code"]: item for item in dataset_profile["issues"]}
-    assert issues["excluded_records"]["count"] == 1
-    assert issues["excluded_records"]["row_numbers"] == [2]
+    findings = {item["rule"]: item for item in report["observations"]["items"]}
+    assert findings["excluded_records"]["count"] == 1
+    assert findings["excluded_records"]["records"] == [2]
 
 
 def test_scan_command_writes_a_scan_of_a_ndjson_source(tmp_path):

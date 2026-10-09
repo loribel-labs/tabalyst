@@ -39,8 +39,7 @@ The profile becomes a superset of the Scan document: it has `format:
   `processing_seconds`, the presentation settings (`report.config`, with only
   `string_analysis` and `value_examples`, the `report` object of the
   configuration files; the root `config` is the scan configuration), `base_scan` (identity of the base) and the projections
-  (`report.datasets`, with the summary, columns, issues, preview, limits and
-  structure of each dataset). The root `datasets` are the scan datasets.
+  (`report.datasets`, with the summary, columns and structure of each dataset). The root `datasets` are the scan datasets.
 - `source` is the scan's: `filename` becomes `name`, `delimiter` is
   `source.csv.delimiter` (`null` `csv` for other sources).
 - The column copies of scan facts are removed: `scan_details`, `numeric`,
@@ -54,4 +53,18 @@ The profile becomes a superset of the Scan document: it has `format:
   reduced samples cannot compute them again.
 - A report carries the optional `observations` member of its scan, the
   [observations and limits](../scan/format.md#observations-and-limits), as it
-  is. The `issues` and `with_issues` of the columns are unchanged.
+  is.
+- The report reads its findings from the base instead of storing its own:
+  `report.datasets[].issues`, `preview` and `limits`, `columns[].with_issues`
+  and `summary.with_issues_column_count` are removed. A column has quality
+  issues when an observation about its field is a confirmed issue or a
+  candidate anomaly; a remark such as missing values is not an issue (see
+  [Findings](json-profile.md#findings)).
+- The rows the report shows are the `records.sample` of the base, reduced:
+  the first, the interior rows of smallest priority and the last rows, as the
+  new presentation setting `report.config.row_sample` (`start`, `middle`, `end`,
+  10 each by default) asks. `kept` and `of` say what was kept.
+- The HTML report adds the Observations and Patterns sections, qualifies every
+  count as exact, estimated, sample, at least or not computed, and writes
+  integers with all their digits (see
+  [Large integers](json-profile.md#large-integers)).

@@ -553,6 +553,25 @@ of the normalization, which took the observations from 0.49 s to 0.011 s on the 
 `observations` member weighs 1.8 to 8 KB compact (6.5 KB for the combined file, with
 16 observations and 24 limits), against 1.3 to 14 MB for the Scan.
 
+## The report reads the findings (lot 5)
+
+Lot 5 touches the Report and the HTML, and removes `records.preview` from the Scan: the
+collection of the first records disappears from the hot path of `RecordFacts.add` and
+`add_batch`, nothing is added to it. Compared with the commit of the lot 4b (`38d5353`, a
+`git worktree` under `D:/GIT.test/tabalyst/worktrees/lot5-head`), one fresh interpreter per
+run, alternating, three series, medians (script `D:/GIT.test/tabalyst/artifacts/lot5_perf.py`,
+`tabalyst scan` then `tabalyst report --scan`, the HTML and JSON of the second):
+
+| File | Scan | Report from the scan | HTML | JSON |
+| --- | ---: | ---: | ---: | ---: |
+| insurance-ontario.csv (90,909 rows) | 3.33 to 3.20 s (-3.9%) | 1.35 to 1.33 s (-1.5%) | 500 to 615 KB (+23%) | 750 to 761 KB (+1.5%) |
+| insurance-combined.csv (1 M rows) | 15.49 to 15.31 s (-1.2%) | 1.48 to 1.51 s (+2.0%) | 542 to 644 KB (+19%) | 763 to 765 KB (+0.2%) |
+
+The Scan is not slower. The report builds its views (observations, limits, patterns, rows,
+distinct count) in a fraction of its time and prints a bounded page (`DISPLAY_LIMITS`): the HTML
+grows by the three sections it adds (observations, patterns, 30 rows of 34 cells), not with the
+size of the file. The JSON loses `issues`, `preview` and `limits` and gains 30 rows instead of 10.
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

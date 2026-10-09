@@ -13,20 +13,26 @@ structural or semantic change. See the
 ## Boundaries
 
 - `report_profile.py`: builds the report profile from a `ScanResult`, fresh
-  or read back from a scan document; record-level facts (preview, duplicate,
-  empty and incomplete records) come from the `records` block of each scan
-  dataset. No file access.
+  or read back from a scan document; record-level facts (duplicate, empty and
+  incomplete records) come from the `records` block of each scan dataset, and
+  `report_base` reduces the samples and the row sample the Report keeps. No file
+  access.
 - `report_config.py`: `ReportConfig`, the effective report settings: the
   presentation settings (the `report` object of the files) and the `scan`
   configuration.
 - `models.py`: Pydantic models of the report document (`tabalyst.report`, format
   0.2.0, revision 2): the Scan base at its own paths and a `report` block with
-  one projection per dataset (summary, columns, issues, preview, limits and, for
-  JSON, structure). The facts of the Scan are not copied into the columns.
+  one projection per dataset (summary, columns and, for JSON, structure). The
+  facts and the findings of the Scan are not copied into the projections.
 - `report_views.py`: what the pages read, computed at render time and never
-  serialized: `ColumnView` (a column projection with the canonical Scan `field`
-  and the derived `numeric`, `date_profile` and `string_profile`) and
-  `DatasetView`.
+  serialized: `ColumnView` (a column projection with the canonical Scan `field`,
+  the derived `numeric`, `date_profile` and `string_profile`, the qualified
+  distinct count, the findings, limits and patterns of the field) and
+  `DatasetView` (the quality, limits and rows of the dataset).
+- `report_sections.py` and `report_labels.py`: the builders of those views from
+  `observations`, `derived` and `records.sample` of the base, and the words the
+  pages print (rule titles, statuses, accuracy kinds, limit names). Nothing in the
+  pages recomputes a rule (design 18.14).
 - `scan_document.py`: the common loader of the Scan base, read from a Scan or a
   Report (`load_document`, `load_base`), its capabilities and the identity of the
   base (`facts_sha256`).
@@ -281,7 +287,7 @@ are excluded and listed by the `excluded_records` issue.
 Raw strings are preserved. Missing cells follow `scan.values`: empty and
 whitespace-only cells by default, plus configured markers compared after
 trimming. Distinct values, examples, types and lengths use the analytical value
-(NFC, trim, collapse whitespace). The preview and duplicate-row comparison
+(NFC, trim, collapse whitespace). The row sample and duplicate-row comparison
 retain raw values; duplicate counts exclude each group's first row and compare
 a 128-bit BLAKE2b digest per row, one per distinct row, the only record-level
 state that grows with the file (lot 5c bounds it).
@@ -294,11 +300,12 @@ column evidence (design 12.6): the report shows the evidence and suggests
 otherwise the scan's primary interpretation. Values of sensitive columns are
 masked by default in examples, value profiles and the preview.
 
-Each column materializes `with_issues`: missing values, inferred type `mixed` or
-unresolved ambiguous dates. Dataset-level type counts, section counts and date
-aggregates are also serialized so the HTML renderer does not recreate analysis
+A column has quality issues when an observation of the Scan about it is a
+confirmed issue or a candidate anomaly (design 18.13 and 18.14); the pages read
+that from `observations`. Dataset-level type counts, section counts and date
+aggregates are serialized so the HTML renderer does not recreate analysis
 rules. A measure stopped by a scan limit is `null` in the profile, shown as
-`limited`, and listed by the `limited_measures` issue.
+`limited` or as a lower bound, and listed among the limits of the observations.
 
 JSON and HTML may include raw data and should be shared accordingly. The
 generated report is self-contained and does not need an internet connection.
@@ -409,3 +416,5 @@ once, after the patterns, with the source and the scope already built; an except
 `observations_failed` error and leaves the block out. Its walker of `limited` envelopes is shared with the Report
 (`build_limits`), and the Report carries the block as it is. The adaptive normalization is in `values.py`
 (`_normalization`): a stage that changed nothing takes the count of its input (design 10).
+
+`report_sections.py` and `report_labels.py` (lot 5) turn the findings of the Scan into what the pages print: the observations of a dataset and of a column grouped by rule with their status, the limits, the inferred patterns with the examples a Report still holds, the rows of the sample, and the distinct count of a column as exact, a lower bound or an estimate (design 18.14). The pages are rendered from the document alone, print at most `DISPLAY_LIMITS` of each list, and write integers exactly (`BigInt` in the sort and the numeric filters).

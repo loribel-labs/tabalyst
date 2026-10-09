@@ -184,7 +184,7 @@ collections.
 ## Records
 
 Each dataset describes its records as a whole: records with missing values,
-empty records, duplicate records and a preview of the first records.
+empty records, duplicate records and a sample of whole rows.
 
 ```json
 {
@@ -193,13 +193,7 @@ empty records, duplicate records and a preview of the first records.
   "duplicates": {
     "count": {"status": "complete", "value": 1},
     "records": [3]
-  },
-  "preview": [
-    {
-      "record": 1,
-      "values": {"column_1": ["1"], "column_2": ["aaa@aaaaaaa.aaa"]}
-    }
-  ]
+  }
 }
 ```
 
@@ -216,12 +210,8 @@ empty records, duplicate records and a preview of the first records.
   `records.duplicates` is `false`.
 - `records` lists record numbers, at most `limits.max_listed_records` of
   them. Record numbers are those of `first_record` and diagnostics.
-- `preview`: the first `records.preview` records, each with its values per
-  field identifier, as text. The values of an items path are listed in order;
-  a JSON null is `null`; a field absent from the record has no key. Sensitive
-  values go through the field's exposure; a cell holding a hidden value is
-  `null`. Empty strings, blanks and null markers are shown as read.
 - `sample`: the [row sample](#row-sample), absent when `records.sample.rows` is 0.
+  It holds the first records, with their values per field identifier, as text.
 
 ### Row sample
 
@@ -255,9 +245,9 @@ fields, so a later analysis can relate the values of two fields.
   each end and `middle` the rest, `rows` - 2 * `edge`.
 - A row has the `record` number, its `origins` (`start`, `middle`, `end`; a record that is
   both at the start and at the end of a short dataset is listed once with `["start", "end"]`)
-  and its `values`, in the shape of the preview: text per field identifier, a list for a
-  repeated path, `null` for a JSON null or a hidden cell, no key for a field absent from
-  the record. Rows are in source order within each group: start, middle, end.
+  and its `values`: text per field identifier, the values of a repeated path listed in
+  order, a JSON null as `null`, `null` for a hidden cell, no key for a field absent from
+  the record. Empty strings, blanks and null markers are shown as read. Rows are in source order within each group: start, middle, end.
 - The middle is drawn from the interior only, records `edge` + 1 to the number of records
   minus `edge` (`population.interior`, `scope` `interior_rows`). It is not a uniform sample
   of the whole dataset: do not add the edges to an estimate over the whole dataset. The
@@ -271,12 +261,15 @@ fields, so a later analysis can relate the values of two fields.
   The row names the cut fields in `truncated` and `truncated_cells` counts them: a row with
   a cut or hidden cell cannot serve a relation on that field. `fields` lists the projected
   fields; `fields_limited` is true when `limits.max_fields` left some paths untracked.
-- Sensitive values go through the exposure of their field, as in the preview.
+- Sensitive values go through the exposure of their field: a cell holding a hidden
+  value is `null`.
 - `bytes` is the size of the rows by a cost model, and `max_bytes` the budget of the whole
   scan (`records.sample.max_bytes`). When the budget is exceeded, the middle shrinks first
   (`middle_k` below `requested.middle`), then the start and the end keep what fits, and the
   block says `reason` `memory_budget`.
-- A Report keeps this block without rows (`kept` 0, `of` the number the scan sampled).
+- A Report keeps this block with the rows `report.row_sample` asks for (10 at the start,
+  10 sampled and 10 at the end by default): `kept` says how many it lists and `of` how many
+  the scan sampled.
 
 ## Fields
 

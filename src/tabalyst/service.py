@@ -39,7 +39,12 @@ from tabalyst.progress import (
 )
 from tabalyst.report_config import ReportConfig, resolve_report_config
 from tabalyst.report_profile import build_profile
-from tabalyst.reporting import column_pages, render_column_report, render_report
+from tabalyst.reporting import (
+    column_pages,
+    dataset_views,
+    render_column_report,
+    render_report,
+)
 from tabalyst.scan_reuse import (
     check_config,
     check_source,
@@ -378,7 +383,8 @@ def _write_report(
     result = profile.model_dump(mode="json")
     json_text = dump_json(result, indent=json_indent)
     emit_progress(on_progress, progress_source, ProgressPhase.RENDERING)
-    pages = column_pages(profile, report) if details else []
+    views = dataset_views(profile)
+    pages = column_pages(profile, report, views) if details else []
     page_dir = report.with_suffix("")
     if details and (
         page_dir.is_symlink() or (page_dir.exists() and not page_dir.is_dir())
@@ -399,7 +405,7 @@ def _write_report(
             )
             for page, dataset, column in pages
         }
-        html = render_report(profile, column_links=links)
+        html = render_report(profile, column_links=links, views=views)
         column_html = [
             (
                 page,

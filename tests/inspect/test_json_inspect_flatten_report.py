@@ -63,7 +63,7 @@ def test_a_container_at_the_limit_is_a_complex_column(tmp_path):
     # Absent where the parent object exists but has no such member.
     assert geo.missing_count == 0
     assert profile.summary.inferred_type_counts["complex"] == 1
-    assert "empty_columns" not in {issue.code for issue in profile.issues}
+    assert profile.summary.empty_column_count == 0
 
 
 def test_arrays_at_the_limit_are_complex_columns(tmp_path):

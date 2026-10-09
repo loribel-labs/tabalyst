@@ -78,7 +78,8 @@ def test_config_encoding_and_explicit_separator_precedence(tmp_path):
     )
     assert configured["source"]["csv"]["delimiter"] == ";"
     assert configured["source"]["encoding"] == "cp1252"
-    assert configured["report"]["datasets"][0]["preview"][0]["values"][0] == "Montréal"
+    first = configured["datasets"][0]["records"]["sample"]["rows"][0]
+    assert first["values"]["column_1"] == ["Montréal"]
 
     explicit_source = tmp_path / "explicit.csv"
     explicit_source.write_text("city|value\nQuébec|2\n", encoding="utf-8")

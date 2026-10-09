@@ -748,14 +748,6 @@ class DuplicateRecords(ScanModel):
     records: list[int]
 
 
-class PreviewRecord(ScanModel):
-    record: int
-    # Values per field id, as canonical text, through the field's exposure.
-    # A JSON null is null; a cell holding a hidden value is null; a field
-    # absent from the record has no key.
-    values: dict[str, list[str | None] | None]
-
-
 RowOrigin = Literal["start", "middle", "end"]
 
 
@@ -763,9 +755,9 @@ class SampleRow(ScanModel):
     """A row of the row sample: its position in the dataset (the record index),
     the groups it belongs to and the cells of the projected fields.
 
-    ``values`` has the shape of ``PreviewRecord.values``: canonical text per
-    field id, a list when the path repeats, ``null`` for a JSON null or a hidden
-    cell, no key for a field absent from the record. ``truncated`` lists the
+    ``values`` holds the canonical text per field id, through its exposure: a
+    list when the path repeats, ``null`` for a JSON null or a hidden cell, no
+    key for a field absent from the record. ``truncated`` lists the
     fields whose cell was cut at ``cell_chars`` (design 18.11).
     """
 
@@ -863,7 +855,6 @@ class Records(ScanModel):
     with_missing: RecordList
     empty: RecordList
     duplicates: DuplicateRecords
-    preview: list[PreviewRecord]
     # Absent when ``records.sample.rows`` is 0.
     sample: RowSample | None = None
 

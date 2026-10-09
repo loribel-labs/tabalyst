@@ -547,9 +547,40 @@ td.ex .tip.show{display:block}
 .column-grid .schema{margin:0}
 .column-json{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s0);color:var(--text-2);font:400 11px/1.5 var(--f-mono)}
 @media (max-width:650px){.column-line{align-items:flex-start}.column-line b{white-space:normal}}
+
+/* lot 5: accuracy labels, finding status, pager. Shape and text carry the
+   meaning, never the color alone. */
+.acc{display:inline-flex;align-items:center;gap:4px;font:500 10.5px/1 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:var(--r-xs);border:1px solid var(--line-strong);color:var(--text-2);white-space:nowrap}
+.acc::before{font-weight:600}
+.acc-exact::before{content:"="}
+.acc-estimated{border-style:dotted}
+.acc-estimated::before{content:"\2248"}
+.acc-sample{border-style:dashed}
+.acc-sample::before{content:"\223C"}
+.acc-at_least{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
+.acc-at_least::before{content:"\2265"}
+.acc-not_computed{border-style:dashed;color:var(--text-3)}
+.acc-not_computed::before{content:"\2205"}
+.lb{color:var(--attn-text)}
+.est{white-space:nowrap}
+.st{display:inline-flex;align-items:center;gap:6px;font:500 11px/1.2 var(--f-mono);color:var(--text-2);white-space:nowrap}
+.st i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--attn)}
+.st-cand i,.findings li.cand i{background:transparent;border:1.5px solid var(--attn)}
+.st-info i{background:var(--d2)}
+.findings li.cand i{width:7px;height:7px;box-sizing:border-box}
+.findings li.cand i,.findings li.warn i{flex:none}
+.st-t{font:500 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-right:4px}
+.cut{margin-left:6px;font:500 10.5px/1 var(--f-mono);color:var(--attn-text);white-space:nowrap}
+.pill.on{border-color:var(--text-3);color:var(--text)}
+.pager{margin-top:10px}
+.pager[hidden]{display:none}
+.pat{white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
+
+
+
 <a class="skip" href="#content">Skip to column report</a>
 <div class="shell">
 <aside class="side" aria-label="Column navigation">
@@ -563,10 +594,11 @@ td.ex .tip.show{display:block}
 
 
     <a class="rep-tab" href="#strings"><small>06</small>Text<span class="ct">16</span></a>
-    <a class="rep-tab" href="#transformations"><small>07</small>Transformations</a>
-    <a class="rep-tab" href="#scan-evidence"><small>08</small>Scan evidence</a>
-    <a class="rep-tab" href="#sample"><small>09</small>Data sample<span class="ct">20</span></a>
-
+    <a class="rep-tab" href="#patterns"><small>07</small>Patterns<span class="ct">8</span></a>
+    <a class="rep-tab" href="#transformations"><small>08</small>Transformations</a>
+    <a class="rep-tab" href="#scan-evidence"><small>09</small>Scan evidence</a>
+    <a class="rep-tab" href="#sample"><small>10</small>Data sample<span class="ct">30</span></a>
+    <a class="rep-tab" href="#limits"><small>11</small>Limits<span class="ct">1</span></a>
     <p class="side-group">Navigation</p>
     <a class="rep-tab" href="../report.html"><small>↖</small>Full report</a>
   </nav>
@@ -576,20 +608,21 @@ td.ex .tip.show{display:block}
 <header class="rhead"><div class="wrap"><p class="eyebrow">Column report · insurance-customers.csv</p><div class="rhead-top"><div><h1>ville</h1><ul class="facts"><li><b>Column 14</b> of 34</li><li><code>ville</code></li><li>3,000 rows</li></ul></div><a class="btn" href="../report.html">← Full report</a></div></div></header>
 <main id="content" class="wrap content" tabindex="-1">
 <section class="panel" id="overview" aria-labelledby="overview-h"><div class="phead"><div><p class="eyebrow">01 / Overview</p><h2 id="overview-h">Column overview</h2><p>Profile, values and formats at a glance.</p></div></div><div class="pbody">
-  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">3,000</span><span class="s">in 3,000 rows</span></dd></div><div class="metric"><dt>Missing</dt><dd><span class="v">0.0<small>%</small></span><span class="s">0 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">135</span><span class="s">diverse sample</span></dd></div><div class="metric"><dt>Type errors</dt><dd><span class="v">0</span><span class="s">0.0%</span></dd></div></dl>
+  <dl class="metrics"><div class="metric"><dt>Analyzable values</dt><dd><span class="v">3,000</span><span class="s">in 3,000 rows</span></dd></div><div class="metric"><dt>Missing</dt><dd><span class="v">0.0<small>%</small></span><span class="s">0 values</span></dd></div><div class="metric"><dt>Distinct</dt><dd><span class="v">135</span><span class="s"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · diverse sample</span></dd></div><div class="metric"><dt>Type errors</dt><dd><span class="v">0</span><span class="s">0.0%</span></dd></div></dl>
   <div class="column-grid"><div class="rcard"><p class="rcard-title">Interpretation</p><dl class="schema"><dt>Inferred type</dt><dd><span class="pill">text</span></dd><dt>Semantic type</dt><dd><span class="none">None</span></dd><dt>Confidence</dt><dd>100.0%</dd><dt>Exposure</dt><dd>Normal</dd></dl></div>
   <div class="rcard"><p class="rcard-title">Value coverage</p><p class="muted">100 stored distinct values · diverse sample.</p><p class="muted">The full value list appears below.</p></div>
   <div class="rcard"><p class="rcard-title">Detected formats</p><p class="muted">No detector formats.</p></div>
   <div class="rcard"><p class="rcard-title">Type counts</p><div class="column-line"><span>text</span><b>3,000</b></div><p class="rcard-title">Native types</p><div class="column-line"><span>string</span><b>3,000</b></div></div>
-  <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span>Cells changed by collapsing repeated internal whitespace<small class="sub-n">info</small></span><b>129</b></div><div class="column-line"><span>Values written in several ways that normalization compares as equal<small class="sub-n">info</small></span><b>74</b></div></div></div>
+  <div class="rcard"><p class="rcard-title">Observations</p><div class="column-line"><span><span class="st st-cand" title="Worth a look: a rule cannot confirm it is an error"><i aria-hidden="true"></i>Candidate anomaly</span> Values written in several ways that normalization compares as equal<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · groups</small></span><b>13</b></div><div class="column-line"><span><span class="st st-info" title="A finding that may be perfectly valid"><i aria-hidden="true"></i>Remark</span> Cells changed by collapsing repeated internal whitespace<small class="sub-n"><span class="acc acc-exact" title="Counted on every value of the file">exact</span> · text values out of 3,000</small></span><b>7</b></div></div></div>
 </div></section>
-<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A diverse sample from 135 distinct values. Counts are occurrences in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>Montréal</code><b>318</b></div><div class="column-line"><code>Québec</code><b>183</b></div><div class="column-line"><code>Laval</code><b>144</b></div><div class="column-line"><code>Mississauga</code><b>52</b></div><div class="column-line"><code>La Tuque</code><b>20</b></div><div class="column-line"><code>Magog</code><b>18</b></div><div class="column-line"><code>St. John&#39;s</code><b>12</b></div><div class="column-line"><code>Kelowna</code><b>7</b></div><div class="column-line"><code>Iqaluit</code><b>4</b></div><div class="column-line"><code>Sydney</code><b>3</b></div><div class="column-line"><code>Blainvville</code><b>1</b></div><div class="column-line"><code>Br  ampton</code><b>1</b></div><div class="column-line"><code>Lévib</code><b>1</b></div><div class="column-line"><code>Ottawg</code><b>1</b></div><div class="column-line"><code>Repenttigny</code><b>1</b></div><div class="column-line"><code>Rimmouski</code><b>1</b></div><div class="column-line"><code>Sherbroke</code><b>1</b></div><div class="column-line"><code>Val-q&#39;Or</code><b>1</b></div><div class="column-line"><code>Victorria</code><b>1</b></div><div class="column-line"><code>joliette</code><b>1</b></div></div></div></section>
+<section class="panel" id="values" aria-labelledby="values-h"><div class="phead"><div><p class="eyebrow">02 / Distribution</p><h2 id="values-h">Values<span class="n">(20)</span></h2><p>A diverse sample from 135 distinct values. Each count is the exact frequency of that value in the analyzed column.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><code>Montréal</code><b>318</b></div><div class="column-line"><code>Québec</code><b>183</b></div><div class="column-line"><code>Laval</code><b>144</b></div><div class="column-line"><code>Mississauga</code><b>52</b></div><div class="column-line"><code>La Tuque</code><b>20</b></div><div class="column-line"><code>Magog</code><b>18</b></div><div class="column-line"><code>St. John&#39;s</code><b>12</b></div><div class="column-line"><code>Kelowna</code><b>7</b></div><div class="column-line"><code>Iqaluit</code><b>4</b></div><div class="column-line"><code>Sydney</code><b>3</b></div><div class="column-line"><code>Blainvville</code><b>1</b></div><div class="column-line"><code>Br  ampton</code><b>1</b></div><div class="column-line"><code>Lévib</code><b>1</b></div><div class="column-line"><code>Ottawg</code><b>1</b></div><div class="column-line"><code>Repenttigny</code><b>1</b></div><div class="column-line"><code>Rimmouski</code><b>1</b></div><div class="column-line"><code>Sherbroke</code><b>1</b></div><div class="column-line"><code>Val-q&#39;Or</code><b>1</b></div><div class="column-line"><code>Victorria</code><b>1</b></div><div class="column-line"><code>joliette</code><b>1</b></div></div></div></section>
 
 
 
 <section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis</h2><p>Lengths and representative values.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">4</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">24</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">9</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">8</span><span class="s">medium</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Length distribution · 16</p><div class="column-line"><span>4 characters<small class="sub-n">Alma / alma</small></span><b>24 · 0.8%</b></div><div class="column-line"><span>5 characters<small class="sub-n">Laval / Lévis / Gaspé / Magog / Laavl / Lavul / Levis / Lévib</small></span><b>281 · 9.37%</b></div><div class="column-line"><span>6 characters<small class="sub-n">Québec / Ottawa / London / Granby / Surrey / Regina / Sydney / LLaval / Lava l / Léviss</small></span><b>376 · 12.53%</b></div><div class="column-line"><span>7 characters<small class="sub-n">Toronto / Calgary / Mirabel / Moncton / Halifax / Beloeil / Kelowna / Brandon / Iqaluit / Brosard</small></span><b>257 · 8.57%</b></div><div class="column-line"><span>8 characters<small class="sub-n">Montréal / Gatineau / Saguenay / Brossard / Hamilton / Edmonton / Brampton / Rimouski / Winnipeg / Waterloo</small></span><b>864 · 28.8%</b></div><div class="column-line"><span>9 characters<small class="sub-n">Longueuil / Vancouver / Mascouche / Sept-Îles / Saskatoon / longueuil / Br ampton / Bra mpton / Brosssard / G atineau</small></span><b>207 · 6.9%</b></div><div class="column-line"><span>10 characters<small class="sub-n">Sherbrooke / Terrebonne / Repentigny / Shawinigan / Blainville / St. John&#39;s / Saint John / Lethbridge / Whitehorse / Misissauga</small></span><b>372 · 12.4%</b></div><div class="column-line"><span>11 characters<small class="sub-n">Mississauga / Châteauguay / Sorel-Tracy / Fredericton / Baie-Comeau / Yellowknife / Blainvville / Chateauguay / RRepentigny / Repenttigny</small></span><b>151 · 5.03%</b></div><div class="column-line"><span>12 characters<small class="sub-n">Saint-Jérôme / Sainte-Julie / saint-jerome</small></span><b>60 · 2.0%</b></div><div class="column-line"><span>13 characters<small class="sub-n">Drummondville / Victoriaville / Rouyn-Noranda / Grand Sudbury / Charlottetown / Prince George / Grand Sudubry / Victorivaille / krummondville</small></span><b>163 · 5.43%</b></div><div class="column-line"><span>14 characters<small class="sub-n">Trois-Rivières / DDrummondville / trois-rivieres</small></span><b>71 · 2.37%</b></div><div class="column-line"><span>15 characters<small class="sub-n">Saint-Hyacinthe / Rivière-du-Loup</small></span><b>51 · 1.7%</b></div><div class="column-line"><span>16 characters<small class="sub-n">Vaudreuil-Dorion</small></span><b>17 · 0.57%</b></div><div class="column-line"><span>19 characters<small class="sub-n">Dollard-des-Ormeaux</small></span><b>27 · 0.9%</b></div><div class="column-line"><span>20 characters<small class="sub-n">Doll ard-des-Ormeaux</small></span><b>1 · 0.03%</b></div><div class="column-line"><span>24 characters<small class="sub-n">Saint-Jean-sur-Richelieu / Salaberry-de-Valleyfield / Sahnt-Jean-sur-Richelieu / aSint-Jean-sur-Richelieu</small></span><b>78 · 2.6%</b></div></div><div class="rcard"><p class="rcard-title">Representative values</p><div class="column-line"><code>Montréal</code></div><div class="column-line"><code>Québec</code></div><div class="column-line"><code>Sherbrooke</code></div></div></div></div></section>
-<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">07 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>137</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>137</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>137</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">7 changed · 0.23%</small></span><b>135</b></div><div class="column-line"><span>casefold<small class="sub-n">2,986 changed · 99.53%</small></span><b>128</b></div><div class="column-line"><span>strip accents<small class="sub-n">812 changed · 27.07%</small></span><b>122</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 13</p><div class="column-line"><span><code>montreal</code><small class="sub-n">Montréal (318) · montreal (2) · Montreal (1)</small></span><b>321</b></div><div class="column-line"><span><code>quebec</code><small class="sub-n">Québec (183) · quebec (1)</small></span><b>184</b></div><div class="column-line"><span><code>toronto</code><small class="sub-n">Toronto (101) · toronto (1)</small></span><b>102</b></div><div class="column-line"><span><code>longueuil</code><small class="sub-n">Longueuil (98) · longueuil (2)</small></span><b>100</b></div><div class="column-line"><span><code>levis</code><small class="sub-n">Lévis (96) · Levis (1)</small></span><b>97</b></div><div class="column-line"><span><code>trois-rivieres</code><small class="sub-n">Trois-Rivières (69) · trois-rivieres (1)</small></span><b>70</b></div><div class="column-line"><span><code>saint-jerome</code><small class="sub-n">Saint-Jérôme (48) · saint-jerome (1)</small></span><b>49</b></div><div class="column-line"><span><code>chateauguay</code><small class="sub-n">Châteauguay (30) · Chateauguay (1) · chateauguay (1)</small></span><b>32</b></div><div class="column-line"><span><code>alma</code><small class="sub-n">Alma (23) · alma (1)</small></span><b>24</b></div><div class="column-line"><span><code>joliette</code><small class="sub-n">Joliette (20) · joliette (1)</small></span><b>21</b></div><div class="column-line"><span><code>la tuque</code><small class="sub-n">La Tuque (19) · La  Tuque (1)</small></span><b>20</b></div><div class="column-line"><span><code>kelowna</code><small class="sub-n">Kelowna (7) · kelowna (1)</small></span><b>8</b></div><div class="column-line"><span><code>toront o</code><small class="sub-n">Toront  o (1) · Toront o (1)</small></span><b>2</b></div></div></div></div></section>
-<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">08 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
+<section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>X</code> a capital, <code>x</code> a lowercase letter, <code>@</code> any letter, <code>#</code> a letter or a digit. Shares count distinct values, not occurrences in the file.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Distinct values read</dt><dd><span class="v">137</span><span class="s"><span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span> · of 137 usable</span></dd></div><div class="metric"><dt>Candidates</dt><dd><span class="v">8</span><span class="s">Grammar v1</span></dd></div><div class="metric attn"><dt>Unmatched</dt><dd><span class="v">11</span><span class="s">6 other structures</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title"><code class="pat">X{1,2}x{3,12}</code> <span class="pill on">principal</span></p><dl class="schema"><dt>Distinct values</dt><dd>73 · 53.28% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>4–14 characters</dd><dt>Generalization</dt><dd>level 0, 1 structure</dd><dt>Confidence</dt><dd>52.6% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Winnipeg</code></div><div class="column-line"><code>Whitehorse</code></div><div class="column-line"><code>Hamilton</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">@{5,11}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>13 · 9.49% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>5–11 characters</dd><dt>Generalization</dt><dd>level 1, 2 structures</dd><dt>Confidence</dt><dd>8.8% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Lévis</code></div><div class="column-line"><code>Léviss</code></div><div class="column-line"><code>oJliette</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">x{4,13}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>10 · 7.3% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>4–13 characters</dd><dt>Generalization</dt><dd>level 0, 1 structure</dd><dt>Confidence</dt><dd>6.6% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>krummondville</code></div><div class="column-line"><code>quebec</code></div><div class="column-line"><code>alma</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">Xx{1,7}&#39; &#39;{1,2}x{1,6}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>10 · 7.3% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>7–11 characters</dd><dt>Generalization</dt><dd>level 0, 1 structure</dd><dt>Confidence</dt><dd>6.6% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Terr ebonne</code></div><div class="column-line"><code>Sherbroo ke</code></div><div class="column-line"><code>Otta wa</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">Xx{1,5}&#39; &#39;{1,2}Xx{3,6}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>8 · 5.84% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>8–13 characters</dd><dt>Generalization</dt><dd>level 0, 1 structure</dd><dt>Confidence</dt><dd>5.2% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>La  Tuque</code></div><div class="column-line"><code>Grand Sudbury</code></div><div class="column-line"><code>Grand Sudubry</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">Xx{3,8}-Xx{4,8}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>6 · 4.38% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>11–16 characters</dd><dt>Generalization</dt><dd>level 0, 1 structure</dd><dt>Confidence</dt><dd>3.8% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Sorel-Tracy</code></div><div class="column-line"><code>Sainte-Julie</code></div><div class="column-line"><code>Baie-Comeau</code></div></div><div class="rcard"><p class="rcard-title"><code class="pat">###-#&#39;&#39;&#39;&#39;##</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>3 · 2.19% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>8 characters</dd><dt>Generalization</dt><dd>level 2, 2 structures</dd><dt>Confidence</dt><dd>1.6% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Val-q&#39;Or</code></div><div class="column-line"><code>aVl-d&#39;Or</code></div><p class="muted">1 example of the scan is not among the values this report keeps.</p></div><div class="rcard"><p class="rcard-title"><code class="pat">#{7,9}-#{2,3}-#{4,11}</code> <span class="pill">secondary</span></p><dl class="schema"><dt>Distinct values</dt><dd>3 · 2.19% <span class="acc acc-sample" title="Counted on a sample of the distinct values, not on the whole file">sample</span></dd><dt>Lengths</dt><dd>15–24 characters</dd><dt>Generalization</dt><dd>level 2, 2 structures</dd><dt>Confidence</dt><dd>1.6% <small class="muted">heuristic, not a probability</small></dd></dl><p class="rcard-title">Examples</p><div class="column-line"><code>Salaberry-de-Valleyfield</code></div><p class="muted">2 examples of the scan are not among the values this report keeps.</p></div><div class="rcard"><p class="rcard-title">Reading notes</p><div class="column-line"><span>Read by p1 and p2<small class="sub-n">counted once, for the most specific pattern</small></span><b>67</b></div><div class="column-line"><span>Read by p2 and p3<small class="sub-n">counted once, for the most specific pattern</small></span><b>8</b></div><div class="column-line"><span>Unmatched values</span><b>11 · 8.03%</b></div><p class="muted">Bounded by max_patterns.</p><p class="muted">Not validated against the whole file.</p></div></div></div></section>
+<section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">08 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>137</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>137</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>137</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">7 changed · 0.23%</small></span><b>135</b></div><div class="column-line"><span>casefold<small class="sub-n">2,986 changed · 99.53%</small></span><b>128</b></div><div class="column-line"><span>strip accents<small class="sub-n">812 changed · 27.07%</small></span><b>122</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 13</p><div class="column-line"><span><code>montreal</code><small class="sub-n">Montréal (318) · montreal (2) · Montreal (1)</small></span><b>321</b></div><div class="column-line"><span><code>quebec</code><small class="sub-n">Québec (183) · quebec (1)</small></span><b>184</b></div><div class="column-line"><span><code>toronto</code><small class="sub-n">Toronto (101) · toronto (1)</small></span><b>102</b></div><div class="column-line"><span><code>longueuil</code><small class="sub-n">Longueuil (98) · longueuil (2)</small></span><b>100</b></div><div class="column-line"><span><code>levis</code><small class="sub-n">Lévis (96) · Levis (1)</small></span><b>97</b></div><div class="column-line"><span><code>trois-rivieres</code><small class="sub-n">Trois-Rivières (69) · trois-rivieres (1)</small></span><b>70</b></div><div class="column-line"><span><code>saint-jerome</code><small class="sub-n">Saint-Jérôme (48) · saint-jerome (1)</small></span><b>49</b></div><div class="column-line"><span><code>chateauguay</code><small class="sub-n">Châteauguay (30) · Chateauguay (1) · chateauguay (1)</small></span><b>32</b></div><div class="column-line"><span><code>alma</code><small class="sub-n">Alma (23) · alma (1)</small></span><b>24</b></div><div class="column-line"><span><code>joliette</code><small class="sub-n">Joliette (20) · joliette (1)</small></span><b>21</b></div><div class="column-line"><span><code>la tuque</code><small class="sub-n">La Tuque (19) · La  Tuque (1)</small></span><b>20</b></div><div class="column-line"><span><code>kelowna</code><small class="sub-n">Kelowna (7) · kelowna (1)</small></span><b>8</b></div><div class="column-line"><span><code>toront o</code><small class="sub-n">Toront  o (1) · Toront o (1)</small></span><b>2</b></div></div></div></div></section>
+<section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">09 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">
 <div class="rcard"><p class="rcard-title">Presence and missing</p><dl class="schema"><dt>First record</dt><dd>1</dd><dt>Occurrences</dt><dd>3,000</dd><dt>Parent</dt><dd>object</dd><dt>Parents</dt><dd>3,000</dd><dt>Present</dt><dd>3,000</dd><dt>Absent</dt><dd>0</dd></dl><div class="column-line"><span>absent</span><b>0</b></div><div class="column-line"><span>null</span><b>0</b></div><div class="column-line"><span>empty</span><b>0</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><p class="muted">Missing definition: absent, null, empty, blank, marker</p></div>
 <div class="rcard"><p class="rcard-title">First and last values</p><div class="column-line"><span>First · record 1<small class="sub-n"><code>Montréal</code> · string</small></span></div><div class="column-line"><span>Last · record 3000<small class="sub-n"><code>Gatineau</code> · string</small></span></div><p class="rcard-title">String categories</p><div class="column-line"><span>count</span><b>3,000</b></div><div class="column-line"><span>empty</span><b>0</b></div><div class="column-line"><span>blank</span><b>0</b></div><div class="column-line"><span>marker</span><b>0</b></div><div class="column-line"><span>content</span><b>3,000</b></div></div>
 <div class="rcard"><p class="rcard-title">String characteristics</p><div class="column-line"><span>non ascii</span><b>812</b></div><div class="column-line"><span>with line breaks</span><b>0</b></div><div class="column-line"><span>with control characters</span><b>0</b></div><div class="column-line"><span>with surrounding whitespace</span><b>0</b></div><div class="column-line"><span>with repeated whitespace</span><b>7</b></div><div class="column-line"><span>uppercase</span><b>0</b></div><div class="column-line"><span>lowercase</span><b>14</b></div><div class="column-line"><span>mixed case</span><b>2,986</b></div><div class="column-line"><span>no letters</span><b>0</b></div><p class="rcard-title">Scan length histogram</p><div class="column-line"><span>4 characters</span><b>24</b></div><div class="column-line"><span>5 characters</span><b>281</b></div><div class="column-line"><span>6 characters</span><b>376</b></div><div class="column-line"><span>7 characters</span><b>257</b></div><div class="column-line"><span>8 characters</span><b>864</b></div><div class="column-line"><span>9 characters</span><b>207</b></div><div class="column-line"><span>10 characters</span><b>372</b></div><div class="column-line"><span>11 characters</span><b>151</b></div><div class="column-line"><span>12 characters</span><b>60</b></div><div class="column-line"><span>13 characters</span><b>163</b></div><div class="column-line"><span>14 characters</span><b>71</b></div><div class="column-line"><span>15 characters</span><b>51</b></div><div class="column-line"><span>16 characters</span><b>17</b></div><div class="column-line"><span>19 characters</span><b>27</b></div><div class="column-line"><span>20 characters</span><b>1</b></div><div class="column-line"><span>24 characters</span><b>78</b></div></div>
@@ -597,8 +630,8 @@ td.ex .tip.show{display:block}
 
 
 </div></section>
-<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">09 / Raw values</p><h2 id="sample-h">Data sample</h2><p>First 20 records, with original row numbers.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span><code>Montréal</code></span></div><div class="column-line"><b>Row 2</b><span><code>Lévis</code></span></div><div class="column-line"><b>Row 3</b><span><code>Granby</code></span></div><div class="column-line"><b>Row 4</b><span><code>Repentigny</code></span></div><div class="column-line"><b>Row 5</b><span><code>Québec</code></span></div><div class="column-line"><b>Row 6</b><span><code>Winnipeg</code></span></div><div class="column-line"><b>Row 7</b><span><code>Lévis</code></span></div><div class="column-line"><b>Row 8</b><span><code>Lévis</code></span></div><div class="column-line"><b>Row 9</b><span><code>Toronto</code></span></div><div class="column-line"><b>Row 10</b><span><code>Montréal</code></span></div><div class="column-line"><b>Row 11</b><span><code>chateauguay</code></span></div><div class="column-line"><b>Row 12</b><span><code>Ottawg</code></span></div><div class="column-line"><b>Row 13</b><span><code>Mnotréal</code></span></div><div class="column-line"><b>Row 14</b><span><code>Québec</code></span></div><div class="column-line"><b>Row 15</b><span><code>Québec</code></span></div><div class="column-line"><b>Row 16</b><span><code>Québec</code></span></div><div class="column-line"><b>Row 17</b><span><code>Québec</code></span></div><div class="column-line"><b>Row 18</b><span><code>Montréal</code></span></div><div class="column-line"><b>Row 19</b><span><code>Hamilton</code></span></div><div class="column-line"><b>Row 20</b><span><code>Fredericton</code></span></div></div></div></section>
-
+<section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">10 / Raw values</p><h2 id="sample-h">Data sample</h2><p>10 at the start, 10 sampled from the interior and 10 at the end, with original row numbers. The sampled rows are not uniform over the whole file.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span class="pill">Start</span><span><code>Montréal</code></span></div><div class="column-line"><b>Row 2</b><span class="pill">Start</span><span><code>Lévis</code></span></div><div class="column-line"><b>Row 3</b><span class="pill">Start</span><span><code>Granby</code></span></div><div class="column-line"><b>Row 4</b><span class="pill">Start</span><span><code>Repentigny</code></span></div><div class="column-line"><b>Row 5</b><span class="pill">Start</span><span><code>Québec</code></span></div><div class="column-line"><b>Row 6</b><span class="pill">Start</span><span><code>Winnipeg</code></span></div><div class="column-line"><b>Row 7</b><span class="pill">Start</span><span><code>Lévis</code></span></div><div class="column-line"><b>Row 8</b><span class="pill">Start</span><span><code>Lévis</code></span></div><div class="column-line"><b>Row 9</b><span class="pill">Start</span><span><code>Toronto</code></span></div><div class="column-line"><b>Row 10</b><span class="pill">Start</span><span><code>Montréal</code></span></div><div class="column-line"><b>Row 405</b><span class="pill">Sampled</span><span><code>Mascouche</code></span></div><div class="column-line"><b>Row 427</b><span class="pill">Sampled</span><span><code>Halifax</code></span></div><div class="column-line"><b>Row 470</b><span class="pill">Sampled</span><span><code>Ottawa</code></span></div><div class="column-line"><b>Row 493</b><span class="pill">Sampled</span><span><code>Gatineau</code></span></div><div class="column-line"><b>Row 782</b><span class="pill">Sampled</span><span><code>Toronto</code></span></div><div class="column-line"><b>Row 1305</b><span class="pill">Sampled</span><span><code>Sherbrooke</code></span></div><div class="column-line"><b>Row 1761</b><span class="pill">Sampled</span><span><code>Mascouche</code></span></div><div class="column-line"><b>Row 2020</b><span class="pill">Sampled</span><span><code>Terrebonne</code></span></div><div class="column-line"><b>Row 2044</b><span class="pill">Sampled</span><span><code>Salaberry-de-Valleyfield</code></span></div><div class="column-line"><b>Row 2277</b><span class="pill">Sampled</span><span><code>Victoriaville</code></span></div><div class="column-line"><b>Row 2991</b><span class="pill">End</span><span><code>Joliette</code></span></div><div class="column-line"><b>Row 2992</b><span class="pill">End</span><span><code>Québec</code></span></div><div class="column-line"><b>Row 2993</b><span class="pill">End</span><span><code>Châteauguay</code></span></div><div class="column-line"><b>Row 2994</b><span class="pill">End</span><span><code>Dollard-des-Ormeaux</code></span></div><div class="column-line"><b>Row 2995</b><span class="pill">End</span><span><code>Magog</code></span></div><div class="column-line"><b>Row 2996</b><span class="pill">End</span><span><code>Montréal</code></span></div><div class="column-line"><b>Row 2997</b><span class="pill">End</span><span><code>Gatineau</code></span></div><div class="column-line"><b>Row 2998</b><span class="pill">End</span><span><code>Sherbrooke</code></span></div><div class="column-line"><b>Row 2999</b><span class="pill">End</span><span><code>Shawinigan</code></span></div><div class="column-line"><b>Row 3000</b><span class="pill">End</span><span><code>Gatineau</code></span></div></div></div></section>
+<section class="panel" id="limits" aria-labelledby="limits-h"><div class="phead"><div><p class="eyebrow">11 / Limits</p><h2 id="limits-h">Limited measures</h2><p>What the scan could not establish for this column. Counters and statistics continue past a limit.</p></div></div><div class="pbody column-list"><div class="column-line"><span>Inferred patterns<small class="sub-n"><code>derived.patterns</code> · max_patterns · scan.pattern_inference.max_patterns · limit 8</small></span><b><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span></b></div></div></section>
 </main></div><footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.6.2</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
 <script>// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -716,17 +749,30 @@ td.ex .tip.show{display:block}
     ['equal', '=', 'Equal to'], ['greater', '>', 'Greater than'], ['greaterOrEqual', '≥', 'Greater than or equal'],
     ['less', '<', 'Less than'], ['lessOrEqual', '≤', 'Less than or equal'], ['between', '[··]', 'Between (inclusive)'],
   ];
+  /* Numbers are compared as the text the report wrote: an integer beyond 2^53
+     is compared as a BigInt, so a large counter is never rounded silently. */
+  const INTEGER = /^[+-]?\d+$/;
+  const toNum = (t) => { const n = Number(t); return Number.isNaN(n) ? parseFloat(t) : n; };
+  const numCmp = (x, y) => {
+    x = String(x).trim(); y = String(y).trim();
+    if ((x.length > 15 || y.length > 15) && INTEGER.test(x) && INTEGER.test(y)) {
+      const a = BigInt(x), b = BigInt(y);
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+    const a = toNum(x), b = toNum(y);
+    return a < b ? -1 : a > b ? 1 : 0;
+  };
   const numTest = (f) => (raw) => {
-    if (String(raw).trim() === '') return false;
-    const x = Number(raw);
-    if (!Number.isFinite(x)) return false;
+    const t = String(raw).trim();
+    if (t === '' || !Number.isFinite(Number(t))) return false;
+    const c = numCmp(t, f.as);
     switch (f.op) {
-      case 'equal': return x === f.a;
-      case 'greater': return x > f.a;
-      case 'greaterOrEqual': return x >= f.a;
-      case 'less': return x < f.a;
-      case 'lessOrEqual': return x <= f.a;
-      default: return x >= f.a && x <= f.b;
+      case 'equal': return c === 0;
+      case 'greater': return c > 0;
+      case 'greaterOrEqual': return c >= 0;
+      case 'less': return c < 0;
+      case 'lessOrEqual': return c <= 0;
+      default: return c >= 0 && numCmp(t, f.bs) <= 0;
     }
   };
 
@@ -788,6 +834,10 @@ td.ex .tip.show{display:block}
     const filters = new Map();
     let sort = null;
     const cellVal = (r, idx) => { const c = r.cells[idx]; return c.dataset.v !== undefined ? c.dataset.v : c.textContent.trim(); };
+    /* paged tables show pageSize rows at a time; filters and sorting see every row */
+    const pageSize = Number(table.dataset.pageSize) || 0;
+    const more = document.querySelector('[data-more="' + table.id + '"]');
+    let limit = pageSize;
 
     const ctrl = {
       extraActive: () => (extra ? extra.active() : false),
@@ -797,23 +847,31 @@ td.ex .tip.show{display:block}
         rows.forEach((r) => {
           let ok = extra ? extra.test(r) : true;
           if (ok) for (const [idx, f] of filters) { if (!f.test(cellVal(r, idx))) { ok = false; break; } }
+          r.dataset.f = ok ? '' : '1';
           r.hidden = !ok;
           if (ok) visible++;
         });
         let order = rows.slice();
         if (sort) {
           const num = heads[sort.idx].dataset.kind === 'num';
-          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : parseFloat(v)) : v.toLowerCase(); };
+          const key = (r) => { const v = cellVal(r, sort.idx); return num ? (v === '' ? null : v) : v.toLowerCase(); };
           order.sort((a, b) => {
             const x = key(a), y = key(b);
             if (x === null && y === null) return a.dataset.i - b.dataset.i;
             if (x === null) return 1;            // empty values always last
             if (y === null) return -1;
-            const c = num ? x - y : x.localeCompare(y, undefined, { numeric: true });
+            const c = num ? numCmp(x, y) : x.localeCompare(y, undefined, { numeric: true });
             return (sort.dir === 'asc' ? c : -c) || a.dataset.i - b.dataset.i;
           });
         }
         order.forEach((r) => tbody.appendChild(r));
+        let shown = visible;
+        if (pageSize) {
+          shown = Math.min(limit, visible);
+          let n = 0;
+          order.forEach((r) => { if (r.dataset.f !== '1') r.hidden = n++ >= limit; });
+          if (more) more.hidden = visible <= limit;
+        }
         heads.forEach((th, idx) => {
           const s = $('.hb-s', th), f = $('.hb-f', th);
           if (!s) return;
@@ -826,12 +884,12 @@ td.ex .tip.show{display:block}
           th.classList.toggle('filtered', filters.has(idx));
           f.setAttribute('aria-label', 'Filter ' + th.dataset.label + (filters.has(idx) ? ' (active)' : ''));
         });
-        if (live) live.textContent = visible + ' of ' + rows.length + ' ' + noun;
+        if (live) live.textContent = (shown < visible ? shown + ' shown, ' : '') + visible + ' of ' + rows.length + ' ' + noun;
         resetBtns.forEach((b) => { b.hidden = !ctrl.isActive(); });
         refreshGlobal();
       },
       reset() {
-        filters.clear(); sort = null;
+        filters.clear(); sort = null; limit = pageSize;
         if (extra) extra.reset();
         if (openMenu && table.contains(openMenu.btn)) closeMenu();
         ctrl.apply();
@@ -879,8 +937,8 @@ td.ex .tip.show{display:block}
         '</div><div class="fm-fields"><input type="number" step="any" autocomplete="off" class="fm-a"><input type="number" step="any" autocomplete="off" class="fm-b" placeholder="Maximum" aria-label="Maximum (inclusive)"></div>' +
         '<div class="fm-err" aria-live="polite" hidden></div>';
       const a = $('.fm-a', body), b = $('.fm-b', body), err = $('.fm-err', body);
-      if (Number.isFinite(cur.a)) a.value = cur.a;
-      if (Number.isFinite(cur.b)) b.value = cur.b;
+      if (cur.as !== undefined) a.value = cur.as;
+      if (cur.bs !== undefined) b.value = cur.bs;
       const update = () => {
         const between = op === 'between';
         b.hidden = !between;
@@ -893,7 +951,7 @@ td.ex .tip.show{display:block}
         err.textContent = reversed ? 'Minimum must not exceed maximum.' : '';
         a.setAttribute('aria-invalid', String(reversed)); b.setAttribute('aria-invalid', String(reversed));
         const active = Number.isFinite(lo) && (!between || Number.isFinite(hi)) && !reversed;
-        if (active) { const f = { op, a: lo, b: hi }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
+        if (active) { const f = { op, a: lo, b: hi, as: a.value, bs: b.value }; f.test = numTest(f); filters.set(idx, f); } else filters.delete(idx);
         setTitleClear(filters.has(idx));
         ctrl.apply();
       };
@@ -963,7 +1021,14 @@ td.ex .tip.show{display:block}
     });
 
     resetBtns.forEach((b) => b.addEventListener('click', () => ctrl.reset()));
+    if (more) more.addEventListener('click', () => {
+      limit += pageSize;
+      ctrl.apply();
+      // the button hides itself once everything is shown: keep the keyboard in the table
+      if (more.hidden) { const box = table.closest('.tscroll'); if (box) box.focus({ preventScroll: true }); }
+    });
     controllers.push(ctrl);
+    if (pageSize) ctrl.apply();
     return ctrl;
   };
 

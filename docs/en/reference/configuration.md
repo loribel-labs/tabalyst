@@ -24,7 +24,7 @@ The top-level `csv` object holds the CSV settings of `tabalyst sample`:
   "scan": {
     "csv": {"delimiter": ";"},
     "values": {"null_markers": ["N/A"]},
-    "records": {"preview": 20}
+    "records": {"duplicates": true}
   }
 }
 ```
@@ -62,17 +62,22 @@ presentation: changing them never scans the source again.
       "long_text_truncate_at": 30,
       "truncation_suffix": "...",
       "inline_display_size": 3
-    }
+    },
+    "row_sample": {"start": 10, "middle": 10, "end": 10}
   }
 }
 ```
 
-### Preview
+### Row sample
 
-The report shows the preview of the scan: its first `scan.records.preview`
-records, 10 by default (see [Records](#records)). It never limits analysis of
-the complete file. Values of sensitive columns are masked or hidden in the
-preview as in the rest of the report (see
+The report shows rows of the [row sample](../scan/format.md#row-sample) of the
+scan: the first `report.row_sample.start` records, the last `end` records and
+`middle` records drawn from the interior, 10 of each by default, at most 1,000
+of each and never more than the scan kept (see [Records](#records)). The sampled
+rows are the ones with the smallest priorities, a subset of the scan's, and are
+not uniform over the whole file. The setting never limits the analysis of the
+complete file, and changing it never scans the source again. Values of sensitive
+columns are masked or hidden as in the rest of the report (see
 [How the report uses the scan settings](#how-the-report-uses-the-scan-settings)).
 
 ### String analysis
@@ -138,8 +143,7 @@ the tooltip lists masked values.
 | Date analysis | `scan.detectors.date` |
 | Semantic types | `scan.detection.minimum_share` and every detector |
 | Masked values | `scan.exposure.sensitive_values` |
-| Preview | `scan.records.preview` |
-| Row sample (first, middle and last rows) | `scan.records.sample` |
+| Row sample (first, middle and last rows) | `scan.records.sample` for the rows the scan keeps, `report.row_sample` for the rows the report shows |
 | Duplicate rows | `scan.records.duplicates` and `scan.limits.max_tracked_records` |
 | Limits and diagnostics | `scan.limits` and `scan.errors` |
 
@@ -156,7 +160,7 @@ the tooltip lists masked values.
   semantic types.
 - **Sensitive values.** Columns where a sensitive detector matches, such as
   email addresses and phone numbers, are masked by default in examples, value
-  profiles and the preview: `jane@example.com` becomes `aaaa@aaaaaaa.aaa`. Set
+  profiles and the data sample: `jane@example.com` becomes `aaaa@aaaaaaa.aaa`. Set
   `scan.exposure.sensitive_values` to `show` to keep the values, or `hide` to
   remove them.
 - **Limits.** When a scan limit stops a measure, such as the distinct values
@@ -194,7 +198,7 @@ The analysis settings moved to `scan`, the presentation settings to `report`:
 | `enum_detection` | `scan.detectors.enumeration`: `maximum_distinct_values` is `maximum_distinct`, and `minimum_row_count` is `minimum_values`, which counts present values, not rows |
 | `value_examples.candidate_sample_size` | `scan.limits.max_samples` |
 | `value_examples.random_seed` | `scan.random_seed` |
-| `preview_rows` | `scan.records.preview`, now up to 1,000 |
+| `preview_rows` | `scan.records.sample.edge` and `report.row_sample` |
 | `string_analysis` | `report.string_analysis` |
 | `value_examples` (other than the two below) | `report.value_examples` |
 
@@ -270,7 +274,7 @@ object of each configuration file. The complete object with its defaults is:
       "max_tracked_records": 2000000, "max_listed_records": 10
     },
     "records": {
-      "preview": 10, "duplicates": true,
+      "duplicates": true,
       "sample": {
         "rows": 1000, "edge": 50, "cell_chars": 200,
         "max_bytes": 16777216
@@ -436,11 +440,13 @@ report:
 | `scan.limits.max_samples` | Scan | Size of the sample of distinct values kept in the scan document |
 | `report.value_examples.kept_per_column` | Report | Sample values the report keeps per column, at most 1,000 (default 100): the smallest priorities of the scan sample, so a subset of it |
 | `report.value_examples.*` | Report | What the report shows and how it picks examples from the values it kept |
+| `report.row_sample.start`, `middle`, `end` | Report | Rows of the row sample the report keeps and shows: the first, the interior rows of smallest priority, the last (0 to 1,000 each, default 10, never more than the scan kept) |
 
 ### Records
 
-- `records.preview`: how many of the first records each dataset keeps in its
-  preview, from 0 to 1,000. Sensitive values are exposed as elsewhere.
+- `records.preview` no longer exists: the first records are the start of the
+  row sample (`records.sample.edge`). Setting it is an error that names its
+  replacements.
 - `records.duplicates`: set to `false` to skip duplicate detection, which
   stores one digest per distinct record, up to `limits.max_tracked_records`.
   The duplicate count is then `disabled`.

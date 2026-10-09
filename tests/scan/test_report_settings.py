@@ -117,7 +117,7 @@ def test_kept_per_column_sets_the_samples_the_report_keeps_and_says_so(tmp_path)
     samples = profile.datasets[0].fields[0].values.samples
     assert (samples.kept, samples.of) == (5, 50)
     assert len(samples.listed) == 5
-    assert "reproducible sample of 5 distinct values" in render_report(profile)
+    assert "reproducible sample of up to 5 distinct values" in render_report(profile)
 
 
 def test_a_larger_kept_per_column_does_not_start_a_scan_again(tmp_path):

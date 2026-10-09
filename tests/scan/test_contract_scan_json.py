@@ -164,16 +164,11 @@ def test_A02_report_base_equals_the_scan_base(tmp_path):
     assert report["format"] == "tabalyst.report"
     base = load_base(report_file).model_dump(mode="json", by_alias=True)
     expected = load_base(scan_file).model_dump(mode="json", by_alias=True)
-    # The Report declares the rows of the row sample it does not keep (P6,
-    # design 18.11); every other fact is the Scan's.
-    for dataset_ in base["datasets"]:
-        sample = dataset_["records"]["sample"]
-        assert (sample["kept"], sample["rows"]) == (0, [])
-        sample.update(kept=sample["of"], rows=None)
+    # A file of a few rows keeps every row (the Report keeps up to 10 of each
+    # part, design 18.14); every other fact is the Scan's.
     for dataset_ in expected["datasets"]:
         sample = dataset_["records"]["sample"]
         assert sample["kept"] == sample["of"] == len(sample["rows"])
-        sample["rows"] = None
     assert base == expected  # no lost detector, status or rounding
     assert load_base(scan_file).format == "tabalyst.scan"
 

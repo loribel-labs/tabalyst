@@ -536,3 +536,31 @@ td.ex .tip.show{display:block}
 .column-grid .schema{margin:0}
 .column-json{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--s0);color:var(--text-2);font:400 11px/1.5 var(--f-mono)}
 @media (max-width:650px){.column-line{align-items:flex-start}.column-line b{white-space:normal}}
+
+/* lot 5: accuracy labels, finding status, pager. Shape and text carry the
+   meaning, never the color alone. */
+.acc{display:inline-flex;align-items:center;gap:4px;font:500 10.5px/1 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:var(--r-xs);border:1px solid var(--line-strong);color:var(--text-2);white-space:nowrap}
+.acc::before{font-weight:600}
+.acc-exact::before{content:"="}
+.acc-estimated{border-style:dotted}
+.acc-estimated::before{content:"\2248"}
+.acc-sample{border-style:dashed}
+.acc-sample::before{content:"\223C"}
+.acc-at_least{border-color:rgba(249,133,16,.6);color:var(--attn-text)}
+.acc-at_least::before{content:"\2265"}
+.acc-not_computed{border-style:dashed;color:var(--text-3)}
+.acc-not_computed::before{content:"\2205"}
+.lb{color:var(--attn-text)}
+.est{white-space:nowrap}
+.st{display:inline-flex;align-items:center;gap:6px;font:500 11px/1.2 var(--f-mono);color:var(--text-2);white-space:nowrap}
+.st i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--attn)}
+.st-cand i,.findings li.cand i{background:transparent;border:1.5px solid var(--attn)}
+.st-info i{background:var(--d2)}
+.findings li.cand i{width:7px;height:7px;box-sizing:border-box}
+.findings li.cand i,.findings li.warn i{flex:none}
+.st-t{font:500 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-right:4px}
+.cut{margin-left:6px;font:500 10.5px/1 var(--f-mono);color:var(--attn-text);white-space:nowrap}
+.pill.on{border-color:var(--text-3);color:var(--text)}
+.pager{margin-top:10px}
+.pager[hidden]{display:none}
+.pat{white-space:pre-wrap;overflow-wrap:anywhere}
