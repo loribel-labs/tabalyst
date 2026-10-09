@@ -572,6 +572,26 @@ distinct count) in a fraction of its time and prints a bounded page (`DISPLAY_LI
 grows by the three sections it adds (observations, patterns, 30 rows of 34 cells), not with the
 size of the file. The JSON loses `issues`, `preview` and `limits` and gains 30 rows instead of 10.
 
+## Planner (lot 6a)
+
+Lot 6a adds no code to the first pass: `scanner/api.py`, the engine, the value processors and the
+readers are unchanged (`git diff --stat` of the lot touches `scanner/identity.py` only, where
+`facts_sha256` moved from `scan_document.py`). The Scan is therefore not compared with an earlier
+commit; what is measured is the planner, which runs after a scan and reads the finished document
+(script `D:/GIT.test/tabalyst/artifacts/lot6a_perf_plan.py`, best of three calls in
+one process):
+
+| File | Fields | Facts of the fields | `facts_sha256` | `plan_analyses` | Plan JSON |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| insurance-combined.csv (1 M rows) | 34 | 0.1 ms | 8.4 ms | 16.6 ms | 82 KB |
+
+The plan has 126 candidates for the 34 fields (33 selected, 76 already answered by the Scan, 17
+left out) and a firm memory maximum of 216.5 MB of the 256 MiB budget: the exact distinct sets of
+the identifier-like fields are charged with the number of values read, which is why the maximum
+is far above the expected 160 MB. Planning cost is linear in the number of fields (a few
+candidates each, no value read); `facts_sha256` is the largest part and is the same function the
+Report already pays. The thresholds and the size constants are provisional until lot 6b.
+
 ## JSON Inspect
 
 The costs of JSON Inspect, of the interpretation resolver and of the JSON and JSONL

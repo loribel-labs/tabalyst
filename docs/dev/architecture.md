@@ -391,6 +391,14 @@ number of workers, and the size in force is in the document (`requested_k`,
 `reason`). Batches of rows (CSV) and of streamed values are also bounded by
 size (design 13).
 
+`scanner/planner/` (lot 6a) is the registry of analyzers and the planner of the second pass
+(design 20.5). It reads a finished Scan (`facts.py` builds one `FieldFacts` per field), asks
+each analyzer of `analyzers/` whether it applies, is already answered, what it costs and how
+useful it is, and selects under a firm memory budget with shared states counted once. It
+runs nothing: `plan_service.py` is its boundary for the CLI (`tabalyst scan --plan`) and the
+API, and the costs are provisional until lot 6b. `facts_sha256` lives in `scanner/identity.py`
+so that the planner does not import the document loader.
+
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the
 sample becomes a `bottom_k` and feeds it the priorities it computed once for the

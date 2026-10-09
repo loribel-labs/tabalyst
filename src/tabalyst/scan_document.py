@@ -9,11 +9,9 @@ A Report holds the base of a Scan at the same paths, plus a ``report`` block.
 ``load_document`` also says what the document is and what it can still do.
 """
 
-import hashlib
-import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import ValidationError
 
@@ -29,6 +27,7 @@ from tabalyst.scan_reuse import (
     read_json_document,
     scan_from_document,
 )
+from tabalyst.scanner.identity import facts_sha256
 from tabalyst.scanner.models import (
     FORMAT,
     FORMAT_REVISION,
@@ -67,48 +66,6 @@ class LoadedDocument:
                 f"A Report keeps fewer sample values than its Scan, so it cannot "
                 f"be used to {purpose}. Use the scan document of the source."
             )
-
-
-def facts_sha256(base: ScanResult) -> str:
-    """SHA-256 of the facts of a base: without ``run``, which varies between
-    runs, without ``derived`` and ``observations``, which are computed from the
-    facts, and without the contents of the samples and of their strata, whose
-    size depends on the document and not on the data (design 19.5)."""
-    # ``Any``: a serialized model is a plain dict whose values are JSON data.
-    # Excluded before serializing: a Scan holds up to ``max_samples`` values per
-    # field, which would be written only to be dropped.
-    document: dict[str, Any] = base.model_dump(
-        mode="json",
-        by_alias=True,
-        exclude={
-            "run": True,
-            "derived": True,
-            "observations": True,
-            "datasets": {
-                "__all__": {
-                    "records": {"sample": {"rows": True, "kept": True}},
-                    "fields": {
-                        "__all__": {
-                            "values": {
-                                "samples": {
-                                    "listed": True,
-                                    "kept": True,
-                                    "by_length": {
-                                        "listed": True,
-                                        "strata": {"__all__": {"kept": True, "ids": True}},
-                                    },
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-        },
-    )
-    canonical = json.dumps(
-        document, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-    )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def complete_samples(base: ScanResult) -> bool:
