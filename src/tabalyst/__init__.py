@@ -6,10 +6,10 @@
 
 from tabalyst._version import __version__
 from tabalyst.config import DeepSettings as DeepSettings
-from tabalyst.deep_service import ConfirmationRequired as ConfirmationRequired
 from tabalyst.deep_service import execute_deep as execute_deep
 from tabalyst.deep_service import generate_deep as generate_deep
 from tabalyst.deep_service import prepare_deep as prepare_deep
+from tabalyst.deep_store import ConfirmationRequired as ConfirmationRequired
 from tabalyst.errors import ConfigurationError, InputError, ReportError, TabalystError
 from tabalyst.generate_service import GeneratePlan as GeneratePlan
 from tabalyst.generate_service import GenerateResult as GenerateResult

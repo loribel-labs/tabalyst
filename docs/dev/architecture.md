@@ -422,9 +422,25 @@ has been compared with the Scan's. `document.py` and `models.py` are the separat
 key (digit strings by length, texts, JSON integers and numbers), a pool of the bytes the plan
 gave the exact sets of the run, and a field that is stopped with a lower bound when the pool
 cannot hold it (design 20.8); `frequencies.py` is the table of the exact frequencies.
-`deep_service.py` is the boundary for the CLI and the API (`prepare_deep`, `execute_deep`,
-`generate_deep`); it never prompts. The `deep` settings (`DeepSettings` in `config.py`) are
-not part of `ScanConfig`, so they never make a Scan stale.
+`patterns.py` and `periods.py` (lot 7c) are the validation of the inferred patterns on every
+occurrence (compiled possessive regular expressions for ASCII values, the token matcher of
+`patterninfer` for the rest, one exclusive classification, derived from the exact counts of
+the Scan without reading when it holds every distinct value; design 20.9) and the dates per
+calendar period (the date detector of the Scan's configuration on the analytical text, dates
+as written; design 20.10). `deep_service.py` is the boundary for the CLI and the API
+(`prepare_deep`, `execute_deep`, `generate_deep`); it never prompts. The `deep` settings
+(`DeepSettings` in `config.py`) are not part of `ScanConfig`, so they never make a Scan stale;
+`DeepSection` adds `mode`, which only tells Report whether to plan.
+
+`report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
+Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and
+writes `<stem>.deep.json` through `deep_store.write_deep` and returns the `AnalysesBlock` the
+Report embeds as `analyses`. `service.py` splits a Report into `_scan_resolved` /
+`_scan_document_resolved` (the first pass, a `ScannedReport`) and `write_scanned_report` (the
+second pass, the profile and the files), so that `report_service.generate_reports` can ask once for
+the whole batch of a forced second pass between the two. The renderer stays pure: `report_deep.py`
+builds the views of the `analyses` member (the Second pass section, the exact distinct count, the
+median, the validated patterns, the periods) and reads no source.
 
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the

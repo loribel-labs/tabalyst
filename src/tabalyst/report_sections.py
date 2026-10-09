@@ -60,18 +60,27 @@ from tabalyst.scanner.quality import ANALYTICAL_STAGES
 _KIND_RANK = {AT_LEAST: 0, SAMPLE: 1, EXACT: 2}
 
 
-def cardinality_view(field: FieldResult) -> CardinalityView:
+def cardinality_view(field: FieldResult, exact_original: int | None = None) -> CardinalityView:
     """The distinct analytical values of a column, exact or qualified.
 
     The count follows the last enabled analytical stage. A stage that changed
     nothing (``equals``) is the identity on the distinct values, so the raw
     count and its estimate are still the right ones; a stage that changed
     something has its own count, which carries no estimate (design 10).
+
+    ``exact_original`` is the exact distinct count of the original values that
+    the second pass made. It answers a count the scan stopped only while no
+    stage changes the values: after a stage that does, the figure shown is of
+    another population and the exact count of the originals is not it.
     """
     measure = field.values.cardinality
+    changed = False
     for stage in field.normalization.stages:
         if stage.stage in ANALYTICAL_STAGES and stage.enabled and stage.equals is None:
             measure = stage.cardinality
+            changed = True
+    if exact_original is not None and not changed and isinstance(measure, Limited):
+        return CardinalityView(kind="exact", source="second_pass", value=exact_original)
     if isinstance(measure, Complete):
         return CardinalityView(kind="exact", value=measure.value)
     if isinstance(measure, NotApplicable):

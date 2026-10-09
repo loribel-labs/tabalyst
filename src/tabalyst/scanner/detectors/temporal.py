@@ -353,7 +353,8 @@ class _KindStats:
             self.years[value.year] = self.years.get(value.year, 0) + count
 
 
-def _kind(value: object) -> str | None:
+def kind_of(value: object) -> str | None:
+    """The temporal kind a parsed value belongs to, as the Scan names it."""
     if type(value) is date:
         return "date"
     if type(value) is datetime:
@@ -384,7 +385,7 @@ class DateAccumulator(AmbiguityAccumulator):
         if classification.state == "ambiguous":
             self.unresolved += count
         elif classification.state == "matched":
-            kind = _kind(classification.value)
+            kind = kind_of(classification.value)
             if kind is not None:
                 stats = self.kinds.get(kind)
                 if stats is None:

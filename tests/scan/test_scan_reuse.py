@@ -49,12 +49,17 @@ def _report(*arguments):
 
 def _comparable(profile: dict) -> dict:
     # What varies between runs: the scan's ``run`` and the report's own timing.
+    # The second pass is compared apart: a report of a scan document reads no
+    # source, so it holds fewer analyses than the report of the source.
     report = {
         key: value
         for key, value in profile["report"].items()
         if key not in {"generated_at", "processing_seconds"}
     }
-    return {**{k: v for k, v in profile.items() if k != "run"}, "report": report}
+    return {
+        **{k: v for k, v in profile.items() if k not in {"run", "analyses"}},
+        "report": report,
+    }
 
 
 def _config(tmp_path, name, document):
@@ -83,6 +88,10 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     reused = json.loads((tmp_path / "data.json").read_text(encoding="utf-8"))
     expected = json.loads(direct.with_suffix(".json").read_text(encoding="utf-8"))
     assert _comparable(reused) == _comparable(expected)
+    # A report of a scan document reads no source and says what it left out.
+    assert expected["analyses"]["outcome"] == "ran"
+    assert reused["analyses"]["outcome"] == "unavailable"
+    assert reused["analyses"]["deep"]["run"]["source_read"] is False
     assert reused["report"]["datasets"][0]["summary"]["duplicate_row_count"] == 1
     assert (tmp_path / "data.html").exists()
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))

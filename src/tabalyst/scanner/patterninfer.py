@@ -381,7 +381,7 @@ def _signature(group: _Group) -> list[PatternToken]:
     return signature
 
 
-def _specificity(
+def candidate_order(
     signature: Sequence[PatternToken], level: int, order: int
 ) -> tuple[int, int, int, int]:
     """Order of exclusive classification: more literal letters or digits, then
@@ -497,7 +497,7 @@ def _infer(
         for index in group.members:
             owner[index] = number
     specificity = [
-        _specificity(signatures[number], chosen[number].level, number)
+        candidate_order(signatures[number], chosen[number].level, number)
         for number in range(len(chosen))
     ]
     broad = [

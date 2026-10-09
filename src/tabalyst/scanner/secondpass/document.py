@@ -37,7 +37,7 @@ DEEP_SUFFIX = ".deep.json"
 
 # The analyzers that work on the original values (design 21); every other one
 # works on the analytical values of design section 10.
-ORIGINAL_DOMAIN_ANALYZERS = frozenset({"exact_distinct"})
+ORIGINAL_DOMAIN_ANALYZERS = frozenset({"exact_distinct", "pattern_validation"})
 
 
 def analysis_domain(analyzer: str) -> Literal["analytical", "original"]:

@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-09T11:48:48.185127Z",
-    "duration_seconds": 0.027752,
+    "started_at": "2026-10-09T13:30:38.238317Z",
+    "duration_seconds": 0.028562,
     "timings": {
-      "reading": 0.005627,
-      "analysis": 0.007527,
-      "finalize": 0.012043,
-      "derived": 0.002162,
-      "other": 0.000392
+      "reading": 0.006175,
+      "analysis": 0.007698,
+      "finalize": 0.011899,
+      "derived": 0.002405,
+      "other": 0.000384
     },
     "workers": 1,
-    "peak_memory_bytes": 54571008
+    "peak_memory_bytes": 56938496
   },
   "source": {
     "format": "jsonl",
@@ -12553,13 +12553,6741 @@
     ],
     "limits": []
   },
+  "analyses": {
+    "mode": "auto",
+    "outcome": "ran",
+    "deep": {
+      "format": "tabalyst.scan.deep",
+      "format_version": "0.2.0",
+      "format_revision": 1,
+      "status": "complete",
+      "base": {
+        "format_revision": 2,
+        "engine_version": "0.6.2",
+        "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
+        "config_sha256": "ecac5a0214e9631f5ed199070d69e51cca9b05b3570f54e54528ee827630e87c",
+        "facts_sha256": "fa981d2fa6816ec68f45400ef8fac41628c883358c0bfa857aa004c5e95d9c81"
+      },
+      "settings": {
+        "bins": 100,
+        "bin_strategy": "linear"
+      },
+      "settings_sha256": "3cc11de36aee5ad26fc3410baff07c4a3a30c5b611cb78c5b8b031f5819c8b49",
+      "plan": {
+        "planner": "tabalyst.planner",
+        "planner_version": 1,
+        "utility_version": 1,
+        "cost_model_version": 4,
+        "plan_id": "c5401b5bf3200e765b79783c4fc4d3866a75f464270f06965bef90b06be23ee7",
+        "base": {
+          "format_revision": 2,
+          "engine_version": "0.6.2",
+          "source_sha256": "4c998078985c1758fdb5d5ff2e3e842dc4ad48469067cbab08b2ec4ddd86dea3",
+          "config_sha256": "ecac5a0214e9631f5ed199070d69e51cca9b05b3570f54e54528ee827630e87c",
+          "facts_sha256": "fa981d2fa6816ec68f45400ef8fac41628c883358c0bfa857aa004c5e95d9c81"
+        },
+        "objective": {
+          "automatic": true,
+          "forced": false,
+          "requested": []
+        },
+        "budgets": {
+          "memory_bytes": 536870912,
+          "automatic_memory_bytes": 134217728,
+          "max_cells": 100000000,
+          "automatic_max_cpu": "moderate",
+          "overflow": "reject"
+        },
+        "common": {
+          "requires_source": true,
+          "cells": 5100,
+          "memory_bytes": 25165824,
+          "cpu": "very_low"
+        },
+        "summary": {
+          "candidates": 58,
+          "selected": 14,
+          "already_satisfied": 37,
+          "rejected": 7,
+          "second_pass_required": true,
+          "executable": true,
+          "memory": {
+            "min": 25358172,
+            "expected": 25678172,
+            "max": 26638172
+          },
+          "beyond_automatic": []
+        },
+        "candidates": [
+          {
+            "id": "exact_frequencies:$[]:f1",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": "hash_table",
+            "parameters": {
+              "distinct": 300
+            },
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "partial_counts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 47524,
+                "expected": 111524,
+                "max": 303524
+              },
+              "cpu": "low",
+              "cell_ns": 120,
+              "states": [
+                {
+                  "key": "frequencies:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 46500,
+                    "expected": 46500,
+                    "max": 46500
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:exact_frequencies:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 1,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f2",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": "hash_table",
+            "parameters": {
+              "distinct": 300
+            },
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "partial_counts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 50824,
+                "expected": 114824,
+                "max": 306824
+              },
+              "cpu": "low",
+              "cell_ns": 120,
+              "states": [
+                {
+                  "key": "frequencies:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 49800,
+                    "expected": 49800,
+                    "max": 49800
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:exact_frequencies:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 2,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f3",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f3/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f4",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f4",
+            "display": "user",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f5",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f5",
+            "display": "user.id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f5/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f6",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f6/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f7",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f7/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f8",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f8",
+            "display": "device",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f9",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f9",
+            "display": "device.os",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f9/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f10",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f10",
+            "display": "device.mobile",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f10/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f11",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f11/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f12",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f12",
+            "display": "tags",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f13",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f13",
+            "display": "tags[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f13/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f14",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f14",
+            "display": "amount",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f14/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f15",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f15/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f16",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f16",
+            "display": "error_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f16/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_frequencies:$[]:f17",
+            "analyzer": "exact_frequencies",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "frequencies",
+              "mode",
+              "proportions"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "counts_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f17/values/frequencies"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_histogram:$[]:f5",
+            "analyzer": "numeric_histogram",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f5",
+            "display": "user.id",
+            "method": "dense_counts",
+            "parameters": {
+              "domain": 60
+            },
+            "outputs": [
+              "histogram",
+              "quantiles",
+              "median_estimate"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "numeric_distribution",
+                "same_state_exact_median"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1504,
+                "expected": 65504,
+                "max": 257504
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "dense_counts:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 480,
+                    "expected": 480,
+                    "max": 480
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_histogram:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 12,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_histogram:$[]:f14",
+            "analyzer": "numeric_histogram",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f14",
+            "display": "amount",
+            "method": "bins",
+            "parameters": {
+              "bins": 100,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "histogram",
+              "quantiles",
+              "median_estimate"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "numeric_distribution"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 30104,
+                "expected": 94104,
+                "max": 286104
+              },
+              "cpu": "moderate",
+              "cell_ns": 1800,
+              "states": [
+                {
+                  "key": "bins:datasets/$[]/fields/f14",
+                  "memory": {
+                    "min": 29080,
+                    "expected": 29080,
+                    "max": 29080
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f14",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_histogram:datasets/$[]/fields/f14",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 14,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_histogram:$[]:f16",
+            "analyzer": "numeric_histogram",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f16",
+            "display": "error_code",
+            "method": "dense_counts",
+            "parameters": {
+              "domain": 100
+            },
+            "outputs": [
+              "histogram",
+              "quantiles",
+              "median_estimate"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "numeric_distribution",
+                "same_state_exact_median"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1824,
+                "expected": 65824,
+                "max": 257824
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "dense_counts:datasets/$[]/fields/f16",
+                  "memory": {
+                    "min": 800,
+                    "expected": 800,
+                    "max": 800
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f16",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_histogram:datasets/$[]/fields/f16",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 13,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f1",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f1/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f2",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f2/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f3",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f3/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f6",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f6/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f7",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f7/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f9",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f9",
+            "display": "device.os",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f9/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f11",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f11/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f13",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f13",
+            "display": "tags[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f13/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f15",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f15/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "length_distribution:$[]:f17",
+            "analyzer": "length_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "length_histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "lengths_complete",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f17/string_lengths"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f1",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f1/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f2",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f2/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f3",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f3/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f4",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f4",
+            "display": "user",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f5",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f5",
+            "display": "user.id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f5/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f6",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f6/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f7",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f7/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f8",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f8",
+            "display": "device",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f9",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f9",
+            "display": "device.os",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f9/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f10",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f10",
+            "display": "device.mobile",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f10/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f11",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f11/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f12",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f12",
+            "display": "tags",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f13",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f13",
+            "display": "tags[]",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f13/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f14",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f14",
+            "display": "amount",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f14/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f15",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f15/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f16",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f16",
+            "display": "error_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f16/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "exact_distinct:$[]:f17",
+            "analyzer": "exact_distinct",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "distinct_count",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "distinct_exact",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f17/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f1",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "candidates_unvalidated"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 3,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f2",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "candidates_unvalidated"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 4,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f3",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 5,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f6",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f6",
+            "display": "user.country",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f6",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 6,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f7",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f7",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f7",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 7,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f9",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f9",
+            "display": "device.os",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 2
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 11288,
+                "expected": 11288,
+                "max": 11288
+              },
+              "cpu": "moderate",
+              "cell_ns": 1000,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f9",
+                  "memory": {
+                    "min": 10264,
+                    "expected": 10264,
+                    "max": 10264
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 11,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f11",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 8,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f13",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f13",
+            "display": "tags[]",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f13",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 9,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f15",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f15",
+            "display": "currency",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "too_few_distinct"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$[]:f17",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f17",
+            "display": "experiment",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$[]/fields/f17",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$[]/fields/f17",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 10,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "temporal_distribution:$[]:f2",
+            "analyzer": "temporal_distribution",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "period_counts"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "constant_value",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f2/temporal"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          }
+        ]
+      },
+      "run": {
+        "started_at": "2026-10-09T13:30:38.299830Z",
+        "duration_seconds": 0.012906,
+        "timings": {
+          "reading": 0.004673,
+          "analysis": 0.003401,
+          "other": 0.004833
+        },
+        "workers": 1,
+        "peak_memory_bytes": 61677568,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 300,
+        "cells_read": 876,
+        "executed": 14,
+        "reused": 0,
+        "skipped": 0
+      },
+      "analyses": [
+        {
+          "id": "exact_frequencies:$[]:f1",
+          "analyzer": "exact_frequencies",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f1",
+          "display": "event_id",
+          "method": "hash_table",
+          "parameters": {
+            "distinct": 300
+          },
+          "domain": "analytical",
+          "key": "bda6052ba36c5486f27e4ee6a918c0d03c8bbd584c0bab8bfcc7ea1002d9d579",
+          "status": "complete",
+          "result": {
+            "kind": "frequencies",
+            "count": 300,
+            "distinct": 300,
+            "values": [
+              {
+                "value": "evt-00001",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00002",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00003",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00004",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00005",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00006",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00007",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00008",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00009",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00010",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00011",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00012",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00013",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00014",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00015",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00016",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00017",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00018",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00019",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00020",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00021",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00022",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00023",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00024",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00025",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00026",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00027",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00028",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00029",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00030",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00031",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00032",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00033",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00034",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00035",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00036",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00037",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00038",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00039",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00040",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00041",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00042",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00043",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00044",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00045",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00046",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00047",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00048",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00049",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00050",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00051",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00052",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00053",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00054",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00055",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00056",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00057",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00058",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00059",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00060",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00061",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00062",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00063",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00064",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00065",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00066",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00067",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00068",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00069",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00070",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00071",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00072",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00073",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00074",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00075",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00076",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00077",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00078",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00079",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00080",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00081",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00082",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00083",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00084",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00085",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00086",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00087",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00088",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00089",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00090",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00091",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00092",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00093",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00094",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00095",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00096",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00097",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00098",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00099",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00100",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00101",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00102",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00103",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00104",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00105",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00106",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00107",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00108",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00109",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00110",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00111",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00112",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00113",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00114",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00115",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00116",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00117",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00118",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00119",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00120",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00121",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00122",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00123",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00124",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00125",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00126",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00127",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00128",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00129",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00130",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00131",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00132",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00133",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00134",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00135",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00136",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00137",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00138",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00139",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00140",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00141",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00142",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00143",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00144",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00145",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00146",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00147",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00148",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00149",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00150",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00151",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00152",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00153",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00154",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00155",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00156",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00157",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00158",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00159",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00160",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00161",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00162",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00163",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00164",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00165",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00166",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00167",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00168",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00169",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00170",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00171",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00172",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00173",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00174",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00175",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00176",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00177",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00178",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00179",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00180",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00181",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00182",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00183",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00184",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00185",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00186",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00187",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00188",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00189",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00190",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00191",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00192",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00193",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00194",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00195",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00196",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00197",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00198",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00199",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00200",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00201",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00202",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00203",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00204",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00205",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00206",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00207",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00208",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00209",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00210",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00211",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00212",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00213",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00214",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00215",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00216",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00217",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00218",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00219",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00220",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00221",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00222",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00223",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00224",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00225",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00226",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00227",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00228",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00229",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00230",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00231",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00232",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00233",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00234",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00235",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00236",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00237",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00238",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00239",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00240",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00241",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00242",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00243",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00244",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00245",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00246",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00247",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00248",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00249",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00250",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00251",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00252",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00253",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00254",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00255",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00256",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00257",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00258",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00259",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00260",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00261",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00262",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00263",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00264",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00265",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00266",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00267",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00268",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00269",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00270",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00271",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00272",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00273",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00274",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00275",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00276",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00277",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00278",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00279",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00280",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00281",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00282",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00283",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00284",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00285",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00286",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00287",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00288",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00289",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00290",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00291",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00292",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00293",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00294",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00295",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00296",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00297",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00298",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00299",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00300",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes": [
+              {
+                "value": "evt-00001",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00002",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00003",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00004",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00005",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00006",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00007",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00008",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00009",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "evt-00010",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes_truncated": true
+          }
+        },
+        {
+          "id": "exact_frequencies:$[]:f2",
+          "analyzer": "exact_frequencies",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f2",
+          "display": "timestamp",
+          "method": "hash_table",
+          "parameters": {
+            "distinct": 300
+          },
+          "domain": "analytical",
+          "key": "ce7426785b9f5830ad10706bc7fefff956f7cd142de97697acda8c792a96e01d",
+          "status": "complete",
+          "result": {
+            "kind": "frequencies",
+            "count": 300,
+            "distinct": 300,
+            "values": [
+              {
+                "value": "2026-03-01T08:00:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:00:17Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:01:03Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:02:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:03:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:04:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:05:17Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:06:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:07:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:07:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:08:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:08:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:08:28Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:09:57Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:10:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:11:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:12:45Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:13:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:13:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:14:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:14:57Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:16:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:17:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:17:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:19:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:19:03Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:19:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:20:35Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:21:31Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:22:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:22:46Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:23:35Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:23:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:23:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:25:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:25:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:27:05Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:27:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:28:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:29:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:29:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:30:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:31:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:32:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:33:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:33:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:34:07Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:34:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:35:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:36:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:37:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:38:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:39:49Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:41:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:41:12Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:42:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:42:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:43:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:44:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:45:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:46:32Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:47:35Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:48:46Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:49:21Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:50:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:51:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:52:55Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:54:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:55:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:56:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:57:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:58:40Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:59:39Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:00:39Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:00:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:01:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:01:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:02:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:02:33Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:03:40Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:04:53Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:05:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:06:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:07:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:07:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:08:28Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:09:28Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:09:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:10:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:10:15Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:11:39Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:11:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:12:48Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:14:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:14:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:15:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:16:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:16:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:18:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:18:21Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:18:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:18:54Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:18:58Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:19:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:20:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:21:03Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:21:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:21:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:22:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:22:54Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:24:02Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:24:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:25:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:26:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:27:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:27:12Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:28:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:28:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:29:32Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:29:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:30:30Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:31:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:32:25Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:32:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:33:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:33:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:33:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:35:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:35:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:36:33Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:36:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:37:32Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:38:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:39:30Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:40:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:41:21Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:41:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:42:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:43:07Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:43:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:44:19Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:45:40Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:45:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:46:30Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:46:40Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:47:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:47:55Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:48:15Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:49:13Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:49:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:50:04Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:51:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:51:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:52:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:52:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:54:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:54:42Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:55:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:56:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:57:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:57:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:58:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T09:59:15Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:00:31Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:01:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:02:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:03:05Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:03:12Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:04:35Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:05:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:07:13Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:08:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:08:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:08:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:09:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:10:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:11:57Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:12:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:13:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:14:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:15:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:16:07Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:17:32Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:18:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:19:57Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:21:04Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:21:13Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:22:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:23:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:24:15Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:24:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:24:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:25:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:26:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:26:46Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:27:29Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:28:39Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:28:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:28:45Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:28:54Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:29:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:30:12Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:30:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:31:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:33:17Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:34:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:34:30Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:35:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:36:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:37:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:38:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:38:57Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:40:03Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:41:33Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:42:44Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:43:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:44:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:45:28Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:46:19Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:47:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:47:48Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:48:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:48:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:49:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:49:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:50:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:51:34Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:52:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:52:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:53:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:54:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:56:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:56:55Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:57:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:57:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T10:59:04Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:00:01Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:00:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:01:51Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:02:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:03:05Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:04:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:04:24Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:05:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:05:06Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:05:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:05:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:05:52Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:06:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:07:48Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:08:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:08:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:09:33Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:10:13Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:11:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:12:02Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:13:25Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:14:07Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:14:14Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:15:08Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:15:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:16:56Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:18:19Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:19:30Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:19:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:20:05Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:20:11Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:21:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:22:25Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:23:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:23:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:23:59Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:25:05Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:26:15Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:27:34Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:28:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:29:23Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:30:20Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:30:22Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:30:34Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:31:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:31:22Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:32:31Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:33:07Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:34:18Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:34:43Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:35:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:35:50Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:36:35Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:37:11Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:38:27Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:38:31Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:39:46Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:40:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:41:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:41:58Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:42:00Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:42:36Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:42:37Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T11:42:42Z",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes": [
+              {
+                "value": "2026-03-01T08:00:16Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:00:17Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:01:03Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:02:26Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:03:41Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:04:47Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:05:17Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:06:09Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:07:38Z",
+                "type": "string",
+                "count": 1
+              },
+              {
+                "value": "2026-03-01T08:07:51Z",
+                "type": "string",
+                "count": 1
+              }
+            ],
+            "modes_truncated": true
+          }
+        },
+        {
+          "id": "numeric_histogram:$[]:f5",
+          "analyzer": "numeric_histogram",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f5",
+          "display": "user.id",
+          "method": "dense_counts",
+          "parameters": {
+            "domain": 60
+          },
+          "domain": "analytical",
+          "key": "9cc5272562f0585c5bb82852035bb586696f092029a3ffb4ef95e84c9acbe15a",
+          "status": "complete",
+          "result": {
+            "kind": "dense_counts",
+            "count": 229,
+            "min": 1,
+            "max": 60,
+            "distinct": 60,
+            "values": [
+              {
+                "value": 1,
+                "count": 4
+              },
+              {
+                "value": 2,
+                "count": 1
+              },
+              {
+                "value": 3,
+                "count": 4
+              },
+              {
+                "value": 4,
+                "count": 2
+              },
+              {
+                "value": 5,
+                "count": 5
+              },
+              {
+                "value": 6,
+                "count": 7
+              },
+              {
+                "value": 7,
+                "count": 3
+              },
+              {
+                "value": 8,
+                "count": 5
+              },
+              {
+                "value": 9,
+                "count": 5
+              },
+              {
+                "value": 10,
+                "count": 3
+              },
+              {
+                "value": 11,
+                "count": 2
+              },
+              {
+                "value": 12,
+                "count": 2
+              },
+              {
+                "value": 13,
+                "count": 3
+              },
+              {
+                "value": 14,
+                "count": 2
+              },
+              {
+                "value": 15,
+                "count": 6
+              },
+              {
+                "value": 16,
+                "count": 4
+              },
+              {
+                "value": 17,
+                "count": 4
+              },
+              {
+                "value": 18,
+                "count": 5
+              },
+              {
+                "value": 19,
+                "count": 3
+              },
+              {
+                "value": 20,
+                "count": 4
+              },
+              {
+                "value": 21,
+                "count": 1
+              },
+              {
+                "value": 22,
+                "count": 4
+              },
+              {
+                "value": 23,
+                "count": 1
+              },
+              {
+                "value": 24,
+                "count": 2
+              },
+              {
+                "value": 25,
+                "count": 7
+              },
+              {
+                "value": 26,
+                "count": 3
+              },
+              {
+                "value": 27,
+                "count": 1
+              },
+              {
+                "value": 28,
+                "count": 5
+              },
+              {
+                "value": 29,
+                "count": 3
+              },
+              {
+                "value": 30,
+                "count": 4
+              },
+              {
+                "value": 31,
+                "count": 3
+              },
+              {
+                "value": 32,
+                "count": 4
+              },
+              {
+                "value": 33,
+                "count": 6
+              },
+              {
+                "value": 34,
+                "count": 7
+              },
+              {
+                "value": 35,
+                "count": 4
+              },
+              {
+                "value": 36,
+                "count": 7
+              },
+              {
+                "value": 37,
+                "count": 3
+              },
+              {
+                "value": 38,
+                "count": 3
+              },
+              {
+                "value": 39,
+                "count": 6
+              },
+              {
+                "value": 40,
+                "count": 2
+              },
+              {
+                "value": 41,
+                "count": 1
+              },
+              {
+                "value": 42,
+                "count": 2
+              },
+              {
+                "value": 43,
+                "count": 6
+              },
+              {
+                "value": 44,
+                "count": 6
+              },
+              {
+                "value": 45,
+                "count": 2
+              },
+              {
+                "value": 46,
+                "count": 2
+              },
+              {
+                "value": 47,
+                "count": 6
+              },
+              {
+                "value": 48,
+                "count": 2
+              },
+              {
+                "value": 49,
+                "count": 3
+              },
+              {
+                "value": 50,
+                "count": 6
+              },
+              {
+                "value": 51,
+                "count": 3
+              },
+              {
+                "value": 52,
+                "count": 2
+              },
+              {
+                "value": 53,
+                "count": 5
+              },
+              {
+                "value": 54,
+                "count": 5
+              },
+              {
+                "value": 55,
+                "count": 1
+              },
+              {
+                "value": 56,
+                "count": 6
+              },
+              {
+                "value": 57,
+                "count": 3
+              },
+              {
+                "value": 58,
+                "count": 3
+              },
+              {
+                "value": 59,
+                "count": 8
+              },
+              {
+                "value": 60,
+                "count": 7
+              }
+            ],
+            "modes": [
+              59
+            ],
+            "modes_truncated": false,
+            "median": {
+              "level": 0.5,
+              "value": 33,
+              "accuracy": "exact"
+            },
+            "quantiles": [
+              {
+                "level": 0.05,
+                "value": 5,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.25,
+                "value": 16,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.5,
+                "value": 33,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.75,
+                "value": 47,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.95,
+                "value": 59,
+                "accuracy": "exact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "numeric_histogram:$[]:f14",
+          "analyzer": "numeric_histogram",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f14",
+          "display": "amount",
+          "method": "bins",
+          "parameters": {
+            "bins": 100,
+            "strategy": "linear"
+          },
+          "domain": "analytical",
+          "key": "f8f822c973932aa992ee34b7e5c3499b17a95584a44045a65ffe0b7695f8ac2d",
+          "status": "complete",
+          "result": {
+            "kind": "bins",
+            "strategy": "linear",
+            "requested_strategy": "linear",
+            "bounds_source": "range",
+            "count": 21,
+            "min": 23.43,
+            "max": 289.62,
+            "edges": [
+              23.43,
+              26.091899999999995,
+              28.7538,
+              31.415699999999998,
+              34.0776,
+              36.7395,
+              39.4014,
+              42.0633,
+              44.7252,
+              47.387100000000004,
+              50.049,
+              52.7109,
+              55.372800000000005,
+              58.03470000000001,
+              60.696600000000004,
+              63.35850000000001,
+              66.02040000000001,
+              68.68230000000001,
+              71.34420000000001,
+              74.0061,
+              76.668,
+              79.32990000000001,
+              81.99180000000001,
+              84.65370000000001,
+              87.31560000000002,
+              89.9775,
+              92.63940000000001,
+              95.30130000000001,
+              97.96320000000001,
+              100.62510000000002,
+              103.28700000000002,
+              105.94890000000002,
+              108.61080000000001,
+              111.27270000000001,
+              113.93460000000002,
+              116.59650000000002,
+              119.25840000000002,
+              121.92030000000003,
+              124.58220000000001,
+              127.24410000000002,
+              129.90600000000003,
+              132.5679,
+              135.2298,
+              137.89170000000001,
+              140.55360000000002,
+              143.21550000000002,
+              145.87740000000002,
+              148.53930000000003,
+              151.20120000000003,
+              153.86310000000003,
+              156.52500000000003,
+              159.18690000000004,
+              161.84880000000004,
+              164.51070000000004,
+              167.17260000000005,
+              169.83450000000002,
+              172.49640000000002,
+              175.15830000000003,
+              177.82020000000003,
+              180.48210000000003,
+              183.14400000000003,
+              185.80590000000004,
+              188.46780000000004,
+              191.12970000000004,
+              193.79160000000005,
+              196.45350000000005,
+              199.11540000000005,
+              201.77730000000005,
+              204.43920000000003,
+              207.10110000000003,
+              209.76300000000003,
+              212.42490000000004,
+              215.08680000000004,
+              217.74870000000004,
+              220.41060000000004,
+              223.07250000000005,
+              225.73440000000005,
+              228.39630000000005,
+              231.05820000000006,
+              233.72010000000006,
+              236.38200000000006,
+              239.04390000000004,
+              241.70580000000004,
+              244.36770000000004,
+              247.02960000000004,
+              249.69150000000005,
+              252.35340000000005,
+              255.01530000000005,
+              257.6772,
+              260.33910000000003,
+              263.00100000000003,
+              265.66290000000004,
+              268.32480000000004,
+              270.98670000000004,
+              273.64860000000004,
+              276.31050000000005,
+              278.97240000000005,
+              281.63430000000005,
+              284.29620000000006,
+              286.95810000000006,
+              289.62
+            ],
+            "counts": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "outside": {
+              "below": 0,
+              "above": 0
+            },
+            "median": {
+              "level": 0.5,
+              "value": 165.84165000000004,
+              "accuracy": "estimated",
+              "lower": 164.51070000000004,
+              "upper": 167.17260000000005
+            },
+            "quantiles": [
+              {
+                "level": 0.05,
+                "value": 30.084749999999996,
+                "accuracy": "estimated",
+                "lower": 28.7538,
+                "upper": 31.415699999999998
+              },
+              {
+                "level": 0.25,
+                "value": 77.99895000000001,
+                "accuracy": "estimated",
+                "lower": 76.668,
+                "upper": 79.32990000000001
+              },
+              {
+                "level": 0.5,
+                "value": 165.84165000000004,
+                "accuracy": "estimated",
+                "lower": 164.51070000000004,
+                "upper": 167.17260000000005
+              },
+              {
+                "level": 0.75,
+                "value": 240.37485000000004,
+                "accuracy": "estimated",
+                "lower": 239.04390000000004,
+                "upper": 241.70580000000004
+              },
+              {
+                "level": 0.95,
+                "value": 272.31765000000007,
+                "accuracy": "estimated",
+                "lower": 270.98670000000004,
+                "upper": 273.64860000000004
+              }
+            ]
+          }
+        },
+        {
+          "id": "numeric_histogram:$[]:f16",
+          "analyzer": "numeric_histogram",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f16",
+          "display": "error_code",
+          "method": "dense_counts",
+          "parameters": {
+            "domain": 100
+          },
+          "domain": "analytical",
+          "key": "b20e9f5a5e0e7c4a0593a2f02a3a725028486f0e825a7b8aa4b42c97de96b96c",
+          "status": "complete",
+          "result": {
+            "kind": "dense_counts",
+            "count": 26,
+            "min": 404,
+            "max": 503,
+            "distinct": 3,
+            "values": [
+              {
+                "value": 404,
+                "count": 9
+              },
+              {
+                "value": 500,
+                "count": 11
+              },
+              {
+                "value": 503,
+                "count": 6
+              }
+            ],
+            "modes": [
+              500
+            ],
+            "modes_truncated": false,
+            "median": {
+              "level": 0.5,
+              "value": 500,
+              "accuracy": "exact"
+            },
+            "quantiles": [
+              {
+                "level": 0.05,
+                "value": 404,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.25,
+                "value": 404,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.5,
+                "value": 500,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.75,
+                "value": 500,
+                "accuracy": "exact"
+              },
+              {
+                "level": 0.95,
+                "value": 503,
+                "accuracy": "exact"
+              }
+            ]
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f1",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f1",
+          "display": "event_id",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "a5b17cc67afb4aec03d48832cc14c850635e9072fd5546d4247069a3fb3e18dc",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 300,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "'evt'-99999",
+                "occurrences": 300
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f2",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f2",
+          "display": "timestamp",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "c2a85c744740f5661ccd6c74b1dd0e9ce074816e48107b90ee914420b7d11c72",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 300,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "'2026'-'03'-'01''T'99:99:99'Z'",
+                "occurrences": 300
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f3",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f3",
+          "display": "type",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "2f635189abb9f91a17f244398fab6fd379c73208ab516c2fd6220959559d2589",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 148,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "x{5,8}",
+                "occurrences": 148
+              }
+            ],
+            "other": 152,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f6",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f6",
+          "display": "user.country",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "04c38f020a523c1a3a21e5741b9420bac3036267ae56c2e38568b32298ec2f03",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 253,
+            "matched": 253,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "XX",
+                "occurrences": 253
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f7",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f7",
+          "display": "user.plan",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "0eaa3ab3e8c623b7d451b4a44745030f9a9e360b4ec50f7d91973c631811c7a8",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 300,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "x{3,4}",
+                "occurrences": 300
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f9",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f9",
+          "display": "device.os",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 2
+          },
+          "domain": "original",
+          "key": "e42526cdea2fa5de6742c904e33f04bd8c06f2b9419cde87453cdd7f10a2e819",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 300,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "Xx{4,6}",
+                "occurrences": 182
+              },
+              {
+                "id": "p2",
+                "render": "x{1,3}XX",
+                "occurrences": 118
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f11",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f11",
+          "display": "page",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "7e3761cd084b7eb9ad33cc01650f2dfea1912529c325f48a1065342aedc584c0",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 300,
+            "matched": 240,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "/x{4,8}",
+                "occurrences": 240
+              }
+            ],
+            "other": 60,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f13",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f13",
+          "display": "tags[]",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "0ec0573c5bc4f7033351374ad0f67ed93ae90cb5d07c3a6b1757c59ab6cccdd2",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 450,
+            "matched": 450,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "x{4,10}",
+                "occurrences": 450
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        },
+        {
+          "id": "pattern_validation:$[]:f17",
+          "analyzer": "pattern_validation",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f17",
+          "display": "experiment",
+          "method": "compiled_matcher",
+          "parameters": {
+            "patterns": 1
+          },
+          "domain": "original",
+          "key": "846d837e5e7a6be36a585ce6c4b1cd497d7c17701f90611b78ff8c72a1ae9e51",
+          "status": "complete",
+          "result": {
+            "kind": "pattern_counts",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "grammar_version": 1,
+            "values": 30,
+            "matched": 30,
+            "candidates": [
+              {
+                "id": "p1",
+                "render": "X",
+                "occurrences": 30
+              }
+            ],
+            "other": 0,
+            "excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "overlaps": []
+          }
+        }
+      ]
+    }
+  },
   "report": {
-    "generated_at": "2026-10-09T11:48:48.485143Z",
+    "generated_at": "2026-10-09T13:30:38.592320Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.3326,
+    "processing_seconds": 0.3828,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

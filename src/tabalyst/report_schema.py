@@ -10,11 +10,9 @@ import json
 from typing import Any
 
 from tabalyst.models import FORMAT, FORMAT_REVISION, FORMAT_VERSION, ReportProfile
-from tabalyst.scanner.schema import EXTENSION_NAMESPACES, finalize_schema
+from tabalyst.scanner.schema import finalize_schema
 
 SCHEMA_FILE = "tabalyst.report.schema.json"
-# Extension namespaces of the base that a Report does not use yet: open.
-_OPEN_NAMESPACES = ("analyses",)
 
 
 def report_schema() -> dict[str, Any]:
@@ -30,8 +28,6 @@ def report_schema() -> dict[str, Any]:
         "the Scan base at the same paths, plus the report block."
     )
     finalize_schema(schema, {"format_revision": FORMAT_REVISION})
-    for name in _OPEN_NAMESPACES:
-        schema["properties"][name] = {"description": EXTENSION_NAMESPACES[name]}
     return schema
 
 

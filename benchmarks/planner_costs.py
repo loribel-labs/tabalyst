@@ -241,6 +241,11 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         "length_counter": lambda c: c.analyzer == "length_distribution",
         "distinct_set": lambda c: c.analyzer == "exact_distinct",
         "table": lambda c: c.analyzer == "exact_frequencies",
+        # A pattern validation that needs the source (a Scan whose samples are
+        # only a sample: pass --max-samples), with its candidates to try.
+        "matcher": lambda c: c.analyzer == "pattern_validation"
+        and c.execution.requires_source,
+        "period": lambda c: c.analyzer == "temporal_distribution",
     }
     out: dict[str, object] = {
         "source": source.name,
@@ -274,12 +279,24 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         for candidate in chosen:
             for state in candidate.costs.states:
                 states[state.key] = max(states.get(state.key, 0), state.memory.max)
+        candidates = sum(int(c.parameters.get("patterns", 0)) for c in chosen)
         out[label] = {
             "analyses": len(chosen),
+            **({"candidates": candidates} if label == "matcher" else {}),
             "cells_handled": best.cells_read,
             "reading_seconds": best.timings.reading,
             "analysis_seconds": best.timings.analysis,
             "ns_per_cell": round(best.timings.analysis / best.cells_read * 1e9, 1),
+            **(
+                {
+                    "ns_per_cell_per_candidate": round(
+                        best.timings.analysis / best.cells_read * 1e9 * len(chosen) / candidates,
+                        1,
+                    )
+                }
+                if label == "matcher" and candidates
+                else {}
+            ),
             "model_firm_bytes": sum(states.values()),
             "peak_traced_bytes": peak,
         }

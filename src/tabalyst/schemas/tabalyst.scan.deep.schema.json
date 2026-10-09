@@ -166,7 +166,9 @@
                   "distinct": "#/$defs/DistinctCount",
                   "distinct_limited": "#/$defs/DistinctLimited",
                   "frequencies": "#/$defs/FrequencyTable",
-                  "lengths": "#/$defs/LengthDistribution"
+                  "lengths": "#/$defs/LengthDistribution",
+                  "pattern_counts": "#/$defs/PatternCounts",
+                  "periods": "#/$defs/PeriodCounts"
                 },
                 "propertyName": "kind"
               },
@@ -188,6 +190,12 @@
                 },
                 {
                   "$ref": "#/$defs/FrequencyTable"
+                },
+                {
+                  "$ref": "#/$defs/PatternCounts"
+                },
+                {
+                  "$ref": "#/$defs/PeriodCounts"
                 }
               ]
             },
@@ -1115,6 +1123,256 @@
         "above"
       ],
       "title": "OutsideBins",
+      "type": "object"
+    },
+    "PatternCounts": {
+      "additionalProperties": false,
+      "description": "The inferred patterns of a field counted over every occurrence (PAT-07 to\nPAT-09), in the original domain. ``values`` is the content values of the\nfield (empty cells and null markers are the Scan's ``missing``); they add up:\n``matched + other + excluded = values``, with ``matched`` the sum of the\ncandidates. A value that no candidate reads is an observation of structure,\nnever an error (PAT-10). ``computed_from`` says whether the source was read\n(``source``) or the exact counts of a Scan that holds every distinct value\nwere enough (``samples``); the result is the same.",
+      "properties": {
+        "kind": {
+          "const": "pattern_counts",
+          "default": "pattern_counts",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "computed_from": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Computed From",
+          "type": "string"
+        },
+        "grammar_version": {
+          "title": "Grammar Version",
+          "type": "integer"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "integer"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/PatternTally"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "other": {
+          "title": "Other",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/PatternExclusions"
+        },
+        "overlaps": {
+          "items": {
+            "$ref": "#/$defs/PatternOverlapCount"
+          },
+          "title": "Overlaps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "computed_from",
+        "grammar_version",
+        "values",
+        "matched",
+        "candidates",
+        "other",
+        "excluded",
+        "overlaps"
+      ],
+      "title": "PatternCounts",
+      "type": "object"
+    },
+    "PatternExclusions": {
+      "additionalProperties": false,
+      "description": "Values the inference leaves out and the validation therefore does not\ntest: strings longer than ``scan.pattern_inference.max_value_length``, strings\nof more than 32 tokens, and values that are not strings (JSON numbers and\nbooleans).",
+      "properties": {
+        "non_string": {
+          "title": "Non String",
+          "type": "integer"
+        },
+        "too_long": {
+          "title": "Too Long",
+          "type": "integer"
+        },
+        "too_complex": {
+          "title": "Too Complex",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "non_string",
+        "too_long",
+        "too_complex"
+      ],
+      "title": "PatternExclusions",
+      "type": "object"
+    },
+    "PatternOverlapCount": {
+      "additionalProperties": false,
+      "description": "Occurrences that every pattern of ``patterns`` reads (they are counted\nfor one of them only, in ``candidates``).",
+      "properties": {
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "patterns",
+        "occurrences"
+      ],
+      "title": "PatternOverlapCount",
+      "type": "object"
+    },
+    "PatternTally": {
+      "additionalProperties": false,
+      "description": "Occurrences read by one candidate pattern of the Scan, exclusively: each\nvalue counts for the most specific candidate that reads it (PAT-08).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "render",
+        "occurrences"
+      ],
+      "title": "PatternTally",
+      "type": "object"
+    },
+    "PeriodCount": {
+      "additionalProperties": false,
+      "description": "Values placed in one period: ``period`` is ``YYYY-MM-DD``, ``YYYY-MM`` or\n``YYYY`` according to the granularity.",
+      "properties": {
+        "period": {
+          "title": "Period",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "period",
+        "count"
+      ],
+      "title": "PeriodCount",
+      "type": "object"
+    },
+    "PeriodCounts": {
+      "additionalProperties": false,
+      "description": "Exact count of the dates of a field per calendar day, month or year\n(TIME-01, TIME-02). A value is placed by the calendar date it is written\nwith: the offset of an aware datetime is not converted, so a change of\ndaylight saving time moves nothing. ``count`` values are placed, as many as\nthe Scan counted of this ``temporal_kind``; ``ambiguous`` are the ones whose\nday and month order the Scan could not resolve, counted and never placed\n(TIME-03); ``unplaced`` is every other content value (not a date, invalid,\nor of another kind). ``periods`` lists the non-empty periods in order.",
+      "properties": {
+        "kind": {
+          "const": "periods",
+          "default": "periods",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "granularity": {
+          "enum": [
+            "day",
+            "month",
+            "year"
+          ],
+          "title": "Granularity",
+          "type": "string"
+        },
+        "temporal_kind": {
+          "enum": [
+            "date",
+            "datetime_naive",
+            "datetime_aware"
+          ],
+          "title": "Temporal Kind",
+          "type": "string"
+        },
+        "zone": {
+          "const": "as_written",
+          "default": "as_written",
+          "title": "Zone",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "unplaced": {
+          "title": "Unplaced",
+          "type": "integer"
+        },
+        "first": {
+          "title": "First",
+          "type": "string"
+        },
+        "last": {
+          "title": "Last",
+          "type": "string"
+        },
+        "periods": {
+          "items": {
+            "$ref": "#/$defs/PeriodCount"
+          },
+          "title": "Periods",
+          "type": "array"
+        }
+      },
+      "required": [
+        "granularity",
+        "temporal_kind",
+        "values",
+        "count",
+        "ambiguous",
+        "unplaced",
+        "first",
+        "last",
+        "periods"
+      ],
+      "title": "PeriodCounts",
       "type": "object"
     },
     "PlanBase": {

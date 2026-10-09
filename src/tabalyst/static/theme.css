@@ -564,3 +564,8 @@ td.ex .tip.show{display:block}
 .pager{margin-top:10px}
 .pager[hidden]{display:none}
 .pat{white-space:pre-wrap;overflow-wrap:anywhere}
+.periods{margin:10px 0;border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 12px}
+.periods summary{cursor:pointer;font-size:13px}
+.periods .tscroll{max-height:320px;overflow:auto;margin-top:10px}
+.periods td.bar{width:60%}
+.periods td.bar span{display:block;height:6px;border-radius:3px;background:var(--d2)}

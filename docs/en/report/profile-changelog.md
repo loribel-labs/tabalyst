@@ -64,6 +64,11 @@ The profile becomes a superset of the Scan document: it has `format:
   the first, the interior rows of smallest priority and the last rows, as the
   new presentation setting `report.config.row_sample` (`start`, `middle`, `end`,
   10 each by default) asks. `kept` and `of` say what was kept.
+- A report carries an optional `analyses` member, [what its second
+  pass did](json-profile.md#analyses): who decided it, the outcome, and the second
+  pass document with its plan and its results. The HTML report adds the Second pass
+  section, the validated occurrences of each pattern, the dates per period, and the
+  exact distinct count and median that a scan limit had stopped.
 - The HTML report adds the Observations and Patterns sections, qualifies every
   count as exact, estimated, sample, at least or not computed, and writes
   integers with all their digits (see

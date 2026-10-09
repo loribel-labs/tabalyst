@@ -23,6 +23,16 @@ from tabalyst.scanner.models import (
     RowSample,
     SampleRow,
 )
+from tabalyst.scanner.secondpass.models import (
+    BinnedHistogram,
+    DenseHistogram,
+    DistinctCount,
+    DistinctLimited,
+    FrequencyTable,
+    LengthDistribution,
+    PatternCounts,
+    PeriodCounts,
+)
 
 # An integer the scan counted keeps all its digits: the report never turns a
 # large counter into a float (F06). A float is finite.
@@ -108,6 +118,9 @@ class CardinalityView(ResultModel):
     a limit that proved nothing."""
 
     kind: Literal["exact", "at_least", "not_counted"]
+    # Where an exact count comes from: the scan, or the second pass, which
+    # counted the original values of a column the scan stopped counting.
+    source: Literal["scan", "second_pass"] = "scan"
     # The exact count, or the lower bound.
     value: int | None = None
     estimate: float | None = None
@@ -265,6 +278,62 @@ class RowsView(ResultModel):
         }
 
 
+class ColumnAnalyses(ResultModel):
+    """The results of the second pass for one column, as the pages read them.
+    Only analyses that ended ``complete`` or ``limited`` (a proven lower bound)
+    are here; the others are listed in the dataset's ``SecondPassView``."""
+
+    distinct: DistinctCount | DistinctLimited | None = None
+    patterns: PatternCounts | None = None
+    periods: PeriodCounts | None = None
+    histogram: DenseHistogram | BinnedHistogram | None = None
+    lengths: LengthDistribution | None = None
+    frequencies: FrequencyTable | None = None
+
+
+class SecondPassRow(ResultModel):
+    """One analysis of the second pass, in words: what it was, how it ended and
+    what it found. ``kind`` is the accuracy of its figures (``exact``, ``at_least``
+    or ``not_computed``)."""
+
+    column: str
+    analysis: str
+    status: Literal["complete", "limited", "failed", "skipped"]
+    kind: Literal["exact", "at_least", "not_computed"]
+    summary: str
+
+
+class SecondPassMetrics(ResultModel):
+    computed: int
+    skipped: int
+    failed: int
+    already_answered: int
+    not_selected: int
+
+
+class SecondPassView(ResultModel):
+    """What the second pass did for a dataset (design 20.1, rule R1): who decided
+    it, the analyses it ran, reused or could not run, and why the planner left
+    the others out. ``available`` is false for a document that has no
+    ``analyses`` member (a Report of an earlier build)."""
+
+    available: bool = False
+    mode: Literal["auto", "forced", "off"] = "auto"
+    outcome: str = ""
+    reason: str | None = None
+    metrics: SecondPassMetrics | None = None
+    rows: list[SecondPassRow] = Field(default_factory=list)
+    # Reasons the planner did not select the other candidates, with their
+    # number, most frequent first.
+    left_out: list[tuple[str, int]] = Field(default_factory=list)
+    source_read: bool = False
+    source_verified: bool = False
+    seconds: float | None = None
+    # What the latest run did, over every dataset of the document.
+    executed: int = 0
+    reused: int = 0
+
+
 class ColumnView(ColumnProfile):
     """A column projection with the canonical facts of its field (``field``,
     read as the scan wrote them) and the figures the pages derive from them."""
@@ -277,6 +346,7 @@ class ColumnView(ColumnProfile):
     quality: list[QualityItem] = Field(default_factory=list)
     limits: list[LimitView] = Field(default_factory=list)
     patterns: PatternView
+    deep: ColumnAnalyses = Field(default_factory=ColumnAnalyses)
 
     @property
     def has_quality_issues(self) -> bool:
@@ -302,3 +372,4 @@ class DatasetView(DatasetProfile):
     # Columns with the status of their quality issues, for the table filter.
     quality_issue_column_count: int
     observation_column_count: int
+    second_pass: SecondPassView = Field(default_factory=SecondPassView)

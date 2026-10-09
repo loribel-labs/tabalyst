@@ -37,6 +37,7 @@ from tabalyst.scanner.planner.analyzer import costs, memory
 from tabalyst.scanner.planner.costmodel import (
     EDGE_BYTES,
     EXACT_SET_FIXED_BYTES,
+    PERIOD_ENTRY_BYTES,
     REPLAY_ENTRY_BYTES,
     REPLAY_MEMO_ENTRIES,
     RESULT_BYTES,
@@ -129,6 +130,8 @@ def test_only_the_analyzers_with_an_executor_are_runnable():
         "numeric_histogram",
         "length_distribution",
         "exact_distinct",
+        "pattern_validation",
+        "temporal_distribution",
     }
     assert [a.id for a in registry if a.available] == [a.id for a in runnable]
 
@@ -314,7 +317,10 @@ def test_dates_are_counted_by_a_granularity_sized_from_their_span(tmp_path, firs
     candidate = _state(plan_analyses(result), "temporal_distribution", "day")
 
     assert candidate.parameters["granularity"] == granularity
-    assert candidate.costs.memory.max == candidate.parameters["periods"] * 8 + 1_024
+    # The counters, the result and the cells of the two distinct strings it remembers.
+    assert candidate.costs.memory.max == (
+        candidate.parameters["periods"] * 8 + 1_024 + 2 * PERIOD_ENTRY_BYTES
+    )
     assert candidate.selection.state == "selected"
 
 
@@ -557,7 +563,6 @@ def test_the_text_of_a_plan_names_what_is_selected_and_what_it_costs(tmp_path):
     assert text.startswith("Plan for data.csv (plan ")
     assert "Selected:" in text
     assert "numeric_histogram" in text
-    assert "not available yet" in text
     assert "A second reading of the source is needed" in text
 
 

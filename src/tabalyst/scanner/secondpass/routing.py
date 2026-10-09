@@ -37,13 +37,9 @@ from tabalyst.scanner.secondpass.accumulators import (
 )
 from tabalyst.scanner.secondpass.exactset import ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
+from tabalyst.scanner.secondpass.patterns import PatternAccumulator
+from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
-
-# Raw strings remembered per field across batches. A column of few distinct
-# values (the case where remembering pays) fits; one of identifiers does not,
-# and the batch's own count of distinct strings serves it as well.
-# (the planner charges that many entries to each field it reads).
-MEMO_ENTRIES = REPLAY_MEMO_ENTRIES
 
 
 def field_path(segments: Iterable[PathSegment]) -> FieldPath:
@@ -69,7 +65,10 @@ class FieldRoute:
         "frequencies",
         "lengths",
         "memo",
+        "memo_entries",
         "numeric",
+        "patterns",
+        "periods",
         "reader",
         "values",
     )
@@ -87,7 +86,17 @@ class FieldRoute:
         # ones: set by the executor when an analysis of the field needs them.
         self.distinct: ExactSet | None = None
         self.frequencies: FrequencyAccumulator | None = None
+        # The patterns count original values (design 21); the periods read the
+        # analytical text with the date detector.
+        self.patterns: PatternAccumulator | None = None
+        self.periods: PeriodAccumulator | None = None
         self.memo: dict[str, Cell] = {}
+        # Raw strings remembered per field across batches. A column of few distinct
+        # values (the case where remembering pays) fits; one of identifiers does
+        # not, and the batch's own count of distinct strings serves it as well.
+        # The planner charges that many entries to each field it reads; the
+        # dates, which repeat, remember many more (``PERIOD_MEMO_ENTRIES``).
+        self.memo_entries = REPLAY_MEMO_ENTRIES
         self.failure: str | None = None
         # Values handed to the analyses, for the cells counted by the run.
         self.values = 0
@@ -106,12 +115,18 @@ class FieldRoute:
         numeric = self.numeric
         frequencies = self.frequencies
         distinct = self.distinct
-        if lengths is None and numeric is None and frequencies is None:
+        patterns = self.patterns
+        periods = self.periods
+        if lengths is None and numeric is None and frequencies is None and periods is None:
             # Only the original values: no analytical text, no number.
-            if distinct is not None:
+            if distinct is not None or patterns is not None:
                 raws = list(counts)
                 wanted = [raw for raw, ok in zip(raws, self.reader.content(raws), strict=True) if ok]
-                distinct.add_strings(wanted, [counts[raw] for raw in wanted])
+                weights = [counts[raw] for raw in wanted]
+                if distinct is not None:
+                    distinct.add_strings(wanted, weights)
+                if patterns is not None:
+                    patterns.add_strings(wanted, weights)
             return
         memo = self.memo
         cells: dict[str, Cell] = {}
@@ -123,15 +138,17 @@ class FieldRoute:
             else:
                 cells[raw] = cell
         if missing:
-            room = MEMO_ENTRIES - len(memo)
-            read = self.reader.cells(missing, numbers=numeric is not None)
+            room = self.memo_entries - len(memo)
+            read = self.reader.cells(
+                missing, numbers=numeric is not None, dates=periods is not None
+            )
             for raw, cell in zip(missing, read, strict=True):
                 cells[raw] = cell
                 if room > 0:
                     memo[raw] = cell
                     room -= 1
         for raw, count in counts.items():
-            length, number, _ = cells[raw]
+            length, number, _, _ = cells[raw]
             if length < 0:
                 continue
             if lengths is not None:
@@ -143,15 +160,29 @@ class FieldRoute:
                 cell = cells[raw]
                 if cell.length >= 0:
                     frequencies.add_text(cell.text, count)
-        if distinct is not None:
+        if periods is not None:
+            for raw, count in counts.items():
+                cell = cells[raw]
+                if cell.length >= 0:
+                    periods.add(cell.moment, count)
+        if distinct is not None or patterns is not None:
             wanted = [raw for raw in counts if cells[raw].length >= 0]
-            distinct.add_strings(wanted, [counts[raw] for raw in wanted])
+            weights = [counts[raw] for raw in wanted]
+            if distinct is not None:
+                distinct.add_strings(wanted, weights)
+            if patterns is not None:
+                patterns.add_strings(wanted, weights)
 
     def native(self, native_type: str, value: object) -> None:
         """A JSON integer, number or boolean: a numeric value (but for a
         boolean), and no text. A boolean only matters to the analyses of the
         values themselves."""
-        if native_type == "boolean" and self.distinct is None and self.frequencies is None:
+        if (
+            native_type == "boolean"
+            and self.distinct is None
+            and self.frequencies is None
+            and self.patterns is None
+        ):
             return
         self.values += 1
         if self.numeric is not None and native_type != "boolean":
@@ -160,6 +191,8 @@ class FieldRoute:
             self.distinct.add_native(native_type, value)
         if self.frequencies is not None:
             self.frequencies.add_native(native_type, value)
+        if self.patterns is not None:
+            self.patterns.add_native()
 
 
 class Router:

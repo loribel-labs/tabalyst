@@ -40,10 +40,15 @@ def result_state(analyzer: str, facts: FieldFacts) -> State:
     return State(key=f"result:{analyzer}:{facts.where}", memory=memory(RESULT_BYTES))
 
 
-def replay_state(facts: FieldFacts) -> State:
+def replay_state(
+    facts: FieldFacts,
+    entries: int = REPLAY_MEMO_ENTRIES,
+    entry_bytes: int = REPLAY_ENTRY_BYTES,
+) -> State:
     """What reading the strings of a field costs the second pass: the cells of
-    the raw strings it remembers. Shared by the analyses of the field."""
-    size = REPLAY_MEMO_ENTRIES * REPLAY_ENTRY_BYTES
+    the raw strings it remembers. Shared by the analyses of the field, at the
+    largest of their sizes."""
+    size = entries * entry_bytes
     return State(key=f"replay:{facts.where}", memory=memory(0, size // 4, size))
 
 

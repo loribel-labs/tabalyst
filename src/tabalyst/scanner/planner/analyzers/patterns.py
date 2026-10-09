@@ -37,6 +37,7 @@ class PatternValidation(Analyzer):
     their shares count distinct values: this counts every occurrence (PAT-07)."""
 
     id: ClassVar[str] = "pattern_validation"
+    available: ClassVar[bool] = True
     outputs: ClassVar[tuple[str, ...]] = ("pattern_counts", "unmatched")
 
     def relevant(self, facts: FieldFacts) -> bool:
@@ -69,8 +70,8 @@ class PatternValidation(Analyzer):
         count = int(assessment.parameters["patterns"])
         # One counter and one matcher per candidate, and a counter for the rest.
         size = count * (COUNTER_BYTES + MATCHER_BYTES) + COUNTER_BYTES
-        # A value is tried against each candidate until one matches.
-        nanoseconds = count * NS_PER_CELL["matcher"]
+        # A value is tried against every candidate (the overlaps are counted).
+        nanoseconds = NS_PER_CELL["matcher_base"] + count * NS_PER_CELL["matcher"]
         return costs(
             nanoseconds,
             [State(key=f"patterns:{facts.where}", memory=memory(size)), result_state(self.id, facts)],

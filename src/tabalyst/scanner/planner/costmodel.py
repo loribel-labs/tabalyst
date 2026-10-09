@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 3
+COST_MODEL_VERSION = 4
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -63,6 +63,13 @@ PARSER_RESERVE_BYTES = 24 * 1024 * 1024
 # its cell and the slot of the dictionary.
 REPLAY_MEMO_ENTRIES = 1_024
 REPLAY_ENTRY_BYTES = 250
+# A column of dates has few distinct strings (a day a value, a few thousand of
+# them over a span of years) that repeat from one batch to the next, so the
+# period counter remembers many more and reads each date once for the whole
+# file; the entry also holds what the date detector made of the string (measured
+# 380 to 410 bytes, `planner_costs.py executor`).
+PERIOD_MEMO_ENTRIES = 16_384
+PERIOD_ENTRY_BYTES = 420
 # An exact edge of a bin (a fraction of two integers) and its float, in the
 # lists of the bins of a histogram.
 EDGE_BYTES = 280
@@ -115,16 +122,27 @@ DEFAULT_CONFIRM_SECONDS = 120.0
 # the first pass on a batch of distinct strings and one key per value; the table
 # pays the analytical text of each distinct string of a batch.
 #
-# The others are proxies on values already parsed (`planner_costs.py cpu`, loop
-# overhead removed, rounded up: 35 and 98), which an executor of lot 7c replaces;
-# they do not yet include the reading of the cell.
+# Lot 7c measures the last two on the executor (`planner_costs.py executor
+# --max-samples`, 1 million rows). A pattern validation costs about 800 ns a cell
+# for the field (its distinct strings are read, checked for content and tried
+# against the first candidate) and 100 more for each other candidate: a compiled
+# possessive regular expression reads an ASCII value in about 150 ns, the token
+# loop is kept for the rest. A period counter pays the date detector on the
+# analytical text of each distinct string, once for the whole file since it
+# remembers the strings of a column of dates (`PERIOD_MEMO_ENTRIES`): 670 ns a
+# cell on the five date fields of the baseline, against 1,700 to 2,900 when it
+# remembered 1,024 strings and read the same dates again in every batch. Both
+# measures include the reading of the cell, and the machine was 30 to 50% slower
+# than at lot 7a (counters of integers 1,142 to 1,252 ns for 841): they are
+# rounded up, not scaled down.
 NS_PER_CELL = {
     "dense_counter": 900,
     "length_counter": 250,
     "table": 120,
     "bin": 1_800,
-    "period": 50,
+    "period": 800,
     "distinct_set": 400,
+    "matcher_base": 800,
     "matcher": 100,
 }
 # Upper limits of ``very_low``, ``low`` and ``moderate`` in nanoseconds a cell.
