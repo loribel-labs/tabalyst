@@ -906,3 +906,95 @@ skipped before the call. What is left is the first pass's reading of the cells (
 that have a test, remembered per distinct string) and the csv parsing. `SELECT_NS_PER_CELL` (600) and
 `SELECT_NS_PER_ROW` (2,000) put the model at 35 s at its centre for the combined file, in a range of 23 to 65 s.
 All the 260 exact counts of the plan on the combined file were found again by the reading (`verification`).
+
+## Final matrix, limited profile (lot 11, F07)
+
+The matrix of the specification (17.2) was run in a **limited profile**, by decision of the maintainer: at most
+1,000,000 rows and 100 columns, two repeats, medians. The complete matrix (2,000,000 rows, 500 and 1,000 columns, three
+repeats of every task) is deferred to the end of the plan. Engine 0.6.2 at commit `810e701` plus the changes of the lot,
+the same machine as lot 0 (24 logical CPUs), default workers. Script:
+
+```powershell
+.\.venv\Scripts\python.exe benchmarks\final_matrix.py --root D:\GIT.test\tabalyst\bench\matrix --out D:\GIT.test\tabalyst\artifacts\lot11-matrix --repeat 2 --existing D:\GIT.test\tabalyst\csv\insurance-combined.csv D:\GIT.test\tabalyst\bench\worst-width-1m.csv D:\GIT.test\tabalyst\bench\many-lengths-500k.csv D:\GIT.test\tabalyst\bench\long-text-60k.csv
+```
+
+The new files are written by `benchmarks/matrix_layouts.py` (deterministic, seed 42, under `D:\GIT.test\tabalyst\bench\matrix`).
+Tasks of `scan_json_baseline.py`: `scan`, `report-off` (`deep.mode` off), `report` (the second pass the planner chooses)
+and `smart-sample` (0.5% of the rows, the Scan made first and not timed, the selection timed alone). Phases are those of
+`run.timings`, the second pass and the selection are separate documents with their own times (PERF-01). Peak memory adds
+the peak of every worker to the one of the process.
+
+| Case (rows) | Scan (s) | Peak (MB) | Report without / with second pass (s) | Smart selection (s) | Matrix risk |
+| --- | ---: | ---: | --- | ---: | --- |
+| low-cardinality (1,000,000 x 11) | 4.31 | 569 | 4.52 / 7.00 | 5.78 | lookups and counters |
+| transition K-1, K, K+1 (200,000 x 3, 9,999 to 10,001 distinct) | 1.00, 1.03, 1.08 | 115 | 1.36, 1.35, 1.45 / 1.59, 1.64, 1.71 | 0.80 to 0.88 | exact to estimated at K |
+| transition T (100,000 distinct) | 1.30 | 141 | 1.62 / 1.96 | 0.94 | exact to limited at T |
+| high-cardinality (1,000,000 x 8) | 10.62 | 941 | 10.92 / 23.11 | 31.64 | hash, heap, memory after overflow |
+| short-ids (1,000,000 x 7, 8 to 12 characters) | 6.68 | 836 | 7.88 / 19.21 | 18.79 | compact exact set |
+| worst-width (1,000,000 x 30, 5 unique identifiers) | 21.26 | 1,190 | 22.46 / 58.35 | 57.01 | shared budget |
+| long-text (60,000 x 6) | 3.19 | 817 | 3.56 / 4.50 | 2.27 | bounded previews, hashing |
+| many-lengths (500,000 x 6) | 5.48 | 815 | 6.16 / 11.67 | 9.04 | states of the strata |
+| realistic insurance (1,000,000 x 34) | 19.74 | 1,019 | 20.64 / 43.23 | 23.80 | reference |
+| repeated (550,000 x 20, half of the rows repeated) | 9.71 | 1,043 | 10.61 / 31.03 | 25.72 | fixed cost against distinct values |
+| wide-100 (200,000 x 100) | 22.83 | 1,722 | 27.65 / 35.91 | 42.04 | row sample, pairs |
+| growth 250k, 500k (x 8, high-cardinality layout) | 4.48, 6.26 | 872, 895 | 4.99, 6.75 / 9.12, 13.05 | 7.36, 14.88 | plateau |
+| growth 1M (the high-cardinality row above) | 10.62 | 941 | 10.92 / 23.11 | 31.64 | plateau |
+| normalization without effect (500,000 x 4) | 2.54 | 567 | 3.09 / 3.96 | 3.15 | cost of unused normalization |
+| normalization with late effect (500,000 x 4) | 2.55 | 572 | 3.08 / 4.10 | 3.12 | exactness of the impacts |
+
+What it shows:
+
+- **Plateau of memory (PERF-05).** Rows 250,000, 500,000 and 1,000,000 of the same layout peak at 872, 895 and 941 MB:
+  4 times the rows add 8%, and what grows is the tables the limits bound, not a function of N.
+- **Transition around K and T.** The first pass costs the same at 9,999, 10,000 and 10,001 distinct values (1.00, 1.03,
+  1.08 s). Crossing T = 100,000 adds 0.2 to 0.3 s, the release of the table.
+- **The selection of a smart sample** reads the source once. Its time is the reading of the cells that have a test,
+  and the reading of a cell is remembered per distinct string, so it depends on how many distinct values the tested
+  columns hold: 0.7 us a cell on the realistic file, 2.6 us on short identifiers, 3.7 us on nearly all distinct
+  columns. Its memory is the Scan loaded plus a bounded pool (`verification` found the exact counts of the plan on every
+  file that was run).
+- **Overhead of the second pass of the Report** (PERF-07), `report` against `report-off`: +2.5 s (low cardinality),
+  +12 s (high-cardinality), +11 s (short identifiers), +21 s on the realistic file, +36 s on the worst-width file,
+  +8 s on a hundred columns. It is time the second pass reads and counts, published beside the Scan.
+
+### Against the base commit, in the same session (PERF-06)
+
+`0acf126` (the baseline of lot 0) in a `git worktree`, the head, alternated three times, task `scan`, default workers:
+
+| File | Base (s), three runs | Head (s), three runs | Median | Peak memory (MB) |
+| --- | --- | --- | --- | --- |
+| insurance-combined.csv | 16.68, 16.41, 15.93 | 18.64, 19.14, 18.67 | **+13.7%** (threshold 20%) | 719 to 1,019 |
+| worst-width-1m.csv | 18.35, 18.20, 17.69 | 20.83, 20.86, 20.08 | **+14.5%** (threshold 35%) | 804 to 1,188 |
+| insurance-ontario.csv | 1.89, 1.88, 1.89 | 2.42, 2.46, 2.47 | +30.2% (0.57 s) | 678 to 973 |
+
+The thresholds hold for the two files they were set for. The 90,909-row file is over 20% for 0.57 s: it pays the fixed
+cost of what the work added (derived blocks, row sample, patterns, observations) on a few thousand distinct values.
+**Memory is above the guard-rail of lot 0** (the peak of the realistic file within 10% of 715 MB): it is +42%, the sum
+of the peaks of the main process and the workers, from the bottom-k samples of 10,000 values per column (lot 2b measured
+796 to 934 MB) and the row sample; the memory does not depend on the number of rows. The maintainer is to rule on it at
+the gate D.
+
+### Calibration of the estimate of the selection
+
+The model of lot 10b (600 ns a tested cell, 2,000 ns a row) gave 35 s for the realistic file and was 4 to 5 times too
+low on columns that are nearly all distinct (a million rows of the high-cardinality layout measured 31.6 s for an
+estimate of 7 s). The cell cost is now `SELECT_NS_PER_CELL` 600 plus `SELECT_NS_PER_DISTINCT_CELL` 3,000 times the average
+distinct share of the tested columns, read from the Scan (a limited count counts as all distinct). The estimate
+(low to high) now brackets the measures: high-cardinality 26 to 100 s (measured 31.6), short identifiers 19 to 75 (18.8),
+repeated 17 to 65 (25.7), wide-100 30 to 117 (42.0), growth 500k 12 to 46 (14.9), low-cardinality 6.3 to 23 (5.8).
+
+### The lever of the overhead of the Report (`automatic_tables`)
+
+`insurance-combined.csv`, `report` with `deep.crosstab.automatic_tables` at 0, 2, 4 and 8 (fresh storage each time):
+
+| `automatic_tables` | Wall (s) | Second pass (s) | Analyses | Tables | Cells read (millions) |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 36.1 | 16.0 | 30 | 0 | 12 |
+| 2 | 36.7 | 17.1 | 32 | 2 | 16 |
+| 4 | 39.2 | 18.7 | 34 | 4 | 20 |
+| 8 (default) | 39.8 | 19.8 | 38 | 8 | 25 |
+
+Each table costs about 0.5 s of the second pass on this file. Going from 8 to 0 tables saves 3.8 s out of 39.8 (-10%):
+the overhead of the Report is mostly the other 30 analyses (16 s of a 20 s first pass), which the planner picks as
+cheap and useful. The lever of the tables is small; the lever of the whole second pass is `deep.mode` and the automatic
+budget of 20.2.

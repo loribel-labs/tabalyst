@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-09T21:20:57.705121Z",
-    "duration_seconds": 0.283538,
+    "started_at": "2026-10-09T22:46:57.251812Z",
+    "duration_seconds": 0.267072,
     "timings": {
-      "reading": 0.010127,
-      "analysis": 0.023359,
-      "finalize": 0.239965,
-      "derived": 0.009679,
-      "other": 0.000408
+      "reading": 0.012175,
+      "analysis": 0.022237,
+      "finalize": 0.223478,
+      "derived": 0.008758,
+      "other": 0.000425
     },
     "workers": 1,
-    "peak_memory_bytes": 77119488
+    "peak_memory_bytes": 77361152
   },
   "source": {
     "format": "csv",
@@ -46067,7 +46067,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -46112,7 +46112,7 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 6,
-        "plan_id": "c69aa27c369eef17dff29f07f2a53129bb2a0e8b2e8f9945a24dde47ad2ff23c",
+        "plan_id": "7a23dae6f25019a7c7e99ccca5450329bed5a496c81c85a796857fd4726846ce",
         "base": {
           "format_revision": 2,
           "engine_version": "0.6.2",
@@ -46142,15 +46142,15 @@
         },
         "summary": {
           "candidates": 147,
-          "selected": 44,
+          "selected": 43,
           "already_satisfied": 70,
-          "rejected": 33,
+          "rejected": 34,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 29702181,
-            "expected": 32139354,
-            "max": 38818875
+            "min": 28891253,
+            "expected": 30908826,
+            "max": 36815547
           },
           "beyond_automatic": []
         },
@@ -46378,7 +46378,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
@@ -46454,7 +46454,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -46709,7 +46709,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -46820,7 +46820,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -46896,7 +46896,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -47585,7 +47585,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -47661,7 +47661,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 14,
               "satisfied_by": null
             },
             "execution": {
@@ -47773,7 +47773,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 38,
+              "priority": 37,
               "satisfied_by": null
             },
             "execution": {
@@ -47850,7 +47850,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 37,
+              "priority": 36,
               "satisfied_by": null
             },
             "execution": {
@@ -47927,7 +47927,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 39,
+              "priority": 38,
               "satisfied_by": null
             },
             "execution": {
@@ -48004,7 +48004,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 40,
+              "priority": 39,
               "satisfied_by": null
             },
             "execution": {
@@ -50027,7 +50027,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 17,
+              "priority": 16,
               "satisfied_by": null
             },
             "execution": {
@@ -50094,7 +50094,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 27,
+              "priority": 26,
               "satisfied_by": null
             },
             "execution": {
@@ -50198,7 +50198,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 32,
+              "priority": 31,
               "satisfied_by": null
             },
             "execution": {
@@ -50266,7 +50266,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 33,
+              "priority": 32,
               "satisfied_by": null
             },
             "execution": {
@@ -50333,7 +50333,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 18,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -50400,7 +50400,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 19,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -50467,7 +50467,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 28,
+              "priority": 27,
               "satisfied_by": null
             },
             "execution": {
@@ -50535,7 +50535,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 34,
+              "priority": 33,
               "satisfied_by": null
             },
             "execution": {
@@ -50602,7 +50602,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 20,
+              "priority": 19,
               "satisfied_by": null
             },
             "execution": {
@@ -50670,7 +50670,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 35,
+              "priority": 34,
               "satisfied_by": null
             },
             "execution": {
@@ -50737,7 +50737,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 23,
+              "priority": 22,
               "satisfied_by": null
             },
             "execution": {
@@ -50804,7 +50804,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 29,
+              "priority": 28,
               "satisfied_by": null
             },
             "execution": {
@@ -50871,7 +50871,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 31,
+              "priority": 30,
               "satisfied_by": null
             },
             "execution": {
@@ -51046,7 +51046,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 16,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -51113,7 +51113,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 24,
+              "priority": 23,
               "satisfied_by": null
             },
             "execution": {
@@ -51180,7 +51180,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 25,
+              "priority": 24,
               "satisfied_by": null
             },
             "execution": {
@@ -51247,7 +51247,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 26,
+              "priority": 25,
               "satisfied_by": null
             },
             "execution": {
@@ -51314,7 +51314,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 30,
+              "priority": 29,
               "satisfied_by": null
             },
             "execution": {
@@ -51381,7 +51381,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 21,
+              "priority": 20,
               "satisfied_by": null
             },
             "execution": {
@@ -51448,7 +51448,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 22,
+              "priority": 21,
               "satisfied_by": null
             },
             "execution": {
@@ -51556,7 +51556,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 44,
+              "priority": 43,
               "satisfied_by": null
             },
             "execution": {
@@ -51631,7 +51631,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 41,
+              "priority": 40,
               "satisfied_by": null
             },
             "execution": {
@@ -51706,7 +51706,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 43,
+              "priority": 42,
               "satisfied_by": null
             },
             "execution": {
@@ -51781,7 +51781,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 42,
+              "priority": 41,
               "satisfied_by": null
             },
             "execution": {
@@ -51856,7 +51856,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 36,
+              "priority": 35,
               "satisfied_by": null
             },
             "execution": {
@@ -52654,141 +52654,6 @@
             }
           },
           {
-            "id": "category_crosstab:rows:column_15>column_16:length",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_15",
-            "display": "province_code and province_nom (length)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "length",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 100,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 499110,
-                "expected": 695960,
-                "max": 1171760
-              },
-              "cpu": "low",
-              "cell_ns": 500,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_15>column_16:length",
-                  "memory": {
-                    "min": 22950,
-                    "expected": 91800,
-                    "max": 183600
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_15>column_16:length",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_15:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_15:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_15",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_16:length",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_16:length",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_16",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 4,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_16",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 898,
-              "categories": 15,
-              "classes": 10,
-              "purity": 1.0,
-              "cramers_v": 1.0,
-              "score": 0.997181,
-              "stable": false
-            }
-          },
-          {
             "id": "category_crosstab:rows:column_8>column_11:pattern",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
@@ -52900,7 +52765,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 4,
               "satisfied_by": null
             },
             "execution": {
@@ -53036,7 +52901,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -53056,1091 +52921,6 @@
               "cramers_v": 1.0,
               "score": 0.987261,
               "stable": true
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_8>column_11:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_8",
-            "display": "langue_preferee and nom_voie (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 98,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 480210,
-                "expected": 620360,
-                "max": 1020560
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_11:prefix",
-                  "memory": {
-                    "min": 4050,
-                    "expected": 16200,
-                    "max": 32400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_11:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_11:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_11:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_11",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "redundant_feature",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_11",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 2,
-              "classes": 12,
-              "purity": 0.691111,
-              "cramers_v": 0.98954,
-              "score": 0.983885,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_10>column_8:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_10",
-            "display": "type_voie and langue_preferee (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 98,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 518010,
-                "expected": 771560,
-                "max": 1322960
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_10>column_8:prefix",
-                  "memory": {
-                    "min": 41850,
-                    "expected": 167400,
-                    "max": 334800
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_10>column_8:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_10:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_10:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_10",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 7,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_8",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 31,
-              "classes": 2,
-              "purity": 1.0,
-              "cramers_v": 1.0,
-              "score": 0.98372,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_29>column_1:length",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_29",
-            "display": "agence_code and filiale (length)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "length",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 95,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 513960,
-                "expected": 755360,
-                "max": 1290560
-              },
-              "cpu": "low",
-              "cell_ns": 500,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_29>column_1:length",
-                  "memory": {
-                    "min": 37800,
-                    "expected": 151200,
-                    "max": 302400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_29>column_1:length",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_29",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_1:length",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_1:length",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 8,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_1",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 25,
-              "classes": 3,
-              "purity": 0.987778,
-              "cramers_v": 0.967127,
-              "score": 0.954288,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_29>column_1:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_29",
-            "display": "agence_code and filiale (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 95,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 513960,
-                "expected": 755360,
-                "max": 1290560
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_29>column_1:prefix",
-                  "memory": {
-                    "min": 37800,
-                    "expected": 151200,
-                    "max": 302400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_29>column_1:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_29",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_1:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_1:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "redundant_feature",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_1",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 25,
-              "classes": 3,
-              "purity": 0.987778,
-              "cramers_v": 0.967127,
-              "score": 0.954288,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_29>column_2:pattern",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_29",
-            "display": "agence_code and id_client (pattern)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "pattern",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 95,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 488760,
-                "expected": 654560,
-                "max": 1088960
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_29>column_2:pattern",
-                  "memory": {
-                    "min": 12600,
-                    "expected": 50400,
-                    "max": 100800
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_29>column_2:pattern",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_29",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_2:pattern",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_2:pattern",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "tables_budget",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_2",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 25,
-              "classes": 3,
-              "purity": 0.987778,
-              "cramers_v": 0.967127,
-              "score": 0.954288,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_29>column_2:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_29",
-            "display": "agence_code and id_client (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 95,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 513960,
-                "expected": 755360,
-                "max": 1290560
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_29>column_2:prefix",
-                  "memory": {
-                    "min": 37800,
-                    "expected": 151200,
-                    "max": 302400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_29>column_2:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_29:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_29",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_2:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_2:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "tables_budget",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_2",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 25,
-              "classes": 3,
-              "purity": 0.987778,
-              "cramers_v": 0.967127,
-              "score": 0.954288,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_16>column_15:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_16",
-            "display": "province_nom and province_code (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 92,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 501810,
-                "expected": 706760,
-                "max": 1193360
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_16>column_15:prefix",
-                  "memory": {
-                    "min": 25650,
-                    "expected": 102600,
-                    "max": 205200
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_16>column_15:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_16:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_16:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_16",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_15:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_15:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_15",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "tables_budget",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_15",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 898,
-              "categories": 16,
-              "classes": 11,
-              "purity": 0.988864,
-              "cramers_v": 0.923009,
-              "score": 0.919042,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_15>column_16:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_15",
-            "display": "province_code and province_nom (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 92,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 499110,
-                "expected": 695960,
-                "max": 1171760
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_15>column_16:prefix",
-                  "memory": {
-                    "min": 22950,
-                    "expected": 91800,
-                    "max": 183600
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_15>column_16:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_15:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_15:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_15",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_16:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_16:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_16",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "redundant_feature",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_16",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 898,
-              "categories": 15,
-              "classes": 11,
-              "purity": 0.997773,
-              "cramers_v": 0.921745,
-              "score": 0.918373,
-              "stable": false
             }
           },
           {
@@ -54254,10 +53034,10 @@
               ]
             },
             "selection": {
-              "state": "rejected",
-              "reason": "tables_budget",
+              "state": "selected",
+              "reason": "automatic",
               "requested": false,
-              "priority": null,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -54280,21 +53060,20 @@
             }
           },
           {
-            "id": "category_crosstab:rows:column_8>column_12:prefix",
+            "id": "category_crosstab:rows:column_8>column_11:length",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
             "dataset": "rows",
             "field": "column_8",
-            "display": "langue_preferee and orientation (prefix)",
+            "display": "langue_preferee and nom_voie (length)",
             "method": "contingency_table",
             "parameters": {
-              "feature": "prefix",
+              "feature": "length",
               "max_categories": 30,
               "examples": 3,
               "rule_purity": 90,
               "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
+              "max_classes": 12
             },
             "outputs": [
               "contingency_table",
@@ -54309,7 +53088,7 @@
               "reasons": []
             },
             "utility": {
-              "score": 81,
+              "score": 62,
               "reasons": [
                 "exploratory_association"
               ]
@@ -54321,10 +53100,10 @@
                 "max": 1020560
               },
               "cpu": "low",
-              "cell_ns": 300,
+              "cell_ns": 500,
               "states": [
                 {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_12:prefix",
+                  "key": "crosstab:datasets/rows/fields/column_8>column_11:length",
                   "memory": {
                     "min": 4050,
                     "expected": 16200,
@@ -54332,7 +53111,7 @@
                   }
                 },
                 {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_12:prefix",
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_11:length",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -54364,7 +53143,7 @@
                   }
                 },
                 {
-                  "key": "code_feed:datasets/rows/fields/column_12:prefix",
+                  "key": "code_feed:datasets/rows/fields/column_11:length",
                   "memory": {
                     "min": 229376,
                     "expected": 229376,
@@ -54372,7 +53151,7 @@
                   }
                 },
                 {
-                  "key": "coder:datasets/rows/fields/column_12:prefix",
+                  "key": "coder:datasets/rows/fields/column_11:length",
                   "memory": {
                     "min": 8192,
                     "expected": 8192,
@@ -54380,7 +53159,7 @@
                   }
                 },
                 {
-                  "key": "replay:datasets/rows/fields/column_12",
+                  "key": "replay:datasets/rows/fields/column_11",
                   "memory": {
                     "min": 0,
                     "expected": 64000,
@@ -54391,7 +53170,7 @@
             },
             "selection": {
               "state": "rejected",
-              "reason": "tables_budget",
+              "reason": "redundant_feature",
               "requested": false,
               "priority": null,
               "satisfied_by": null
@@ -54403,25 +53182,25 @@
               "reusable": true,
               "on_limit": "limited"
             },
-            "partner": "column_12",
+            "partner": "column_11",
             "exploration": {
               "scope": "interior_rows",
-              "rows": 239,
+              "rows": 900,
               "categories": 2,
-              "classes": 7,
-              "purity": 0.322176,
-              "cramers_v": 0.825152,
-              "score": 0.811439,
-              "stable": false
+              "classes": 12,
+              "purity": 0.2,
+              "cramers_v": 0.633765,
+              "score": 0.624385,
+              "stable": true
             }
           },
           {
-            "id": "category_crosstab:rows:column_15>column_16:pattern",
+            "id": "category_crosstab:rows:column_8>column_16:pattern",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
             "dataset": "rows",
-            "field": "column_15",
-            "display": "province_code and province_nom (pattern)",
+            "field": "column_8",
+            "display": "langue_preferee and province_nom (pattern)",
             "method": "contingency_table",
             "parameters": {
               "feature": "pattern",
@@ -54443,30 +53222,30 @@
               "reasons": []
             },
             "utility": {
-              "score": 80,
+              "score": 61,
               "reasons": [
                 "exploratory_association"
               ]
             },
             "costs": {
               "memory": {
-                "min": 483810,
-                "expected": 634760,
-                "max": 1049360
+                "min": 477510,
+                "expected": 609560,
+                "max": 998960
               },
               "cpu": "low",
               "cell_ns": 600,
               "states": [
                 {
-                  "key": "crosstab:datasets/rows/fields/column_15>column_16:pattern",
+                  "key": "crosstab:datasets/rows/fields/column_8>column_16:pattern",
                   "memory": {
-                    "min": 7650,
-                    "expected": 30600,
-                    "max": 61200
+                    "min": 1350,
+                    "expected": 5400,
+                    "max": 10800
                   }
                 },
                 {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_15>column_16:pattern",
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_16:pattern",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -54474,7 +53253,7 @@
                   }
                 },
                 {
-                  "key": "code_feed:datasets/rows/fields/column_15:category",
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
                   "memory": {
                     "min": 229376,
                     "expected": 229376,
@@ -54482,7 +53261,7 @@
                   }
                 },
                 {
-                  "key": "coder:datasets/rows/fields/column_15:category",
+                  "key": "coder:datasets/rows/fields/column_8:category",
                   "memory": {
                     "min": 8192,
                     "expected": 8192,
@@ -54490,7 +53269,546 @@
                   }
                 },
                 {
-                  "key": "replay:datasets/rows/fields/column_15",
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_16:pattern",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_16:pattern",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 7,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_16",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 4,
+              "purity": 0.807778,
+              "cramers_v": 0.613978,
+              "score": 0.611595,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_10:pattern",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and type_voie (pattern)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "pattern",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 477510,
+                "expected": 609560,
+                "max": 998960
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_10:pattern",
+                  "memory": {
+                    "min": 1350,
+                    "expected": 5400,
+                    "max": 10800
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_10:pattern",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_10:pattern",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_10:pattern",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_10",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "redundant_feature",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_10",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.568889,
+              "cramers_v": 0.597569,
+              "score": 0.596036,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_14:prefix",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and ville (prefix)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "prefix",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12,
+              "prefix_length": 2
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 41,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_14:prefix",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_14:prefix",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_14:prefix",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_14:prefix",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_14",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 12,
+              "purity": 0.415556,
+              "cramers_v": 0.428984,
+              "score": 0.414708,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_12:length",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and orientation (length)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "length",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 500,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_12:length",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_12:length",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_12:length",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_12:length",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_12",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_12",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 239,
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.451883,
+              "cramers_v": 0.410173,
+              "score": 0.40064,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_1>column_16:pattern",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale and province_nom (pattern)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "pattern",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 37,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 477960,
+                "expected": 611360,
+                "max": 1002560
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_1>column_16:pattern",
+                  "memory": {
+                    "min": 1800,
+                    "expected": 7200,
+                    "max": 14400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_1>column_16:pattern",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
                   "memory": {
                     "min": 0,
                     "expected": 64000,
@@ -54525,7 +53843,7 @@
             },
             "selection": {
               "state": "rejected",
-              "reason": "redundant_feature",
+              "reason": "low_utility",
               "requested": false,
               "priority": null,
               "satisfied_by": null
@@ -54540,22 +53858,22 @@
             "partner": "column_16",
             "exploration": {
               "scope": "interior_rows",
-              "rows": 898,
-              "categories": 15,
+              "rows": 900,
+              "categories": 3,
               "classes": 4,
-              "purity": 0.994432,
-              "cramers_v": 0.808108,
-              "score": 0.799731,
-              "stable": false
+              "purity": 0.826667,
+              "cramers_v": 0.370501,
+              "score": 0.366378,
+              "stable": true
             }
           },
           {
-            "id": "category_crosstab:rows:column_1>column_2:length",
+            "id": "category_crosstab:rows:column_8>column_14:length",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
             "dataset": "rows",
-            "field": "column_1",
-            "display": "filiale and id_client (length)",
+            "field": "column_8",
+            "display": "langue_preferee and ville (length)",
             "method": "contingency_table",
             "parameters": {
               "feature": "length",
@@ -54578,7 +53896,143 @@
               "reasons": []
             },
             "utility": {
-              "score": 71,
+              "score": 35,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 500,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_14:length",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_14:length",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_14:length",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_14:length",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_14",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 12,
+              "purity": 0.31,
+              "cramers_v": 0.366533,
+              "score": 0.349638,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_1>column_8:prefix",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale and langue_preferee (prefix)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "prefix",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12,
+              "prefix_length": 2
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 35,
               "reasons": [
                 "exploratory_association"
               ]
@@ -54590,10 +54044,10 @@
                 "max": 1031360
               },
               "cpu": "low",
-              "cell_ns": 500,
+              "cell_ns": 300,
               "states": [
                 {
-                  "key": "crosstab:datasets/rows/fields/column_1>column_2:length",
+                  "key": "crosstab:datasets/rows/fields/column_1>column_8:prefix",
                   "memory": {
                     "min": 5400,
                     "expected": 21600,
@@ -54601,7 +54055,7 @@
                   }
                 },
                 {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_1>column_2:length",
+                  "key": "result:category_crosstab:datasets/rows/fields/column_1>column_8:prefix",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -54633,7 +54087,7 @@
                   }
                 },
                 {
-                  "key": "code_feed:datasets/rows/fields/column_2:length",
+                  "key": "code_feed:datasets/rows/fields/column_8:prefix",
                   "memory": {
                     "min": 229376,
                     "expected": 229376,
@@ -54641,7 +54095,412 @@
                   }
                 },
                 {
-                  "key": "coder:datasets/rows/fields/column_2:length",
+                  "key": "coder:datasets/rows/fields/column_8:prefix",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_8",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 3,
+              "classes": 2,
+              "purity": 0.756667,
+              "cramers_v": 0.350649,
+              "score": 0.347655,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_1:length",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and filiale (length)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "length",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 35,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 500,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_1:length",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_1:length",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:length",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:length",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_1",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.721111,
+              "cramers_v": 0.350649,
+              "score": 0.347655,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_1:prefix",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and filiale (prefix)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "prefix",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12,
+              "prefix_length": 2
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 35,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_1:prefix",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_1:prefix",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:prefix",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:prefix",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_1",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.721111,
+              "cramers_v": 0.350649,
+              "score": 0.347655,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_2:pattern",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and id_client (pattern)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "pattern",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 35,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 477510,
+                "expected": 609560,
+                "max": 998960
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_2:pattern",
+                  "memory": {
+                    "min": 1350,
+                    "expected": 5400,
+                    "max": 10800
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_2:pattern",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_2:pattern",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_2:pattern",
                   "memory": {
                     "min": 8192,
                     "expected": 8192,
@@ -54660,7 +54519,7 @@
             },
             "selection": {
               "state": "rejected",
-              "reason": "redundant_feature",
+              "reason": "low_utility",
               "requested": false,
               "priority": null,
               "satisfied_by": null
@@ -54676,32 +54535,168 @@
             "exploration": {
               "scope": "interior_rows",
               "rows": 900,
-              "categories": 3,
-              "classes": 4,
-              "purity": 0.993333,
-              "cramers_v": 0.708866,
-              "score": 0.707296,
-              "stable": false
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.721111,
+              "cramers_v": 0.350649,
+              "score": 0.347655,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_8>column_2:prefix",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and id_client (prefix)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "prefix",
+              "max_categories": 30,
+              "examples": 3,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12,
+              "prefix_length": 2
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 35,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_2:prefix",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_2:prefix",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_2:prefix",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_2:prefix",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_2",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 3,
+              "purity": 0.721111,
+              "cramers_v": 0.350649,
+              "score": 0.347655,
+              "stable": true
             }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-09T21:36:47.930271Z",
-        "duration_seconds": 0.000388,
+        "started_at": "2026-10-09T22:46:57.775955Z",
+        "duration_seconds": 0.100366,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000388
+          "reading": 0.008614,
+          "analysis": 0.074308,
+          "other": 0.017444
         },
         "workers": 1,
-        "peak_memory_bytes": 85078016,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 44,
+        "peak_memory_bytes": 101146624,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 3000,
+        "cells_read": 84000,
+        "executed": 43,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -83538,750 +83533,6 @@
           }
         },
         {
-          "id": "category_crosstab:rows:column_15>column_16:length",
-          "analyzer": "category_crosstab",
-          "analyzer_version": 1,
-          "dataset": "rows",
-          "field": "column_15",
-          "partner": "column_16",
-          "display": "province_code and province_nom (length)",
-          "method": "contingency_table",
-          "parameters": {
-            "feature": "length",
-            "max_categories": 30,
-            "examples": 3,
-            "rule_purity": 90,
-            "rule_support": 30,
-            "max_classes": 12
-          },
-          "domain": "mixed",
-          "key": "ba86eb4afffe70246d75f8d9b0223bcae400251449307a6661461f03386f944e",
-          "status": "complete",
-          "result": {
-            "kind": "crosstab",
-            "accuracy": "exact_counts",
-            "precision": "float64",
-            "source": "source",
-            "feature": {
-              "kind": "length",
-              "version": 1
-            },
-            "categories": {
-              "field": "column_15",
-              "display": "province_code",
-              "domain": "analytical",
-              "classes": [
-                {
-                  "id": "c1",
-                  "label": "QC",
-                  "kind": "value"
-                },
-                {
-                  "id": "c2",
-                  "label": "ON",
-                  "kind": "value"
-                },
-                {
-                  "id": "c3",
-                  "label": "AB",
-                  "kind": "value"
-                },
-                {
-                  "id": "c4",
-                  "label": "BC",
-                  "kind": "value"
-                },
-                {
-                  "id": "c5",
-                  "label": "NB",
-                  "kind": "value"
-                },
-                {
-                  "id": "c6",
-                  "label": "MB",
-                  "kind": "value"
-                },
-                {
-                  "id": "c7",
-                  "label": "NS",
-                  "kind": "value"
-                },
-                {
-                  "id": "c8",
-                  "label": "SK",
-                  "kind": "value"
-                },
-                {
-                  "id": "c9",
-                  "label": "qc",
-                  "kind": "value"
-                },
-                {
-                  "id": "c10",
-                  "label": "NL",
-                  "kind": "value"
-                },
-                {
-                  "id": "c11",
-                  "label": "PE",
-                  "kind": "value"
-                },
-                {
-                  "id": "c12",
-                  "label": "YT",
-                  "kind": "value"
-                },
-                {
-                  "id": "c13",
-                  "label": "NU",
-                  "kind": "value"
-                },
-                {
-                  "id": "c14",
-                  "label": "on",
-                  "kind": "value"
-                },
-                {
-                  "id": "c15",
-                  "label": "NT",
-                  "kind": "value"
-                },
-                {
-                  "id": "c16",
-                  "label": "ab",
-                  "kind": "value"
-                },
-                {
-                  "id": "other",
-                  "label": "other",
-                  "kind": "other"
-                }
-              ]
-            },
-            "classes": {
-              "field": "column_16",
-              "display": "province_nom",
-              "domain": "analytical",
-              "classes": [
-                {
-                  "id": "l5",
-                  "label": "5",
-                  "kind": "value"
-                },
-                {
-                  "id": "l6",
-                  "label": "6",
-                  "kind": "value"
-                },
-                {
-                  "id": "l7",
-                  "label": "7",
-                  "kind": "value"
-                },
-                {
-                  "id": "l8",
-                  "label": "8",
-                  "kind": "value"
-                },
-                {
-                  "id": "l12",
-                  "label": "12",
-                  "kind": "value"
-                },
-                {
-                  "id": "l15",
-                  "label": "15",
-                  "kind": "value"
-                },
-                {
-                  "id": "l17",
-                  "label": "17",
-                  "kind": "value"
-                },
-                {
-                  "id": "l20",
-                  "label": "20",
-                  "kind": "value"
-                },
-                {
-                  "id": "l21",
-                  "label": "21",
-                  "kind": "value"
-                },
-                {
-                  "id": "l23",
-                  "label": "23",
-                  "kind": "value"
-                },
-                {
-                  "id": "l25",
-                  "label": "25",
-                  "kind": "value"
-                },
-                {
-                  "id": "other",
-                  "label": "other",
-                  "kind": "other"
-                }
-              ]
-            },
-            "rows": 3000,
-            "counted": 2997,
-            "excluded": {
-              "category_missing": 3,
-              "feature_missing": 0,
-              "both_missing": 0,
-              "unclassified": 0
-            },
-            "counts": [
-              [
-                0,
-                2224,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                407,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                92,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                86,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                56,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                32,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                24,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                23,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                18,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                12,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                7,
-                0,
-                0,
-                0
-              ],
-              [
-                5,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                4,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                3,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                2,
-                0
-              ],
-              [
-                0,
-                0,
-                2,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-              ]
-            ],
-            "row_totals": [
-              2224,
-              407,
-              92,
-              86,
-              56,
-              32,
-              24,
-              23,
-              18,
-              12,
-              7,
-              5,
-              4,
-              3,
-              2,
-              2,
-              0
-            ],
-            "column_totals": [
-              5,
-              2242,
-              508,
-              32,
-              23,
-              24,
-              56,
-              86,
-              7,
-              12,
-              2,
-              0
-            ],
-            "by_category": [
-              {
-                "rows": 2224,
-                "classified": 2224,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 2224,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 407,
-                "classified": 407,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 407,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 92,
-                "classified": 92,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 92,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 86,
-                "classified": 86,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 7,
-                "dominant_count": 86,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 56,
-                "classified": 56,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 6,
-                "dominant_count": 56,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 32,
-                "classified": 32,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 3,
-                "dominant_count": 32,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 24,
-                "classified": 24,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 5,
-                "dominant_count": 24,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 23,
-                "classified": 23,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 4,
-                "dominant_count": 23,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 18,
-                "classified": 18,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 18,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 12,
-                "classified": 12,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 9,
-                "dominant_count": 12,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 7,
-                "classified": 7,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 8,
-                "dominant_count": 7,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 5,
-                "classified": 5,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 5,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 4,
-                "classified": 4,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 4,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 3,
-                "classified": 3,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 3,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 2,
-                "classified": 2,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 10,
-                "dominant_count": 2,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 2,
-                "classified": 2,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 2,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 0,
-                "classified": 0,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "dominant_count": 0,
-                "exceptions": 0
-              }
-            ],
-            "purity": {
-              "forward": {
-                "dominant": 2997,
-                "total": 2997,
-                "value": 1.0
-              },
-              "reverse": {
-                "dominant": 2878,
-                "total": 2997,
-                "value": 0.9602936269602936
-              },
-              "baseline": 0.7480814147480814
-            },
-            "association": {
-              "defined": true,
-              "n": 2997,
-              "effective_categories": 16,
-              "effective_classes": 11,
-              "chi_square": 29970.000000000004,
-              "degrees": 150,
-              "cramers_v": 1.0,
-              "corrected": 0.9991624087650028,
-              "low_share": 0.7833333333333333,
-              "stable": false,
-              "sparse": 5
-            },
-            "exceptions": {
-              "count": 0,
-              "cells": 0,
-              "listed": []
-            },
-            "rules": [
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 0,
-                "column": 1,
-                "support": 2224,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 1,
-                "column": 2,
-                "support": 407,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 2,
-                "column": 2,
-                "support": 92,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 3,
-                "column": 7,
-                "support": 86,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 4,
-                "column": 6,
-                "support": 56,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 5,
-                "column": 3,
-                "support": 32,
-                "confidence": 1.0,
-                "exceptions": 0
-              }
-            ]
-          }
-        },
-        {
           "id": "category_crosstab:rows:column_8>column_11:pattern",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
@@ -85053,13 +84304,13 @@
           }
         },
         {
-          "id": "category_crosstab:rows:column_10>column_8:prefix",
+          "id": "category_crosstab:rows:column_8>column_10:prefix",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
           "dataset": "rows",
-          "field": "column_10",
-          "partner": "column_8",
-          "display": "type_voie and langue_preferee (prefix)",
+          "field": "column_8",
+          "partner": "column_10",
+          "display": "langue_preferee and type_voie (prefix)",
           "method": "contingency_table",
           "parameters": {
             "feature": "prefix",
@@ -85071,7 +84322,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "9c9b41623a2d3bf998b1b67d6feef582601886b49fa7583cb6a274d7c8c7fe58",
+          "key": "7cee87aebfc5c17df166c24f00f75610237cf10155bb8dcc7f08158d293c5f43",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -85084,158 +84335,18 @@
               "prefix_length": 2
             },
             "categories": {
-              "field": "column_10",
-              "display": "type_voie",
+              "field": "column_8",
+              "display": "langue_preferee",
               "domain": "analytical",
               "classes": [
                 {
                   "id": "c1",
-                  "label": "rue",
+                  "label": "fr",
                   "kind": "value"
                 },
                 {
                   "id": "c2",
-                  "label": "avenue",
-                  "kind": "value"
-                },
-                {
-                  "id": "c3",
-                  "label": "boulevard",
-                  "kind": "value"
-                },
-                {
-                  "id": "c4",
-                  "label": "Street",
-                  "kind": "value"
-                },
-                {
-                  "id": "c5",
-                  "label": "chemin",
-                  "kind": "value"
-                },
-                {
-                  "id": "c6",
-                  "label": "route",
-                  "kind": "value"
-                },
-                {
-                  "id": "c7",
-                  "label": "rang",
-                  "kind": "value"
-                },
-                {
-                  "id": "c8",
-                  "label": "Avenue",
-                  "kind": "value"
-                },
-                {
-                  "id": "c9",
-                  "label": "Road",
-                  "kind": "value"
-                },
-                {
-                  "id": "c10",
-                  "label": "Boulevard",
-                  "kind": "value"
-                },
-                {
-                  "id": "c11",
-                  "label": "place",
-                  "kind": "value"
-                },
-                {
-                  "id": "c12",
-                  "label": "montée",
-                  "kind": "value"
-                },
-                {
-                  "id": "c13",
-                  "label": "Drive",
-                  "kind": "value"
-                },
-                {
-                  "id": "c14",
-                  "label": "terrasse",
-                  "kind": "value"
-                },
-                {
-                  "id": "c15",
-                  "label": "croissant",
-                  "kind": "value"
-                },
-                {
-                  "id": "c16",
-                  "label": "Lane",
-                  "kind": "value"
-                },
-                {
-                  "id": "c17",
-                  "label": "impasse",
-                  "kind": "value"
-                },
-                {
-                  "id": "c18",
-                  "label": "Court",
-                  "kind": "value"
-                },
-                {
-                  "id": "c19",
-                  "label": "promenade",
-                  "kind": "value"
-                },
-                {
-                  "id": "c20",
-                  "label": "allée",
-                  "kind": "value"
-                },
-                {
-                  "id": "c21",
-                  "label": "Crescent",
-                  "kind": "value"
-                },
-                {
-                  "id": "c22",
-                  "label": "autoroute",
-                  "kind": "value"
-                },
-                {
-                  "id": "c23",
-                  "label": "Place",
-                  "kind": "value"
-                },
-                {
-                  "id": "c24",
-                  "label": "côte",
-                  "kind": "value"
-                },
-                {
-                  "id": "c25",
-                  "label": "Trail",
-                  "kind": "value"
-                },
-                {
-                  "id": "c26",
-                  "label": "carré",
-                  "kind": "value"
-                },
-                {
-                  "id": "c27",
-                  "label": "Highway",
-                  "kind": "value"
-                },
-                {
-                  "id": "c28",
-                  "label": "Way",
-                  "kind": "value"
-                },
-                {
-                  "id": "c29",
-                  "label": "Circle",
-                  "kind": "value"
-                },
-                {
-                  "id": "c30",
-                  "label": "Terrace",
+                  "label": "en",
                   "kind": "value"
                 },
                 {
@@ -85246,18 +84357,63 @@
               ]
             },
             "classes": {
-              "field": "column_8",
-              "display": "langue_preferee",
+              "field": "column_10",
+              "display": "type_voie",
               "domain": "original",
               "classes": [
                 {
                   "id": "x1",
-                  "label": "fr",
+                  "label": "ru",
                   "kind": "value"
                 },
                 {
                   "id": "x2",
-                  "label": "en",
+                  "label": "av",
+                  "kind": "value"
+                },
+                {
+                  "id": "x3",
+                  "label": "bo",
+                  "kind": "value"
+                },
+                {
+                  "id": "x4",
+                  "label": "St",
+                  "kind": "value"
+                },
+                {
+                  "id": "x5",
+                  "label": "ch",
+                  "kind": "value"
+                },
+                {
+                  "id": "x6",
+                  "label": "ro",
+                  "kind": "value"
+                },
+                {
+                  "id": "x7",
+                  "label": "ra",
+                  "kind": "value"
+                },
+                {
+                  "id": "x8",
+                  "label": "Av",
+                  "kind": "value"
+                },
+                {
+                  "id": "x9",
+                  "label": "Ro",
+                  "kind": "value"
+                },
+                {
+                  "id": "x10",
+                  "label": "Bo",
+                  "kind": "value"
+                },
+                {
+                  "id": "x11",
+                  "label": "pl",
                   "kind": "value"
                 },
                 {
@@ -85278,161 +84434,53 @@
             "counts": [
               [
                 461,
-                0,
-                0
-              ],
-              [
                 324,
-                0,
-                0
-              ],
-              [
                 311,
                 0,
-                0
-              ],
-              [
-                0,
-                202,
-                0
-              ],
-              [
                 189,
-                0,
-                0
-              ],
-              [
                 152,
-                0,
-                0
-              ],
-              [
                 124,
                 0,
-                0
+                0,
+                0,
+                84,
+                456
               ],
               [
+                0,
+                0,
+                0,
+                202,
+                0,
+                0,
                 0,
                 121,
-                0
-              ],
-              [
-                0,
                 99,
-                0
-              ],
-              [
-                0,
                 98,
-                0
-              ],
-              [
-                84,
                 0,
-                0
-              ],
-              [
-                82,
-                0,
-                0
+                379
               ],
               [
                 0,
-                75,
-                0
-              ],
-              [
-                71,
                 0,
-                0
-              ],
-              [
-                70,
                 0,
-                0
-              ],
-              [
                 0,
-                53,
-                0
-              ],
-              [
-                53,
                 0,
-                0
-              ],
-              [
                 0,
-                46,
-                0
-              ],
-              [
-                44,
                 0,
-                0
-              ],
-              [
-                42,
                 0,
-                0
-              ],
-              [
                 0,
-                33,
-                0
-              ],
-              [
-                33,
                 0,
-                0
-              ],
-              [
                 0,
-                32,
-                0
-              ],
-              [
-                32,
-                0,
-                0
-              ],
-              [
-                0,
-                31,
-                0
-              ],
-              [
-                29,
-                0,
-                0
-              ],
-              [
-                0,
-                27,
-                0
-              ],
-              [
-                0,
-                26,
-                0
-              ],
-              [
-                0,
-                20,
-                0
-              ],
-              [
-                0,
-                19,
-                0
-              ],
-              [
-                0,
-                17,
                 0
               ]
             ],
             "row_totals": [
+              2101,
+              899,
+              0
+            ],
+            "column_totals": [
               461,
               324,
               311,
@@ -85444,654 +84492,302 @@
               99,
               98,
               84,
-              82,
-              75,
-              71,
-              70,
-              53,
-              53,
-              46,
-              44,
-              42,
-              33,
-              33,
-              32,
-              32,
-              31,
-              29,
-              27,
-              26,
-              20,
-              19,
-              17
-            ],
-            "column_totals": [
-              2101,
-              899,
-              0
+              835
             ],
             "by_category": [
               {
-                "rows": 461,
-                "classified": 461,
+                "rows": 2101,
+                "classified": 2101,
                 "feature_missing": 0,
                 "unclassified": 0,
                 "coverage": 1.0,
                 "dominant": 0,
                 "dominant_count": 461,
-                "purity": 1.0,
-                "exceptions": 0
+                "purity": 0.21941932413136603,
+                "exceptions": 1640
               },
               {
-                "rows": 324,
-                "classified": 324,
+                "rows": 899,
+                "classified": 899,
                 "feature_missing": 0,
                 "unclassified": 0,
                 "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 324,
-                "purity": 1.0,
-                "exceptions": 0
+                "dominant": 11,
+                "dominant_count": 379,
+                "purity": 0.42157953281423804,
+                "exceptions": 520
               },
               {
-                "rows": 311,
-                "classified": 311,
+                "rows": 0,
+                "classified": 0,
                 "feature_missing": 0,
                 "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 311,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 202,
-                "classified": 202,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 202,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 189,
-                "classified": 189,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 189,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 152,
-                "classified": 152,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 152,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 124,
-                "classified": 124,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 124,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 121,
-                "classified": 121,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 121,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 99,
-                "classified": 99,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 99,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 98,
-                "classified": 98,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 98,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 84,
-                "classified": 84,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 84,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 82,
-                "classified": 82,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 82,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 75,
-                "classified": 75,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 75,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 71,
-                "classified": 71,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 71,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 70,
-                "classified": 70,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 70,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 53,
-                "classified": 53,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 53,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 53,
-                "classified": 53,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 53,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 46,
-                "classified": 46,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 46,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 44,
-                "classified": 44,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 44,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 42,
-                "classified": 42,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 42,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 33,
-                "classified": 33,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 33,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 33,
-                "classified": 33,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 33,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 32,
-                "classified": 32,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 32,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 32,
-                "classified": 32,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 32,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 31,
-                "classified": 31,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 31,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 29,
-                "classified": 29,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 29,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 27,
-                "classified": 27,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 27,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 26,
-                "classified": 26,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 26,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 20,
-                "classified": 20,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 20,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 19,
-                "classified": 19,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 19,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 17,
-                "classified": 17,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 17,
-                "purity": 1.0,
+                "dominant_count": 0,
                 "exceptions": 0
               }
             ],
             "purity": {
               "forward": {
-                "dominant": 3000,
+                "dominant": 840,
                 "total": 3000,
-                "value": 1.0
+                "value": 0.28
               },
               "reverse": {
-                "dominant": 663,
+                "dominant": 2621,
                 "total": 3000,
-                "value": 0.221
+                "value": 0.8736666666666667
               },
-              "baseline": 0.7003333333333334
+              "baseline": 0.2783333333333333
             },
             "association": {
               "defined": true,
               "n": 3000,
-              "effective_categories": 31,
-              "effective_classes": 2,
-              "chi_square": 2999.9999999999995,
-              "degrees": 30,
-              "cramers_v": 0.9999999999999999,
-              "corrected": 0.9951516892362321,
+              "effective_categories": 2,
+              "effective_classes": 12,
+              "chi_square": 2013.7787807518898,
+              "degrees": 11,
+              "cramers_v": 0.8193043351429085,
+              "corrected": 0.8171991087295112,
               "low_share": 0.0,
               "stable": true,
               "sparse": 0
             },
             "exceptions": {
-              "count": 0,
-              "cells": 0,
-              "listed": []
+              "count": 2160,
+              "cells": 11,
+              "listed": [
+                {
+                  "category": 0,
+                  "column": 11,
+                  "count": 456,
+                  "examples": [
+                    {
+                      "record": 8,
+                      "value": "promenade"
+                    },
+                    {
+                      "record": 18,
+                      "value": "croissant"
+                    },
+                    {
+                      "record": 19,
+                      "value": "carré"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 1,
+                  "count": 324,
+                  "examples": [
+                    {
+                      "record": 3,
+                      "value": "avenue"
+                    },
+                    {
+                      "record": 14,
+                      "value": "avenue"
+                    },
+                    {
+                      "record": 20,
+                      "value": "avenue"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 2,
+                  "count": 311,
+                  "examples": [
+                    {
+                      "record": 26,
+                      "value": "boulevard"
+                    },
+                    {
+                      "record": 35,
+                      "value": "boulevard"
+                    },
+                    {
+                      "record": 53,
+                      "value": "boulevard"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 3,
+                  "count": 202,
+                  "examples": [
+                    {
+                      "record": 6,
+                      "value": "Street"
+                    },
+                    {
+                      "record": 21,
+                      "value": "Street"
+                    },
+                    {
+                      "record": 30,
+                      "value": "Street"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 4,
+                  "count": 189,
+                  "examples": [
+                    {
+                      "record": 1,
+                      "value": "chemin"
+                    },
+                    {
+                      "record": 5,
+                      "value": "chemin"
+                    },
+                    {
+                      "record": 28,
+                      "value": "chemin"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 5,
+                  "count": 152,
+                  "examples": [
+                    {
+                      "record": 4,
+                      "value": "route"
+                    },
+                    {
+                      "record": 13,
+                      "value": "route"
+                    },
+                    {
+                      "record": 91,
+                      "value": "route"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 6,
+                  "count": 124,
+                  "examples": [
+                    {
+                      "record": 37,
+                      "value": "rang"
+                    },
+                    {
+                      "record": 133,
+                      "value": "rang"
+                    },
+                    {
+                      "record": 148,
+                      "value": "rang"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 7,
+                  "count": 121,
+                  "examples": [
+                    {
+                      "record": 11,
+                      "value": "Avenue"
+                    },
+                    {
+                      "record": 12,
+                      "value": "Avenue"
+                    },
+                    {
+                      "record": 52,
+                      "value": "Avenue"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 8,
+                  "count": 99,
+                  "examples": [
+                    {
+                      "record": 51,
+                      "value": "Road"
+                    },
+                    {
+                      "record": 54,
+                      "value": "Road"
+                    },
+                    {
+                      "record": 102,
+                      "value": "Road"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 9,
+                  "count": 98,
+                  "examples": [
+                    {
+                      "record": 31,
+                      "value": "Boulevard"
+                    },
+                    {
+                      "record": 60,
+                      "value": "Boulevard"
+                    },
+                    {
+                      "record": 81,
+                      "value": "Boulevard"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 10,
+                  "count": 84,
+                  "examples": [
+                    {
+                      "record": 82,
+                      "value": "place"
+                    },
+                    {
+                      "record": 110,
+                      "value": "place"
+                    },
+                    {
+                      "record": 146,
+                      "value": "place"
+                    }
+                  ]
+                }
+              ]
             },
-            "rules": [
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 0,
-                "column": 0,
-                "support": 461,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 1,
-                "column": 0,
-                "support": 324,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 2,
-                "column": 0,
-                "support": 311,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 3,
-                "column": 1,
-                "support": 202,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 4,
-                "column": 0,
-                "support": 189,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 5,
-                "column": 0,
-                "support": 152,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 6,
-                "column": 0,
-                "support": 124,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 7,
-                "column": 1,
-                "support": 121,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 8,
-                "column": 1,
-                "support": 99,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 9,
-                "column": 1,
-                "support": 98,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 10,
-                "column": 0,
-                "support": 84,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 11,
-                "column": 0,
-                "support": 82,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 12,
-                "column": 1,
-                "support": 75,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 13,
-                "column": 0,
-                "support": 71,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 14,
-                "column": 0,
-                "support": 70,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 15,
-                "column": 1,
-                "support": 53,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 16,
-                "column": 0,
-                "support": 53,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 17,
-                "column": 1,
-                "support": 46,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 18,
-                "column": 0,
-                "support": 44,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 19,
-                "column": 0,
-                "support": 42,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 20,
-                "column": 1,
-                "support": 33,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 21,
-                "column": 0,
-                "support": 33,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 22,
-                "column": 1,
-                "support": 32,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 23,
-                "column": 0,
-                "support": 32,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 24,
-                "column": 1,
-                "support": 31,
-                "confidence": 1.0,
-                "exceptions": 0
-              }
-            ]
+            "rules": []
           }
         },
         {
-          "id": "category_crosstab:rows:column_29>column_1:length",
+          "id": "category_crosstab:rows:column_8>column_16:pattern",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
           "dataset": "rows",
-          "field": "column_29",
-          "partner": "column_1",
-          "display": "agence_code and filiale (length)",
+          "field": "column_8",
+          "partner": "column_16",
+          "display": "langue_preferee and province_nom (pattern)",
           "method": "contingency_table",
           "parameters": {
-            "feature": "length",
+            "feature": "pattern",
             "max_categories": 30,
             "examples": 3,
             "rule_purity": 90,
-            "rule_support": 30,
-            "max_classes": 12
+            "rule_support": 30
           },
           "domain": "mixed",
-          "key": "e972b27dc509b69cefd2eabba432411c1b63345355229ea4c69104f439c134bd",
+          "key": "d3efeee640307e87e672ac0cf7abc91687dc4655bd27e11c2a3f68443973e8f3",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -86099,147 +84795,22 @@
             "precision": "float64",
             "source": "source",
             "feature": {
-              "kind": "length",
+              "kind": "pattern",
               "version": 1
             },
             "categories": {
-              "field": "column_29",
-              "display": "agence_code",
+              "field": "column_8",
+              "display": "langue_preferee",
               "domain": "analytical",
               "classes": [
                 {
                   "id": "c1",
-                  "label": "AG-PR-001",
+                  "label": "fr",
                   "kind": "value"
                 },
                 {
                   "id": "c2",
-                  "label": "AG-PR-002",
-                  "kind": "value"
-                },
-                {
-                  "id": "c3",
-                  "label": "AG-PR-005",
-                  "kind": "value"
-                },
-                {
-                  "id": "c4",
-                  "label": "AG-PR-003",
-                  "kind": "value"
-                },
-                {
-                  "id": "c5",
-                  "label": "AG-PR-004",
-                  "kind": "value"
-                },
-                {
-                  "id": "c6",
-                  "label": "AG-QC-001",
-                  "kind": "value"
-                },
-                {
-                  "id": "c7",
-                  "label": "AG-PR-007",
-                  "kind": "value"
-                },
-                {
-                  "id": "c8",
-                  "label": "AG-PR-006",
-                  "kind": "value"
-                },
-                {
-                  "id": "c9",
-                  "label": "AG-QC-002",
-                  "kind": "value"
-                },
-                {
-                  "id": "c10",
-                  "label": "AG-PR-008",
-                  "kind": "value"
-                },
-                {
-                  "id": "c11",
-                  "label": "AG-ON-001",
-                  "kind": "value"
-                },
-                {
-                  "id": "c12",
-                  "label": "AG-QC-004",
-                  "kind": "value"
-                },
-                {
-                  "id": "c13",
-                  "label": "AG-QC-003",
-                  "kind": "value"
-                },
-                {
-                  "id": "c14",
-                  "label": "AG-QC-005",
-                  "kind": "value"
-                },
-                {
-                  "id": "c15",
-                  "label": "AG-QC-006",
-                  "kind": "value"
-                },
-                {
-                  "id": "c16",
-                  "label": "AG-ON-002",
-                  "kind": "value"
-                },
-                {
-                  "id": "c17",
-                  "label": "AG-ON-004",
-                  "kind": "value"
-                },
-                {
-                  "id": "c18",
-                  "label": "AG-ON-003",
-                  "kind": "value"
-                },
-                {
-                  "id": "c19",
-                  "label": "AG-ON-005",
-                  "kind": "value"
-                },
-                {
-                  "id": "c20",
-                  "label": "AG-ON-006",
-                  "kind": "value"
-                },
-                {
-                  "id": "c21",
-                  "label": "AG--PR-001",
-                  "kind": "value"
-                },
-                {
-                  "id": "c22",
-                  "label": "AG--PR-002",
-                  "kind": "value"
-                },
-                {
-                  "id": "c23",
-                  "label": "AG--PR-003",
-                  "kind": "value"
-                },
-                {
-                  "id": "c24",
-                  "label": "AG--QC-001",
-                  "kind": "value"
-                },
-                {
-                  "id": "c25",
-                  "label": "AG--PR-004",
-                  "kind": "value"
-                },
-                {
-                  "id": "c26",
-                  "label": "AG--PR-007",
-                  "kind": "value"
-                },
-                {
-                  "id": "c27",
-                  "label": "AG--QC-002",
+                  "label": "en",
                   "kind": "value"
                 },
                 {
@@ -86250,23 +84821,23 @@
               ]
             },
             "classes": {
-              "field": "column_1",
-              "display": "filiale",
-              "domain": "analytical",
+              "field": "column_16",
+              "display": "province_nom",
+              "domain": "original",
               "classes": [
                 {
-                  "id": "l6",
-                  "label": "6",
+                  "id": "p1",
+                  "label": "Xx{4,11}",
                   "kind": "value"
                 },
                 {
-                  "id": "l7",
-                  "label": "7",
+                  "id": "p2",
+                  "label": "Xx{6,7}-Xx{5,10}",
                   "kind": "value"
                 },
                 {
-                  "id": "l9",
-                  "label": "9",
+                  "id": "p3",
+                  "label": "x{6,7}",
                   "kind": "value"
                 },
                 {
@@ -86286,166 +84857,16 @@
             },
             "counts": [
               [
-                1,
-                1,
-                616,
-                0
+                103,
+                40,
+                8,
+                1950
               ],
               [
-                0,
-                0,
-                382,
-                0
-              ],
-              [
-                0,
-                0,
-                246,
-                0
-              ],
-              [
-                0,
-                0,
-                225,
-                0
-              ],
-              [
-                0,
-                0,
-                224,
-                0
-              ],
-              [
-                196,
-                0,
+                475,
+                102,
                 3,
-                0
-              ],
-              [
-                1,
-                0,
-                169,
-                0
-              ],
-              [
-                1,
-                0,
-                164,
-                0
-              ],
-              [
-                126,
-                0,
-                2,
-                0
-              ],
-              [
-                0,
-                0,
-                124,
-                0
-              ],
-              [
-                1,
-                83,
-                7,
-                0
-              ],
-              [
-                66,
-                0,
-                1,
-                0
-              ],
-              [
-                65,
-                0,
-                1,
-                0
-              ],
-              [
-                63,
-                0,
-                3,
-                0
-              ],
-              [
-                44,
-                1,
-                1,
-                0
-              ],
-              [
-                1,
-                36,
-                1,
-                0
-              ],
-              [
-                0,
-                35,
-                3,
-                0
-              ],
-              [
-                0,
-                37,
-                0,
-                0
-              ],
-              [
-                0,
-                33,
-                0,
-                0
-              ],
-              [
-                0,
-                21,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                5,
-                0
-              ],
-              [
-                0,
-                0,
-                4,
-                0
-              ],
-              [
-                0,
-                0,
-                2,
-                0
-              ],
-              [
-                2,
-                0,
-                0,
-                0
-              ],
-              [
-                0,
-                0,
-                1,
-                0
-              ],
-              [
-                0,
-                0,
-                1,
-                0
-              ],
-              [
-                1,
-                0,
-                0,
-                0
+                319
               ],
               [
                 0,
@@ -86455,338 +84876,38 @@
               ]
             ],
             "row_totals": [
-              618,
-              382,
-              246,
-              225,
-              224,
-              199,
-              170,
-              165,
-              128,
-              124,
-              91,
-              67,
-              66,
-              66,
-              46,
-              38,
-              38,
-              37,
-              33,
-              21,
-              5,
-              4,
-              2,
-              2,
-              1,
-              1,
-              1,
+              2101,
+              899,
               0
             ],
             "column_totals": [
-              568,
-              247,
-              2185,
-              0
+              578,
+              142,
+              11,
+              2269
             ],
             "by_category": [
               {
-                "rows": 618,
-                "classified": 618,
+                "rows": 2101,
+                "classified": 2101,
                 "feature_missing": 0,
                 "unclassified": 0,
                 "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 616,
-                "purity": 0.9967637540453075,
-                "exceptions": 2
+                "dominant": 3,
+                "dominant_count": 1950,
+                "purity": 0.9281294621608758,
+                "exceptions": 151
               },
               {
-                "rows": 382,
-                "classified": 382,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 382,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 246,
-                "classified": 246,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 246,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 225,
-                "classified": 225,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 225,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 224,
-                "classified": 224,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 224,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 199,
-                "classified": 199,
+                "rows": 899,
+                "classified": 899,
                 "feature_missing": 0,
                 "unclassified": 0,
                 "coverage": 1.0,
                 "dominant": 0,
-                "dominant_count": 196,
-                "purity": 0.9849246231155779,
-                "exceptions": 3
-              },
-              {
-                "rows": 170,
-                "classified": 170,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 169,
-                "purity": 0.9941176470588236,
-                "exceptions": 1
-              },
-              {
-                "rows": 165,
-                "classified": 165,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 164,
-                "purity": 0.9939393939393939,
-                "exceptions": 1
-              },
-              {
-                "rows": 128,
-                "classified": 128,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 126,
-                "purity": 0.984375,
-                "exceptions": 2
-              },
-              {
-                "rows": 124,
-                "classified": 124,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 124,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 91,
-                "classified": 91,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 83,
-                "purity": 0.9120879120879121,
-                "exceptions": 8
-              },
-              {
-                "rows": 67,
-                "classified": 67,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 66,
-                "purity": 0.9850746268656716,
-                "exceptions": 1
-              },
-              {
-                "rows": 66,
-                "classified": 66,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 65,
-                "purity": 0.9848484848484849,
-                "exceptions": 1
-              },
-              {
-                "rows": 66,
-                "classified": 66,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 63,
-                "purity": 0.9545454545454546,
-                "exceptions": 3
-              },
-              {
-                "rows": 46,
-                "classified": 46,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 44,
-                "purity": 0.9565217391304348,
-                "exceptions": 2
-              },
-              {
-                "rows": 38,
-                "classified": 38,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 36,
-                "purity": 0.9473684210526315,
-                "exceptions": 2
-              },
-              {
-                "rows": 38,
-                "classified": 38,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 35,
-                "purity": 0.9210526315789473,
-                "exceptions": 3
-              },
-              {
-                "rows": 37,
-                "classified": 37,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 37,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 33,
-                "classified": 33,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 33,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 21,
-                "classified": 21,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 1,
-                "dominant_count": 21,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 5,
-                "classified": 5,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 5,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 4,
-                "classified": 4,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 4,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 2,
-                "classified": 2,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 2,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 2,
-                "classified": 2,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 2,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 1,
-                "classified": 1,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 1,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 1,
-                "classified": 1,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 2,
-                "dominant_count": 1,
-                "purity": 1.0,
-                "exceptions": 0
-              },
-              {
-                "rows": 1,
-                "classified": 1,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 0,
-                "dominant_count": 1,
-                "purity": 1.0,
-                "exceptions": 0
+                "dominant_count": 475,
+                "purity": 0.5283648498331479,
+                "exceptions": 424
               },
               {
                 "rows": 0,
@@ -86799,433 +84920,163 @@
             ],
             "purity": {
               "forward": {
-                "dominant": 2971,
+                "dominant": 2425,
                 "total": 3000,
-                "value": 0.9903333333333333
+                "value": 0.8083333333333333
               },
               "reverse": {
-                "dominant": 895,
+                "dominant": 2535,
                 "total": 3000,
-                "value": 0.29833333333333334
+                "value": 0.845
               },
-              "baseline": 0.7283333333333334
+              "baseline": 0.7563333333333333
             },
             "association": {
               "defined": true,
               "n": 3000,
-              "effective_categories": 27,
-              "effective_classes": 3,
-              "chi_square": 5708.808197041625,
-              "degrees": 52,
-              "cramers_v": 0.9754322287274861,
-              "corrected": 0.9713020322229631,
-              "low_share": 0.15873015873015872,
-              "stable": false,
-              "sparse": 6
+              "effective_categories": 2,
+              "effective_classes": 4,
+              "chi_square": 1143.0526227760888,
+              "degrees": 3,
+              "cramers_v": 0.6172661832024843,
+              "corrected": 0.6165581597773074,
+              "low_share": 0.125,
+              "stable": true,
+              "sparse": 0
             },
             "exceptions": {
-              "count": 29,
-              "cells": 16,
+              "count": 575,
+              "cells": 6,
               "listed": [
                 {
-                  "category": 10,
-                  "column": 2,
-                  "count": 7,
+                  "category": 1,
+                  "column": 3,
+                  "count": 319,
                   "examples": [
                     {
-                      "record": 453,
-                      "value": "principal"
+                      "record": 16,
+                      "value": "Québec"
                     },
                     {
-                      "record": 679,
-                      "value": "principal"
+                      "record": 21,
+                      "value": "Québec"
                     },
                     {
-                      "record": 963,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 5,
-                  "column": 2,
-                  "count": 3,
-                  "examples": [
-                    {
-                      "record": 1942,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 2040,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 2251,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 13,
-                  "column": 2,
-                  "count": 3,
-                  "examples": [
-                    {
-                      "record": 277,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 413,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 621,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 16,
-                  "column": 2,
-                  "count": 3,
-                  "examples": [
-                    {
-                      "record": 54,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 196,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 686,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 8,
-                  "column": 2,
-                  "count": 2,
-                  "examples": [
-                    {
-                      "record": 1110,
-                      "value": "principal"
-                    },
-                    {
-                      "record": 2553,
-                      "value": "principal"
+                      "record": 23,
+                      "value": "Nouvelle-Écosse"
                     }
                   ]
                 },
                 {
                   "category": 0,
                   "column": 0,
-                  "count": 1,
+                  "count": 103,
                   "examples": [
                     {
-                      "record": 1395,
-                      "value": "quebec"
+                      "record": 19,
+                      "value": "Ontario"
+                    },
+                    {
+                      "record": 133,
+                      "value": "Ontario"
+                    },
+                    {
+                      "record": 142,
+                      "value": "Alberta"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 1,
+                  "count": 102,
+                  "examples": [
+                    {
+                      "record": 81,
+                      "value": "Colombie-Britannique"
+                    },
+                    {
+                      "record": 123,
+                      "value": "Colombie-Britannique"
+                    },
+                    {
+                      "record": 155,
+                      "value": "Colombie-Britannique"
                     }
                   ]
                 },
                 {
                   "category": 0,
                   "column": 1,
-                  "count": 1,
+                  "count": 40,
                   "examples": [
                     {
-                      "record": 1145,
+                      "record": 20,
+                      "value": "Nouveau-Brunswick"
+                    },
+                    {
+                      "record": 42,
+                      "value": "Colombie-Britannique"
+                    },
+                    {
+                      "record": 96,
+                      "value": "Nouveau-Brunswick"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 2,
+                  "count": 8,
+                  "examples": [
+                    {
+                      "record": 32,
+                      "value": "quebec"
+                    },
+                    {
+                      "record": 68,
+                      "value": "quebec"
+                    },
+                    {
+                      "record": 641,
+                      "value": "quebec"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 2,
+                  "count": 3,
+                  "examples": [
+                    {
+                      "record": 11,
+                      "value": "quebec"
+                    },
+                    {
+                      "record": 1083,
+                      "value": "quebec"
+                    },
+                    {
+                      "record": 1152,
                       "value": "ontario"
-                    }
-                  ]
-                },
-                {
-                  "category": 6,
-                  "column": 0,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1460,
-                      "value": "quebec"
-                    }
-                  ]
-                },
-                {
-                  "category": 7,
-                  "column": 0,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1377,
-                      "value": "quebec"
-                    }
-                  ]
-                },
-                {
-                  "category": 10,
-                  "column": 0,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1350,
-                      "value": "quebec"
-                    }
-                  ]
-                },
-                {
-                  "category": 11,
-                  "column": 2,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1918,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 12,
-                  "column": 2,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 2385,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 14,
-                  "column": 1,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 2699,
-                      "value": "ontario"
-                    }
-                  ]
-                },
-                {
-                  "category": 14,
-                  "column": 2,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 2381,
-                      "value": "principal"
-                    }
-                  ]
-                },
-                {
-                  "category": 15,
-                  "column": 0,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1314,
-                      "value": "quebec"
-                    }
-                  ]
-                },
-                {
-                  "category": 15,
-                  "column": 2,
-                  "count": 1,
-                  "examples": [
-                    {
-                      "record": 1652,
-                      "value": "principal"
                     }
                   ]
                 }
               ]
             },
-            "rules": [
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 0,
-                "column": 2,
-                "support": 618,
-                "confidence": 0.9967637540453075,
-                "exceptions": 2
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 1,
-                "column": 2,
-                "support": 382,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 2,
-                "column": 2,
-                "support": 246,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 3,
-                "column": 2,
-                "support": 225,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 4,
-                "column": 2,
-                "support": 224,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 5,
-                "column": 0,
-                "support": 199,
-                "confidence": 0.9849246231155779,
-                "exceptions": 3
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 6,
-                "column": 2,
-                "support": 170,
-                "confidence": 0.9941176470588236,
-                "exceptions": 1
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 7,
-                "column": 2,
-                "support": 165,
-                "confidence": 0.9939393939393939,
-                "exceptions": 1
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 8,
-                "column": 0,
-                "support": 128,
-                "confidence": 0.984375,
-                "exceptions": 2
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 9,
-                "column": 2,
-                "support": 124,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 10,
-                "column": 1,
-                "support": 91,
-                "confidence": 0.9120879120879121,
-                "exceptions": 8
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 11,
-                "column": 0,
-                "support": 67,
-                "confidence": 0.9850746268656716,
-                "exceptions": 1
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 12,
-                "column": 0,
-                "support": 66,
-                "confidence": 0.9848484848484849,
-                "exceptions": 1
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 13,
-                "column": 0,
-                "support": 66,
-                "confidence": 0.9545454545454546,
-                "exceptions": 3
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 14,
-                "column": 0,
-                "support": 46,
-                "confidence": 0.9565217391304348,
-                "exceptions": 2
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 15,
-                "column": 1,
-                "support": 38,
-                "confidence": 0.9473684210526315,
-                "exceptions": 2
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 16,
-                "column": 1,
-                "support": 38,
-                "confidence": 0.9210526315789473,
-                "exceptions": 3
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 17,
-                "column": 1,
-                "support": 37,
-                "confidence": 1.0,
-                "exceptions": 0
-              },
-              {
-                "status": "candidate",
-                "provenance": "learned",
-                "category": 18,
-                "column": 1,
-                "support": 33,
-                "confidence": 1.0,
-                "exceptions": 0
-              }
-            ]
+            "rules": []
           }
         }
       ]
     }
   },
   "report": {
-    "generated_at": "2026-10-09T21:36:48.336688Z",
+    "generated_at": "2026-10-09T22:46:58.307842Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.6.2"
     },
-    "processing_seconds": 0.7541,
+    "processing_seconds": 1.2407,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

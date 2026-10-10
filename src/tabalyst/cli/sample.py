@@ -69,6 +69,8 @@ def _print_result(result: SampleResult) -> None:
     typer.echo(f"Output:        {result.output.resolve()}", err=True)
     if result.report is not None:
         typer.echo(f"Report:        {result.report.resolve()}", err=True)
+    if result.page is not None:
+        typer.echo(f"Page:          {result.page.resolve()}", err=True)
 
 
 def _run_smart(
@@ -84,6 +86,7 @@ def _run_smart(
     encoding: str | None,
     force: bool,
     yes: bool,
+    html: bool,
 ) -> BatchSampleResult:
     """A smart sample: the Scan first unless the stored one is current, then the
     selection, asking first when the rule R1 says so."""
@@ -99,6 +102,7 @@ def _run_smart(
         delimiter=delimiter,
         encoding=encoding,
         force=force,
+        html=html,
         on_progress=progress,
     )
     for job in preparation.jobs:
@@ -201,11 +205,20 @@ def sample_command(
             ),
         ),
     ] = False,
+    no_html: Annotated[
+        bool,
+        typer.Option(
+            "--no-html",
+            help="With --sample-method smart, write the JSON report but not its web page.",
+        ),
+    ] = False,
 ) -> None:
     """Create a CSV sample without modifying the source file."""
 
     if yes and method is not SampleMethod.SMART:
         raise typer.BadParameter("--yes only goes with --sample-method smart.")
+    if no_html and method is not SampleMethod.SMART:
+        raise typer.BadParameter("--no-html only goes with --sample-method smart.")
     try:
         if method is SampleMethod.SMART:
             batch = _run_smart(
@@ -220,6 +233,7 @@ def sample_command(
                 encoding=encoding,
                 force=force,
                 yes=yes,
+                html=not no_html,
             )
         else:
             batch = generate_samples(

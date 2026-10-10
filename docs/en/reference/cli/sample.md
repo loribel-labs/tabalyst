@@ -7,7 +7,7 @@ description: Every option of tabalyst sample and examples of first, last, random
 tabalyst sample INPUT... --sample-method METHOD [OPTIONS]
 ```
 
-Creates `<stem>.sample.csv` beside each CSV source (and, for `smart`, `<stem>.sample.json`, its [report](../../sample/format.md)), or in the folder of `-d`,
+Creates `<stem>.sample.csv` beside each CSV source (and, for `smart`, `<stem>.sample.json`, its [report](../../sample/format.md), and `<stem>.sample.html`, a page that shows it), or in the folder of `-d`,
 without modifying the source. Choose exactly one size: `--rows` or `--percent`.
 See [Tabalyst Sample](../../sample/index.md).
 
@@ -29,6 +29,7 @@ See [Tabalyst Sample](../../sample/index.md).
 | `--encoding TEXT` | CSV text encoding |
 | `-f`, `--force` | Replace an existing sample file; a source is never replaced |
 | `-y`, `--yes` | With `smart`, start a costly selection without asking. Outside a terminal a costly selection needs it |
+| `--no-html` | With `smart`, write the JSON report but not its web page |
 | `--help` | Show the options and exit |
 
 ## Examples

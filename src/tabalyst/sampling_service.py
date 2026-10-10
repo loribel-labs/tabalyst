@@ -158,6 +158,7 @@ def generate_samples(
     force: bool = False,
     max_strata: int | None = None,
     confirmed: bool = False,
+    html: bool = True,
     on_progress: ProgressCallback | None = None,
 ) -> BatchSampleResult:
     """Plan and execute one or more CSV samples.
@@ -165,7 +166,8 @@ def generate_samples(
     A smart sample (design 20.16) scans the file first, or reuses its current
     Scan, and never prompts: it raises ``SelectionConfirmationRequired`` before
     reading any source again when the batch needs a confirmation and ``confirmed``
-    is false (rule R1).
+    is false (rule R1). It also writes the web page of its report unless ``html``
+    is false; the other methods ignore ``html``.
     """
 
     explicit_limit = max_strata is not None
@@ -187,6 +189,7 @@ def generate_samples(
             encoding=encoding,
             config_path=config_path,
             force=force,
+            html=html,
             on_progress=on_progress,
         )
         return execute_smart_samples(

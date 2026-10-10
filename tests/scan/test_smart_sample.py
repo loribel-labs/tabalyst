@@ -257,3 +257,92 @@ def test_a_sample_whose_report_cannot_be_written_is_not_left_behind(tmp_path, mo
     batch = generate_samples([source], method="smart", rows=30)
 
     assert batch.failures and not (tmp_path / "data.sample.csv").exists()
+
+
+def test_the_report_has_a_web_page_that_says_what_the_sample_covers(tmp_path):
+    source = _source(tmp_path)
+
+    [success] = generate_samples([source], method="smart", rows=60).successes
+
+    page = success.result.page
+    assert page == success.result.output.with_suffix(".html") and page.exists()
+    html = page.read_text(encoding="utf-8")
+    assert "What this sample is, and is not" in html
+    assert "23<small> / 23</small>" in html
+    assert "not those of the population" in html
+    # Rendered from the report alone: no value of the source rows is needed.
+    assert "<script src" not in html
+
+
+def test_the_page_is_written_unless_no_html_is_given(tmp_path):
+    source = _source(tmp_path)
+
+    done = runner.invoke(
+        app, ["sample", str(source), "--sample-method", "smart", "--rows", "60", "--no-html"]
+    )
+
+    assert done.exit_code == 0, done.output
+    assert (tmp_path / "data.sample.json").exists() and not (tmp_path / "data.sample.html").exists()
+    assert "Page:" not in done.output
+    assert generate_samples([source], method="smart", rows=60, html=False, force=True).successes[0].result.page is None
+
+
+def test_no_html_only_goes_with_a_smart_sample(tmp_path):
+    source = _source(tmp_path)
+
+    done = runner.invoke(
+        app, ["sample", str(source), "--sample-method", "first", "--rows", "5", "--no-html"]
+    )
+
+    assert done.exit_code != 0
+
+
+def test_a_page_is_not_replaced_without_force(tmp_path):
+    source = _source(tmp_path)
+    (tmp_path / "data.sample.html").write_text("mine", encoding="utf-8")
+
+    batch = None
+    with pytest.raises(Exception, match="Sample page output already exists"):
+        batch = generate_samples([source], method="smart", rows=60)
+
+    assert batch is None and (tmp_path / "data.sample.html").read_text(encoding="utf-8") == "mine"
+    assert not (tmp_path / "data.sample.csv").exists()
+
+
+def test_the_estimate_of_the_selection_grows_with_the_distinct_share_of_the_tested_columns(tmp_path):
+    from tabalyst.scanner import scan
+    from tabalyst.scanner.smart import plan_sampling
+    from tabalyst.scanner.smart.estimate import distinct_share, estimate_selection
+
+    few = write_text(tmp_path, "few.csv", "n\n" + "\n".join(str(i % 20) for i in range(2_000)) + "\n")
+    many = write_text(tmp_path, "many.csv", "n\n" + "\n".join(f"{i}.5" for i in range(2_000)) + "\n")
+    results = []
+    for source in (few, many):
+        result = scan(source)
+        plan = plan_sampling(result, size=100)
+        results.append((distinct_share(plan, result), estimate_selection(plan, result).estimate.high_seconds))
+
+    assert results[0][0] < 0.1 and results[1][0] > 0.9
+    assert results[1][1] > results[0][1]
+
+
+def test_a_sample_whose_page_cannot_be_written_is_not_left_behind(tmp_path, monkeypatch):
+    source = _source(tmp_path)
+
+    def refuse(path, text):
+        raise OSError("disk full")
+
+    monkeypatch.setattr("tabalyst.smart_service.render_sample_page", lambda document: "<html></html>")
+    real = __import__("tabalyst.smart_service", fromlist=["write_text_atomic"]).write_text_atomic
+
+    def write(path, text):
+        if Path(path).suffix == ".html":
+            refuse(path, text)
+        real(path, text)
+
+    monkeypatch.setattr("tabalyst.smart_service.write_text_atomic", write)
+
+    batch = generate_samples([source], method="smart", rows=30)
+
+    assert batch.failures
+    assert not (tmp_path / "data.sample.csv").exists() and not (tmp_path / "data.sample.json").exists()

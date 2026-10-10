@@ -67,7 +67,8 @@ def test_a_scan_another_command_makes_by_itself_writes_no_page(tmp_path):
     planned = runner.invoke(app, ["scan", str(source), "--plan"])
     assert planned.exit_code == 0, planned.output
 
-    assert _pages(tmp_path) == []
+    # The only page is the sample's own, not the page of the scan it made.
+    assert _pages(tmp_path) == ["data.sample.html"]
 
 
 def test_the_api_writes_a_page_only_when_asked(tmp_path):

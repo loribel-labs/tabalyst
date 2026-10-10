@@ -14,6 +14,9 @@ from the same models as the document.
 tabalyst sample customers.csv --sample-method smart --rows 1000
 ```
 
+The command also writes `<stem>.sample.html`, a page rendered from this document
+alone. The page is not part of the format: it adds nothing the JSON does not say.
+
 ## What it promises, and what it does not
 
 - `coverage.scope` is `target_catalog`: the coverage is that of the targets of

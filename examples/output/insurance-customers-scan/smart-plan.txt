@@ -1,0 +1,114 @@
+Plan for insurance-customers.csv (plan 7a23dae6f250, planner 1).
+147 candidates: 43 selected, 70 already answered by the scan, 34 left out.
+
+Selected:
+  1. category_crosstab [contingency_table]: rows / filiale and id_client (pattern) (up to 979.1 KiB, CPU low, automatic)
+  2. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
+  3. category_crosstab [contingency_table]: rows / sexe and civilite (length) (up to 996.6 KiB, CPU low, automatic)
+  4. category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (pattern) (up to 988.7 KiB, CPU low, automatic)
+  5. category_crosstab [contingency_table]: rows / orientation and langue_preferee (prefix) (up to 1.0 MiB, CPU low, automatic)
+  6. category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix) (up to 996.6 KiB, CPU low, automatic)
+  7. category_crosstab [contingency_table]: rows / langue_preferee and province_nom (pattern) (up to 975.5 KiB, CPU low, automatic)
+  8. exact_frequencies [hash_table]: rows / prenom (up to 286.5 KiB, CPU low, automatic)
+  9. exact_frequencies [hash_table]: rows / nom (up to 283.6 KiB, CPU low, automatic)
+  10. exact_frequencies [hash_table]: rows / nom_voie (up to 279.0 KiB, CPU low, automatic)
+  11. exact_frequencies [hash_table]: rows / appartement (up to 347.8 KiB, CPU low, automatic)
+  12. exact_frequencies [hash_table]: rows / ville (up to 273.4 KiB, CPU low, automatic)
+  13. exact_frequencies [hash_table]: rows / date_reclamation (up to 312.9 KiB, CPU low, automatic)
+  14. exact_frequencies [hash_table]: rows / montant_reclamation (up to 303.1 KiB, CPU low, automatic)
+  15. pattern_validation [compiled_matcher]: rows / id_contrat (up to 6.0 KiB, CPU moderate, automatic)
+  16. pattern_validation [compiled_matcher]: rows / filiale (up to 6.0 KiB, CPU moderate, automatic)
+  17. pattern_validation [compiled_matcher]: rows / sexe (up to 6.0 KiB, CPU moderate, automatic)
+  18. pattern_validation [compiled_matcher]: rows / langue_preferee (up to 6.0 KiB, CPU moderate, automatic)
+  19. pattern_validation [compiled_matcher]: rows / orientation (up to 6.0 KiB, CPU moderate, automatic)
+  20. pattern_validation [compiled_matcher]: rows / agence_code (up to 6.0 KiB, CPU moderate, automatic)
+  21. pattern_validation [compiled_matcher]: rows / reclamation_status (up to 6.0 KiB, CPU moderate, automatic)
+  22. pattern_validation [compiled_matcher]: rows / province_code (up to 11.0 KiB, CPU moderate, automatic)
+  23. pattern_validation [compiled_matcher]: rows / type_contrat (up to 11.0 KiB, CPU moderate, automatic)
+  24. pattern_validation [compiled_matcher]: rows / statut_contrat (up to 11.0 KiB, CPU moderate, automatic)
+  25. pattern_validation [compiled_matcher]: rows / frequence_paiement (up to 11.0 KiB, CPU moderate, automatic)
+  26. pattern_validation [compiled_matcher]: rows / id_client (up to 16.0 KiB, CPU moderate, automatic)
+  27. pattern_validation [compiled_matcher]: rows / type_voie (up to 16.0 KiB, CPU moderate, automatic)
+  28. pattern_validation [compiled_matcher]: rows / province_nom (up to 16.0 KiB, CPU moderate, automatic)
+  29. pattern_validation [compiled_matcher]: rows / mode_paiement (up to 16.0 KiB, CPU moderate, automatic)
+  30. pattern_validation [compiled_matcher]: rows / code_postal (up to 21.0 KiB, CPU moderate, automatic)
+  31. pattern_validation [compiled_matcher]: rows / prenom (up to 36.1 KiB, CPU moderate, automatic)
+  32. pattern_validation [compiled_matcher]: rows / nom (up to 41.1 KiB, CPU moderate, automatic)
+  33. pattern_validation [compiled_matcher]: rows / nom_voie (up to 41.1 KiB, CPU moderate, automatic)
+  34. pattern_validation [compiled_matcher]: rows / ville (up to 41.1 KiB, CPU moderate, automatic)
+  35. temporal_distribution [period_counts]: rows / date_reclamation (up to 168.4 KiB, CPU moderate, automatic)
+  36. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
+  37. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.0 KiB, CPU moderate, automatic)
+  38. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
+  39. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
+  40. temporal_distribution [period_counts]: rows / date_fin (up to 484.8 KiB, CPU moderate, automatic)
+  41. temporal_distribution [period_counts]: rows / date_modification (up to 836.7 KiB, CPU moderate, automatic)
+  42. temporal_distribution [period_counts]: rows / date_creation (up to 970.4 KiB, CPU moderate, automatic)
+  43. temporal_distribution [period_counts]: rows / date_debut (up to 990.2 KiB, CPU moderate, automatic)
+
+Left out:
+  pearson_correlation [pairwise_complete]: rows / prime_annuelle and montant_reclamation: too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / filiale and id_client (prefix): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / sexe and civilite (prefix): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (length): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / langue_preferee and type_voie (pattern): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / langue_preferee and ville (prefix): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and orientation (length): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / filiale and province_nom (pattern): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and ville (length): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / filiale and langue_preferee (prefix): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and filiale (length): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and filiale (prefix): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and id_client (pattern): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and id_client (prefix): too little expected benefit for an automatic choice
+
+Not applicable:
+  10 x too many distinct values for a table of frequencies
+  2 x no pattern candidate was found
+  8 x exposure keeps the values of this field out of the document
+
+A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 27.6 MiB to 35.1 MiB, about 29.5 MiB.
+Estimated time: under a second (a guide from the first pass, not a promise).
+Running it would not ask for a confirmation.
+
+Smart sample plan for insurance-customers.csv (dataset rows, 3,000 rows)
+
+A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
+
+Targets: 372 (146 mandatory, 226 optional), 11 the sample cannot recognize yet.
+  Low cardinality: 146 targets, 146 mandatory
+  Structured strings: 57 targets, 0 mandatory
+  Numeric: 53 targets, 0 mandatory
+  Dates: 67 targets, 0 mandatory
+  Quality: 24 targets, 0 mandatory
+  Relations: 25 targets, 0 mandatory
+
+Columns whose values are only partly known:
+  id_client (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  prenom (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  nom (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  nom_voie (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  ville (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  code_postal (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+  id_contrat (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
+
+Heaviest targets:
+  9  date_modification: observation:type_outliers (3 rows, 0.1000%)
+  8.99913  date_naissance: observation:type_outliers (3 rows, 0.1002%)
+  8.92047  date_fin: observation:type_outliers (3 rows, 0.1201%)
+  8.69897  date_creation: observation:type_outliers (6 rows, 0.2000%)
+  8.63202  date_debut: observation:type_outliers (7 rows, 0.2333%)
+  8.62325  date_reclamation: observation:type_outliers (1 row, 0.2381%)
+  7.8976  province_nom: value_equals (1 row, 0.0333%)
+  7.8976  province_nom: value_equals (1 row, 0.0333%)
+  7.8976  province_nom: value_equals (1 row, 0.0333%)
+  7.8976  type_contrat: value_equals (1 row, 0.0333%)
+
+Size: 150 rows asked; 146 rows are enough for the mandatory targets one by one; beyond 452 rows only the reserve grows.
+Reserve of ordinary rows: 20%, 4 rows (reduced to keep the mandatory targets).
+Candidate rows kept in memory: up to 726, about 195.0 KiB of source text.
+
+Readings of the source: 1
+  scan (not needed): a current Scan is stored: it is not read again
+  second_pass (not needed): the second-pass document is current: it is not run again
+  selection (needed): the sample reads the source to choose the rows

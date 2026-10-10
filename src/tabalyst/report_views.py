@@ -417,6 +417,9 @@ class RelationGroup(ResultModel):
     category: str
     column: str
     tables: list[RelationTable]
+    # The same pair of columns read the other way round, printed right after
+    # the group it mirrors and collapsed.
+    mirror: bool = False
 
 
 class CorrelationRow(ResultModel):

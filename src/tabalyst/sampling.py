@@ -80,6 +80,7 @@ class SampleResult:
     strata_uncovered: int | None = None
     # A smart sample writes a report beside its CSV file and sums it up here.
     report: Path | None = None
+    page: Path | None = None
     smart: SmartSummary | None = None
 
 

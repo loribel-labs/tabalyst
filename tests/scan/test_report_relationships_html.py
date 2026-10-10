@@ -222,3 +222,17 @@ def test_a_value_of_the_data_is_escaped_in_the_tables(tmp_path):
 )
 def test_the_strength_word_of_a_score(score, word):
     assert strength_word(score) == word
+
+
+def test_a_pair_listed_in_both_directions_prints_the_second_one_collapsed(tmp_path):
+    rows = [f"{'M' if n % 2 else 'F'}{n % 3},{'H' if n % 2 else 'F'}{n % 3}" for n in range(600)]
+    profile = _report(tmp_path, rows, header="civility,sex")
+
+    view = _view(profile)
+
+    pairs = [(g.category, g.column, g.mirror) for g in view.groups]
+    assert len(pairs) == 2, pairs
+    assert pairs[0][2] is False and pairs[1][2] is True
+    assert (pairs[0][0], pairs[0][1]) == (pairs[1][1], pairs[1][0])
+    html = render_report(profile)
+    assert html.count("The same pair the other way round") == 1

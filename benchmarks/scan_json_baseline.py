@@ -16,6 +16,10 @@ and ``results.md`` (medians and spread). Tasks:
 - ``scan-t10000``: ``limits.max_distinct_per_field = 10000`` (decision P1),
   to measure what the lower tracking limit costs and saves.
 - ``report``: ``generate_reports()`` from the source, scan included.
+- ``report-off``: the same with ``deep.mode`` off, so without the second pass: the
+  report of the overhead measurements (lot 11, F07).
+- ``smart-sample`` (lot 11): ``tabalyst sample --sample-method smart`` of 0.5% of the
+  rows, with the Scan made first (not timed): only the selection is timed.
 - ``report-from-scan``: ``generate_reports(from_scan=True)`` on a scan document
   written beforehand: only the time to build and render the report.
 
@@ -43,7 +47,9 @@ TASKS = (
     "scan-single",
     "scan-t10000",
     "report",
+    "report-off",
     "report-from-scan",
+    "smart-sample",
 )
 THRESHOLD_FIELD_RANGE = (10_000, 100_000)
 
@@ -96,6 +102,43 @@ def _profile_size(folder: Path) -> int:
     return profiles[0].stat().st_size
 
 
+def _second_pass(folder: Path) -> dict:
+    """What the second pass of a report recorded: its time, reading and work."""
+    profile = next(item for item in folder.glob("*.json") if item.name != "executions.json")
+    document = json.loads(profile.read_text(encoding="utf-8"))
+    analyses = document.get("analyses") or {}
+    run = (analyses.get("deep") or {}).get("run") or {}
+    return {
+        "scan_seconds": document["run"]["duration_seconds"],
+        "scan_timings": document["run"]["timings"],
+        "second_pass_outcome": analyses.get("outcome"),
+        "second_pass_seconds": run.get("duration_seconds"),
+        "second_pass_reading": (run.get("timings") or {}).get("reading"),
+        "analyses": run.get("executed", 0) + run.get("reused", 0),
+        "cells_read": run.get("cells_read"),
+        "second_pass_peak_bytes": run.get("peak_memory_bytes"),
+        "report_processing_seconds": document["report"]["processing_seconds"],
+    }
+
+
+def _smart_extras(report: Path) -> dict:
+    document = json.loads(report.read_text(encoding="utf-8"))
+    coverage = document["coverage"]
+    return {
+        "targets": coverage["defined"],
+        "evaluable": coverage["evaluable"],
+        "covered": coverage["covered"],
+        "weighted_share": coverage["weighted"]["share"],
+        "verification_disagreed": len(coverage["verification"]["disagreed"]),
+        "selection_timings": document["run"]["timings"],
+        "records_read": document["run"]["records_read"],
+        "cells_read": document["run"]["cells_read"],
+        "pool_bytes": document["selection"]["pool"]["peak_bytes"],
+        "candidate_rows": document["selection"]["pool"]["candidate_rows"],
+        "sample_rows": document["selection"]["rows"],
+    }
+
+
 def _run_task(task: str, path: Path, work: Path) -> tuple[int, object, float | None]:
     """Return rows, extra data (or a function that computes it after the
     measurement) and, when only a part is timed, its seconds."""
@@ -115,11 +158,25 @@ def _run_task(task: str, path: Path, work: Path) -> tuple[int, object, float | N
         result = scan(path, config=config, workers=1 if task == "scan-single" else None)
         return result.scope.records_analyzed, lambda: _scan_extras(result), None
     run_baseline._isolated_storage()
-    if task == "report":
+    if task in ("report", "report-off"):
+        config = None
+        if task == "report-off":
+            (work / "config").mkdir(exist_ok=True)
+            config = work / "config" / "off.json"
+            config.write_text(json.dumps({"deep": {"mode": "off"}}), encoding="utf-8")
         started = perf_counter()
-        generate_reports([path], output_dir=work, force=True)
+        generate_reports([path], output_dir=work, config_path=config, force=True)
         seconds = perf_counter() - started
-        return 0, {"report_json_bytes": _profile_size(work)}, seconds
+        return 0, {"report_json_bytes": _profile_size(work), **_second_pass(work)}, seconds
+    if task == "smart-sample":
+        from tabalyst import execute_smart_samples, prepare_smart_samples
+
+        preparation = prepare_smart_samples([path], percent=0.5, output_dir=work, force=True)
+        started = perf_counter()
+        execute_smart_samples(preparation, confirmed=True)
+        seconds = perf_counter() - started
+        [job] = preparation.jobs
+        return 0, _smart_extras(job.report), seconds
     if task == "report-from-scan":
         scans = work / "scans"
         generate_scans([path], output_dir=scans, force=True)
