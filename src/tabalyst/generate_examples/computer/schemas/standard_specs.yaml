@@ -1,6 +1,6 @@
 type: resource
 columns:
-  id: {type: string, required: true, unique: true, references: model_generation.id}
+  id: {type: string, required: true, unique: true}
   wifi_standard: {type: string, required: true}
   bluetooth_version: {type: string, required: true}
   ethernet_speed: {type: string, required: true}
@@ -12,4 +12,4 @@ columns:
   chassis_material: {type: string, required: true}
   camera_type: {type: string, required: true}
   biometric_type: {type: string, required: true}
-  warranty_period: {type: integer, required: true, min: 1}
+  warranty_period: {type: string, required: true}

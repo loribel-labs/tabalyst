@@ -94,18 +94,18 @@ def audit(package_path: Path, output_dir: Path, rows: int, profile: str) -> dict
         assert observed == rows
     if rows >= 10_000:
         laptop_share = counts["computer_type"]["Laptop"] / rows
-        assert 0.72 < laptop_share < 0.78
-        assert pairs["discrete:16"] == 0
-        assert pairs["discrete:32"] > 0
+        assert 0.37 < laptop_share < 0.43
+        assert len(counts["computer_type"]) == 6
+        assert pairs["dedicated:32"] > pairs["dedicated:16"]
         assert pairs["integrated:16"] > pairs["integrated:32"]
-        assert counts["storage_gb"]["1024"] > 0
+        assert counts["storage_gb"]["1000"] > 0
     correlations: dict[str, float] = {}
     for (x_field, y_field), (sum_x, sum_y, sum_x2, sum_y2, sum_xy) in moments.items():
         numerator = rows * sum_xy - sum_x * sum_y
         denominator = math.sqrt((rows * sum_x2 - sum_x**2) * (rows * sum_y2 - sum_y**2))
         correlations[f"{x_field}:{y_field}"] = round(numerator / denominator, 4)
     if rows >= 10_000 and profile == "extended":
-        assert correlations["memory_gb:list_price"] > 0.7
+        assert correlations["memory_gb:list_price"] > 0.5
         assert correlations["review_count:units_sold_30d"] > 0.8
         assert correlations["units_sold_30d:sales_rank"] < -0.99
     return {

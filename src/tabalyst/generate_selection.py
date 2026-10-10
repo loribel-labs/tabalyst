@@ -149,7 +149,17 @@ def _constraints(package: DatasetPackage, steps: list[SelectionStep],
                 canonical = aliases[field]
                 source = package.tables[sources[canonical]]
                 step = next(item for item in steps if item["output"] == canonical)
-                if row[key] not in {entry[step["candidate_column"]] for entry in source.rows}:
+                candidate_column = step["candidate_column"]
+                # A global exclusion may reserve a valid component for later generations.
+                reference = next((column.references for column in source.columns
+                                  if column.name == candidate_column), None)
+                if reference is None:
+                    allowed = {entry[candidate_column] for entry in source.rows}
+                else:
+                    reference_table, reference_column = reference.split(".")
+                    allowed = {entry[reference_column]
+                               for entry in package.tables[reference_table].rows}
+                if row[key] not in allowed:
                     _fail("PACKAGE_CONSTRAINT", table.file, f"unknown {field} ID {row[key]!r}", line, key)
             if scope in {"global", profile}:
                 result.add((aliases[condition], row["condition_id"], aliases[target], row["target_id"]))

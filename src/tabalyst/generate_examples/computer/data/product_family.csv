@@ -1,3 +1,58 @@
 id,en,fr,brand_id
-aster_arc,Arc,Arc,aster
-brindle_bay,Bay,Baie,brindle
+poweredge,PowerEdge,PowerEdge,dell
+proliant,ProLiant,ProLiant,hpe
+superserver,SuperServer,SuperServer,supermicro
+raspberry_pi,Raspberry Pi,Raspberry Pi,raspberry_pi
+z,Z,Z,hp
+aspire,Aspire,Aspire,acer
+swift,Swift,Swift,acer
+travelmate,TravelMate,TravelMate,acer
+predator,Predator,Predator,acer
+nitro,Nitro,Nitro,acer
+macbook_air,MacBook Air,MacBook Air,apple
+macbook_pro,MacBook Pro,MacBook Pro,apple
+mac_mini,Mac mini,Mac mini,apple
+imac,iMac,iMac,apple
+mac_studio,Mac Studio,Mac Studio,apple
+mac_pro,Mac Pro,Mac Pro,apple
+vivobook,Vivobook,Vivobook,asus
+zenbook,Zenbook,Zenbook,asus
+expertbook,ExpertBook,ExpertBook,asus
+rog,ROG,ROG,asus
+tuf_gaming,TUF Gaming,TUF Gaming,asus
+proart,ProArt,ProArt,asus
+nuc,NUC,NUC,asus
+inspiron,Inspiron,Inspiron,dell
+latitude,Latitude,Latitude,dell
+xps,XPS,XPS,dell
+precision,Precision,Precision,dell
+optiplex,OptiPlex,OptiPlex,dell
+alienware,Alienware,Alienware,dell
+framework_laptop,Framework Laptop,Framework Laptop,framework
+probook,ProBook,ProBook,hp
+elitebook,EliteBook,EliteBook,hp
+zbook,ZBook,ZBook,hp
+pavilion,Pavilion,Pavilion,hp
+envy,Envy,Envy,hp
+omen,OMEN,OMEN,hp
+victus,Victus,Victus,hp
+thinkpad,ThinkPad,ThinkPad,lenovo
+thinkbook,ThinkBook,ThinkBook,lenovo
+ideapad,IdeaPad,IdeaPad,lenovo
+yoga,Yoga,Yoga,lenovo
+legion,Legion,Legion,lenovo
+loq,LOQ,LOQ,lenovo
+thinkcentre,ThinkCentre,ThinkCentre,lenovo
+thinkstation,ThinkStation,ThinkStation,lenovo
+surface_laptop,Surface Laptop,Surface Laptop,microsoft
+surface_pro,Surface Pro,Surface Pro,microsoft
+surface_studio,Surface Studio,Surface Studio,microsoft
+modern,Modern,Modern,msi
+prestige,Prestige,Prestige,msi
+stealth,Stealth,Stealth,msi
+raider,Raider,Raider,msi
+vector,Vector,Vector,msi
+creator,Creator,Creator,msi
+blade,Blade,Blade,razer
+galaxy_book,Galaxy Book,Galaxy Book,samsung
+zbox,ZBOX,ZBOX,zotac

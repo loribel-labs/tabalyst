@@ -1,3 +1,6 @@
 id,en,fr
-none,None,Aucune
+none,No promotion,Aucune promotion
+scheduled,Scheduled,Planifiée
 active,Active,Active
+expired,Expired,Expirée
+cancelled,Cancelled,Annulée

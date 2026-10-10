@@ -1,3 +1,11 @@
 id,en,fr,product_subcategory_id
-mobile_work,Mobile work,"Travail mobile, bureau",portable
-desk_work,Desk work,Travail de bureau,desktop
+general_purpose,General purpose,Usage général,
+consumer,Consumer,Grand public,
+business,Business,Professionnel,
+premium,Premium,Haut de gamme,
+gaming,Gaming,Jeu vidéo,
+workstation,Workstation,Station de travail,
+creator,Creator,Création,
+education,Education,Éducation,
+enterprise,Enterprise,Entreprise,
+thin_client,Thin client,Client léger,

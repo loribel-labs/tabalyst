@@ -48,7 +48,7 @@ def test_component_specifications_join_selected_catalog_rows() -> None:
                           if entry["id"] == row[f"{table}_id"])
             for source_column, result_column in columns.items():
                 assert row[result_column] == source[source_column]
-        assert row["storage_gb"] in {512, 1024}
+        assert isinstance(row["storage_gb"], int) and row["storage_gb"] > 0
         assert type(row["display_touch"]) is bool
 
 
@@ -61,10 +61,8 @@ def test_standard_fields_join_catalog_and_obey_component_rules() -> None:
                        if entry["id"] == row["display_id"])
         specs = next(entry for entry in package.tables["standard_specs"].rows
                      if entry["id"] == row["generation_id"])
-        segment = next(entry for entry in package.tables["product_segment"].rows
-                       if entry["id"] == row["product_segment_id"])
         subcategory = next(entry for entry in package.tables["product_subcategory"].rows
-                           if entry["id"] == segment["product_subcategory_id"])
+                           if entry["id"] == row["product_subcategory_id"])
         assert row["product_subcategory_id"] == subcategory["id"]
         assert row["product_category_id"] == subcategory["product_category_id"]
         assert row["cpu_architecture"] == cpu["architecture"]
@@ -79,7 +77,9 @@ def test_standard_fields_join_catalog_and_obey_component_rules() -> None:
             assert row[field] == specs[field]
         assert row["condition"] == "new"
         assert row["price_tier"] in {"entry", "premium"}
-        assert row["product_lifecycle_status"] == "current"
+        assert row["product_lifecycle_status"] == (
+            "current" if row["product_age_months"] < 24 else "mature"
+        )
 
     selected = select_catalog_row(package, "computers", 42, 0, "balanced")
     older = derive_computer_row(package, selected, "computers", 42, 0,
@@ -133,13 +133,13 @@ def test_extended_fields_join_components_and_reject_impossible_hardware() -> Non
         derive_computer_row(package, selected, "computers", 42, 0, AS_OF)
 
 
-def test_standard_reference_rejects_unknown_subcategory(tmp_path: Path) -> None:
+def test_optional_subcategory_reference_rejects_unknown_id(tmp_path: Path) -> None:
     copied = tmp_path / "computer"
     shutil.copytree(PACKAGE, copied)
     segment = copied / "data/product_segment.csv"
     segment.write_text(segment.read_text(encoding="utf-8").replace(
-        "mobile_work,Mobile work,\"Travail mobile, bureau\",portable",
-        "mobile_work,Mobile work,\"Travail mobile, bureau\",unknown",
+        "general_purpose,General purpose,Usage général,",
+        "general_purpose,General purpose,Usage général,unknown",
     ), encoding="utf-8")
     with pytest.raises(ConfigurationError, match="unknown"):
         load_generate_package(copied)
@@ -194,7 +194,7 @@ def test_commercial_derivation_rejects_unsupported_market_and_future_model() -> 
     with pytest.raises(ValueError, match="unsupported market"):
         derive_computer_row(package, selected, "computers", 42, 0, AS_OF, "xx")
     with pytest.raises(ConfigurationError, match="GENERATION_DATE"):
-        derive_computer_row(package, selected, "computers", 42, 0, date(2025, 12, 31))
+        derive_computer_row(package, selected, "computers", 42, 0, date(2020, 12, 31))
 
 
 def test_extended_commerce_obeys_price_sales_and_distribution_rules() -> None:
@@ -239,11 +239,16 @@ def test_extended_commerce_uses_market_currency_and_date_bounded_history() -> No
     selected = select_catalog_row(package, "computers", 42, 0, "balanced")
     us = derive_computer_row(package, selected, "computers", 42, 0, AS_OF, "us")
     assert us["currency"] == "USD"
-    assert us["seller"].startswith("us_")
+    assert us["seller"].endswith("_us")
     assert us["warehouse"].startswith("us_")
+    model_year = next(
+        row["model_year"] for row in package.tables["model_generation"].rows
+        if row["id"] == selected["generation_id"]
+    )
+    assert type(model_year) is int
     just_released = derive_computer_row(package, selected, "computers", 42, 0,
-                                        date(2026, 1, 1))
-    assert just_released["release_date"] == date(2026, 1, 1)
+                                        date(model_year, 1, 1))
+    assert just_released["release_date"] == date(model_year, 1, 1)
     assert just_released["lowest_price_30d"] == just_released["current_price"]
     assert just_released["highest_price_30d"] == just_released["current_price"]
     assert just_released["price_change_30d_percent"] == Decimal(0)

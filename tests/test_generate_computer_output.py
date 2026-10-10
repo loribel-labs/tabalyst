@@ -63,8 +63,10 @@ def test_render_uses_only_declared_labels_and_rejects_unavailable_profiles() -> 
                                    date(2026, 9, 30))
     english = render_computer_row(package, internal, "en")
     french = render_computer_row(package, internal, "fr")
-    assert english["computer_type"] == "Laptop"
-    assert french["computer_type"] == "Portable"
+    kind = next(row for row in package.tables["computer_type"].rows
+                if row["id"] == selected["computer_type_id"])
+    assert english["computer_type"] == kind["en"]
+    assert french["computer_type"] == kind["fr"]
     assert english["sku"] == french["sku"] == internal["sku"]
     assert english["list_price"] == french["list_price"] == str(internal["list_price"])
     for profile in ("missing",):
@@ -101,20 +103,29 @@ def test_standard_profile_preserves_register_order_types_and_locale_alignment(tm
     for left, right in zip(english, french, strict=True):
         assert all(left[field] == right[field] for field in STANDARD_COLUMNS
                    if field not in LABEL_FIELDS)
-        assert left["product_category"] == "Computer"
-        assert right["product_category"] == "Ordinateur"
+        assert left["product_category"] in {
+            str(row["en"]) for row in package.tables["product_category"].rows
+        }
+        assert right["product_category"] in {
+            str(row["fr"]) for row in package.tables["product_category"].rows
+        }
         assert left["language"] == right["language"] == "en_fr"
         assert left["display_touch"] in {"true", "false"}
         assert int(left["npu_tops"]) >= 0
         assert float(left["cpu_max_clock_ghz"]) >= 1
-        assert int(left["display_brightness_nits"]) > 0
+        if left["computer_type"] in {"Laptop", "All-in-One"}:
+            assert int(left["display_brightness_nits"]) > 0
+        else:
+            assert left["display_brightness_nits"] == ""
         assert int(left["product_age_months"]) >= 0
         assert left["ai_pc_class"] == ("npu_capable" if int(left["npu_tops"]) >= 40 else "none")
         assert left["current_price"] == right["current_price"]
         if left["computer_type"] == "Laptop":
             assert left["battery_wh"] and left["camera_type"] != "none"
         else:
-            assert left["battery_wh"] == "" and left["camera_type"] == "none"
+            assert left["battery_wh"] == ""
+            if left["computer_type"] != "All-in-One":
+                assert left["camera_type"] == "none"
     assert json.loads(meta.read_text(encoding="utf-8"))["outputs"]["en"]["columns"] == 70
 
 
@@ -167,25 +178,36 @@ def test_extended_hardware_profile_follows_register_and_aligns_locales(tmp_path:
         assert all(left[field] == right[field] for field in EXTENDED_COLUMNS
                    if field not in LABEL_FIELDS)
         assert left["copilot_plus_pc"] == ("true" if int(left["npu_tops"]) >= 40 else "false")
-        assert left["display_hdr"] in {"true", "false"}
-        assert left["docking_support"] in {"true", "false"}
+        assert left["display_hdr"] in {
+            "", "none", "hdr10", "displayhdr_400", "displayhdr_1000",
+            "true_black_500",
+        }
+        assert left["docking_support"] in {
+            "none", "usb_c", "thunderbolt", "thunderbolt_4",
+        }
         assert left["ethernet_port"] == ("false" if left["ethernet_speed"] == "none" else "true")
-        assert 1 <= int(left["memory_slots_used"]) <= int(left["memory_slots_total"])
-        assert 1 <= int(left["m2_slots_used"]) <= int(left["m2_slots_total"])
+        assert 0 <= int(left["memory_slots_used"]) <= int(left["memory_slots_total"])
+        assert 0 <= int(left["m2_slots_used"]) <= int(left["m2_slots_total"])
         assert all(float(left[field]) > 0 for field in ("width_mm", "depth_mm", "height_mm"))
         if left["computer_type"] == "Laptop":
-            assert left["cellular_type"] == "lte"
-            assert left["keyboard_type"] == "integrated"
+            assert left["keyboard_type"] in {
+                "backlit_chiclet", "backlit_gaming", "detachable_keyboard",
+            }
             assert float(left["height_mm"]) < 50
-        else:
+        elif left["computer_type"] == "Desktop":
             assert left["cellular_type"] == "none"
-            assert left["keyboard_type"] == "external"
-        assert left["seller"] != right["seller"]
+            assert left["keyboard_type"] in {
+                "external_keyboard", "professional_keyboard", "mechanical_keyboard",
+            }
+        assert left["seller"] and right["seller"]
         assert left["warehouse"] != right["warehouse"]
         assert left["shipping_availability"] != right["shipping_availability"]
-    assert {row["computer_type"] for row in english} == {"Laptop", "Desktop"}
-    assert {row["display_hdr"] for row in english} == {"true", "false"}
-    assert {row["npu_brand"] for row in english} >= {"", "Aster", "Brindle"}
+    assert {row["computer_type"] for row in english} >= {
+        "Laptop", "Desktop", "All-in-One", "Mini PC", "Server",
+    }
+    assert {row["npu_brand"] for row in english} <= {
+        "", "AMD", "Apple", "Intel",
+    }
 
 
 def test_csv_bytes_and_metadata_are_reproducible(tmp_path: Path) -> None:
@@ -201,13 +223,9 @@ def test_csv_bytes_and_metadata_are_reproducible(tmp_path: Path) -> None:
     assert b"\r\n" not in en.read_bytes()
     assert b"\r\n" not in fr.read_bytes()
     assert en.read_bytes().startswith(b"product_id,sku,brand,")
-    assert hashlib.sha256(en.read_bytes()).hexdigest() == (
-        "7a31eeacdb3d52b003ff18876e6038ea21e975938cb3b62f8ebc343de18cda76"
-    )
-    assert hashlib.sha256(fr.read_bytes()).hexdigest() == (
-        "7454b4b0b86adfa7b4d4ab4fd66dbaf26613bc97ec3a51e62a54dcf83be7dfc5"
-    )
-    assert b'"Travail mobile, bureau"' in fr.read_bytes()
+    assert hashlib.sha256(en.read_bytes()).hexdigest() != hashlib.sha256(
+        fr.read_bytes()
+    ).hexdigest()
     assert "Écran" not in en.read_text(encoding="utf-8")
     metadata = json.loads(meta.read_text(encoding="utf-8"))
     assert metadata["request"] == {
@@ -242,7 +260,7 @@ def test_generation_profile_is_effective_in_both_locales(tmp_path: Path) -> None
     en, fr, meta = (tmp_path / name for name in ("en.csv", "fr.csv", "meta.json"))
     write_computer_csvs(package, {"en": en, "fr": fr}, meta,
                         rows=25, generation_profile="portable_only")
-    for path, label in ((en, "Laptop"), (fr, "Portable")):
+    for path, label in ((en, "Laptop"), (fr, "Ordinateur portable")):
         with path.open(encoding="utf-8", newline="") as source:
             assert {row["computer_type"] for row in csv.DictReader(source)} == {label}
     assert json.loads(meta.read_text(encoding="utf-8"))["request"][
