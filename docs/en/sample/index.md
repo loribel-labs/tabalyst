@@ -75,7 +75,11 @@ tabalyst sample customers.csv --sample-method smart --rows 1000
 
 This writes `customers.sample.csv` and, beside it, `customers.sample.json`: the
 [report of the sample](format.md), which says what the sample was aimed at and
-what it covers. The sample needs the [scan](../scan/index.md) of the file. A
+what it covers, and `customers.sample.html`, a page that shows that report: the
+coverage by family and weighted, the targets that are not covered with the
+reason, and the exact counts of the plan that the reading confirmed. The page
+is built from the report alone. Pass `--no-html` to write the CSV file and the
+JSON report only. The sample needs the [scan](../scan/index.md) of the file. A
 current stored scan is reused; otherwise the file is scanned first, and the
 command says so before it starts. A smart sample therefore reads the source twice
 at most: once to scan and once to choose the rows. It never runs a

@@ -36,6 +36,7 @@ from tabalyst.progress import (
     ProgressPhase,
     emit_progress,
 )
+from tabalyst.sample_page import render_sample_page, sample_page_path
 from tabalyst.sampling import SampleMethod, SampleResult, SmartSummary, write_sample_csv
 from tabalyst.sampling_service import (
     BatchSampleResult,
@@ -84,6 +85,7 @@ class SmartJob:
 
     job: SampleJob
     report: Path
+    page: Path | None
     scan: ScanSuccess
     plan: SamplingPlan
     deep: DeepResult | None
@@ -139,6 +141,7 @@ def prepare_smart_samples(
     encoding: str | None = None,
     config_path: ConfigPath | None = None,
     force: bool = False,
+    html: bool = True,
     on_progress: ProgressCallback | None = None,
 ) -> SmartPreparation:
     """Scan the sources, or reuse the current stored Scan of each, and plan the
@@ -163,6 +166,14 @@ def prepare_smart_samples(
     for job in plan.jobs:
         if reports[job.source] == job.output:
             raise InputError("A sample and its report cannot have the same filename.")
+    pages = {job.source: sample_page_path(reports[job.source]) if html else None for job in plan.jobs}
+    if html:
+        validate_outputs(
+            ((job.source, pages[job.source]) for job in plan.jobs if pages[job.source] is not None),
+            sources=[*(job.source for job in plan.jobs), *config_paths],
+            force=force,
+            label="Sample page",
+        )
     settings = smart_settings(config_paths)
     top_level, _ = load_config_layers(config_paths)
     indent = settings_from_layer(top_level).output.json_indent
@@ -205,7 +216,7 @@ def prepare_smart_samples(
             failures.append(SampleFailure(job=job, error=exc))
             continue
         jobs.append(
-            SmartJob(job, reports[job.source], success, sampling, stored, percent, confirmation)
+            SmartJob(job, reports[job.source], pages[job.source], success, sampling, stored, percent, confirmation)
         )
     return SmartPreparation(
         plan=plan,
@@ -258,6 +269,13 @@ def _run(job: SmartJob, preparation: SmartPreparation, on_progress: ProgressCall
         # A sample whose coverage nobody can read is not left behind.
         job.job.output.unlink(missing_ok=True)
         raise ReportError(f"Cannot write sample report {job.report}: {exc}") from exc
+    if job.page is not None:
+        try:
+            write_text_atomic(job.page, render_sample_page(document))
+        except OSError as exc:
+            job.job.output.unlink(missing_ok=True)
+            job.report.unlink(missing_ok=True)
+            raise ReportError(f"Cannot write sample page {job.page}: {exc}") from exc
     dataset = scan.datasets[0]
     size = len(selection.rows)
     result = SampleResult(
@@ -272,6 +290,7 @@ def _run(job: SmartJob, preparation: SmartPreparation, on_progress: ProgressCall
         encoding=csv_config.encoding,
         delimiter=csv_config.delimiter,
         report=job.report,
+        page=job.page,
         smart=_summary(document, selection.outcome.reserve_rows, document.run.duration_seconds),
     )
     return SampleSuccess(job=job.job, result=result)

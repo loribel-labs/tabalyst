@@ -189,8 +189,8 @@ def _groups(analyses: list[AnalysisResult]) -> list[RelationGroup]:
         if item.status != "complete" or not isinstance(item.result, CrosstabResult):
             continue
         grouped.setdefault((item.field, item.partner), []).append((item, item.result))
-    groups: list[tuple[float, RelationGroup]] = []
-    for members in grouped.values():
+    groups: list[tuple[float, tuple[str, str], RelationGroup]] = []
+    for key, members in grouped.items():
         # The feature that says most leads; the others stay, collapsed (REL-16).
         members.sort(
             key=lambda pair: (
@@ -207,6 +207,7 @@ def _groups(analyses: list[AnalysisResult]) -> list[RelationGroup]:
         groups.append(
             (
                 -1.0 if best is None else best,
+                key,
                 RelationGroup(
                     category=first.categories.display,
                     column=first.classes.display,
@@ -214,8 +215,22 @@ def _groups(analyses: list[AnalysisResult]) -> list[RelationGroup]:
                 ),
             )
         )
-    groups.sort(key=lambda pair: -pair[0])
-    return [group for _, group in groups[:MAX_GROUPS]]
+    groups.sort(key=lambda entry: -entry[0])
+    # A pair listed in both directions (category A by column B, and B by A) is
+    # one phenomenon: the weaker direction follows the stronger one, collapsed.
+    by_key = {key: group for _, key, group in groups}
+    ordered: list[RelationGroup] = []
+    placed: set[tuple[str, str]] = set()
+    for _, key, group in groups:
+        if key in placed:
+            continue
+        placed.add(key)
+        ordered.append(group)
+        reverse = (key[1], key[0])
+        if reverse in by_key and reverse not in placed:
+            placed.add(reverse)
+            ordered.append(by_key[reverse].model_copy(update={"mirror": True}))
+    return ordered[:MAX_GROUPS]
 
 
 def _correlations(analyses: list[AnalysisResult]) -> list[CorrelationRow]:

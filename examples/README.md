@@ -18,6 +18,14 @@ examples/
 |   |-- sales.xlsx
 |   `-- web-events.jsonl
 `-- output/
+    |-- insurance-customers-scan/
+    |   |-- insurance-customers.scan.json
+    |   |-- insurance-customers.scan.html
+    |   |-- insurance-customers.deep.json
+    |   |-- smart-plan.txt
+    |   |-- insurance-customers.sample.csv
+    |   |-- insurance-customers.sample.json
+    |   `-- insurance-customers.sample.html
     |-- basic/
     |   |-- report.html
     |   |-- report.json
@@ -70,7 +78,19 @@ tabalyst report examples/input/web-events.jsonl -o examples/output/web-events/re
 tabalyst report examples/input/sales.xlsx -o examples/output/sales/report.html --config examples/config.json --force
 ```
 
-Every output folder is independent and contains its own HTML report, canonical
+The folder `insurance-customers-scan/` shows the three steps of Tabalyst Scan on
+`insurance-customers.csv` (see "Simple, Clear and Smart" in the documentation):
+the scan (Simple, with its web page, Clear), the second pass and the plan of a
+smart sample (Smart), and the smart sample with its report and page. Regenerate it
+with:
+
+```console
+tabalyst scan examples/input/insurance-customers.csv -o examples/output/insurance-customers-scan/insurance-customers.scan.json --config examples/config.json --deep --yes --force
+tabalyst scan examples/input/insurance-customers.csv --plan --smart --sample-size 150 --config examples/config.json > examples/output/insurance-customers-scan/smart-plan.txt
+tabalyst sample examples/input/insurance-customers.csv --sample-method smart --rows 150 --seed 42 -o examples/output/insurance-customers-scan/insurance-customers.sample.csv --config examples/config.json --force
+```
+
+Every output folder of the reports is independent and contains its own HTML report, canonical
 JSON profile and cumulative `executions.json` history. The insurance example
 also has standalone HTML pages under `report/`. Delete an output folder
 before regenerating when a fresh one-entry execution history is required.

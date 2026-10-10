@@ -64,6 +64,11 @@ Keep these exactly as written in every language:
 | smart sample plan | plan d'échantillon smart | What `tabalyst scan --plan --smart` adds to a plan: the targets, their weights, the sizes, the reserve and the readings of the source |
 | coverage (of a smart sample) | couverture | What a smart sample holds of the targets of its plan, by family and weighted by their weights. It is the coverage of the catalog of targets, not of every phenomenon of the data |
 | reserve | réserve | The ordinary rows of a smart sample, chosen by a seeded hash of their position, so that it does not hold only rare cases. It gives way to mandatory targets |
+| distinct sample | échantillon de valeurs distinctes | The distinct original values of one field kept in `values.samples`, all of them or the bottom-k of smallest priority, each with its exact count over the whole field. It is not a ranking |
+| row sample | échantillon de lignes | Whole rows of a dataset kept in `records.sample` (the start, the end and a reproducible choice of the interior), so that two fields can be related on the same rows. It is not a uniform sample of the file |
+| estimated figure | valeur estimée | A figure with `accuracy: "estimated"`, such as the KMV estimate of a distinct count, with its expected error. It is never quoted as a count |
+| limited result | résultat limité | A measure stopped by a configured limit, written with its `reason` and a proven `lower_bound`, never with an estimate in place of the value |
+| fingerprint-based identity | identité par empreinte | `identity_accuracy: "fingerprint_based"`: two long texts are the same entry when their 128-bit digests are equal, not when the full texts were compared |
 | analysis plan | plan d'analyses | What `tabalyst scan --plan` shows: the analyses a scan could receive, their cost and the decision on each |
 | forced plan | plan forcé | A plan that takes every applicable analysis within the hard memory budget, whatever the limits of an automatic choice (`tabalyst scan --plan --deep`) |
 | confirmation | confirmation | The question a costly run asks before it starts; a plan says whether it would, and why |

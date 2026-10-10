@@ -701,3 +701,23 @@ def test_an_excel_workbook_gives_tables_from_its_records(tmp_path):
             assert item.status == "complete", (item.display, item.reason, item.detail)
             assert item.result.source == "source"
             assert item.result.rows == item.result.counted + sum(item.result.excluded.model_dump().values())
+
+
+def test_a_table_on_counts_too_low_to_trust_is_ranked_after_the_stable_ones(tmp_path):
+    rng = random.Random(11)
+    rows = []
+    for n in range(600):
+        # `big` and `kind` are weakly related with large counts: a stable, modest score.
+        big = n % 3
+        kind = f"{'AB'[(big + (1 if rng.random() < 0.35 else 0)) % 2]}{rng.randrange(10)}"
+        # `rare` and `code` are perfectly related, but a handful of rows per class.
+        rare = n % 120
+        rows.append(f"g{big},{kind},r{rare:03d},{'xy'[rare % 2]}{rare % 40}-{n % 5}")
+    result = scan_csv(tmp_path, "big,kind,rare,code", rows)
+
+    plan = _plan(result, forced=True)
+
+    scored = [c for c in tables_of(plan) if c.exploration is not None and c.exploration.score is not None]
+    flags = [c.exploration.stable is False for c in scored]
+    assert any(flags) and not all(flags)
+    assert flags == sorted(flags)

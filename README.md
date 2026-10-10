@@ -225,12 +225,25 @@ tabalyst sample customers.csv --sample-method first --rows 100 -o test.csv
 tabalyst sample *.csv --sample-method random --percent 5 -d samples/
 ```
 
-Available methods are `first`, `last`, `random` and `stratified`. Stratified
-sampling approximately preserves the distribution of a selected field:
+Available methods are `first`, `last`, `random`, `stratified` and `smart`.
+Stratified sampling approximately preserves the distribution of a selected field:
 
 ```console
 tabalyst sample customers.csv --sample-method stratified --field province --rows 1000 --seed 42
 ```
+
+A smart sample is built to keep the diversity of the file instead of its
+proportions: every value of a column that has few values, the extremes, each
+pattern and format of date, and the cases the scan found odd. It writes the
+sample, a JSON report and a web page that say what the sample covers and what it
+does not:
+
+```console
+tabalyst sample customers.csv --sample-method smart --rows 1000
+```
+
+Its proportions are not those of the file, so never estimate the population from
+it. See [Tabalyst Sample](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/sample/index.md).
 
 Sampling reads CSV records as a stream. Random and stratified sampling keep
 only the requested sample, plus stratum counts, in memory. Existing outputs
@@ -343,6 +356,27 @@ addresses, are masked by default. Results are written atomically: an
 interrupted scan never leaves a partial file. Files of 16 MiB or more are
 analyzed by several worker processes, with the same result; `--workers`
 chooses their number, `--workers 1` keeps one process.
+
+An explicit `tabalyst scan` also writes `customers.scan.html`, a page that shows
+the scan (`--no-html` skips it). A scan reads the file once, so a column with
+many distinct values can end up limited or estimated. Ask what a second reading
+would add, and what it would cost, without running it, then run it for exact
+distinct counts, frequencies, histograms, medians, patterns, dates, correlations
+and tables of a category against a feature:
+
+```console
+tabalyst scan customers.csv --plan
+tabalyst scan customers.csv --deep
+```
+
+`tabalyst report` decides by itself whether that second reading is worth its
+cost, and says what it added. A forced second reading whose estimate is large
+asks for confirmation first (`--yes` skips the question; outside a terminal it
+is required). `--plan --stratify` adds advice on stratified sampling, and
+`--plan --smart` the plan of a smart sample. See
+[Simple, Clear and Smart](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/get-started/simple-clear-smart.md)
+and how to
+[read exact, estimated and limited results](https://github.com/loribel-labs/tabalyst/blob/main/docs/en/scan/reading-results.md).
 
 `tabalyst report customers.csv` reuses the verified stored scan when the
 source content and requested scan settings are current, and so does a report on

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ doc.output.name }} | Tabalyst smart sample</title>
+<meta name="description" content="Tabalyst smart sample report for {{ doc.source.name }}">
+<meta name="theme-color" content="#00051A">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%2300051a'/%3E%3Cpath%20d='M14%2015h36v10H37v25H27V25H14z'%20fill='%23f98510'/%3E%3C/svg%3E">
+<script>(()=>{let m="auto";try{const s=localStorage.getItem("tabalyst-theme");if(s==="light"||s==="dark")m=s}catch(e){}const r=document.documentElement;r.dataset.themeMode=m;r.dataset.theme=m==="auto"?(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):m})();</script>
+<style>{{ theme_css | safe }}
+.sp{padding:32px 0 56px}
+.sp .panel{margin-top:20px}
+.sp h1{font:600 24px/1.25 var(--f-display);margin:0 0 6px;color:var(--text)}
+.sp .lead{margin:0;color:var(--text-3);font-size:13px;max-width:80ch}
+.sp .dtable th,.sp .dtable td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.sp .dtable thead th{position:static;padding:10px 12px}
+.sp .dtable td.num,.sp .dtable th.num{text-align:right;font-variant-numeric:tabular-nums}
+.sp .dtable code{white-space:normal;overflow-wrap:anywhere}
+.sp .guard{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.sp .guard li{border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px;font-size:13px;color:var(--text-2);background:var(--g-card)}
+.sp .bar{height:6px;border-radius:2px;background:var(--line);min-width:90px}
+.sp .bar span{display:block;height:100%;border-radius:2px;background:var(--attn)}
+@media (max-width:720px){.sp .wrap{width:calc(100% - 32px)}.sp .metrics{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main class="sp"><div class="wrap">
+<header>
+<p class="eyebrow">Tabalyst smart sample</p>
+<h1>{{ doc.output.name }}</h1>
+<p class="lead">{{ doc.output.rows | count }} rows of {{ records | count }} from <code>{{ doc.source.name }}</code>, chosen to cover the cases the plan lists. This page reads the sample report alone; it needs neither the source nor the sample.</p>
+</header>
+
+<section class="panel" id="statements" aria-labelledby="statements-h">
+<div class="phead"><div><p class="eyebrow">1 / What it promises</p><h2 id="statements-h">What this sample is, and is not</h2></div></div>
+<div class="pbody"><ul class="guard">{% for code in doc.statements %}<li>{{ statement_words.get(code, code) }}</li>{% endfor %}</ul></div>
+</section>
+
+<section class="panel" id="coverage" aria-labelledby="coverage-h">
+<div class="phead"><div><p class="eyebrow">2 / Coverage</p><h2 id="coverage-h">What the sample covers of its targets</h2><p>Scope: the {{ cov.defined | count }} targets of the plan, of which {{ cov.evaluable | count }} could be tested on a row. A target is covered when the sample holds at least one row that shows it.</p></div></div>
+<div class="pbody">
+<dl class="metrics">
+<div class="metric"><dt>Targets covered</dt><dd><span class="v">{{ cov.covered | count }}</span><span class="s">of {{ cov.evaluable | count }} testable</span></dd></div>
+<div class="metric"><dt>Weighted coverage</dt><dd><span class="v">{% if cov.weighted.share is not none %}{{ '%.1f' | format(cov.weighted.share * 100) }}<small>%</small>{% else %}–{% endif %}</span><span class="s">Rarer and more serious targets weigh more</span></dd></div>
+<div class="metric{% if cov.mandatory.missing %} attn{% endif %}"><dt>Mandatory targets</dt><dd><span class="v">{{ cov.mandatory.covered | count }}<small> / {{ cov.mandatory.defined | count }}</small></span><span class="s">Values of an exhaustive catalog and confirmed problems</span></dd></div>
+<div class="metric"><dt>Rows</dt><dd><span class="v">{{ sel.rows | count }}</span><span class="s">{{ sel.by_cover | count }} by cover, {{ sel.by_reserve | count }} ordinary{% if sel.shortfall %}; {{ sel.shortfall | count }} short{% endif %}</span></dd></div>
+</dl>
+<h3 class="subh">By family<span class="n">({{ cov.families | length }})</span></h3>
+<div class="tscroll" tabindex="0" role="region" aria-label="Coverage by family"><table class="dtable"><thead><tr><th scope="col">Family</th><th scope="col" class="num">Defined</th><th scope="col" class="num">Testable</th><th scope="col" class="num">Covered</th><th scope="col" class="num">Weighted</th><th scope="col">Share</th></tr></thead><tbody>
+{% for f in cov.families %}<tr><th scope="row">{{ family_words.get(f.family, f.family) }}</th><td class="num">{{ f.defined | count }}</td><td class="num">{{ f.evaluable | count }}</td><td class="num">{{ f.covered | count }}</td><td class="num">{% if f.weight %}{{ '%.1f' | format(f.weight_covered / f.weight * 100) }}%{% else %}–{% endif %}</td><td><div class="bar" aria-hidden="true"><span style="width:{{ '%.1f' | format((f.weight_covered / f.weight * 100) if f.weight else 0) }}%"></span></div></td></tr>{% endfor %}
+</tbody></table></div>
+</div>
+</section>
+
+<section class="panel" id="missing" aria-labelledby="missing-h">
+<div class="phead"><div><p class="eyebrow">3 / Gaps</p><h2 id="missing-h">What the sample does not cover<span class="n">({{ cov.missing_total | count }})</span></h2><p>Mandatory targets first, then the heaviest. A gap is never hidden: each has its reason.</p></div></div>
+<div class="pbody">
+{% if cov.missing %}<div class="tscroll" tabindex="0" role="region" aria-label="Targets not covered"><table class="dtable"><thead><tr><th scope="col">Target</th><th scope="col">Family</th><th scope="col">Obligation</th><th scope="col" class="num">Weight</th><th scope="col">Why</th></tr></thead><tbody>
+{% for m in cov.missing %}<tr><th scope="row"><code>{{ m.id }}</code></th><td>{{ family_words.get(m.family, m.family) }}</td><td>{{ m.obligation }}</td><td class="num">{{ '%.1f' | format(m.weight) }}</td><td>{{ miss_text(m.reason) }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if cov.missing_total > cov.missing | length %}<p class="muted sub">Showing the {{ cov.missing | length | count }} heaviest of {{ cov.missing_total | count }}; the JSON lists the status of every target.</p>{% endif %}
+{% else %}<p>Every testable target is covered.</p>{% endif %}
+</div>
+</section>
+
+<section class="panel" id="verification" aria-labelledby="verification-h">
+<div class="phead"><div><p class="eyebrow">4 / Verification</p><h2 id="verification-h">Counts the plan knew, checked while reading</h2><p>For the targets whose rows the plan counted exactly (from the Scan), the reading counted them again.</p></div></div>
+<div class="pbody">
+<dl class="metrics">
+<div class="metric{% if cov.verification.disagreed %} attn{% endif %}"><dt>Agreed</dt><dd><span class="v">{{ cov.verification.agreed | count }}<small> / {{ cov.verification.checked | count }}</small></span><span class="s">{% if cov.verification.disagreed %}{{ cov.verification.disagreed | length | count }} differ: the test and the Scan disagree{% else %}No difference{% endif %}</span></dd></div>
+<div class="metric"><dt>Candidate pool</dt><dd><span class="v">{{ sel.pool.peak_bytes | size }}</span><span class="s">{{ sel.pool.candidate_rows | count }} rows held, {{ sel.pool.refused_rows | count }} refused by the budget</span></dd></div>
+<div class="metric"><dt>Readings of the source</dt><dd><span class="v">{{ doc.run.passes.total }}</span><span class="s">{% if doc.run.passes.scan %}First pass and selection{% else %}Selection only; the stored Scan was current{% endif %}</span></dd></div>
+<div class="metric"><dt>Duration</dt><dd><span class="v">{{ doc.run.duration_seconds | seconds }}</span><span class="s">{{ doc.run.records_read | count }} records read</span></dd></div>
+</dl>
+{% if cov.verification.disagreed %}<h3 class="subh">Targets that differ</h3><ul class="guard">{% for t in cov.verification.disagreed %}<li><code>{{ t }}</code></li>{% endfor %}</ul>{% endif %}
+</div>
+</section>
+
+<p class="types-note" style="margin-top:20px">Sample report {{ doc.format }} {{ doc.format_version }} revision {{ doc.format_revision }}, seed {{ doc.request.seed }}, Tabalyst {{ doc.engine.version }}. Plan: {{ doc.plan.targets | length | count }} targets in {{ cov.families | length }} families. The sample CSV keeps the rows in the order of the source.</p>
+</div></main>
+</body>
+</html>

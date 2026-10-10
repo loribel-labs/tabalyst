@@ -377,7 +377,9 @@ The Scan and JSON work (bottom-k samplers, Report as a superset of the Scan,
 second pass) is specified in [scan/design.md](scan/design.md) sections 18 to
 21 and mapped to the code in [scan/scan-json-mapping.md](scan/scan-json-mapping.md);
 its baselines are in [scan/benchmarks.md](scan/benchmarks.md) and measured by
-`benchmarks/scan_json_baseline.py`. Its contract tests (`tests/scan/test_contract_*.py`)
+`benchmarks/scan_json_baseline.py`; the matrix of the specification (17.2) is run by
+`benchmarks/final_matrix.py` on the layouts of `benchmarks/matrix_layouts.py` (lot 11). What Explore consumes of these
+documents is fixed in design 20.17 and by `tests/scan/test_explore_contract.py`. Its contract tests (`tests/scan/test_contract_*.py`)
 carry `@pytest.mark.scan_json_lot("<lot>")`: a test of a lot missing from
 `ENABLED_LOTS` in `tests/scan/scan_json_gate.py` is a strict expected failure,
 so the lot that delivers the behavior must enable it. Lot `0` tests describe
@@ -489,6 +491,8 @@ greedy cover, `execute.py` the one guarded reading, `estimate.py` the time and t
 the report `tabalyst.sample`. `smart_service.py` is the boundary of the CLI and the API (`prepare_smart_samples`,
 `execute_smart_samples`); `sampling.py` only gains the method and `write_sample_csv`. `generate_samples` reads a
 current stored Scan to stop an excessive `stratified` run (`shared_scan_service.stored_scan`, D23).
+`sample_page.py` (lot 11, design 20.16) renders the report `tabalyst.sample` as `<stem>.sample.html` from the document
+alone (`templates/sample.html`, `--no-html`, `generate_samples(html=)`); it is not part of the format.
 
 `report_chain.py` (lot 7c, design 20.11) is the second pass inside Report: `plan_chain` after the
 Scan (`mode` `auto`, `forced` or `off`, reading the source or not), `run_chain` that runs it and

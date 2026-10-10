@@ -33,15 +33,47 @@ from tabalyst.scanner.smart.models import SamplingPlan
 # Measured on the executor (insurance-combined.csv, 1 million rows, 31 columns
 # with a test, 345 targets): 35 s for the selection, with a first pass whose
 # reading phase took 5.7 s; 1.8 s for the 90,909 rows of insurance-ontario.csv.
-# The model gives 35 s at the centre of its range; rounded up, not scaled down.
+# The model gave 35 s at the centre of its range; rounded up, not scaled down.
+#
+# The final matrix (lot 11, benchmarks.md) showed the cost of a cell depends on how
+# many distinct strings the column holds, because the reading of a cell is
+# remembered per distinct string: 0.7 us a cell on the combined file (few distinct
+# values), 2.6 us on short identifiers and 3.7 us on columns that are nearly all
+# distinct. The cell cost is therefore ``SELECT_NS_PER_CELL`` plus
+# ``SELECT_NS_PER_DISTINCT_CELL`` times the average distinct share of the tested
+# columns, which the Scan knows.
 SELECT_NS_PER_CELL = 600
+SELECT_NS_PER_DISTINCT_CELL = 3_000
 SELECT_NS_PER_ROW = 2_000
+
+
+def _tested_fields(plan: SamplingPlan) -> set[str]:
+    return {field for target in plan.targets if target.feasibility == "ready" for field in target.fields}
 
 
 def tested_columns(plan: SamplingPlan) -> int:
     """The columns the targets of the plan read: the fields of its targets, once
     each, the table of a relation included."""
-    return len({field for target in plan.targets if target.feasibility == "ready" for field in target.fields})
+    return len(_tested_fields(plan))
+
+
+def distinct_share(plan: SamplingPlan, scan: ScanResult) -> float:
+    """The average share of distinct values of the columns the plan tests, from the
+    Scan: 1.0 when every value of a column is distinct. A column whose count the
+    Scan does not know is counted as all distinct (the costly side)."""
+    dataset = next(d for d in scan.datasets if d.id == plan.dataset)
+    fields = {item.id: item for item in dataset.fields}
+    shares: list[float] = []
+    for field in sorted(_tested_fields(plan)):
+        item = fields.get(field)
+        if item is None or not item.values.count:
+            shares.append(1.0)
+            continue
+        cardinality = item.values.cardinality
+        # A limited count only proves a floor: the share is then the worst case.
+        value = getattr(cardinality, "value", None)
+        shares.append(1.0 if value is None else min(1.0, value / item.values.count))
+    return sum(shares) / len(shares) if shares else 0.0
 
 
 def estimate_selection(
@@ -67,7 +99,8 @@ def estimate_selection(
     speed = (
         1.0 if reading <= 0 or modeled <= 0 else min(high_factor, max(low_factor, reading / modeled))
     )
-    work = (rows * tested_columns(plan) * SELECT_NS_PER_CELL + rows * SELECT_NS_PER_ROW) / 1e9 * speed
+    per_cell = SELECT_NS_PER_CELL + SELECT_NS_PER_DISTINCT_CELL * distinct_share(plan, scan)
+    work = (rows * tested_columns(plan) * per_cell + rows * SELECT_NS_PER_ROW) / 1e9 * speed
     share = READING_LOW_SHARE if scan.source.format == "csv" else 1.0
     low_work, high_work = WORK_RANGE
     estimate = TimeEstimate(

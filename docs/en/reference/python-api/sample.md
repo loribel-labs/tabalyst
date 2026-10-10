@@ -95,7 +95,8 @@ to allow a stratified sample that a stored scan shows may make too many strata.
 ## Smart samples
 
 `method="smart"` in `generate_samples()` writes a smart sample and its
-[report](../../sample/format.md). `field` is not used. The sample needs the scan of
+[report](../../sample/format.md), and the web page of the report unless
+`html=False`. `field` is not used. The sample needs the scan of
 the file: the stored one is reused, and otherwise the file is scanned first.
 The function never asks anything. When the selection is costly it raises
 `tabalyst.SelectionConfirmationRequired` before reading any source again, with the
@@ -117,7 +118,8 @@ result = batch.successes[0].result
 print(result.report, result.smart.covered, result.smart.evaluable)
 ```
 
-A `SampleResult` of a smart sample also has `report` (the path of the report) and
+A `SampleResult` of a smart sample also has `report` (the path of the report),
+`page` (the path of its web page, `None` with `html=False`) and
 `smart`, a summary with `targets`, `evaluable`, `covered`, `weighted_share`,
 `mandatory`, `mandatory_covered`, `reserve_rows`, `passes`, `scan_ran` and
 `duration_seconds`. `tabalyst.prepare_smart_samples()` does the first half (scan,

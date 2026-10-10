@@ -77,6 +77,8 @@ support is not yet required. Record format changes in the relevant changelogs.
   20.16) is in the same package: `evaluate.py` (tests on a row), `select.py` (bounded pool, greedy cover),
   `execute.py` (the guarded reading), `estimate.py` (time, confirmation), `result.py` (the report
   `tabalyst.sample`); `src/tabalyst/smart_service.py` is its boundary for the CLI and the API.
+- `src/tabalyst/sample_page.py`: the web page of a smart sample, rendered from its report `tabalyst.sample`
+  alone (`templates/sample.html`; `--no-html`).
 - `src/tabalyst/scan_page.py`: the web page of an explicit `tabalyst scan` (the report rendered from the Scan
   alone; 16.8). Scans another command makes by itself write none.
 - `src/tabalyst/source_guard.py`: checks before and after a second reading of

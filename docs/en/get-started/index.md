@@ -14,6 +14,9 @@ to a report:
 3. [Browse the examples and demos](examples.md): finished reports for CSV,
    JSON, JSONL and Excel files, with the commands that made them.
 
+To see how the pieces fit, read [Simple, Clear and Smart](simple-clear-smart.md):
+a scan, a report and a smart sample on one example file.
+
 Then pick the tool you need: [Tabalyst Report](../report/index.md) for reports,
 [Tabalyst Inspect](../inspect/index.md) to choose what is analyzed in a JSON or
 Excel file, [Tabalyst Scan](../scan/index.md) for the complete JSON description

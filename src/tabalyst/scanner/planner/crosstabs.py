@@ -331,7 +331,7 @@ def explore_dataset(
         excluded_categories=dict(sorted(excluded_categories.items())),
         excluded_features=dict(sorted(excluded_features.items())),
     )
-    scored: list[tuple[float, int, int, PairProposal]] = []
+    scored: list[tuple[int, float, int, int, PairProposal]] = []
     undefined: dict[str, int] = {}
     evaluated = 0
     possible = 0
@@ -342,7 +342,7 @@ def explore_dataset(
         for col in columns:
             if col.facts.field == cat.facts.field:
                 continue
-            group: list[tuple[float, int, int, PairProposal]] = []
+            group: list[tuple[int, float, int, int, PairProposal]] = []
             for feature, coder in col.coders.items():
                 possible += 1
                 evaluated += 1
@@ -369,9 +369,12 @@ def explore_dataset(
                     from_samples=usable.complete,
                     feature=feature,
                 )
-                group.append((-exploration.score, -exploration.rows, order, proposal))
-            group.sort(key=lambda item: item[:3])
-            for number, (negative, rows_key, position, proposal) in enumerate(group):
+                # A table on counts too low to trust ranks after the stable ones
+                # (never out: it stays listed with its caution, REL-11).
+                unstable = int(exploration.stable is False)
+                group.append((unstable, -exploration.score, -exploration.rows, order, proposal))
+            group.sort(key=lambda item: item[:4])
+            for number, (unstable, negative, rows_key, position, proposal) in enumerate(group):
                 if number:
                     proposal = PairProposal(
                         proposal.first,
@@ -381,9 +384,9 @@ def explore_dataset(
                         feature=proposal.feature,
                         redundant=True,
                     )
-                scored.append((negative, rows_key, position, proposal))
-    scored.sort(key=lambda item: item[:3])
-    listed = [item[3] for item in scored[: settings.max_candidates]]
+                scored.append((unstable, negative, rows_key, position, proposal))
+    scored.sort(key=lambda item: item[:4])
+    listed = [item[4] for item in scored[: settings.max_candidates]]
     block = block.model_copy(
         update={
             "possible": possible,
