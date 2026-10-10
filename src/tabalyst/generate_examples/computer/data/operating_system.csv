@@ -1,3 +1,13 @@
 id,en,fr,os_family
-libre_os,Libre OS,Libre OS,libre
-forge_os,Forge OS,Forge OS,forge
+raspberry_pi_os,Raspberry Pi OS,Raspberry Pi OS,linux
+windows_11_home,Windows 11 Home,Windows 11 Famille,windows
+windows_11_pro,Windows 11 Pro,Windows 11 Professionnel,windows
+windows_11_education,Windows 11 Education,Windows 11 Éducation,windows
+windows_11_pro_workstations,Windows 11 Pro for Workstations,Windows 11 Professionnel pour stations de travail,windows
+chromeos,ChromeOS,ChromeOS,chromeos
+macos,macOS,macOS,macos
+ubuntu,Ubuntu,Ubuntu,linux
+fedora,Fedora,Fedora,linux
+debian,Debian,Debian,linux
+linux_mint,Linux Mint,Linux Mint,linux
+no_os,No operating system,Sans système d'exploitation,none

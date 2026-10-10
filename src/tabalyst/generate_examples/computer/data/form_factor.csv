@@ -1,3 +1,14 @@
 id,en,fr
-clamshell,Clamshell,Portable à clapet
+clamshell,Clamshell,Portable classique
+convertible_360,360° convertible,Convertible 360°
+detachable,Detachable,Détachable
+rugged,Rugged,Renforcé
 tower,Tower,Tour
+small_form_factor,Small Form Factor,Petit format
+micro,Micro,Micro format
+mini,Mini,Mini format
+stick,Compute stick,PC clé
+integrated_display,Integrated display,Écran intégré
+rackmount,Rackmount,Montable en rack
+blade,Blade,Lame serveur
+board,Board,Carte seule

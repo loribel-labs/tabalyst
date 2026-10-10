@@ -1,3 +1,7 @@
 id,en,fr
 manufacturer,Manufacturer,Fabricant
+authorized_reseller,Authorized reseller,Revendeur autorisé
 retailer,Retailer,Détaillant
+marketplace_seller,Marketplace seller,Vendeur de place de marché
+distributor,Distributor,Distributeur
+refurbisher,Refurbisher,Reconditionneur

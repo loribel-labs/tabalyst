@@ -1,3 +1,47 @@
 id,en,fr,memory_type,capacity_gb
-mem_16,16 GB,16 Go,ddr5,16
-mem_32,32 GB,32 Go,ddr5,32
+ddr4_4gb,4 GB DDR4,4 Go DDR4,ddr4,4
+ddr4_8gb,8 GB DDR4,8 Go DDR4,ddr4,8
+ddr4_16gb,16 GB DDR4,16 Go DDR4,ddr4,16
+ddr4_32gb,32 GB DDR4,32 Go DDR4,ddr4,32
+ddr4_64gb,64 GB DDR4,64 Go DDR4,ddr4,64
+ddr4_128gb,128 GB DDR4,128 Go DDR4,ddr4,128
+ddr5_8gb,8 GB DDR5,8 Go DDR5,ddr5,8
+ddr5_16gb,16 GB DDR5,16 Go DDR5,ddr5,16
+ddr5_24gb,24 GB DDR5,24 Go DDR5,ddr5,24
+ddr5_32gb,32 GB DDR5,32 Go DDR5,ddr5,32
+ddr5_48gb,48 GB DDR5,48 Go DDR5,ddr5,48
+ddr5_64gb,64 GB DDR5,64 Go DDR5,ddr5,64
+ddr5_96gb,96 GB DDR5,96 Go DDR5,ddr5,96
+ddr5_128gb,128 GB DDR5,128 Go DDR5,ddr5,128
+ddr5_192gb,192 GB DDR5,192 Go DDR5,ddr5,192
+lpddr4x_4gb,4 GB LPDDR4X,4 Go LPDDR4X,lpddr4x,4
+lpddr4x_8gb,8 GB LPDDR4X,8 Go LPDDR4X,lpddr4x,8
+lpddr4x_16gb,16 GB LPDDR4X,16 Go LPDDR4X,lpddr4x,16
+lpddr5_8gb,8 GB LPDDR5,8 Go LPDDR5,lpddr5,8
+lpddr5_16gb,16 GB LPDDR5,16 Go LPDDR5,lpddr5,16
+lpddr5_32gb,32 GB LPDDR5,32 Go LPDDR5,lpddr5,32
+lpddr5x_16gb,16 GB LPDDR5X,16 Go LPDDR5X,lpddr5x,16
+lpddr5x_24gb,24 GB LPDDR5X,24 Go LPDDR5X,lpddr5x,24
+lpddr5x_32gb,32 GB LPDDR5X,32 Go LPDDR5X,lpddr5x,32
+lpddr5x_64gb,64 GB LPDDR5X,64 Go LPDDR5X,lpddr5x,64
+unified_8gb,8 GB Unified Memory,8 Go de mémoire unifiée,unified_memory,8
+unified_16gb,16 GB Unified Memory,16 Go de mémoire unifiée,unified_memory,16
+unified_24gb,24 GB Unified Memory,24 Go de mémoire unifiée,unified_memory,24
+unified_32gb,32 GB Unified Memory,32 Go de mémoire unifiée,unified_memory,32
+unified_36gb,36 GB Unified Memory,36 Go de mémoire unifiée,unified_memory,36
+unified_48gb,48 GB Unified Memory,48 Go de mémoire unifiée,unified_memory,48
+unified_64gb,64 GB Unified Memory,64 Go de mémoire unifiée,unified_memory,64
+unified_96gb,96 GB Unified Memory,96 Go de mémoire unifiée,unified_memory,96
+unified_128gb,128 GB Unified Memory,128 Go de mémoire unifiée,unified_memory,128
+unified_192gb,192 GB Unified Memory,192 Go de mémoire unifiée,unified_memory,192
+ecc_ddr4_16gb,16 GB ECC DDR4,16 Go ECC DDR4,ecc_ddr4,16
+ecc_ddr4_32gb,32 GB ECC DDR4,32 Go ECC DDR4,ecc_ddr4,32
+ecc_ddr4_64gb,64 GB ECC DDR4,64 Go ECC DDR4,ecc_ddr4,64
+ecc_ddr4_128gb,128 GB ECC DDR4,128 Go ECC DDR4,ecc_ddr4,128
+ecc_ddr4_256gb,256 GB ECC DDR4,256 Go ECC DDR4,ecc_ddr4,256
+ecc_ddr5_16gb,16 GB ECC DDR5,16 Go ECC DDR5,ecc_ddr5,16
+ecc_ddr5_32gb,32 GB ECC DDR5,32 Go ECC DDR5,ecc_ddr5,32
+ecc_ddr5_64gb,64 GB ECC DDR5,64 Go ECC DDR5,ecc_ddr5,64
+ecc_ddr5_128gb,128 GB ECC DDR5,128 Go ECC DDR5,ecc_ddr5,128
+ecc_ddr5_256gb,256 GB ECC DDR5,256 Go ECC DDR5,ecc_ddr5,256
+ecc_ddr5_512gb,512 GB ECC DDR5,512 Go ECC DDR5,ecc_ddr5,512

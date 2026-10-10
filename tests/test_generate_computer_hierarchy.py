@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Verify the fictional Computer hierarchy and its first generation profiles."""
+"""Verify the Computer hierarchy and its generation profiles."""
 
 from collections import Counter
 from importlib.resources import files
@@ -66,35 +66,32 @@ def test_hierarchy_covers_every_catalog_class_and_is_deterministic() -> None:
     first = _draws(package, 200)
     assert first == _draws(load_generate_package(PACKAGE), 200)
     assert first != _draws(package, 200, seed=43)
-    assert [row[0] for row in first[:10]] == [
-        "laptop", "laptop", "desktop", "laptop", "laptop",
-        "laptop", "laptop", "laptop", "laptop", "laptop",
-    ]
-    for index, table in enumerate((
-        "computer_type", "product_segment", "brand", "product_family",
-        "product_model", "model_generation", "form_factor",
-    )):
-        assert {row[index] for row in first} == {
-            str(entry["id"]) for entry in package.tables[table].rows
-        }
+    assert {row[0] for row in first} == {
+        str(entry["id"]) for entry in package.tables["computer_type"].rows
+    }
+    assert len({row[4] for row in first}) >= 40
 
 
 def test_generation_profiles_control_type_proportions() -> None:
     package = load_generate_package(PACKAGE)
-    balanced = Counter(row[0] for row in _draws(package, 2000))
-    assert 1400 <= balanced["laptop"] <= 1600
-    assert balanced["desktop"] == 2000 - balanced["laptop"]
-    assert {row[0] for row in _draws(package, 200, "portable_only")} == {"laptop"}
+    balanced = Counter(row[0] for row in _draws(package, 500))
+    assert 150 <= balanced["laptop"] <= 250
+    assert set(balanced) == {
+        "laptop", "desktop", "all_in_one", "mini_pc",
+        "single_board_computer", "server",
+    }
+    assert {row[0] for row in _draws(package, 50, "portable_only")} == {"laptop"}
 
 
-def test_fictional_labels_do_not_change_canonical_choices(tmp_path: Path) -> None:
+def test_labels_do_not_change_canonical_choices(tmp_path: Path) -> None:
     import shutil
 
     root = tmp_path / "computer"
     shutil.copytree(PACKAGE, root)
     before = _draws(load_generate_package(root), 100)
     path = root / "data/brand.csv"
-    path.write_text(path.read_text(encoding="utf-8").replace("Aster", "Astère"), encoding="utf-8")
+    path.write_text(path.read_text(encoding="utf-8").replace("Acer", "Acér"),
+                    encoding="utf-8")
     assert _draws(load_generate_package(root), 100) == before
 
 
@@ -104,7 +101,7 @@ def test_invalid_relation_reference_fails_before_selection(tmp_path: Path) -> No
     root = tmp_path / "computer"
     shutil.copytree(PACKAGE, root)
     path = root / "data/product_segment_brand.csv"
-    path.write_text(path.read_text(encoding="utf-8").replace("mobile_work,aster", "mobile_work,unknown"),
+    path.write_text(path.read_text(encoding="utf-8").replace("consumer,acer", "consumer,unknown"),
                     encoding="utf-8")
     with pytest.raises(ConfigurationError, match="PACKAGE_REFERENCE_UNKNOWN"):
         load_generate_package(root)
@@ -118,4 +115,7 @@ def test_incompatible_form_relation_removes_its_hierarchy_branch(tmp_path: Path)
     path = root / "data/computer_type_form_factor.csv"
     path.write_text(path.read_text(encoding="utf-8").replace("laptop,clamshell", "laptop,tower"),
                     encoding="utf-8")
-    assert {row[0] for row in _draws(load_generate_package(root), 100)} == {"desktop"}
+    assert all(
+        kind != "laptop" or form != "clamshell"
+        for kind, _, _, _, _, _, form in _draws(load_generate_package(root), 100)
+    )

@@ -1,16 +1,16 @@
 type: resource
 columns:
-  id: {type: string, required: true, unique: true, references: model_generation.id}
+  id: {type: string, required: true, unique: true}
   cellular_type: {type: string, required: true}
-  docking_support: {type: boolean, required: true}
+  docking_support: {type: string, required: true}
   thunderbolt_ports: {type: integer, required: true, min: 0}
   displayport_ports: {type: integer, required: true, min: 0}
   ethernet_port: {type: boolean, required: true}
   card_reader_type: {type: string, required: true}
-  memory_slots_total: {type: integer, required: true, min: 1}
-  memory_slots_used: {type: integer, required: true, min: 1}
-  m2_slots_total: {type: integer, required: true, min: 1}
-  m2_slots_used: {type: integer, required: true, min: 1}
+  memory_slots_total: {type: integer, required: true, min: 0}
+  memory_slots_used: {type: integer, required: true, min: 0}
+  m2_slots_total: {type: integer, required: true, min: 0}
+  m2_slots_used: {type: integer, required: true, min: 0}
   upgradeability_level: {type: string, required: true}
   width_mm: {type: number, required: true, min: 1}
   depth_mm: {type: number, required: true, min: 1}

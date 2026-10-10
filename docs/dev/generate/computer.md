@@ -262,7 +262,7 @@ object with optional `dataset`, `rows`, `seed`, `as_of_date`,
 `generation_profile`, `output_profile`, `market`, and `locales` keys. The
 effective value order is explicit CLI/API option, request, then package default.
 Computer currently requires `dataset: "computers"` and paired `en`/`fr` locales;
-it offers `compact` and `standard` output profiles. It accepts `ca` and `us` markets. A Computer
+it offers `compact`, `standard`, and `extended` output profiles. It accepts `ca` and `us` markets. A Computer
 run requires `-d`; its destination cannot be inside the source package.
 
 ```text
@@ -300,9 +300,9 @@ relations and two technical compatibility relations;
 seven generation-weight tables; and four influence tables:
 `cpu_memory_weight`, `gpu_memory_weight`, `gpu_storage_weight`, and
 `product_segment_memory_weight`. The only v0.1 constraint action is `exclude`.
-The catalog is fictional but internally consistent, with stable IDs and
-English/French labels. Names or specifications from brainstorming examples
-must not be treated as factual descriptions of real machines.
+The catalog uses real product and edition names with stable IDs and
+English/French labels. Component combinations, weights, specifications, and
+offers are illustrative fixtures, not claims about manufacturer SKUs.
 
 Selection order is type, segment, brand, family, model, generation, form
 factor, CPU, GPU, memory, storage, display, OS, color, then commercial values.
@@ -311,6 +311,9 @@ active exclusions; multiply its positive base generation weight by every
 applicable influence factor; then normalize relative weights for selection.
 A missing influence row means factor 1, never exclusion. Weights need not sum
 to 1 or 100. Candidate order is canonical by stable ID.
+The output subcategory is derived from the selected type, form factor, and
+segment; its category comes from the subcategory dictionary. A segment alone
+can apply to several machine types.
 
 A constraint's `scope_id` is `global` or a generation-profile ID. Both scopes
 apply to a selected profile. Matching exclusions are idempotent. Check a
@@ -446,11 +449,10 @@ the v1 reader; lots 11–14 complete the profiles and benchmark; lot 15 aligns
 user documentation and demos with released behavior. No public user guide is
 updated merely because this design is accepted.
 
-The lot 4 development package, now under `src/tabalyst/generate_examples/computer/`, implements the
-seven-level hierarchy with two fictional entries at each level. Parent keys
-and compatibility relations delimit the choices. Its 3:1 type weights and
-`portable_only` constraint are test distributions, not market estimates. It
-deliberately stops before component choices and CSV rendering in later lots.
+The original lot 4 package had two entries at each hierarchy level and 3:1
+type weights. The current package covers six computer types and includes
+component choices, CSV rendering, and a `portable_only` profile. Its weights
+are test distributions, not market estimates.
 
 ## Computer column register
 
@@ -506,18 +508,18 @@ product_id,sku,mpn,brand,product_family,model,generation,model_year,computer_typ
 
 ## Development corpus audit and volume measurement
 
-The local Computer package is deliberately small: two fictional machine
-branches with two candidates per selection. It exercises the full 111-column
-register; it is not a representative sample of the computer market. The
+The local Computer package includes models across six computer types and
+exercises the full 111-column register. Its illustrative configurations and
+weights are not a representative sample of the computer market. The
 `compact`, `standard`, and `extended` projections have 40, 70, and 111 columns,
 respectively, and the tests require strict inclusion in register order.
 
 `benchmarks/computer_corpus.py` audits every declared CSV/YAML resource, its
 digest in metadata, both localized CSVs, row identity, selected offer invariants,
 distributions, and three synthetic numeric correlations. Its 10,000-row
-thresholds check the fixture's 3:1 type weighting, the discrete GPU/16 GB
-exclusion, and the expected directions of memory/price, reviews/sales, and
-sales/rank. These are fixture checks, not market claims or performance promises.
+thresholds check laptop weight, type coverage, compatibility rules, and expected
+directions of memory/price, reviews/sales, and sales/rank. These are fixture
+checks, not market claims or performance promises.
 The benchmark mode samples the generation process tree's resident memory with
 `psutil`, then runs the audit and saves `audit.json`. Run it with the development
 environment and an output directory outside the checkout:

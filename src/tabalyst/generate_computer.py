@@ -58,6 +58,45 @@ def _number(value: Cell, field: str) -> Decimal:
     return Decimal(value)
 
 
+def _subcategory_id(values: dict[str, Cell]) -> str:
+    kind = values["computer_type_id"]
+    form = values["form_factor_id"]
+    segment = values["product_segment_id"]
+    if kind == "laptop":
+        if form == "convertible_360":
+            return "convertible_laptop"
+        if form == "detachable":
+            return "detachable_laptop"
+        if segment == "workstation":
+            return "mobile_workstation"
+        if segment == "gaming":
+            return "gaming_laptop"
+        if segment == "creator":
+            return "creator_laptop"
+        if segment in {"business", "enterprise"}:
+            return "business_laptop"
+        return "consumer_laptop"
+    if kind == "desktop":
+        if segment == "workstation":
+            return "desktop_workstation"
+        if segment == "gaming":
+            return "gaming_desktop"
+        if form == "small_form_factor":
+            return "small_form_factor_pc"
+        if form == "micro":
+            return "micro_pc"
+        return "business_desktop" if segment in {"business", "enterprise"} else "consumer_desktop"
+    if kind == "all_in_one":
+        return "all_in_one_pc"
+    if kind == "mini_pc":
+        return "mini_pc"
+    if kind == "single_board_computer":
+        return "single_board_computer"
+    if kind == "server":
+        return {"tower": "tower_server", "rackmount": "rack_server", "blade": "blade_server"}[str(form)]
+    raise ConfigurationError(f"PACKAGE_STEP_REFERENCE: unknown Computer type {kind!r}")
+
+
 def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
                         dataset_id: str, seed: int, row_index: int, as_of_date: date,
                         market: str = "ca") -> dict[str, Cell]:
@@ -85,8 +124,7 @@ def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
     family = _entry(package, "product_family", values["product_family_id"])
     model = _entry(package, "product_model", values["product_model_id"])
     generation = _entry(package, "model_generation", values["generation_id"])
-    segment = _entry(package, "product_segment", values["product_segment_id"])
-    subcategory = _entry(package, "product_subcategory", segment["product_subcategory_id"])
+    subcategory = _entry(package, "product_subcategory", _subcategory_id(values))
     standard_specs = _entry(package, "standard_specs", values["generation_id"])
     extended_specs = _entry(package, "extended_specs", values["generation_id"])
     if (family["brand_id"] != values["brand_id"]
@@ -108,10 +146,14 @@ def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
             or (extended_specs["ethernet_port"] != (standard_specs["ethernet_speed"] != "none"))
             or (values["computer_type_id"] == "laptop"
                 and (_number(extended_specs["height_mm"], "height_mm") >= 50
-                     or extended_specs["keyboard_type"] != "integrated"))
+                     or extended_specs["keyboard_type"] not in {
+                         "backlit_chiclet", "backlit_gaming", "detachable_keyboard",
+                     }))
             or (values["computer_type_id"] == "desktop"
                 and (extended_specs["cellular_type"] != "none"
-                     or extended_specs["keyboard_type"] != "external"))):
+                     or extended_specs["keyboard_type"] not in {
+                         "external_keyboard", "professional_keyboard", "mechanical_keyboard",
+                     }))):
         raise ConfigurationError("PACKAGE_STEP_REFERENCE: inconsistent Computer extended specification")
     values.update({
         "model_year": generation["model_year"],
@@ -232,19 +274,27 @@ def derive_computer_row(package: DatasetPackage, selected: dict[str, Cell],
     return_rate = (Decimal("0.10") - (rating_value - 3) * Decimal("0.02")
                    + Decimal(_stream(seed, dataset_id, row_index, "returns", context).randrange(0, 6))
                    / 1000).quantize(Decimal("0.001"))
-    seller_id = _stream(seed, dataset_id, row_index, "seller", context).choice(
-        ("ca_direct", "ca_retail") if market == "ca" else ("us_direct", "us_retail")
-    )
+    seller_ids = tuple(sorted(
+        str(row["id"]) for row in package.tables["seller"].rows
+        if row["market"] == market
+        and (row["seller_type_id"] != "manufacturer"
+             or row["id"] == f"{values['brand_id']}_direct_{market}")
+    ))
+    seller_id = _stream(seed, dataset_id, row_index, "seller", context).choice(seller_ids)
     seller = _entry(package, "seller", seller_id)
+    warehouse_ids = tuple(sorted(
+        str(row["id"]) for row in package.tables["warehouse"].rows
+        if row["market"] == market
+    ))
     warehouse_id = _stream(seed, dataset_id, row_index, "warehouse", context).choice(
-        ("ca_east", "ca_west") if market == "ca" else ("us_east", "us_west")
+        warehouse_ids
     )
     warehouse = _entry(package, "warehouse", warehouse_id)
     if seller["market"] != market or warehouse["market"] != market:
         raise ConfigurationError("PACKAGE_STEP_REFERENCE: inconsistent Computer distribution market")
     promotion_type = ("none" if discount_percent == 0 else
                       _stream(seed, dataset_id, row_index, "promotion", context).choice(
-                          ("price_cut", "seasonal", "clearance")))
+                          ("percentage_discount", "seasonal", "clearance")))
     values.update({
         "product_generation": ("current" if age_months < 12 else
                                "previous" if age_months < 36 else "legacy"),

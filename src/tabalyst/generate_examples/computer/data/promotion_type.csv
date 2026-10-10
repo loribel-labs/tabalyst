@@ -1,5 +1,12 @@
 id,en,fr
-none,None,Aucune
-price_cut,Price cut,Baisse de prix
-seasonal,Seasonal,Promotion saisonnière
+none,No promotion,Aucune promotion
+percentage_discount,Percentage discount,Rabais en pourcentage
+fixed_discount,Fixed discount,Rabais fixe
+instant_rebate,Instant rebate,Rabais instantané
+coupon,Coupon,Coupon
+bundle,Bundle offer,Offre groupée
 clearance,Clearance,Liquidation
+seasonal,Seasonal promotion,Promotion saisonnière
+member_price,Member price,Prix membre
+student_discount,Student discount,Rabais étudiant
+business_discount,Business discount,Rabais entreprise

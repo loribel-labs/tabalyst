@@ -5,11 +5,11 @@ columns:
   fr: {type: string, required: true}
   display_type: {type: string, required: true}
   touch: {type: boolean, required: true}
-  size_in: {type: number, required: true, min: 1}
-  resolution: {type: string, required: true}
-  refresh_rate_hz: {type: integer, required: true, min: 1}
-  brightness_nits: {type: integer, required: true, min: 1}
-  finish: {type: string, required: true}
-  aspect_ratio: {type: string, required: true}
-  hdr: {type: boolean, required: true}
-  color_gamut: {type: string, required: true}
+  size_in: {type: number, required: false, min: 1}
+  resolution: {type: string, required: false}
+  refresh_rate_hz: {type: integer, required: false, min: 1}
+  brightness_nits: {type: integer, required: false, min: 1}
+  finish: {type: string, required: false}
+  aspect_ratio: {type: string, required: false}
+  hdr: {type: string, required: false}
+  color_gamut: {type: string, required: false}
