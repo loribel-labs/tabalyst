@@ -998,3 +998,147 @@ Each table costs about 0.5 s of the second pass on this file. Going from 8 to 0 
 the overhead of the Report is mostly the other 30 analyses (16 s of a 20 s first pass), which the planner picks as
 cheap and useful. The lever of the tables is small; the lever of the whole second pass is `deep.mode` and the automatic
 budget of 20.2.
+
+## Memory, overhead of the Report and the full matrix (lot 12)
+
+Lot 12 treats the two points that the maintainer accepted at lot 11 and left for later: the memory of the first pass
+(+42%, 719 to 1,019 MB on the realistic file against `0acf126`) and the overhead of the Report (+107%, the second pass
+adding 22 s to a Report of 21 s). Engine 0.6.2 at commit `338fd44` plus the changes of the lot, CPython 3.12.14, Windows 11,
+Intel Core Ultra 9 275HX (24 logical CPUs), 32 GB. The interleaved comparisons and the matrix ran on a quiet machine (no
+other session scanning); the machine was faster than at lot 11 (the first pass of the combined file took 11.7 s against 19.7
+s), so **only ratios taken in one session are compared**, never the figures of two sections.
+
+### Where the memory came from
+
+The peak of a parallel scan is the sum of the peaks of the main process and of each worker (`insurance-combined.csv`, one
+scan, `benchmarks/interleave.py` and a driver reading the peak of each process):
+
+| Scan | Main process | Workers | Sum |
+| --- | ---: | ---: | ---: |
+| `0acf126` | 177 MB | 8 of about 67 MB | 719 MB |
+| Lot 11 (K = 10,000) | 340 MB | 8 of 71 to 93 MB | 1,017 MB |
+| Lot 11 with K = 100 (`limits.max_samples`) | 187 MB | 8 of 57 to 91 MB | 825 MB |
+
+- **The main process (+153 MB)** holds the bottom-k samples of the Scan: with `tracemalloc`, `insurance-ontario.csv` retains 99
+  MB of result at K = 10,000 against 9 MB at K = 100, about 450 bytes an entry (a `SampleEntry` is a pydantic model: an object, its
+  dictionary, its set of fields set and the text). The row sample and the patterns weigh about 10 MB.
+- **The workers (+140 MB in all)** imported the whole `tabalyst` package, 498 modules (services, planner, Report, `jinja2`,
+  `yaml`), 50 MB before any value; they need 35 MB. K = 10,000 adds only 5 MB to a worker.
+
+### The levers and what they gave
+
+No lever touches the per-value loop of the first pass, reduces what is computed or changes a result.
+
+| Lever | What it does | Effect |
+| --- | --- | --- |
+| M2, lazy package | `tabalyst` and `tabalyst.scanner` resolve their public names on first use (PEP 562) | A worker loads 280 modules instead of 498: 35 MB instead of 50 MB at rest, about 15 MB less in each |
+| M1, at most 6 workers | `MAX_WORKERS` 8 to 6 | The time is that of 8 workers on every file (below), and 2 workers fewer are 130 to 170 MB less |
+| R1, second pass in workers | the routes of the fields of a CSV file run in workers (design 20.18) | The second pass of the Report takes 9 s instead of 15 s on the realistic file |
+| M3, compact sample entries | not done | Would take about 110 to 150 MB from the main process, at the price of changing the type of `Samples.listed`; not needed |
+
+**The number of workers** (interleaved, `TABALYST_BENCH_WORKERS`, `benchmarks/interleave.py`; the first column is the scan with
+the lazy package and 8 workers). Median of the runs in seconds, then the peak memory:
+
+| File | `0acf126` | 8 workers | 6 workers | 4 workers | 3 workers |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| insurance-combined (3 series) | 11.46 s, 719 MB | 12.80 s, 900 MB | 13.13 s, 769 MB | 13.17 s, 641 MB | 13.74 s, 576 MB |
+| worst-width-1m (2 series) | | 16.23 s, 1,072 MB | 16.50 s, 916 MB | 18.38 s, 779 MB | 19.96 s, 696 MB |
+| wide-100 (2 series) | | 18.66 s, 1,605 MB | 19.10 s, 1,437 MB | 20.13 s, 1,278 MB | 20.98 s, 1,193 MB |
+
+Four workers are enough for 34 columns (within 3% of the time of 8, 641 MB) but cost 8% to 13% on the files whose columns are heavy or
+numerous; six cost 2% on all three and bring the realistic file to 769 MB, 7% above the baseline. The cap is 6. The lazy
+package alone takes the realistic file from 1,019 to 900 MB.
+
+### Against the base commit, in the same session (PERF-06, PERF-05)
+
+`0acf126` in a `git worktree`, the head, alternated three times, task `scan`, default workers:
+
+| File | Base (s), three runs | Head (s), three runs | Median | Threshold | Peak memory (MB) |
+| --- | --- | --- | --- | --- | --- |
+| insurance-combined.csv | 10.97, 10.53, 10.36 | 11.96, 12.05, 12.10 | **+14.5%** | 20% | 719 to 769 (**+7%**, guard-rail 10%) |
+| worst-width-1m.csv | 13.12, 12.54, 12.83 | 15.50, 14.91, 15.25 | **+18.8%** | 35% | 804 to 917 |
+| insurance-ontario.csv | 1.89, 1.84, 1.89 | 1.97, 2.02, 2.02 | +7.3% | | 680 to 734 |
+
+The 90,909-row file was at +30% at lot 11 (the fixed cost of starting 8 workers that each import the package): it is now +7%. All the
+thresholds and the guard-rail of lot 0 (peak of the realistic file within 10% of 715 MB) hold.
+
+### The overhead of the Report, before and after R1
+
+`benchmarks/report_overhead.py` on `insurance-combined.csv`, the lot 11 tree in a `git worktree` against the head, alternated
+twice (wall time of `tabalyst report`, interpreter and files included):
+
+| Case | Lot 11 | Lot 12 | Second pass, lot 11 | Second pass, lot 12 |
+| --- | ---: | ---: | ---: | ---: |
+| `off` (no second pass) | 16.7 s, 17.2 s | 16.7 s, 16.3 s | none | none |
+| `auto` (the planner decides, 38 analyses, 25 million cells) | 32.8 s, 34.2 s | 26.3 s, 26.0 s | 15.3 s, 16.6 s | 9.3 s, 9.0 s |
+| `warm` (again on the same storage) | 2.0 s | 1.8 s | 0.0003 s | 0.0003 s |
+| `forced` (`--deep --yes`, 55 analyses, 37 million cells) | 40.7 s, 39.3 s | 35.6 s, 36.2 s | 22.8 s, 22.3 s | 18.6 s, 19.0 s |
+
+The automatic second pass adds 9.2 s to a Report of 16.5 s, **+59%** instead of +99% in the same session (+107% at lot 11).
+What is left is the reading of the source (4 s, in the process that asks), the exact sets and the pairs and tables of
+columns, which stay in the process, and the pickling of the columns (0.8 s). Moving the tables to the workers would save at
+most 2 s of 9; the reading is the floor. Starting the workers costs about 0.5 s, so the second pass of a source under 16 MiB
+stays in one process. The planner's estimate of time (20.2) still counts one process and is an upper bound.
+
+### The full matrix (PERF-05 to PERF-08, F07)
+
+`benchmarks/final_matrix.py --profile full --repeat 3` (all four tasks, three repeats, medians). The new cases are the
+growth family at 2,000,000 rows and the wide family at 500 and 1,000 columns, written by `benchmarks/matrix_layouts.py`
+(seed 42, under `D:\GIT.test\tabalyst\bench\matrix`):
+
+```powershell
+.\.venv\Scripts\python.exe benchmarks\final_matrix.py --profile full --root D:\GIT.test\tabalyst\bench\matrix --out D:\GIT.test\tabalyst\artifacts\lot12\matrix-full --repeat 3 --existing D:\GIT.test\tabalyst\csv\insurance-combined.csv D:\GIT.test\tabalyst\bench\worst-width-1m.csv D:\GIT.test\tabalyst\bench\many-lengths-500k.csv D:\GIT.test\tabalyst\bench\long-text-60k.csv
+```
+
+| Case | Rows | Size (MB) | Scan (s) | Peak (MB) | Report without (s) | Report with (s) | Second pass adds | Smart selection (s) | Spread of the three runs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| insurance-combined | 1,000,000 | 263 | 11.71 | 770 | 12.65 | 19.91 | +7.3 s (+57%) | 19.96 | 2% |
+| worst-width-1m | 1,000,000 | 361 | 14.97 | 918 | 15.69 | 27.27 | +11.6 s (+74%) | 38.18 | 3% |
+| many-lengths-500k | 500,000 | 169 | 3.67 | 625 | 4.09 | 6.22 | +2.1 s (+52%) | 6.22 | 3% |
+| long-text-60k | 60,000 | 196 | 2.33 | 621 | 2.75 | 3.61 | +0.9 s (+31%) | 1.91 | 2% |
+| low-cardinality | 1,000,000 | 80 | 3.23 | 378 | 3.50 | 4.77 | +1.3 s (+36%) | 3.69 | 2% |
+| transition-K-1 | 200,000 | 4 | 0.97 | 112 | 1.31 | 1.52 | +0.2 s (+16%) | 0.77 | 3% |
+| transition-K | 200,000 | 4 | 0.97 | 111 | 1.30 | 1.52 | +0.2 s (+16%) | 0.78 | 3% |
+| transition-K+1 | 200,000 | 4 | 1.02 | 113 | 1.32 | 1.61 | +0.3 s (+22%) | 0.76 | 5% |
+| transition-T | 200,000 | 4 | 1.24 | 136 | 1.54 | 1.81 | +0.3 s (+18%) | 0.93 | 3% |
+| high-cardinality | 1,000,000 | 130 | 10.29 | 718 | 10.79 | 13.89 | +3.1 s (+29%) | 20.42 | 2% |
+| short-ids | 1,000,000 | 59 | 4.54 | 646 | 5.03 | 7.71 | +2.7 s (+53%) | 12.14 | 2% |
+| repeated-550k | 550,000 | 159 | 7.17 | 829 | 7.81 | 17.22 | +9.4 s (+121%) | 16.38 | 2% |
+| wide-100 | 200,000 | 166 | 17.50 | 1,438 | 20.05 | 23.29 | +3.2 s (+16%) | 27.98 | 9% |
+| growth-250k | 250,000 | 32 | 3.72 | 648 | 4.28 | 5.82 | +1.5 s (+36%) | 4.80 | 2% |
+| growth-500k | 500,000 | 65 | 5.88 | 673 | 6.40 | 8.13 | +1.7 s (+27%) | 9.76 | 2% |
+| normalization-clean | 500,000 | 17 | 1.97 | 379 | 2.29 | 2.87 | +0.6 s (+25%) | 2.05 | 3% |
+| normalization-effect | 500,000 | 17 | 1.99 | 384 | 2.37 | 2.94 | +0.6 s (+24%) | 2.03 | 3% |
+| growth-2M | 2,000,000 | 260 | 19.11 | 810 | 19.86 | 26.05 | +6.2 s (+31%) | 42.21 | 1% |
+| low-cardinality-2M | 2,000,000 | 160 | 6.51 | 473 | 6.80 | 9.40 | +2.6 s (+38%) | 8.06 | 1% |
+| wide-500 | 200,000 | 832 | 87.60 | 1,819 | 94.98 | 107.43 | +12.5 s (+13%) | 145.69 | 4% |
+| wide-1000 | 200,000 | 1,667 | 209.12 | 2,164 | 226.18 | 227.62 | +1.4 s (+1%) | 326.46 | 27% |
+
+The peaks are those of the scan. The Report peaks above it, since it keeps the Scan and builds the profile and the page: 47 MB
+above on the realistic file without a second pass and 323 MB with one, 615 MB above on `wide-500` without one. The smart
+selection loads the Scan and the targets of every column: 6% above the scan on the realistic file, 32% to 71% on the wide
+files (`wide-1000` at 3,692 MB). The spread is the largest range of the four tasks over its median; the 27% of
+`wide-1000` is one slow run of the Report (228 to 288 s) and of the selection (310 to 398 s), not a trend.
+
+- **Plateau of memory (PERF-05).** The growth family peaks at 648, 673, 718, 810 MB for 250,000, 500,000, 1,000,000 and
+  2,000,000 rows, and at 805 MB for 4,000,000. What grows is the table of digests of the rows that detects exact duplicates,
+  which `limits.max_tracked_records` bounds at 2,000,000 entries (about 190 MB at its limit): with `records.duplicates`
+  off, 500,000 and 2,000,000 rows both peak at 620 to 624 MB (main process 161 MB). The plateau is the limit, and it is reached
+  at 2,000,000 rows. Before lot 12 the same rows peaked at 872, 895 and 941 MB.
+- **Transition around K and T.** 9,999, 10,000 and 10,001 distinct values scan in 0.97, 0.97 and 1.02 s; 100,000 distinct
+  values in 1.24 s (release of the table), as at lot 11.
+- **Columns (PERF-08).** 100, 500 and 1,000 columns of 200,000 rows scan in 17.5, 87.6 and 209 s: 0.88, 0.88 and 1.05
+  microseconds a cell, so the time is proportional to the cells. The memory is not: 1,438, 1,819 and 2,164 MB, because the
+  samples share one budget (`limits.max_sample_memory`, 512 MiB) and the sample of a column shrinks as columns are
+  discovered (design 18.10). No case ran out of memory and the budgets held. On `wide-1000` the Report's second pass reads
+  nothing (250 analyses answered from the Scan's samples, 0.01 s).
+- **The second pass of the Report** adds 13% to 74% to the Report without it, and 121% on `repeated-550k` (18 analyses and 6.6
+  million cells in 9.3 s, 1.4 microseconds a cell: its exact sets, which run in the process, are the cost). It adds
+  nothing to the first pass.
+- **The smart selection** reads the source once; its time is the reading of the cells that have a test (design 20.16), 0.8 to
+  326 s on these files.
+
+**What was not run.** Two million rows with 500 or 1,000 columns: 1 and 2 billion cells, 7 and 17 GB of CSV, and about 15 and
+35 minutes for a Scan alone at the measured rate, 6 and 12 hours for the four tasks in three repeats. The wide cases keep
+200,000 rows, since the memory and the time per cell do not depend on the rows (PERF-05, above). The decision was taken
+with the maintainer on 2026-10-10.

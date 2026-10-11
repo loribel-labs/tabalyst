@@ -11,10 +11,16 @@ It writes the deterministic files of the matrix under ``--root`` when they are
 missing (never in the checkout), then measures each case with the tasks of
 ``scan_json_baseline.py``: ``scan``, ``report`` (with the second pass the planner
 chooses), ``report-off`` (without it) and ``smart-sample``. ``--limit`` keeps the
-cases that fit in 1,000,000 rows and 100 columns, the profile used until the
-complete matrix is run (2,000,000 rows, 500 and 1,000 columns, and every task of
-every case). Existing files named on the command line (the realistic insurance
-file, ``worst-width``, ``long-text``, ``many-lengths``) are added as they are.
+cases that fit in 1,000,000 rows and 100 columns (the profile of lot 11). With
+``--profile full`` (lot 12) the matrix adds the growth family at 2,000,000 rows and
+the wide family at 500 and 1,000 columns, every task of every case with the
+repeats asked for. Their rows are those of ``FULL_EXTRA``: a file of 1,000 columns
+and 2,000,000 rows holds two billion cells, about 35 minutes for a Scan alone on
+the reference machine and 16 GB on disk, so the wide cases keep 200,000 rows (the
+cells of a column are what the limits bound, not the rows: PERF-05) and the
+constraint is recorded with the results. Existing files named on the command line
+(the realistic insurance file, ``worst-width``, ``long-text``, ``many-lengths``)
+are added as they are.
 """
 
 import argparse
@@ -46,13 +52,26 @@ LIMITED: tuple[tuple[str, str, int, dict], ...] = (
     ("normalization-clean", "normalization-clean", 500_000, {}),
     ("normalization-effect", "normalization-effect", 500_000, {}),
 )
+# The cases the full matrix adds to ``LIMITED`` (decision of the maintainer,
+# 2026-10-10): the growth and cardinality families at 2,000,000 rows, and the wide
+# family at 500 and 1,000 columns.
+FULL_EXTRA: tuple[tuple[str, str, int, dict], ...] = (
+    ("growth-2M", "high-cardinality", 2_000_000, {}),
+    ("low-cardinality-2M", "low-cardinality", 2_000_000, {}),
+    ("wide-500", "wide", 200_000, {"columns": 500}),
+    ("wide-1000", "wide", 200_000, {"columns": 1_000}),
+)
 TASKS = ("scan", "report-off", "report", "smart-sample")
 
 
 def _ensure(root: Path, case: str, layout: str, rows: int, options: dict) -> Path:
     path = root / f"{case}.csv"
     if not path.exists():
-        matrix_layouts.write_layout(layout, rows, path, **options)
+        # Written aside and renamed: an interrupted run leaves no file that a
+        # later run would take for a complete one.
+        partial = path.with_suffix(".csv.partial")
+        matrix_layouts.write_layout(layout, rows, partial, **options)
+        partial.replace(path)
     return path
 
 
@@ -61,6 +80,7 @@ def main() -> None:
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--repeat", type=int, default=3)
+    parser.add_argument("--profile", choices=("limited", "full"), default="limited")
     parser.add_argument("--case", action="append", help="Only these cases.")
     parser.add_argument("--task", action="append", choices=baseline.TASKS)
     parser.add_argument("--existing", nargs="*", type=Path, default=[])
@@ -74,7 +94,8 @@ def main() -> None:
     work.mkdir(exist_ok=True)
 
     files: list[tuple[str, Path]] = [(path.stem, path) for path in args.existing]
-    for case, layout, rows, options in LIMITED:
+    cases = LIMITED + (FULL_EXTRA if args.profile == "full" else ())
+    for case, layout, rows, options in cases:
         if args.case and case not in args.case:
             continue
         files.append((case, _ensure(args.root, case, layout, rows, options)))

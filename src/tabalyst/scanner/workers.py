@@ -38,7 +38,7 @@ from pydantic import BaseModel
 # Sources smaller than this are scanned in one process: starting workers
 # costs more than it saves.
 MIN_PARALLEL_BYTES = 16 << 20
-MAX_WORKERS = 8
+MAX_WORKERS = 6
 # Messages waiting to be written to one worker; beyond them, the scan waits.
 OUTBOX_SIZE = 8
 # Bytes of a worker's standard error kept for error messages.
@@ -85,6 +85,22 @@ def _read(stream: BinaryIO) -> object | None:
     return pickle.loads(payload)
 
 
+def _bootstrap(entry: tuple[str, str] | None) -> str:
+    """The program of a worker: the value worker of the first pass, or the
+    function ``entry`` = (module, name) that serves another job."""
+    if entry is None:
+        return _BOOTSTRAP
+    module, function = entry
+    program = _BOOTSTRAP.replace(
+        "from tabalyst.scanner.workers import main",
+        f"from {module} import {function} as main",
+    )
+    # A worker that ran the loop of the value worker would wait for messages it
+    # cannot read until the start timeout. (The tests replace the whole program.)
+    assert program != _BOOTSTRAP or "sys.exit" in _BOOTSTRAP, "no entry point"
+    return program
+
+
 class WorkerError(RuntimeError):
     """A worker process failed; the scan cannot complete."""
 
@@ -93,7 +109,13 @@ class _Worker:
     """One worker process, with a thread writing its messages and a thread
     reading its replies into the pool's queue."""
 
-    def __init__(self, index: int, config: str, replies: queue.Queue) -> None:
+    def __init__(
+        self,
+        index: int,
+        config: str,
+        replies: queue.Queue,
+        entry: tuple[str, str] | None = None,
+    ) -> None:
         self.index = index
         self.failure: str | None = None
         self.outbox: queue.Queue[bytes | None] = queue.Queue(OUTBOX_SIZE)
@@ -101,7 +123,7 @@ class _Worker:
         path = json.dumps([str(entry) for entry in sys.path])
         environment = {**os.environ, _PATH_VARIABLE: path}
         self.process = subprocess.Popen(
-            [sys.executable, "-c", _BOOTSTRAP],
+            [sys.executable, "-c", _bootstrap(entry)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

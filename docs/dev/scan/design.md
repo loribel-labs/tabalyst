@@ -72,6 +72,7 @@ lot, with the reason recorded in section 17.
 | O33 | Run block | `run` (start, duration, timings, workers, peak memory) holds what varies between runs on the same source; it replaces `started_at` and `duration_seconds` at the root. | Accepted (in the code since format revision 2) | 16.1 |
 | O43 | Targets and the plan of a smart sample | The plan of a smart sample is a document of its own, `SamplingPlan` (`scanner/smart/`), not a member of `AnalysisPlan`: it reads a Scan and, when it is current, the second-pass document, and has its own `plan_id`. It lists the targets of one dataset by family (low cardinality, structured strings, numeric, dates, quality, relations), each with a predicate named by reference into the Scan (never a value of the data), a frequency with its accuracy, a weight and an obligation. The weight is `min(cap, base * (1 + gain * rarity))`, monotone in the share and in the base, capped, configurable (`smart.weights`) and versioned; mandatory targets are the values of an exhaustive enumeration and the confirmed issues. A reserve of ordinary rows (20 % by default) gives way to mandatory targets. The plan announces the readings of the source (scan, second pass, selection) and never merges them; it never runs a second pass by itself. The `smart` settings are a top-level object of the configuration file. | Accepted 2026-10-09 (maintainer, lot 10a) | 15 of the specification, 20.15 |
 | O45 | Final integration: stability in the ranking of tables, mirrored pairs, the page of a smart sample, the contract of Explore | A table whose counts are too low to trust (`stable` false) ranks after every stable one in the exploration and so in the automatic choice, and stays listed with its caution (`planner/crosstabs.py`). A pair of columns that is listed in both directions prints its weaker direction right after the stronger one, collapsed (`RelationGroup.mirror`); the document is unchanged. `tabalyst sample --sample-method smart` also writes `<stem>.sample.html`, rendered from the `tabalyst.sample` document alone (`sample_page.py`, `--no-html`, `generate_samples(html=)`), and the page is not part of the format. What Explore consumes of a Scan or a Report is a contract of its own (20.17). The final matrix of 17.2 is measured by `benchmarks/final_matrix.py`. | Accepted 2026-10-09 (maintainer, lot 11; the points were left open at lots 8b and 10b) | 19.3 and 17.2 of the specification, 20.13, 20.16, 20.17 |
+| O46 | Lot 12: memory of the first pass and overhead of the Report | Workers load the modules they use and not the whole package (`tabalyst` and `tabalyst.scanner` resolve their public names on first use, PEP 562): 15 MB less in each worker. The first pass starts at most 6 workers (8 before): on the realistic file the time is the one of 8 and the sum of the peaks falls from 900 to 769 MB. The routes of the fields of a CSV file in the second pass run in worker processes (20.18); the document does not depend on their number. `--workers` applies to both passes. The format does not change. | Accepted 2026-10-10 | 13, 20.7, 20.18 |
 | O44 | Selection of the rows of a smart sample and its report | The selection reads the source once, with the configuration the Scan recorded, and tests each row against the targets of the plan through tests resolved from the Scan before the reading (`scanner/smart/evaluate.py`); a target that cannot be resolved is left out with a reason, never guessed. It keeps a bounded pool of whole candidate rows (at most `candidates_per_target` for each target, the best by a seeded hash of the position, one copy of a row whatever the targets it holds) and a bottom-k reserve of ordinary rows, in a byte budget; a row the budget turns away is counted and never shortened. A greedy cover then chooses the rows: the mandatory targets first, then the weight not yet covered; what is left of the size goes to ordinary rows. The rows are written in the order of the source after the digest of the reading agrees with the Scan's. The report is a document of its own, `tabalyst.sample` (0.2.0 revision 1), with the plan, the selection and the coverage of the catalog of targets by family and weighted, the missed targets with their reason, and a verification of every exact count of the plan against the rows found. The time of the selection is estimated apart from the plan and asks for a confirmation as a second pass does. | Accepted 2026-10-09 (maintainer, lot 10b) | 15 of the specification, 20.16 |
 | O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
 | O41 | Tables of a category against a feature | A table is a candidate of `category_crosstab`: the category is its `field`, the column of the feature its `partner`, the feature (`pattern`, `length`, `prefix`) a parameter, and the order matters (`>` in the id). The classes come from the Scan alone, at the plan and at the run, and end with the explicit class `other`, so nothing creates an axis while the source streams (REL-12). Rows left out are counted by cause and `rows = counted + excluded` is checked. The planner ranks by the bias-corrected Cramér's V on the row sample, picks by itself the best feature of two columns (`redundant_feature` for the others) and at most eight tables; the result gives the counts with their margins, the coverage and the purity of each category in both directions, the exceptions with exact counts and their first rows, Cramér's V (never 0 for lack of data, `stable` or not) and candidate rules. A `PairAnalyzer` replaces the special case of the correlation in the planner. The report prints one block per pair of columns in a Relationships section. | Accepted 2026-10-09 (maintainer, lot 8b) | 18.14, 20.2, 20.5, 20.12, 20.13 |
@@ -1229,7 +1230,7 @@ this without changing results:
    (MEM-05). No result depends on where a batch ends.
 7. Workers (lot 6, O25). Sources of at least 16 MiB are analyzed with worker
    processes (`scan(workers=...)`, `--workers`), one per spare processor, at
-   most 8: the scan process reads, keeps tables, budgets and record facts,
+   most 6 (8 until lot 12; benchmarks.md, lot 12): the scan process reads, keeps tables, budgets and record facts,
    and hands the per-value work of each field to one worker: its released
    table, then its streaming batches in reading order, or its complete table
    at finalization, the largest first. A worker processes the values exactly
@@ -1772,6 +1773,7 @@ makes by itself writes none.
 | 2026-10-09 | SJ-10b | New decision O44, new section 20.16, notes in 20.14 and 20.15: the selection of the rows of a smart sample (`scanner/smart/`: `evaluate.py`, `select.py`, `execute.py`, `estimate.py`, `result.py`), the document `tabalyst.sample` and its schema, `tabalyst sample --sample-method smart` (`--yes`, exit code 3), `smart_service.py` (`prepare_smart_samples`, `execute_smart_samples`, `SelectionConfirmationRequired`), `SampleResult.report` and `smart`, D23 for `stratified` (`shared_scan_service.stored_scan`, `max_strata` explicit allows the run), `source_guard.check_plan_base` for any plan that stands on a Scan. | Lot 10b of the Scan and JSON work: SMART-05 to SMART-13, D15, D23, E10, E11, E13, E15. Maintainer decisions of 2026-10-09 (the plan and its defaults, "OK pour le reste"). |
 | 2026-10-09 | SJ-10b | New section 16.8: the web page of an explicit `tabalyst scan` (`scan_page.py`, `generate_scans(html=)`, `ScanJob.page`, `prepare_deep(html=)`, `--no-html`). | Maintainer decision of 2026-10-09: an explicit scan writes the page, an automatic scan does not ("ok pour tout" to the name `<stem>.scan.html`, the report rendered from the Scan alone, and the cost measured first). |
 | 2026-10-09 | SJ-11 | New decision O45, new section 20.17, notes in 20.13 and 20.16: unstable tables rank last, mirrored pairs collapse in the report, the web page of a smart sample (`sample_page.py`, `templates/sample.html`), the contract of Explore (`tests/scan/test_explore_contract.py`), the final matrix (`benchmarks/final_matrix.py`, `matrix_layouts.py`). | Lot 11 of the Scan and JSON work: the arbitrations left open by lots 8b and 10b, EXPLORE-01 to EXPLORE-05, F07. |
+| 2026-10-10 | SJ-12 | New decision O46, new section 20.18, notes in 13 and 20.7: lazy imports of the package, at most 6 workers for the first pass, the routes of the fields of a CSV file in worker processes in the second pass (`scanner/secondpass/parallel.py`, `workers.py` `_Worker(entry=...)`, `run_second_pass(workers=)`, `ChainPlan.workers`, `DeepPreparation.workers`). | Lot 12: memory of the first pass (+42%) and overhead of the Report (+107%) accepted at lot 11 for the time being. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3043,7 +3045,7 @@ own revision history. It is placed beside the Scan it stands on:
 | `base` | The identity of the Scan (19.5): format revision, engine version, source and configuration digests, `facts_sha256`. |
 | `settings`, `settings_sha256` | The `deep` settings of the run. |
 | `plan` | The plan that was run, whole (20.5), with its `plan_id`. |
-| `run` | `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `other`), `workers` (1), `peak_memory_bytes`, `source_read`, `source_verified` (the digest of the reading was compared with the Scan's, 20.6), `records_read`, `cells_read` (the cells handed to the analyses), `executed`, `reused`, `skipped`. It describes the latest run only. |
+| `run` | `started_at`, `duration_seconds`, `timings` (`reading`, `analysis`, `other`), `workers` (1, or the processes that held routes, 20.18), `peak_memory_bytes`, `source_read`, `source_verified` (the digest of the reading was compared with the Scan's, 20.6), `records_read`, `cells_read` (the cells handed to the analyses), `executed`, `reused`, `skipped`. It describes the latest run only. |
 | `analyses` | One entry per selected analysis, in plan order. |
 
 An entry has the `id` of its candidate, the analyzer and its version, the
@@ -3300,8 +3302,10 @@ the digest of the bytes read with the Scan's. It returns the document or raises;
 it writes nothing, and a failure after the reading publishes nothing. A table is
 read column by column from the batches, a JSON or Excel record by the path of its
 observations. Every record is parsed once; a CSV file is still scanned to its
-separators. The executor runs in one process: the results do not depend on the
-workers of the first pass (tested), and the cost model assumes one.
+separators. The results do not depend on the workers of the first pass (tested).
+The reading and the routes that need the whole run stay in the process that asked;
+since lot 12 the routes of the fields of a CSV file run in worker processes (20.18),
+and the cost model still assumes one process, so its estimate is an upper bound.
 
 **Replay (PASS2-02).** `CellReader` decides for a raw string what the first pass
 decided: whether it is content (not empty, blank or a null marker of the
@@ -4067,6 +4071,34 @@ what a Scan, a Report and a second pass give it, so that it can be built without
 
 Decisions. Explore never edits a Scan, a Report or a second-pass document; it reads them, and writes its own
 documents. The backend that serves the rows is its own choice and is outside this work.
+
+### 20.18 The routes of the second pass in worker processes (lot 12, PERF-07, O46)
+
+The second pass reads the source once in the process that asked for it, and a CSV batch gives every selected field
+its column (`Router._batch`). A route (`FieldRoute`: one field, its lengths, numeric, frequency, pattern and period
+accumulators, the memory of the cells it has read) depends on no other route, so it can live in another process.
+`secondpass/parallel.py` does that for the routes of a CSV file with one dataset, from 16 MiB (`worker_count`, so
+`--workers` applies) and with at least two routes to share:
+
+- The process sends each worker its routes before the reading (the empty accumulators, which pickle), then one message
+  for each batch with the columns of the routes the worker holds, and at the end asks for the accumulators back. A
+  worker receives the columns of a route in reading order, so it counts what the process would have counted; the
+  accumulator comes back and the process concludes the analysis from it (`_finish`, with the checks against the Scan)
+  as it did before. A route that raises in a worker fails alone, with the name of the exception, as in the process.
+- The routes are shared out by modeled cost (`route_weight`, from `NS_PER_CELL`), the heaviest first to the least
+  loaded worker, the same assignment for the same routes. The result never depends on it.
+- A route with an exact set stays in the process: the sets of a run draw from one pool of bytes (MEM-06), so splitting
+  them would make the field that is stopped depend on the order of the workers. The pairs and tables of columns
+  (20.12, 20.13) stay too: they read two columns together through feeds that several of them share.
+- A JSON or Excel source is read record by record and stays in the process. Workers that cannot start leave the pass
+  in one process, as for the first pass; a worker that fails during the run stops the pass with an error that names
+  it (`SecondPassWorkerError`, a `TabalystError`: an automatic second pass is left out of the Report, a forced one
+  fails).
+- `run.workers` is the number of processes that held routes. The cost model of 20.2 counts one process, so the time
+  estimate of a plan is an upper bound.
+
+Measured on the realistic file (benchmarks.md, lot 12): the second pass of the Report takes 8.0 s instead of 22 s, and
+the Report 23.3 s instead of 43 s for 15.3 s without a second pass.
 
 ## 21. Original value domain (O32)
 

@@ -61,6 +61,11 @@ from tabalyst.scanner.secondpass.models import (
     DeepTimings,
     DistinctLimited,
 )
+from tabalyst.scanner.secondpass.parallel import (
+    RemoteRoute,
+    SecondPassWorkers,
+    part_name,
+)
 from tabalyst.scanner.secondpass.patterns import (
     PatternAccumulator,
     derive_from_samples,
@@ -70,6 +75,7 @@ from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
+from tabalyst.scanner.workers import worker_count
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
 
 # The analyzers this executor can run: those the registry marks ``available``.
@@ -446,6 +452,72 @@ def _conclude(job: _Job) -> AnalysisResult:
     )
 
 
+# Fewer routes than this are not worth a worker.
+MIN_PARALLEL_ROUTES = 2
+
+
+def _share_out(
+    jobs: list[_Job],
+    routes: dict[tuple[str, FieldPath], FieldRoute],
+    scan: ScanResult,
+    workers: int | None,
+) -> tuple[dict[tuple[str, FieldPath], RemoteRoute], SecondPassWorkers | None]:
+    """The routes the workers take over, as the stand-ins the router feeds, and
+    the pool that holds them; none when the run stays in the process.
+
+    Only the batches of a CSV file with a single dataset are shared out. A route
+    with an exact set stays: the sets of a run share one memory pool (MEM-06).
+    """
+    if scan.source.format != "csv" or len({dataset for dataset, _ in routes}) != 1:
+        return {}, None
+    count = worker_count(workers, scan.source.size_bytes)
+    local = {
+        (job.dataset.id, field_path(job.field.path))
+        for job in jobs
+        if isinstance(job.accumulator, ExactSet) and job.route is not None
+    }
+    movable = [(where, route) for where, route in routes.items() if where not in local]
+    count = min(count, len(movable))
+    if count < MIN_PARALLEL_ROUTES:
+        return {}, None
+    pool = SecondPassWorkers(scan.config.model_dump_json(by_alias=True), count)
+    if not pool.start():
+        return {}, None
+    try:
+        stand_ins = pool.place([route for _, route in movable])
+    except BaseException:
+        pool.close()
+        raise
+    return {where: stand_in for (where, _), stand_in in zip(movable, stand_ins, strict=True)}, pool
+
+
+def _collect(
+    pool: SecondPassWorkers,
+    remote_of: dict[tuple[str, FieldPath], RemoteRoute],
+    routes: dict[tuple[str, FieldPath], FieldRoute],
+    jobs: list[_Job],
+) -> None:
+    """Take back the accumulators the workers filled: each job points to its own
+    again, and its route to the failure and count of values the worker found."""
+    results = pool.finish(remote_of.values())
+    for where, remote in remote_of.items():
+        parts, failure, values = results[remote.rid]
+        remote.values = values
+        local = routes[where]
+        # A column the router could not cut fails the route here, before any
+        # worker sees it; a worker's failure is the other way to fail.
+        local.failure = remote.failure or failure
+        local.values = values
+        for name, accumulator in parts.items():
+            setattr(local, name, accumulator)
+    for job in jobs:
+        route = job.route
+        if route is None or job.accumulator is None:
+            continue
+        if any(route is routes[where] for where in remote_of):
+            job.accumulator = getattr(route, part_name(job.accumulator))
+
+
 def pending_candidates(plan: AnalysisPlan, previous: DeepResult | None) -> list[Candidate]:
     """The selected analyses that a run has to compute: those with an executor
     whose result ``previous`` does not hold under the same key (CACHE-04)."""
@@ -483,6 +555,7 @@ def run_second_pass(
     previous: DeepResult | None = None,
     skip_reading: str | None = None,
     on_progress: ProgressCallback | None = None,
+    workers: int | None = None,
 ) -> SecondPassOutcome:
     """Run the selected analyses of ``plan`` over ``source`` and return the
     second-pass document, writing nothing.
@@ -495,6 +568,10 @@ def run_second_pass(
     stored results can answer is still computed. Raises ``StalePlan``, ``StaleSource``
     or ``SourceNotReadable`` (design 20.6) before and after the reading: no
     document is returned then.
+
+    The routes of a CSV file's fields run in ``workers`` processes (design
+    20.18); ``None`` lets ``worker_count`` choose, 1 reads and counts in the
+    process. The document does not depend on it but for ``run.workers``.
     """
     check_plan_base(plan, scan)
     settings = DeepSettings() if settings is None else settings
@@ -535,6 +612,7 @@ def run_second_pass(
     reading = [0.0]
     consume = 0.0
     router = Router({})
+    used = 1
     verified = False
     if jobs:
         cells = CellReader(scan.config)
@@ -606,10 +684,23 @@ def run_second_pass(
                 if isinstance(job.accumulator, PairAccumulator | CrosstabAccumulator)
                 and job.reads_pair
             ]
-            router = Router(routes, feeds, pairs)
-            consume_started = perf_counter()
-            router.consume(_timed(reader, reading))
-            consume = perf_counter() - consume_started
+            remote_of, pool = _share_out(jobs, routes, scan, workers)
+            used = pool.count if pool is not None else 1
+            try:
+                router = Router(
+                    {**routes, **remote_of},
+                    feeds,
+                    pairs,
+                    after_batch=None if pool is None else pool.flush,
+                )
+                consume_started = perf_counter()
+                router.consume(_timed(reader, reading))
+                if pool is not None:
+                    _collect(pool, remote_of, routes, jobs)
+                consume = perf_counter() - consume_started
+            finally:
+                if pool is not None:
+                    pool.close()
             summary = reader.summary()
             guard.finish(summary.sha256, summary.bytes_read)
             verified = True
@@ -633,7 +724,7 @@ def run_second_pass(
                 analysis=round(analysis_time, 6),
                 other=round(max(0.0, duration - reading[0] - analysis_time), 6),
             ),
-            workers=1,
+            workers=used,
             peak_memory_bytes=peak_memory_bytes(),
             source_read=bool(read_jobs),
             source_verified=verified,

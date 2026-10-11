@@ -217,7 +217,11 @@ class Router:
         routes: dict[tuple[str, FieldPath], FieldRoute],
         feeds: dict[tuple[str, FieldPath, str], Feed] | None = None,
         pairs: Sequence[tuple[str, PairLike]] = (),
+        after_batch: Callable[[], None] | None = None,
     ) -> None:
+        # Called when every route has had the column of a batch: the routes of
+        # worker processes send what they were given.
+        self.after_batch = after_batch
         self.routes: dict[str, dict[FieldPath, FieldRoute]] = {}
         for (dataset, path), route in routes.items():
             self.routes.setdefault(dataset, {})[path] = route
@@ -292,6 +296,8 @@ class Router:
                 except Exception as exc:  # noqa: BLE001 - one column fails with its pairs
                     feed.failure = type(exc).__name__
             self._hand(batch.dataset, lambda feed: converted.get(id(feed)))
+        if self.after_batch is not None:
+            self.after_batch()
 
     def _hand(
         self,

@@ -68,6 +68,9 @@ class ChainPlan:
     shared: bool
     indent: bool
     settings: DeepSettings
+    # Worker processes of the run (``None``: as many as the size of the source
+    # calls for); the ``--workers`` of the command applies to both passes.
+    workers: int | None = None
 
     @property
     def pending(self) -> int:
@@ -104,6 +107,7 @@ def plan_chain(
     reads_source: bool,
     shared: bool,
     indent: bool,
+    workers: int | None = None,
 ) -> ChainPlan:
     """Plan the second pass of a Report, running nothing.
 
@@ -115,7 +119,7 @@ def plan_chain(
     deep_path = deep_path_for(scan_path)
     if mode == "off":
         return ChainPlan(
-            mode, None, None, deep_path, source, None, shared, indent, settings
+            mode, None, None, deep_path, source, None, shared, indent, settings, workers
         )
     skip_reading: str | None = None
     if source is None:
@@ -144,6 +148,7 @@ def plan_chain(
         shared,
         indent,
         settings,
+        workers,
     )
 
 
@@ -203,6 +208,7 @@ def run_chain(
             previous=chain.previous,
             skip_reading=chain.skip_reading,
             on_progress=on_progress,
+            workers=chain.workers,
         )
         # A report that reads no source writes no file beside the scan document.
         if chain.skip_reading is None:

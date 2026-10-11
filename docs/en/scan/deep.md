@@ -408,5 +408,6 @@ that cannot be read again raises `tabalyst.SourceNotReadable`.
 `--deep` accepts the options that choose how the file is read and where the
 scan goes (`-o`, `-d`, `-f`, `-c`, `--delimiter`, `--encoding`, `--collection`,
 `--workers`, `--counters`, `-q`, `-v`, `--no-progress`). They apply to the first
-pass. `--yes` goes with `--deep`. With `--plan` it shows the plan without running
+pass; `--workers` also sets the processes of the second pass (`--workers 1`
+keeps both in one process). `--yes` goes with `--deep`. With `--plan` it shows the plan without running
 it.
