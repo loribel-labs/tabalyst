@@ -153,7 +153,12 @@ The Computer development package lives only at
 
 ```console
 tabalyst generate --example computer --validate-only
-tabalyst generate --example computer -d OUTPUT_DIR --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer -d OUTPUT_DIR/clean --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer -d OUTPUT_DIR/dirty --rows 10000 --seed 42 --output-profile extended --anomaly-profile dirty_realistic
+tabalyst generate --example computer -d OUTPUT_DIR/units --rows 10000 --seed 42 --unit-style localized
+tabalyst generate --example computer -d OUTPUT_DIR/selected-units --rows 10000 --seed 42 --output-profile extended --unit-columns memory_gb,display_size_in,battery_wh,weight_kg
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix --rows 10000 --seed 42 --anomaly-profile unit_variants
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix-extended --rows 10000 --seed 42 --output-profile extended --anomaly-profile unit_variants_extended
 ```
 
 The command writes aligned `computers-en.csv`, `computers-fr.csv`, and
@@ -165,7 +170,16 @@ distribution and e-commerce measures. Use `--output-profile extended` to
 review these fields.
 A JSON `--request FILE` can select
 `rows`, `seed`, `as_of_date`, `generation_profile`, `output_profile`, `market`,
-and `locales`; explicit CLI options override the request. Keep the output folder outside the checkout when testing a wheel.
+`locales`, `unit_style`, `unit_columns`, and `anomaly_profile`; explicit CLI options override
+the request. `--unit-style localized` formats physical measurements as text
+with localized units (`4 GB` / `4 Go` for memory); the default keeps numeric
+cells. `--unit-columns` selects measured fields and implies localized output;
+the JSON request uses a list of field names. `unit_variants` injects capacity
+suffixes into altered CSVs; `unit_variants_extended` covers all 14 measured
+fields and requires `--output-profile extended`.
+Computer's `dirty_realistic` and `dirty_stress` profiles add altered EN/FR
+CSVs, per-cell change logs, and summaries while preserving clean outputs.
+Keep the output folder outside the checkout when testing a wheel.
 
 ## Regenerate all Generate examples
 

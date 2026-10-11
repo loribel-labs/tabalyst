@@ -6,7 +6,62 @@ catalog: catalog.yaml
 defaults: {rows: 10, seed: 42, as_of_date: "2026-09-30"}
 generation_profiles:
   balanced: {}
+  consumer: {}
+  business: {}
+  gaming: {}
+  creator: {}
+  workstation: {}
+  enterprise: {}
+  mixed: {}
   portable_only: {}
+anomaly_profiles:
+  dirty_realistic:
+    targets: [computers]
+    operations:
+      - {kind: set_missing, column: memory_gb, rate: 0.025}
+      - {kind: set_missing, column: cpu_model, rate: 0.015}
+      - {kind: format, column: release_date, value: date_slash, rate: 0.02}
+      - {kind: replace, column: current_price, value: "N/A", rate: 0.01}
+      - {kind: replace, column: stock_status, value: in_stok, rate: 0.015}
+      - {kind: replace, column: gpu_vram_gb, value: "0", rate: 0.04,
+         when: {gpu_type: dedicated}}
+      - {kind: replace, column: stock_quantity, value: "0", rate: 0.03,
+         when: {stock_status: in_stock}}
+  dirty_stress:
+    targets: [computers]
+    operations:
+      - {kind: set_missing, column: memory_gb, rate: 0.12}
+      - {kind: set_missing, column: cpu_model, rate: 0.08}
+      - {kind: format, column: release_date, value: date_slash, rate: 0.10}
+      - {kind: replace, column: current_price, value: "N/A", rate: 0.06}
+      - {kind: replace, column: stock_status, value: in_stok, rate: 0.08}
+      - {kind: replace, column: gpu_vram_gb, value: "0", rate: 0.18,
+         when: {gpu_type: dedicated}}
+      - {kind: replace, column: stock_quantity, value: "0", rate: 0.15,
+         when: {stock_status: in_stock}}
+  unit_variants:
+    targets: [computers]
+    operations:
+      - {kind: format, column: memory_gb, value: unit_gb, rate: 0.08}
+      - {kind: format, column: storage_gb, value: unit_gb, rate: 0.05}
+      - {kind: format, column: gpu_vram_gb, value: unit_gb, rate: 0.03}
+  unit_variants_extended:
+    targets: [computers]
+    operations:
+      - {kind: format, column: memory_gb, value: unit_suffix, rate: 0.08}
+      - {kind: format, column: storage_gb, value: unit_suffix, rate: 0.05}
+      - {kind: format, column: gpu_vram_gb, value: unit_suffix, rate: 0.03}
+      - {kind: format, column: cpu_max_clock_ghz, value: unit_suffix, rate: 0.04}
+      - {kind: format, column: display_size_in, value: unit_suffix, rate: 0.04}
+      - {kind: format, column: display_refresh_rate_hz, value: unit_suffix, rate: 0.03}
+      - {kind: format, column: display_brightness_nits, value: unit_suffix, rate: 0.02}
+      - {kind: format, column: npu_tops, value: unit_suffix, rate: 0.02}
+      - {kind: format, column: battery_wh, value: unit_suffix, rate: 0.03}
+      - {kind: format, column: power_adapter_w, value: unit_suffix, rate: 0.03}
+      - {kind: format, column: weight_kg, value: unit_suffix, rate: 0.04}
+      - {kind: format, column: width_mm, value: unit_suffix, rate: 0.02}
+      - {kind: format, column: depth_mm, value: unit_suffix, rate: 0.02}
+      - {kind: format, column: height_mm, value: unit_suffix, rate: 0.02}
 output_profiles:
   compact: [product_id, sku, brand, product_family, model, generation, model_year, computer_type, form_factor, product_segment, cpu_brand, cpu_family, cpu_model, cpu_cores, cpu_threads, gpu_brand, gpu_family, gpu_model, gpu_type, gpu_vram_gb, memory_type, memory_gb, storage_type, storage_gb, display_size_in, display_type, display_resolution, display_refresh_rate_hz, operating_system, color, weight_kg, currency, list_price, current_price, stock_quantity, stock_status, release_date, rating, review_count, market]
   standard: [product_id, sku, mpn, brand, product_family, model, generation,
@@ -59,12 +114,20 @@ datasets:
         source: computer_type
         candidate_column: id
         weight_column: weight
+        influences:
+          - source: generation_profile_computer_type
+            candidate_column: computer_type_id
+            where: {generation_profile_id: generation_profile_id}
       - id: select_segment
         kind: select
         output: product_segment_id
         source: computer_type_product_segment
         candidate_column: product_segment_id
         where: {computer_type_id: computer_type_id}
+        influences:
+          - source: generation_profile_segment
+            candidate_column: product_segment_id
+            where: {generation_profile_id: generation_profile_id}
       - id: select_brand
         kind: select
         output: brand_id
@@ -148,6 +211,9 @@ datasets:
           - source: gpu_storage_weight
             candidate_column: storage_id
             where: {gpu_id: gpu_id}
+          - source: product_segment_storage_weight
+            candidate_column: storage_id
+            where: {product_segment_id: product_segment_id}
       - id: select_display
         kind: select
         output: display_id
@@ -155,6 +221,10 @@ datasets:
         candidate_column: display_id
         where: {generation_id: generation_id}
         weight_column: weight
+        influences:
+          - source: product_segment_display_weight
+            candidate_column: display_id
+            where: {product_segment_id: product_segment_id}
         filters:
           - source: gpu_display
             candidate_column: display_id

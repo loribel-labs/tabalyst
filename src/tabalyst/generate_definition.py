@@ -542,7 +542,7 @@ def validate_generate_mapping(root: Any, source: Path) -> GenerateDefinition:
                 _fail(source, operation, "operation.value must be text")
             if operation["kind"] in {"set_missing", "duplicate"} and "value" in operation:
                 _fail(source, operation, "operation.value is unused for this kind")
-            if operation["kind"] == "format" and value not in {"upper", "lower", "strip", "date_slash", "phone_spaces"}:
+            if operation["kind"] == "format" and value not in {"upper", "lower", "strip", "date_slash", "phone_spaces", "unit_gb"}:
                 _fail(source, operation, "unknown format mutation")
             if "when" in operation and (not isinstance(operation["when"], dict)
                 or len(operation["when"]) != 1 or any(not isinstance(k, str) or not isinstance(v, str)

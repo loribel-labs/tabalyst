@@ -59,6 +59,7 @@ tabalyst = "tabalyst.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["tabalyst.generate_examples.computer.data", "tabalyst.generate_examples.computer_reference*"]
 
 [tool.setuptools.package-data]
 tabalyst = ["templates/*.html", "static/*.css", "static/*.js", "schemas/*.json", "generate_examples/crm/*.yaml", "generate_examples/crm/schemas/*.yaml", "generate_examples/insurance/*.yaml", "generate_examples/insurance/schemas/*.yaml", "generate_examples/insurance/data/*.csv", "generate_examples/insurance/*.md", "generate_examples/computer/*.yaml", "generate_examples/computer/*.md", "generate_examples/computer/schemas/*.yaml", "generate_examples/computer/data/*.csv", "generate_resources/**/*.csv", "generate_resources/*.md"]

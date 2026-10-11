@@ -23,6 +23,7 @@ from tabalyst.generate_computer_output import (
     LABEL_FIELDS,
     STANDARD_ADDITIONS,
     STANDARD_COLUMNS,
+    UNIT_COLUMNS,
     render_computer_row,
     write_computer_csvs,
 )
@@ -76,6 +77,37 @@ def test_render_uses_only_declared_labels_and_rejects_unavailable_profiles() -> 
         render_computer_row(package, internal, "de")
 
 
+def test_localized_unit_style_formats_measures_without_changing_other_fields(
+    tmp_path: Path,
+) -> None:
+    """Unit labels are a presentation choice over the same selected offers."""
+    package = load_generate_package(PACKAGE)
+    numeric_paths = {locale: tmp_path / f"numeric-{locale}.csv" for locale in ("en", "fr")}
+    unit_paths = {locale: tmp_path / f"unit-{locale}.csv" for locale in ("en", "fr")}
+    write_computer_csvs(package, numeric_paths, tmp_path / "numeric.json",
+                        rows=20, output_profile="extended")
+    write_computer_csvs(package, unit_paths, tmp_path / "unit.json",
+                        rows=20, output_profile="extended", unit_style="localized")
+    for locale in ("en", "fr"):
+        with numeric_paths[locale].open(encoding="utf-8", newline="") as stream:
+            numeric = list(csv.DictReader(stream))
+        with unit_paths[locale].open(encoding="utf-8", newline="") as stream:
+            labeled = list(csv.DictReader(stream))
+        assert len(numeric) == len(labeled) == 20
+        for before, after in zip(numeric, labeled, strict=True):
+            for column, value in before.items():
+                if column in UNIT_COLUMNS and value:
+                    suffix = UNIT_COLUMNS[column][0 if locale == "en" else 1]
+                    assert after[column] == f"{value} {suffix}"
+                else:
+                    assert after[column] == value
+    metadata = json.loads((tmp_path / "unit.json").read_text(encoding="utf-8"))
+    assert metadata["request"]["unit_style"] == "localized"
+    assert metadata["unit_columns"]["memory_gb"] == {"en": "GB", "fr": "Go"}
+    with pytest.raises(ValueError, match="unsupported Computer unit style"):
+        render_computer_row(package, {}, "en", unit_style="unknown")
+
+
 def test_standard_profile_preserves_register_order_types_and_locale_alignment(tmp_path: Path) -> None:
     package = load_generate_package(PACKAGE)
     contract = (Path(__file__).resolve().parents[1] / "docs/dev/generate/computer.md").read_text(encoding="utf-8")
@@ -90,7 +122,9 @@ def test_standard_profile_preserves_register_order_types_and_locale_alignment(tm
     assert len(STANDARD_ADDITIONS) == 30
     assert len(STANDARD_COLUMNS) == 70
     assert set(STANDARD_COLUMNS) == set(COMPACT_COLUMNS) | set(STANDARD_ADDITIONS)
-    assert package.manifest["output_profiles"]["standard"] == list(STANDARD_COLUMNS)
+    profiles = package.manifest["output_profiles"]
+    assert isinstance(profiles, dict)
+    assert profiles["standard"] == list(STANDARD_COLUMNS)
     en, fr, meta = (tmp_path / name for name in ("en.csv", "fr.csv", "meta.json"))
     write_computer_csvs(package, {"en": en, "fr": fr}, meta,
                         rows=100, output_profile="standard")

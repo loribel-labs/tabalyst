@@ -18,6 +18,21 @@ PACKAGE = Path(str(files("tabalyst").joinpath("generate_examples", "computer")))
 COMPONENTS = (
     "cpu", "gpu", "memory", "storage", "display", "operating_system", "color",
 )
+DISPLAY_PREFERENCES = {
+    "consumer": {"ips": 7, "oled": 2},
+    "business": {"ips": 8, "oled": 1},
+    "premium": {"ips": 3, "oled": 6, "mini_led": 3},
+    "gaming": {"ips": 6, "oled": 4, "mini_led": 2},
+    "creator": {"ips": 3, "oled": 5, "mini_led": 4},
+    "workstation": {"ips": 6, "oled": 3},
+}
+STORAGE_PREFERENCES = {
+    "consumer": {256: 1, 512: 6, 1000: 5},
+    "business": {512: 5, 1000: 6, 2000: 2},
+    "gaming": {512: 1, 1000: 6, 2000: 5, 4000: 2},
+    "creator": {1000: 4, 2000: 6, 4000: 3},
+    "workstation": {1000: 3, 2000: 6, 4000: 5, 8000: 2},
+}
 
 
 def _pairs(package: DatasetPackage, table: str,
@@ -47,10 +62,56 @@ def test_selected_components_obey_generation_and_pair_compatibility() -> None:
         assert (row["gpu_id"], row["display_id"]) in gpu_display
         assert (row["cpu_id"], row["operating_system_id"]) in cpu_os
         assert not any(
-            row[rule["condition_field"]] == rule["condition_id"]
-            and row[rule["target_field"]] == rule["target_id"]
+            row[str(rule["condition_field"])] == rule["condition_id"]
+            and row[str(rule["target_field"])] == rule["target_id"]
             for rule in exclusions
         )
+
+
+def test_segment_display_preferences_cover_matching_panels() -> None:
+    """The source's type weights apply to every concrete panel of that type."""
+    tables = load_generate_package(PACKAGE).tables
+    expected = {
+        (segment, display["id"]): weight
+        for segment, preferences in DISPLAY_PREFERENCES.items()
+        for display in tables["display"].rows
+        if (weight := preferences.get(str(display["display_type"]))) is not None
+    }
+    actual = {
+        (row["product_segment_id"], row["display_id"]): int(str(row["weight"]))
+        for row in tables["product_segment_display_weight"].rows
+    }
+    assert actual == expected
+
+
+def test_segment_storage_preferences_cover_matching_capacities() -> None:
+    """The source's capacity weights apply to every concrete storage option."""
+    tables = load_generate_package(PACKAGE).tables
+    expected = {
+        (segment, storage["id"]): weight
+        for segment, preferences in STORAGE_PREFERENCES.items()
+        for storage in tables["storage"].rows
+        if (weight := preferences.get(int(str(storage["capacity_gb"])))) is not None
+    }
+    actual = {
+        (row["product_segment_id"], row["storage_id"]): int(str(row["weight"]))
+        for row in tables["product_segment_storage_weight"].rows
+    }
+    assert actual == expected
+
+
+def test_segment_preferences_feed_storage_and_display_selection() -> None:
+    """The segment rules are active on both component selection steps."""
+    manifest = load_generate_package(PACKAGE).manifest
+    datasets = manifest["datasets"]
+    assert isinstance(datasets, list)
+    steps = {step["output"]: step for step in datasets[0]["steps"]}
+    for component in ("storage", "display"):
+        assert {
+            "source": f"product_segment_{component}_weight",
+            "candidate_column": f"{component}_id",
+            "where": {"product_segment_id": "product_segment_id"},
+        } in steps[f"{component}_id"]["influences"]
 
 
 def test_missing_influence_keeps_generation_choices_available(tmp_path: Path) -> None:

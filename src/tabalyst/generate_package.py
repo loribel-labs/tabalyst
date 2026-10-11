@@ -435,11 +435,12 @@ def _output_schema(path: Path) -> None:
             _fail("PACKAGE_SCHEMA", path, f"{name}: depends_on must list columns")
 
 
-def _steps(items: object, path: Path, tables: dict[str, PackageTable]) -> None:
+def _steps(items: object, path: Path, tables: dict[str, PackageTable],
+           *, has_profiles: bool) -> None:
     if not isinstance(items, list) or not 1 <= len(items) <= MAX_COLUMNS:
         _fail("PACKAGE_SCHEMA", path, "catalog_steps requires 1 to 256 steps")
     ids: set[str] = set()
-    outputs: set[str] = set()
+    outputs: set[str] = {"generation_profile_id"} if has_profiles else set()
     for raw in items:
         step = _mapping(raw, path, {
             "id", "kind", "output", "source", "candidate_column", "where",
@@ -580,7 +581,8 @@ def load_generate_package(path: Path | str) -> DatasetPackage:
             paths.add(schema_path)
             _output_schema(schema_path)
             if raw["row_source"] == "catalog_steps":
-                _steps(raw.get("steps"), manifest_path, tables)
+                _steps(raw.get("steps"), manifest_path, tables,
+                       has_profiles=bool(manifest.get("generation_profiles")))
     raw_entities = manifest.get("entities", [])
     if not isinstance(raw_entities, list) or len(raw_entities) > MAX_DATASETS:
         _fail("PACKAGE_LIMIT", manifest_path, "entities must contain at most 64 entries")

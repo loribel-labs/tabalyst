@@ -8,6 +8,7 @@ include examples/generate/generate_examples.py
 recursive-include src/tabalyst/generate_examples/crm *.yaml
 recursive-include src/tabalyst/generate_examples/insurance *.yaml *.csv *.md
 recursive-include src/tabalyst/generate_examples/computer *.yaml *.csv *.md
+exclude src/tabalyst/generate_examples/computer/data/csv_files.md
 recursive-include examples/generate/common-references *.yaml
 recursive-include examples/generate/cohorts-anomalies *.yaml
 recursive-include src/tabalyst/generate_resources *.csv *.md

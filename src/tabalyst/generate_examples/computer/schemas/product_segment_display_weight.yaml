@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  product_segment_id: {type: string, required: true, references: product_segment.id}
+  display_id: {type: string, required: true, references: display.id}
+  weight: {type: number, required: true}

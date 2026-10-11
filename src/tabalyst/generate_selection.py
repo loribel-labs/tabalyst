@@ -173,7 +173,8 @@ def validate_selection_package(package: DatasetPackage) -> None:
         if raw["mode"] != "generated" or raw["row_source"] != "catalog_steps":
             continue
         steps = cast(list[SelectionStep], raw["steps"])
-        prior: set[str] = set()
+        prior: set[str] = ({"generation_profile_id"}
+                           if package.manifest.get("generation_profiles") else set())
         for step in steps:
             if step["kind"] == "select":
                 for name, influence in (("filters", False), ("influences", True)):
@@ -213,7 +214,7 @@ def _candidates(package: DatasetPackage, step: SelectionStep, values: dict[str, 
             if factors:
                 weight *= Fraction(cast(int | Decimal, factors[0]))
         result.append((candidate, weight))
-    return sorted(result, key=lambda item: item[0])
+    return sorted(result, key=lambda item: cast(str, item[0]))
 
 
 def _related_rows(package: DatasetPackage, relation: RelationRef, values: dict[str, Cell]
@@ -223,7 +224,14 @@ def _related_rows(package: DatasetPackage, relation: RelationRef, values: dict[s
     key, field = next(iter(where.items()))
     indexed = package.relation_index.get(table.id, {}).get(key)
     rows = indexed.get(values[field], ()) if indexed is not None else table.rows
-    return tuple(row for row in rows if all(row[column] == values[name] for column, name in where.items()))
+    matches: list[dict[str, Cell]] = []
+    for row in rows:
+        for column, name in where.items():
+            if row[column] != values[name]:
+                break
+        else:
+            matches.append(row)
+    return tuple(matches)
 
 
 def _conflicts(values: dict[str, Cell], constraints: tuple[tuple[str, Cell, str, Cell], ...]) -> bool:
@@ -251,6 +259,8 @@ def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
                        row_index: int, generation_profile: str | None = None) -> dict[str, Cell]:
     """Choose one feasible internal row without changing global random state.
 
+    The generation profile scopes constraints and supplies relation-weight context.
+    Its ID is not part of the returned row.
     Raises ConfigurationError when no completion exists or search exceeds its fixed bound.
     """
     if type(seed) is not int or type(row_index) is not int or row_index < 0:
@@ -282,7 +292,9 @@ def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
             dead_end_position = position
         return False
 
-    values: dict[str, Cell] = {}
+    # A profile is execution context for relation weights, not an output field.
+    values: dict[str, Cell] = ({"generation_profile_id": generation_profile or ""}
+                               if package.manifest.get("generation_profiles") else {})
     for position, step in enumerate(steps):
         output = step["output"]
         if step["kind"] == "derive":
@@ -313,6 +325,7 @@ def select_catalog_row(package: DatasetPackage, dataset_id: str, seed: int,
                 context_fields.add(condition)
         context = tuple(f"{field}={values[field]}" for field in sorted(context_fields))
         values[output] = _choose(candidates, _stream(seed, dataset_id, row_index, step["id"], context))
+    values.pop("generation_profile_id", None)
     return values
 
 
