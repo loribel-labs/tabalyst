@@ -221,7 +221,7 @@ shown: share a scan as you would share the data.
 
 Files of 16 MiB or more are analyzed by several processes: Tabalyst reads the
 file once and hands the values of each field to a worker process, one per
-spare processor, at most 8. The scan document is the same whatever the
+spare processor, at most 6. The scan document is the same whatever the
 number of workers. Choose the number with `--workers`, or keep the scan in
 one process with `--workers 1`, for example on a shared machine:
 

@@ -81,6 +81,8 @@ class DeepPreparation:
     # The documents go to the shared storage, whose writes are exclusive.
     shared: bool = False
     indent: bool = False
+    # The ``workers`` the Scans were asked for; the second pass honors it.
+    workers: int | None = None
 
     @property
     def requires_confirmation(self) -> bool:
@@ -185,6 +187,7 @@ def prepare_deep(
         ),
         shared=output is None and output_dir is None,
         indent=top.output.json_indent,
+        workers=workers,
     )
 
 
@@ -246,6 +249,7 @@ def execute_deep(
                 settings=preparation.settings,
                 previous=previous,
                 on_progress=forward,
+                workers=preparation.workers,
             )
             emit_progress(
                 on_progress, job.source, ProgressPhase.WRITING, index=index, total=total

@@ -155,7 +155,11 @@ def _run_task(task: str, path: Path, work: Path) -> tuple[int, object, float | N
             config = ScanConfig.model_validate(
                 {"limits": {"max_distinct_per_field": 10000}}
             )
-        result = scan(path, config=config, workers=1 if task == "scan-single" else None)
+        workers = 1 if task == "scan-single" else None
+        if workers is None and os.environ.get("TABALYST_BENCH_WORKERS"):
+            # Interleaved studies of the worker count (benchmarks/interleave.py).
+            workers = int(os.environ["TABALYST_BENCH_WORKERS"])
+        result = scan(path, config=config, workers=workers)
         return result.scope.records_analyzed, lambda: _scan_extras(result), None
     run_baseline._isolated_storage()
     if task in ("report", "report-off"):

@@ -89,7 +89,8 @@ support is not yet required. Record format changes in the relevant changelogs.
   frequencies, the patterns counted on every occurrence and the dates per
   period) and its document `<stem>.deep.json` (`docs/dev/scan/design.md`
   20.4 and 20.7 to 20.10); `src/tabalyst/deep_service.py` is its boundary for the CLI
-  and the API.
+  and the API. `secondpass/parallel.py` runs the routes of the fields of a CSV file
+  in worker processes (20.18).
 - `src/tabalyst/report_chain.py`: the second pass inside Report (who decides,
   plan, confirmation, run, the `analyses` member; design 20.11);
   `src/tabalyst/deep_store.py` writes the second-pass document beside its Scan

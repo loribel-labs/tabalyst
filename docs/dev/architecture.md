@@ -89,7 +89,9 @@ structural or semantic change. See the
   `generate_package.py` validates versioned packages for all three domains.
   The single Computer package is bundled and available as `--example computer`;
   `generate_computer_output.py` streams its paired EN/FR
-  CSVs and metadata. `generate_service.py` plans all three artifacts, protects
+  CSVs and metadata. With an explicit Computer anomaly profile,
+  `generate_service.py` also plans altered EN/FR CSVs, cell logs, and summaries
+  through the shared anomaly pass. It protects
   package resources and the request file, then stages and publishes them with
   the existing best-effort restoration rule. CRM uses a versioned package with
   generated column schemas; `generate_columns_package.py` validates it and
@@ -371,7 +373,11 @@ lot 5a, `tabalyst report` is built on it; since lot 5c, it can reuse a scan
 document (`--scan`). Since lot 6, it processes distinct values in batches
 and hands the values of large sources to worker processes
 (`scanner/workers.py`), plain subprocesses of the running interpreter, with
-the same results (design section 13).
+the same results (design section 13), at most 6. The second pass shares the
+routes of the fields of a CSV file between workers the same way
+(`scanner/secondpass/parallel.py`, design 20.18). The public names of the
+`tabalyst` and `tabalyst.scanner` packages load on first use (PEP 562), so that a
+worker imports only the engine.
 
 The Scan and JSON work (bottom-k samplers, Report as a superset of the Scan,
 second pass) is specified in [scan/design.md](scan/design.md) sections 18 to

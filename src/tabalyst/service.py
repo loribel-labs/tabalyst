@@ -271,6 +271,8 @@ class ScannedReport:
     # Reports of scan documents: whether the source was checked for staleness.
     checked: bool | None = None
     from_scan: bool = False
+    # The ``workers`` the Scan was asked for; the second pass honors it.
+    workers: int | None = None
 
 
 def _scan_resolved(
@@ -353,6 +355,7 @@ def _scan_resolved(
         source_found=source,
         shared=True,
         warnings=warnings,
+        workers=workers,
     )
 
 
@@ -423,6 +426,7 @@ def plan_report_chain(
         reads_source=not scanned.from_scan or mode == "forced",
         shared=scanned.shared,
         indent=scanned.indent,
+        workers=scanned.workers,
     )
 
 
