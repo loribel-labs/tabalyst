@@ -1,0 +1,9 @@
+model_generation_id,operating_system_id,weight
+thinkpad_t14_gen5,windows_11_pro,0.85
+thinkpad_t14_gen5,ubuntu,0.15
+thinkpad_t14_gen6,windows_11_pro,0.85
+thinkpad_t14_gen6,ubuntu,0.15
+legion_5_gen9,windows_11_home,0.85
+legion_5_gen9,windows_11_pro,0.15
+legion_5_gen10,windows_11_home,0.80
+legion_5_gen10,windows_11_pro,0.20

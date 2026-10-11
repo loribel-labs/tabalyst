@@ -1,0 +1,12 @@
+id,product_model_id,en,fr,model_year
+thinkpad_t14_gen5,thinkpad_t14,Gen 5,Gen 5,2024
+thinkpad_t14_gen6,thinkpad_t14,Gen 6,Gen 6,2025
+thinkpad_x1_carbon_gen12,thinkpad_x1_carbon,Gen 12,Gen 12,2024
+thinkpad_x1_carbon_gen13,thinkpad_x1_carbon,Gen 13,Gen 13,2025
+legion_5_gen9,legion_5,Gen 9,Gen 9,2024
+legion_5_gen10,legion_5,Gen 10,Gen 10,2025
+macbook_air_m3,macbook_air_13,M3,M3,2024
+macbook_air_m4,macbook_air_13,M4,M4,2025
+macbook_pro_m4,macbook_pro_14,M4,M4,2024
+macbook_pro_m4_pro,macbook_pro_14,M4 Pro,M4 Pro,2024
+macbook_pro_m4_max,macbook_pro_14,M4 Max,M4 Max,2024

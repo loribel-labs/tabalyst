@@ -1,0 +1,16 @@
+cpu_model_id,memory_capacity_id,weight
+intel_core_ultra_5_225u,16gb,5
+intel_core_ultra_5_225u,32gb,4
+intel_core_ultra_5_225u,64gb,1
+intel_core_ultra_7_258v,16gb,2
+intel_core_ultra_7_258v,32gb,6
+intel_core_ultra_7_258v,64gb,3
+intel_core_ultra_9_285hx,32gb,4
+intel_core_ultra_9_285hx,64gb,6
+intel_core_ultra_9_285hx,96gb,2
+amd_ryzen_ai_7_350,16gb,3
+amd_ryzen_ai_7_350,32gb,6
+amd_ryzen_ai_7_350,64gb,2
+amd_ryzen_ai_9_hx_370,32gb,5
+amd_ryzen_ai_9_hx_370,64gb,5
+amd_ryzen_ai_9_hx_370,96gb,1

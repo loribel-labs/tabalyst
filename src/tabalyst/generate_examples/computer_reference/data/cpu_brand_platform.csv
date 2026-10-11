@@ -1,0 +1,12 @@
+cpu_brand_id,cpu_platform_id
+intel,intel_mobile
+intel,intel_desktop
+intel,intel_workstation
+intel,intel_server
+amd,amd_mobile
+amd,amd_desktop
+amd,amd_workstation
+amd,amd_server
+apple,apple_silicon
+qualcomm,qualcomm_pc
+mediatek,mediatek_chromebook

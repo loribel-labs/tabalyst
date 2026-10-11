@@ -1,0 +1,15 @@
+gpu_brand_id,gpu_family_id
+nvidia,nvidia_geforce_rtx_50
+nvidia,nvidia_geforce_rtx_40
+nvidia,nvidia_geforce_rtx_30
+nvidia,nvidia_rtx_pro
+amd,amd_radeon_rx_9000
+amd,amd_radeon_rx_7000
+amd,amd_radeon_800m
+amd,amd_radeon_700m
+intel,intel_arc_b
+intel,intel_arc_a
+intel,intel_arc_integrated
+intel,intel_uhd
+apple,apple_gpu
+qualcomm,qualcomm_adreno

@@ -1,0 +1,12 @@
+id,en,fr
+intel_mobile,Intel mobile platform,Plateforme mobile Intel
+intel_desktop,Intel desktop platform,Plateforme de bureau Intel
+intel_workstation,Intel workstation platform,Plateforme station de travail Intel
+intel_server,Intel server platform,Plateforme serveur Intel
+amd_mobile,AMD mobile platform,Plateforme mobile AMD
+amd_desktop,AMD desktop platform,Plateforme de bureau AMD
+amd_workstation,AMD workstation platform,Plateforme station de travail AMD
+amd_server,AMD server platform,Plateforme serveur AMD
+apple_silicon,Apple silicon,Apple silicon
+qualcomm_pc,Qualcomm PC platform,Plateforme PC Qualcomm
+mediatek_chromebook,MediaTek Chromebook platform,Plateforme Chromebook MediaTek

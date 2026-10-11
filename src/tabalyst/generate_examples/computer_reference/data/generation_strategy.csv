@@ -1,0 +1,5 @@
+id,en,fr
+random,Random selection,Sélection aléatoire
+weighted,Weighted random selection,Sélection aléatoire pondérée
+exhaustive,All valid combinations,Toutes les combinaisons valides
+sampled_combinations,Sample valid combinations,Échantillon de combinaisons valides

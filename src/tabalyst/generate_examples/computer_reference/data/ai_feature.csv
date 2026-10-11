@@ -1,0 +1,11 @@
+id,en,fr
+local_ai,Local AI processing,Traitement IA local
+ai_acceleration,AI acceleration,Accélération IA
+background_blur,AI background blur,Flou d’arrière-plan par IA
+noise_suppression,AI noise suppression,Réduction du bruit par IA
+auto_framing,AI auto framing,Cadrage automatique par IA
+image_generation,Local image generation,Génération locale d’images
+text_generation,Local text generation,Génération locale de texte
+speech_recognition,AI speech recognition,Reconnaissance vocale par IA
+translation,Local AI translation,Traduction locale par IA
+security_ai,AI-assisted security,Sécurité assistée par IA

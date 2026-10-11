@@ -1,0 +1,12 @@
+operating_system_id,os_family_id
+windows_11_home,windows
+windows_11_pro,windows
+windows_11_education,windows
+windows_11_pro_workstations,windows
+chromeos,chromeos
+macos,macos
+ubuntu,linux
+fedora,linux
+debian,linux
+linux_mint,linux
+no_os,none

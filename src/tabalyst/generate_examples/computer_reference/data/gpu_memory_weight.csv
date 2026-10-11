@@ -1,0 +1,14 @@
+gpu_model_id,memory_capacity_id,weight
+rtx_5050_laptop,16gb,6
+rtx_5050_laptop,32gb,3
+rtx_5060_laptop,16gb,4
+rtx_5060_laptop,32gb,6
+rtx_5060_laptop,64gb,1
+rtx_5070_laptop,16gb,1
+rtx_5070_laptop,32gb,6
+rtx_5070_laptop,64gb,3
+rtx_5070_ti_laptop,32gb,5
+rtx_5070_ti_laptop,64gb,5
+rtx_5090_laptop,32gb,2
+rtx_5090_laptop,64gb,6
+rtx_5090_laptop,96gb,3

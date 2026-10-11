@@ -1,0 +1,9 @@
+id,en,fr
+product_id,Product ID,Identifiant produit
+sku,SKU,UGS
+mpn,Manufacturer Part Number,Numéro de pièce fabricant
+model_number,Model number,Numéro de modèle
+gtin,GTIN,GTIN
+upc,UPC,CUP
+ean,EAN,EAN
+serial_number,Serial number,Numéro de série

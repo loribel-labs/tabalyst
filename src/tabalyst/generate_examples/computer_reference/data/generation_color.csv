@@ -1,0 +1,8 @@
+model_generation_id,color_id,weight
+thinkpad_t14_gen5,black,0.80
+thinkpad_t14_gen5,gray,0.20
+thinkpad_t14_gen6,black,0.75
+thinkpad_t14_gen6,gray,0.25
+legion_5_gen9,black,1.00
+legion_5_gen10,black,0.80
+legion_5_gen10,dark_gray,0.20
