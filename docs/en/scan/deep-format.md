@@ -21,7 +21,7 @@ exact medians](deep.md) for what the command does.
   "status": "complete",
   "base": {
     "format_revision": 2,
-    "engine_version": "0.6.2",
+    "engine_version": "0.7.0",
     "source_sha256": "6d4d860f...",
     "config_sha256": "67dbd515...",
     "facts_sha256": "b1d9ecee..."

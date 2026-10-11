@@ -251,32 +251,31 @@ require `--force`, and an input file is never overwritten.
 
 ## Tabalyst Generate
 
-The published 0.6.2 release generates synthetic CSV data from a
-`definition_version: 1` YAML file or a packaged example. The packaged `crm`
-example writes one contacts file; `insurance` writes three branch files and a
-combined file:
+Tabalyst 0.7.0 generates synthetic CSV data from a Generate package or a
+packaged example. The packaged `crm` example writes one contacts file;
+`insurance` writes three branch files and a combined file; `computer` writes
+English and French files of the same computer offers:
 
 ```console
 tabalyst generate --example crm -o crm-contacts.csv
 tabalyst generate --example insurance --rows 3000 -d insurance-output/
 tabalyst generate --example insurance --rows 3000 --anomaly-profile dirty_realistic -d insurance-dirty/
+tabalyst generate --example computer --rows 10000 -d computer-output/
 ```
 
-In the development checkout, the CRM, Insurance, and Computer definitions live
-only under `src/tabalyst/generate_examples/`. Use `--example` to select them.
-That checkout uses the new package format and rejects version 1 YAML files. A selected anomaly
-profile writes an altered CSV, a cell change log and a summary beside the
-untouched clean CSV. Insurance's profile changes only the combined file.
-`--rows 3000` apportions 2,182, 273 and 545 rows to the three branches.
-Existing outputs require `--force`.
+The package format replaces the `definition_version: 1` YAML files of 0.6.2,
+which are no longer read. A selected anomaly profile writes an altered CSV, a
+cell change log and a summary beside the untouched clean CSV. Insurance's
+profile changes only the combined file. `--rows 3000` apportions 2,182, 273 and
+545 rows to the three branches. Existing outputs require `--force`.
 
 Run `python examples/generate/generate_examples.py` in the development checkout
 to generate the four column packages into ignored local output folders. The
-Computer package is available as `--example computer`, with 40, 70 and
-111-column profiles and synchronized EN/FR CSVs. See
-[`examples/generate/README.md`](examples/generate/README.md) for commands and
+Computer package has 40, 70 and 111-column profiles and synchronized EN/FR
+CSVs. See [`examples/generate/README.md`](examples/generate/README.md) for
+commands and
 [`docs/dev/generate/computer.md`](docs/dev/generate/computer.md) for the
-unreleased contract.
+package contract.
 
 Insurance preserves the 33 source columns and the combined `filiale` column of
 the existing public demo, but its generated rows are different. The branch date

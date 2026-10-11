@@ -58,14 +58,14 @@ A shortened profile for a five-row `orders.csv`:
   "diagnostics": [],
   "report": {
     "generated_at": "2026-10-06T12:00:00Z",
-    "generator": { "name": "tabalyst", "version": "0.6.2" },
+    "generator": { "name": "tabalyst", "version": "0.7.0" },
     "processing_seconds": 0.0098,
     "config": { "string_analysis": {}, "value_examples": {} },
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
       "format_revision": 2,
-      "engine_version": "0.6.2",
+      "engine_version": "0.7.0",
       "source_sha256": "7d426449...",
       "config_sha256": "e3b0c442...",
       "facts_sha256": "91ab0c55..."

@@ -27,13 +27,13 @@ This is the starting point for the current [Scan format](format.md). It
 describes CSV, JSON, JSONL and Excel sources, their effective configuration,
 datasets, fields, detectors, record facts, limits and diagnostics.
 
-## Version 0.2.0, revision 2
+## Version 0.2.0, revision 2 (2026-10-10)
 
 Adds `run` (start, duration, timings, workers, peak memory), `source.shape`
 (global size of the source), the CSV `quote`, `bom` and `line_ending`, and
 diagnostic `details`; `measures_limited` is one diagnostic per field.
 
-Also in revision 2, before its release:
+Also in revision 2:
 
 - `values.cardinality` names its `domain` (`original`), its `accuracy` and its
   `identity_accuracy`. A limited count adds `upper_bound` and, for the reason

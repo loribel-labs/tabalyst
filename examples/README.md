@@ -97,12 +97,11 @@ before regenerating when a fresh one-entry execution history is required.
 
 The input datasets and generated output are public repository examples. The wheel
 contains the runtime package, report resources, and the CRM, Insurance, and
-Computer packages when built from this development checkout. The published 0.6.2 release
-uses definition version 1. The CRM data is synthetic, with
-reserved `.example` domains and fictional phone numbers. The configured 20,000
-rows, generic account names and CRM audit story were approved for the example
-on 2026-10-05. Generate is published; the package format and Computer remain
-local development work until a later release.
+Computer packages. Tabalyst 0.7.0 reads Generate packages; the
+`definition_version: 1` files of 0.6.2 are no longer read. The CRM data is
+synthetic, with reserved `.example` domains and fictional phone numbers. The
+configured 20,000 rows, generic account names and CRM audit story were approved
+for the example on 2026-10-05.
 
 To review the CRM export outside the checkout:
 

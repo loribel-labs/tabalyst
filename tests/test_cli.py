@@ -3,6 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+import tomllib
+from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
@@ -12,6 +14,7 @@ from tabalyst.config import load_config
 from tabalyst.execution_log import tabalyst_version
 
 runner = CliRunner()
+ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(autouse=True)
@@ -19,8 +22,13 @@ def _isolated_project_home(tmp_path, monkeypatch):
     monkeypatch.setenv("TABALYST_HOME", str(tmp_path.parent / f"{tmp_path.name}-storage"))
 
 
+def _pyproject_version() -> str:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    return str(project["project"]["version"])
+
+
 def test_source_checkout_reports_pyproject_version():
-    assert tabalyst_version() == "0.6.2"
+    assert tabalyst_version() == _pyproject_version()
 
 
 def test_root_help_and_version_describe_the_toolkit():
@@ -31,7 +39,7 @@ def test_root_help_and_version_describe_the_toolkit():
 
     version_result = runner.invoke(app, ["--version"])
     assert version_result.exit_code == 0
-    assert version_result.output.strip() == "0.6.2"
+    assert version_result.output.strip() == _pyproject_version()
 
 
 def test_report_generates_html_json_and_history(tmp_path):
