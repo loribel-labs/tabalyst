@@ -44,7 +44,7 @@ V1_SHA256 = {
     "insurance-combined.dirty_realistic.csv": "869b629b7f9695ddbe14d52861422c1a9c99d90a8d614d2ff82653777107a7ff",
     "insurance-combined.dirty_realistic.changes.csv": "3c80139ef99efdbd97df9d2d848aaca9042ccf38b67270871d23e7031ef2f2f7",
 }
-V1_SUMMARY_SCENARIO_SHA256 = "3f43fde5d030a00f482867d3855e3399689c4837ef7cbf67d8b3b73eb47ee1ce"
+V1_SUMMARY_SCENARIO_SHA256 = "5fe2a0293fb228bb7aacec663d02bcaa1d4414065a7631cd44162ad93a7b6170"
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -106,7 +106,7 @@ def test_insurance_branches_combine_and_profile(tmp_path: Path) -> None:
     assert summary["format"] == "tabalyst.generate.package"
     assert summary["format_version"] == summary["package_version"] == "0.1.0"
     scenario = {key: value for key, value in summary.items()
-                if key not in {"format", "format_version", "package_version"}}
+                if key not in {"format", "format_version", "package_version", "tabalyst_version"}}
     scenario_digest = hashlib.sha256(json.dumps(
         scenario, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
     ).encode()).hexdigest()

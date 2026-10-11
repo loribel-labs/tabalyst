@@ -28,7 +28,7 @@ It describes the existing Report profile, including CSV, JSON, JSONL and Excel
 sources, effective settings, dataset summaries, column analysis, normalization,
 detectors, issues, record previews, limits and JSON structure.
 
-## Version 0.2.0, revision 2
+## Version 0.2.0, revision 2 (2026-10-10)
 
 The profile becomes a superset of the Scan document: it has `format:
 "tabalyst.report"` and holds the scan base at the same paths (`engine`,

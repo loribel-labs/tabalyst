@@ -1,6 +1,6 @@
 ---
 title: Tabalyst documentation
-description: Documentation of Tabalyst 0.6.2, the open-source toolkit for reports, scans, samples and synthetic CSV generation.
+description: Documentation of Tabalyst 0.7.0, the open-source toolkit for reports, scans, samples and synthetic CSV generation.
 ---
 
 Tabalyst is an open-source, local-first toolkit for understanding unfamiliar
