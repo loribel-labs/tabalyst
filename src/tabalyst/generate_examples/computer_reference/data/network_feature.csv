@@ -1,0 +1,8 @@
+id,en,fr
+wake_on_lan,Wake-on-LAN,Réveil par le réseau
+pxe_boot,PXE boot,Démarrage PXE
+network_boot,Network boot,Démarrage réseau
+mac_passthrough,MAC address passthrough,Transfert d’adresse MAC
+wifi_direct,Wi-Fi Direct,Wi-Fi Direct
+hotspot,Mobile hotspot,Point d’accès mobile
+airplane_mode,Airplane mode,Mode avion

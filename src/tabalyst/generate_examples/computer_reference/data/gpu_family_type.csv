@@ -1,0 +1,15 @@
+gpu_family_id,gpu_type_id
+nvidia_geforce_rtx_50,dedicated
+nvidia_geforce_rtx_40,dedicated
+nvidia_geforce_rtx_30,dedicated
+nvidia_rtx_pro,dedicated
+amd_radeon_rx_9000,dedicated
+amd_radeon_rx_7000,dedicated
+amd_radeon_800m,integrated
+amd_radeon_700m,integrated
+intel_arc_b,dedicated
+intel_arc_a,dedicated
+intel_arc_integrated,integrated
+intel_uhd,integrated
+apple_gpu,integrated
+qualcomm_adreno,integrated

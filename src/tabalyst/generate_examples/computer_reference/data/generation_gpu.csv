@@ -1,0 +1,10 @@
+model_generation_id,gpu_model_id,weight
+thinkpad_t14_gen5,arc_130v,0.60
+thinkpad_t14_gen5,arc_140v,0.40
+thinkpad_t14_gen6,arc_130v,0.35
+thinkpad_t14_gen6,arc_140v,0.65
+legion_5_gen9,rtx_4060,0.65
+legion_5_gen9,rtx_4070,0.35
+legion_5_gen10,rtx_5060_laptop,0.50
+legion_5_gen10,rtx_5070_laptop,0.35
+legion_5_gen10,rtx_5070_ti_laptop,0.15

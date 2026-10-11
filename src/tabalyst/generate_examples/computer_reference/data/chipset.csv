@@ -1,0 +1,16 @@
+id,chipset_family_id,en,fr
+intel_b760,intel_consumer,Intel B760,Intel B760
+intel_z790,intel_consumer,Intel Z790,Intel Z790
+intel_b860,intel_consumer,Intel B860,Intel B860
+intel_z890,intel_consumer,Intel Z890,Intel Z890
+intel_w680,intel_business,Intel W680,Intel W680
+intel_w790,intel_workstation,Intel W790,Intel W790
+amd_b550,amd_consumer,AMD B550,AMD B550
+amd_x570,amd_consumer,AMD X570,AMD X570
+amd_b650,amd_consumer,AMD B650,AMD B650
+amd_x670e,amd_consumer,AMD X670E,AMD X670E
+amd_b850,amd_consumer,AMD B850,AMD B850
+amd_x870e,amd_consumer,AMD X870E,AMD X870E
+amd_wrX90,amd_workstation,AMD WRX90,AMD WRX90
+soc_integrated,soc_integrated,Integrated SoC chipset,Chipset intégré au SoC
+apple_integrated,proprietary,Apple integrated platform,Plateforme intégrée Apple

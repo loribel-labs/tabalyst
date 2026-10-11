@@ -1,0 +1,6 @@
+npu_brand_id,npu_family_id
+intel,intel_ai_boost
+amd,amd_ryzen_ai
+apple,apple_neural_engine
+qualcomm,qualcomm_hexagon
+none,none

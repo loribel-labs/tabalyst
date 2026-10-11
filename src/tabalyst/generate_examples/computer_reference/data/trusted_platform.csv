@@ -1,0 +1,6 @@
+id,en,fr
+none,None,Aucune
+tpm_2_0,TPM 2.0,TPM 2.0
+firmware_tpm,Firmware TPM,TPM micrologiciel
+apple_secure_enclave,Apple Secure Enclave,Secure Enclave Apple
+microsoft_pluton,Microsoft Pluton,Microsoft Pluton

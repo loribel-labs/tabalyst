@@ -1,0 +1,14 @@
+model_generation_id,storage_type_id,storage_capacity_id,weight
+thinkpad_t14_gen5,nvme_ssd,256gb,0.10
+thinkpad_t14_gen5,nvme_ssd,512gb,0.35
+thinkpad_t14_gen5,nvme_ssd,1tb,0.45
+thinkpad_t14_gen5,nvme_ssd,2tb,0.10
+thinkpad_t14_gen6,nvme_ssd,512gb,0.25
+thinkpad_t14_gen6,nvme_ssd,1tb,0.55
+thinkpad_t14_gen6,nvme_ssd,2tb,0.20
+legion_5_gen9,nvme_ssd,512gb,0.30
+legion_5_gen9,nvme_ssd,1tb,0.50
+legion_5_gen9,nvme_ssd,2tb,0.20
+legion_5_gen10,nvme_ssd,1tb,0.55
+legion_5_gen10,nvme_ssd,2tb,0.35
+legion_5_gen10,nvme_ssd,4tb,0.10

@@ -1,0 +1,11 @@
+id,en,fr
+none,None,Aucun
+hdr10,HDR10,HDR10
+hdr10_plus,HDR10+,HDR10+
+dolby_vision,Dolby Vision,Dolby Vision
+displayhdr_400,VESA DisplayHDR 400,VESA DisplayHDR 400
+displayhdr_500,VESA DisplayHDR 500,VESA DisplayHDR 500
+displayhdr_600,VESA DisplayHDR 600,VESA DisplayHDR 600
+displayhdr_1000,VESA DisplayHDR 1000,VESA DisplayHDR 1000
+true_black_400,VESA DisplayHDR True Black 400,VESA DisplayHDR True Black 400
+true_black_500,VESA DisplayHDR True Black 500,VESA DisplayHDR True Black 500

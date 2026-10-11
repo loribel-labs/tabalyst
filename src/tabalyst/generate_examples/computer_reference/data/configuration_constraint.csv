@@ -1,0 +1,8 @@
+scope_id,condition_field,condition_value,target_field,target_value,action
+global,gpu_model,rtx_5090_laptop,memory_capacity,16gb,exclude
+global,gpu_model,rtx_5090_laptop,memory_capacity,8gb,exclude
+global,product_segment,gaming,storage_type,hdd,exclude
+global,product_segment,workstation,memory_capacity,8gb,exclude
+global,form_factor,detachable,storage_type,hdd,exclude
+global,form_factor,clamshell,drive_bay_type,sata_3_5,exclude
+global,computer_type,laptop,motherboard_form_factor,atx,exclude

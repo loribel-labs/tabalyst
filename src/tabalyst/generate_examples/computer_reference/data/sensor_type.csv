@@ -1,0 +1,9 @@
+id,en,fr
+accelerometer,Accelerometer,Accéléromètre
+gyroscope,Gyroscope,Gyroscope
+ambient_light,Ambient light sensor,Capteur de lumière ambiante
+proximity,Proximity sensor,Capteur de proximité
+hall,Hall sensor,Capteur à effet Hall
+magnetometer,Magnetometer,Magnétomètre
+lid,Lid sensor,Capteur d’ouverture du capot
+temperature,Temperature sensor,Capteur de température

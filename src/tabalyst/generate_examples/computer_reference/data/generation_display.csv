@@ -1,0 +1,9 @@
+model_generation_id,display_size_id,display_type_id,display_resolution_id,display_refresh_rate_id,weight
+thinkpad_t14_gen5,14_0in,ips,wuxga,60hz,0.75
+thinkpad_t14_gen5,14_0in,oled,2_8k,120hz,0.25
+thinkpad_t14_gen6,14_0in,ips,wuxga,60hz,0.60
+thinkpad_t14_gen6,14_0in,oled,2_8k,120hz,0.40
+legion_5_gen9,16_0in,ips,qhd_plus,165hz,0.70
+legion_5_gen9,16_0in,ips,qhd_plus,240hz,0.30
+legion_5_gen10,16_0in,ips,qhd_plus,165hz,0.55
+legion_5_gen10,16_0in,oled,qhd_plus,240hz,0.45

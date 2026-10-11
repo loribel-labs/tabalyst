@@ -1,0 +1,9 @@
+id,cpu_family_id,en,fr,cores,threads,max_clock_ghz
+intel_core_ultra_5_225u,intel_core_ultra_5,Core Ultra 5 225U,Core Ultra 5 225U,12,14,4.8
+intel_core_ultra_7_258v,intel_core_ultra_7,Core Ultra 7 258V,Core Ultra 7 258V,8,8,4.8
+intel_core_ultra_9_285hx,intel_core_ultra_9,Core Ultra 9 285HX,Core Ultra 9 285HX,24,24,5.5
+intel_core_ultra_9_285,intel_core_ultra_9,Core Ultra 9 285,Core Ultra 9 285,24,24,5.6
+amd_ryzen_7_8840u,amd_ryzen_7,Ryzen 7 8840U,Ryzen 7 8840U,8,16,5.1
+amd_ryzen_ai_7_350,amd_ryzen_ai_7,Ryzen AI 7 350,Ryzen AI 7 350,8,16,5.0
+amd_ryzen_ai_9_hx_370,amd_ryzen_ai_9,Ryzen AI 9 HX 370,Ryzen AI 9 HX 370,12,24,5.1
+amd_ryzen_9_9955hx,amd_ryzen_9,Ryzen 9 9955HX,Ryzen 9 9955HX,16,32,5.4

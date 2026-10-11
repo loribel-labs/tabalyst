@@ -1,0 +1,40 @@
+id,gpu_family_id,en,fr,vram_gb
+rtx_5090,nvidia_geforce_rtx_50,GeForce RTX 5090,GeForce RTX 5090,32
+rtx_5080,nvidia_geforce_rtx_50,GeForce RTX 5080,GeForce RTX 5080,16
+rtx_5070_ti,nvidia_geforce_rtx_50,GeForce RTX 5070 Ti,GeForce RTX 5070 Ti,16
+rtx_5070,nvidia_geforce_rtx_50,GeForce RTX 5070,GeForce RTX 5070,12
+rtx_5060_ti_16gb,nvidia_geforce_rtx_50,GeForce RTX 5060 Ti 16 GB,GeForce RTX 5060 Ti 16 Go,16
+rtx_5060_ti_8gb,nvidia_geforce_rtx_50,GeForce RTX 5060 Ti 8 GB,GeForce RTX 5060 Ti 8 Go,8
+rtx_5060,nvidia_geforce_rtx_50,GeForce RTX 5060,GeForce RTX 5060,8
+rtx_5050,nvidia_geforce_rtx_50,GeForce RTX 5050,GeForce RTX 5050,8
+rtx_4090,nvidia_geforce_rtx_40,GeForce RTX 4090,GeForce RTX 4090,24
+rtx_4080,nvidia_geforce_rtx_40,GeForce RTX 4080,GeForce RTX 4080,16
+rtx_4070_ti,nvidia_geforce_rtx_40,GeForce RTX 4070 Ti,GeForce RTX 4070 Ti,12
+rtx_4070,nvidia_geforce_rtx_40,GeForce RTX 4070,GeForce RTX 4070,12
+rtx_4060_ti,nvidia_geforce_rtx_40,GeForce RTX 4060 Ti,GeForce RTX 4060 Ti,8
+rtx_4060,nvidia_geforce_rtx_40,GeForce RTX 4060,GeForce RTX 4060,8
+rtx_3060,nvidia_geforce_rtx_30,GeForce RTX 3060,GeForce RTX 3060,12
+rx_9070_xt,amd_radeon_rx_9000,Radeon RX 9070 XT,Radeon RX 9070 XT,16
+rx_9070,amd_radeon_rx_9000,Radeon RX 9070,Radeon RX 9070,16
+rx_7900_xtx,amd_radeon_rx_7000,Radeon RX 7900 XTX,Radeon RX 7900 XTX,24
+rx_7800_xt,amd_radeon_rx_7000,Radeon RX 7800 XT,Radeon RX 7800 XT,16
+rx_7700_xt,amd_radeon_rx_7000,Radeon RX 7700 XT,Radeon RX 7700 XT,12
+rx_7600,amd_radeon_rx_7000,Radeon RX 7600,Radeon RX 7600,8
+radeon_890m,amd_radeon_800m,Radeon 890M,Radeon 890M,
+radeon_880m,amd_radeon_800m,Radeon 880M,Radeon 880M,
+radeon_780m,amd_radeon_700m,Radeon 780M,Radeon 780M,
+radeon_760m,amd_radeon_700m,Radeon 760M,Radeon 760M,
+arc_b580,intel_arc_b,Arc B580,Arc B580,12
+arc_b570,intel_arc_b,Arc B570,Arc B570,10
+arc_a770,intel_arc_a,Arc A770,Arc A770,16
+arc_a750,intel_arc_a,Arc A750,Arc A750,8
+arc_a380,intel_arc_a,Arc A380,Arc A380,6
+arc_140v,intel_arc_integrated,Arc 140V,Arc 140V,
+arc_130v,intel_arc_integrated,Arc 130V,Arc 130V,
+uhd_770,intel_uhd,UHD Graphics 770,UHD Graphics 770,
+rtx_5090_laptop,nvidia_geforce_rtx_50,GeForce RTX 5090 Laptop GPU,GeForce RTX 5090 Laptop GPU,24
+rtx_5080_laptop,nvidia_geforce_rtx_50,GeForce RTX 5080 Laptop GPU,GeForce RTX 5080 Laptop GPU,16
+rtx_5070_ti_laptop,nvidia_geforce_rtx_50,GeForce RTX 5070 Ti Laptop GPU,GeForce RTX 5070 Ti Laptop GPU,12
+rtx_5070_laptop,nvidia_geforce_rtx_50,GeForce RTX 5070 Laptop GPU,GeForce RTX 5070 Laptop GPU,8
+rtx_5060_laptop,nvidia_geforce_rtx_50,GeForce RTX 5060 Laptop GPU,GeForce RTX 5060 Laptop GPU,8
+rtx_5050_laptop,nvidia_geforce_rtx_50,GeForce RTX 5050 Laptop GPU,GeForce RTX 5050 Laptop GPU,8

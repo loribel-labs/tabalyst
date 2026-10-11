@@ -1,0 +1,6 @@
+id,en,fr
+none,None,Aucune
+presence_detection,User presence detection,Détection de présence
+attention_detection,Attention detection,Détection de l’attention
+walk_away_lock,Walk-away lock,Verrouillage lors de l’éloignement
+wake_on_approach,Wake on approach,Réveil à l’approche
