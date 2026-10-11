@@ -114,6 +114,22 @@ PROFILE_COLUMNS = {
     "standard": STANDARD_COLUMNS,
     "extended": EXTENDED_COLUMNS,
 }
+UNIT_COLUMNS: dict[str, tuple[str, str]] = {
+    "gpu_vram_gb": ("GB", "Go"),
+    "memory_gb": ("GB", "Go"),
+    "storage_gb": ("GB", "Go"),
+    "cpu_max_clock_ghz": ("GHz", "GHz"),
+    "display_size_in": ("in", "po"),
+    "display_refresh_rate_hz": ("Hz", "Hz"),
+    "display_brightness_nits": ("nits", "nits"),
+    "npu_tops": ("TOPS", "TOPS"),
+    "battery_wh": ("Wh", "Wh"),
+    "power_adapter_w": ("W", "W"),
+    "weight_kg": ("kg", "kg"),
+    "width_mm": ("mm", "mm"),
+    "depth_mm": ("mm", "mm"),
+    "height_mm": ("mm", "mm"),
+}
 LABEL_FIELDS = {
     "brand": ("brand", "brand_id"),
     "product_family": ("product_family", "product_family_id"),
@@ -160,15 +176,21 @@ def _cell(value: Cell) -> str:
 
 
 def render_computer_row(package: DatasetPackage, row: dict[str, Cell],
-                        locale: str, profile: str = "compact") -> dict[str, str]:
+                        locale: str, profile: str = "compact",
+                        unit_style: str = "numeric",
+                        unit_columns: tuple[str, ...] | None = None) -> dict[str, str]:
     """Project one derived row without changing its canonical values.
 
     Each profile includes its predecessor in the canonical register order.
+    Localized units apply only to selected measured columns when supplied.
     """
     if locale not in {"en", "fr"}:
         raise ValueError(f"unsupported locale {locale!r}")
     if profile not in PROFILE_COLUMNS:
         raise ValueError(f"unsupported Computer output profile {profile!r}")
+    if unit_style not in {"numeric", "localized"}:
+        raise ValueError(f"unsupported Computer unit style {unit_style!r}")
+    selected_units = unit_columns if unit_columns is not None else tuple(UNIT_COLUMNS)
     rendered: dict[str, str] = {}
     for column in PROFILE_COLUMNS[profile]:
         if column in LABEL_FIELDS:
@@ -180,7 +202,10 @@ def render_computer_row(package: DatasetPackage, row: dict[str, Cell],
         else:
             if column not in row:
                 raise ConfigurationError(f"PACKAGE_OUTPUT: missing Computer field {column!r}")
-            rendered[column] = _cell(row[column])
+            value = _cell(row[column])
+            if value and unit_style == "localized" and column in selected_units:
+                value = f"{value} {UNIT_COLUMNS[column][0 if locale == 'en' else 1]}"
+            rendered[column] = value
     return rendered
 
 
@@ -189,11 +214,14 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                         rows: int = 10, seed: int = 42,
                         as_of_date: date = date(2026, 9, 30),
                         generation_profile: str = "balanced",
-                        output_profile: str = "compact", market: str = "ca") -> dict[str, object]:
+                        output_profile: str = "compact", market: str = "ca",
+                        unit_style: str = "numeric",
+                        unit_columns: tuple[str, ...] | None = None) -> dict[str, object]:
     """Write paired CSVs and reproducible metadata to caller supplied paths.
 
     The caller owns path planning, staging, collision checks, and publication.
     One selected and derived record feeds both locale writers per iteration.
+    Localized units are recorded with the effective column selection.
     """
     if set(outputs) != {"en", "fr"} or len(set(outputs.values()) | {metadata_path}) != 3:
         raise ValueError("Computer outputs need distinct en, fr, and metadata paths")
@@ -201,10 +229,18 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         raise ValueError("rows must be positive")
     if output_profile not in PROFILE_COLUMNS:
         raise ValueError(f"unsupported Computer output profile {output_profile!r}")
+    if unit_style not in {"numeric", "localized"}:
+        raise ValueError(f"unsupported Computer unit style {unit_style!r}")
     profiles = package.manifest.get("output_profiles")
     if not isinstance(profiles, dict) or profiles.get(output_profile) != list(PROFILE_COLUMNS[output_profile]):
         raise ConfigurationError(f"PACKAGE_OUTPUT: {output_profile} profile differs from Computer register")
     columns = PROFILE_COLUMNS[output_profile]
+    selected_units = (tuple(column for column in columns if column in UNIT_COLUMNS)
+                      if unit_columns is None else unit_columns)
+    if (len(set(selected_units)) != len(selected_units)
+        or any(column not in columns or column not in UNIT_COLUMNS for column in selected_units)
+        or unit_style == "numeric" and unit_columns is not None):
+        raise ValueError("invalid Computer unit columns")
     with ExitStack() as stack:
         writers: dict[str, csv.DictWriter] = {}
         for locale in ("en", "fr"):
@@ -220,7 +256,7 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
                                            index, as_of_date, market)
             for locale in ("en", "fr"):
                 writers[locale].writerow(render_computer_row(
-                    package, internal, locale, output_profile,
+                    package, internal, locale, output_profile, unit_style, selected_units,
                 ))
     resources: dict[str, str] = {}
     for path in sorted(package.input_paths):
@@ -244,6 +280,15 @@ def write_computer_csvs(package: DatasetPackage, outputs: dict[str, Path],
         "engine_version": __version__,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
     }
+    if unit_style != "numeric":
+        request = metadata["request"]
+        assert isinstance(request, dict)
+        request["unit_style"] = unit_style
+        request["unit_columns"] = list(selected_units)
+        metadata["unit_columns"] = {
+            column: {"en": suffixes[0], "fr": suffixes[1]}
+            for column, suffixes in UNIT_COLUMNS.items() if column in selected_units
+        }
     metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, sort_keys=True,
                                         indent=2) + "\n", encoding="utf-8", newline="\n")
     return metadata

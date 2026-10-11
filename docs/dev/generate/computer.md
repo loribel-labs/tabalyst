@@ -16,7 +16,12 @@ output directory outside the source package.
 
 ```console
 tabalyst generate --example computer --validate-only
-tabalyst generate --example computer -d OUTPUT_DIR --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer -d OUTPUT_DIR/clean --rows 10000 --seed 42 --output-profile extended
+tabalyst generate --example computer -d OUTPUT_DIR/dirty --rows 10000 --seed 42 --anomaly-profile dirty_realistic
+tabalyst generate --example computer -d OUTPUT_DIR/units --rows 10000 --unit-style localized
+tabalyst generate --example computer -d OUTPUT_DIR/selected-units --rows 10000 --output-profile extended --unit-columns memory_gb,display_size_in,battery_wh,weight_kg
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix --rows 10000 --anomaly-profile unit_variants
+tabalyst generate --example computer -d OUTPUT_DIR/unit-mix-extended --rows 10000 --output-profile extended --anomaly-profile unit_variants_extended
 tabalyst generate --example crm -o OUTPUT_DIR/contacts.csv --rows 500
 tabalyst generate --example insurance -d OUTPUT_DIR/insurance --rows 3000 --anomaly-profile dirty_realistic
 ```
@@ -26,10 +31,16 @@ Computer writes `computers-en.csv`, `computers-fr.csv`, and
 localized labels differ. The default `compact`, `standard`, and `extended`
 profiles contain 40, 70, and 111 columns. `--request FILE` accepts a JSON
 object with `rows`, `seed`, `as_of_date`, `generation_profile`,
-`output_profile`, `market`, and `locales`. Explicit CLI options override that
+`output_profile`, `market`, `locales`, `unit_style`, `unit_columns`, and `anomaly_profile`.
+Explicit CLI options override that
 request. The development CLI also accepts `--market ca|us` and
-`--locales en,fr`; `--anomaly-profile` is for column packages and is not
-implemented for Computer.
+`--locales en,fr`. `--unit-style localized` presents measurements with
+localized units in both clean CSVs; the default `numeric` keeps the existing
+numeric cells. `--unit-columns` selects a comma-separated subset of measured
+columns and implies `localized`; a JSON request accepts a list. Selected
+columns must belong to the output profile. Computer supports
+`dirty_realistic`, `dirty_stress`, `unit_variants`, and
+`unit_variants_extended` anomaly profiles.
 
 The service boundary is `tabalyst.build_generate_plan(...)` followed by
 `tabalyst.generate_datasets(plan)`. For a Computer package, use
@@ -180,13 +191,18 @@ The accepted manifest grammar is:
   internal ID, and `column` to copy; it cannot draw randomness. These are the
   only catalog step kinds in the first implementation.
 - `generation_profiles` map profile IDs to defaults and scoped constraints;
+  a catalog step can use the reserved execution field `generation_profile_id`
+  in an influence relation. It is available before the first selection step
+  and never appears in the selected row. A missing profile weight contributes
+  factor 1, as for other influences.
   `output_profiles` map IDs to ordered column-name lists. Computer's three
   lists are projections of the canonical register below. `anomaly_profiles`
   retain the v1 target/operation semantics. Unknown dataset, table, field,
   profile, step, or provider names fail before execution.
 
 Step dependencies form a directed acyclic graph. A `where` or `selected`
-reference must name a prior internal field. Output schema order never changes
+reference must name a prior internal field, except that `where` may use the
+reserved `generation_profile_id` context. Output schema order never changes
 this evaluation order. The `where` mapping uses equality on canonical IDs,
 never localized labels. For Computer, generation relations delimit candidates;
 `filters` additionally intersect compatibility relations. One selected row
@@ -259,7 +275,8 @@ or anomalies. A validation-only call needs no destination and writes nothing.
 
 In the Computer development lot, `--request FILE` reads a bounded UTF-8 JSON
 object with optional `dataset`, `rows`, `seed`, `as_of_date`,
-`generation_profile`, `output_profile`, `market`, and `locales` keys. The
+`generation_profile`, `output_profile`, `market`, `locales`, and
+`unit_style`, and `anomaly_profile` keys. The
 effective value order is explicit CLI/API option, request, then package default.
 Computer currently requires `dataset: "computers"` and paired `en`/`fr` locales;
 it offers `compact`, `standard`, and `extended` output profiles. It accepts `ca` and `us` markets. A Computer
@@ -281,15 +298,54 @@ result reports paths, row counts, and anomaly counts. The v1 reader coexisted
 during early development lots; after lot 10 the CLI and API reject `definition_version: 1` with
 an explicit format error. There is no automatic converter or fallback reader.
 
-Computer's first run produces `computers-en.csv`, `computers-fr.csv`, and
+Computer's clean run produces `computers-en.csv`, `computers-fr.csv`, and
 `computers.meta.json` under `-d`. The metadata records format and package
 versions, resource digests, effective request, output counts and profiles,
-engine version, and Python version. Paths or timestamps in metadata have no
+engine version, and Python version. With an anomaly profile, six more files
+appear: `computers-{en,fr}.PROFILE.csv`, `.changes.csv`, and `.summary.json`.
+The metadata records the selected anomaly profile, artifact names, and changed
+cell counts. Each journal identifies the row, operation, column, before and
+after values, and cause. Its summary distinguishes requested, applied, and
+skipped rows for every operation. The two locale passes select the same rows
+and mutate only fields with shared values; clean CSV bytes are unchanged.
+For `unit_variants`, the same cells are selected in EN/FR, and the journal
+records `GB` in English or `Go` in French.
+Paths or timestamps in metadata have no
 byte-stability guarantee. All outputs are planned before writing. Writers
 stage and verify every artifact before first publication; generation failure
 leaves no new final file. Publication uses per-file atomic replacement and
 best-effort restoration, as in the existing Generate contract. Whole-batch
 atomicity under publication failure is not promised.
+
+Computer declares explicit anomaly profiles. `dirty_realistic` requests
+missing memory capacity (2.5%) and CPU model (1.5%), slash-formatted release
+dates (2%), nonnumeric current prices (1%), misspelled stock status (1.5%),
+zero VRAM on dedicated GPUs (4%), and zero stock with `in_stock` status (3%).
+`dirty_stress` requests the same operations at 12%, 8%, 10%, 6%, 8%, 18%,
+and 15%, respectively. Rates are fractions of all rows; conditional rules
+apply only when their `when` predicate holds, so their applied rates can be
+lower. Each operation's rate and condition live in `dataset.yaml`. The
+reference catalogs, component selections, real model and generation names,
+generation profiles, and segment weights remain clean and unchanged.
+
+`unit_style: localized` formats 14 physical measures at export time: memory,
+storage and GPU VRAM in `GB`/`Go`; CPU clock, display size, refresh rate and
+brightness, NPU throughput, battery, adapter power, weight and dimensions with
+their stated units. A value such as `4` in `memory_gb` becomes `4 GB` in EN
+and `4 Go` in FR. The CSV column names stay stable, but these cells become
+text; use the default numeric style when numeric analysis is needed. The
+internal values and reference tables remain numeric. Metadata records the
+selected style and suffix map. The `unit_variants` anomaly profile instead
+adds localized units to a requested 8% of memory, 5% of storage and 3% of
+GPU VRAM cells in altered CSVs, with a change log and measured summary.
+`unit_variants_extended` requires the `extended` output profile and adds
+localized suffixes to all 14 measured columns. Its requested rates are 8%
+for memory, 5% for storage, 3% for GPU VRAM, 4% for CPU clock and display
+size, 3% for refresh rate, 2% for brightness and NPU throughput, 3% for
+battery and adapter power, 4% for weight, and 2% for each dimension. Empty
+measurements can be skipped; summaries report applied counts. Anomaly
+injection expects numeric clean values, so choose the default numeric style
+with these profiles.
 
 ## Computer selection contract
 
@@ -297,9 +353,15 @@ Computer uses distinct `computer_type`, `form_factor`, and `product_segment`
 taxonomies; the brand, family, model, and generation hierarchy; CPU, GPU,
 memory, storage, display, OS, and color catalogs; six hierarchy compatibility
 relations and two technical compatibility relations;
-seven generation-weight tables; and four influence tables:
-`cpu_memory_weight`, `gpu_memory_weight`, `gpu_storage_weight`, and
-`product_segment_memory_weight`. The only v0.1 constraint action is `exclude`.
+seven generation-weight tables; and eight influence tables:
+`cpu_memory_weight`, `gpu_memory_weight`, `gpu_storage_weight`,
+`product_segment_memory_weight`, `product_segment_display_weight`, and
+`product_segment_storage_weight`, plus profile weights by computer type and
+segment. Computer offers `balanced`, `consumer`, `business`, `gaming`,
+`creator`, `workstation`, `enterprise`, `mixed`, and `portable_only` generation
+profiles. The profile weights multiply the neutral base type weight; `mixed`
+has no preference rows and `portable_only` restricts output to laptops. The
+only v0.1 constraint action is `exclude`.
 The catalog uses real product and edition names with stable IDs and
 English/French labels. Component combinations, weights, specifications, and
 offers are illustrative fixtures, not claims about manufacturer SKUs.

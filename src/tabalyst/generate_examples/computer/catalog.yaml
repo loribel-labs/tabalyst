@@ -1,4 +1,5 @@
 tables:
+  generation_profile: {role: dictionary, file: data/generation_profile.csv, schema: schemas/generation_profile.yaml}
   computer_type: {role: dictionary, file: data/computer_type.csv, schema: schemas/computer_type.yaml}
   product_segment: {role: dictionary, file: data/product_segment.csv, schema: schemas/product_segment.yaml}
   product_category: {role: dictionary, file: data/product_category.csv, schema: schemas/localized.yaml}
@@ -34,6 +35,10 @@ tables:
   gpu_memory_weight: {role: weighted_relation, file: data/gpu_memory_weight.csv, schema: schemas/gpu_memory_weight.yaml}
   gpu_storage_weight: {role: weighted_relation, file: data/gpu_storage_weight.csv, schema: schemas/gpu_storage_weight.yaml}
   product_segment_memory_weight: {role: weighted_relation, file: data/product_segment_memory_weight.csv, schema: schemas/product_segment_memory_weight.yaml}
+  product_segment_display_weight: {role: weighted_relation, file: data/product_segment_display_weight.csv, schema: schemas/product_segment_display_weight.yaml}
+  product_segment_storage_weight: {role: weighted_relation, file: data/product_segment_storage_weight.csv, schema: schemas/product_segment_storage_weight.yaml}
+  generation_profile_computer_type: {role: weighted_relation, file: data/generation_profile_computer_type.csv, schema: schemas/generation_profile_computer_type.yaml}
+  generation_profile_segment: {role: weighted_relation, file: data/generation_profile_segment.csv, schema: schemas/generation_profile_segment.yaml}
   gpu_display: {role: relation, file: data/gpu_display.csv, schema: schemas/gpu_display.yaml}
   cpu_operating_system: {role: relation, file: data/cpu_operating_system.csv, schema: schemas/cpu_operating_system.yaml}
   computer_type_product_segment: {role: relation, file: data/computer_type_product_segment.csv, schema: schemas/computer_type_product_segment.yaml}

@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import csv
 import random
+import re
 from collections import Counter
+from collections.abc import Callable, Mapping
 from pathlib import Path
+from typing import cast
 
 from tabalyst.generate_values import _stream
 
@@ -17,42 +20,61 @@ CHANGE_FIELDS = ["event_id", "dataset", "profile", "row_number", "operation_inde
                  "kind", "column", "before", "after", "cause"]
 
 
-def _mutate(row: dict[str, str], operation: dict, history: dict[str, list[str]],
-            rng: random.Random) -> dict[str, str]:
-    column = operation["column"]
+def _mutate(row: dict[str, str], operation: Mapping[str, object],
+            history: dict[str, list[str]],
+            rng: random.Random, locale: str,
+            unit_suffixes: Mapping[str, tuple[str, str]] | None) -> dict[str, str]:
+    column = cast(str, operation["column"])
     before = row[column]
     kind = operation["kind"]
     if kind == "set_missing":
         return {column: ""} if before else {}
     if kind == "replace":
-        return {column: operation["value"]} if operation["value"] != before else {}
+        value = cast(str, operation["value"])
+        return {column: value} if value != before else {}
     if kind == "duplicate":
         choices = [value for value in history[column] if value and value != before]
         return {column: rng.choice(choices)} if choices else {}
     if kind == "swap":
-        other = operation["value"]
+        other = cast(str, operation["value"])
         return {column: row[other], other: before} if before != row[other] else {}
-    transforms = {
+    if operation["value"] in {"unit_gb", "unit_suffix"}:
+        if not re.fullmatch(r"[+-]?\d+(?:\.\d+)?", before):
+            return {}
+        suffixes = ("GB", "Go") if operation["value"] == "unit_gb" else (
+            unit_suffixes[column] if unit_suffixes is not None else None
+        )
+        if suffixes is None:
+            raise ValueError(f"unit suffix is unavailable for {column}")
+        return {column: f"{before} {suffixes[0 if locale == 'en' else 1]}"}
+    transforms: dict[str, Callable[[str], str]] = {
         "upper": str.upper,
         "lower": str.lower,
         "strip": str.strip,
         "date_slash": lambda value: value.replace("-", "/"),
         "phone_spaces": lambda value: value.replace("-", " "),
     }
-    after = transforms[operation["value"]](before)
+    after = transforms[cast(str, operation["value"])](before)
     return {column: after} if before and after != before else {}
 
 
 def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
-                     dataset: str, profile: dict, seed: int, count: int,
-                     delimiter: str) -> dict:
-    """Write altered CSV and cell log; return requested and actual counts."""
-    operations = profile["operations"]
-    requested = [round(count * operation["rate"]) for operation in operations]
+                     dataset: str, profile: Mapping[str, object], seed: int, count: int,
+                     delimiter: str, locale: str = "en",
+                     unit_suffixes: Mapping[str, tuple[str, str]] | None = None) -> dict[str, object]:
+    """Write altered CSV and cell log; return requested and actual counts.
+
+    Computer unit suffixes are supplied by its output register.
+    """
+    if locale not in {"en", "fr"}:
+        raise ValueError(f"unsupported anomaly locale {locale!r}")
+    operations = cast(list[dict[str, object]], profile["operations"])
+    profile_id = cast(str, profile["id"])
+    requested = [round(count * cast(float, operation["rate"])) for operation in operations]
     remaining = requested.copy()
-    selection_rngs = [_stream(seed, dataset, f"{profile['id']}:{index}",
+    selection_rngs = [_stream(seed, dataset, f"{profile_id}:{index}",
                               "anomaly_selection") for index in range(len(operations))]
-    mutation_rngs = [_stream(seed, dataset, f"{profile['id']}:{index}", "anomaly_value")
+    mutation_rngs = [_stream(seed, dataset, f"{profile_id}:{index}", "anomaly_value")
                      for index in range(len(operations))]
     applied: Counter[int] = Counter()
     skipped: Counter[int] = Counter()
@@ -84,11 +106,12 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                 if not selected:
                     continue
                 remaining[index] -= 1
-                when = operation.get("when", {})
+                when = cast(dict[str, str], operation.get("when", {}))
                 if any(row.get(field) != value for field, value in when.items()):
                     skipped[index] += 1
                     continue
-                updates = _mutate(row, operation, history, mutation_rngs[index])
+                updates = _mutate(row, operation, history, mutation_rngs[index], locale,
+                                  unit_suffixes)
                 if not updates:
                     skipped[index] += 1
                     continue
@@ -98,10 +121,10 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
                     row[column] = after
                     changed_cells += 1
                     log.writerow({"event_id": events, "dataset": dataset,
-                                  "profile": profile["id"], "row_number": row_index + 2,
+                                  "profile": profile_id, "row_number": row_index + 2,
                                   "operation_index": index + 1, "kind": operation["kind"],
                                   "column": column, "before": before, "after": after,
-                                  "cause": f"{profile['id']}.operations[{index}]"})
+                                  "cause": f"{profile_id}.operations[{index}]"})
                 applied[index] += 1
                 changed = True
             writer.writerow(row)
@@ -112,7 +135,7 @@ def inject_anomalies(clean: Path, altered: Path, changes: Path, *,
         if observed != count:
             raise ValueError(f"Clean row count changed for {dataset}: {observed} != {count}")
     return {
-        "dataset": dataset, "profile": profile["id"], "seed": seed,
+        "dataset": dataset, "profile": profile_id, "seed": seed,
         "total_rows": count, "affected_rows": affected_rows,
         "affected_row_rate": affected_rows / count if count else 0.0,
         "events": events, "changed_cells": changed_cells,

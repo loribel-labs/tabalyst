@@ -1,0 +1,5 @@
+type: weighted_relation
+columns:
+  generation_profile_id: {type: string, required: true, references: generation_profile.id}
+  product_segment_id: {type: string, required: true, references: product_segment.id}
+  weight: {type: number, required: true}

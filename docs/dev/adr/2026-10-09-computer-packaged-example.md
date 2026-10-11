@@ -28,3 +28,6 @@ an installed wheel. Custom packages can still be loaded by path. Computer
 still writes paired localized CSVs plus metadata and requires `-d`; its lack
 of anomaly profiles does not change. Public user documentation and the site
 should be updated when this development format is released.
+
+Subsequent development on 2026-10-10 added optional Computer anomaly profiles
+and localized unit formatting; the single-source decision still applies.

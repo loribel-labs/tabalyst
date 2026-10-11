@@ -83,6 +83,31 @@ def test_generation_profiles_control_type_proportions() -> None:
     assert {row[0] for row in _draws(package, 50, "portable_only")} == {"laptop"}
 
 
+def test_named_profiles_weight_type_and_segment_choices() -> None:
+    """Reference profile weights affect both hierarchy decisions."""
+    package = load_generate_package(PACKAGE)
+    balanced = _draws(package, 120)
+    consumer = _draws(package, 120, "consumer")
+    gaming = _draws(package, 120, "gaming")
+    enterprise = _draws(package, 120, "enterprise")
+    assert Counter(row[1] for row in consumer)["consumer"] > (
+        Counter(row[1] for row in balanced)["consumer"]
+    )
+    assert Counter(row[1] for row in gaming)["gaming"] > (
+        Counter(row[1] for row in balanced)["gaming"]
+    )
+    assert Counter(row[0] for row in enterprise)["server"] > (
+        Counter(row[0] for row in balanced)["server"]
+    )
+
+
+def test_profile_context_is_not_a_generated_field() -> None:
+    """The profile affects choices without appearing in the selected row."""
+    package = load_generate_package(PACKAGE)
+    row = select_catalog_row(package, "computers", 42, 0, "gaming")
+    assert "generation_profile_id" not in row
+
+
 def test_labels_do_not_change_canonical_choices(tmp_path: Path) -> None:
     import shutil
 

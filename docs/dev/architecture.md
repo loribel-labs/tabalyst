@@ -89,7 +89,8 @@ structural or semantic change. See the
   `generate_package.py` validates versioned packages for all three domains.
   The single Computer package is bundled and available as `--example computer`;
   `generate_computer_output.py` streams its paired EN/FR
-  CSVs and metadata. With an explicit Computer anomaly profile,
+  CSVs and metadata, optionally formatting physical measures with localized
+  units at export. With an explicit Computer anomaly profile,
   `generate_service.py` also plans altered EN/FR CSVs, cell logs, and summaries
   through the shared anomaly pass. It protects
   package resources and the request file, then stages and publishes them with

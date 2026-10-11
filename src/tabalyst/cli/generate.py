@@ -67,6 +67,14 @@ def generate_command(
         str | None,
         typer.Option("--locales", help="Computer locales: en,fr."),
     ] = None,
+    unit_style: Annotated[
+        str | None,
+        typer.Option("--unit-style", help="Computer values: numeric or localized units."),
+    ] = None,
+    unit_columns: Annotated[
+        str | None,
+        typer.Option("--unit-columns", help="Comma-separated Computer measurement columns to format with units."),
+    ] = None,
     validate_only: Annotated[
         bool,
         typer.Option("--validate-only", help="Validate a package without writing."),
@@ -83,7 +91,9 @@ def generate_command(
             rows=rows, seed=seed, as_of_date=as_of_date,
             anomaly_profile=anomaly_profile, force=force, request=request,
             generation_profile=generation_profile, output_profile=output_profile,
-            market=market, locales=locales, validate_only=validate_only,
+            market=market, locales=locales, unit_style=unit_style,
+            unit_columns=unit_columns,
+            validate_only=validate_only,
         )
         if validate_only:
             typer.echo("Valid Generate package.", err=True)
