@@ -43,12 +43,69 @@ class PatternFacts:
 @dataclass(frozen=True, slots=True)
 class TemporalFacts:
     """The temporal values of a field: their kinds and, for a single date or
-    datetime kind, the span in days and whether the Scan already counts years."""
+    datetime kind, the span in days and whether the Scan already counts years.
+    ``ambiguous`` values are left out of all that; ``day_first`` and
+    ``month_first`` count the unambiguous dates that only one order reads, from
+    which ``inferred`` gives the reading of the ambiguous ones, which the second
+    pass applies and so counts the dates again."""
 
     count: int
     kinds: tuple[str, ...]
     span_days: int | None
     years_counted: bool
+    ambiguous: int = 0
+    day_first: int = 0
+    month_first: int = 0
+
+    def inferred(self, minimum: int = 1) -> str | None:
+        """The order the evidence gives the ambiguous dates (``order_of``)."""
+        return order_of({"DMY": self.day_first, "MDY": self.month_first}, minimum)
+
+
+def order_of(evidence: dict[str, int], minimum: int = 1) -> str | None:
+    """``DMY`` when at least ``minimum`` dates read day-month only and none
+    month-day, ``MDY`` for the opposite, else ``None``: with both orders the
+    column is mixed, and with fewer than ``minimum`` the proof is too thin."""
+    day_first, month_first = evidence.get("DMY", 0), evidence.get("MDY", 0)
+    if day_first >= minimum and not month_first:
+        return "DMY"
+    if month_first >= minimum and not day_first:
+        return "MDY"
+    return None
+
+
+def date_evidence(field: FieldResult) -> dict[str, int]:
+    """The unambiguous dates of a field by the order that alone reads them
+    (``DMY``, ``MDY``), as the date detector of the Scan counted them, whatever
+    their separator. Empty when the Scan has no ambiguity to report for the field
+    or an order was given by the configuration."""
+    for result in field.detectors:
+        if result.id != "date" or not isinstance(result, DetectorComplete):
+            continue
+        ambiguity = result.details.get("ambiguity")
+        if (
+            not isinstance(ambiguity, dict)
+            or not ambiguity.get("count")
+            or ambiguity.get("resolution") is not None
+        ):
+            return {}
+        evidence = ambiguity.get("evidence") or {}
+        return {order: int(evidence.get(order, 0)) for order in ("DMY", "MDY")}
+    return {}
+
+
+def inferred_order(field: FieldResult, minimum: int = 1) -> str | None:
+    """The order (``DMY`` or ``MDY``) that the unambiguous dates of a field give
+    its ambiguous ones, or ``None``.
+
+    The date detector of the Scan counts, as evidence, the values that only one
+    order reads (``25/03/2020``, whatever the separator; a year-first date is
+    never ambiguous and counts for neither). When some read as day-month and none
+    as month-day, or the opposite, the ambiguous values (``03/04/2020``) are read
+    that way, when at least ``minimum`` dates prove it. With both orders, or
+    fewer proofs, they stay ambiguous. An order the configuration gave
+    (``ambiguous_order``) leaves nothing to infer."""
+    return order_of(date_evidence(field), minimum)
 
 
 # The detectors whose values carry a number and a marker or a unit (lot 14).
@@ -160,7 +217,10 @@ def _temporal(field: FieldResult) -> tuple[str, TemporalFacts | None]:
         except ValueError:
             span = None
         years = kind.years is not None
-    return "complete", TemporalFacts(stats.count, kinds, span, years)
+    evidence = date_evidence(field)
+    return "complete", TemporalFacts(
+        stats.count, kinds, span, years, stats.ambiguous, evidence.get("DMY", 0), evidence.get("MDY", 0)
+    )
 
 
 def _markers(result: DetectorComplete) -> int:

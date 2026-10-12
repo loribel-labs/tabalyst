@@ -1,5 +1,5 @@
-Plan for insurance-customers.csv (plan 53bc06b05009, planner 1).
-189 candidates: 66 selected, 70 already answered by the scan, 53 left out.
+Plan for insurance-customers.csv (plan e9a12c1a8fd7, planner 1).
+199 candidates: 66 selected, 70 already answered by the scan, 63 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / filiale and id_client (pattern) (up to 979.1 KiB, CPU low, automatic)
@@ -101,6 +101,16 @@ Left out:
   category_stats [group_moments]: rows / langue_preferee and prime_annuelle: too little expected benefit for an automatic choice
   category_stats [group_moments]: rows / civilite and prime_annuelle: too little expected benefit for an automatic choice
   category_stats [group_moments]: rows / sexe and prime_annuelle: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / numero_voie: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / appartement: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / prime_annuelle: too little expected benefit for an automatic choice
+  numeric_shape [value_table]: rows / montant_reclamation: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_naissance: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_debut: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_fin: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_creation: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_modification: too little expected benefit for an automatic choice
+  datetime_parts [calendar_parts]: rows / date_reclamation: too little expected benefit for an automatic choice
 
 Not applicable:
   10 x too many distinct values for a table of frequencies

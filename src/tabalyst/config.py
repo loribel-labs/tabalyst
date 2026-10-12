@@ -16,6 +16,7 @@ import codecs
 import hashlib
 import json
 from collections.abc import Iterable
+from datetime import date
 from itertools import pairwise
 from pathlib import Path
 from typing import Literal
@@ -275,6 +276,54 @@ class MeasureSettings(BaseModel):
     max_values: int = Field(default=100_000, ge=1, le=10_000_000)
 
 
+class ShapeSettings(BaseModel):
+    """How the shape of the numbers of a column is described (design 20.24).
+
+    ``max_values`` distinct numbers are counted exactly in a table, which gives
+    exact quantiles and exact counts of outliers; beyond, the numbers go on in
+    bins whose width is a power of two, with estimated quantiles and counts of
+    outliers that have certain bounds. It is part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_values: int = Field(default=100_000, ge=1, le=10_000_000)
+
+
+class DatetimeSettings(BaseModel):
+    """How the parts of the dates of a column are counted (design 20.25).
+
+    ``as_of`` is a calendar date (``YYYY-MM-DD``) after which the dates are
+    counted; it is never the date of the day, so that a result does not change
+    with the clock, and without it nothing is counted. ``infer_order`` (on by
+    default) reads the ambiguous dates, such as ``03/04/2020``, in the order that
+    the unambiguous dates of the column give when they all give the same one
+    (day-month, or month-day), and counts them with the others; off, or with both
+    orders present, they stay ambiguous and are not placed. ``min_evidence`` is
+    the fewest unambiguous dates that must prove the order (3 by default; below
+    it the dates stay ambiguous). An order given by
+    ``detectors.date.ambiguous_order`` always wins. They are part of the key of a
+    result, and ``infer_order`` and ``min_evidence`` also of the distribution
+    over time.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    as_of: str | None = None
+    infer_order: bool = True
+    min_evidence: int = Field(default=3, ge=1)
+
+    @field_validator("as_of")
+    @classmethod
+    def _calendar_date(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError as exc:
+            raise ValueError("as_of must be a calendar date, YYYY-MM-DD") from exc
+
+
 class ResidualSettings(BaseModel):
     """What the values that a pattern or a detector leaves out are kept as
     (design 20.20).
@@ -339,6 +388,8 @@ class DeepSettings(BaseModel):
     crosstab: CrosstabSettings = Field(default_factory=CrosstabSettings)
     stats: StatsSettings = Field(default_factory=StatsSettings)
     measures: MeasureSettings = Field(default_factory=MeasureSettings)
+    shape: ShapeSettings = Field(default_factory=ShapeSettings)
+    datetime: DatetimeSettings = Field(default_factory=DatetimeSettings)
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)
 

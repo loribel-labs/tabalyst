@@ -51,6 +51,8 @@ the analyses that concern it:
 | `exact_distinct` | The exact number of distinct values of an identifier-like field (runs with `--deep`) |
 | `pattern_validation` | The structural patterns counted on every occurrence, not only on a sample of the distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count |
 | `temporal_distribution` | The dates counted by day, month or year, as written (runs with `--deep`). Also for a column of datetimes |
+| `datetime_parts` | The dates by year-month, day of the week and hour, with the ambiguous dates read under each order, the invalid ones by reason and the dates after a bound you give. Asked for, or run with `--deep`, never by itself |
+| `numeric_shape` | The asymmetry, kurtosis, outliers of Tukey and decimals of a numeric field, with a logarithmic and an equal-count histogram. Asked for, or run with `--deep`, never by itself |
 | `residual_values` | The values that patterns and detectors leave out, with their exact counts, and each pattern's example and distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count, and then gives no record |
 | `duplicates_report` | The values found more than once in a column of almost all different values, with their counts (runs with `--deep`). Also the repeated combinations of two columns, when you ask for them |
 

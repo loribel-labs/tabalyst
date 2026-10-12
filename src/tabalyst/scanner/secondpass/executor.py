@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from time import perf_counter
 
@@ -44,6 +44,7 @@ from tabalyst.scanner.planner.costmodel import (
     PERIOD_MEMO_ENTRIES,
 )
 from tabalyst.scanner.planner.crosstabs import code_rows
+from tabalyst.scanner.planner.facts import date_evidence
 from tabalyst.scanner.planner.models import AnalysisPlan, Candidate
 from tabalyst.scanner.planner.registry import default_registry
 from tabalyst.scanner.planner.relations import column_floats
@@ -92,6 +93,7 @@ from tabalyst.scanner.secondpass.parallel import (
     SecondPassWorkers,
     part_name,
 )
+from tabalyst.scanner.secondpass.parts import PartsAccumulator
 from tabalyst.scanner.secondpass.patterns import (
     PatternAccumulator,
     derive_from_samples,
@@ -109,6 +111,7 @@ from tabalyst.scanner.secondpass.residuals import (
     derive_from_samples as residuals_from_samples,
 )
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
+from tabalyst.scanner.secondpass.shape import ShapeAccumulator, make_views
 from tabalyst.scanner.secondpass.stats import StatsAccumulator, StatsEdges, stats_edges
 from tabalyst.scanner.workers import worker_count
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
@@ -124,7 +127,9 @@ Accumulator = (
     | FrequencyAccumulator
     | PatternAccumulator
     | PeriodAccumulator
+    | PartsAccumulator
     | MeasureAccumulator
+    | ShapeAccumulator
     | ResidualAccumulator
     | DuplicateAccumulator
     | KeyAccumulator
@@ -468,7 +473,24 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
             job.failure = ("scan_mismatch", "the scan has no single temporal kind for the field")
             return
         job.accumulator = PeriodAccumulator(
-            str(candidate.parameters["granularity"]), temporal.kinds[0].kind
+            str(candidate.parameters["granularity"]),
+            temporal.kinds[0].kind,
+            str(candidate.parameters.get("date_order", "")) or None,
+        )
+        return
+    if candidate.analyzer == "datetime_parts":
+        temporal = field.temporal.value if field.temporal.status == "complete" else None
+        if temporal is None or len(temporal.kinds) != 1:
+            job.failure = ("scan_mismatch", "the scan has no single temporal kind for the field")
+            return
+        parameters = candidate.parameters
+        as_of = str(parameters["as_of"])
+        job.accumulator = PartsAccumulator(
+            temporal.kinds[0].kind,
+            scan.config.detectors.date.model_dump(),
+            as_of=date.fromisoformat(as_of) if as_of else None,
+            order=str(parameters.get("date_order", "")) or None,
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
         )
         return
     if candidate.analyzer == "measure_extraction":
@@ -483,6 +505,22 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
         job.accumulator = measures
         if not candidate.execution.requires_source:
             measures_from_samples(measures, field, cells)
+        return
+    if candidate.analyzer == "numeric_shape":
+        stats = field.numeric.value if field.numeric.status == "complete" else None
+        if stats is None:
+            job.failure = ("scan_mismatch", "the numeric measure of the scan is not complete")
+            return
+        parameters = candidate.parameters
+        log, why, equal = make_views(dataset, field, stats, int(parameters["bins"]), cells)
+        job.accumulator = ShapeAccumulator(
+            log,
+            why,
+            equal,
+            max_values=int(parameters["max_values"]),
+            bins=int(parameters["bins"]),
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
         return
     if candidate.analyzer == "duplicates_report":
         parameters = candidate.parameters
@@ -629,6 +667,13 @@ def _finish(job: _Job) -> _Finished:
     if isinstance(accumulator, MeasureAccumulator):
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(field, source))
+    if isinstance(accumulator, PartsAccumulator):
+        as_of = str(job.candidate.parameters["as_of"])
+        return _Finished("complete", accumulator.result(field, as_of or None))
+    if isinstance(accumulator, ShapeAccumulator):
+        if field.numeric.status != "complete":
+            raise ScanMismatch("the numeric measure of the scan is not complete")
+        return _Finished("complete", accumulator.result(field.numeric.value))
     if isinstance(accumulator, KeyAccumulator):
         partner = job.partner
         assert partner is not None
@@ -664,7 +709,8 @@ def _finish(job: _Job) -> _Finished:
         assert field.temporal.status == "complete"
         stats = field.temporal.value
         return _Finished(
-            "complete", accumulator.result(stats.kinds[0].count, stats.ambiguous)
+            "complete",
+            accumulator.result(stats.kinds[0].count, stats.ambiguous, date_evidence(field)),
         )
     assert field.numeric.status == "complete" and accumulator is not None
     return _Finished("complete", accumulator.result(field.numeric.value))
@@ -941,6 +987,11 @@ def run_second_pass(
             elif isinstance(accumulator, MeasureAccumulator):
                 route.measures = accumulator
                 route.memo_entries = max(route.memo_entries, measure_memo(accumulator.cell_ns))
+            elif isinstance(accumulator, ShapeAccumulator):
+                route.shape = accumulator
+            elif isinstance(accumulator, PartsAccumulator):
+                route.parts = accumulator
+                route.memo_entries = max(route.memo_entries, PERIOD_MEMO_ENTRIES)
             else:
                 route.numeric = accumulator
             job.route = route

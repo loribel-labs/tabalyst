@@ -93,4 +93,6 @@ and keys (`duplicates`, `duplicates_limited`), the line and the rank correlation
 pair (`slope`, `intercept`, `rank`), and the tables of a category against the values
 of another column with the rules you gave (`provided_rules`), and the numbers of a column
 described by category (`category_stats`: count, extremes, mean, spread and histogram of each
-category, and the share of the variance the categories explain).
+category, and the share of the variance the categories explain), the shape of the numbers
+(`numeric_shape`: asymmetry, kurtosis, outliers of Tukey, decimals) and the parts of the dates
+(`datetime_parts`: year-month, weekday, hour, ambiguous dates under each reading).

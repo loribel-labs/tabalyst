@@ -44,11 +44,13 @@ from tabalyst.scanner.secondpass.duplicates import (
 from tabalyst.scanner.secondpass.exactset import ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
+from tabalyst.scanner.secondpass.parts import PartsAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
 from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
+from tabalyst.scanner.secondpass.shape import ShapeAccumulator
 from tabalyst.scanner.secondpass.stats import StatsAccumulator
 
 # The columns of the pairs and tables, converted once whatever the number of
@@ -87,6 +89,14 @@ def _first_record(column: list[str], start: int) -> Callable[[str], int]:
     return first
 
 
+def _date_order(periods: PeriodAccumulator | None, parts: PartsAccumulator | None) -> bool | str:
+    """What the date detector is asked for the field: nothing, its ordinary
+    reading or the order its ambiguous dates are read in (the same for the
+    analyses of one field, since it follows from the Scan)."""
+    order = (periods or parts).order if periods is not None or parts is not None else None  # type: ignore[union-attr]
+    return order or (periods is not None or parts is not None)
+
+
 class FieldRoute:
     """The analyses that read one field and the way they read it: one reading
     of each raw string, shared by all of them."""
@@ -101,10 +111,12 @@ class FieldRoute:
         "memo",
         "memo_entries",
         "numeric",
+        "parts",
         "patterns",
         "periods",
         "reader",
         "residuals",
+        "shape",
         "values",
     )
 
@@ -125,8 +137,12 @@ class FieldRoute:
         # analytical text with the date detector.
         self.patterns: PatternAccumulator | None = None
         self.periods: PeriodAccumulator | None = None
+        # The parts of the dates read the same detector classification.
+        self.parts: PartsAccumulator | None = None
         # The values with a unit read the analytical text with their detector.
         self.measures: MeasureAccumulator | None = None
+        # The shape of the numbers reads the same numbers as the histogram.
+        self.shape: ShapeAccumulator | None = None
         # The values that patterns and detectors leave out (original values for
         # the pattern, the analytical text for the detectors).
         self.residuals: ResidualAccumulator | None = None
@@ -160,7 +176,9 @@ class FieldRoute:
         distinct = self.distinct
         patterns = self.patterns
         periods = self.periods
+        parts = self.parts
         measures = self.measures
+        shape = self.shape
         residuals = self.residuals
         duplicates = self.duplicates
         text_wanted = residuals is not None and residuals.needs_text
@@ -174,7 +192,9 @@ class FieldRoute:
             and numeric is None
             and frequencies is None
             and periods is None
+            and parts is None
             and measures is None
+            and shape is None
             and not text_wanted
         ):
             # Only the original values: no analytical text, no number.
@@ -209,8 +229,8 @@ class FieldRoute:
             room = self.memo_entries - len(memo)
             read = self.reader.cells(
                 missing,
-                numbers=numeric is not None,
-                dates=periods is not None,
+                numbers=numeric is not None or shape is not None,
+                dates=_date_order(periods, parts),
                 measure=None if measures is None else measures.detector,
             )
             for raw, cell in zip(missing, read, strict=True):
@@ -224,8 +244,11 @@ class FieldRoute:
                 continue
             if lengths is not None:
                 lengths.add(length, count)
-            if numeric is not None and number is not None:
-                numeric.add(number, count)
+            if number is not None:
+                if numeric is not None:
+                    numeric.add(number, count)
+                if shape is not None:
+                    shape.add(number, count)
         if frequencies is not None:
             for raw, count in counts.items():
                 cell = cells[raw]
@@ -236,6 +259,11 @@ class FieldRoute:
                 cell = cells[raw]
                 if cell.length >= 0:
                     periods.add(cell.moment, count)
+        if parts is not None:
+            for raw, count in counts.items():
+                cell = cells[raw]
+                if cell.length >= 0:
+                    parts.add(cell.moment, cell.text, count)
         if measures is not None:
             for raw, count in counts.items():
                 cell = cells[raw]
@@ -279,8 +307,12 @@ class FieldRoute:
         ):
             return
         self.values += 1
-        if self.numeric is not None and native_type != "boolean":
-            self.numeric.add(native_number(native_type, value), 1)
+        if native_type != "boolean" and (self.numeric is not None or self.shape is not None):
+            number = native_number(native_type, value)
+            if self.numeric is not None:
+                self.numeric.add(number, 1)
+            if self.shape is not None:
+                self.shape.add(number, 1)
         if self.distinct is not None:
             self.distinct.add_native(native_type, value)
         if self.frequencies is not None:

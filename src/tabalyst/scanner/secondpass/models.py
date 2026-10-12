@@ -104,14 +104,16 @@ class BinnedHistogram(ScanModel):
     (equal widths between the exact minimum and maximum), ``rows`` (quantiles
     of the row sample), ``distinct`` (quantiles of the bottom-k sample) or
     ``grid`` (the multiples of a power of two of the values with a unit beyond
-    ``max_values``, design 20.19).
+    ``max_values``, design 20.19). ``log`` places the inner bounds at equal
+    ratios between the exact minimum and maximum of positive numbers (design
+    20.24).
     ``edges`` are written as numbers; the classification used the exact bounds,
     so an edge that is not representable may be rounded here.
     """
 
     kind: Literal["bins"] = "bins"
-    strategy: Literal["linear", "sample_quantile"]
-    requested_strategy: Literal["linear", "sample_quantile"]
+    strategy: Literal["linear", "sample_quantile", "log"]
+    requested_strategy: Literal["linear", "sample_quantile", "log"]
     bounds_source: Literal["range", "rows", "distinct", "grid"]
     reason: str | None = None
     count: int
@@ -126,6 +128,110 @@ class BinnedHistogram(ScanModel):
     @model_serializer(mode="wrap")
     def _omit_reason(self, handler) -> dict[str, Any]:
         return _omit_none(handler(self), ("reason",))
+
+
+class ShapeMoments(ScanModel):
+    """The asymmetry (``skewness``, the third standardized moment of the
+    population) and the ``excess_kurtosis`` (the fourth, minus 3) of the numbers,
+    from centered sums merged by batch in float64 (``precision``): a relative
+    error of a few units in 1e-12, not an exact fraction. Absent, with a
+    ``reason``, when they are undefined (``no_variance``, ``too_few_values``) or
+    a number is beyond float64 (``not_representable``)."""
+
+    precision: Literal["float64"] = "float64"
+    skewness: float | None = None
+    excess_kurtosis: float | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("skewness", "excess_kurtosis", "reason"))
+
+
+class TukeyCount(ScanModel):
+    """Numbers beyond a fence: those that are for every fence the estimated
+    quartiles allow (``certain``) and those that are for at least one of them
+    (``possible``). They are equal when the quartiles are exact."""
+
+    certain: int
+    possible: int
+
+
+class TukeyFence(ScanModel):
+    """The fences ``low`` and ``high`` at ``factor`` interquartile ranges beyond
+    the first and the third quartile, and the numbers strictly below the first
+    and strictly above the second. With estimated quartiles the fences written
+    are those of the estimates."""
+
+    factor: float
+    low: Number
+    high: Number
+    below: TukeyCount
+    above: TukeyCount
+
+
+class Tukey(ScanModel):
+    """The outliers of Tukey: the quartiles ``q1`` and ``q3``, their
+    interquartile range and the numbers beyond the fences at 1.5 (mild) and 3
+    (far) ranges. ``exact`` when the numbers were counted in a table, ``bounds``
+    when they went on in bins and the counts are bracketed."""
+
+    accuracy: Literal["exact", "bounds"]
+    q1: Quantile
+    q3: Quantile
+    iqr: Number
+    fences: list[TukeyFence]
+
+
+class PlacesCount(ScanModel):
+    """Numbers written with ``places`` digits after the decimal point."""
+
+    places: int
+    count: int
+
+
+class DecimalScale(ScanModel):
+    """How many decimals the numbers are written with, exactly: ``places`` lists
+    each count of decimals that occurs, from 0 (an integer or a number written
+    without a point), ``trailing_zero`` counts the numbers whose last written
+    decimal is a 0 (``12.50``) and ``mixed`` says that decimal numbers are
+    written with different counts of decimals (a precision that varies)."""
+
+    places: list[PlacesCount]
+    max_places: int
+    trailing_zero: int
+    mixed: bool
+
+
+class ShapeResult(ScanModel):
+    """The shape of the numbers of a column beyond its histogram (design 20.24):
+    the asymmetry and the kurtosis, the outliers of Tukey, the decimals they are
+    written with and two other views of their spread, ``log`` (bins of equal
+    ratio, only for positive numbers: ``log_reason`` says why it is absent) and
+    ``equal_count`` (bins whose bounds are quantiles of the Scan's samples, which
+    fall back to equal widths, with a reason, when the samples cannot place
+    them). Counts per bin are exact over the whole source.
+
+    ``storage`` is ``table`` when every distinct number was counted (``accuracy``
+    ``exact``: exact quartiles and counts of outliers), ``grid`` beyond
+    ``max_values`` (``exact_counts``: the quartiles are estimates with certain
+    bounds). ``distinct`` exists with the table only."""
+
+    kind: Literal["numeric_shape"] = "numeric_shape"
+    accuracy: Literal["exact", "exact_counts"]
+    storage: Literal["table", "grid"]
+    count: int
+    distinct: int | None = None
+    moments: ShapeMoments
+    tukey: Tukey
+    scale: DecimalScale
+    log: BinnedHistogram | None = None
+    log_reason: str | None = None
+    equal_count: BinnedHistogram
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("distinct", "log", "log_reason"))
 
 
 class LengthDistribution(ScanModel):
@@ -233,6 +339,20 @@ class PatternCounts(ScanModel):
     overlaps: list[PatternOverlapCount]
 
 
+class DateResolution(ScanModel):
+    """The order the ambiguous dates of a field were read in: ``source`` is
+    ``evidence`` when the unambiguous dates of the field read in only one order
+    (``25/03/2020`` is day-month and none is month-day), whatever their
+    separator and with or without year-first dates. ``evidence`` counts those
+    unambiguous dates by order (``DMY``, ``MDY``). The ambiguous dates, which the
+    Scan counts and does not place, that this reading made valid are the
+    ``resolved`` count of the result."""
+
+    order: Literal["DMY", "MDY"]
+    source: Literal["evidence"] = "evidence"
+    evidence: dict[str, int]
+
+
 class PeriodCount(ScanModel):
     """Values placed in one period: ``period`` is ``YYYY-MM-DD``, ``YYYY-MM`` or
     ``YYYY`` according to the granularity."""
@@ -249,7 +369,10 @@ class PeriodCounts(ScanModel):
     the Scan counted of this ``temporal_kind``; ``ambiguous`` are the ones whose
     day and month order the Scan could not resolve, counted and never placed
     (TIME-03); ``unplaced`` is every other content value (not a date, invalid,
-    or of another kind). ``periods`` lists the non-empty periods in order."""
+    or of another kind). ``periods`` lists the non-empty periods in order. With a
+    ``resolution`` the ambiguous dates were read in its order and placed with the
+    others: ``resolved`` is their number, ``ambiguous`` the ones left (0), and
+    ``count`` is the Scan's plus ``resolved``."""
 
     kind: Literal["periods"] = "periods"
     accuracy: Literal["exact"] = "exact"
@@ -259,10 +382,16 @@ class PeriodCounts(ScanModel):
     values: int
     count: int
     ambiguous: int
+    resolved: int
     unplaced: int
     first: str
     last: str
     periods: list[PeriodCount]
+    resolution: DateResolution | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("resolution",))
 
 
 class MeasureLevel(ScanModel):
@@ -400,6 +529,94 @@ class MeasureResult(ScanModel):
         return _omit_none(handler(self), ("other", "percent_range"))
 
 
+class ReasonCount(ScanModel):
+    """Occurrences of ``invalid`` values for one reason of the detector."""
+
+    reason: str
+    count: int
+
+
+class PartCount(ScanModel):
+    """Values placed in one part of the calendar: ``value`` is the day of the
+    week (0 for Monday to 6) or the hour (0 to 23), according to the list that
+    holds it."""
+
+    value: int
+    count: int
+
+
+class AmbiguousReading(ScanModel):
+    """What the ambiguous dates would be if every one were read in the order
+    ``order``: only the month and the day change between the readings, so the
+    year-months and the days of the week are counted."""
+
+    order: Literal["DMY", "MDY"]
+    placed: int
+    year_months: list[PeriodCount]
+    weekdays: list[PartCount]
+    after_as_of: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("after_as_of",))
+
+
+class AmbiguitySimulation(ScanModel):
+    """The ``ambiguous`` dates, which the Scan counts and never places, read
+    under each order that makes them ambiguous. Nothing is applied: it measures
+    what the choice of ``ambiguous_order`` would change."""
+
+    ambiguous: int
+    readings: list[AmbiguousReading]
+
+
+class PartsResult(ScanModel):
+    """The parts of the calendar dates of a field (design 20.25): the
+    year-month, the day of the week and, for datetimes and times, the hour,
+    always counted by the date or the hour as written (the offset of an aware
+    datetime is not converted), exactly. The counts per year and per month of the
+    year are sums of the year-months and are not repeated.
+
+    ``values`` are the content values, of which ``count`` are dates of
+    ``temporal_kind`` (as many as the Scan counted), ``ambiguous`` have a day and
+    month order the Scan could not resolve (counted, never placed), ``invalid``
+    have the shape of a date that does not hold, by reason in
+    ``invalid_reasons``, and ``unplaced`` are the rest; they add up. ``resolved``
+    is the number of ambiguous dates that ``resolution`` made valid: they are in
+    ``count``, and ``ambiguous`` is what is left.
+    ``year_months`` lists the months that occur, in order (``YYYY-MM``),
+    ``weekdays`` (7) every day of the week and ``hours`` those that occur (a time
+    has hours only). ``after_as_of`` counts the dates after ``as_of`` when it is
+    set. ``simulation`` exists when there are ambiguous dates."""
+
+    kind: Literal["datetime_parts"] = "datetime_parts"
+    accuracy: Literal["exact"] = "exact"
+    temporal_kind: Literal["date", "datetime_naive", "datetime_aware", "time"]
+    zone: Literal["as_written"] = "as_written"
+    values: int
+    count: int
+    ambiguous: int
+    resolved: int
+    invalid: int
+    unplaced: int
+    scan_not_tested: int
+    invalid_reasons: list[ReasonCount]
+    year_months: list[PeriodCount] | None = None
+    weekdays: list[PartCount] | None = None
+    hours: list[PartCount] | None = None
+    as_of: str | None = None
+    after_as_of: int | None = None
+    simulation: AmbiguitySimulation | None = None
+    resolution: DateResolution | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(
+            handler(self),
+            ("year_months", "weekdays", "hours", "as_of", "after_as_of", "simulation", "resolution"),
+        )
+
+
 class ResidualValue(ScanModel):
     """A value a pattern or a detector leaves out, with the occurrences counted
     since its first appearance (so exact) and, when the source was read, the
@@ -412,13 +629,6 @@ class ResidualValue(ScanModel):
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
         return _omit_none(handler(self), ("first_record",))
-
-
-class ReasonCount(ScanModel):
-    """Occurrences of ``invalid`` values for one reason of the detector."""
-
-    reason: str
-    count: int
 
 
 class ResidualTable(ScanModel):
@@ -1035,6 +1245,8 @@ AnalysisOutput = Annotated[
     | PatternCounts
     | PeriodCounts
     | MeasureResult
+    | ShapeResult
+    | PartsResult
     | ResidualResult
     | DuplicateResult
     | DuplicatesLimited

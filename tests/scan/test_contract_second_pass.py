@@ -126,18 +126,25 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
     again = generate_deep([source]).successes[0]
     changed = generate_deep([source], config_path=config).successes[0]
 
-    ids = {e.display: e.id for e in first.outcome.document.analyses}
+    ids = {
+        e.display: e.id for e in first.outcome.document.analyses if e.analyzer != "numeric_shape"
+    }
     # Two histograms, the patterns of the names (which the Scan answers alone) and
     # the tables of the names against the first characters and the values of the ages,
     # and the prices described by the ages and by the names.
     stats = {e.id for e in first.outcome.document.analyses if e.analyzer == "category_stats"}
     assert len(stats) == 2
-    assert len(first.outcome.executed) == 5 + len(stats) and first.outcome.read_source
+    # The shape of the numbers (lot 17) of the two numeric columns.
+    shapes = {e.id: e for e in first.outcome.document.analyses if e.analyzer == "numeric_shape"}
+    assert len(shapes) == 2
+    assert len(first.outcome.executed) == 5 + len(stats) + len(shapes)
+    assert first.outcome.read_source
     # Complete: every result is valid, so the source is not read and the file is not rewritten.
     assert again.outcome.read_source is False and again.written is False
     assert again.outcome.reused == first.outcome.executed
-    # Settings that change only the bins recompute the histogram that uses them.
-    assert changed.outcome.executed == (ids["price"],)
+    # Settings that change only the bins recompute the histogram and the shape that use them.
+    # (a shape uses the bins for its logarithmic and equal-count views, whatever the column).
+    assert set(changed.outcome.executed) == {ids["price"], *shapes}
     assert set(changed.outcome.reused) == {
         ids["age"],
         ids["name"],
@@ -160,7 +167,12 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
         deep_document(stored.model_copy(update={"analyses": kept})), encoding="utf-8"
     )
     repaired = generate_deep([source], config_path=config).successes[0]
-    assert set(repaired.outcome.executed) == {ids["age"], ids["price"]}
+    # The shapes of the two columns went with their histograms.
+    assert set(repaired.outcome.executed) == {
+        ids["age"],
+        ids["price"],
+        *(i for i, e in shapes.items() if e.display in ("age", "price")),
+    }
     assert all(a.status == "complete" for a in repaired.outcome.document.analyses)
 
 
@@ -205,11 +217,12 @@ def test_D03_a_plan_of_several_analyses_reads_the_source_once(tmp_path, monkeypa
 
     assert {a.analyzer for a in outcome.document.analyses} == {
         "numeric_histogram",
+        "numeric_shape",
         "length_distribution",
         "pattern_validation",
     }
     # The patterns of `note` come from the exact counts of the Scan: no reading.
-    assert len(outcome.executed) == 4 and len(opened) == 1
+    assert len(outcome.executed) == 6 and len(opened) == 1
     assert outcome.document.run.records_read == 500
 
 

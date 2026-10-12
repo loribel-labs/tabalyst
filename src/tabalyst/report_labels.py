@@ -208,7 +208,11 @@ ANALYSIS_LABELS = {
     "pearson_correlation": "Correlation between two columns",
     "category_crosstab": "Category against a feature of a column",
     "category_stats": "Numbers of a column by category",
+    "numeric_shape": "Shape of the numbers",
+    "datetime_parts": "Parts of the dates",
 }
+# The names of the days of the week, by the value of a part.
+WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 # The features of a column that a table reads (design 20.13), as a noun phrase.
 FEATURE_WORDS = {
     "pattern": "pattern",
@@ -223,6 +227,12 @@ TABLE_REASONS = {
     "too_few_rows": "too few rows are classified in both columns",
     "single_category": "only one category has rows",
     "single_class": "only one class has rows",
+}
+# Why the skewness of the numbers is undefined (``ShapeMoments.reason``), in words.
+SHAPE_REASONS = {
+    "no_variance": "all the numbers are equal",
+    "too_few_values": "fewer than 3 numbers",
+    "not_representable": "a number is beyond float64",
 }
 # Why the categories explain no share of a number (``StatsAssociation.reason``), in words.
 STATS_REASONS = {

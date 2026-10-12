@@ -610,7 +610,7 @@ def test_G113_the_cost_is_declared_and_the_columns_it_shares_are_charged_once(tm
         result, requests=request, automatic=False, registry=default_registry().runnable()
     )
 
-    assert COST_MODEL_VERSION == 10 and plan.cost_model_version == 10
+    assert COST_MODEL_VERSION >= 10 and plan.cost_model_version == COST_MODEL_VERSION
     (stats,) = [c for c in stats_of(plan) if c.selection.requested]
     assert stats.costs.cell_ns == NS_PER_CELL["category_stats"]
     assert stats.costs.cpu == cpu_class_for(stats.costs.cell_ns)

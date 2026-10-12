@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-12T03:10:06.782052Z",
-    "duration_seconds": 0.184301,
+    "started_at": "2026-10-12T04:06:28.918552Z",
+    "duration_seconds": 0.183006,
     "timings": {
-      "reading": 0.165357,
-      "selection": 0.00271,
-      "other": 0.016234
+      "reading": 0.16348,
+      "selection": 0.002751,
+      "other": 0.016775
     },
-    "peak_memory_bytes": 96624640,
+    "peak_memory_bytes": 97284096,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,

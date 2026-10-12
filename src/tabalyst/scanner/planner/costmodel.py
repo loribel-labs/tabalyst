@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 10
+COST_MODEL_VERSION = 11
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -258,7 +258,40 @@ NS_PER_CELL = {
     # measured 2,520 for a pair of correlated columns. The number detector
     # dominates, as for the pairs. Rounded up to one figure, ``moderate``.
     "category_stats": 2_000,
+    # The shape of the numbers of a column (lot 17), measured on the executor
+    # (`lot17/measure_costs.py`, 1 million rows, one process, the reading of the
+    # cell included) by tier of distinct values as the values with a unit
+    # (`shape_tier`): 106 ns for 30 distinct numbers (a histogram: 93), 2,326 for
+    # 6,000 (histogram 1,409) and 3,990 to 4,317 for 150,000 to one million
+    # (histogram 2,270 to 2,393, the number detector runs on every string). The
+    # grid costs as much as the table. The two upper tiers are declared at the
+    # top of ``moderate`` (2,400), not at the measure: the class decides whether
+    # a forced second pass has to ask (``cpu_over_automatic``), and a class
+    # above would make `--deep` ask on any file with a numeric column of a few
+    # thousand different numbers, whatever its size. The time estimate is
+    # therefore low for such columns, by what the number detector costs that the
+    # histogram of the column pays too.
+    "shape_few": 300,
+    "shape": 2_400,
+    "shape_wide": 2_400,
+    # The parts of the dates (lot 17), measured as above by tier of distinct
+    # strings (`parts_tier`): 213 ns for 730 distinct dates (the distribution over
+    # time: 172), 3,019 for 8,640 datetimes (2,772) and 3,717 for one million
+    # (3,494: the date detector dominates, as for the periods) and 250 for a
+    # column of 672 ambiguous texts (165), whose readings are remembered. The two
+    # upper tiers are declared at the top of ``moderate`` for the reason given
+    # for the shape.
+    "parts_few": 600,
+    "parts": 2_400,
+    "parts_wide": 2_400,
 }
+# The counters of the parts of the dates: weekdays, hours and the readings of
+# the ambiguous dates, and what a month of dates adds (a dictionary entry).
+PARTS_BYTES = 32 * 1024
+PARTS_MONTH_BYTES = 100
+# Pairs of a number and its count that the shape buffers before merging the
+# float moments of its grid, at 64 bytes each.
+SHAPE_BUFFER_BYTES = 8_192 * 64
 # Distinct values up to which an extraction is in the tier ``measure_few``, and
 # then ``measure`` up to the strings the route remembers.
 MEASURE_FEW_DISTINCT = 1_000

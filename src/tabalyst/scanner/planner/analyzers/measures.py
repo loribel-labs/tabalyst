@@ -12,13 +12,13 @@ from typing import ClassVar
 from tabalyst.scanner.planner.analyzer import Analyzer, Assessment, costs, memory
 from tabalyst.scanner.planner.analyzers.common import (
     blocked,
+    distinct_band,
     replay_state,
     result_state,
 )
 from tabalyst.scanner.planner.costmodel import (
     GRID_BIN_BYTES,
     MEASURE_ENTRY_BYTES,
-    MEASURE_FEW_DISTINCT,
     MEASURE_GROUP_BYTES,
     MEASURE_MEMO_ENTRIES,
     MEASURE_MEMO_ENTRY_BYTES,
@@ -54,13 +54,7 @@ def measure_tier(facts: FieldFacts) -> str:
     """The key of ``NS_PER_CELL`` for the extraction of a field: its cost follows
     the distinct values of the field, which the Scan counted or bounded. A field
     whose count was stopped is taken at its estimate, or as wide."""
-    distinct = facts.distinct
-    if distinct is None:
-        known = facts.distinct_estimate or facts.distinct_lower_bound
-        distinct = None if known is None else int(known)
-    if distinct is None or distinct > MEASURE_MEMO_ENTRIES:
-        return "measure_wide"
-    return "measure_few" if distinct <= MEASURE_FEW_DISTINCT else "measure"
+    return {"few": "measure_few", "mid": "measure", "wide": "measure_wide"}[distinct_band(facts)]
 
 
 def measure_memo(cell_ns: int) -> int:

@@ -20,8 +20,10 @@ from tabalyst.report_labels import (
     EXACT,
     FEATURE_WORDS,
     PEARSON_REASONS,
+    SHAPE_REASONS,
     STATS_REASONS,
     TABLE_REASONS,
+    WEEKDAYS,
 )
 from tabalyst.report_views import (
     ColumnAnalyses,
@@ -35,6 +37,7 @@ from tabalyst.scanner.secondpass.models import (
     AnalysisResult,
     BinnedHistogram,
     CrosstabResult,
+    DateResolution,
     DenseHistogram,
     DistinctCount,
     DistinctLimited,
@@ -43,10 +46,12 @@ from tabalyst.scanner.secondpass.models import (
     FrequencyTable,
     LengthDistribution,
     MeasureResult,
+    PartsResult,
     PatternCounts,
     PearsonResult,
     PeriodCounts,
     ResidualResult,
+    ShapeResult,
     StatsResult,
 )
 
@@ -183,6 +188,10 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _stats_summary(result), EXACT
     if isinstance(result, MeasureResult):
         return _measures_summary(result), EXACT
+    if isinstance(result, ShapeResult):
+        return _shape_summary(result), EXACT
+    if isinstance(result, PartsResult):
+        return _parts_summary(result), EXACT
     if isinstance(result, ResidualResult):
         return _residuals_summary(result), EXACT
     if isinstance(result, DuplicateResult):
@@ -198,7 +207,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
     assert isinstance(result, PeriodCounts)
     return (
         f"{result.count:,} dates by {result.granularity}, {result.first} to {result.last}"
-        + (f"; {result.ambiguous:,} ambiguous not placed" if result.ambiguous else ""),
+        + (f"; {result.ambiguous:,} ambiguous not placed" if result.ambiguous else "")
+        + _resolution_text(result.resolution, result.resolved),
         EXACT,
     )
 
@@ -245,6 +255,57 @@ def _measures_summary(result: MeasureResult) -> str:
     if result.storage == "grid":
         text += "; quantiles estimated"
     return text
+
+
+def _shape_summary(result: ShapeResult) -> str:
+    moments = result.moments
+    if moments.skewness is not None and moments.excess_kurtosis is not None:
+        text = f"skewness {moments.skewness:+.2f}, kurtosis {moments.excess_kurtosis:+.2f}"
+    else:
+        text = f"no skewness: {SHAPE_REASONS.get(moments.reason or '', moments.reason or 'undefined')}"
+    mild = result.tukey.fences[0]
+    if result.tukey.accuracy == "exact":
+        outliers = f"{mild.below.certain + mild.above.certain:,}"
+    else:
+        low = mild.below.certain + mild.above.certain
+        high = mild.below.possible + mild.above.possible
+        outliers = f"{low:,} to {high:,}"
+    text += f"; {outliers} outliers beyond 1.5 interquartile ranges"
+    if result.scale.mixed:
+        text += f"; decimals vary up to {result.scale.max_places}"
+    if result.storage == "grid":
+        text += "; quartiles estimated"
+    return text
+
+
+def _parts_summary(result: PartsResult) -> str:
+    text = f"{result.count:,} {'times' if result.temporal_kind == 'time' else 'dates'}"
+    if result.year_months:
+        text += f", {result.year_months[0].period} to {result.year_months[-1].period}"
+    if result.weekdays is not None:
+        day = max(result.weekdays, key=lambda part: (part.count, -part.value))
+        text += f"; busiest weekday {WEEKDAYS[day.value]}"
+    if result.hours:
+        hour = max(result.hours, key=lambda part: (part.count, -part.value))
+        text += f"; busiest hour {hour.value:02d}h"
+    if result.after_as_of is not None:
+        text += f"; {result.after_as_of:,} after {result.as_of}"
+    if result.invalid:
+        text += f"; {result.invalid:,} invalid"
+    if result.simulation is not None:
+        text += f"; {result.ambiguous:,} ambiguous read under {len(result.simulation.readings)} orders"
+    return text + _resolution_text(result.resolution, result.resolved)
+
+
+def _resolution_text(resolution: DateResolution | None, resolved: int) -> str:
+    """The sentence that says the ambiguous dates were read by the evidence."""
+    if resolution is None:
+        return ""
+    proof = resolution.evidence.get(resolution.order, 0)
+    return (
+        f"; {resolved:,} ambiguous now valid, read as {resolution.order} "
+        f"(proved by {proof:,} unambiguous dates)"
+    )
 
 
 def _residuals_summary(result: ResidualResult) -> str:
