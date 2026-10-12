@@ -58,7 +58,9 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/scanner/convention_rule.py`: the rule that reads ambiguous
   numbers by the evidence of their column, decided once by the first pass and
   read back by every later reading (`CellReader.for_field`); `order_of` of the
-  dates shares its purity rule (`docs/dev/scan/design.md` 20.27).
+  dates shares its purity rule (`docs/dev/scan/design.md` 20.27). The values with
+  a unit take their convention from the plan (`MeasureFacts.convention`,
+  parameter `number_convention`; 20.28).
 - `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
   second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
   is its boundary for the CLI and the API.

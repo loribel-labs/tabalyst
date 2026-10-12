@@ -3426,7 +3426,7 @@
     },
     "NumberSettings": {
       "additionalProperties": false,
-      "description": "``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:\ndecimal comma, thousands grouped by ``.`` or a space (design 12.10).\n\n``infer_convention`` (on by default) reads the ambiguous numbers, such as\n``1,234``, in the convention the unambiguous numbers of the column prove, at\nleast ``min_evidence`` of them and none proving the other (design 20.27);\n``ambiguous_convention`` always wins. ``detectors.number`` applies them in the\nScan; the amount detectors (``currency``, ``percentage``, ``quantity``)\ninherit them, but the Scan counts no number of an amount, so they change\nnothing there.",
+      "description": "``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:\ndecimal comma, thousands grouped by ``.`` or a space (design 12.10).\n\n``infer_convention`` (on by default) reads the ambiguous numbers, such as\n``1,234``, in the convention the unambiguous numbers of the column prove, at\nleast ``min_evidence`` of them and none proving the other (design 20.27);\n``ambiguous_convention`` always wins. ``detectors.number`` applies them in the\nScan; the amount detectors (``currency``, ``percentage``, ``quantity``)\ninherit them, but the Scan counts no number of an amount, so they change\nnothing there: the second pass applies them to the numbers of the values\nwith a unit (design 20.28).",
       "properties": {
         "enabled": {
           "default": true,

@@ -232,6 +232,7 @@ class FieldRoute:
                 numbers=numeric is not None or shape is not None,
                 dates=_date_order(periods, parts),
                 measure=None if measures is None else measures.detector,
+                convention=None if measures is None else measures.convention,
             )
             for raw, cell in zip(missing, read, strict=True):
                 cells[raw] = cell

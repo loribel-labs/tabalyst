@@ -207,7 +207,9 @@ Nothing is converted: `$` and `€` stay two currencies, `Go` and `To` two units
 When the field mixes them, `homogeneous` is false and its overall metrics add
 quantities that differ: read the groups first. A value such as `$4,825`, which
 the settings can read as thousands or as a decimal comma, is `ambiguous`: it is
-counted with its currency and never given a number. Values with the shape of an
+counted with its currency and never given a number, unless the column proves a
+convention (see [Values with a unit read by the evidence](#values-with-a-unit-read-by-the-evidence)).
+Values with the shape of an
 amount that do not hold (`$12.5.0`) are `invalid`, and the others `unparsed`. The
 four counts add up to the values of the field, and the counts are those of the
 scan's detector; a difference fails the analysis. For percentages,
@@ -223,6 +225,40 @@ read (`computed_from` is `samples`), and the command says how many analyses it
 computed from the scan. The cost grows with the number of different
 values: `tabalyst report` leaves out by itself a column of more than 16,384
 different values, and says so in its plan; `--deep` computes it.
+
+### Values with a unit read by the evidence
+
+`1,250 Kg`, `1.250 Kg` and `1 250 Kg` are a number and a unit, but the number may
+be 1250 or 1.25. Like the numbers of a column without unit, they are read by the
+evidence of the column, with the evidence of the detector that reads them
+(`currency`, `percentage` or `quantity`):
+
+- If at least `detectors.<id>.min_evidence` (3) unambiguous values of the column
+  are written in one convention (`12,5 Kg` is a decimal comma, `1,234.5 Kg` a
+  decimal point) and none in the other, the ambiguous values are read in it and
+  counted with the others. With a decimal comma proven, `1.250 Kg` is 1250, a
+  thousands group, rather than 1.25.
+- If the column uses both conventions, or too few values prove one, the ambiguous
+  values stay `ambiguous` and are not given a number.
+- A convention given by `detectors.<id>.ambiguous_convention` always wins, and
+  `detectors.<id>.infer_convention: false` turns the rule off. A plain
+  `1 250 Kg` reads the same in both conventions and proves nothing.
+
+When the rule applies, the plan says so (`number_convention` in the parameters of
+the analysis, with the reason `ambiguous_numbers_read_by_evidence`), `resolved`
+counts the values read that way, `ambiguous` is 0, and `resolution` says what
+was done and why:
+
+```json
+"parsed": 1000, "ambiguous": 0, "resolved": 382,
+"resolution": {"convention": "comma", "source": "evidence",
+               "evidence": {"comma": 469, "dot": 0}}
+```
+
+`parsed` includes the `resolved` values. The scan itself is not changed: its
+`coverage` still counts those values as `ambiguous`, which is why the second
+pass compares its counts with the scan's after adding them. The result is kept
+for a given convention only: another one makes it again.
 
 ## Correlation between two columns
 

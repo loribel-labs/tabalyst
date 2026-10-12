@@ -94,6 +94,7 @@ UTILITY = {
     "temporal_distribution": "shows how the dates are spread",
     "numeric_shape": "shows the asymmetry, the outliers and the decimals of the numbers",
     "ambiguous_dates_read_by_evidence": "the unambiguous dates of the column read in one order only, so the ambiguous ones are read that way and counted with the others",
+    "ambiguous_numbers_read_by_evidence": "the unambiguous values of the column prove one number convention, so the values written ambiguously are read that way and counted with the others",
     "calendar_parts": "shows the years, months, weekdays and hours of the dates and what their ambiguity changes",
     "values_with_unit": "the scan counts the values with a unit but has no number for them",
     "requested_only": "a combination of columns is only searched when it is asked for",

@@ -428,7 +428,8 @@ class NumberSettings(_Settings):
     ``ambiguous_convention`` always wins. ``detectors.number`` applies them in the
     Scan; the amount detectors (``currency``, ``percentage``, ``quantity``)
     inherit them, but the Scan counts no number of an amount, so they change
-    nothing there."""
+    nothing there: the second pass applies them to the numbers of the values
+    with a unit (design 20.28)."""
 
     enabled: bool = True
     conventions: list[NumberConvention] = Field(

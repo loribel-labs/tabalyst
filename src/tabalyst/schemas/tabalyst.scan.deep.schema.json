@@ -3209,7 +3209,7 @@
     },
     "MeasureResult": {
       "additionalProperties": false,
-      "description": "The numbers of the values with a currency marker, a percent sign or a\nunit, extracted as the ``detector`` of the Scan reads them (design 20.19).\n\n``values`` are the content values of the field: ``parsed`` have a number,\n``ambiguous`` a number part the configuration cannot read one way (counted\nand never placed), ``invalid`` the shape of a value that does not hold, and\n``unparsed`` the rest; they add up. ``scan_not_tested`` are the values the\nScan's detector did not test (adaptive detection) and this pass read.\n\n``overall`` gives the metrics of a numeric field for every parsed value,\n``groups`` the same for each marker, the most frequent first, and ``other``\nfor the markers beyond ``max_groups``. ``homogeneous`` is false when the\nnumbers mix markers: no conversion is made, so their overall metrics add\nquantities that differ. ``storage`` is ``table`` when every number was\ncounted exactly (``accuracy`` ``exact``), ``grid`` when the distinct numbers\npassed ``max_values`` and every group went on in bins: counts, sums and\nextremes stay exact, the quantiles are estimates with certain bounds\n(``exact_counts``).",
+      "description": "The numbers of the values with a currency marker, a percent sign or a\nunit, extracted as the ``detector`` of the Scan reads them (design 20.19).\n\n``values`` are the content values of the field: ``parsed`` have a number,\n``ambiguous`` a number part the configuration cannot read one way (counted\nand never placed), ``invalid`` the shape of a value that does not hold, and\n``unparsed`` the rest; they add up. ``scan_not_tested`` are the values the\nScan's detector did not test (adaptive detection) and this pass read.\n\n``overall`` gives the metrics of a numeric field for every parsed value,\n``groups`` the same for each marker, the most frequent first, and ``other``\nfor the markers beyond ``max_groups``. ``homogeneous`` is false when the\nnumbers mix markers: no conversion is made, so their overall metrics add\nquantities that differ. ``storage`` is ``table`` when every number was\ncounted exactly (``accuracy`` ``exact``), ``grid`` when the distinct numbers\npassed ``max_values`` and every group went on in bins: counts, sums and\nextremes stay exact, the quantiles are estimates with certain bounds\n(``exact_counts``).\n\nWith a ``resolution`` the ambiguous numbers were read in its convention and\ncounted with the others: ``resolved`` is the number of values it made\nnumbers (the ambiguous ones, and under ``comma`` the ``d.ddd`` read as\nthousands, which the Scan counted as parsed), ``parsed`` includes them and\n``ambiguous`` is the ones left (0).",
       "properties": {
         "kind": {
           "const": "measures",
@@ -3312,6 +3312,22 @@
             }
           ],
           "default": null
+        },
+        "resolved": {
+          "default": 0,
+          "title": "Resolved",
+          "type": "integer"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumberResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3399,6 +3415,39 @@
         "status"
       ],
       "title": "NotApplicable",
+      "type": "object"
+    },
+    "NumberResolution": {
+      "additionalProperties": false,
+      "description": "The convention the ambiguous numbers of a field were read in: ``source``\nis ``evidence`` when the unambiguous numbers written with the same marker\nread in only one convention (``1.234,5`` is ``comma`` and none is ``dot``).\n``evidence`` counts those unambiguous numbers by convention, as the Scan's\ndetector counted them. The values this reading made numbers (ambiguous ones\nand, under ``comma``, ``d.ddd`` as thousands) are the ``resolved`` count of\nthe result.",
+      "properties": {
+        "convention": {
+          "enum": [
+            "dot",
+            "comma"
+          ],
+          "title": "Convention",
+          "type": "string"
+        },
+        "source": {
+          "const": "evidence",
+          "default": "evidence",
+          "title": "Source",
+          "type": "string"
+        },
+        "evidence": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Evidence",
+          "type": "object"
+        }
+      },
+      "required": [
+        "convention",
+        "evidence"
+      ],
+      "title": "NumberResolution",
       "type": "object"
     },
     "NumericCoverage": {

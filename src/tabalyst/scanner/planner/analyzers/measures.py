@@ -41,12 +41,13 @@ MEASURE_MIN_SHARE = 0.5
 
 def chosen(facts: FieldFacts) -> MeasureFacts | None:
     """The detector of values with a marker that read the most values of the
-    field, the first of ``MEASURE_DETECTORS`` on a tie."""
+    field, the first of ``MEASURE_DETECTORS`` on a tie. The ambiguous values a
+    convention resolves count as read (design 20.28)."""
     if not facts.measures:
         return None
     return max(
         facts.measures,
-        key=lambda found: (found.matched, -MEASURE_DETECTORS.index(found.detector)),
+        key=lambda found: (found.readable, -MEASURE_DETECTORS.index(found.detector)),
     )
 
 
@@ -84,7 +85,7 @@ class MeasureExtraction(Analyzer):
             return stop
         found = chosen(facts)
         assert found is not None
-        if found.matched < MEASURE_MIN_SHARE * facts.values:
+        if found.readable < MEASURE_MIN_SHARE * facts.values:
             return Assessment("not_applicable", ("low_coverage",))
         settings = self.settings
         return Assessment(
@@ -95,6 +96,9 @@ class MeasureExtraction(Analyzer):
                 "max_groups": settings.measures.max_groups,
                 "max_values": settings.measures.max_values,
                 "bins": settings.bins,
+                # The convention the unambiguous values prove for the ambiguous
+                # ones: the Scan decides, so it is a parameter of the key.
+                "number_convention": found.convention or "",
             },
             # Every distinct value is in the Scan with its exact count: the
             # numbers follow from them.
@@ -138,6 +142,8 @@ class MeasureExtraction(Analyzer):
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
         # The Scan counts these values but has no number for them (10.29).
         reasons = ["values_with_unit"]
+        if assessment.parameters.get("number_convention"):
+            reasons.append("ambiguous_numbers_read_by_evidence")
         if not assessment.requires_source:
             reasons.append("derivable_from_samples")
         return Utility(score=60, reasons=reasons)

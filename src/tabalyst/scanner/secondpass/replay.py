@@ -16,7 +16,7 @@ from __future__ import annotations
 import copy
 from collections.abc import Sequence
 from decimal import Decimal
-from typing import NamedTuple
+from typing import NamedTuple, cast
 from unicodedata import is_normalized
 
 from tabalyst.scanner.config import ScanConfig
@@ -25,6 +25,7 @@ from tabalyst.scanner.convention_rule import (
     holds_native_numbers,
     scan_convention,
 )
+from tabalyst.scanner.detectors.amount import MeasureReading
 from tabalyst.scanner.detectors.base import Classification, Detector
 from tabalyst.scanner.detectors.currency import CurrencyDetector
 from tabalyst.scanner.detectors.number import NumberDetector
@@ -47,7 +48,9 @@ class Measure(NamedTuple):
     the ``number`` of a matched value and whether it is written as a decimal,
     and, but for an invalid value, the ``marker`` (currency, ``%`` or unit),
     whether it is written ``before`` the number and whether a space separates
-    them."""
+    them. ``resolved`` says that the number was read in the convention the
+    column proves (an ambiguous value, or ``d.ddd`` as thousands; design 20.28),
+    never that the configuration resolved it."""
 
     state: str
     number: Exact | None = None
@@ -55,6 +58,7 @@ class Measure(NamedTuple):
     marker: str | None = None
     before: bool = False
     spaced: bool = False
+    resolved: bool = False
 
 
 class Cell(NamedTuple):
@@ -92,16 +96,21 @@ _AMBIGUOUS: Reading = ("ambiguous", None)
 UNSPECIFIED = "unspecified"
 
 
-def measure_of(reading: object) -> Measure | None:
-    """The ``Measure`` of what the ``measure`` method of a detector returned."""
+def measure_of(reading: object, convention: str | None = None) -> Measure | None:
+    """The ``Measure`` of what the ``measure`` method of a detector returned.
+    ``convention`` is the one the detector was built to resolve the ambiguous
+    numbers in by the evidence of the column (design 20.28): under ``comma``, a
+    strict decimal ``d.ddd`` is a thousands group."""
     if reading is None:
         return None
-    found, marker, before, spaced = reading  # type: ignore[misc]
+    found, marker, before, spaced = cast("MeasureReading", reading)
     state = found.state
     if state == "invalid":
         return _INVALID
     if state != "matched":
         return Measure(state, marker=marker, before=before, spaced=spaced)
+    if convention == "comma" and (thousands := dotted_thousands(found)) is not None:
+        return Measure(state, thousands, False, marker, before, spaced, True)
     number = found.value
     # The number detector gives an int for the integer formats and a Decimal for
     # the decimal ones (an integer beyond what Python converts aside), which is
@@ -113,6 +122,7 @@ def measure_of(reading: object) -> Measure | None:
         marker,
         before,
         spaced,
+        convention is not None and bool(found.candidates),
     )
 
 
@@ -152,7 +162,7 @@ class CellReader:
         self.date_settings = dates
         self.ordered_detectors: dict[str, DateDetector] = {}
         self.config = config
-        self.measure_detectors: dict[str, MeasureDetector | None] = {}
+        self.measure_detectors: dict[tuple[str, str | None], MeasureDetector | None] = {}
         self.replays: dict[str, Detector | None] = {}
         self.convention: str | None = None
         self.regroup = False
@@ -216,6 +226,7 @@ class CellReader:
         numbers: bool = True,
         dates: bool | str = False,
         measure: str | None = None,
+        convention: str | None = None,
     ) -> list[Cell]:
         """The cell of each distinct raw string, in order. Without ``numbers``
         the number detector is not run and no cell has a number: an analysis
@@ -223,7 +234,8 @@ class CellReader:
         the analytical text of each content string (``dates`` may be ``DMY`` or
         ``MDY``, the order the field's ambiguous dates are read in), and with
         ``measure`` the detector of that id (``currency``, ``percentage`` or
-        ``quantity``)."""
+        ``quantity``), which reads the ambiguous numbers in ``convention`` when
+        the evidence of the column proves one (design 20.28)."""
         category = self.strings.category
         texts: list[str] = []
         positions: list[int] = []
@@ -235,7 +247,9 @@ class CellReader:
         found = self._numbers(texts) if numbers else [None] * len(texts)
         moments = self._moments(texts, dates) if dates else [None] * len(texts)
         measures = (
-            self._measures(measure, texts) if measure is not None else [None] * len(texts)
+            self._measures(measure, texts, convention)
+            if measure is not None
+            else [None] * len(texts)
         )
         for position, text, number, moment, read in zip(
             positions, texts, found, moments, measures, strict=True
@@ -243,20 +257,28 @@ class CellReader:
             cells[position] = Cell(len(text), number, text, moment, read)
         return cells
 
-    def measure_detector(self, detector: str) -> MeasureDetector | None:
+    def measure_detector(
+        self, detector: str, convention: str | None = None
+    ) -> MeasureDetector | None:
         """The detector of values with a unit of that id, with the settings the
-        Scan recorded, or ``None`` when the Scan turned it off."""
-        if detector not in self.measure_detectors:
+        Scan recorded and, with a ``convention``, the one that resolves its
+        ambiguous numbers; ``None`` when the Scan turned it off."""
+        key = (detector, convention)
+        if key not in self.measure_detectors:
             settings = getattr(self.config.detectors, detector).model_dump()
-            self.measure_detectors[detector] = (
+            if convention is not None:
+                settings["ambiguous_convention"] = convention
+            self.measure_detectors[key] = (
                 MEASURE_DETECTORS[detector](settings) if settings.get("enabled", True) else None
             )
-        return self.measure_detectors[detector]
+        return self.measure_detectors[key]
 
-    def _measures(self, detector: str, texts: list[str]) -> list[Measure | None]:
+    def _measures(
+        self, detector: str, texts: list[str], convention: str | None
+    ) -> list[Measure | None]:
         """What the detector of values with a unit makes of each analytical
         text, as the first pass does: a text above its input cap is not tested."""
-        reader = self.measure_detector(detector)
+        reader = self.measure_detector(detector, convention)
         if reader is None:
             return [None] * len(texts)
         cap = reader.max_input_length
@@ -267,7 +289,7 @@ class CellReader:
                 found.append(None)
                 continue
             try:
-                found.append(measure_of(measure(text)))
+                found.append(measure_of(measure(text), convention))
             except Exception:  # noqa: BLE001 - a value the detector raises on is not read
                 found.append(None)
         return found

@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-12T15:24:54.371614Z",
-    "duration_seconds": 0.190842,
+    "started_at": "2026-10-12T17:32:24.322038Z",
+    "duration_seconds": 0.186255,
     "timings": {
-      "reading": 0.170735,
-      "selection": 0.00265,
-      "other": 0.017457
+      "reading": 0.166713,
+      "selection": 0.002557,
+      "other": 0.016985
     },
-    "peak_memory_bytes": 95756288,
+    "peak_memory_bytes": 95498240,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -16827,18 +16827,18 @@
   },
   "selection": {
     "rows": 150,
-    "by_cover": 108,
-    "by_reserve": 42,
+    "by_cover": 107,
+    "by_reserve": 43,
     "shortfall": 0,
     "reserve": {
       "planned": 4,
-      "taken": 42,
+      "taken": 43,
       "adjusted": true
     },
     "pool": {
       "per_target": 2,
-      "candidate_rows": 316,
-      "peak_bytes": 86158,
+      "candidate_rows": 315,
+      "peak_bytes": 85893,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
@@ -16921,10 +16921,8 @@
     "missing_total": 1,
     "verification": {
       "checked": 363,
-      "agreed": 362,
-      "disagreed": [
-        "numeric:rows:column_26:numeric_bin:9"
-      ]
+      "agreed": 363,
+      "disagreed": []
     }
   },
   "statements": [
@@ -19379,10 +19377,10 @@
     {
       "id": "numeric:rows:column_26:numeric_bin:9",
       "status": "covered",
-      "observed": 11,
+      "observed": 12,
       "candidates": 2,
       "expected": 12,
-      "agrees": false
+      "agrees": true
     },
     {
       "id": "date:rows:column_23:date_year:date:11",

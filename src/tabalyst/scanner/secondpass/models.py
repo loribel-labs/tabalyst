@@ -353,6 +353,20 @@ class DateResolution(ScanModel):
     evidence: dict[str, int]
 
 
+class NumberResolution(ScanModel):
+    """The convention the ambiguous numbers of a field were read in: ``source``
+    is ``evidence`` when the unambiguous numbers written with the same marker
+    read in only one convention (``1.234,5`` is ``comma`` and none is ``dot``).
+    ``evidence`` counts those unambiguous numbers by convention, as the Scan's
+    detector counted them. The values this reading made numbers (ambiguous ones
+    and, under ``comma``, ``d.ddd`` as thousands) are the ``resolved`` count of
+    the result."""
+
+    convention: Literal["dot", "comma"]
+    source: Literal["evidence"] = "evidence"
+    evidence: dict[str, int]
+
+
 class PeriodCount(ScanModel):
     """Values placed in one period: ``period`` is ``YYYY-MM-DD``, ``YYYY-MM`` or
     ``YYYY`` according to the granularity."""
@@ -504,7 +518,13 @@ class MeasureResult(ScanModel):
     counted exactly (``accuracy`` ``exact``), ``grid`` when the distinct numbers
     passed ``max_values`` and every group went on in bins: counts, sums and
     extremes stay exact, the quantiles are estimates with certain bounds
-    (``exact_counts``)."""
+    (``exact_counts``).
+
+    With a ``resolution`` the ambiguous numbers were read in its convention and
+    counted with the others: ``resolved`` is the number of values it made
+    numbers (the ambiguous ones, and under ``comma`` the ``d.ddd`` read as
+    thousands, which the Scan counted as parsed), ``parsed`` includes them and
+    ``ambiguous`` is the ones left (0)."""
 
     kind: Literal["measures"] = "measures"
     accuracy: Literal["exact", "exact_counts"]
@@ -523,10 +543,12 @@ class MeasureResult(ScanModel):
     other: MeasureOther | None = None
     markers: MarkerEnumeration
     percent_range: PercentRange | None = None
+    resolved: int = 0
+    resolution: NumberResolution | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("other", "percent_range"))
+        return _omit_none(handler(self), ("other", "percent_range", "resolution"))
 
 
 class ReasonCount(ScanModel):
