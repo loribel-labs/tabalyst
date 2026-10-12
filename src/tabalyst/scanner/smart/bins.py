@@ -9,20 +9,27 @@ are placed alike."""
 from __future__ import annotations
 
 from decimal import Decimal
-from fractions import Fraction
+from functools import lru_cache
+
+from tabalyst.scanner.secondpass.accumulators import decimal_bounds
+from tabalyst.scanner.secondpass.bins import BinEdges, linear_edges
+
+
+@lru_cache(maxsize=256, typed=True)
+def _edges(low: float, high: float, bins: int) -> BinEdges:
+    # The edges of the second pass (``boundaries.place_edges``): a decimal extreme
+    # is known only by the float64 the Scan wrote, which may lie on either side of
+    # it, so the range widens to the neighbouring floats and the exact maximum stays
+    # in the last bin, closed.
+    return BinEdges(linear_edges(decimal_bounds(low)[0], decimal_bounds(high)[1], bins))
 
 
 def bin_index(number: int | Decimal, low: float, high: float, bins: int) -> int | None:
-    """The equal-width bin of the exact range a number falls in, by the rule of
-    the second pass (the last bin is closed); ``None`` outside the range."""
-    if high <= low or number < low or number > high:
+    """The equal-width bin of the range the Scan wrote a number falls in, on the
+    edges and by the rule of the second pass (the last bin is closed); ``None``
+    outside the range."""
+    if high <= low:
         return None
-    if type(number) is int and type(low) is int and type(high) is int:
-        return min(bins - 1, ((number - low) * bins) // (high - low))
-    scaled = (float(number) - float(low)) / (float(high) - float(low)) * bins
-    nearest = round(scaled)
-    if abs(scaled - nearest) < 1e-9:
-        # Too close to an edge for float64: place it exactly.
-        scaled_exact = (Fraction(number) - Fraction(low)) * bins / (Fraction(high) - Fraction(low))
-        return min(bins - 1, int(scaled_exact))
-    return min(bins - 1, int(scaled))
+    edges = _edges(low, high, bins)
+    index = edges.index(number)
+    return index if 0 <= index < edges.bins else None

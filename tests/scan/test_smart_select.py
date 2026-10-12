@@ -54,6 +54,25 @@ def test_every_target_the_plan_counts_exactly_is_found_as_many_times_in_the_sour
     } <= kinds
 
 
+def test_decimal_extremes_beyond_their_float_stay_in_the_first_and_last_bins(tmp_path):
+    # 0.1 lies below its float64 and 999.356 above it: the bins of the sample
+    # stand on the edges of the second pass, widened around the written extremes,
+    # so the rows of the minimum and of the maximum are counted in the outer bins.
+    rows = []
+    for i in range(600):
+        amount = f"{1 + (i * 7919) % 998}.{i % 1000:03d}"
+        if i % 50 < 4:
+            amount = ("0.1", "999.356")[i % 2]
+        rows.append(f"{amount},{('north', 'south', 'east')[i % 3]}")
+    _, plan, _, document = report(tmp_path, "amount,group", rows, 60)
+
+    bins = {t.id for t in plan.targets if t.predicate.kind == "numeric_bin"}
+    entries = {e.id: e for e in document.targets if e.id in bins}
+    assert len(entries) == 10
+    assert all(e.expected is not None and e.agrees for e in entries.values())
+    _assert_faithful(document)
+
+
 def test_dates_and_types_are_tested_as_the_first_pass_counted_them(tmp_path):
     _, plan, _, document = report(tmp_path, "day,aware,naive,slash,mixed,n", dated_rows(), 60)
 
