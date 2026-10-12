@@ -7,7 +7,7 @@ amounts are fictional; email addresses use the reserved ``.example`` domain.
 """
 
 import random
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import xlsxwriter
@@ -28,7 +28,7 @@ LAST = ["Martin", "Bernard", "Dubois", "Moreau", "Laurent", "Simon", "Michel"]
 def main() -> None:
     rng = random.Random(42)
     book = xlsxwriter.Workbook(str(OUTPUT))
-    book.set_properties({"created": datetime(2026, 10, 1, 9, 0, 0)})  # noqa: DTZ001
+    book.set_properties({"created": datetime(2026, 10, 1, 9, 0, 0, tzinfo=UTC)})
     day = book.add_format({"num_format": "yyyy-mm-dd"})
     money = book.add_format({"num_format": "0.00"})
 
