@@ -149,6 +149,8 @@ class OutputSettings(BaseModel):
 
 BinStrategy = Literal["linear", "sample_quantile"]
 BINS_MIN = 2
+# Fewest bins per column that a grid of ranks can use.
+RANK_BINS_MIN = 4
 BINS_MAX = 1_000
 
 
@@ -163,7 +165,10 @@ class PearsonSettings(BaseModel):
     at most are chosen without being asked. ``explore_min_pairs`` is the
     smallest number of rows a pair needs in the sample to be scored and
     ``min_pairs`` the smallest number a coefficient over every row needs to be
-    defined; the second is part of the key of a result.
+    defined. ``rank_bins`` is the number of bins per column of the grid the
+    Spearman coefficient is read from (0 turns it off, and the exploration stops
+    rating pairs by rank too); ``min_pairs`` and ``rank_bins`` are part of the
+    key of a result.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -174,6 +179,14 @@ class PearsonSettings(BaseModel):
     automatic_pairs: int = Field(default=8, ge=0, le=1_000)
     explore_min_pairs: int = Field(default=30, ge=4)
     min_pairs: int = Field(default=10, ge=3)
+    rank_bins: int = Field(default=64, ge=0, le=1_024)
+
+    @field_validator("rank_bins")
+    @classmethod
+    def _rank_bins_usable(cls, value: int) -> int:
+        if 0 < value < RANK_BINS_MIN:
+            raise ValueError(f"rank_bins is 0 (off) or at least {RANK_BINS_MIN}")
+        return value
 
 
 class CrosstabSettings(BaseModel):
@@ -182,9 +195,11 @@ class CrosstabSettings(BaseModel):
 
     A table has at most ``max_categories`` category rows (the most frequent
     values, the rest is ``other``) and at most ``max_classes`` class columns,
-    ``other`` included for the lengths and the prefixes; a column with more than
+    ``other`` included for the lengths, the prefixes and the values; a column with more than
     ``max_distinct`` distinct values is not a category. ``prefix_length`` is the
-    number of characters of a prefix. ``examples`` exceptions are kept per cell.
+    number of characters of a prefix. ``examples`` exceptions are kept per cell
+    and ``max_exception_cells`` cells at most are listed as exceptions (the
+    result says whether that was all of them).
     A category whose dominant class takes ``rule_purity`` percent of at least
     ``rule_support`` classified rows gives a candidate rule. The exploration
     reads the row sample, never the source: ``max_columns`` and ``max_work``
@@ -204,6 +219,7 @@ class CrosstabSettings(BaseModel):
     max_distinct: int = Field(default=100, ge=2, le=1_000)
     prefix_length: int = Field(default=2, ge=1, le=8)
     examples: int = Field(default=3, ge=0, le=10)
+    max_exception_cells: int = Field(default=20, ge=1, le=1_000)
     rule_purity: int = Field(default=90, ge=50, le=100)
     rule_support: int = Field(default=30, ge=1)
     max_columns: int = Field(default=50, ge=2, le=200)

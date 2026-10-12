@@ -2282,6 +2282,21 @@
           },
           "title": "Rules",
           "type": "array"
+        },
+        "provided_rules": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ProvidedRule"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provided Rules"
         }
       },
       "required": [
@@ -2306,7 +2321,7 @@
     },
     "CrosstabSettings": {
       "additionalProperties": false,
-      "description": "How tables of a category against a feature of another column are explored\nand computed (design 20.13, REL-01 to REL-03, REL-11 to REL-16).\n\nA table has at most ``max_categories`` category rows (the most frequent\nvalues, the rest is ``other``) and at most ``max_classes`` class columns,\n``other`` included for the lengths and the prefixes; a column with more than\n``max_distinct`` distinct values is not a category. ``prefix_length`` is the\nnumber of characters of a prefix. ``examples`` exceptions are kept per cell.\nA category whose dominant class takes ``rule_purity`` percent of at least\n``rule_support`` classified rows gives a candidate rule. The exploration\nreads the row sample, never the source: ``max_columns`` and ``max_work``\n(tables times rows coded) bound its cost, ``max_candidates`` tables at most\nare written in the plan and ``automatic_tables`` of them at most are chosen\nwithout being asked. ``explore_min_rows`` is the smallest number of rows a\ntable needs in the sample to be scored.\n\nEverything that changes a result is part of the key of that result; the\nbudgets of the exploration are not.",
+      "description": "How tables of a category against a feature of another column are explored\nand computed (design 20.13, REL-01 to REL-03, REL-11 to REL-16).\n\nA table has at most ``max_categories`` category rows (the most frequent\nvalues, the rest is ``other``) and at most ``max_classes`` class columns,\n``other`` included for the lengths, the prefixes and the values; a column with more than\n``max_distinct`` distinct values is not a category. ``prefix_length`` is the\nnumber of characters of a prefix. ``examples`` exceptions are kept per cell\nand ``max_exception_cells`` cells at most are listed as exceptions (the\nresult says whether that was all of them).\nA category whose dominant class takes ``rule_purity`` percent of at least\n``rule_support`` classified rows gives a candidate rule. The exploration\nreads the row sample, never the source: ``max_columns`` and ``max_work``\n(tables times rows coded) bound its cost, ``max_candidates`` tables at most\nare written in the plan and ``automatic_tables`` of them at most are chosen\nwithout being asked. ``explore_min_rows`` is the smallest number of rows a\ntable needs in the sample to be scored.\n\nEverything that changes a result is part of the key of that result; the\nbudgets of the exploration are not.",
       "properties": {
         "max_categories": {
           "default": 30,
@@ -2341,6 +2356,13 @@
           "maximum": 10,
           "minimum": 0,
           "title": "Examples",
+          "type": "integer"
+        },
+        "max_exception_cells": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Exception Cells",
           "type": "integer"
         },
         "rule_purity": {
@@ -4507,7 +4529,7 @@
     },
     "Exploration": {
       "additionalProperties": false,
-      "description": "What the row sample says of a pair of numeric columns (design 20.12,\nREL-05): the rows both columns have a number in (``pairs``), the\ncoefficient over them and its interval, or the ``reason`` it is not defined.\nIt is an exploration of ``scope`` rows and says nothing of the population\nbeyond them: a pair not detected here may still hold elsewhere. The figures\nare rounded to six decimals, which keeps the plan the same on any machine.\n``score`` is the lower bound of the absolute coefficient that the planner\nranks by.",
+      "description": "What the row sample says of a pair of numeric columns (design 20.12,\nREL-05): the rows both columns have a number in (``pairs``), the\ncoefficient over them and its interval, or the ``reason`` it is not defined.\nIt is an exploration of ``scope`` rows and says nothing of the population\nbeyond them: a pair not detected here may still hold elsewhere. The figures\nare rounded to six decimals, which keeps the plan the same on any machine.\n``score`` is the lower bound of the absolute coefficient that the planner\nranks by. The ``rank_*`` members are the same for the Spearman coefficient\nof the sample (design 20.22): a monotone relation that is not a line has a\nlow ``score`` and a high ``rank_score``, and the pair is rated by the larger\nof the two.",
       "properties": {
         "scope": {
           "enum": [
@@ -4580,6 +4602,54 @@
           ],
           "default": null,
           "title": "Reason"
+        },
+        "rank_coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank Coefficient"
+        },
+        "rank_lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank Lower"
+        },
+        "rank_upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank Upper"
+        },
+        "rank_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank Score"
         }
       },
       "required": [
@@ -8210,7 +8280,7 @@
     },
     "PearsonResult": {
       "additionalProperties": false,
-      "description": "Pearson correlation of two numeric columns over every row where both\nhave a number (REL-07 to REL-09). ``rows`` are the rows examined, ``pairs``\nthose that count (``pairwise_complete``) and ``excluded`` the others, so that\n``rows`` is ``pairs`` plus the three exclusions. The means and spreads are\nthose of the common rows, not the Scan's. Without ``min_pairs`` common rows,\nor when a column does not vary over them, there is no ``coefficient`` and\nthe ``reason`` says why: never 0. The counts are exact; the coefficient is\ncomputed in float64 (``precision``), from stable co-moments. It measures a\nlinear association, not a cause (REL-10). ``source`` says whether the rows\nwere read from the source or are the complete sample of the Scan.",
+      "description": "Pearson correlation of two numeric columns over every row where both\nhave a number (REL-07 to REL-09). ``rows`` are the rows examined, ``pairs``\nthose that count (``pairwise_complete``) and ``excluded`` the others, so that\n``rows`` is ``pairs`` plus the three exclusions. The means and spreads are\nthose of the common rows, not the Scan's. Without ``min_pairs`` common rows,\nor when a column does not vary over them, there is no ``coefficient`` and\nthe ``reason`` says why: never 0. The counts are exact; the coefficient is\ncomputed in float64 (``precision``), from stable co-moments. It measures a\nlinear association, not a cause (REL-10). ``slope`` and ``intercept`` are\nthe line of the second column on the first through the same co-moments\n(defined with the coefficient), ``r_squared`` the share of the variance of\nthe second column it explains, and ``rank`` the rank correlation, when asked\nfor. ``source`` says whether the rows were read from the source or are the\ncomplete sample of the Scan.",
       "properties": {
         "kind": {
           "const": "pearson",
@@ -8346,6 +8416,53 @@
           ],
           "default": null,
           "title": "Covariance"
+        },
+        "slope": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slope"
+        },
+        "intercept": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intercept"
+        },
+        "r_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R Squared"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RankEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -8361,7 +8478,7 @@
     },
     "PearsonSettings": {
       "additionalProperties": false,
-      "description": "How pairs of numeric columns are explored and which are kept (design\n20.12, REL-04 to REL-06).\n\nThe exploration reads the row sample, never the source. ``max_columns``\nand ``max_work`` (pairs times rows compared) bound its cost: the columns\nbeyond them are left out, and the plan says so. ``max_candidates`` pairs at\nmost are written in the plan, the best first; ``automatic_pairs`` of them\nat most are chosen without being asked. ``explore_min_pairs`` is the\nsmallest number of rows a pair needs in the sample to be scored and\n``min_pairs`` the smallest number a coefficient over every row needs to be\ndefined; the second is part of the key of a result.",
+      "description": "How pairs of numeric columns are explored and which are kept (design\n20.12, REL-04 to REL-06).\n\nThe exploration reads the row sample, never the source. ``max_columns``\nand ``max_work`` (pairs times rows compared) bound its cost: the columns\nbeyond them are left out, and the plan says so. ``max_candidates`` pairs at\nmost are written in the plan, the best first; ``automatic_pairs`` of them\nat most are chosen without being asked. ``explore_min_pairs`` is the\nsmallest number of rows a pair needs in the sample to be scored and\n``min_pairs`` the smallest number a coefficient over every row needs to be\ndefined. ``rank_bins`` is the number of bins per column of the grid the\nSpearman coefficient is read from (0 turns it off, and the exploration stops\nrating pairs by rank too); ``min_pairs`` and ``rank_bins`` are part of the\nkey of a result.",
       "properties": {
         "max_columns": {
           "default": 50,
@@ -8400,6 +8517,13 @@
           "default": 10,
           "minimum": 3,
           "title": "Min Pairs",
+          "type": "integer"
+        },
+        "rank_bins": {
+          "default": 64,
+          "maximum": 1024,
+          "minimum": 0,
+          "title": "Rank Bins",
           "type": "integer"
         }
       },
@@ -8721,6 +8845,97 @@
       "title": "PresentationSettings",
       "type": "object"
     },
+    "ProvidedRule": {
+      "additionalProperties": false,
+      "description": "A rule a user gave, checked against the table (design 20.22): the rows of\nthe category named ``category_label`` take the class named ``class_label``.\nUnlike a candidate rule it is not learned and needs no support: ``support``\nis the classified rows of the category, ``confidence`` the share of them in\nthe class, ``exceptions`` the others, and ``counter_examples`` the cells\nthat break it with their first rows. ``status`` is ``holds`` when no row\nbreaks it, ``violated`` otherwise, ``no_rows`` when the category has no\nclassified row and ``unknown_category`` or ``unknown_class`` when a label is\nnot on the axis of the table (``category`` and ``column`` are then absent).",
+      "properties": {
+        "provenance": {
+          "const": "provided",
+          "default": "provided",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "holds",
+            "violated",
+            "no_rows",
+            "unknown_category",
+            "unknown_class"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "category_label": {
+          "title": "Category Label",
+          "type": "string"
+        },
+        "class_label": {
+          "title": "Class Label",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "column": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Column"
+        },
+        "support": {
+          "default": 0,
+          "title": "Support",
+          "type": "integer"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "exceptions": {
+          "default": 0,
+          "title": "Exceptions",
+          "type": "integer"
+        },
+        "counter_examples": {
+          "items": {
+            "$ref": "#/$defs/ExceptionCell"
+          },
+          "title": "Counter Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "category_label",
+        "class_label"
+      ],
+      "title": "ProvidedRule",
+      "type": "object"
+    },
     "PurityFigure": {
       "additionalProperties": false,
       "description": "``dominant`` rows out of ``total``, and their share.",
@@ -8929,6 +9144,116 @@
         }
       },
       "title": "QuantitySettings",
+      "type": "object"
+    },
+    "RankEstimate": {
+      "additionalProperties": false,
+      "description": "The Spearman rank correlation of a pair, read from a grid of ``bins`` bins\nper column cut at quantiles of what the Scan kept (design 20.22): an\nestimate, with the ``lower`` and ``upper`` bounds that hold whatever order\nthe values have inside their bins. ``bins_first`` and ``bins_second`` are\nthe bins that hold a row; ``edges_first`` and ``edges_second`` say where the\nedges of each column come from (``rows``: the row sample, ``distinct``: the\ndistinct values the Scan kept, ``range``: equal widths, the Scan kept too\nlittle). Without a coefficient the ``reason`` says why: never 0.",
+      "properties": {
+        "kind": {
+          "const": "spearman_binned",
+          "default": "spearman_binned",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "estimated",
+          "default": "estimated",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "bins": {
+          "title": "Bins",
+          "type": "integer"
+        },
+        "bins_first": {
+          "title": "Bins First",
+          "type": "integer"
+        },
+        "bins_second": {
+          "title": "Bins Second",
+          "type": "integer"
+        },
+        "edges_first": {
+          "enum": [
+            "rows",
+            "distinct",
+            "range"
+          ],
+          "title": "Edges First",
+          "type": "string"
+        },
+        "edges_second": {
+          "enum": [
+            "rows",
+            "distinct",
+            "range"
+          ],
+          "title": "Edges Second",
+          "type": "string"
+        },
+        "defined": {
+          "title": "Defined",
+          "type": "boolean"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coefficient"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "bins",
+        "bins_first",
+        "bins_second",
+        "edges_first",
+        "edges_second",
+        "defined"
+      ],
+      "title": "RankEstimate",
       "type": "object"
     },
     "RareMarkers": {
@@ -9231,6 +9556,11 @@
           ],
           "default": null,
           "title": "Feature"
+        },
+        "rules": {
+          "default": 0,
+          "title": "Rules",
+          "type": "integer"
         },
         "candidates": {
           "title": "Candidates",
@@ -11201,7 +11531,7 @@
     },
     "TableExceptions": {
       "additionalProperties": false,
-      "description": "The rows outside the dominant class of their category (REL-15): ``count``\nof them in ``cells`` cells, the ``listed`` largest with their examples.",
+      "description": "The rows outside the dominant class of their category (REL-15): ``count``\nof them in ``cells`` cells, the ``listed`` largest with their examples.\n``complete`` says that every cell is listed; otherwise the list stops at the\nbound of the settings (``max_exception_cells``) and ``cells`` tells how many\nthere are.",
       "properties": {
         "count": {
           "title": "Count",
@@ -11210,6 +11540,11 @@
         "cells": {
           "title": "Cells",
           "type": "integer"
+        },
+        "complete": {
+          "default": true,
+          "title": "Complete",
+          "type": "boolean"
         },
         "listed": {
           "items": {
@@ -11359,7 +11694,8 @@
           "enum": [
             "pattern",
             "length",
-            "prefix"
+            "prefix",
+            "value"
           ],
           "title": "Kind",
           "type": "string"

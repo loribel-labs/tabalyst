@@ -229,6 +229,16 @@ def _check_requests(
                 raise ConfigurationError(f"{request.analyzer!r} does not take a feature.")
             if request.feature not in FEATURES:
                 raise ConfigurationError(f"Unknown feature {request.feature!r}.")
+        if request.rules:
+            if not (pairs and getattr(registry[request.analyzer], "features", False)):
+                raise ConfigurationError(f"{request.analyzer!r} does not take rules.")
+            if request.field is None or request.partner is None or request.feature is None:
+                raise ConfigurationError("Rules need the category, the column and the feature.")
+            for rule in request.rules:
+                if len(rule) != 2 or not all(isinstance(label, str) and label for label in rule):
+                    raise ConfigurationError(
+                        "A rule is a category label and a class label, both given."
+                    )
         if request.partner is not None:
             if not pairs:
                 raise ConfigurationError(f"{request.analyzer!r} does not analyze pairs of fields.")
@@ -566,6 +576,7 @@ def plan_analyses(
                     field=request.field,
                     partner=request.partner,
                     feature=request.feature,
+                    rules=len(request.rules),
                     candidates=matched[index],
                 )
                 for index, request in enumerate(requests)

@@ -588,6 +588,34 @@ class PearsonExclusions(ScanModel):
     both_missing: int
 
 
+class RankEstimate(ScanModel):
+    """The Spearman rank correlation of a pair, read from a grid of ``bins`` bins
+    per column cut at quantiles of what the Scan kept (design 20.22): an
+    estimate, with the ``lower`` and ``upper`` bounds that hold whatever order
+    the values have inside their bins. ``bins_first`` and ``bins_second`` are
+    the bins that hold a row; ``edges_first`` and ``edges_second`` say where the
+    edges of each column come from (``rows``: the row sample, ``distinct``: the
+    distinct values the Scan kept, ``range``: equal widths, the Scan kept too
+    little). Without a coefficient the ``reason`` says why: never 0."""
+
+    kind: Literal["spearman_binned"] = "spearman_binned"
+    accuracy: Literal["estimated"] = "estimated"
+    bins: int
+    bins_first: int
+    bins_second: int
+    edges_first: Literal["rows", "distinct", "range"]
+    edges_second: Literal["rows", "distinct", "range"]
+    defined: bool
+    coefficient: float | None = None
+    lower: float | None = None
+    upper: float | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("coefficient", "lower", "upper", "reason"))
+
+
 class PearsonResult(ScanModel):
     """Pearson correlation of two numeric columns over every row where both
     have a number (REL-07 to REL-09). ``rows`` are the rows examined, ``pairs``
@@ -597,8 +625,12 @@ class PearsonResult(ScanModel):
     or when a column does not vary over them, there is no ``coefficient`` and
     the ``reason`` says why: never 0. The counts are exact; the coefficient is
     computed in float64 (``precision``), from stable co-moments. It measures a
-    linear association, not a cause (REL-10). ``source`` says whether the rows
-    were read from the source or are the complete sample of the Scan."""
+    linear association, not a cause (REL-10). ``slope`` and ``intercept`` are
+    the line of the second column on the first through the same co-moments
+    (defined with the coefficient), ``r_squared`` the share of the variance of
+    the second column it explains, and ``rank`` the rank correlation, when asked
+    for. ``source`` says whether the rows were read from the source or are the
+    complete sample of the Scan."""
 
     kind: Literal["pearson"] = "pearson"
     accuracy: Literal["exact_counts"] = "exact_counts"
@@ -617,6 +649,10 @@ class PearsonResult(ScanModel):
     std_first: float | None = None
     std_second: float | None = None
     covariance: float | None = None
+    slope: float | None = None
+    intercept: float | None = None
+    r_squared: float | None = None
+    rank: RankEstimate | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
@@ -630,6 +666,10 @@ class PearsonResult(ScanModel):
                 "std_first",
                 "std_second",
                 "covariance",
+                "slope",
+                "intercept",
+                "r_squared",
+                "rank",
             ),
         )
 
@@ -664,7 +704,7 @@ class TableFeature(ScanModel):
     """The feature of the second column that makes the classes (REL-01):
     ``prefix_length`` is the number of characters of a prefix."""
 
-    kind: Literal["pattern", "length", "prefix"]
+    kind: Literal["pattern", "length", "prefix", "value"]
     version: int
     prefix_length: int | None = None
 
@@ -784,10 +824,14 @@ class ExceptionCell(ScanModel):
 
 class TableExceptions(ScanModel):
     """The rows outside the dominant class of their category (REL-15): ``count``
-    of them in ``cells`` cells, the ``listed`` largest with their examples."""
+    of them in ``cells`` cells, the ``listed`` largest with their examples.
+    ``complete`` says that every cell is listed; otherwise the list stops at the
+    bound of the settings (``max_exception_cells``) and ``cells`` tells how many
+    there are."""
 
     count: int
     cells: int
+    complete: bool = True
     listed: list[ExceptionCell]
 
 
@@ -804,6 +848,33 @@ class CandidateRule(ScanModel):
     support: int
     confidence: float
     exceptions: int
+
+
+class ProvidedRule(ScanModel):
+    """A rule a user gave, checked against the table (design 20.22): the rows of
+    the category named ``category_label`` take the class named ``class_label``.
+    Unlike a candidate rule it is not learned and needs no support: ``support``
+    is the classified rows of the category, ``confidence`` the share of them in
+    the class, ``exceptions`` the others, and ``counter_examples`` the cells
+    that break it with their first rows. ``status`` is ``holds`` when no row
+    breaks it, ``violated`` otherwise, ``no_rows`` when the category has no
+    classified row and ``unknown_category`` or ``unknown_class`` when a label is
+    not on the axis of the table (``category`` and ``column`` are then absent)."""
+
+    provenance: Literal["provided"] = "provided"
+    status: Literal["holds", "violated", "no_rows", "unknown_category", "unknown_class"]
+    category_label: str
+    class_label: str
+    category: int | None = None
+    column: int | None = None
+    support: int = 0
+    confidence: float | None = None
+    exceptions: int = 0
+    counter_examples: list[ExceptionCell] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("category", "column", "confidence"))
 
 
 class CrosstabResult(ScanModel):
@@ -833,6 +904,11 @@ class CrosstabResult(ScanModel):
     association: TableAssociation
     exceptions: TableExceptions
     rules: list[CandidateRule]
+    provided_rules: list[ProvidedRule] | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("provided_rules",))
 
 
 AnalysisOutput = Annotated[

@@ -239,7 +239,7 @@ def test_a_table_the_exploration_did_not_list_can_be_asked_for(tmp_path):
     assert table.exploration is not None and table.exploration.scope == "interior_rows"
 
 
-def test_a_request_without_feature_asks_for_the_three_features(tmp_path):
+def test_a_request_without_feature_asks_for_every_feature(tmp_path):
     plan = plan_analyses(
         _csv(tmp_path),
         requests=[AnalysisRequest("category_crosstab", field="branch", partner="client")],
@@ -247,13 +247,16 @@ def test_a_request_without_feature_asks_for_the_three_features(tmp_path):
         registry=default_registry().runnable(),
     )
 
-    assert sorted(c.parameters["feature"] for c in requested_tables(plan)) == [
+    selected = [c for c in requested_tables(plan) if c.selection.state == "selected"]
+    assert sorted(c.parameters["feature"] for c in selected) == [
         "length",
         "pattern",
         "prefix",
     ]
-    assert all(c.selection.state == "selected" for c in requested_tables(plan))
-    assert plan.objective.requested[0].candidates == 3
+    # The clients are almost all different: they offer no value for a category.
+    [value] = [c for c in requested_tables(plan) if c.selection not in [s.selection for s in selected]]
+    assert value.applicability.state == "not_applicable"
+    assert plan.objective.requested[0].candidates == 4
 
 
 def test_a_table_is_directed_from_the_category_to_the_column(tmp_path):

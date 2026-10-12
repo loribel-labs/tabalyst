@@ -89,4 +89,6 @@ is at [revision 2](../scan/deep-format.md#changelog): it may hold the numbers of
 amounts, percentages and quantities with a unit (the result `measures`), which
 the Second pass section summarizes in one line, the values that patterns and
 detectors leave out (`residual_values`) and the repeated values of identifiers
-and keys (`duplicates`, `duplicates_limited`).
+and keys (`duplicates`, `duplicates_limited`), the line and the rank correlation of a
+pair (`slope`, `intercept`, `rank`), and the tables of a category against the values
+of another column with the rules you gave (`provided_rules`).

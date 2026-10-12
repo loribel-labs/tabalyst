@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-12T01:40:53.461887Z",
-    "duration_seconds": 0.293008,
+    "started_at": "2026-10-11T23:28:12.163872Z",
+    "duration_seconds": 0.269915,
     "timings": {
-      "reading": 0.01036,
-      "analysis": 0.022518,
-      "finalize": 0.248737,
-      "derived": 0.010941,
-      "other": 0.00045
+      "reading": 0.008521,
+      "analysis": 0.022095,
+      "finalize": 0.229328,
+      "derived": 0.00944,
+      "other": 0.00053
     },
     "workers": 1,
-    "peak_memory_bytes": 80117760
+    "peak_memory_bytes": 79925248
   },
   "source": {
     "format": "csv",
@@ -46141,7 +46141,8 @@
           "max_candidates": 20,
           "automatic_pairs": 8,
           "explore_min_pairs": 30,
-          "min_pairs": 10
+          "min_pairs": 10,
+          "rank_bins": 64
         },
         "crosstab": {
           "max_categories": 30,
@@ -46149,6 +46150,7 @@
           "max_distinct": 100,
           "prefix_length": 2,
           "examples": 3,
+          "max_exception_cells": 20,
           "rule_purity": 90,
           "rule_support": 30,
           "max_columns": 50,
@@ -46174,13 +46176,13 @@
           "records": false
         }
       },
-      "settings_sha256": "253da5d48de90acb6de7c4231723545e5a2216062e82b98d82d9ae8daeeb16fa",
+      "settings_sha256": "7a4842b52162eb3e7078c59b2465e3f32f0edad3dfe9bb13b6e05c596b76ae57",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 8,
-        "plan_id": "f0bf5147a60a96f73171196046168969db6cbc0c6ebb2bfdb489a5b886a87032",
+        "plan_id": "4a4b25fbc8d72d40c4dda7df8503687e8ccbe95ff93556242ebe0bee9b415b3f",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -46210,15 +46212,15 @@
         },
         "summary": {
           "candidates": 169,
-          "selected": 63,
+          "selected": 64,
           "already_satisfied": 70,
-          "rejected": 36,
+          "rejected": 35,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 32529577,
-            "expected": 37167428,
-            "max": 54253696
+            "min": 32776269,
+            "expected": 37438420,
+            "max": 54557088
           },
           "beyond_automatic": []
         },
@@ -46257,18 +46259,19 @@
                 "few_prefixes": 2,
                 "no_pattern": 4,
                 "not_text": 8,
-                "sensitive_exposure": 2
+                "sensitive_exposure": 2,
+                "too_many_categories": 9
               },
-              "possible": 892,
-              "evaluated": 892,
-              "undefined": 101,
+              "possible": 997,
+              "evaluated": 997,
+              "undefined": 103,
               "undefined_reasons": {
-                "single_category": 3,
+                "single_category": 4,
                 "single_class": 93,
-                "too_few_rows": 5
+                "too_few_rows": 6
               },
               "listed": 20,
-              "work": 802800,
+              "work": 897300,
               "cells": 372
             }
           ]
@@ -46446,7 +46449,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 17,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -46522,7 +46525,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 18,
+              "priority": 19,
               "satisfied_by": null
             },
             "execution": {
@@ -46777,7 +46780,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 19,
+              "priority": 20,
               "satisfied_by": null
             },
             "execution": {
@@ -46888,7 +46891,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 20,
+              "priority": 21,
               "satisfied_by": null
             },
             "execution": {
@@ -46964,7 +46967,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 21,
+              "priority": 22,
               "satisfied_by": null
             },
             "execution": {
@@ -47653,7 +47656,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 22,
+              "priority": 23,
               "satisfied_by": null
             },
             "execution": {
@@ -47729,7 +47732,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 23,
+              "priority": 24,
               "satisfied_by": null
             },
             "execution": {
@@ -47841,7 +47844,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 46,
+              "priority": 47,
               "satisfied_by": null
             },
             "execution": {
@@ -47918,7 +47921,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 45,
+              "priority": 46,
               "satisfied_by": null
             },
             "execution": {
@@ -47995,7 +47998,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 47,
+              "priority": 48,
               "satisfied_by": null
             },
             "execution": {
@@ -48072,7 +48075,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 48,
+              "priority": 49,
               "satisfied_by": null
             },
             "execution": {
@@ -50095,7 +50098,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 25,
+              "priority": 26,
               "satisfied_by": null
             },
             "execution": {
@@ -50162,7 +50165,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 35,
+              "priority": 36,
               "satisfied_by": null
             },
             "execution": {
@@ -50266,7 +50269,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 40,
+              "priority": 41,
               "satisfied_by": null
             },
             "execution": {
@@ -50334,7 +50337,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 41,
+              "priority": 42,
               "satisfied_by": null
             },
             "execution": {
@@ -50401,7 +50404,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 26,
+              "priority": 27,
               "satisfied_by": null
             },
             "execution": {
@@ -50468,7 +50471,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 27,
+              "priority": 28,
               "satisfied_by": null
             },
             "execution": {
@@ -50535,7 +50538,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 36,
+              "priority": 37,
               "satisfied_by": null
             },
             "execution": {
@@ -50603,7 +50606,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 42,
+              "priority": 43,
               "satisfied_by": null
             },
             "execution": {
@@ -50670,7 +50673,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 28,
+              "priority": 29,
               "satisfied_by": null
             },
             "execution": {
@@ -50738,7 +50741,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 43,
+              "priority": 44,
               "satisfied_by": null
             },
             "execution": {
@@ -50805,7 +50808,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 31,
+              "priority": 32,
               "satisfied_by": null
             },
             "execution": {
@@ -50872,7 +50875,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 37,
+              "priority": 38,
               "satisfied_by": null
             },
             "execution": {
@@ -50939,7 +50942,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 39,
+              "priority": 40,
               "satisfied_by": null
             },
             "execution": {
@@ -51114,7 +51117,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 24,
+              "priority": 25,
               "satisfied_by": null
             },
             "execution": {
@@ -51181,7 +51184,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 32,
+              "priority": 33,
               "satisfied_by": null
             },
             "execution": {
@@ -51248,7 +51251,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 33,
+              "priority": 34,
               "satisfied_by": null
             },
             "execution": {
@@ -51315,7 +51318,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 34,
+              "priority": 35,
               "satisfied_by": null
             },
             "execution": {
@@ -51382,7 +51385,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 38,
+              "priority": 39,
               "satisfied_by": null
             },
             "execution": {
@@ -51449,7 +51452,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 29,
+              "priority": 30,
               "satisfied_by": null
             },
             "execution": {
@@ -51516,7 +51519,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 30,
+              "priority": 31,
               "satisfied_by": null
             },
             "execution": {
@@ -51624,7 +51627,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 53,
+              "priority": 54,
               "satisfied_by": null
             },
             "execution": {
@@ -51699,7 +51702,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 49,
+              "priority": 50,
               "satisfied_by": null
             },
             "execution": {
@@ -51774,7 +51777,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 52,
+              "priority": 53,
               "satisfied_by": null
             },
             "execution": {
@@ -51849,7 +51852,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 50,
+              "priority": 51,
               "satisfied_by": null
             },
             "execution": {
@@ -51924,7 +51927,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 44,
+              "priority": 45,
               "satisfied_by": null
             },
             "execution": {
@@ -52003,7 +52006,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 54,
+              "priority": 55,
               "satisfied_by": null
             },
             "execution": {
@@ -52082,7 +52085,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -52161,7 +52164,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 14,
               "satisfied_by": null
             },
             "execution": {
@@ -52248,7 +52251,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 62,
+              "priority": 63,
               "satisfied_by": null
             },
             "execution": {
@@ -52327,7 +52330,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -52406,7 +52409,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 16,
               "satisfied_by": null
             },
             "execution": {
@@ -52486,7 +52489,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -52581,7 +52584,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 63,
+              "priority": 64,
               "satisfied_by": null
             },
             "execution": {
@@ -52696,7 +52699,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 55,
+              "priority": 56,
               "satisfied_by": null
             },
             "execution": {
@@ -52783,7 +52786,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 60,
+              "priority": 61,
               "satisfied_by": null
             },
             "execution": {
@@ -52870,7 +52873,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 51,
+              "priority": 52,
               "satisfied_by": null
             },
             "execution": {
@@ -52950,7 +52953,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -53030,7 +53033,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -53117,7 +53120,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 61,
+              "priority": 62,
               "satisfied_by": null
             },
             "execution": {
@@ -53204,7 +53207,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 59,
+              "priority": 60,
               "satisfied_by": null
             },
             "execution": {
@@ -53291,7 +53294,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 16,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -53371,7 +53374,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -53449,7 +53452,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 56,
+              "priority": 57,
               "satisfied_by": null
             },
             "execution": {
@@ -53527,7 +53530,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 57,
+              "priority": 58,
               "satisfied_by": null
             },
             "execution": {
@@ -53641,7 +53644,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 58,
+              "priority": 59,
               "satisfied_by": null
             },
             "execution": {
@@ -53655,34 +53658,37 @@
           {
             "id": "pearson_correlation:rows:column_26+column_33",
             "analyzer": "pearson_correlation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_26",
             "display": "prime_annuelle and montant_reclamation",
             "method": "pairwise_complete",
             "parameters": {
-              "min_pairs": 10
+              "min_pairs": 10,
+              "rank_bins": 64
             },
             "outputs": [
               "correlation",
               "common_rows",
-              "exclusions"
+              "exclusions",
+              "regression_line",
+              "rank_correlation"
             ],
             "applicability": {
               "state": "applicable",
               "reasons": []
             },
             "utility": {
-              "score": 4,
+              "score": 8,
               "reasons": [
                 "exploratory_correlation"
               ]
             },
             "costs": {
               "memory": {
-                "min": 263680,
-                "expected": 391680,
-                "max": 775680
+                "min": 304640,
+                "expected": 473600,
+                "max": 939520
               },
               "cpu": "moderate",
               "cell_ns": 1500,
@@ -53701,6 +53707,14 @@
                     "min": 1024,
                     "expected": 1024,
                     "max": 1024
+                  }
+                },
+                {
+                  "key": "rank_grid:datasets/rows/fields/column_26+column_33",
+                  "memory": {
+                    "min": 40960,
+                    "expected": 81920,
+                    "max": 163840
                   }
                 },
                 {
@@ -53758,7 +53772,11 @@
               "coefficient": 0.248769,
               "lower": 0.040225,
               "upper": 0.436545,
-              "score": 0.040225
+              "score": 0.040225,
+              "rank_coefficient": 0.291135,
+              "rank_lower": 0.081288,
+              "rank_upper": 0.476266,
+              "rank_score": 0.081288
             }
           },
           {
@@ -53773,6 +53791,7 @@
               "feature": "pattern",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30
             },
@@ -53907,6 +53926,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -54043,6 +54063,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -54168,6 +54189,142 @@
             }
           },
           {
+            "id": "category_crosstab:rows:column_3>column_7:value",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "civilite and sexe (value)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "value",
+              "max_categories": 30,
+              "examples": 3,
+              "max_exception_cells": 20,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 100,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_3>column_7:value",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_3>column_7:value",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_7:value",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_7:value",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "redundant_feature",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_7",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 2,
+              "purity": 1.0,
+              "cramers_v": 1.0,
+              "score": 1.0,
+              "stable": true
+            }
+          },
+          {
             "id": "category_crosstab:rows:column_7>column_3:length",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
@@ -54179,6 +54336,7 @@
               "feature": "length",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12
@@ -54314,6 +54472,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -54450,6 +54609,7 @@
               "feature": "pattern",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30
             },
@@ -54573,6 +54733,142 @@
             }
           },
           {
+            "id": "category_crosstab:rows:column_8>column_12:value",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and orientation (value)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "value",
+              "max_categories": 30,
+              "examples": 3,
+              "max_exception_cells": 20,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 99,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_12:value",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_12:value",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_12:value",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_12:value",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_12",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 5,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_12",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 239,
+              "categories": 2,
+              "classes": 8,
+              "purity": 0.322176,
+              "cramers_v": 1.0,
+              "score": 0.987261,
+              "stable": true
+            }
+          },
+          {
             "id": "category_crosstab:rows:column_12>column_8:prefix",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
@@ -54584,6 +54880,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -54686,7 +54983,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -54720,6 +55017,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -54822,7 +55120,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -54845,6 +55143,278 @@
             }
           },
           {
+            "id": "category_crosstab:rows:column_8>column_10:value",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and type_voie (value)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "value",
+              "max_categories": 30,
+              "examples": 3,
+              "max_exception_cells": 20,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 83,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 480210,
+                "expected": 620360,
+                "max": 1020560
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_8>column_10:value",
+                  "memory": {
+                    "min": 4050,
+                    "expected": 16200,
+                    "max": 32400
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_10:value",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_10:value",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_10:value",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_10",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "redundant_feature",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_10",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 2,
+              "classes": 12,
+              "purity": 0.273333,
+              "cramers_v": 0.839447,
+              "score": 0.83259,
+              "stable": true
+            }
+          },
+          {
+            "id": "category_crosstab:rows:column_1>column_29:value",
+            "analyzer": "category_crosstab",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale and agence_code (value)",
+            "method": "contingency_table",
+            "parameters": {
+              "feature": "value",
+              "max_categories": 30,
+              "examples": 3,
+              "max_exception_cells": 20,
+              "rule_purity": 90,
+              "rule_support": 30,
+              "max_classes": 12
+            },
+            "outputs": [
+              "contingency_table",
+              "conditional_coverage",
+              "purity",
+              "association",
+              "exceptions",
+              "candidate_rules"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 81,
+              "reasons": [
+                "exploratory_association"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 481560,
+                "expected": 625760,
+                "max": 1031360
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "crosstab:datasets/rows/fields/column_1>column_29:value",
+                  "memory": {
+                    "min": 5400,
+                    "expected": 21600,
+                    "max": 43200
+                  }
+                },
+                {
+                  "key": "result:category_crosstab:datasets/rows/fields/column_1>column_29:value",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_29:value",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_29:value",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 8,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_29",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 3,
+              "classes": 12,
+              "purity": 0.344444,
+              "cramers_v": 0.814643,
+              "score": 0.807998,
+              "stable": true
+            }
+          },
+          {
             "id": "category_crosstab:rows:column_8>column_11:length",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
@@ -54856,6 +55426,7 @@
               "feature": "length",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12
@@ -54991,6 +55562,7 @@
               "feature": "pattern",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30
             },
@@ -55088,10 +55660,10 @@
               ]
             },
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "tables_budget",
               "requested": false,
-              "priority": 7,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -55125,6 +55697,7 @@
               "feature": "pattern",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30
             },
@@ -55259,6 +55832,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -55395,6 +55969,7 @@
               "feature": "length",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12
@@ -55494,7 +56069,7 @@
             },
             "selection": {
               "state": "rejected",
-              "reason": "low_utility",
+              "reason": "redundant_feature",
               "requested": false,
               "priority": null,
               "satisfied_by": null
@@ -55530,6 +56105,7 @@
               "feature": "pattern",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30
             },
@@ -55664,6 +56240,7 @@
               "feature": "length",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12
@@ -55799,6 +56376,7 @@
               "feature": "prefix",
               "max_categories": 30,
               "examples": 3,
+              "max_exception_cells": 20,
               "rule_purity": 90,
               "rule_support": 30,
               "max_classes": 12,
@@ -55922,566 +56500,25 @@
               "score": 0.347655,
               "stable": true
             }
-          },
-          {
-            "id": "category_crosstab:rows:column_8>column_1:length",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_8",
-            "display": "langue_preferee and filiale (length)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "length",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 35,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 480210,
-                "expected": 620360,
-                "max": 1020560
-              },
-              "cpu": "low",
-              "cell_ns": 500,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_1:length",
-                  "memory": {
-                    "min": 4050,
-                    "expected": 16200,
-                    "max": 32400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_1:length",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_1:length",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_1:length",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_1",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 2,
-              "classes": 3,
-              "purity": 0.721111,
-              "cramers_v": 0.350649,
-              "score": 0.347655,
-              "stable": true
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_8>column_1:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_8",
-            "display": "langue_preferee and filiale (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 35,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 480210,
-                "expected": 620360,
-                "max": 1020560
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_1:prefix",
-                  "memory": {
-                    "min": 4050,
-                    "expected": 16200,
-                    "max": 32400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_1:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_1:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_1:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_1",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_1",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 2,
-              "classes": 3,
-              "purity": 0.721111,
-              "cramers_v": 0.350649,
-              "score": 0.347655,
-              "stable": true
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_8>column_2:pattern",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_8",
-            "display": "langue_preferee and id_client (pattern)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "pattern",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 35,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 477510,
-                "expected": 609560,
-                "max": 998960
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_2:pattern",
-                  "memory": {
-                    "min": 1350,
-                    "expected": 5400,
-                    "max": 10800
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_2:pattern",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_2:pattern",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_2:pattern",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_2",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 2,
-              "classes": 3,
-              "purity": 0.721111,
-              "cramers_v": 0.350649,
-              "score": 0.347655,
-              "stable": true
-            }
-          },
-          {
-            "id": "category_crosstab:rows:column_8>column_2:prefix",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "rows",
-            "field": "column_8",
-            "display": "langue_preferee and id_client (prefix)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "prefix",
-              "max_categories": 30,
-              "examples": 3,
-              "rule_purity": 90,
-              "rule_support": 30,
-              "max_classes": 12,
-              "prefix_length": 2
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 35,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 480210,
-                "expected": 620360,
-                "max": 1020560
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "crosstab:datasets/rows/fields/column_8>column_2:prefix",
-                  "memory": {
-                    "min": 4050,
-                    "expected": 16200,
-                    "max": 32400
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/rows/fields/column_8>column_2:prefix",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_8:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_8",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/rows/fields/column_2:prefix",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/rows/fields/column_2:prefix",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/rows/fields/column_2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "column_2",
-            "exploration": {
-              "scope": "interior_rows",
-              "rows": 900,
-              "categories": 2,
-              "classes": 3,
-              "purity": 0.721111,
-              "cramers_v": 0.350649,
-              "score": 0.347655,
-              "stable": true
-            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T01:40:54.042368Z",
-        "duration_seconds": 0.165479,
+        "started_at": "2026-10-12T02:14:13.591029Z",
+        "duration_seconds": 0.122112,
         "timings": {
-          "reading": 0.009223,
-          "analysis": 0.134517,
-          "other": 0.021739
+          "reading": 0.008445,
+          "analysis": 0.101289,
+          "other": 0.012378
         },
         "workers": 1,
-        "peak_memory_bytes": 104554496,
+        "peak_memory_bytes": 94277632,
         "source_read": true,
         "source_verified": true,
         "records_read": 3000,
-        "cells_read": 87000,
-        "executed": 63,
-        "reused": 0,
+        "cells_read": 78000,
+        "executed": 28,
+        "reused": 36,
         "skipped": 0
       },
       "analyses": [
@@ -86594,11 +86631,12 @@
             "feature": "pattern",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30
           },
           "domain": "mixed",
-          "key": "6fe9bf0e85de4f3a0f5acf579f69927b0f5a5e41eb596fdfe559299b5b517f7e",
+          "key": "046f1bc73f85e4057d94db1482300bf2cfa2285aec43060ab1ef5145cec3e957",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -86781,6 +86819,7 @@
             "exceptions": {
               "count": 0,
               "cells": 0,
+              "complete": true,
               "listed": []
             },
             "rules": [
@@ -86827,13 +86866,14 @@
             "feature": "prefix",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30,
             "max_classes": 12,
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "0dad2d90d7a8c5810b31535dd20f1177c82dc7ded09fe067868d0c913f7e7529",
+          "key": "b097a18aa22335d04fed6275a155762af448c1f9bb170a97671e6c48307adb65",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -86985,6 +87025,7 @@
             "exceptions": {
               "count": 0,
               "cells": 0,
+              "complete": true,
               "listed": []
             },
             "rules": [
@@ -87022,12 +87063,13 @@
             "feature": "length",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30,
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "a779294f11ef140e0bd437afb4b0df9f37ba4ff27d4c76c2dc01fb779fec22f7",
+          "key": "162fd780bc4a23d34b26426c304aec52bc4c13524e9c49786ad07aa00982867c",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -87178,6 +87220,7 @@
             "exceptions": {
               "count": 0,
               "cells": 0,
+              "complete": true,
               "listed": []
             },
             "rules": [
@@ -87215,11 +87258,12 @@
             "feature": "pattern",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30
           },
           "domain": "mixed",
-          "key": "eed9296ce3612901d76e720eff9f3b7ccbafd139d59ba8eb7e44fe6a2a61c545",
+          "key": "67ff7b23195f37bea240109cff15c5d5aefde225bb5327b0c3163f2f3493187f",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -87424,6 +87468,7 @@
             "exceptions": {
               "count": 770,
               "cells": 8,
+              "complete": true,
               "listed": [
                 {
                   "category": 0,
@@ -87593,6 +87638,351 @@
           }
         },
         {
+          "id": "category_crosstab:rows:column_8>column_12:value",
+          "analyzer": "category_crosstab",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_8",
+          "partner": "column_12",
+          "display": "langue_preferee and orientation (value)",
+          "method": "contingency_table",
+          "parameters": {
+            "feature": "value",
+            "max_categories": 30,
+            "examples": 3,
+            "max_exception_cells": 20,
+            "rule_purity": 90,
+            "rule_support": 30,
+            "max_classes": 12
+          },
+          "domain": "mixed",
+          "key": "a02d6d31af125bfa6fb0db4048a1409418e4de6af982348c5e4cdcbe6a693ed9",
+          "status": "complete",
+          "result": {
+            "kind": "crosstab",
+            "accuracy": "exact_counts",
+            "precision": "float64",
+            "source": "source",
+            "feature": {
+              "kind": "value",
+              "version": 1
+            },
+            "categories": {
+              "field": "column_8",
+              "display": "langue_preferee",
+              "domain": "analytical",
+              "classes": [
+                {
+                  "id": "c1",
+                  "label": "fr",
+                  "kind": "value"
+                },
+                {
+                  "id": "c2",
+                  "label": "en",
+                  "kind": "value"
+                },
+                {
+                  "id": "other",
+                  "label": "other",
+                  "kind": "other"
+                }
+              ]
+            },
+            "classes": {
+              "field": "column_12",
+              "display": "orientation",
+              "domain": "analytical",
+              "classes": [
+                {
+                  "id": "c1",
+                  "label": "Ouest",
+                  "kind": "value"
+                },
+                {
+                  "id": "c2",
+                  "label": "Nord",
+                  "kind": "value"
+                },
+                {
+                  "id": "c3",
+                  "label": "Sud",
+                  "kind": "value"
+                },
+                {
+                  "id": "c4",
+                  "label": "Est",
+                  "kind": "value"
+                },
+                {
+                  "id": "c5",
+                  "label": "West",
+                  "kind": "value"
+                },
+                {
+                  "id": "c6",
+                  "label": "North",
+                  "kind": "value"
+                },
+                {
+                  "id": "c7",
+                  "label": "South",
+                  "kind": "value"
+                },
+                {
+                  "id": "c8",
+                  "label": "East",
+                  "kind": "value"
+                },
+                {
+                  "id": "other",
+                  "label": "other",
+                  "kind": "other"
+                }
+              ]
+            },
+            "rows": 3000,
+            "counted": 720,
+            "excluded": {
+              "category_missing": 0,
+              "feature_missing": 2280,
+              "both_missing": 0,
+              "unclassified": 0
+            },
+            "counts": [
+              [
+                141,
+                139,
+                130,
+                108,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                61,
+                54,
+                48,
+                39,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "row_totals": [
+              518,
+              202,
+              0
+            ],
+            "column_totals": [
+              141,
+              139,
+              130,
+              108,
+              61,
+              54,
+              48,
+              39,
+              0
+            ],
+            "by_category": [
+              {
+                "rows": 2101,
+                "classified": 518,
+                "feature_missing": 1583,
+                "unclassified": 0,
+                "coverage": 0.24654926225606855,
+                "dominant": 0,
+                "dominant_count": 141,
+                "purity": 0.2722007722007722,
+                "exceptions": 377
+              },
+              {
+                "rows": 899,
+                "classified": 202,
+                "feature_missing": 697,
+                "unclassified": 0,
+                "coverage": 0.22469410456062291,
+                "dominant": 4,
+                "dominant_count": 61,
+                "purity": 0.30198019801980197,
+                "exceptions": 141
+              },
+              {
+                "rows": 0,
+                "classified": 0,
+                "feature_missing": 0,
+                "unclassified": 0,
+                "dominant_count": 0,
+                "exceptions": 0
+              }
+            ],
+            "purity": {
+              "forward": {
+                "dominant": 202,
+                "total": 720,
+                "value": 0.28055555555555556
+              },
+              "reverse": {
+                "dominant": 720,
+                "total": 720,
+                "value": 1.0
+              },
+              "baseline": 0.19583333333333333
+            },
+            "association": {
+              "defined": true,
+              "n": 720,
+              "effective_categories": 2,
+              "effective_classes": 8,
+              "chi_square": 720.0,
+              "degrees": 7,
+              "cramers_v": 1.0,
+              "corrected": 0.9958129613732677,
+              "low_share": 0.0,
+              "stable": true,
+              "sparse": 0
+            },
+            "exceptions": {
+              "count": 518,
+              "cells": 6,
+              "complete": true,
+              "listed": [
+                {
+                  "category": 0,
+                  "column": 1,
+                  "count": 139,
+                  "examples": [
+                    {
+                      "record": 13,
+                      "value": "Nord"
+                    },
+                    {
+                      "record": 27,
+                      "value": "Nord"
+                    },
+                    {
+                      "record": 35,
+                      "value": "Nord"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 2,
+                  "count": 130,
+                  "examples": [
+                    {
+                      "record": 63,
+                      "value": "Sud"
+                    },
+                    {
+                      "record": 76,
+                      "value": "Sud"
+                    },
+                    {
+                      "record": 98,
+                      "value": "Sud"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 3,
+                  "count": 108,
+                  "examples": [
+                    {
+                      "record": 44,
+                      "value": "Est"
+                    },
+                    {
+                      "record": 100,
+                      "value": "Est"
+                    },
+                    {
+                      "record": 101,
+                      "value": "Est"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 5,
+                  "count": 54,
+                  "examples": [
+                    {
+                      "record": 61,
+                      "value": "North"
+                    },
+                    {
+                      "record": 123,
+                      "value": "North"
+                    },
+                    {
+                      "record": 149,
+                      "value": "North"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 6,
+                  "count": 48,
+                  "examples": [
+                    {
+                      "record": 60,
+                      "value": "South"
+                    },
+                    {
+                      "record": 155,
+                      "value": "South"
+                    },
+                    {
+                      "record": 190,
+                      "value": "South"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 7,
+                  "count": 39,
+                  "examples": [
+                    {
+                      "record": 97,
+                      "value": "East"
+                    },
+                    {
+                      "record": 125,
+                      "value": "East"
+                    },
+                    {
+                      "record": 323,
+                      "value": "East"
+                    }
+                  ]
+                }
+              ]
+            },
+            "rules": []
+          }
+        },
+        {
           "id": "category_crosstab:rows:column_12>column_8:prefix",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
@@ -87605,13 +87995,14 @@
             "feature": "prefix",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30,
             "max_classes": 12,
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "5c1897cd0b511515cf3cc800c3d874c7ceb6f018678912639af8f27456952cd0",
+          "key": "9933d1120e9721466b7bdf4e93da5bf4a67e2746b78ae4806fc41eab681cb7b0",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -87895,6 +88286,7 @@
             "exceptions": {
               "count": 0,
               "cells": 0,
+              "complete": true,
               "listed": []
             },
             "rules": [
@@ -87986,13 +88378,14 @@
             "feature": "prefix",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
             "rule_support": 30,
             "max_classes": 12,
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "495c44290965a856121e0c972938597de7342c1f4c78e6847d43358eaceb3e97",
+          "key": "ba480be0795cfe165d2e1a5e9c78d6665bbeeba08fc84051f7d66cabc3d0a1ea",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -88225,6 +88618,7 @@
             "exceptions": {
               "count": 2160,
               "cells": 11,
+              "complete": true,
               "listed": [
                 {
                   "category": 0,
@@ -88441,23 +88835,25 @@
           }
         },
         {
-          "id": "category_crosstab:rows:column_8>column_16:pattern",
+          "id": "category_crosstab:rows:column_1>column_29:value",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
           "dataset": "rows",
-          "field": "column_8",
-          "partner": "column_16",
-          "display": "langue_preferee and province_nom (pattern)",
+          "field": "column_1",
+          "partner": "column_29",
+          "display": "filiale and agence_code (value)",
           "method": "contingency_table",
           "parameters": {
-            "feature": "pattern",
+            "feature": "value",
             "max_categories": 30,
             "examples": 3,
+            "max_exception_cells": 20,
             "rule_purity": 90,
-            "rule_support": 30
+            "rule_support": 30,
+            "max_classes": 12
           },
           "domain": "mixed",
-          "key": "1d3dd06926348b351bfd4cfb99d928ba0c643aab766779eefa7b523bc0b26cd4",
+          "key": "bdf4ad4b481225de4329f45beaa3c5a108a02b8fc8853fda5c773a96f89d5330",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -88465,22 +88861,27 @@
             "precision": "float64",
             "source": "source",
             "feature": {
-              "kind": "pattern",
+              "kind": "value",
               "version": 1
             },
             "categories": {
-              "field": "column_8",
-              "display": "langue_preferee",
+              "field": "column_1",
+              "display": "filiale",
               "domain": "analytical",
               "classes": [
                 {
                   "id": "c1",
-                  "label": "fr",
+                  "label": "principal",
                   "kind": "value"
                 },
                 {
                   "id": "c2",
-                  "label": "en",
+                  "label": "quebec",
+                  "kind": "value"
+                },
+                {
+                  "id": "c3",
+                  "label": "ontario",
                   "kind": "value"
                 },
                 {
@@ -88491,23 +88892,63 @@
               ]
             },
             "classes": {
-              "field": "column_16",
-              "display": "province_nom",
-              "domain": "original",
+              "field": "column_29",
+              "display": "agence_code",
+              "domain": "analytical",
               "classes": [
                 {
-                  "id": "p1",
-                  "label": "Xx{4,11}",
+                  "id": "c1",
+                  "label": "AG-PR-001",
                   "kind": "value"
                 },
                 {
-                  "id": "p2",
-                  "label": "Xx{6,7}-Xx{5,10}",
+                  "id": "c2",
+                  "label": "AG-PR-002",
                   "kind": "value"
                 },
                 {
-                  "id": "p3",
-                  "label": "x{6,7}",
+                  "id": "c3",
+                  "label": "AG-PR-005",
+                  "kind": "value"
+                },
+                {
+                  "id": "c4",
+                  "label": "AG-PR-003",
+                  "kind": "value"
+                },
+                {
+                  "id": "c5",
+                  "label": "AG-PR-004",
+                  "kind": "value"
+                },
+                {
+                  "id": "c6",
+                  "label": "AG-QC-001",
+                  "kind": "value"
+                },
+                {
+                  "id": "c7",
+                  "label": "AG-PR-007",
+                  "kind": "value"
+                },
+                {
+                  "id": "c8",
+                  "label": "AG-PR-006",
+                  "kind": "value"
+                },
+                {
+                  "id": "c9",
+                  "label": "AG-QC-002",
+                  "kind": "value"
+                },
+                {
+                  "id": "c10",
+                  "label": "AG-PR-008",
+                  "kind": "value"
+                },
+                {
+                  "id": "c11",
+                  "label": "AG-ON-001",
                   "kind": "value"
                 },
                 {
@@ -88527,18 +88968,56 @@
             },
             "counts": [
               [
-                103,
-                40,
-                8,
-                1950
-              ],
-              [
-                475,
-                102,
+                616,
+                382,
+                246,
+                225,
+                224,
                 3,
-                319
+                169,
+                164,
+                2,
+                124,
+                7,
+                23
               ],
               [
+                1,
+                0,
+                0,
+                0,
+                0,
+                196,
+                1,
+                1,
+                126,
+                0,
+                1,
+                242
+              ],
+              [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                83,
+                163
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
                 0,
                 0,
                 0,
@@ -88546,38 +89025,58 @@
               ]
             ],
             "row_totals": [
-              2101,
-              899,
+              2185,
+              568,
+              247,
               0
             ],
             "column_totals": [
-              578,
-              142,
-              11,
-              2269
+              618,
+              382,
+              246,
+              225,
+              224,
+              199,
+              170,
+              165,
+              128,
+              124,
+              91,
+              428
             ],
             "by_category": [
               {
-                "rows": 2101,
-                "classified": 2101,
-                "feature_missing": 0,
-                "unclassified": 0,
-                "coverage": 1.0,
-                "dominant": 3,
-                "dominant_count": 1950,
-                "purity": 0.9281294621608758,
-                "exceptions": 151
-              },
-              {
-                "rows": 899,
-                "classified": 899,
+                "rows": 2185,
+                "classified": 2185,
                 "feature_missing": 0,
                 "unclassified": 0,
                 "coverage": 1.0,
                 "dominant": 0,
-                "dominant_count": 475,
-                "purity": 0.5283648498331479,
-                "exceptions": 424
+                "dominant_count": 616,
+                "purity": 0.2819221967963387,
+                "exceptions": 1569
+              },
+              {
+                "rows": 568,
+                "classified": 568,
+                "feature_missing": 0,
+                "unclassified": 0,
+                "coverage": 1.0,
+                "dominant": 11,
+                "dominant_count": 242,
+                "purity": 0.426056338028169,
+                "exceptions": 326
+              },
+              {
+                "rows": 247,
+                "classified": 247,
+                "feature_missing": 0,
+                "unclassified": 0,
+                "coverage": 1.0,
+                "dominant": 11,
+                "dominant_count": 163,
+                "purity": 0.659919028340081,
+                "exceptions": 84
               },
               {
                 "rows": 0,
@@ -88590,145 +89089,349 @@
             ],
             "purity": {
               "forward": {
-                "dominant": 2425,
+                "dominant": 1021,
                 "total": 3000,
-                "value": 0.8083333333333333
+                "value": 0.3403333333333333
               },
               "reverse": {
-                "dominant": 2535,
+                "dominant": 2797,
                 "total": 3000,
-                "value": 0.845
+                "value": 0.9323333333333333
               },
-              "baseline": 0.7563333333333333
+              "baseline": 0.206
             },
             "association": {
               "defined": true,
               "n": 3000,
-              "effective_categories": 2,
-              "effective_classes": 4,
-              "chi_square": 1143.0526227760888,
-              "degrees": 3,
-              "cramers_v": 0.6172661832024843,
-              "corrected": 0.6165581597773074,
-              "low_share": 0.125,
+              "effective_categories": 3,
+              "effective_classes": 12,
+              "chi_square": 4020.017886842788,
+              "degrees": 22,
+              "cramers_v": 0.8185370982065899,
+              "corrected": 0.8165658331736994,
+              "low_share": 0.0,
               "stable": true,
               "sparse": 0
             },
             "exceptions": {
-              "count": 575,
-              "cells": 6,
+              "count": 1979,
+              "cells": 19,
+              "complete": true,
               "listed": [
                 {
-                  "category": 1,
-                  "column": 3,
-                  "count": 319,
+                  "category": 0,
+                  "column": 1,
+                  "count": 382,
                   "examples": [
+                    {
+                      "record": 28,
+                      "value": "AG-PR-002"
+                    },
+                    {
+                      "record": 29,
+                      "value": "AG-PR-002"
+                    },
+                    {
+                      "record": 33,
+                      "value": "AG-PR-002"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 2,
+                  "count": 246,
+                  "examples": [
+                    {
+                      "record": 7,
+                      "value": "AG-PR-005"
+                    },
                     {
                       "record": 16,
-                      "value": "Québec"
+                      "value": "AG-PR-005"
                     },
                     {
-                      "record": 21,
-                      "value": "Québec"
-                    },
-                    {
-                      "record": 23,
-                      "value": "Nouvelle-Écosse"
+                      "record": 24,
+                      "value": "AG-PR-005"
                     }
                   ]
                 },
                 {
                   "category": 0,
-                  "column": 0,
-                  "count": 103,
+                  "column": 3,
+                  "count": 225,
                   "examples": [
+                    {
+                      "record": 2,
+                      "value": "AG-PR-003"
+                    },
                     {
                       "record": 19,
-                      "value": "Ontario"
+                      "value": "AG-PR-003"
                     },
                     {
-                      "record": 133,
-                      "value": "Ontario"
-                    },
-                    {
-                      "record": 142,
-                      "value": "Alberta"
-                    }
-                  ]
-                },
-                {
-                  "category": 1,
-                  "column": 1,
-                  "count": 102,
-                  "examples": [
-                    {
-                      "record": 81,
-                      "value": "Colombie-Britannique"
-                    },
-                    {
-                      "record": 123,
-                      "value": "Colombie-Britannique"
-                    },
-                    {
-                      "record": 155,
-                      "value": "Colombie-Britannique"
+                      "record": 26,
+                      "value": "AG-PR-003"
                     }
                   ]
                 },
                 {
                   "category": 0,
-                  "column": 1,
-                  "count": 40,
+                  "column": 4,
+                  "count": 224,
                   "examples": [
                     {
-                      "record": 20,
-                      "value": "Nouveau-Brunswick"
+                      "record": 4,
+                      "value": "AG-PR-004"
                     },
                     {
-                      "record": 42,
-                      "value": "Colombie-Britannique"
+                      "record": 5,
+                      "value": "AG-PR-004"
                     },
                     {
-                      "record": 96,
-                      "value": "Nouveau-Brunswick"
-                    }
-                  ]
-                },
-                {
-                  "category": 0,
-                  "column": 2,
-                  "count": 8,
-                  "examples": [
-                    {
-                      "record": 32,
-                      "value": "quebec"
-                    },
-                    {
-                      "record": 68,
-                      "value": "quebec"
-                    },
-                    {
-                      "record": 641,
-                      "value": "quebec"
+                      "record": 10,
+                      "value": "AG-PR-004"
                     }
                   ]
                 },
                 {
                   "category": 1,
-                  "column": 2,
-                  "count": 3,
+                  "column": 5,
+                  "count": 196,
+                  "examples": [
+                    {
+                      "record": 1238,
+                      "value": "AG-QC-001"
+                    },
+                    {
+                      "record": 1241,
+                      "value": "AG-QC-001"
+                    },
+                    {
+                      "record": 1243,
+                      "value": "AG-QC-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 6,
+                  "count": 169,
+                  "examples": [
+                    {
+                      "record": 13,
+                      "value": "AG-PR-007"
+                    },
+                    {
+                      "record": 18,
+                      "value": "AG-PR-007"
+                    },
+                    {
+                      "record": 25,
+                      "value": "AG-PR-007"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 7,
+                  "count": 164,
                   "examples": [
                     {
                       "record": 11,
-                      "value": "quebec"
+                      "value": "AG-PR-006"
                     },
                     {
-                      "record": 1083,
-                      "value": "quebec"
+                      "record": 17,
+                      "value": "AG-PR-006"
                     },
                     {
-                      "record": 1152,
-                      "value": "ontario"
+                      "record": 21,
+                      "value": "AG-PR-006"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 8,
+                  "count": 126,
+                  "examples": [
+                    {
+                      "record": 1244,
+                      "value": "AG-QC-002"
+                    },
+                    {
+                      "record": 1255,
+                      "value": "AG-QC-002"
+                    },
+                    {
+                      "record": 1266,
+                      "value": "AG-QC-002"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 9,
+                  "count": 124,
+                  "examples": [
+                    {
+                      "record": 6,
+                      "value": "AG-PR-008"
+                    },
+                    {
+                      "record": 22,
+                      "value": "AG-PR-008"
+                    },
+                    {
+                      "record": 62,
+                      "value": "AG-PR-008"
+                    }
+                  ]
+                },
+                {
+                  "category": 2,
+                  "column": 10,
+                  "count": 83,
+                  "examples": [
+                    {
+                      "record": 1118,
+                      "value": "AG-ON-001"
+                    },
+                    {
+                      "record": 1119,
+                      "value": "AG-ON-001"
+                    },
+                    {
+                      "record": 1120,
+                      "value": "AG-ON-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 11,
+                  "count": 23,
+                  "examples": [
+                    {
+                      "record": 54,
+                      "value": "AG-ON-004"
+                    },
+                    {
+                      "record": 181,
+                      "value": "AG--PR-002"
+                    },
+                    {
+                      "record": 196,
+                      "value": "AG-ON-004"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 10,
+                  "count": 7,
+                  "examples": [
+                    {
+                      "record": 453,
+                      "value": "AG-ON-001"
+                    },
+                    {
+                      "record": 679,
+                      "value": "AG-ON-001"
+                    },
+                    {
+                      "record": 963,
+                      "value": "AG-ON-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 5,
+                  "count": 3,
+                  "examples": [
+                    {
+                      "record": 1942,
+                      "value": "AG-QC-001"
+                    },
+                    {
+                      "record": 2040,
+                      "value": "AG-QC-001"
+                    },
+                    {
+                      "record": 2251,
+                      "value": "AG-QC-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 0,
+                  "column": 8,
+                  "count": 2,
+                  "examples": [
+                    {
+                      "record": 1110,
+                      "value": "AG-QC-002"
+                    },
+                    {
+                      "record": 2553,
+                      "value": "AG-QC-002"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 0,
+                  "count": 1,
+                  "examples": [
+                    {
+                      "record": 1395,
+                      "value": "AG-PR-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 6,
+                  "count": 1,
+                  "examples": [
+                    {
+                      "record": 1460,
+                      "value": "AG-PR-007"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 7,
+                  "count": 1,
+                  "examples": [
+                    {
+                      "record": 1377,
+                      "value": "AG-PR-006"
+                    }
+                  ]
+                },
+                {
+                  "category": 1,
+                  "column": 10,
+                  "count": 1,
+                  "examples": [
+                    {
+                      "record": 1350,
+                      "value": "AG-ON-001"
+                    }
+                  ]
+                },
+                {
+                  "category": 2,
+                  "column": 0,
+                  "count": 1,
+                  "examples": [
+                    {
+                      "record": 1145,
+                      "value": "AG-PR-001"
                     }
                   ]
                 }
@@ -88741,12 +89444,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T01:40:54.662876Z",
+    "generated_at": "2026-10-12T02:14:14.150165Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 1.3971,
+    "processing_seconds": 0.89,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

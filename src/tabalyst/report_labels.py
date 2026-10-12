@@ -213,6 +213,7 @@ FEATURE_WORDS = {
     "pattern": "pattern",
     "length": "length",
     "prefix": "prefix",
+    "value": "value",
 }
 # The word for a bias-corrected Cramér's V below each limit; above the last, "strong".
 STRENGTH_LIMITS = ((0.10, "negligible"), (0.30, "weak"), (0.50, "moderate"))

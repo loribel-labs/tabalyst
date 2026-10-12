@@ -166,13 +166,17 @@ class AnalysisRequest:
     absent from what the exploration proposes; ``field`` alone asks for the
     proposed pairs that use it. For a table of a category against a feature
     (design 20.13), ``field`` is the category, ``partner`` the column and
-    ``feature`` the feature (``pattern``, ``length`` or ``prefix``)."""
+    ``feature`` the feature (``pattern``, ``length``, ``prefix`` or ``value``).
+    ``rules`` (a table only, which then needs ``field``, ``partner`` and
+    ``feature``) are rules to check against it, each the label of a category and
+    the label of the class its rows should take (design 20.22)."""
 
     analyzer: str
     dataset: str | None = None
     field: str | None = None
     partner: str | None = None
     feature: str | None = None
+    rules: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -190,6 +194,8 @@ class PairProposal:
     from_samples: bool = False
     feature: str | None = None
     redundant: bool = False
+    # Rules a user gave for the table, sorted and without repeats.
+    rules: tuple[tuple[str, str], ...] = ()
 
 
 class PairAnalyzer(Analyzer):

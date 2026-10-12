@@ -37,6 +37,7 @@ from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.identifiers import identifier_like, uniqueness
 from tabalyst.scanner.planner.models import Exploration, ExploredDataset
 from tabalyst.scanner.planner.samplerows import cell_text, usable_rows
+from tabalyst.scanner.rankcorr import average_ranks, rank_interval, sample_coefficient
 
 if TYPE_CHECKING:
     # Imported by the planner when it needs one: the second pass imports the
@@ -66,6 +67,9 @@ class _Column:
     facts: FieldFacts
     floats: list[float | None] = field(default_factory=list)
     usable: int = 0
+    # Average ranks, for a column that has a number in every sampled row: the
+    # pairs of such columns share them instead of sorting the rows again.
+    ranks: list[float] | None = None
 
 
 def _rounded(value: float | None) -> float | None:
@@ -99,18 +103,51 @@ def column_floats(
     return [None if text is None else numbers[text] for text in texts], found
 
 
-def explore_pair(first: Sequence[float | None], second: Sequence[float | None], settings: PearsonSettings, scope: str) -> Exploration:
-    """What the rows say of one pair (REL-05)."""
+def explore_pair(
+    first: Sequence[float | None],
+    second: Sequence[float | None],
+    settings: PearsonSettings,
+    scope: str,
+    ranks: tuple[Sequence[float], Sequence[float]] | None = None,
+) -> Exploration:
+    """What the rows say of one pair (REL-05). ``ranks`` are the average ranks of
+    two columns without a missing value (see ``_Column.ranks``)."""
     moments = comoments(first, second)
-    return _explored(moments, settings, scope)
+    return _explored(moments, first, second, settings, scope, ranks)
 
 
-def _explored(moments: CoMoments, settings: PearsonSettings, scope: str) -> Exploration:
+def effective_score(exploration: Exploration) -> float | None:
+    """What rates a pair: the larger of the scores of the linear and the rank
+    coefficient, ``None`` when neither is defined."""
+    scores = [s for s in (exploration.score, exploration.rank_score) if s is not None]
+    return max(scores) if scores else None
+
+
+def _explored(
+    moments: CoMoments,
+    first: Sequence[float | None],
+    second: Sequence[float | None],
+    settings: PearsonSettings,
+    scope: str,
+    ranks: tuple[Sequence[float], Sequence[float]] | None = None,
+) -> Exploration:
     if moments.n < settings.explore_min_pairs:
         return Exploration(scope=scope, pairs=moments.n, reason=INSUFFICIENT_PAIRS)  # type: ignore[arg-type]
     r, reason = coefficient(moments, settings.explore_min_pairs)
     if r is None:
+        # A column that does not vary has no rank either: the reason stays.
         return Exploration(scope=scope, pairs=moments.n, reason=reason)  # type: ignore[arg-type]
+    rank: dict[str, float | None] = {}
+    if settings.rank_bins:
+        n, rho = sample_coefficient(first, second, settings.explore_min_pairs, ranks)
+        found = None if rho is None else rank_interval(rho, n)
+        if rho is not None and found is not None:
+            rank = {
+                "rank_coefficient": _rounded(rho),
+                "rank_lower": _rounded(found[0]),
+                "rank_upper": _rounded(found[1]),
+                "rank_score": _rounded(score(found)),
+            }
     bounds = interval(r, moments.n)
     assert bounds is not None
     return Exploration(
@@ -120,6 +157,7 @@ def _explored(moments: CoMoments, settings: PearsonSettings, scope: str) -> Expl
         lower=_rounded(bounds[0]),
         upper=_rounded(bounds[1]),
         score=_rounded(score(bounds)),
+        **rank,  # type: ignore[arg-type]
     )
 
 
@@ -186,6 +224,8 @@ def explore_dataset(
         if column.usable < settings.explore_min_pairs:
             leave_out(TOO_FEW_VALUES)
             continue
+        if settings.rank_bins and column.usable == len(column.floats):
+            column.ranks = average_ranks(column.floats)  # type: ignore[arg-type]
         columns.append(column)
 
     # Columns beyond the budget are the least present; ties keep document order.
@@ -215,15 +255,17 @@ def explore_dataset(
     evaluated = 0
     for (i, a), (j, b) in combinations(enumerate(columns), 2):
         evaluated += 1
-        exploration = explore_pair(a.floats, b.floats, settings, usable.scope)
-        if exploration.score is None:
+        shared = (a.ranks, b.ranks) if a.ranks is not None and b.ranks is not None else None
+        exploration = explore_pair(a.floats, b.floats, settings, usable.scope, shared)
+        rated = effective_score(exploration)
+        if rated is None:
             reason = exploration.reason or INSUFFICIENT_PAIRS
             undefined[reason] = undefined.get(reason, 0) + 1
             continue
-        if exploration.score <= 0.0:
+        if rated <= 0.0:
             continue
         proposal = PairProposal(a.facts, b.facts, exploration, from_samples=usable.complete)
-        scored.append((-exploration.score, -exploration.pairs, i * len(columns) + j, proposal))
+        scored.append((-rated, -exploration.pairs, i * len(columns) + j, proposal))
     scored.sort(key=lambda item: item[:3])
     listed = [item[3] for item in scored[: settings.max_candidates]]
     block = block.model_copy(

@@ -90,7 +90,10 @@ A pair is a candidate like another, with `partner` (the second field) and
 of the file, not uniform over it) or `all_rows` (a complete sample, the whole file).
 `lower` and `upper` bound the coefficient at 95%, and `score` is the lower bound of
 its absolute value, which ranks the pairs and gives the benefit (100 times the score,
-45 at least for an automatic choice). The figures are rounded to six decimals. A pair
+45 at least for an automatic choice). With the rank correlation on
+(`deep.pearson.rank_bins`), the exploration also has `rank_coefficient`, `rank_lower`,
+`rank_upper` and `rank_score` for the Spearman coefficient of the sample, and the
+benefit is that of the larger of the two scores. The figures are rounded to six decimals. A pair
 without a score, because too few rows have both numbers or a column does not vary,
 carries a `reason` instead of a coefficient, and is not listed unless you asked for it.
 
@@ -112,7 +115,7 @@ least present columns are left out and counted as `column_budget`. The planner l
 ## Tables of a category against a feature
 
 `category_crosstab` concerns a column of a few values, the category, and another
-column, whose pattern, length or prefix (its **feature**) it counts for each
+column, whose pattern, length, prefix or value (its **feature**) it counts for each
 category. Like a pair, a table is a candidate with a `partner` (the column of the
 feature), here with the feature in its parameters, and its exploration says what the
 row sample shows. The order matters: `column_1>column_2` is the category `column_1`
@@ -150,6 +153,9 @@ The work is bounded like the rest: `deep.crosstab.max_columns` (50) and
 at most (`max_candidates`) and picks 8 at most by itself (`automatic_tables`; the
 others say `tables_budget`). Of the features of the same two columns, it picks by itself
 only the best: the others say `redundant_feature`, and a request or `--deep` takes them all.
+The feature `value` sets a category against another category; of two columns that could both
+be the category, only the one with fewer distinct values (the first of the file on a tie) is
+the row axis in the exploration, and a request can ask for the other.
 
 ## Stratification advice
 
@@ -351,7 +357,9 @@ it asks for the listed pairs that use the column. A request for the repeated val
 it is never proposed by itself. A request for a table names the
 category, the column and the feature,
 `tabalyst.AnalysisRequest("category_crosstab", field="region", partner="client_id",
-feature="pattern")`; without `feature` it asks for the three. A request for an
+feature="pattern")`; without `feature` it asks for all the features. It can carry
+`rules=[("east", "basic")]`, rules to check against the table (a category label and the label
+of the class its rows should take), which then needs the three names. A request for an
 unknown analysis, dataset or field raises `tabalyst.ConfigurationError`.
 `stratify=tabalyst.Stratify(combinations=[("province", "language")],
 sample_size=1000)` adds the [stratification advice](#stratification-advice) as

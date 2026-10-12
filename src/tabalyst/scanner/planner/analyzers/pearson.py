@@ -24,6 +24,7 @@ from tabalyst.scanner.planner.costmodel import (
     PAIR_FEED_ENTRY_BYTES,
     PAIR_FEED_ROWS,
     PAIR_STATE_BYTES,
+    RANK_CELL_BYTES,
     RESULT_BYTES,
 )
 from tabalyst.scanner.planner.facts import FieldFacts
@@ -34,7 +35,11 @@ from tabalyst.scanner.planner.models import (
     State,
     Utility,
 )
-from tabalyst.scanner.planner.relations import explicit_proposal, explore_dataset
+from tabalyst.scanner.planner.relations import (
+    effective_score,
+    explicit_proposal,
+    explore_dataset,
+)
 
 if TYPE_CHECKING:
     from tabalyst.scanner.secondpass.replay import CellReader
@@ -52,7 +57,16 @@ class PearsonCorrelation(PairAnalyzer):
     """
 
     id: ClassVar[str] = "pearson_correlation"
-    outputs: ClassVar[tuple[str, ...]] = ("correlation", "common_rows", "exclusions")
+    # 2: the result also holds the line (slope, intercept) and the rank
+    # correlation (design 20.22).
+    version: ClassVar[int] = 2
+    outputs: ClassVar[tuple[str, ...]] = (
+        "correlation",
+        "common_rows",
+        "exclusions",
+        "regression_line",
+        "rank_correlation",
+    )
     available: ClassVar[bool] = True
     relations: ClassVar[str] = "datasets"
 
@@ -128,7 +142,10 @@ class PearsonCorrelation(PairAnalyzer):
         return Assessment(
             "applicable",
             method="pairwise_complete",
-            parameters={"min_pairs": self.settings.pearson.min_pairs},
+            parameters={
+                "min_pairs": self.settings.pearson.min_pairs,
+                "rank_bins": self.settings.pearson.rank_bins,
+            },
             requires_source=not (proposal.from_samples and not lenient),
         )
 
@@ -136,6 +153,7 @@ class PearsonCorrelation(PairAnalyzer):
         """The common batch of floats of each column is shared by every pair
         that uses it, and the reading of its cells too."""
         first, second = proposal.first, proposal.second
+        bins = self.settings.pearson.rank_bins
         states = [
             State(
                 key=f"pearson_pair:{first.where}{PAIR_SEPARATOR}{second.field}",
@@ -146,6 +164,13 @@ class PearsonCorrelation(PairAnalyzer):
                 memory=memory(RESULT_BYTES),
             ),
         ]
+        if bins:
+            states.append(
+                State(
+                    key=f"rank_grid:{first.where}{PAIR_SEPARATOR}{second.field}",
+                    memory=memory(bins * bins * RANK_CELL_BYTES // 4, bins * bins * RANK_CELL_BYTES // 2, bins * bins * RANK_CELL_BYTES),
+                )
+            )
         if assessment.requires_source:
             for column in (first, second):
                 states.append(
@@ -161,10 +186,10 @@ class PearsonCorrelation(PairAnalyzer):
         """The lower bound of the absolute coefficient on the sample, from 0 to
         100: a pair is chosen by itself only when that bound is 0.45 or more."""
         exploration = proposal.exploration
-        score = getattr(exploration, "score", None)
-        if score is None:
+        rated = None if exploration is None else effective_score(exploration)  # type: ignore[arg-type]
+        if rated is None:
             return Utility(score=0, reasons=["not_explored"])
         return Utility(
-            score=min(100, round(score * 100)),
+            score=min(100, round(rated * 100)),
             reasons=["exploratory_correlation"],
         )

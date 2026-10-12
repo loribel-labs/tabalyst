@@ -1,93 +1,93 @@
-Plan for insurance-customers.csv (plan f0bf5147a60a, planner 1).
-169 candidates: 63 selected, 70 already answered by the scan, 36 left out.
+Plan for insurance-customers.csv (plan 4a4b25fbc8d7, planner 1).
+169 candidates: 64 selected, 70 already answered by the scan, 35 left out.
 
 Selected:
   1. category_crosstab [contingency_table]: rows / filiale and id_client (pattern) (up to 979.1 KiB, CPU low, automatic)
   2. category_crosstab [contingency_table]: rows / civilite and sexe (prefix) (up to 996.6 KiB, CPU low, automatic)
   3. category_crosstab [contingency_table]: rows / sexe and civilite (length) (up to 996.6 KiB, CPU low, automatic)
   4. category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (pattern) (up to 988.7 KiB, CPU low, automatic)
-  5. category_crosstab [contingency_table]: rows / orientation and langue_preferee (prefix) (up to 1.0 MiB, CPU low, automatic)
-  6. category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix) (up to 996.6 KiB, CPU low, automatic)
-  7. category_crosstab [contingency_table]: rows / langue_preferee and province_nom (pattern) (up to 975.5 KiB, CPU low, automatic)
-  8. residual_values [residual_table]: rows / province_nom (up to 12.0 KiB, CPU low, automatic)
-  9. residual_values [residual_table]: rows / statut_contrat (up to 7.1 KiB, CPU low, automatic)
-  10. residual_values [residual_table]: rows / mode_paiement (up to 8.3 KiB, CPU low, automatic)
-  11. residual_values [residual_table]: rows / reclamation_status (up to 6.4 KiB, CPU low, automatic)
-  12. residual_values [residual_table]: rows / prenom (up to 88.4 KiB, CPU low, automatic)
-  13. residual_values [residual_table]: rows / nom (up to 81.9 KiB, CPU low, automatic)
-  14. residual_values [residual_table]: rows / nom_voie (up to 73.6 KiB, CPU low, automatic)
-  15. residual_values [residual_table]: rows / ville (up to 58.0 KiB, CPU low, automatic)
-  16. residual_values [residual_table]: rows / date_reclamation (up to 516.6 KiB, CPU low, automatic)
-  17. exact_frequencies [hash_table]: rows / prenom (up to 286.5 KiB, CPU low, automatic)
-  18. exact_frequencies [hash_table]: rows / nom (up to 283.6 KiB, CPU low, automatic)
-  19. exact_frequencies [hash_table]: rows / nom_voie (up to 279.0 KiB, CPU low, automatic)
-  20. exact_frequencies [hash_table]: rows / appartement (up to 347.8 KiB, CPU low, automatic)
-  21. exact_frequencies [hash_table]: rows / ville (up to 273.4 KiB, CPU low, automatic)
-  22. exact_frequencies [hash_table]: rows / date_reclamation (up to 312.9 KiB, CPU low, automatic)
-  23. exact_frequencies [hash_table]: rows / montant_reclamation (up to 303.1 KiB, CPU low, automatic)
-  24. pattern_validation [compiled_matcher]: rows / id_contrat (up to 6.0 KiB, CPU moderate, automatic)
-  25. pattern_validation [compiled_matcher]: rows / filiale (up to 6.0 KiB, CPU moderate, automatic)
-  26. pattern_validation [compiled_matcher]: rows / sexe (up to 6.0 KiB, CPU moderate, automatic)
-  27. pattern_validation [compiled_matcher]: rows / langue_preferee (up to 6.0 KiB, CPU moderate, automatic)
-  28. pattern_validation [compiled_matcher]: rows / orientation (up to 6.0 KiB, CPU moderate, automatic)
-  29. pattern_validation [compiled_matcher]: rows / agence_code (up to 6.0 KiB, CPU moderate, automatic)
-  30. pattern_validation [compiled_matcher]: rows / reclamation_status (up to 6.0 KiB, CPU moderate, automatic)
-  31. pattern_validation [compiled_matcher]: rows / province_code (up to 11.0 KiB, CPU moderate, automatic)
-  32. pattern_validation [compiled_matcher]: rows / type_contrat (up to 11.0 KiB, CPU moderate, automatic)
-  33. pattern_validation [compiled_matcher]: rows / statut_contrat (up to 11.0 KiB, CPU moderate, automatic)
-  34. pattern_validation [compiled_matcher]: rows / frequence_paiement (up to 11.0 KiB, CPU moderate, automatic)
-  35. pattern_validation [compiled_matcher]: rows / id_client (up to 16.0 KiB, CPU moderate, automatic)
-  36. pattern_validation [compiled_matcher]: rows / type_voie (up to 16.0 KiB, CPU moderate, automatic)
-  37. pattern_validation [compiled_matcher]: rows / province_nom (up to 16.0 KiB, CPU moderate, automatic)
-  38. pattern_validation [compiled_matcher]: rows / mode_paiement (up to 16.0 KiB, CPU moderate, automatic)
-  39. pattern_validation [compiled_matcher]: rows / code_postal (up to 21.0 KiB, CPU moderate, automatic)
-  40. pattern_validation [compiled_matcher]: rows / prenom (up to 36.1 KiB, CPU moderate, automatic)
-  41. pattern_validation [compiled_matcher]: rows / nom (up to 41.1 KiB, CPU moderate, automatic)
-  42. pattern_validation [compiled_matcher]: rows / nom_voie (up to 41.1 KiB, CPU moderate, automatic)
-  43. pattern_validation [compiled_matcher]: rows / ville (up to 41.1 KiB, CPU moderate, automatic)
-  44. temporal_distribution [period_counts]: rows / date_reclamation (up to 168.4 KiB, CPU moderate, automatic)
-  45. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
-  46. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.0 KiB, CPU moderate, automatic)
-  47. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
-  48. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
-  49. temporal_distribution [period_counts]: rows / date_fin (up to 484.8 KiB, CPU moderate, automatic)
-  50. temporal_distribution [period_counts]: rows / date_modification (up to 836.7 KiB, CPU moderate, automatic)
-  51. residual_values [residual_table]: rows / date_fin (up to 1021.1 KiB, CPU moderate, automatic)
-  52. temporal_distribution [period_counts]: rows / date_creation (up to 970.4 KiB, CPU moderate, automatic)
-  53. temporal_distribution [period_counts]: rows / date_debut (up to 990.2 KiB, CPU moderate, automatic)
-  54. residual_values [residual_table]: rows / id_client (up to 1.1 MiB, CPU moderate, automatic)
-  55. residual_values [residual_table]: rows / id_contrat (up to 1.1 MiB, CPU moderate, automatic)
-  56. duplicates_report [digest_table]: rows / id_client (up to 1.2 MiB, CPU moderate, automatic)
-  57. duplicates_report [digest_table]: rows / code_postal (up to 1.2 MiB, CPU moderate, automatic)
-  58. duplicates_report [digest_table]: rows / id_contrat (up to 1.2 MiB, CPU moderate, automatic)
-  59. residual_values [residual_table]: rows / date_modification (up to 1.5 MiB, CPU moderate, automatic)
-  60. residual_values [residual_table]: rows / date_debut (up to 1.8 MiB, CPU moderate, automatic)
-  61. residual_values [residual_table]: rows / date_creation (up to 1.8 MiB, CPU moderate, automatic)
-  62. residual_values [residual_table]: rows / date_naissance (up to 2.1 MiB, CPU moderate, automatic)
-  63. residual_values [residual_table]: rows / code_postal (up to 3.2 MiB, CPU moderate, automatic)
+  5. category_crosstab [contingency_table]: rows / langue_preferee and orientation (value) (up to 996.6 KiB, CPU low, automatic)
+  6. category_crosstab [contingency_table]: rows / orientation and langue_preferee (prefix) (up to 1.0 MiB, CPU low, automatic)
+  7. category_crosstab [contingency_table]: rows / langue_preferee and type_voie (prefix) (up to 996.6 KiB, CPU low, automatic)
+  8. category_crosstab [contingency_table]: rows / filiale and agence_code (value) (up to 1007.2 KiB, CPU low, automatic)
+  9. residual_values [residual_table]: rows / province_nom (up to 12.0 KiB, CPU low, automatic)
+  10. residual_values [residual_table]: rows / statut_contrat (up to 7.1 KiB, CPU low, automatic)
+  11. residual_values [residual_table]: rows / mode_paiement (up to 8.3 KiB, CPU low, automatic)
+  12. residual_values [residual_table]: rows / reclamation_status (up to 6.4 KiB, CPU low, automatic)
+  13. residual_values [residual_table]: rows / prenom (up to 88.4 KiB, CPU low, automatic)
+  14. residual_values [residual_table]: rows / nom (up to 81.9 KiB, CPU low, automatic)
+  15. residual_values [residual_table]: rows / nom_voie (up to 73.6 KiB, CPU low, automatic)
+  16. residual_values [residual_table]: rows / ville (up to 58.0 KiB, CPU low, automatic)
+  17. residual_values [residual_table]: rows / date_reclamation (up to 516.6 KiB, CPU low, automatic)
+  18. exact_frequencies [hash_table]: rows / prenom (up to 286.5 KiB, CPU low, automatic)
+  19. exact_frequencies [hash_table]: rows / nom (up to 283.6 KiB, CPU low, automatic)
+  20. exact_frequencies [hash_table]: rows / nom_voie (up to 279.0 KiB, CPU low, automatic)
+  21. exact_frequencies [hash_table]: rows / appartement (up to 347.8 KiB, CPU low, automatic)
+  22. exact_frequencies [hash_table]: rows / ville (up to 273.4 KiB, CPU low, automatic)
+  23. exact_frequencies [hash_table]: rows / date_reclamation (up to 312.9 KiB, CPU low, automatic)
+  24. exact_frequencies [hash_table]: rows / montant_reclamation (up to 303.1 KiB, CPU low, automatic)
+  25. pattern_validation [compiled_matcher]: rows / id_contrat (up to 6.0 KiB, CPU moderate, automatic)
+  26. pattern_validation [compiled_matcher]: rows / filiale (up to 6.0 KiB, CPU moderate, automatic)
+  27. pattern_validation [compiled_matcher]: rows / sexe (up to 6.0 KiB, CPU moderate, automatic)
+  28. pattern_validation [compiled_matcher]: rows / langue_preferee (up to 6.0 KiB, CPU moderate, automatic)
+  29. pattern_validation [compiled_matcher]: rows / orientation (up to 6.0 KiB, CPU moderate, automatic)
+  30. pattern_validation [compiled_matcher]: rows / agence_code (up to 6.0 KiB, CPU moderate, automatic)
+  31. pattern_validation [compiled_matcher]: rows / reclamation_status (up to 6.0 KiB, CPU moderate, automatic)
+  32. pattern_validation [compiled_matcher]: rows / province_code (up to 11.0 KiB, CPU moderate, automatic)
+  33. pattern_validation [compiled_matcher]: rows / type_contrat (up to 11.0 KiB, CPU moderate, automatic)
+  34. pattern_validation [compiled_matcher]: rows / statut_contrat (up to 11.0 KiB, CPU moderate, automatic)
+  35. pattern_validation [compiled_matcher]: rows / frequence_paiement (up to 11.0 KiB, CPU moderate, automatic)
+  36. pattern_validation [compiled_matcher]: rows / id_client (up to 16.0 KiB, CPU moderate, automatic)
+  37. pattern_validation [compiled_matcher]: rows / type_voie (up to 16.0 KiB, CPU moderate, automatic)
+  38. pattern_validation [compiled_matcher]: rows / province_nom (up to 16.0 KiB, CPU moderate, automatic)
+  39. pattern_validation [compiled_matcher]: rows / mode_paiement (up to 16.0 KiB, CPU moderate, automatic)
+  40. pattern_validation [compiled_matcher]: rows / code_postal (up to 21.0 KiB, CPU moderate, automatic)
+  41. pattern_validation [compiled_matcher]: rows / prenom (up to 36.1 KiB, CPU moderate, automatic)
+  42. pattern_validation [compiled_matcher]: rows / nom (up to 41.1 KiB, CPU moderate, automatic)
+  43. pattern_validation [compiled_matcher]: rows / nom_voie (up to 41.1 KiB, CPU moderate, automatic)
+  44. pattern_validation [compiled_matcher]: rows / ville (up to 41.1 KiB, CPU moderate, automatic)
+  45. temporal_distribution [period_counts]: rows / date_reclamation (up to 168.4 KiB, CPU moderate, automatic)
+  46. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
+  47. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.0 KiB, CPU moderate, automatic)
+  48. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
+  49. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
+  50. temporal_distribution [period_counts]: rows / date_fin (up to 484.8 KiB, CPU moderate, automatic)
+  51. temporal_distribution [period_counts]: rows / date_modification (up to 836.7 KiB, CPU moderate, automatic)
+  52. residual_values [residual_table]: rows / date_fin (up to 1021.1 KiB, CPU moderate, automatic)
+  53. temporal_distribution [period_counts]: rows / date_creation (up to 970.4 KiB, CPU moderate, automatic)
+  54. temporal_distribution [period_counts]: rows / date_debut (up to 990.2 KiB, CPU moderate, automatic)
+  55. residual_values [residual_table]: rows / id_client (up to 1.1 MiB, CPU moderate, automatic)
+  56. residual_values [residual_table]: rows / id_contrat (up to 1.1 MiB, CPU moderate, automatic)
+  57. duplicates_report [digest_table]: rows / id_client (up to 1.2 MiB, CPU moderate, automatic)
+  58. duplicates_report [digest_table]: rows / code_postal (up to 1.2 MiB, CPU moderate, automatic)
+  59. duplicates_report [digest_table]: rows / id_contrat (up to 1.2 MiB, CPU moderate, automatic)
+  60. residual_values [residual_table]: rows / date_modification (up to 1.5 MiB, CPU moderate, automatic)
+  61. residual_values [residual_table]: rows / date_debut (up to 1.8 MiB, CPU moderate, automatic)
+  62. residual_values [residual_table]: rows / date_creation (up to 1.8 MiB, CPU moderate, automatic)
+  63. residual_values [residual_table]: rows / date_naissance (up to 2.1 MiB, CPU moderate, automatic)
+  64. residual_values [residual_table]: rows / code_postal (up to 3.2 MiB, CPU moderate, automatic)
 
 Left out:
   pearson_correlation [pairwise_complete]: rows / prime_annuelle and montant_reclamation: too little expected benefit for an automatic choice
   category_crosstab [contingency_table]: rows / filiale and id_client (prefix): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / civilite and sexe (value): another feature of the same two columns says more
   category_crosstab [contingency_table]: rows / sexe and civilite (prefix): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / langue_preferee and type_voie (value): another feature of the same two columns says more
   category_crosstab [contingency_table]: rows / langue_preferee and nom_voie (length): another feature of the same two columns says more
+  category_crosstab [contingency_table]: rows / langue_preferee and province_nom (pattern): enough tables were already chosen automatically
   category_crosstab [contingency_table]: rows / langue_preferee and type_voie (pattern): another feature of the same two columns says more
   category_crosstab [contingency_table]: rows / langue_preferee and ville (prefix): too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / langue_preferee and orientation (length): too little expected benefit for an automatic choice
+  category_crosstab [contingency_table]: rows / langue_preferee and orientation (length): another feature of the same two columns says more
   category_crosstab [contingency_table]: rows / filiale and province_nom (pattern): too little expected benefit for an automatic choice
   category_crosstab [contingency_table]: rows / langue_preferee and ville (length): too little expected benefit for an automatic choice
   category_crosstab [contingency_table]: rows / filiale and langue_preferee (prefix): too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / langue_preferee and filiale (length): too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / langue_preferee and filiale (prefix): too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / langue_preferee and id_client (pattern): too little expected benefit for an automatic choice
-  category_crosstab [contingency_table]: rows / langue_preferee and id_client (prefix): too little expected benefit for an automatic choice
 
 Not applicable:
   10 x too many distinct values for a table of frequencies
   2 x no pattern candidate was found
   10 x exposure keeps the values of this field out of the document
 
-A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 31.0 MiB to 51.7 MiB, about 35.4 MiB.
+A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 31.3 MiB to 52.0 MiB, about 35.7 MiB.
 Estimated time: under a second (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 
@@ -95,13 +95,13 @@ Smart sample plan for insurance-customers.csv (dataset rows, 3,000 rows)
 
 A smart sample covers diversity and rare cases; its proportions are not those of the population. The targets are those the Scan and the stored second pass know: other cases may exist.
 
-Targets: 375 (146 mandatory, 229 optional), 14 the sample cannot recognize yet.
+Targets: 400 (146 mandatory, 254 optional), 14 the sample cannot recognize yet.
   Low cardinality: 146 targets, 146 mandatory
   Structured strings: 57 targets, 0 mandatory
   Numeric: 53 targets, 0 mandatory
   Dates: 67 targets, 0 mandatory
   Quality: 27 targets, 0 mandatory
-  Relations: 25 targets, 0 mandatory
+  Relations: 50 targets, 0 mandatory
 
 Columns whose values are only partly known:
   id_client (Structured strings): its patterns were found on a sample of distinct values: the targets are a discovery, not a validation
@@ -124,9 +124,9 @@ Heaviest targets:
   7.8976  province_nom: value_equals (1 row, 0.0333%)
   7.8976  type_contrat: value_equals (1 row, 0.0333%)
 
-Size: 150 rows asked; 146 rows are enough for the mandatory targets one by one; beyond 452 rows only the reserve grows.
+Size: 150 rows asked; 146 rows are enough for the mandatory targets one by one; beyond 483 rows only the reserve grows.
 Reserve of ordinary rows: 20%, 4 rows (reduced to keep the mandatory targets).
-Candidate rows kept in memory: up to 726, about 195.0 KiB of source text.
+Candidate rows kept in memory: up to 776, about 208.4 KiB of source text.
 
 Readings of the source: 1
   scan (not needed): a current Scan is stored: it is not read again

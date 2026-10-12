@@ -193,7 +193,20 @@ def feature_for(
         max_classes=settings.max_classes,
         prefix_length=settings.prefix_length,
         max_value_length=max_value_length,
+        max_distinct=settings.max_distinct,
     )
+
+
+def value_direction(category: FieldFacts, column: FieldFacts, placed: dict[str, int]) -> bool:
+    """Whether the table of two columns that could both be categories is read
+    in this direction (design 20.22): the category is the column with fewer
+    distinct values, the first of the document on a tie, so that one phenomenon
+    does not take two tables of the automatic choice. A request may ask for the
+    other direction."""
+    ours, theirs = category.frequencies_distinct or 0, column.frequencies_distinct or 0
+    if ours != theirs:
+        return ours < theirs
+    return placed.get(category.field, 0) < placed.get(column.field, 0)
 
 
 def explore_dataset(
@@ -208,6 +221,7 @@ def explore_dataset(
     results = {item.id: item for item in dataset.fields}
     patterns = _patterns(scan)
     max_value_length = scan.config.pattern_inference.max_value_length
+    placed = {item.field: number for number, item in enumerate(facts)}
 
     excluded_categories: dict[str, int] = {}
     categories: list[_Column] = []
@@ -344,6 +358,8 @@ def explore_dataset(
                 continue
             group: list[tuple[int, float, int, int, PairProposal]] = []
             for feature, coder in col.coders.items():
+                if feature == "value" and not value_direction(cat.facts, col.facts, placed):
+                    continue
                 possible += 1
                 evaluated += 1
                 exploration = explore_table(
