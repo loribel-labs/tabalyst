@@ -223,8 +223,8 @@ def test_zip_codes_are_also_integers(tmp_path):
     candidates = [item["detector"] for item in field["interpretations"]["candidates"]]
     assert candidates == ["number", "postal_code"]
     assert field["interpretations"]["primary"] is None
-    # Not sensitive: numeric statistics stay available.
-    assert field["numeric"]["status"] == "complete"
+    # Not sensitive, but the numbers are codes: no statistics on them (G03).
+    assert field["numeric"] == {"status": "not_applicable", "reason": "code_interpretation"}
 
 
 def test_zip_codes_with_leading_zeros_or_plus4_are_not_numbers(tmp_path):

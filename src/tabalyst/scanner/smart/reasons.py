@@ -30,6 +30,7 @@ CATALOG: dict[str, str] = {
 # Why a target cannot be evaluated by the sample (``Target.reason``).
 FEASIBILITY: dict[str, str] = {
     "needs_row_digest": "recognizing a duplicate row needs a digest of every row",
+    "needs_length_test": "the rule has no test on a row yet",
     "needs_variant_keys": "recognizing a variant needs the normalized key of every value",
 }
 

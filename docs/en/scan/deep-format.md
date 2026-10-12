@@ -5,7 +5,7 @@ description: Structure of the deep.json document written by tabalyst scan --deep
 
 `tabalyst scan --deep` and `tabalyst report` write a JSON document beside the scan: `deep.json` next
 to a stored `scan.json`, or `<stem>.deep.json` next to a `<stem>.scan.json`. This
-page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `1`. The
+page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `2`. The
 format is **experimental**: it can change incompatibly between releases. Always
 check `format`, `format_version` and `format_revision` first. Tabalyst does not
 migrate a document of another revision; it makes it again. See [Add histograms and
@@ -17,10 +17,10 @@ exact medians](deep.md) for what the command does.
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 1,
+  "format_revision": 2,
   "status": "complete",
   "base": {
-    "format_revision": 2,
+    "format_revision": 3,
     "engine_version": "0.7.0",
     "source_sha256": "6d4d860f...",
     "config_sha256": "67dbd515...",
@@ -167,7 +167,8 @@ numbers, and an edge that a float64 cannot represent exactly may be rounded in t
 file, though the counts used its exact value. `bounds_source` is `range` (equal
 widths between the exact minimum and maximum), `rows` or `distinct` (quantiles of the
 row sample or of the sample of distinct values, for `bin_strategy:
-"sample_quantile"`). When the sample cannot place the bounds, `strategy` is
+"sample_quantile"`), or `grid` (multiples of a power of two, in a `measures` result
+beyond `max_values`; the first and last edges are the exact minimum and maximum). When the sample cannot place the bounds, `strategy` is
 `linear` while `requested_strategy` is `sample_quantile`, and `reason` is
 `sample_too_small` or `sample_without_spread`. `outside` counts values beyond the
 bounds of the scan; anything but zero fails the analysis.
@@ -355,12 +356,93 @@ The counts are exact and the figures computed from them (purity, V) are 64-bit f
 (`precision`). `source` is `samples` when the complete row sample of the scan held every row
 (CSV files of up to 1,000 rows).
 
+**`measures`**: the numbers of a field of amounts with a currency, percentages or
+quantities with a unit, read as the scan's `detector` (`currency`, `percentage` or
+`quantity`) read them.
+
+```json
+{
+  "kind": "measures",
+  "accuracy": "exact",
+  "storage": "table",
+  "computed_from": "source",
+  "detector": "currency",
+  "values": 2000,
+  "parsed": 1662,
+  "ambiguous": 99,
+  "invalid": 67,
+  "unparsed": 172,
+  "scan_not_tested": 0,
+  "homogeneous": false,
+  "overall": {
+    "count": 1662,
+    "distinct": 1654,
+    "numeric": {"count": 1662, "min": -9985.75, "max": 997.93, "...": "..."},
+    "modes": [26.83, 167.93, 412.57, 542.35,
+              577.06, 585.4, 645.85, 992.14],
+    "modes_truncated": false,
+    "histogram": {"kind": "bins", "bounds_source": "range", "...": "..."}
+  },
+  "groups": [
+    {"marker": "$", "count": 906, "numeric": {"...": "..."},
+     "histogram": {"...": "..."}}
+  ],
+  "markers": {
+    "kind": "currency",
+    "count": 1761,
+    "distinct": 3,
+    "listed": [{"value": "$", "count": 1005, "parsed": 906, "share": 0.5707}],
+    "truncated": false,
+    "modes": ["$"],
+    "dominant_share": 0.5707,
+    "rare": {"share_below": 0.01, "markers": 0, "count": 0},
+    "layout": {"before": 1312, "after": 449, "spaced": 756, "unspaced": 1005}
+  }
+}
+```
+
+- `values` are the values of the field: `parsed` have a number, `ambiguous` have a
+  number part the settings can read two ways (counted, never given a number),
+  `invalid` have the shape of an amount that does not hold, and `unparsed` are the
+  rest. They add up to `values`. When the scan's detector tested every value, the
+  first three are its `matched`, `ambiguous` and `invalid`, and the counts of each
+  currency or unit are those of its `details`; a difference is `scan_mismatch`.
+  `scan_not_tested` counts the values the scan's detector did not test, which the
+  second pass read: it finds at least what the scan found, never more than those
+  values add.
+- `overall`, each of `groups` and `other` are levels. A level has `count`,
+  `numeric` (the members of the `numeric` block of the scan, `coverage` being the
+  share of `values`), `histogram` (a `dense_counts` or `bins` result) and, with
+  `storage` `table`, `distinct` (numbers that differ) and `modes` (ten at most).
+  `groups` are the currencies or units that have a number, the most frequent first,
+  `max_groups` of them; `other` (absent when empty) holds the rest together, with
+  `markers`, their number. Nothing is converted: `homogeneous` is false when
+  several currencies or units have numbers.
+- `storage` is `table` when every number was counted exactly: the median, the
+  quantiles and the modes are `exact`, and `accuracy` is `exact`. Beyond
+  `max_values` different pairs of a marker and a number, every group goes on in
+  bins whose width is a power of two: `storage` is `grid`, `accuracy` is
+  `exact_counts`, the counts, sums and extremes stay exact, the median of
+  `numeric` is `limited` (reason `max_values`) and the quantiles of the histogram
+  are estimates with their bounds. The width depends on the range of the numbers
+  only, not on their order.
+- `markers` counts the values written with each currency, `%` or unit, parsed or
+  ambiguous (`parsed` of them have a number): `count`, `distinct`, `listed` by
+  decreasing count then text (`truncated` beyond 1,000), `modes`, `dominant_share`,
+  `rare` (the markers written in less than 1% of them) and `layout` (marker
+  `before` or `after` the number, `spaced` or not). `kind` is `currency`, `percent`
+  or `unit`.
+- `percent_range`, for percentages only, counts the parsed values `below` 0,
+  `within` 0 to 100 and `above` 100.
+- `computed_from` is `samples` when the scan holds every distinct value with its
+  exact count: the source is not read and the result is the same.
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
 its version, the field (and its partner, for a pair or a table), the method with its effective parameters (the number of
-bins and the strategy are among them, and for a table the feature, its classes and the thresholds of its
-rules) and the domain of the values. It does not
+bins and the strategy are among them, for a table the feature, its classes and the thresholds of its
+rules, and for an extraction the detector, `max_groups`, `max_values` and the bins) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
 whose `base` is not the current scan's matches none of its keys, and is made
@@ -373,6 +455,14 @@ The package contains the JSON Schema of the document,
 as the writer. It describes what a reader accepts.
 
 ## Changelog
+
+### Version 0.2.0, revision 2
+
+The result `measures` of the analyzer `measure_extraction`: the numbers of the
+amounts, percentages and quantities with a unit, for the whole field and for each
+currency or unit, and the currencies or units as an enumeration. `bounds_source`
+of a `bins` result may be `grid`. The settings have the member `deep.measures`
+(`max_groups`, `max_values`). A document of revision 1 is made again.
 
 ### Version 0.2.0, revision 1
 

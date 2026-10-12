@@ -17,6 +17,7 @@ from tabalyst.scanner.models import (
     CardinalityComplete,
     CardinalityLimited,
     DatasetResult,
+    DetectorComplete,
     FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
@@ -47,6 +48,28 @@ class TemporalFacts:
     kinds: tuple[str, ...]
     span_days: int | None
     years_counted: bool
+
+
+# The detectors whose values carry a number and a marker or a unit (lot 14).
+MEASURE_DETECTORS = ("currency", "percentage", "quantity")
+# Markers a field of units may hold when the Scan stopped counting them: the
+# default of ``detectors.quantity.max_tracked_units``.
+UNTRACKED_MARKERS = 10_000
+
+
+@dataclass(frozen=True, slots=True)
+class MeasureFacts:
+    """What one detector of values with a marker or a unit found in a field:
+    its coverage and the number of distinct markers it counted (a currency
+    marker, ``%`` or a unit)."""
+
+    detector: str
+    eligible: int
+    matched: int
+    ambiguous: int
+    invalid: int
+    not_tested: int
+    markers: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +111,8 @@ class FieldFacts:
     temporal: TemporalFacts | None
     temporal_status: str
     patterns: PatternFacts | None
+    # The detectors of values with a marker that read at least one value.
+    measures: tuple[MeasureFacts, ...] = ()
 
     @property
     def withheld(self) -> bool:
@@ -120,6 +145,42 @@ def _temporal(field: FieldResult) -> tuple[str, TemporalFacts | None]:
             span = None
         years = kind.years is not None
     return "complete", TemporalFacts(stats.count, kinds, span, years)
+
+
+def _markers(result: DetectorComplete) -> int:
+    """The distinct markers a detector of values with a marker counted."""
+    details = result.details
+    if result.id == "percentage":
+        return 1
+    if result.id == "currency":
+        currencies = details.get("currencies")
+        return len(currencies) if isinstance(currencies, dict) else UNTRACKED_MARKERS
+    units = details.get("units")
+    if isinstance(units, dict) and units.get("status") == "complete":
+        return int(units["value"]["distinct"])
+    return UNTRACKED_MARKERS
+
+
+def _measures(field: FieldResult) -> tuple[MeasureFacts, ...]:
+    found = []
+    for result in field.detectors:
+        if result.id not in MEASURE_DETECTORS or not isinstance(result, DetectorComplete):
+            continue
+        coverage = result.coverage
+        if not coverage.matched:
+            continue
+        found.append(
+            MeasureFacts(
+                detector=result.id,
+                eligible=coverage.eligible,
+                matched=coverage.matched,
+                ambiguous=coverage.ambiguous,
+                invalid=coverage.invalid,
+                not_tested=coverage.not_tested,
+                markers=_markers(result),
+            )
+        )
+    return tuple(found)
 
 
 def _patterns(
@@ -200,6 +261,7 @@ def _facts(
         temporal=temporal,
         temporal_status=temporal_status,
         patterns=_patterns(index, dataset.id, field.id),
+        measures=_measures(field),
     )
 
 

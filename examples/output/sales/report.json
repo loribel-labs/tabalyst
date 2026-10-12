@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T01:27:52.771704Z",
-    "duration_seconds": 0.01438,
+    "started_at": "2026-10-11T23:28:18.071173Z",
+    "duration_seconds": 0.015,
     "timings": {
-      "reading": 0.00219,
-      "analysis": 0.002027,
-      "finalize": 0.008523,
-      "derived": 0.001241,
-      "other": 0.0004
+      "reading": 0.002399,
+      "analysis": 0.002149,
+      "finalize": 0.008732,
+      "derived": 0.001277,
+      "other": 0.000443
     },
     "workers": 1,
-    "peak_memory_bytes": 62787584
+    "peak_memory_bytes": 61513728
   },
   "source": {
     "format": "excel",
@@ -6833,6 +6833,10 @@
               "median": {
                 "status": "complete",
                 "value": 7
+              },
+              "coverage": {
+                "of": 120,
+                "share": 1.0
               }
             }
           },
@@ -7789,6 +7793,10 @@
               "median": {
                 "status": "complete",
                 "value": 105.87
+              },
+              "coverage": {
+                "of": 120,
+                "share": 1.0
               }
             }
           },
@@ -8577,7 +8585,7 @@
     }
   },
   "observations": {
-    "version": 1,
+    "version": 2,
     "truncated": false,
     "summary": {
       "informational": 1,
@@ -8626,18 +8634,18 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
-      "format_revision": 1,
+      "format_revision": 2,
       "status": "complete",
       "base": {
-        "format_revision": 2,
+        "format_revision": 3,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
         "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
-        "facts_sha256": "5a01f9bb5d52783fc9741626261dc77202ad1a5e8d5e5f6f975ab40ce604777e"
+        "facts_sha256": "6de1c51d5dbc85525bb2c667e44df071f4c9e28e1ff4d53f52b4cb4d24cfc5e9"
       },
       "settings": {
         "bins": 100,
@@ -8663,21 +8671,25 @@
           "max_candidates": 20,
           "automatic_tables": 8,
           "explore_min_rows": 30
+        },
+        "measures": {
+          "max_groups": 20,
+          "max_values": 100000
         }
       },
-      "settings_sha256": "2906c7b25694e867e29895695422b5fbfddfa696e2b6f8c0fca3a192fd44d416",
+      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 6,
-        "plan_id": "cb6c8659eef2fe4f2cba8cc91e1f65faff53dc95a48cddea0e6a56fe1a9a1c78",
+        "cost_model_version": 7,
+        "plan_id": "da26f75df42dfc44d3456cadd156773c759d779b1adbd2ad5521e60c7738b7b5",
         "base": {
-          "format_revision": 2,
+          "format_revision": 3,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
           "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
-          "facts_sha256": "5a01f9bb5d52783fc9741626261dc77202ad1a5e8d5e5f6f975ab40ce604777e"
+          "facts_sha256": "6de1c51d5dbc85525bb2c667e44df071f4c9e28e1ff4d53f52b4cb4d24cfc5e9"
         },
         "objective": {
           "automatic": true,
@@ -11528,21 +11540,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-11T01:27:52.813747Z",
-        "duration_seconds": 0.007973,
+        "started_at": "2026-10-12T00:29:54.076849Z",
+        "duration_seconds": 8.5e-05,
         "timings": {
-          "reading": 0.00257,
-          "analysis": 0.001818,
-          "other": 0.003584
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 8.5e-05
         },
         "workers": 1,
-        "peak_memory_bytes": 65765376,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 120,
-        "cells_read": 480,
-        "executed": 9,
-        "reused": 0,
+        "peak_memory_bytes": 64991232,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 9,
         "skipped": 0
       },
       "analyses": [
@@ -11558,7 +11570,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "6b32369e3193027f5add25bc3875962ecc179e00fa2a09d8a31809bd899be24e",
+          "key": "8e6ca49b8465f183cd553b75706295ac9b807262344f75e55549dbc5ec7c1a77",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -12233,7 +12245,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "070f9658e3dad71c1d8821fd0db1d55fed64aef86f67d2ca1a91ae18d69ee12d",
+          "key": "c966afcec5d0166dc2bab53bd5a31180f8da55758c9cfc6677d3c11b4543ca1d",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -12858,7 +12870,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "d018206148a37f882a90539f1027d039109129bfac679e6131de2ace671d0748",
+          "key": "2f32adc93253be6c125e187ed294c5370bcf8a9662218b76edebc561591e3bbf",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -12967,7 +12979,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "cd53f063045e1596544574fce18a465cd8c57faefe9463f291954619a179054f",
+          "key": "986d6d62c8148a8cecc5c8fe74ec39d4dda1ed5b5ed8a0be0b6d1f8ec01270d6",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -13244,7 +13256,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "642e9fcbc44287411066ef67f8eb7deffdde804a3033bc7286f635b45be9e2eb",
+          "key": "a20f388fc83590b1994164bdb7ba4f8e681677b24b6a5be8de63e6bb80639eff",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -13281,7 +13293,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "9b9f905ae0663d25aefbd7c69ca82bd3d9e9472cd083857383d727a0efdf3e79",
+          "key": "9ef3e8208a5f71fa94695d19388a7f617c33aabe2946b170320136b4dc400468",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -13318,7 +13330,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "881a9da5854a59479a092f9ff0a85a4d7dc76e3d5f58c33df5ec5e23c2eec313",
+          "key": "8bd347b6fde56ae8ec9bd5aeef80e248a76d225f9a39362a6f2ce31c36363671",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -13355,7 +13367,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "dc60b5fb09447a080758356c95ac030b241d90475f92c4d7e84e8633fd2cf81c",
+          "key": "4362f647fef379e2c08220087283ed80d0d1e9e377ef0c3a6816ec9815a782fe",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -13393,7 +13405,7 @@
             "periods": 149
           },
           "domain": "analytical",
-          "key": "bffa6638fc2281f09b64210a072e725ef0c139f2b239a3934353789053192234",
+          "key": "b1e47721107780df59010270ff65a7cee654b99d6aaebe87a5c0f6c0fbfa5aaf",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -13715,12 +13727,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-11T01:27:52.868069Z",
+    "generated_at": "2026-10-12T00:29:54.111234Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1249,
+    "processing_seconds": 0.0634,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -13750,11 +13762,11 @@
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
       "config_sha256": "e9d986aa33cdfa5dac8490b50b1b12a70036b8ccf902d66981c0288456e9af34",
-      "facts_sha256": "5a01f9bb5d52783fc9741626261dc77202ad1a5e8d5e5f6f975ab40ce604777e"
+      "facts_sha256": "6de1c51d5dbc85525bb2c667e44df071f4c9e28e1ff4d53f52b4cb4d24cfc5e9"
     },
     "datasets": [
       {

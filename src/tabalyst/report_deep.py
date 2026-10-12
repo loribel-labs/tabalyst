@@ -39,6 +39,7 @@ from tabalyst.scanner.secondpass.models import (
     DistinctLimited,
     FrequencyTable,
     LengthDistribution,
+    MeasureResult,
     PatternCounts,
     PearsonResult,
     PeriodCounts,
@@ -168,12 +169,44 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             + (f"; {len(result.rules):,} candidate rules" if result.rules else ""),
             EXACT,
         )
+    if isinstance(result, MeasureResult):
+        return _measures_summary(result), EXACT
     assert isinstance(result, PeriodCounts)
     return (
         f"{result.count:,} dates by {result.granularity}, {result.first} to {result.last}"
         + (f"; {result.ambiguous:,} ambiguous not placed" if result.ambiguous else ""),
         EXACT,
     )
+
+
+# What the numbers of each detector of values with a marker are, and the word
+# for their markers.
+_MEASURE_WORDS = {
+    "currency": ("amount", "currency"),
+    "percentage": ("percentage", "sign"),
+    "quantity": ("quantity", "unit"),
+}
+
+
+def _measures_summary(result: MeasureResult) -> str:
+    noun, marker = _MEASURE_WORDS[result.detector]
+    nouns = "quantities" if noun == "quantity" else f"{noun}s"
+    markers = result.markers
+    plural = "currencies" if marker == "currency" else f"{marker}s"
+    text = f"{result.parsed:,} {noun if result.parsed == 1 else nouns}"
+    if result.detector != "percentage":
+        text += f" in {markers.distinct:,} {marker if markers.distinct == 1 else plural}"
+        text += f"; {markers.modes[0]} {markers.dominant_share:.0%}"
+    median = result.overall.numeric.median
+    if result.homogeneous and median.status == "complete":
+        text += f"; median {_shown(median.value)}"
+    if result.percent_range is not None and result.percent_range.above:
+        text += f"; {result.percent_range.above:,} above 100"
+    if result.ambiguous:
+        text += f"; {result.ambiguous:,} ambiguous not placed"
+    if result.storage == "grid":
+        text += "; quantiles estimated"
+    return text
 
 
 def _row(item: AnalysisResult) -> SecondPassRow:

@@ -3454,6 +3454,26 @@
       "title": "NumberSettings",
       "type": "object"
     },
+    "NumericCoverage": {
+      "additionalProperties": false,
+      "description": "The values of the field that the numeric block describes: ``count`` of\nthe block out of ``of``, the analyzable values (``values.count``).",
+      "properties": {
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "of",
+        "share"
+      ],
+      "title": "NumericCoverage",
+      "type": "object"
+    },
     "NumericStats": {
       "additionalProperties": false,
       "properties": {
@@ -3580,6 +3600,9 @@
             }
           ],
           "title": "Median"
+        },
+        "coverage": {
+          "$ref": "#/$defs/NumericCoverage"
         }
       },
       "required": [
@@ -3596,7 +3619,8 @@
         "negative",
         "zero",
         "integral_decimals",
-        "median"
+        "median",
+        "coverage"
       ],
       "title": "NumericStats",
       "type": "object"
@@ -6103,7 +6127,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 2
+      "const": 3
     },
     "engine": {
       "$ref": "#/$defs/EngineInfo"
@@ -6192,5 +6216,5 @@
   "title": "Tabalyst Scan",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Base document tabalyst.scan, format 0.2.0 revision 2."
+  "description": "Base document tabalyst.scan, format 0.2.0 revision 3."
 }

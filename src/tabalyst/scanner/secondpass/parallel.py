@@ -27,6 +27,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     LengthAccumulator,
 )
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
+from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
@@ -40,7 +41,7 @@ from tabalyst.scanner.workers import (
 )
 
 # The members of a route that hold an accumulator, in the order a worker returns them.
-PARTS = ("numeric", "lengths", "frequencies", "patterns", "periods")
+PARTS = ("numeric", "lengths", "frequencies", "patterns", "periods", "measures")
 # The module and function a worker of the second pass runs.
 ENTRY = ("tabalyst.scanner.secondpass.parallel", "serve")
 # Reading a cell, its count and the grouping of a column, whatever the analyses.
@@ -61,6 +62,8 @@ def part_name(accumulator: object) -> str:
         return "patterns"
     if isinstance(accumulator, PeriodAccumulator):
         return "periods"
+    if isinstance(accumulator, MeasureAccumulator):
+        return "measures"
     assert isinstance(accumulator, DenseAccumulator | BinAccumulator)
     return "numeric"
 
@@ -79,6 +82,8 @@ def route_weight(route: FieldRoute) -> int:
         weight += NS_PER_CELL["period"]
     if route.patterns is not None:
         weight += NS_PER_CELL["matcher_base"]
+    if route.measures is not None:
+        weight += route.measures.cell_ns
     return weight
 
 
@@ -227,6 +232,7 @@ def serve() -> None:
                 route.frequencies = parts.get("frequencies")
                 route.patterns = parts.get("patterns")
                 route.periods = parts.get("periods")
+                route.measures = parts.get("measures")
                 route.memo_entries = memo_entries
                 routes[rid] = route
             elif kind == "batch":

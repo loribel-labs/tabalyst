@@ -73,6 +73,8 @@ lot, with the reason recorded in section 17.
 | O43 | Targets and the plan of a smart sample | The plan of a smart sample is a document of its own, `SamplingPlan` (`scanner/smart/`), not a member of `AnalysisPlan`: it reads a Scan and, when it is current, the second-pass document, and has its own `plan_id`. It lists the targets of one dataset by family (low cardinality, structured strings, numeric, dates, quality, relations), each with a predicate named by reference into the Scan (never a value of the data), a frequency with its accuracy, a weight and an obligation. The weight is `min(cap, base * (1 + gain * rarity))`, monotone in the share and in the base, capped, configurable (`smart.weights`) and versioned; mandatory targets are the values of an exhaustive enumeration and the confirmed issues. A reserve of ordinary rows (20 % by default) gives way to mandatory targets. The plan announces the readings of the source (scan, second pass, selection) and never merges them; it never runs a second pass by itself. The `smart` settings are a top-level object of the configuration file. | Accepted 2026-10-09 (maintainer, lot 10a) | 15 of the specification, 20.15 |
 | O45 | Final integration: stability in the ranking of tables, mirrored pairs, the page of a smart sample, the contract of Explore | A table whose counts are too low to trust (`stable` false) ranks after every stable one in the exploration and so in the automatic choice, and stays listed with its caution (`planner/crosstabs.py`). A pair of columns that is listed in both directions prints its weaker direction right after the stronger one, collapsed (`RelationGroup.mirror`); the document is unchanged. `tabalyst sample --sample-method smart` also writes `<stem>.sample.html`, rendered from the `tabalyst.sample` document alone (`sample_page.py`, `--no-html`, `generate_samples(html=)`), and the page is not part of the format. What Explore consumes of a Scan or a Report is a contract of its own (20.17). The final matrix of 17.2 is measured by `benchmarks/final_matrix.py`. | Accepted 2026-10-09 (maintainer, lot 11; the points were left open at lots 8b and 10b) | 19.3 and 17.2 of the specification, 20.13, 20.16, 20.17 |
 | O46 | Lot 12: memory of the first pass and overhead of the Report | Workers load the modules they use and not the whole package (`tabalyst` and `tabalyst.scanner` resolve their public names on first use, PEP 562): 15 MB less in each worker. The first pass starts at most 6 workers (8 before): on the realistic file the time is the one of 8 and the sum of the peaks falls from 900 to 769 MB. The routes of the fields of a CSV file in the second pass run in worker processes (20.18); the document does not depend on their number. `--workers` applies to both passes. The format does not change. | Accepted 2026-10-10 | 13, 20.7, 20.18 |
+| O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
+| O48 | Insight lot 14: numbers of the values with a unit | The analyzer `measure_extraction` (second pass only, Q7) reads the values of a field that the `currency`, `percentage` or `quantity` detector reads for at least half of its values, with that detector of the Scan's configuration, and gives three levels: the metrics of a numeric field (the members of `numeric`, a histogram and its quantiles) for every parsed value, the same for each marker or unit (`max_groups`, the rest in `other`), and the markers as an enumeration. Nothing is converted. Numbers are counted exactly per marker up to `deep.measures.max_values` distinct pairs, then every group goes on in bins whose width is a power of two (exact counts and moments, estimated quantiles; the width depends on the range only). Counts are checked against the detector of the Scan, exactly when it tested every value, bounded by `not_tested` otherwise. The second-pass document moves to revision 2. | Accepted 2026-10-11 | 20.19, 20.5, 20.7 |
 | O44 | Selection of the rows of a smart sample and its report | The selection reads the source once, with the configuration the Scan recorded, and tests each row against the targets of the plan through tests resolved from the Scan before the reading (`scanner/smart/evaluate.py`); a target that cannot be resolved is left out with a reason, never guessed. It keeps a bounded pool of whole candidate rows (at most `candidates_per_target` for each target, the best by a seeded hash of the position, one copy of a row whatever the targets it holds) and a bottom-k reserve of ordinary rows, in a byte budget; a row the budget turns away is counted and never shortened. A greedy cover then chooses the rows: the mandatory targets first, then the weight not yet covered; what is left of the size goes to ordinary rows. The rows are written in the order of the source after the digest of the reading agrees with the Scan's. The report is a document of its own, `tabalyst.sample` (0.2.0 revision 1), with the plan, the selection and the coverage of the catalog of targets by family and weighted, the missed targets with their reason, and a verification of every exact count of the plan against the rows found. The time of the selection is estimated apart from the plan and asks for a confirmation as a second pass does. | Accepted 2026-10-09 (maintainer, lot 10b) | 15 of the specification, 20.16 |
 | O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
 | O41 | Tables of a category against a feature | A table is a candidate of `category_crosstab`: the category is its `field`, the column of the feature its `partner`, the feature (`pattern`, `length`, `prefix`) a parameter, and the order matters (`>` in the id). The classes come from the Scan alone, at the plan and at the run, and end with the explicit class `other`, so nothing creates an axis while the source streams (REL-12). Rows left out are counted by cause and `rows = counted + excluded` is checked. The planner ranks by the bias-corrected Cramér's V on the row sample, picks by itself the best feature of two columns (`redundant_feature` for the others) and at most eight tables; the result gives the counts with their margins, the coverage and the purity of each category in both directions, the exceptions with exact counts and their first rows, Cramér's V (never 0 for lack of data, `stable` or not) and candidate rules. A `PairAnalyzer` replaces the special case of the correlation in the planner. The report prints one block per pair of columns in a Relationships section. | Accepted 2026-10-09 (maintainer, lot 8b) | 18.14, 20.2, 20.5, 20.12, 20.13 |
@@ -1774,6 +1776,8 @@ makes by itself writes none.
 | 2026-10-09 | SJ-10b | New section 16.8: the web page of an explicit `tabalyst scan` (`scan_page.py`, `generate_scans(html=)`, `ScanJob.page`, `prepare_deep(html=)`, `--no-html`). | Maintainer decision of 2026-10-09: an explicit scan writes the page, an automatic scan does not ("ok pour tout" to the name `<stem>.scan.html`, the report rendered from the Scan alone, and the cost measured first). |
 | 2026-10-09 | SJ-11 | New decision O45, new section 20.17, notes in 20.13 and 20.16: unstable tables rank last, mirrored pairs collapse in the report, the web page of a smart sample (`sample_page.py`, `templates/sample.html`), the contract of Explore (`tests/scan/test_explore_contract.py`), the final matrix (`benchmarks/final_matrix.py`, `matrix_layouts.py`). | Lot 11 of the Scan and JSON work: the arbitrations left open by lots 8b and 10b, EXPLORE-01 to EXPLORE-05, F07. |
 | 2026-10-10 | SJ-12 | New decision O46, new section 20.18, notes in 13 and 20.7: lazy imports of the package, at most 6 workers for the first pass, the routes of the fields of a CSV file in worker processes in the second pass (`scanner/secondpass/parallel.py`, `workers.py` `_Worker(entry=...)`, `run_second_pass(workers=)`, `ChainPlan.workers`, `DeepPreparation.workers`). | Lot 12: memory of the first pass (+42%) and overhead of the Report (+107%) accepted at lot 11 for the time being. |
+| 2026-10-11 | IN-13 | New decision O47, notes in 18.13: `numeric.coverage`, the refusal of `numeric` for codes, the rule `minority_length` (observations version 2), `report_measures.py`, Scan and Report format revision 3. | Insight lot 13: manques 2 and 3 of the technical documentation 10.29, leads A1 to A3 of 10.30. |
+| 2026-10-11 | IN-14 | New decision O48, new section 20.19, rows in 20.5 and 20.2: `measure_extraction`, `secondpass/measures.py`, `CellReader.cells(measure=)`, `deep.measures`, `COST_MODEL_VERSION` 7, second-pass document revision 2. | Insight lot 14: manque 1 and the remaining part of manque 4 of the technical documentation 10.29, lead B1 of 10.30. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -2470,7 +2474,7 @@ is `ScanResult.observations`, built by `scan()` and counted in
 The block is part of the base model, so a Scan with it reads back, a Report
 carries it as it is (its base keeps fewer values and cannot compute it) and
 `facts_sha256` leaves it out. Its version (`observations.version`, 1) names the
-rules and their constants: a change of a rule, a threshold or a status raises it.
+rules and their constants: a change of a rule, a threshold or a status raises it (2 since lot 13: `minority_length`).
 
 **Three concepts (QUAL-01).** An *observation* is a finding about the data. A
 *quality issue* is an observation that may be a defect: a `candidate_anomaly` or
@@ -2504,11 +2508,19 @@ dataset; `excluded_records` to the whole scan (`dataset` absent).
 | `ambiguous_dates` | `candidate_anomaly` | `dates` | ambiguous date values of the date values (ambiguous ones included) |
 | `variant_groups` | `candidate_anomaly` | `normalization` | groups of raw spellings that normalization compares as equal (complete only) |
 | `minority_pattern` | `candidate_anomaly` | `patterns` | distinct values of the minority candidates of the distinct values read |
+| `minority_length` | `candidate_anomaly` | `patterns` | content strings outside the dominant length, of the content strings counted by the length histogram (exact) |
 | `missing_values` | `informational` | `presence` | `missing.count` of the value slots (not for an empty column) |
 | `empty_column` | `informational` | `presence` | all the value slots, for a field of technical type `empty` |
 | `constant_column` | `informational` | `values` | values of a field of at least two values with one exact analytical distinct value |
 | `trimmed_cells` | `informational` | `normalization` | `changed` of the `trim` stage of the content strings |
 | `collapsed_whitespace` | `informational` | `normalization` | `changed` of the `collapse_whitespace` stage of the content strings |
+
+A `minority_length` is a field of at least 20 content strings (`MINORITY_LENGTH_MIN_VALUES`) where
+one length holds at least 95 % of them (`DOMINANT_LENGTH_MIN_SHARE`) and the others at most 5 %
+together (`MINORITY_LENGTH_MAX_SHARE`): the malformed `CLI-12` that the pattern `'CLI'-9{2,7}`
+absorbed. It reads the exact histogram, so it is always `exact`, and a field with no dominant
+length raises nothing. There is no row test for it yet: the smart sample reports it as
+`needs_length_test`.
 
 A column that is 85 % empty is a remark and not an issue (QUAL-03): absence
 becomes an issue only through an explicit presence rule, which the Scan does not
@@ -2977,7 +2989,7 @@ the overlaps (`NS_PER_CELL["matcher_base"]` and `["matcher"]`: one candidate
 (670 measured: it pays the date detector once for each distinct string of the file,
 since it remembers up to 16,384 strings a column, `PERIOD_MEMO_ENTRIES`; with the
 memory of 1,024 strings of the other analyses it read the same dates again in every
-batch, 1,700 to 2,900 ns). `COST_MODEL_VERSION` is 4. Both measures include the
+batch, 1,700 to 2,900 ns). `COST_MODEL_VERSION` was 4 then (7 since lot 14, whose extraction has three tiers, 20.19). Both measures include the
 reading of the cell. The proxies they replace (35 and 98 ns) did not and were
 far too low.
 
@@ -3033,7 +3045,7 @@ never asks about a set that would not be built.
 
 `<stem>.deep.json` is separate and written atomically; the Scan is not
 rewritten (A12). It is the format `tabalyst.scan.deep`, version `0.2.0`,
-revision 1, with its own JSON Schema (`tabalyst.scan.deep.schema.json`) and its
+revision 2 (revision 1 until lot 14), with its own JSON Schema (`tabalyst.scan.deep.schema.json`) and its
 own revision history. It is placed beside the Scan it stands on:
 `deep.json` next to the shared `scan.json`, `<stem>.deep.json` next to
 `<stem>.scan.json` (and `<name>.deep.json` next to any other scan file).
@@ -3134,6 +3146,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
+| `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 
 A mixed type never gets a typed analysis automatically (specification 11.2):
 the rejection is explained, not silent (PLAN-01). Exposure `mask` or `hide`
@@ -4099,6 +4112,86 @@ accumulators, the memory of the cells it has read) depends on no other route, so
 
 Measured on the realistic file (benchmarks.md, lot 12): the second pass of the Report takes 8.0 s instead of 22 s, and
 the Report 23.3 s instead of 43 s for 15.3 s without a second pass.
+
+### 20.19 The numbers of the values with a unit (Insight lot 14, B1, O48)
+
+The Scan recognizes `$12.50`, `12,50 €`, `37%` and `215 Go` and counts their formats and markers, but its `numeric`
+block holds only the numbers written without one (10.29 of the technical documentation: 172 of 2,000 values of a
+column of amounts). `measure_extraction` reads their numbers in the second pass; the first pass is not touched (Q7).
+
+**Applicability.** The planner reads, for each of the three detectors, its coverage and the number of markers it
+counted (`MeasureFacts`). The candidate takes the detector that matched the most values (the first of `currency`,
+`percentage`, `quantity` on a tie); it applies when that detector matched at least half of the content values
+(`MEASURE_MIN_SHARE`, the rule of the codes of 18.13), and is `low_coverage` otherwise. Exposure keeps a withheld
+field out. When every distinct value is in the samples with its exact count, the result follows from them and the
+source is not read (`computed_from` `samples`), as for the patterns (20.9). Utility 60.
+
+**Reading.** `CellReader.cells(measure=detector)` runs the detector of the Scan's configuration on the analytical text
+of each distinct string of a batch, with its input cap, through the detector's `measure` method: `classify` and the
+marker it read, written apart so that `classify`, on the hot path of the first pass, does not change (a test keeps the
+two equal on every value of its data). The cell gets a `Measure`: the state
+(`matched`, `ambiguous`, `invalid`), the number and whether it is written as a decimal (an `int` for the integer formats
+of the number detector, so `integral_decimals` is the Scan's), the marker (`split` of the currency detector, `%`, the
+unit), whether it comes before the number and whether a space separates them. The route remembers 16,384 strings
+(`MEASURE_MEMO_ENTRIES`), as for the dates, but 1,024 for a field of the tier `measure_wide`, whose strings would not
+come back (`measure_memo`); the accumulator carries the planned `cell_ns`, which weighs its route among the workers
+(20.18) and is no input of the result. When every pending analysis of a source is answered by the Scan, `scan --deep`
+says how many it computed from the Scan instead of claiming they were stored (`DeepJob.from_scan`). The accumulator pickles, so a route goes to a worker (20.18) like the others.
+
+**Three levels.** A group per marker holds a `NumericAccumulator` of the first pass (its median list off) and a table
+`number -> count`. The result has:
+
+1. `overall`: the metrics of a numeric field over every parsed number, merged from the groups (`NumericAccumulator.merge`
+   adds the exact sums, extremes and counts): the members of `NumericStats`, `coverage` being the share of the content
+   values, `distinct`, `modes`, and a histogram, `dense_counts` when every number is an integer and the range holds at
+   most 65,536 integers, else `deep.bins` linear bins between the exact minimum and maximum; quantiles exact.
+2. `groups`: the same for each marker that has a number, by decreasing count then text, `max_groups` of them; `other`
+   holds the rest together with the number of its markers.
+3. `markers`: every marker with the values written with it (parsed and ambiguous, the population the detector counts in
+   `details`), `parsed`, the share, `modes`, `dominant_share`, the rare ones (under 1%) and the layout (before or after,
+   spaced or not).
+
+`homogeneous` is false when several markers have numbers: nothing is converted, so the overall metrics add quantities
+that differ and the Report reads the groups first. For percentages, `percent_range` counts the parsed values below 0,
+within 0 to 100 and above 100 (manque 4).
+
+**The grid.** The table of a group holds one entry per distinct number. When the tables of the field hold more than
+`deep.measures.max_values` pairs (100,000 by default), every group goes on in bins of width `2^k`, aligned on 0
+(`Grid`): the width is the smallest, not below `2^-64`, whose bins hold the range in at most `deep.bins` bins, and a
+value outside doubles it until it fits, merging pairs of bins. Fitting is monotone in the width, so the width of a group
+ends as the smallest that holds its whole range: it does not depend on the order of the values, nor on the moment of the
+switch (tested on a file read forward and backward). The levels fold the grids of their groups into the width of their
+own range, which is never finer. The counts, sums, extremes, positive and negative counts stay exact; the median of
+`numeric` is `limited` (`max_values`), the histogram is `bins` with `bounds_source` `grid` (inner edges at multiples of
+`2^k`, outer edges at the exact minimum and maximum) and its quantiles are estimates with certain bounds (20.7);
+`distinct` and `modes` are absent. `storage` says which, `accuracy` is `exact` or `exact_counts`.
+
+**Checks.** `parsed + ambiguous + invalid + unparsed = values`, `values` is `values.count` and the strings are the
+detector's `eligible`. When the detector of the Scan tested every value (`not_tested` 0), `parsed`, `ambiguous` and
+`invalid` are its `matched`, `ambiguous` and `invalid`, and the values of each marker are its `details.currencies` or the
+listed `details.units`. When adaptive detection left values untested, the second pass reads them all: it finds at least
+what the Scan found and at most `not_tested` more (`scan_not_tested` says how many were not tested). Any other difference
+is `scan_mismatch`.
+
+**Cost.** Measured on the executor (`measure_costs.py` of the lot, a generated file of 1 million rows with five
+columns of amounts, percentages and units, one process, the reading of the cell included): 151 ns a cell for a column of
+about 20 distinct values, 500 for 1,400 to 1,700, 1,235 for 9,000 (an exact table) and 4,963 for one million distinct
+amounts (the grid: the detector runs on every value, 7,269 before the grid used integer shifts instead of fractions).
+The cost follows the distinct values, which the Scan knows: `NS_PER_CELL` has three tiers, `measure_few` 300 ns up to
+1,000 distinct values, `measure` 1,500 up to the 16,384 strings the route remembers, `measure_wide` 5,000 beyond or
+when the Scan stopped counting without an estimate (`measure_tier`). The last is CPU class `high`: an automatic
+choice leaves such a field out (`cpu_class`), a request or a forced pass runs it. Memory: 61 to 85 bytes an entry of the
+table for an integer, 134 to 170 for a decimal (`MEASURE_ENTRY_BYTES` 200, plus 100 for the table the result merges),
+3 KB a group with its grid (`MEASURE_GROUP_BYTES` 1,536 plus 80 a bin). `COST_MODEL_VERSION` is 7. On that file the
+automatic plan keeps four extractions and leaves the column of one million amounts out; the forced second pass of its 33
+analyses takes 21.6 s, and its results agree with an oracle parsed from the file by the formats of its generator (Porte
+E1).
+
+**Key.** The detector, `max_groups`, `max_values` and `bins` are parameters of the method, so changing one computes the
+extraction again and nothing else. The domain is `analytical`.
+
+**Not yet.** The unit as a virtual category of the tables of lot 16; the conversion of units or currencies (never
+automatic); the rendering of the groups in the HTML report (lot 20: the Second pass section has a one-line summary).
 
 ## 21. Original value domain (O32)
 

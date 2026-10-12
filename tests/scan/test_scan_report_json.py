@@ -55,7 +55,7 @@ def test_json_profile_lists_one_dataset_per_scan_dataset(tmp_path):
 
     assert profile.format_version == "0.2.0"
     assert profile.format == "tabalyst.report"
-    assert profile.format_revision == 2
+    assert profile.format_revision == 3
     assert profile.source.format == "json"
     assert profile.source.csv is None
     datasets = _datasets(profile)

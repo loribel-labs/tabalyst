@@ -22,6 +22,7 @@ from tabalyst.config import DeepSettings
 from tabalyst.scanner.models import (
     LengthCount,
     Number,
+    NumericStats,
     ScanModel,
     ValueCount,
     _omit_none,
@@ -32,7 +33,7 @@ from tabalyst.scanner.planner.models import AnalysisPlan, PlanBase
 # values are JSON data, as in ``scanner/models.py``.
 FORMAT = "tabalyst.scan.deep"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 1
+FORMAT_REVISION = 2
 
 # Quantile levels of every histogram, as (numerator, denominator) of the rank
 # fraction: 5%, 25%, 50% (the median), 75% and 95%.
@@ -101,7 +102,9 @@ class BinnedHistogram(ScanModel):
     for; they differ, with ``reason``, when the sample could not place the
     bounds. ``bounds_source`` says where the inner bounds come from: ``range``
     (equal widths between the exact minimum and maximum), ``rows`` (quantiles
-    of the row sample) or ``distinct`` (quantiles of the bottom-k sample).
+    of the row sample), ``distinct`` (quantiles of the bottom-k sample) or
+    ``grid`` (the multiples of a power of two of the values with a unit beyond
+    ``max_values``, design 20.19).
     ``edges`` are written as numbers; the classification used the exact bounds,
     so an edge that is not representable may be rounded here.
     """
@@ -109,7 +112,7 @@ class BinnedHistogram(ScanModel):
     kind: Literal["bins"] = "bins"
     strategy: Literal["linear", "sample_quantile"]
     requested_strategy: Literal["linear", "sample_quantile"]
-    bounds_source: Literal["range", "rows", "distinct"]
+    bounds_source: Literal["range", "rows", "distinct", "grid"]
     reason: str | None = None
     count: int
     min: Number
@@ -260,6 +263,141 @@ class PeriodCounts(ScanModel):
     first: str
     last: str
     periods: list[PeriodCount]
+
+
+class MeasureLevel(ScanModel):
+    """The numbers of one population of values with a unit or a marker: the
+    whole field, one marker, or the markers beyond ``max_groups``.
+
+    ``numeric`` has the members of the ``numeric`` block of the Scan, computed
+    the same way, with ``coverage`` the share of the content values of the
+    field. Its median is exact when the numbers were counted in a table, and
+    ``limited`` (``max_values``) when they went on in bins, whose ``histogram``
+    then holds the estimate. ``distinct`` (numbers that differ) and ``modes``
+    (ten at most) exist only with the table."""
+
+    count: int
+    distinct: int | None = None
+    numeric: NumericStats
+    modes: list[Number] | None = None
+    modes_truncated: bool | None = None
+    histogram: Annotated[DenseHistogram | BinnedHistogram, Field(discriminator="kind")]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("distinct", "modes", "modes_truncated"))
+
+
+class MeasureGroup(MeasureLevel):
+    """The numbers written with one marker or unit."""
+
+    marker: str
+
+
+class MeasureOther(MeasureLevel):
+    """The numbers of the ``markers`` beyond the groups, together. Mixing units
+    makes their numbers a count more than a quantity."""
+
+    markers: int
+
+
+class MarkerCount(ScanModel):
+    """One marker or unit: ``count`` values are written with it, ``parsed`` of
+    them have a number (the others are ambiguous), ``share`` is ``count`` over
+    every value written with a marker."""
+
+    value: str
+    count: int
+    parsed: int
+    share: float
+
+
+class RareMarkers(ScanModel):
+    """The markers each written in less than ``share_below`` of the values
+    with a marker, and the values written with them."""
+
+    share_below: float
+    markers: int
+    count: int
+
+
+class MarkerLayout(ScanModel):
+    """How the values with a marker are written: the marker ``before`` or
+    ``after`` the number, with a space between them (``spaced``) or not."""
+
+    before: int
+    after: int
+    spaced: int
+    unspaced: int
+
+
+class MarkerEnumeration(ScanModel):
+    """The markers or units as an enumeration of the values written with one
+    (parsed or ambiguous): exact counts of every marker, ``listed`` by
+    decreasing count then text (``truncated`` beyond 1,000), the ``modes`` and
+    the share of the first one."""
+
+    kind: Literal["currency", "percent", "unit"]
+    count: int
+    distinct: int
+    listed: list[MarkerCount]
+    truncated: bool
+    modes: list[str]
+    dominant_share: float
+    rare: RareMarkers
+    layout: MarkerLayout
+
+
+class PercentRange(ScanModel):
+    """The parsed percentages below 0, from 0 to 100, and above 100: a share
+    above 100 is a fact of the data, never an error."""
+
+    below: int
+    within: int
+    above: int
+
+
+class MeasureResult(ScanModel):
+    """The numbers of the values with a currency marker, a percent sign or a
+    unit, extracted as the ``detector`` of the Scan reads them (design 20.19).
+
+    ``values`` are the content values of the field: ``parsed`` have a number,
+    ``ambiguous`` a number part the configuration cannot read one way (counted
+    and never placed), ``invalid`` the shape of a value that does not hold, and
+    ``unparsed`` the rest; they add up. ``scan_not_tested`` are the values the
+    Scan's detector did not test (adaptive detection) and this pass read.
+
+    ``overall`` gives the metrics of a numeric field for every parsed value,
+    ``groups`` the same for each marker, the most frequent first, and ``other``
+    for the markers beyond ``max_groups``. ``homogeneous`` is false when the
+    numbers mix markers: no conversion is made, so their overall metrics add
+    quantities that differ. ``storage`` is ``table`` when every number was
+    counted exactly (``accuracy`` ``exact``), ``grid`` when the distinct numbers
+    passed ``max_values`` and every group went on in bins: counts, sums and
+    extremes stay exact, the quantiles are estimates with certain bounds
+    (``exact_counts``)."""
+
+    kind: Literal["measures"] = "measures"
+    accuracy: Literal["exact", "exact_counts"]
+    storage: Literal["table", "grid"]
+    computed_from: Literal["source", "samples"]
+    detector: Literal["currency", "percentage", "quantity"]
+    values: int
+    parsed: int
+    ambiguous: int
+    invalid: int
+    unparsed: int
+    scan_not_tested: int
+    homogeneous: bool
+    overall: MeasureLevel
+    groups: list[MeasureGroup]
+    other: MeasureOther | None = None
+    markers: MarkerEnumeration
+    percent_range: PercentRange | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("other", "percent_range"))
 
 
 class PearsonExclusions(ScanModel):
@@ -529,6 +667,7 @@ AnalysisOutput = Annotated[
     | FrequencyTable
     | PatternCounts
     | PeriodCounts
+    | MeasureResult
     | PearsonResult
     | CrosstabResult,
     Field(discriminator="kind"),

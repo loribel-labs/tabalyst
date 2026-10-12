@@ -259,6 +259,9 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         and c.parameters["feature"] == "length",
         "crosstab_prefix": lambda c: c.analyzer == "category_crosstab"
         and c.parameters["feature"] == "prefix",
+        # Values with a unit (lot 14) whose numbers need the source.
+        "measure": lambda c: c.analyzer == "measure_extraction"
+        and c.execution.requires_source,
     }
     out: dict[str, object] = {
         "source": source.name,
@@ -278,15 +281,17 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
             out[label] = None
             continue
         part = base_plan.model_copy(update={"candidates": chosen})
+        # One process: the cost model assumes one (design 20.18).
         runs = [
-            run_second_pass(base_scan, source, part).document.run for _ in range(repeat)
+            run_second_pass(base_scan, source, part, workers=1).document.run
+            for _ in range(repeat)
         ]
         best = min(runs, key=lambda run: run.timings.analysis)
         gc.collect()
         tracemalloc.start()
         tracemalloc.reset_peak()
         base = tracemalloc.get_traced_memory()[0]
-        run_second_pass(base_scan, source, part)
+        run_second_pass(base_scan, source, part, workers=1)
         peak = tracemalloc.get_traced_memory()[1] - base
         tracemalloc.stop()
         states: dict[str, int] = {}

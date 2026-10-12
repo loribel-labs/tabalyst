@@ -10,7 +10,7 @@ contract with three fields:
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 2
+  "format_revision": 3
 }
 ```
 
@@ -111,3 +111,15 @@ Also in revision 2:
 - `values.samples` has `kept` and `of`: the number of values it lists and the
   number the scan sampled. A scan has both equal; a
   [report](../report/json-profile.md#reduced-samples) keeps fewer.
+
+## Version 0.2.0, revision 3
+
+- `numeric.coverage` (`of`, `share`): the analyzable values (`values.count`)
+  the numeric statistics describe. A column of amounts written with a currency
+  sign covers only its bare numbers.
+- A field that a code detector (`postal_code`, `phone`, `uuid`,
+  `ip_address`) reads for at least half of its eligible values, and for at least
+  as many values as the numeric block holds, has `numeric` set to
+  `not_applicable` with the reason `code_interpretation`: the median of postal
+  codes means nothing.
+- The observation rules are version 2 and gain `minority_length`.

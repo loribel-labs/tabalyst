@@ -38,6 +38,7 @@ from tabalyst.scanner.secondpass.accumulators import (
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.exactset import ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
+from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
@@ -71,6 +72,7 @@ class FieldRoute:
         "failure",
         "frequencies",
         "lengths",
+        "measures",
         "memo",
         "memo_entries",
         "numeric",
@@ -97,6 +99,8 @@ class FieldRoute:
         # analytical text with the date detector.
         self.patterns: PatternAccumulator | None = None
         self.periods: PeriodAccumulator | None = None
+        # The values with a unit read the analytical text with their detector.
+        self.measures: MeasureAccumulator | None = None
         self.memo: dict[str, Cell] = {}
         # Raw strings remembered per field across batches. A column of few distinct
         # values (the case where remembering pays) fits; one of identifiers does
@@ -124,7 +128,14 @@ class FieldRoute:
         distinct = self.distinct
         patterns = self.patterns
         periods = self.periods
-        if lengths is None and numeric is None and frequencies is None and periods is None:
+        measures = self.measures
+        if (
+            lengths is None
+            and numeric is None
+            and frequencies is None
+            and periods is None
+            and measures is None
+        ):
             # Only the original values: no analytical text, no number.
             if distinct is not None or patterns is not None:
                 raws = list(counts)
@@ -147,7 +158,10 @@ class FieldRoute:
         if missing:
             room = self.memo_entries - len(memo)
             read = self.reader.cells(
-                missing, numbers=numeric is not None, dates=periods is not None
+                missing,
+                numbers=numeric is not None,
+                dates=periods is not None,
+                measure=None if measures is None else measures.detector,
             )
             for raw, cell in zip(missing, read, strict=True):
                 cells[raw] = cell
@@ -155,7 +169,7 @@ class FieldRoute:
                     memo[raw] = cell
                     room -= 1
         for raw, count in counts.items():
-            length, number, _, _ = cells[raw]
+            length, number, _, _, _ = cells[raw]
             if length < 0:
                 continue
             if lengths is not None:
@@ -172,6 +186,11 @@ class FieldRoute:
                 cell = cells[raw]
                 if cell.length >= 0:
                     periods.add(cell.moment, count)
+        if measures is not None:
+            for raw, count in counts.items():
+                cell = cells[raw]
+                if cell.length >= 0:
+                    measures.add(cell.measure, count)
         if distinct is not None or patterns is not None:
             wanted = [raw for raw in counts if cells[raw].length >= 0]
             weights = [counts[raw] for raw in wanted]
@@ -189,6 +208,7 @@ class FieldRoute:
             and self.distinct is None
             and self.frequencies is None
             and self.patterns is None
+            and self.measures is None
         ):
             return
         self.values += 1
@@ -200,6 +220,8 @@ class FieldRoute:
             self.frequencies.add_native(native_type, value)
         if self.patterns is not None:
             self.patterns.add_native()
+        if self.measures is not None:
+            self.measures.add_native()
 
 
 class Router:

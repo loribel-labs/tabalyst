@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-11T01:28:01.162645Z",
-    "duration_seconds": 0.183143,
+    "started_at": "2026-10-12T00:29:54.965280Z",
+    "duration_seconds": 0.176052,
     "timings": {
-      "reading": 0.162516,
-      "selection": 0.00358,
-      "other": 0.017047
+      "reading": 0.15787,
+      "selection": 0.002386,
+      "other": 0.015796
     },
-    "peak_memory_bytes": 91807744,
+    "peak_memory_bytes": 94523392,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,13 +120,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "92b4b54a717f5ab5bdc5e8ba106b20048074f4a0012c2845022fd069a47e2aa1",
+    "plan_id": "95a8c9acd316900d3cb88cff91b2fea4f1ade4b2467cab3d08107ca904df43f7",
     "base": {
-      "format_revision": 2,
+      "format_revision": 3,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
       "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
-      "facts_sha256": "f23338fbb1f5e9acce4b25f1d9918dca3a1f2ff63f324626a1e07ace98af375d"
+      "facts_sha256": "9b7cd3d809195fb0e451d3477bb756f42900340ca14b14c456ed235050521144"
     },
     "settings": {
       "max_enum_values": 100,
@@ -211,12 +211,12 @@
       ]
     },
     "summary": {
-      "targets": 372,
+      "targets": 375,
       "mandatory": 146,
-      "optional": 226,
-      "not_evaluable": 11,
+      "optional": 229,
+      "not_evaluable": 14,
       "dropped": 0,
-      "total_weight": 1979.186149,
+      "total_weight": 2003.533566,
       "families": [
         {
           "family": "low_cardinality",
@@ -252,11 +252,11 @@
         },
         {
           "family": "quality",
-          "targets": 24,
+          "targets": 27,
           "mandatory": 0,
-          "not_evaluable": 11,
+          "not_evaluable": 14,
           "dropped": 0,
-          "total_weight": 200.326141
+          "total_weight": 224.673558
         },
         {
           "family": "relations",
@@ -6808,7 +6808,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_18:observation:o13",
+        "id": "quality:rows:column_18:observation:o14",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6821,7 +6821,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o13",
+          "ref": "observations/items/o14",
           "params": {
             "rule": "variant_groups"
           }
@@ -6843,13 +6843,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_variant_keys",
         "evidence": "exact",
-        "origin": "o13",
+        "origin": "o14",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_28:observation:o18",
+        "id": "quality:rows:column_28:observation:o20",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6862,7 +6862,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o18",
+          "ref": "observations/items/o20",
           "params": {
             "rule": "variant_groups"
           }
@@ -6884,13 +6884,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_variant_keys",
         "evidence": "exact",
-        "origin": "o18",
+        "origin": "o20",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_31:observation:o21",
+        "id": "quality:rows:column_31:observation:o24",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6903,7 +6903,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o21",
+          "ref": "observations/items/o24",
           "params": {
             "rule": "type_outliers"
           }
@@ -6925,7 +6925,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o21",
+        "origin": "o24",
         "needs": [
           "scan"
         ]
@@ -7054,7 +7054,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_24:observation:o16",
+        "id": "quality:rows:column_24:observation:o18",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7067,7 +7067,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o16",
+          "ref": "observations/items/o18",
           "params": {
             "rule": "type_outliers"
           }
@@ -7089,13 +7089,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o16",
+        "origin": "o18",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_30:observation:o19",
+        "id": "quality:rows:column_30:observation:o22",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7108,7 +7108,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o19",
+          "ref": "observations/items/o22",
           "params": {
             "rule": "type_outliers"
           }
@@ -7130,13 +7130,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o19",
+        "origin": "o22",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_23:observation:o14",
+        "id": "quality:rows:column_23:observation:o16",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7149,7 +7149,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o14",
+          "ref": "observations/items/o16",
           "params": {
             "rule": "type_outliers"
           }
@@ -7171,13 +7171,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o14",
+        "origin": "o16",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_32:observation:o23",
+        "id": "quality:rows:column_32:observation:o26",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7190,7 +7190,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o23",
+          "ref": "observations/items/o26",
           "params": {
             "rule": "type_outliers"
           }
@@ -7212,7 +7212,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o23",
+        "origin": "o26",
         "needs": [
           "scan"
         ]
@@ -7251,6 +7251,132 @@
         "reason": "needs_row_digest",
         "evidence": "exact",
         "origin": "o1",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_29:observation:o21",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_29"
+        ],
+        "displays": [
+          "agence_code"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o21",
+          "params": {
+            "rule": "minority_length"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 16,
+          "share": 0.005333333333,
+          "method": "minority_length"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.273001,
+          "base": 6.0,
+          "rarity": 0.378834,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "not_evaluable",
+        "reason": "needs_length_test",
+        "evidence": "exact",
+        "origin": "o21",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_17:observation:o13",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_17"
+        ],
+        "displays": [
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o13",
+          "params": {
+            "rule": "minority_length"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 21,
+          "share": 0.007,
+          "method": "minority_length"
+        },
+        "weight": {
+          "version": 1,
+          "value": 8.154902,
+          "base": 6.0,
+          "rarity": 0.35915,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "not_evaluable",
+        "reason": "needs_length_test",
+        "evidence": "exact",
+        "origin": "o13",
+        "needs": [
+          "scan"
+        ]
+      },
+      {
+        "id": "quality:rows:column_21:observation:o15",
+        "family": "quality",
+        "dataset": "rows",
+        "fields": [
+          "column_21"
+        ],
+        "displays": [
+          "id_contrat"
+        ],
+        "predicate": {
+          "kind": "observation",
+          "version": 1,
+          "source": "scan",
+          "ref": "observations/items/o15",
+          "params": {
+            "rule": "minority_length"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 36,
+          "share": 0.012036108325,
+          "method": "minority_length"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.919514,
+          "base": 6.0,
+          "rarity": 0.319919,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "not_evaluable",
+        "reason": "needs_length_test",
+        "evidence": "exact",
+        "origin": "o15",
         "needs": [
           "scan"
         ]
@@ -7477,7 +7603,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_30:observation:o20",
+        "id": "quality:rows:column_30:observation:o23",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7490,7 +7616,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o20",
+          "ref": "observations/items/o23",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7512,13 +7638,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o20",
+        "origin": "o23",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_31:observation:o22",
+        "id": "quality:rows:column_31:observation:o25",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7531,7 +7657,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o22",
+          "ref": "observations/items/o25",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7553,13 +7679,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o22",
+        "origin": "o25",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_24:observation:o17",
+        "id": "quality:rows:column_24:observation:o19",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7572,7 +7698,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o17",
+          "ref": "observations/items/o19",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7594,13 +7720,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o17",
+        "origin": "o19",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_23:observation:o15",
+        "id": "quality:rows:column_23:observation:o17",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7613,7 +7739,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o15",
+          "ref": "observations/items/o17",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7635,7 +7761,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o15",
+        "origin": "o17",
         "needs": [
           "scan"
         ]
@@ -7682,7 +7808,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_32:observation:o24",
+        "id": "quality:rows:column_32:observation:o27",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7695,7 +7821,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o24",
+          "ref": "observations/items/o27",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7717,7 +7843,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o24",
+        "origin": "o27",
         "needs": [
           "scan"
         ]
@@ -15864,7 +15990,7 @@
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 372,
+    "defined": 375,
     "evaluable": 361,
     "observed": 360,
     "covered": 360,
@@ -15913,7 +16039,7 @@
       },
       {
         "family": "quality",
-        "defined": 24,
+        "defined": 27,
         "evaluable": 13,
         "covered": 13,
         "weight": 101.75211,
@@ -17157,19 +17283,19 @@
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_18:observation:o13",
+      "id": "quality:rows:column_18:observation:o14",
       "status": "not_evaluable",
       "reason": "needs_variant_keys",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_28:observation:o18",
+      "id": "quality:rows:column_28:observation:o20",
       "status": "not_evaluable",
       "reason": "needs_variant_keys",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_31:observation:o21",
+      "id": "quality:rows:column_31:observation:o24",
       "status": "covered",
       "observed": 3,
       "candidates": 2,
@@ -17197,7 +17323,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_24:observation:o16",
+      "id": "quality:rows:column_24:observation:o18",
       "status": "covered",
       "observed": 3,
       "candidates": 2,
@@ -17205,7 +17331,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_30:observation:o19",
+      "id": "quality:rows:column_30:observation:o22",
       "status": "covered",
       "observed": 6,
       "candidates": 2,
@@ -17213,7 +17339,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_23:observation:o14",
+      "id": "quality:rows:column_23:observation:o16",
       "status": "covered",
       "observed": 7,
       "candidates": 2,
@@ -17221,7 +17347,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_32:observation:o23",
+      "id": "quality:rows:column_32:observation:o26",
       "status": "covered",
       "observed": 1,
       "candidates": 1,
@@ -17232,6 +17358,24 @@
       "id": "quality:rows:-:observation:o1",
       "status": "not_evaluable",
       "reason": "needs_row_digest",
+      "candidates": 0
+    },
+    {
+      "id": "quality:rows:column_29:observation:o21",
+      "status": "not_evaluable",
+      "reason": "needs_length_test",
+      "candidates": 0
+    },
+    {
+      "id": "quality:rows:column_17:observation:o13",
+      "status": "not_evaluable",
+      "reason": "needs_length_test",
+      "candidates": 0
+    },
+    {
+      "id": "quality:rows:column_21:observation:o15",
+      "status": "not_evaluable",
+      "reason": "needs_length_test",
       "candidates": 0
     },
     {
@@ -17273,7 +17417,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_30:observation:o20",
+      "id": "quality:rows:column_30:observation:o23",
       "status": "covered",
       "observed": 299,
       "candidates": 2,
@@ -17281,7 +17425,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_31:observation:o22",
+      "id": "quality:rows:column_31:observation:o25",
       "status": "covered",
       "observed": 313,
       "candidates": 2,
@@ -17289,7 +17433,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_24:observation:o17",
+      "id": "quality:rows:column_24:observation:o19",
       "status": "covered",
       "observed": 274,
       "candidates": 2,
@@ -17297,7 +17441,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_23:observation:o15",
+      "id": "quality:rows:column_23:observation:o17",
       "status": "covered",
       "observed": 335,
       "candidates": 2,
@@ -17313,7 +17457,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_32:observation:o24",
+      "id": "quality:rows:column_32:observation:o27",
       "status": "covered",
       "observed": 53,
       "candidates": 2,

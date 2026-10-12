@@ -19,8 +19,11 @@ from typing import NamedTuple
 from unicodedata import is_normalized
 
 from tabalyst.scanner.config import ScanConfig
-from tabalyst.scanner.detectors.base import Classification
+from tabalyst.scanner.detectors.base import Classification, Detector
+from tabalyst.scanner.detectors.currency import CurrencyDetector
 from tabalyst.scanner.detectors.number import NumberDetector
+from tabalyst.scanner.detectors.percentage import PercentageDetector
+from tabalyst.scanner.detectors.quantity import QuantityDetector
 from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.field import StringClassifier
 from tabalyst.scanner.measures import UNCONVERTIBLE, decimal_or_unconvertible
@@ -29,17 +32,70 @@ from tabalyst.scanner.normalization import ANALYTICAL_STAGE, Normalizer, collaps
 Exact = int | Decimal
 
 
+class Measure(NamedTuple):
+    """What the detector of values with a unit or a marker made of a text
+    (design 20.19): its ``state`` (``matched``, ``ambiguous`` or ``invalid``),
+    the ``number`` of a matched value and whether it is written as a decimal,
+    and, but for an invalid value, the ``marker`` (currency, ``%`` or unit),
+    whether it is written ``before`` the number and whether a space separates
+    them."""
+
+    state: str
+    number: Exact | None = None
+    decimal: bool = False
+    marker: str | None = None
+    before: bool = False
+    spaced: bool = False
+
+
 class Cell(NamedTuple):
     """What a raw string is worth: the length of its analytical text in
     characters, ``-1`` when it is not content (empty, blank or a null marker),
     its number, ``None`` when the number detector did not accept it, the
     analytical text itself and, for an analysis of dates, what the date detector
-    made of the text (``None``: not tested or not a date)."""
+    made of the text (``None``: not tested or not a date), and, for an
+    extraction of values with a unit, what its detector made of it (``None``:
+    not tested or not matched)."""
 
     length: int
     number: Exact | None
     text: str
     moment: Classification | None = None
+    measure: Measure | None = None
+
+
+# The detectors of values with a unit or a marker that an extraction replays.
+MeasureDetector = CurrencyDetector | PercentageDetector | QuantityDetector
+MEASURE_DETECTORS: dict[str, type[MeasureDetector]] = {
+    "currency": CurrencyDetector,
+    "percentage": PercentageDetector,
+    "quantity": QuantityDetector,
+}
+_INVALID = Measure("invalid")
+
+
+def measure_of(reading: object) -> Measure | None:
+    """The ``Measure`` of what the ``measure`` method of a detector returned."""
+    if reading is None:
+        return None
+    found, marker, before, spaced = reading  # type: ignore[misc]
+    state = found.state
+    if state == "invalid":
+        return _INVALID
+    if state != "matched":
+        return Measure(state, marker=marker, before=before, spaced=spaced)
+    number = found.value
+    # The number detector gives an int for the integer formats and a Decimal for
+    # the decimal ones (an integer beyond what Python converts aside), which is
+    # what ``integral_decimals`` of the numeric block counts.
+    return Measure(
+        state,
+        number,  # type: ignore[arg-type]
+        type(number) is not int,
+        marker,
+        before,
+        spaced,
+    )
 
 
 NOT_CONTENT = Cell(-1, None, "")
@@ -71,6 +127,8 @@ class CellReader:
         self.date_detector: DateDetector | None = (
             DateDetector(dates) if dates.get("enabled", True) else None
         )
+        self.config = config
+        self.measure_detectors: dict[str, MeasureDetector | None] = {}
 
     def analytical(self, raw: str) -> str:
         """The analytical text of a content string: what ``string_lengths`` and
@@ -87,12 +145,18 @@ class CellReader:
         return normalizer.run(raw)[0][ANALYTICAL_STAGE]
 
     def cells(
-        self, raws: Sequence[str], *, numbers: bool = True, dates: bool = False
+        self,
+        raws: Sequence[str],
+        *,
+        numbers: bool = True,
+        dates: bool = False,
+        measure: str | None = None,
     ) -> list[Cell]:
         """The cell of each distinct raw string, in order. Without ``numbers``
         the number detector is not run and no cell has a number: an analysis
         of lengths does not pay for it. With ``dates`` the date detector reads
-        the analytical text of each content string."""
+        the analytical text of each content string, and with ``measure`` the
+        detector of that id (``currency``, ``percentage`` or ``quantity``)."""
         category = self.strings.category
         texts: list[str] = []
         positions: list[int] = []
@@ -103,11 +167,43 @@ class CellReader:
                 positions.append(position)
         found = self._numbers(texts) if numbers else [None] * len(texts)
         moments = self._moments(texts) if dates else [None] * len(texts)
-        for position, text, number, moment in zip(
-            positions, texts, found, moments, strict=True
+        measures = (
+            self._measures(measure, texts) if measure is not None else [None] * len(texts)
+        )
+        for position, text, number, moment, read in zip(
+            positions, texts, found, moments, measures, strict=True
         ):
-            cells[position] = Cell(len(text), number, text, moment)
+            cells[position] = Cell(len(text), number, text, moment, read)
         return cells
+
+    def measure_detector(self, detector: str) -> MeasureDetector | None:
+        """The detector of values with a unit of that id, with the settings the
+        Scan recorded, or ``None`` when the Scan turned it off."""
+        if detector not in self.measure_detectors:
+            settings = getattr(self.config.detectors, detector).model_dump()
+            self.measure_detectors[detector] = (
+                MEASURE_DETECTORS[detector](settings) if settings.get("enabled", True) else None
+            )
+        return self.measure_detectors[detector]
+
+    def _measures(self, detector: str, texts: list[str]) -> list[Measure | None]:
+        """What the detector of values with a unit makes of each analytical
+        text, as the first pass does: a text above its input cap is not tested."""
+        reader = self.measure_detector(detector)
+        if reader is None:
+            return [None] * len(texts)
+        cap = reader.max_input_length
+        measure = reader.measure
+        found: list[Measure | None] = []
+        for text in texts:
+            if cap is not None and len(text) > cap:
+                found.append(None)
+                continue
+            try:
+                found.append(measure_of(measure(text)))
+            except Exception:  # noqa: BLE001 - a value the detector raises on is not read
+                found.append(None)
+        return found
 
     def content(self, raws: Sequence[str]) -> list[bool]:
         """Whether each raw string is content (not empty, blank or a null
@@ -162,7 +258,7 @@ class CellReader:
         ]
 
     @staticmethod
-    def _one(detector: NumberDetector, text: str) -> object:
+    def _one(detector: Detector, text: str) -> object:
         try:
             return detector.classify(text)
         except Exception:  # noqa: BLE001 - a failing value is not a number

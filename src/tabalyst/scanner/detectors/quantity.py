@@ -20,6 +20,7 @@ from tabalyst.scanner.detectors.amount import (
     SPACES,
     AmountAccumulator,
     AmountReader,
+    MeasureReading,
 )
 from tabalyst.scanner.detectors.base import Classification, Detector
 from tabalyst.scanner.detectors.currency import CODES
@@ -82,6 +83,23 @@ class QuantityDetector(Detector):
     def classify_many(self, values: Sequence[str]) -> list[Classification | None]:
         classify = self.classify
         return [classify(value) if value[:1] in _FIRST else None for value in values]
+
+    def measure(self, value: str) -> MeasureReading | None:
+        """``classify`` and the unit it read, for the second pass (design
+        20.19); ``None`` when not matched. A test keeps it equal to
+        ``classify``."""
+        if value[:1] not in _FIRST:
+            return None
+        last = value[-1]
+        if not (last.isalpha() or last in _SIGNS):
+            return None
+        match = _QUANTITY.fullmatch(value)
+        if match is None or not is_unit(match["unit"]):
+            return None
+        found = self.reader.read(
+            match["sign"], match["body"], "", match["space"] + "[unit]"
+        )
+        return None if found is None else (found, match["unit"], False, bool(match["space"]))
 
     def accumulator(self) -> QuantityAccumulator:
         return QuantityAccumulator(

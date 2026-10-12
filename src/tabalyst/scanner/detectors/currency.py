@@ -19,6 +19,7 @@ from tabalyst.scanner.detectors.amount import (
     SPACES,
     AmountAccumulator,
     AmountReader,
+    MeasureReading,
 )
 from tabalyst.scanner.detectors.base import Classification, Detector
 from tabalyst.scanner.exposure import ExposureGate
@@ -119,6 +120,24 @@ class CurrencyDetector(Detector):
             else None
             for value in values
         ]
+
+    def measure(self, value: str) -> MeasureReading | None:
+        """``classify`` and the marker it read, for the second pass (design
+        20.19): the classification, the marker, whether it comes before the
+        number and whether a space separates them; ``None`` when not matched.
+        It repeats ``classify`` rather than slowing it down: a test keeps the
+        two equal."""
+        if value[:1] not in _FIRST and value[-1:] not in _LAST:
+            return None
+        parts = split(value)
+        if parts is None:
+            return None
+        sign, marker, body, prefix, suffix = parts
+        found = self.reader.read(sign, body, prefix, suffix)
+        if found is None:
+            return None
+        affix = prefix or suffix
+        return found, marker, bool(prefix), len(affix) > len(marker)
 
     def accumulator(self) -> CurrencyAccumulator:
         return CurrencyAccumulator(self.reader)

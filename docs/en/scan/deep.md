@@ -8,7 +8,8 @@ scan does not hold: histograms of numeric fields, with exact or estimated
 medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
-counted on every value, the dates counted per period, the correlation of
+counted on every value, the dates counted per period, the numbers of amounts,
+percentages and quantities with a unit, the correlation of
 pairs of numeric columns and tables of a category against the pattern, length or
 prefix of another column. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
@@ -46,6 +47,7 @@ stored.
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
+| `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
 | `category_crosstab` | A column of a few values and another text or integer column | The count of the rows of each category in each pattern, length or prefix of the other column, with the purity of each category, the exceptions, Cramér's V and candidate rules |
 
@@ -96,6 +98,59 @@ datetimes are not merged: a column of both has no distribution.
 
 The count of placed dates and the number of ambiguous values are those of the
 scan; a difference fails the analysis rather than giving a result.
+
+## Amounts, percentages and quantities
+
+A scan recognizes `$12.50`, `12,50 €`, `37%` or `215 Go` and counts each currency
+or unit, but its `numeric` block only describes the numbers written without a
+marker. The second pass reads the number of every such value, with the same
+reading as the scan, and gives three levels:
+
+1. **The field as a numeric field**: the members of the `numeric` block (`count`,
+   `min`, `max`, `sum`, `mean`, variance, `median` and the others) and a histogram
+   with its quantiles, over every value that has a number.
+2. **The same for each currency or unit**: `Go`, `km/h` and `To` each get their
+   own metrics and histogram, the most frequent first (20 at most, the rest
+   together in `other`).
+3. **The currencies or units as values**: how many there are, how many values use
+   each and their share, the most frequent one, the rare ones, and whether the
+   marker is written before or after the number, with a space or not.
+
+```json
+{"kind": "measures", "accuracy": "exact", "storage": "table",
+ "computed_from": "source", "detector": "quantity",
+ "values": 2000, "parsed": 1801, "ambiguous": 0, "invalid": 0,
+ "unparsed": 199, "scan_not_tested": 0, "homogeneous": false,
+ "overall": {"count": 1801, "distinct": 676, "numeric": {"...": "..."},
+             "histogram": {"kind": "bins", "...": "..."}},
+ "groups": [{"marker": "Go", "count": 775, "numeric": {"...": "..."},
+             "histogram": {"kind": "dense_counts", "...": "..."}}],
+ "markers": {"kind": "unit", "count": 1801, "distinct": 4,
+             "listed": [{"value": "Go", "count": 775, "parsed": 775,
+                         "share": 0.4303}],
+             "modes": ["Go"], "dominant_share": 0.4303}}
+```
+
+Nothing is converted: `$` and `€` stay two currencies, `Go` and `To` two units.
+When the field mixes them, `homogeneous` is false and its overall metrics add
+quantities that differ: read the groups first. A value such as `$4,825`, which
+the settings can read as thousands or as a decimal comma, is `ambiguous`: it is
+counted with its currency and never given a number. Values with the shape of an
+amount that do not hold (`$12.5.0`) are `invalid`, and the others `unparsed`. The
+four counts add up to the values of the field, and the counts are those of the
+scan's detector; a difference fails the analysis. For percentages,
+`percent_range` counts the values below 0, from 0 to 100 and above 100.
+
+The numbers are counted exactly, value by value, so the median, the quantiles
+and the modes are exact. When a field has more than 100,000 different pairs of a
+unit and a number (`deep.measures.max_values`), every group goes on in bins whose
+width is a power of two: the counts, sums, means and extremes stay exact, and the
+median and quantiles become estimates with their bounds (`storage` is `grid`).
+When the scan holds every distinct value with its exact count, the source is not
+read (`computed_from` is `samples`), and the command says how many analyses it
+computed from the scan. The cost grows with the number of different
+values: `tabalyst report` leaves out by itself a column of more than 16,384
+different values, and says so in its plan; `--deep` computes it.
 
 ## Correlation between two columns
 
@@ -323,7 +378,9 @@ The `deep.pearson` object chooses the pairs of numeric columns: how many
 columns are explored, how much work that may take and how many pairs the plan lists
 or picks by itself. The `deep.crosstab` object does the same for the tables of a
 category against a feature, and sets their classes (the categories kept, the length
-of a prefix) and the thresholds of the candidate rules. See [Deep
+of a prefix) and the thresholds of the candidate rules. The `deep.measures` object
+sets how many currencies or units get metrics of their own and how many numbers
+are counted exactly. See [Deep
 settings](../reference/configuration.md#deep-settings).
 
 `bin_strategy: "sample_quantile"` places the inner edges where the sample of

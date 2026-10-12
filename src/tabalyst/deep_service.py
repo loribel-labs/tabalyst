@@ -40,6 +40,7 @@ from tabalyst.scanner.secondpass import (
     SecondPassOutcome,
     deep_path_for,
     load_deep,
+    pending_candidates,
     reading_candidates,
     run_second_pass,
 )
@@ -62,6 +63,13 @@ class DeepJob:
         """Analyses a run has to compute from the source; 0 when the stored
         results and the Scan are enough and the source need not be read."""
         return len(reading_candidates(self.second.plan, self.previous))
+
+    @property
+    def from_scan(self) -> int:
+        """Analyses a run computes from the Scan alone, without reading the
+        source: the patterns or the values with a unit of a field whose every
+        distinct value the Scan holds."""
+        return len(pending_candidates(self.second.plan, self.previous)) - self.pending
 
     @property
     def source(self) -> Path:

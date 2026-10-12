@@ -40,6 +40,7 @@ NOT_APPLICABLE = {
     "few_prefixes": "the listed values share a single prefix",
     "unknown_feature": "no such feature",
     "not_a_category": "the column cannot be a category",
+    "low_coverage": "fewer than half of the values carry a currency marker, a percent sign or a unit",
 }
 
 # Why an analysis needs no further reading.
@@ -88,6 +89,7 @@ UTILITY = {
     "candidates_unvalidated": "pattern shares come from a sample of the distinct values",
     "values_outside_candidates": "some values take no candidate pattern",
     "temporal_distribution": "shows how the dates are spread",
+    "values_with_unit": "the scan counts the values with a unit but has no number for them",
     "derivable_from_samples": "follows from the exact counts the scan already lists",
     "base_value": "a common analysis",
     "exploratory_correlation": "the sample suggests a linear relation between the two columns",

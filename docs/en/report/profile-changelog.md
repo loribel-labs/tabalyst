@@ -78,3 +78,13 @@ The profile becomes a superset of the Scan document: it has `format:
   count as exact, estimated, sample, at least or not computed, and writes
   integers with all their digits (see
   [Large integers](json-profile.md#large-integers)).
+
+## Version 0.2.0, revision 3
+
+The report follows the scan base at revision 3 (see the
+[Scan format changelog](../scan/format-changelog.md)): `numeric.coverage`, the
+refusal of `numeric` for codes and the `minority_length` observation. The
+report adds no member of its own. The second pass document inside `analyses`
+is at [revision 2](../scan/deep-format.md#changelog): it may hold the numbers of
+amounts, percentages and quantities with a unit (the result `measures`), which
+the Second pass section summarizes in one line.
