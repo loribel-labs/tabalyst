@@ -843,6 +843,17 @@
           ],
           "default": null,
           "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
         }
       },
       "title": "CurrencySettings",
@@ -3415,7 +3426,7 @@
     },
     "NumberSettings": {
       "additionalProperties": false,
-      "description": "``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:\ndecimal comma, thousands grouped by ``.`` or a space (design 12.10).",
+      "description": "``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:\ndecimal comma, thousands grouped by ``.`` or a space (design 12.10).\n\n``infer_convention`` (on by default) reads the ambiguous numbers, such as\n``1,234``, in the convention the unambiguous numbers of the column prove, at\nleast ``min_evidence`` of them and none proving the other (design 20.27);\n``ambiguous_convention`` always wins. ``detectors.number`` applies them in the\nScan; the amount detectors (``currency``, ``percentage``, ``quantity``)\ninherit them, but the Scan counts no number of an amount, so they change\nnothing there.",
       "properties": {
         "enabled": {
           "default": true,
@@ -3449,6 +3460,17 @@
           ],
           "default": null,
           "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
         }
       },
       "title": "NumberSettings",
@@ -4289,6 +4311,17 @@
           ],
           "default": null,
           "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
         }
       },
       "title": "PercentageSettings",
@@ -4478,6 +4511,17 @@
           ],
           "default": null,
           "title": "Ambiguous Convention"
+        },
+        "infer_convention": {
+          "default": true,
+          "title": "Infer Convention",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
         },
         "max_tracked_units": {
           "default": 10000,

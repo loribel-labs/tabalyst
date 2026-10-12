@@ -266,8 +266,10 @@ def _setup_pair(
         ids = [first.id, second.id]
         if sample is None or not sample.complete or not sample.covers(ids):
             raise ScanMismatch("the scan no longer holds every row of the pair")
-        columns = [column_floats(sample.rows, field_id, cells, lenient=False) for field_id in ids]
-        left, right = ColumnFeed(cells), ColumnFeed(cells)
+        columns = [
+            column_floats(sample.rows, column, cells, lenient=False) for column in (first, second)
+        ]
+        left, right = ColumnFeed(cells.for_field(first)), ColumnFeed(cells.for_field(second))
         left.numbers, right.numbers = columns[0][1], columns[1][1]
         pair = PairAccumulator(left, right, min_pairs, grid)
         pair.add(columns[0][0], columns[1][0])
@@ -278,7 +280,7 @@ def _setup_pair(
         where = (dataset.id, field_path(field.path))
         feed = feeds.get((*where, "number"))
         if feed is None:
-            feed = feeds[(*where, "number")] = ColumnFeed(cells)
+            feed = feeds[(*where, "number")] = ColumnFeed(cells.for_field(field))
         assert isinstance(feed, ColumnFeed)
         columns_of.append(feed)
     job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs, grid)
@@ -320,8 +322,8 @@ def _setup_stats(
         ids = [category.id, column.id]
         if sample is None or not sample.complete or not sample.covers(ids):
             raise ScanMismatch("the scan no longer holds every row of the pair")
-        floats, found = column_floats(sample.rows, column.id, cells, lenient=False)
-        left, right = CodeFeed(coder), ColumnFeed(cells)
+        floats, found = column_floats(sample.rows, column, cells, lenient=False)
+        left, right = CodeFeed(coder), ColumnFeed(cells.for_field(column))
         right.numbers = found
         table = StatsAccumulator(left, right, edges)
         table.add(code_rows(coder, sample.rows, category.id), floats)
@@ -336,7 +338,7 @@ def _setup_stats(
     where = (dataset.id, field_path(column.path), "number")
     number_feed = feeds.get(where)
     if number_feed is None:
-        number_feed = feeds[where] = ColumnFeed(cells)
+        number_feed = feeds[where] = ColumnFeed(cells.for_field(column))
     assert isinstance(number_feed, ColumnFeed)
     job.accumulator = StatsAccumulator(left, number_feed, edges)
     job.reads_pair = True
@@ -967,7 +969,7 @@ def run_second_pass(
             where = (job.dataset.id, field_path(job.field.path))
             route = routes.get(where)
             if route is None:
-                route = routes[where] = FieldRoute(cells, None, None)
+                route = routes[where] = FieldRoute(cells.for_field(job.field), None, None)
             accumulator = job.accumulator
             if isinstance(accumulator, LengthAccumulator):
                 route.lengths = accumulator

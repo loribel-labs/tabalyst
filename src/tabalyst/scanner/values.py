@@ -686,7 +686,11 @@ class ValueProcessor:
         sample, to its long texts and to its samples by length (the configured
         ones without it)."""
         self.limited = limited
-        self.measures.numeric.median_values = None
+        measures = self.measures
+        measures.numeric.median_values = None
+        for readings in (measures.ambiguous_numbers, measures.dotted_numbers):
+            if readings is not None:
+                readings.release()
         if grants is None:
             sample_grant, long_k = None, self.context.max_long_samples
         else:
@@ -1070,6 +1074,8 @@ class ValueProcessor:
                 variant_groups = Complete[VariantGroups](
                     value=VariantGroups(groups=0, listed=[], truncated=False)
                 )
+        # Decided before the results: the number detector names the decision.
+        measures.read_thousands(detectors.number_convention(measures))
         results = detectors.results(measures.tallies, report_failure, gate, report_probe)
         # Statistics such as a minimum or a date range are values themselves:
         # a masked or hidden field withholds them (design 12.8).

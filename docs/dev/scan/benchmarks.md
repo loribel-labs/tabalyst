@@ -1142,3 +1142,27 @@ files (`wide-1000` at 3,692 MB). The spread is the largest range of the four tas
 35 minutes for a Scan alone at the measured rate, 6 and 12 hours for the four tasks in three repeats. The wide cases keep
 200,000 rows, since the memory and the time per cell do not depend on the rows (PERF-05, above). The decision was taken
 with the maintainer on 2026-10-10.
+
+## Ambiguous numbers read by the evidence of the column (Insight lot 17d.2a)
+
+The first pass keeps the ambiguous numbers (`1,234`) and the strict decimals `d.ddd` as integers and decides their reading at
+the finalization of the field (design 20.27). `76eb1c6` (a copy of the tree, `lot17d/base`) against the head, alternated three
+times in one session, task `scan`, default workers (`benchmarks/interleave.py`, outputs under
+`D:/GIT.test/tabalyst/artifacts/lot17d2a/il/`):
+
+| File | Base (s), three runs | Head (s), three runs | Median | Threshold | Peak memory (MB) |
+| --- | --- | --- | --- | --- | --- |
+| insurance-combined.csv (1 M x 34, realistic) | 13.03, 12.72, 12.71 | 12.51, 12.40, 12.55 | **-2.5%** | 20% | 780 to 778 (guard-rail 10%) |
+| worst-width-1m.csv | 16.08, 15.69, 15.96 | 15.48, 15.56, 15.82 | **-0.8%** | 35% | 926 to 925 |
+| dd3.csv (500,000 rows of `d.ddd`) | 3.63, 3.57, 3.60 | 3.81, 3.33, 3.35 | -6.8% | | 626 to 626 |
+| amb-s30.csv (500,000 rows, 30% ambiguous) | 4.05, 4.00, 4.61 | 4.64, 4.14, 4.10 | +3.5% | | 630 to 627 |
+| amb-s100.csv (500,000 rows, about 100% ambiguous) | 4.07, 3.98, 4.09 | 4.13, 4.23, 4.23 | +3.3% | | 627 to 626 |
+| amb-s100-n100k.csv (100,000 rows, complete tables) | 4.23, 3.59, 3.62 | 3.99, 3.88, 3.93 | +8.0% | | 198 to 248 |
+| amb-s100-n2m.csv (2 M rows, released tables) | 12.83, 12.18, 13.46 | 15.75, 13.03, 13.70 | +7.0% | | 767 to 763 |
+
+The thresholds hold, and the memory plateau does not depend on the rows: 626 MB at 500,000 rows and 763 MB at 2 M (627 and
+767 for the base). The Scan document of the realistic file is the base's but for the two new settings of the four number
+detectors and `config_sha256`. The only memory step is the synthetic worst case, four columns entirely ambiguous with 100,000
+distinct values each and complete tables (+25%): the resolved numbers enter the exact median like any number; the same file
+written without commas costs the same (lot 17d.1 note). The sessions of 17d.1 and 17d.2a measured the base 3 to 4 points
+apart, so differences of that size are noise.

@@ -420,13 +420,23 @@ MonthLanguage = Literal["en", "fr"]
 
 class NumberSettings(_Settings):
     """``dot``: decimal point, thousands grouped by ``,`` or a space; ``comma``:
-    decimal comma, thousands grouped by ``.`` or a space (design 12.10)."""
+    decimal comma, thousands grouped by ``.`` or a space (design 12.10).
+
+    ``infer_convention`` (on by default) reads the ambiguous numbers, such as
+    ``1,234``, in the convention the unambiguous numbers of the column prove, at
+    least ``min_evidence`` of them and none proving the other (design 20.27);
+    ``ambiguous_convention`` always wins. ``detectors.number`` applies them in the
+    Scan; the amount detectors (``currency``, ``percentage``, ``quantity``)
+    inherit them, but the Scan counts no number of an amount, so they change
+    nothing there."""
 
     enabled: bool = True
     conventions: list[NumberConvention] = Field(
         default_factory=lambda: ["dot", "comma"], min_length=1
     )
     ambiguous_convention: NumberConvention | None = None
+    infer_convention: bool = True
+    min_evidence: int = Field(default=3, ge=1)
 
     @field_validator("conventions")
     @classmethod

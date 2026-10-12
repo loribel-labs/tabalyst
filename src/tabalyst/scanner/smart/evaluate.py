@@ -178,7 +178,8 @@ class _ColumnTests:
     def __init__(self, evaluator: Evaluator, field: FieldResult) -> None:
         self.field = field
         self.index = _column_of(field)
-        self.reader = evaluator.reader
+        # The numbers the Scan counted in the field (design 20.27).
+        self.reader = evaluator.reader.for_field(field)
         self.exact: dict[str, list[int]] = {}
         self.missing: list[int] = []
         self.coder: PatternCoder | None = None

@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-12T10:32:10.387942Z",
-    "duration_seconds": 0.311468,
+    "started_at": "2026-10-12T15:23:32.472355Z",
+    "duration_seconds": 0.284129,
     "timings": {
-      "reading": 0.011202,
-      "analysis": 0.025876,
-      "finalize": 0.26337,
-      "derived": 0.01055,
-      "other": 0.000469
+      "reading": 0.010065,
+      "analysis": 0.024059,
+      "finalize": 0.240394,
+      "derived": 0.009151,
+      "other": 0.00046
     },
     "workers": 1,
-    "peak_memory_bytes": 82137088
+    "peak_memory_bytes": 81833984
   },
   "source": {
     "format": "csv",
@@ -190,7 +190,9 @@
           "dot",
           "comma"
         ],
-        "ambiguous_convention": null
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
       },
       "date": {
         "enabled": true,
@@ -277,7 +279,9 @@
           "dot",
           "comma"
         ],
-        "ambiguous_convention": null
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
       },
       "percentage": {
         "enabled": true,
@@ -285,7 +289,9 @@
           "dot",
           "comma"
         ],
-        "ambiguous_convention": null
+        "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3
       },
       "quantity": {
         "enabled": true,
@@ -294,6 +300,8 @@
           "comma"
         ],
         "ambiguous_convention": null,
+        "infer_convention": true,
+        "min_evidence": 3,
         "max_tracked_units": 10000,
         "max_listed_units": 20
       },
@@ -324,7 +332,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
+  "config_sha256": "0eddf0b717be66d82ec3ccfda9761f3ad915edc095efd4f09464923ab5d8b631",
   "scope": {
     "collections": null,
     "records_read": 3000,

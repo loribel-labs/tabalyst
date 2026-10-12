@@ -21,7 +21,7 @@ from tabalyst.scanner.measures import UNCONVERTIBLE
 from tabalyst.scanner.models import DatasetResult, FieldResult, NumericStats
 from tabalyst.scanner.secondpass.accumulators import decimal_bounds
 from tabalyst.scanner.secondpass.bins import BinEdges, linear_edges, quantile_edges
-from tabalyst.scanner.secondpass.replay import CellReader
+from tabalyst.scanner.secondpass.replay import CellReader, native_number
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,12 +63,26 @@ def row_numbers(dataset: DatasetResult, field: FieldResult, reader: CellReader) 
         cell = row.values.get(field.id)
         if cell:
             texts.extend(text for text in cell if text is not None)
-    return _numbers(reader, texts)
+    return _numbers(reader.for_sample(field), texts)
 
 
 def distinct_numbers(field: FieldResult, reader: CellReader) -> list[Fraction]:
-    """The numbers among the distinct values of the bottom-k sample."""
-    return _numbers(reader, [entry.value for entry in field.values.samples.listed])
+    """The numbers among the distinct values of the bottom-k sample. A number of
+    the source's own type is taken as it is, never read in a convention."""
+    listed = field.values.samples.listed
+    strings = list(dict.fromkeys(entry.value for entry in listed if entry.type == "string"))
+    cells = dict(zip(strings, reader.for_field(field).cells(strings), strict=True))
+    found: list[Fraction] = []
+    for entry in listed:
+        if entry.type == "string":
+            number = cells[entry.value].number
+        elif entry.type in ("integer", "number"):
+            number = native_number(entry.type, entry.value)
+        else:
+            continue
+        if number is not None and number is not UNCONVERTIBLE:
+            found.append(Fraction(number))
+    return found
 
 
 def place_edges(

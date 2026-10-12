@@ -194,7 +194,9 @@ class SecondPassWorkers:
             parts: dict[str, object] = {
                 name: getattr(route, name) for name in PARTS if getattr(route, name) is not None
             }
-            self._send(worker, ("setup", rid, parts, route.memo_entries))
+            self._send(
+                worker, ("setup", rid, parts, route.memo_entries, route.reader.convention)
+            )
             remotes[position] = RemoteRoute(self, worker, rid)
         return [remote for remote in remotes if remote is not None]
 
@@ -260,8 +262,10 @@ def serve() -> None:
             assert isinstance(message, tuple)
             kind = message[0]
             if kind == "setup":
-                _, rid, parts, memo_entries = message
-                route = FieldRoute(cells, parts.get("numeric"), parts.get("lengths"))
+                _, rid, parts, memo_entries, convention = message
+                route = FieldRoute(
+                    cells.reading(convention), parts.get("numeric"), parts.get("lengths")
+                )
                 route.frequencies = parts.get("frequencies")
                 route.patterns = parts.get("patterns")
                 route.periods = parts.get("periods")
