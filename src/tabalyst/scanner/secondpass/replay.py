@@ -138,6 +138,9 @@ class CellReader:
         self.date_detector: DateDetector | None = (
             DateDetector(dates) if dates.get("enabled", True) else None
         )
+        # The detector that reads the ambiguous dates in one order, by order.
+        self.date_settings = dates
+        self.ordered_detectors: dict[str, DateDetector] = {}
         self.config = config
         self.measure_detectors: dict[str, MeasureDetector | None] = {}
         self.replays: dict[str, Detector | None] = {}
@@ -161,14 +164,16 @@ class CellReader:
         raws: Sequence[str],
         *,
         numbers: bool = True,
-        dates: bool = False,
+        dates: bool | str = False,
         measure: str | None = None,
     ) -> list[Cell]:
         """The cell of each distinct raw string, in order. Without ``numbers``
         the number detector is not run and no cell has a number: an analysis
         of lengths does not pay for it. With ``dates`` the date detector reads
-        the analytical text of each content string, and with ``measure`` the
-        detector of that id (``currency``, ``percentage`` or ``quantity``)."""
+        the analytical text of each content string (``dates`` may be ``DMY`` or
+        ``MDY``, the order the field's ambiguous dates are read in), and with
+        ``measure`` the detector of that id (``currency``, ``percentage`` or
+        ``quantity``)."""
         category = self.strings.category
         texts: list[str] = []
         positions: list[int] = []
@@ -178,7 +183,7 @@ class CellReader:
                 texts.append(self.analytical(raw))
                 positions.append(position)
         found = self._numbers(texts) if numbers else [None] * len(texts)
-        moments = self._moments(texts) if dates else [None] * len(texts)
+        moments = self._moments(texts, dates) if dates else [None] * len(texts)
         measures = (
             self._measures(measure, texts) if measure is not None else [None] * len(texts)
         )
@@ -303,10 +308,20 @@ class CellReader:
                 numbers.append(classification.value)
         return numbers
 
-    def _moments(self, texts: list[str]) -> list[Classification | None]:
+    def _moments(
+        self, texts: list[str], order: bool | str = True
+    ) -> list[Classification | None]:
         """What the date detector makes of each analytical text, as the first
-        pass does: a text above the input cap of the detector is not tested."""
+        pass does: a text above the input cap of the detector is not tested. With
+        an ``order`` the ambiguous dates are read in it, as ``ambiguous_order``
+        of the configuration would."""
         detector = self.date_detector
+        if isinstance(order, str) and detector is not None:
+            detector = self.ordered_detectors.get(order)
+            if detector is None:
+                detector = self.ordered_detectors[order] = DateDetector(
+                    {**self.date_settings, "ambiguous_order": order}
+                )
         if detector is None:
             return [None] * len(texts)
         cap = detector.max_input_length

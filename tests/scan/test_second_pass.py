@@ -122,9 +122,13 @@ def test_an_analysis_that_raises_fails_alone_without_its_message(tmp_path, monke
 
     monkeypatch.setattr(BinAccumulator, "add", broken)
 
-    _, _, outcome = deep_csv(
-        tmp_path, "age,price", [f"{20 + n % 50},{n * 1.5:.1f}" for n in range(200)]
+    # The shape of the numbers counts in bins too: it would fail its route with the histogram.
+    result = scan_csv(tmp_path, "age,price", [f"{20 + n % 50},{n * 1.5:.1f}" for n in range(200)])
+    plan = forced_plan(result)
+    plan = plan.model_copy(
+        update={"candidates": [c for c in plan.candidates if c.analyzer != "numeric_shape"]}
     )
+    outcome = run_second_pass(result, tmp_path / "data.csv", plan)
 
     price = entry(outcome, "numeric_histogram", "price")
     assert price.status == "failed" and price.reason == "analysis_error"
@@ -230,19 +234,25 @@ def test_quantile_edges_merge_ties_and_refuse_a_sample_without_spread():
 # Keys and documents -------------------------------------------------------------------
 
 
+def _selected(plan):
+    return [c for c in plan.candidates if c.selection.state == "selected"]
+
+
 def test_a_key_follows_the_bins_and_the_scan_and_not_the_budget(tmp_path):
     result = scan_csv(tmp_path, "x", [f"{n * 0.3:.1f}" for n in range(500)])
     keys = {}
     for bins in (20, 30):
         plan = forced_plan(result, DeepSettings(bins=bins))
-        (candidate,) = [c for c in plan.candidates if c.selection.state == "selected"]
+        (candidate,) = [c for c in _selected(plan) if c.analyzer == "numeric_histogram"]
         keys[bins] = analysis_key(plan.base, candidate)
     plan = forced_plan(result, DeepSettings(bins=20))
-    (candidate,) = [c for c in plan.candidates if c.selection.state == "selected"]
+    (candidate,) = [c for c in _selected(plan) if c.analyzer == "numeric_histogram"]
     small = plan.budgets.model_copy(update={"memory_bytes": 1})
     other = scan_csv(tmp_path, "x", [f"{n * 0.4:.1f}" for n in range(500)])
     (other_candidate,) = [
-        c for c in forced_plan(other, DeepSettings(bins=20)).candidates if c.selection.state == "selected"
+        c
+        for c in _selected(forced_plan(other, DeepSettings(bins=20)))
+        if c.analyzer == "numeric_histogram"
     ]
 
     assert keys[20] != keys[30]
@@ -285,7 +295,8 @@ def test_a_document_of_another_source_is_not_reused(tmp_path):
     stored = run_second_pass(first, tmp_path / "data.csv", forced_plan(first)).document
     plan = forced_plan(second)
 
-    assert len(pending_candidates(plan, stored)) == 1
+    # The histogram and the shape of the numbers.
+    assert len(pending_candidates(plan, stored)) == 2
     outcome = run_second_pass(second, tmp_path / "other" / "data.csv", plan, previous=stored)
     assert outcome.reused == () and outcome.read_source
 
@@ -418,11 +429,11 @@ def test_the_command_runs_the_second_pass_and_names_it(tmp_path, monkeypatch):
     again = runner.invoke(app, ["scan", str(source), "--deep"])
 
     assert first.exit_code == 0, first.output
-    assert "(scanned)" in first.output and "reading the source again for 1 analysis" in first.output
-    assert "Second pass:" in first.output and "1 computed, 0 reused" in first.output
+    assert "(scanned)" in first.output and "reading the source again for 2 analyses" in first.output
+    assert "Second pass:" in first.output and "2 computed, 0 reused" in first.output
     assert again.exit_code == 0
     assert "(reused)" in again.output and "every result is already stored" in again.output
-    assert "0 computed, 1 reused, unchanged" in again.output
+    assert "0 computed, 2 reused, unchanged" in again.output
 
 
 def test_the_command_has_nothing_to_add_when_the_scan_answers_everything(tmp_path, monkeypatch):

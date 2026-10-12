@@ -16372,7 +16372,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -16426,6 +16426,13 @@
           "max_groups": 20,
           "max_values": 100000
         },
+        "shape": {
+          "max_values": 100000
+        },
+        "datetime": {
+          "as_of": null,
+          "infer_order": true
+        },
         "residuals": {
           "max_listed": 20,
           "max_tracked": 10000,
@@ -16439,13 +16446,13 @@
           "records": false
         }
       },
-      "settings_sha256": "87bb96be964ebcde6042e34a66cc448c5b786397afcd56662d19d2e4614d93c7",
+      "settings_sha256": "6ad3e27bea5e357558d11ea6f64d02965033bdcb5c32aed7298aef48e701aa9c",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 10,
-        "plan_id": "40853b23c22038087b98dde68e75ed600e21e61ad7438cd83366807fc56278db",
+        "cost_model_version": 11,
+        "plan_id": "a0a426672c779410506a94eb5b7310d541c64c3c172de3588eb431c2a2fab87d",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -16475,10 +16482,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 97,
+          "candidates": 103,
           "selected": 19,
           "already_satisfied": 39,
-          "rejected": 39,
+          "rejected": 45,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -19393,7 +19400,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "day",
-              "periods": 359
+              "periods": 359,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -19468,7 +19476,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "day",
-              "periods": 240
+              "periods": 240,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -22296,25 +22305,499 @@
               "score": 0.044259,
               "stable": false
             }
+          },
+          {
+            "id": "numeric_shape:$.customers[]:f7",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f7",
+            "display": "address.postal_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "measure_unavailable"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:$.customers[]:f20",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f20",
+            "display": "orders[].items[].quantity",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 67484,
+                "expected": 262856,
+                "max": 848372
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "shape:datasets/$.customers[]/fields/f20",
+                  "memory": {
+                    "min": 300,
+                    "expected": 600,
+                    "max": 900
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/$.customers[]/fields/f20",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/$.customers[]/fields/f20",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/$.customers[]/fields/f20",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/$.customers[]/fields/f20",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:$.customers[]:f21",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f21",
+            "display": "orders[].items[].unit_price",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 67684,
+                "expected": 263256,
+                "max": 848972
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "shape:datasets/$.customers[]/fields/f21",
+                  "memory": {
+                    "min": 500,
+                    "expected": 1000,
+                    "max": 1500
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/$.customers[]/fields/f21",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/$.customers[]/fields/f21",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/$.customers[]/fields/f21",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/$.customers[]/fields/f21",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:$.customers[]:f22",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f22",
+            "display": "orders[].total",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 68684,
+                "expected": 265256,
+                "max": 851972
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "shape:datasets/$.customers[]/fields/f22",
+                  "memory": {
+                    "min": 1500,
+                    "expected": 3000,
+                    "max": 4500
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/$.customers[]/fields/f22",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/$.customers[]/fields/f22",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/$.customers[]/fields/f22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/$.customers[]/fields/f22",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:$.customers[]:f8",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f8",
+            "display": "signup_date",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 41382,
+                "max": 61152
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "parts:datasets/$.customers[]/fields/f8",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 34268,
+                    "max": 35768
+                  }
+                },
+                {
+                  "key": "replay:datasets/$.customers[]/fields/f8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 6090,
+                    "max": 24360
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/$.customers[]/fields/f8",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:$.customers[]:f15",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f15",
+            "display": "orders[].ordered_at",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 44552,
+                "max": 74632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "parts:datasets/$.customers[]/fields/f15",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 33868,
+                    "max": 34968
+                  }
+                },
+                {
+                  "key": "replay:datasets/$.customers[]/fields/f15",
+                  "memory": {
+                    "min": 0,
+                    "expected": 9660,
+                    "max": 38640
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/$.customers[]/fields/f15",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T03:10:00.420139Z",
-        "duration_seconds": 0.000163,
+        "started_at": "2026-10-12T10:14:29.352747Z",
+        "duration_seconds": 0.009216,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000163
+          "reading": 0.003371,
+          "analysis": 0.001742,
+          "other": 0.004103
         },
         "workers": 1,
-        "peak_memory_bytes": 68358144,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 19,
+        "peak_memory_bytes": 71036928,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 60,
+        "cells_read": 179,
+        "executed": 2,
+        "reused": 17,
         "skipped": 0
       },
       "analyses": [
@@ -23898,10 +24381,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "day",
-            "periods": 359
+            "periods": 359,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "5b504d51c571028203ce66ea83487223337857fbdd64b621b0075f7871056f7f",
+          "key": "6dc3bf9dda0fb870bce60ea41cc34ca4edcc40caca7c7c16f90c34acb44de949",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -24161,10 +24645,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "day",
-            "periods": 240
+            "periods": 240,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "451b54b74548f12d948538da4d5e35f2a9eadfce5cbd10dfa1354c9dc5e06546",
+          "key": "8637787e6747291f35c34569c932a0cdbdf60201a6700bf18a3330ea8d3cc629",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -25366,12 +25851,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T03:10:00.486843Z",
+    "generated_at": "2026-10-12T10:14:29.458172Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.108,
+    "processing_seconds": 0.1488,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

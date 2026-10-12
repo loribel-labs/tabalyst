@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from tabalyst.config import DatetimeSettings
 from tabalyst.scanner.planner.analyzer import (
     Analyzer,
     Assessment,
@@ -25,7 +26,7 @@ from tabalyst.scanner.planner.costmodel import (
     PERIOD_ENTRY_BYTES,
     PERIOD_MEMO_ENTRIES,
 )
-from tabalyst.scanner.planner.facts import FieldFacts
+from tabalyst.scanner.planner.facts import FieldFacts, TemporalFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
 
 # The finest granularity whose number of periods stays small (specification
@@ -46,6 +47,14 @@ def granularity(span_days: int) -> tuple[str, int]:
     if span_days <= MONTH_SPAN:
         return "month", span_days // 28 + 2
     return "year", span_days // 365 + 2
+
+
+def date_order(temporal: TemporalFacts, settings: DatetimeSettings) -> str:
+    """The order the ambiguous dates are read in, or ``""``: the evidence of the
+    column when the settings allow it and enough dates prove it."""
+    if not settings.infer_order:
+        return ""
+    return temporal.inferred(settings.min_evidence) or ""
 
 
 class TemporalDistribution(Analyzer):
@@ -84,19 +93,22 @@ class TemporalDistribution(Analyzer):
             return Assessment("not_applicable", ("time_only",))
         if temporal.span_days is None:
             return Assessment("not_applicable", ("measure_unavailable",))
-        if temporal.span_days == 0:
+        # Ambiguous dates the unambiguous ones read in one order are counted with
+        # the others: what the Scan holds leaves them out, so it does not answer.
+        order = date_order(temporal, self.settings.datetime)
+        if temporal.span_days == 0 and not order:
             return Assessment(
                 "satisfied", ("constant_value",), satisfied_by=f"{facts.where}/temporal"
             )
         unit, periods = granularity(temporal.span_days)
-        if unit == "year" and temporal.years_counted:
+        if unit == "year" and temporal.years_counted and not order:
             return Assessment(
                 "satisfied", ("years_counted",), satisfied_by=f"{facts.where}/temporal"
             )
         return Assessment(
             "applicable",
             method="period_counts",
-            parameters={"granularity": unit, "periods": periods},
+            parameters={"granularity": unit, "periods": periods, "date_order": order},
         )
 
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
@@ -111,4 +123,7 @@ class TemporalDistribution(Analyzer):
         return costs(NS_PER_CELL["period"], [state, memo, result_state(self.id, facts)])
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:
-        return Utility(score=50, reasons=["temporal_distribution"])
+        reasons = ["temporal_distribution"]
+        if assessment.parameters.get("date_order"):
+            reasons.append("ambiguous_dates_read_by_evidence")
+        return Utility(score=50, reasons=reasons)

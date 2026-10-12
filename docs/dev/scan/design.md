@@ -76,6 +76,9 @@ lot, with the reason recorded in section 17.
 | O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
 | O49 | Insight lot 15: the values that patterns and detectors leave out | The analyzer `residual_values` keeps, per field, the values no candidate pattern reads and the values of up to three replayable detectors (`replayable()`: value scope, strings only) that are `invalid` or `not_matched`, with exact counts (a value is tracked from its first appearance, up to `deep.residuals.max_tracked`), the reasons of the invalid ones and, when the source is read, the record of the first occurrence. Each candidate pattern gets an example, its first record and its distinct values over every occurrence (an `ExactSet` of the run's pool). When the Scan holds every distinct value with its exact count the result follows from them, without records (D1); `deep.residuals.records` reads the source anyway. The detector counts are checked against the coverage of the Scan. The record number is handed to the routes (`strings(column, start)`, `string(value, record)`). Second-pass document revision 2 (same release). | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.20, 20.5, 20.7 |
 | O50 | Insight lot 15: the repeated values of identifiers and keys | The analyzer `duplicates_report` lists the values found more than once in a column of almost all different values (a proven unique column is `already_satisfied`), with exact counts and, when the source is read, the first record. Values are 128-bit BLAKE2b digests with the record of their first occurrence, charged to the pool of the exact sets; a search the pool stops is `duplicates_limited`. A combination of two columns is searched on request only (`AnalysisRequest(partner=)`): `DuplicatesReport` is also a `PairAnalyzer` with `per_field`. `deep.duplicates` holds `max_listed`, `max_tracked`, `records`. | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.21, 20.5 |
+| O55 | Insight lot 17c: ambiguous dates read by the evidence of the column | In the second pass the ambiguous dates (`03/04/2020`) are read in the order that the unambiguous dates of the column prove when only one of `DMY` and `MDY` occurs, whatever the separators and the year-first dates, and counted with the others (`DateResolution`, plan parameter `date_order`, `deep.datetime.infer_order`, `deep.datetime.min_evidence`, 3 proofs at least); with both orders or none they stay ambiguous; `ambiguous_order` of the configuration wins. It reverses, for the second pass only, the rule of 12.6 that the evidence is exposed and never applied. | Accepted 2026-10-12 (maintainer) | 20.26, 12.6, 20.10 |
+| O54 | Insight lot 17b: the parts of the dates | The analyzer `datetime_parts` counts the dates by year-month (the years and the months of the year are sums of it), day of the week and hour (datetimes and times), counts those after an explicit `deep.datetime.as_of` (never the date of the day), reads the ambiguous dates again under each order (`DMY`, `MDY`: year-months and weekdays) and counts the invalid ones by reason. It reads the classification of the date detector that `temporal_distribution` reads, so the two share one reading. The empty periods and the longest gap are not stored: they follow from the periods or the years of the Scan at render time. `DatetimeSettings` (`as_of` only), `COST_MODEL_VERSION` 11. | Accepted 2026-10-11 (maintainer: "ok avec propositions", R2 to R5), then the bins of equal width replaced by the year-months on 2026-10-12 | 20.25, 20.10 |
+| O53 | Insight lot 17a: the shape of the numbers | The analyzer `numeric_shape` counts the distinct numbers of a column in a table up to `deep.shape.max_values` (100,000), then in a grid of bins whose width is a power of two (the grid of 20.19). It gives the skewness and the excess kurtosis (centered float64 sums merged by batch), the outliers of Tukey (exact quartiles and counts with the table, quartiles with certain bounds and counts bracketed by `certain` and `possible` with the grid), the places a number is written with and two views of the spread whose counts are exact: bins at equal ratios (`log`, positive numbers only) and bins at the quantiles of the Scan's samples (`equal_count`). The third bounded reading that the plan imagined to refine the quantiles is given up: the table is exact in one reading. `ShapeSettings`, `COST_MODEL_VERSION` 11. | Accepted 2026-10-11 (maintainer: "ok avec propositions", R1) | 20.24, 20.7, 20.19 |
 | O52 | Insight lot 16c: the numbers of a column by category | The analyzer `category_stats` (a `PairAnalyzer`, directed: the category is the `field`, the numeric column the `partner`) describes a number for each value of a category over every row: count, extremes, sum, mean, population standard deviation, signs and a histogram in bins common to all the categories, with quantiles estimated from them with certain bounds. The arithmetic is float64 (the numbers are read as the correlations read them, `ColumnFeed`), the counts exact. A pair is rated by the square root of the corrected correlation ratio (epsilon squared, Kelley) on the row sample, chosen by itself from 0.45 (`deep.stats.automatic_stats`, 8). `Relations.stats`, `Budgets.automatic_stats`, `deep.stats`, `COST_MODEL_VERSION` 10. | Accepted 2026-10-11 (maintainer: "ok avec propositions", S1 to S6) | 20.23, 20.12, 20.13 |
 | O51 | Insight lot 16 (16a and 16b): the line and the rank of a pair, tables of a category against the values of another, exceptions bounded, rules a user gives | `pearson_correlation` (version 2) gives `slope`, `intercept` and `r_squared` from the co-moments and, with `deep.pearson.rank_bins` (64, 0 off), a `rank` member: the Spearman coefficient estimated from a grid of bins cut at quantiles of what the Scan kept, with certain bounds (the deviation of the true centered ranks from the mid-ranks is orthogonal to them and bounded by the sum of n(n^2-1)/12 over the bins, so the angle between the rank vectors moves by at most the sum of two arctangents). The exploration rates a pair by the larger of the scores of the linear and the rank coefficient of the sample. `category_crosstab` has a fourth feature, `value` (the most frequent values of the column, coded like a category), read in one direction by the exploration (the column with fewer distinct values is the row axis); `deep.crosstab.max_exception_cells` bounds the listed exceptions and `exceptions.complete` says whether all are listed; `AnalysisRequest.rules` gives rules to check, each in `provided_rules` with its counter-examples (provenance `provided`). The analyzer `category_stats` is O52. | Accepted 2026-10-11 (maintainer: "ok avec propositions", Q1 to Q5) | 20.22, 20.12, 20.13 |
 | O48 | Insight lot 14: numbers of the values with a unit | The analyzer `measure_extraction` (second pass only, Q7) reads the values of a field that the `currency`, `percentage` or `quantity` detector reads for at least half of its values, with that detector of the Scan's configuration, and gives three levels: the metrics of a numeric field (the members of `numeric`, a histogram and its quantiles) for every parsed value, the same for each marker or unit (`max_groups`, the rest in `other`), and the markers as an enumeration. Nothing is converted. Numbers are counted exactly per marker up to `deep.measures.max_values` distinct pairs, then every group goes on in bins whose width is a power of two (exact counts and moments, estimated quantiles; the width depends on the range only). Counts are checked against the detector of the Scan, exactly when it tested every value, bounded by `not_tested` otherwise. The second-pass document moves to revision 2. | Accepted 2026-10-11 | 20.19, 20.5, 20.7 |
@@ -1785,6 +1788,9 @@ makes by itself writes none.
 | 2026-10-11 | IN-15 | New decisions O49 and O50, new sections 20.20 and 20.21, rows in 20.5 and 20.2: `residual_values` (`secondpass/residuals.py`) and `duplicates_report` (`secondpass/duplicates.py`, also a `PairAnalyzer` with `per_field`), `CellReader.readings`, `detectors.registry.replayable`, the record handed to the routes, `deep.residuals` and `deep.duplicates`, `COST_MODEL_VERSION` 8. | Insight lot 15: leads B2 and B6 of 10.30 of the technical documentation. |
 | 2026-10-11 | IN-16 | New decision O51, new section 20.22, notes in 20.12 and 20.13: `slope`, `intercept`, `r_squared` and `rank` of `PearsonResult`, `scanner/rankcorr.py`, `secondpass/ranks.py`, `deep.pearson.rank_bins`, the `rank_*` members of `Exploration`, the feature `value`, `deep.crosstab.max_exception_cells`, `exceptions.complete`, `AnalysisRequest.rules` and `provided_rules`, `COST_MODEL_VERSION` 9. | Insight lot 16 (16a and 16b): lead B3 of 10.30 of the technical documentation, in part. |
 | 2026-10-11 | IN-17 | New decision O52, new section 20.23, a row in 20.5 and a note in 20.22: `category_stats` (`planner/analyzers/stats.py`, `planner/categorystats.py`, `secondpass/stats.py`, `scanner/correlation_ratio.py`), `StatsResult`, `Relations.stats`, `Budgets.automatic_stats`, `deep.stats`, `COST_MODEL_VERSION` 10. | Insight lot 16c: lead B3 of 10.30 of the technical documentation, the rest of it. |
+| 2026-10-11 | IN-18 | New decision O53, new section 20.24, a row in 20.5: `numeric_shape` (`planner/analyzers/shape.py`, `secondpass/shape.py`), `ShapeResult`, `deep.shape`, `FieldRoute.shape`, `binned_quantile_fractions`, `exact_quantile_fractions`, `distinct_band`, `COST_MODEL_VERSION` 11. | Insight lot 17a: lead B5 of 10.30 of the technical documentation. |
+| 2026-10-11 | IN-19 | New decision O54, new section 20.25, a row in 20.5: `datetime_parts` (`planner/analyzers/parts.py`, `secondpass/parts.py`), `PartsResult`, `deep.datetime`, `FieldRoute.parts`. | Insight lot 17b: lead B4 of 10.30 of the technical documentation, and the A4 lead for dates. |
+| 2026-10-12 | IN-20 | New decision O55, new section 20.26: `inferred_order`, `date_evidence`, `DateResolution`, `CellReader.cells(dates=<order>)`, `deep.datetime.infer_order`, the plan parameter `date_order`. | Insight lot 17c: the maintainer's rule for ambiguous dates. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3153,6 +3159,8 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
 | `category_stats` | a category column and a numeric column of one dataset (lot 16c, 20.23) | never | a category that is not one (as for `category_crosstab`), a number that is not numeric, hidden, repeated, constant, an identifier or without a complete measure, a column that is its own category | `group_moments`, parameters `max_categories`, `bins`, `strategy` |
+| `numeric_shape` | integer, number, and mixed with a numeric measure (lot 17a, 20.24) | constant (`constant_value`) | no values, exposure, measure not complete, mixed type | `value_table`, parameters `max_values`, `bins`; utility 40, never automatic |
+| `datetime_parts` | the fields of `temporal_distribution` and a column of times (lot 17b, 20.25) | never | no values, exposure, mixed type, several kinds, no span | `calendar_parts`, parameters `bins`, `as_of`; utility 40, never automatic |
 | `temporal_distribution` | date, a column of datetimes (the technical type of the Scan is `text` for them: at least 80% of the values are of one datetime kind), mixed with a temporal measure | single date, or granularity `year` and years already counted (`years_counted`) | no values, exposure, mixed type, several kinds, times only | `period_counts` by `day` (span up to 2 years), `month` (60 years) or `year` (20.10) |
 | `measure_extraction` | a field where the `currency`, `percentage` or `quantity` detector matched a value (lot 14, 20.19) | never | no values, exposure, the detector that matched the most values matched fewer than half of the values (`low_coverage`) | `value_table`, parameters `detector`, `max_groups`, `max_values`, `bins`; reads no source when every distinct value is in the samples with its exact count |
 | `residual_values` | a field whose patterns leave values out or may (found in a sample), or that a replayable detector reads for at least half of its values while finding some `invalid` or `not_matched` (lot 15, 20.20) | never | no values, exposure, nothing left out (`nothing_left_out`) | `residual_table`, parameters `sources`, `max_listed`, `max_tracked`, `max_value_length`, `records`; reads no source when every distinct value is in the samples with its exact count and `records` is 0 |
@@ -4416,6 +4424,126 @@ unchanged, almost all of it the reading of the five number columns.
 section does not print the pairs yet (lot 20).
 
 **Left out.** The unit of a measure as a virtual category (20.19), a rating by ranks (Kruskal-Wallis) for skewed numbers, and exact quantiles per category.
+
+### 20.24 The shape of the numbers of a column (Insight lot 17a, B5, O53)
+
+A histogram says where the numbers are. `numeric_shape` (`planner/analyzers/shape.py`, `secondpass/shape.py`) says how they are
+spread: lopsided or not, with outliers or not, written with how many decimals. It applies to `integer` and `number` fields and to
+`mixed` ones with a complete numeric measure, with the exclusions of `numeric_histogram` (a constant column is `satisfied` by `numeric`).
+Its utility is 40, below the automatic threshold (`AUTOMATIC_MIN_UTILITY`, 45): `tabalyst report` does not pick it by itself,
+a request or a forced second pass does. The method is `value_table`, parameters `max_values` and `bins`.
+
+**One reading.** The accumulator takes the numbers the route reads for the histogram (`CellReader.cells(numbers=True)`, the number
+detector of the Scan's configuration, once for each distinct string of a batch), so a field with both analyses reads each cell once
+(`FieldRoute.shape` next to `FieldRoute.numeric`). A JSON number is the `Decimal` of the text the reader kept. A number that Python
+cannot convert (`UNCONVERTIBLE`) makes the analysis `unrepresentable`.
+
+**Table and grid.** Each distinct number is a key of a table until `max_values` of them exist; then every count goes into a `Grid`
+(20.19) of the width of the smallest power of two that holds the range in `deep.bins` bins, and the numbers that follow only widen it.
+Counts, extremes, sums and places stay exact whatever the storage; `storage` says which (`table`, `grid`).
+
+**Quartiles and Tukey.** With the table the quartiles are the exact fractions of the ranks (`exact_quantile_fractions`) and the
+fences `q1 - k * iqr` and `q3 + k * iqr` (`k` 1.5 and 3) are exact; the numbers strictly below and above are counted by bisection
+of the sorted keys. With the grid the quartiles are `binned_quantile_fractions` (an estimate and certain bounds, as for the
+histogram); a fence is bracketed by its extreme values over the bounds of `q1` and `q3`, `(1 + k) q1 - k q3` and `(1 + k) q3 - k q1`; a bin counts as `certain` when all
+of its numbers are beyond every possible fence and as `possible` when any can be beyond one. The last bin is closed on the right,
+so its maximum can touch a fence (the test is strict for it). The two counts are equal with the table.
+
+**Moments.** Skewness `m3 / m2^1.5` and excess kurtosis `m4 / m2^2 - 3` of the population, from centered sums in float64. With the
+table they are computed from the table at the end; with the grid the table is centered when it is given up and the numbers that
+follow are buffered (8,192 pairs) and merged by Pébay's update (`merge_moments`), so that the result depends on the batches only
+by float rounding (tests compare at 1e-6 after rounding to six decimals). They are undefined, with a reason, for fewer than 3
+numbers (`too_few_values`), no variance (`no_variance`) or a float64 overflow (`not_representable`).
+
+**Places.** The number of digits after the point as the text is written, from the exponent of the `Decimal` (`12.50` has 2 and a
+trailing zero, `1.5E+3` has 0, an integer 0), counted for each distinct string: `places`, `trailing_zero`, `mixed`.
+
+**Views.** `log` places the inner edges of `deep.bins` bins at equal ratios between the bounds of the Scan (`exp` of equal steps of
+the logarithm in float64; each edge is the exact fraction of its float), only when the lower bound is positive (`non_positive`
+otherwise); `equal_count` is `place_edges` with the strategy `sample_quantile` whatever `deep.bin_strategy` says, with its fallback
+to equal widths and its reason. Both are `BinAccumulator`s: the counts are exact over the whole source, `outside` must be 0 and
+the extremes are compared with the Scan's. The edges of `equal_count` come from the samples of the Scan, so they follow the order of the rows of
+the Scan (a file read backwards has another sample).
+
+**Checks.** The numbers counted are `field.numeric.value.count`; the views check the extremes. A difference is `scan_mismatch`.
+
+**Cost.** Measured on the executor (`lot17/measure_costs.py`, 1 million rows, one process): 106 ns a cell for 30 distinct numbers
+(the histogram: 93), 2,326 for 6,000 (1,409), 3,990 to 4,317 for 150,000 to one million (2,270 to 2,393) and the same with the grid.
+`NS_PER_CELL` has three tiers by distinct values, `shape_few` 300, `shape` 2,400 and `shape_wide` 2,400 (`shape_tier`, `distinct_band`). The two upper figures are the top of `moderate`, below the measure, on purpose: a class above makes a forced second pass ask (`cpu_over_automatic`) on any file with a numeric column of a few thousand different numbers, so the time estimate is low for such columns by the cost of the number detector that the histogram pays too.
+Memory: the table at `MEASURE_ENTRY_BYTES` an entry (plus the sorted copy), the grid, the buffer (`SHAPE_BUFFER_BYTES`) and two views.
+`COST_MODEL_VERSION` is 11. The oracle (`lot17/oracle_17.py`, 1 million rows, exact integers) finds no difference for the three
+columns, with the table and with the grid.
+
+**Left out.** Exact quantiles of a grid by refining the bin that holds the rank (a bounded third reading with a confirmation): the
+table already gives them in one reading up to `max_values`; a reading from the Scan's samples when they hold every distinct value.
+
+### 20.25 The parts of the dates (Insight lot 17b, B4, O54)
+
+`datetime_parts` (`planner/analyzers/parts.py`, `secondpass/parts.py`) applies to the fields `temporal_distribution` applies to
+(`date`, a column of datetimes, `mixed` with a complete temporal block) and to a column of times, with one temporal kind. Its utility
+is 40 (asked for or forced), the method `calendar_parts`, the parameter `as_of` (`deep.datetime.as_of`, empty when
+absent), part of the key.
+
+**One reading.** `CellReader.cells(dates=True)` gives each content string the classification of the date detector of the Scan's
+configuration; `FieldRoute.parts` takes it next to `FieldRoute.periods` (`add(moment, text, count)`). A date is placed by the
+calendar date as written (`zone: as_written`): the offset of an aware datetime is not converted. A value of another kind than the Scan's is `unplaced`.
+
+**Parts.** `year_months` (the months that occur, `YYYY-MM`, whatever the span: the counts per year and per month of the year are
+sums of it and are not stored), `weekdays` (7, Monday is 0, every part present), `hours` (24; those that occur) for datetimes and
+times. A time has `hours` only. The placement does not depend on the span of the Scan, which orders aware datetimes as instants.
+
+**After a bound.** With `as_of` the dates whose ordinal is above its own are `after_as_of` (by calendar day, so a datetime of the day is not after).
+
+**Ambiguity.** An `ambiguous` value is counted and never placed in the parts. `simulation` reads its analytical text with two
+`DateDetector`s of the Scan's configuration but for `ambiguous_order` (`DMY`, `MDY`) and counts, for each order, the placed values, the
+year-months, the days of the week and those after `as_of` (only the day and the month change between the readings). The readings of a text are remembered (16,384 texts). There is no simulation when the configuration
+already gave an order, since nothing is ambiguous then.
+
+**Invalid values.** `invalid_reasons` counts the `invalid` classifications by the reason of the detector. Their total is checked against
+the date detector of the Scan (`coverage.invalid`, exactly when `not_tested` is 0, else between it and it plus `not_tested`).
+This is the A4 lead of lot 13, limited to dates: `residual_values` (20.20) gives the reasons of every replayable detector.
+
+**Checks.** `placed` is the count of the kind in `temporal.kinds`, `ambiguous` that of `temporal.ambiguous`, and `values = count + ambiguous + invalid + unplaced`.
+
+**Empty periods.** The number of empty periods and the longest gap follow from `periods` of `temporal_distribution` (or `temporal.years`)
+and are computed at render time, not stored.
+
+**Cost.** Measured as above, with the bins of equal width that the first version had (the year-months cost less): 213 ns a cell for 730 distinct dates (`temporal_distribution`: 172), 250 for 672 ambiguous texts (165),
+3,019 for 8,640 datetimes (2,772) and 3,717 for a million distinct datetimes (3,494): the date detector dominates. `NS_PER_CELL` has the
+tiers `parts_few` 600, `parts` 2,400 and `parts_wide` 2,400 by distinct strings (`parts_tier`), the last two at the top of `moderate` for the reason given in 20.24. The memory is `PARTS_BYTES` and the
+replay of the dates. `COST_MODEL_VERSION` is 11. The oracle on 1 million rows (year-months, weekdays, hours, after the bound,
+the two readings) finds no difference.
+
+**Left out.** Minutes and seconds, a conversion to UTC, dates in the future relative to the clock (only an explicit bound).
+
+### 20.26 Ambiguous dates read by the evidence of the column (Insight lot 17c, O55)
+
+The Scan counts as `ambiguous` a numeric date that both `DMY` and `MDY` read (`03/04/2020`) and, as evidence, the unambiguous
+dates that only one of them reads (`details.ambiguity.evidence`, 12.6); it applies neither, unless `ambiguous_order` of the
+configuration says so. **Decision O55 reverses that for the second pass** (maintainer, 2026-10-12): `inferred_order(field)`
+(`planner/facts.py`) is `DMY` when some dates read day-month only and none month-day, `MDY` for the opposite, `None` with both
+orders, with none, or when the configuration gave an order. Separators play no part (the evidence is by order) and dates written year
+first are in neither count, so they change nothing. The first pass is not touched: its `temporal` block and its counts are as before.
+
+**Smart by default.** The rule is automatic, deterministic (exact counts of the Scan, never time), cheap (the reading the
+distribution over time already makes) and named: the plan parameter `date_order` is part of the key and the utility reason
+`ambiguous_dates_read_by_evidence` says why, the result carries `resolved` (the ambiguous dates now valid) and `resolution` (`order`, `source: evidence`, the `evidence` by order)
+and the Report line says "N ambiguous now valid, read as DMY (proved by M unambiguous dates)". It is explicit when it matters: `deep.datetime.infer_order`
+(true) turns it off, and `ambiguous_order` wins.
+
+**Recount.** `CellReader.cells(dates=<order>)` reads the texts with a `DateDetector` of the Scan's settings but for that
+`ambiguous_order` (one per order), so the ambiguous values come back `matched` and are placed like the others; the cells are
+remembered with that reading. `PeriodAccumulator` and `PartsAccumulator` take the `order`; their checks become `placed = kind count +
+ambiguous of the Scan` and `ambiguous = 0`. The Scan's `years_counted` and constant-span answers leave out the ambiguous dates, so
+`temporal_distribution` is not `already_satisfied` by them when an order is inferred and the source is read. `datetime_parts` has no
+simulation then (nothing is ambiguous).
+
+**Threshold.** `deep.datetime.min_evidence` (3) is the fewest dates that must prove the order (`order_of`), and none may read in the
+other; `TemporalFacts` carries the two counts, the settings decide (`date_order`), and the effective order is the plan parameter, so a
+change of the threshold changes the key.
+
+**Limits.** `evidence` shows how many dates prove the order, and a column that mixes sources is only ambiguous when both orders occur. The span used to size the periods is that of the unambiguous dates. The Scan alone (`scan`
+without `--deep`) still leaves these dates out.
 
 ## 21. Original value domain (O32)
 

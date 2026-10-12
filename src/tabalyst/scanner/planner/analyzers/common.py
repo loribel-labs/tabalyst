@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.analyzer import Assessment, memory
 from tabalyst.scanner.planner.costmodel import (
+    MEASURE_FEW_DISTINCT,
+    MEASURE_MEMO_ENTRIES,
     REPLAY_ENTRY_BYTES,
     REPLAY_MEMO_ENTRIES,
     RESULT_BYTES,
@@ -30,6 +32,21 @@ def blocked(facts: FieldFacts) -> Assessment | None:
     if facts.withheld:
         return Assessment("not_applicable", ("sensitive_exposure",))
     return None
+
+
+def distinct_band(facts: FieldFacts) -> str:
+    """How many distinct values a field has, as the cost of an analysis that
+    handles each distinct string of a batch follows it: ``few`` (up to
+    ``MEASURE_FEW_DISTINCT``), ``mid`` (up to the strings a route remembers) or
+    ``wide``. A field whose count was stopped is taken at its estimate, or as
+    wide."""
+    distinct = facts.distinct
+    if distinct is None:
+        known = facts.distinct_estimate or facts.distinct_lower_bound
+        distinct = None if known is None else int(known)
+    if distinct is None or distinct > MEASURE_MEMO_ENTRIES:
+        return "wide"
+    return "few" if distinct <= MEASURE_FEW_DISTINCT else "mid"
 
 
 def result_state(analyzer: str, facts: FieldFacts) -> State:

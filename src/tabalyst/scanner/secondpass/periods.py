@@ -19,17 +19,20 @@ from datetime import date
 from tabalyst.scanner.detectors.base import Classification
 from tabalyst.scanner.detectors.temporal import kind_of
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
-from tabalyst.scanner.secondpass.models import PeriodCount, PeriodCounts
+from tabalyst.scanner.secondpass.models import DateResolution, PeriodCount, PeriodCounts
 
 
 class PeriodAccumulator:
     """A counter per calendar period of one temporal kind."""
 
-    __slots__ = ("ambiguous", "counts", "granularity", "kind", "placed", "values")
+    __slots__ = ("ambiguous", "counts", "granularity", "kind", "order", "placed", "values")
 
-    def __init__(self, granularity: str, kind: str) -> None:
+    def __init__(self, granularity: str, kind: str, order: str | None = None) -> None:
         self.granularity = granularity
         self.kind = kind
+        # The order the ambiguous dates are read in (the detector then gives them
+        # a date), when the evidence of the Scan chose one.
+        self.order = order
         self.counts: dict[int, int] = {}
         self.values = 0
         self.placed = 0
@@ -64,17 +67,22 @@ class PeriodAccumulator:
             return f"{key // 12:04d}-{key % 12 + 1:02d}"
         return f"{key:04d}"
 
-    def result(self, expected: int, expected_ambiguous: int) -> PeriodCounts:
+    def result(
+        self, expected: int, expected_ambiguous: int, evidence: dict[str, int] | None = None
+    ) -> PeriodCounts:
         """The counts, checked against the Scan: the dates of this kind and the
-        ambiguous values are those it counted."""
-        if self.placed != expected:
+        ambiguous values are those it counted, the ambiguous ones being placed
+        with the others when an order read them."""
+        resolved = expected_ambiguous if self.order else 0
+        evidence = evidence or {}
+        if self.placed != expected + resolved:
             raise ScanMismatch(
-                f"dates: the second pass found {self.placed}, the scan {expected}"
+                f"dates: the second pass found {self.placed}, the scan {expected + resolved}"
             )
-        if self.ambiguous != expected_ambiguous:
+        if self.ambiguous != expected_ambiguous - resolved:
             raise ScanMismatch(
                 f"ambiguous dates: the second pass found {self.ambiguous}, "
-                f"the scan {expected_ambiguous}"
+                f"the scan {expected_ambiguous - resolved}"
             )
         if not self.counts:
             raise ScanMismatch("the second pass found no date")
@@ -85,8 +93,14 @@ class PeriodAccumulator:
             values=self.values,
             count=self.placed,
             ambiguous=self.ambiguous,
+            resolved=resolved,
             unplaced=self.values - self.placed - self.ambiguous,
             first=self._label(keys[0]),
             last=self._label(keys[-1]),
             periods=[PeriodCount(period=self._label(key), count=self.counts[key]) for key in keys],
+            resolution=(
+                DateResolution(order=self.order, evidence=evidence)  # type: ignore[arg-type]
+                if self.order
+                else None
+            ),
         )

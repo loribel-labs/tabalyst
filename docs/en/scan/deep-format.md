@@ -424,6 +424,82 @@ When `defined` is false there is no figure and `reason` is `too_few_rows`, `sing
 `no_variance`. `source` is `samples` when the complete row sample of the scan held every row
 (CSV files of up to 1,000 rows).
 
+**`numeric_shape`**: the shape of the numbers of a column. See
+[The shape of the numbers](deep.md#the-shape-of-the-numbers).
+
+```json
+{
+  "kind": "numeric_shape",
+  "accuracy": "exact",
+  "storage": "table",
+  "count": 3000,
+  "distinct": 2338,
+  "moments": {"precision": "float64", "skewness": 5.1256, "excess_kurtosis": 51.2233},
+  "tukey": {"accuracy": "exact",
+            "q1": {"level": 0.25, "value": 9.86, "accuracy": "exact"},
+            "q3": {"level": 0.75, "value": 37.9025, "accuracy": "exact"},
+            "iqr": 28.0425,
+            "fences": [{"factor": 1.5, "low": -32.20375, "high": 79.96625,
+                        "below": {"certain": 0, "possible": 0},
+                        "above": {"certain": 235, "possible": 235}}]},
+  "scale": {"places": [{"places": 2, "count": 3000}], "max_places": 2,
+            "trailing_zero": 279, "mixed": false},
+  "log": {"kind": "bins", "strategy": "log", "requested_strategy": "log", "bounds_source": "range", "...": "..."},
+  "equal_count": {"kind": "bins", "strategy": "sample_quantile", "...": "..."}
+}
+```
+
+`storage` is `table` when every different number was counted (`accuracy` `exact`) and `grid`
+beyond `deep.shape.max_values` (`exact_counts`): `distinct` exists with the table only, the
+quartiles of `tukey` are estimates read from bins whose width is a power of two (`accuracy`
+`bounds`, `lower` and `upper` on `q1` and `q3`) and each count of a fence is bracketed by `certain`
+and `possible`. `moments` holds `skewness` (third standardized moment of the population) and
+`excess_kurtosis` (fourth, minus 3) from centered sums in 64-bit floats (`precision`), or a `reason`
+instead: `no_variance`, `too_few_values` or `not_representable`. `tukey.fences` has the fences at
+`factor` 1.5 and 3 interquartile ranges (`low`, `high`) and the numbers strictly `below` and `above`.
+`scale.places` counts the numbers by the digits written after the point, `trailing_zero` those that end
+with a 0 decimal and `mixed` is true when the decimal numbers do not share one count of decimals.
+`log` (absent with a `log_reason`, `non_positive`, when a number is not positive) and `equal_count`
+are `bins` histograms (see `numeric_histogram`) whose `strategy` is `log` (bounds at equal ratios) or
+`sample_quantile`; the counts are exact whatever the storage.
+
+**`datetime_parts`**: the parts of the calendar dates of a field. See
+[The parts of the dates](deep.md#the-parts-of-the-dates).
+
+```json
+{
+  "kind": "datetime_parts",
+  "accuracy": "exact",
+  "temporal_kind": "date",
+  "zone": "as_written",
+  "values": 1500, "count": 1316, "ambiguous": 0, "invalid": 52, "unplaced": 132,
+  "scan_not_tested": 0,
+  "invalid_reasons": [{"reason": "invalid_calendar_date", "count": 37}],
+  "year_months": [{"period": "2022-03", "count": 38}],
+  "weekdays": [{"value": 0, "count": 190}],
+  "as_of": "2023-06-30", "after_as_of": 818
+}
+```
+
+`values = count + ambiguous + invalid + unplaced`; `count` and `ambiguous` are those of the scan's
+`temporal` block and `invalid` the `invalid` of its date detector (`scan_not_tested` values it did not
+test were read here, and found at most that many more). `year_months` lists the months that occur,
+in order, as `{period: "YYYY-MM", count}`; the counts per year and per month of the year are sums of
+it and are not repeated. `weekdays` (0 for Monday to 6) lists every day of the week and `hours` (0 to 23)
+the hours that occur, for datetimes and times; a column of times (`temporal_kind` `time`) has `hours`
+only. The dates are placed by the calendar date as written (`zone`). `as_of` and `after_as_of` exist
+when `deep.datetime.as_of` is set. `simulation` exists when `ambiguous` is not 0: `readings` has one
+entry per order (`DMY`, `MDY`) with the `year_months`, `weekdays` and `placed` count the ambiguous
+dates would give, and `after_as_of`.
+
+**`resolution`** (in `periods` and `datetime_parts`, absent when the ambiguous dates were not read): the
+order the ambiguous dates were read in. Both results also have `resolved`, the number of ambiguous
+dates that this made valid (0 without a `resolution`). `order` is `DMY` or `MDY`, `source` is `evidence` (the unambiguous dates of
+the column read in that order only, whatever their separator; the order of the configuration is not a
+`resolution`, the scan already used it) and `evidence` counts the unambiguous dates by order. The
+`resolved` dates are counted in `count` and `ambiguous` is 0 (`values = count + ambiguous + invalid + unplaced`). See
+[Ambiguous dates read by the evidence](deep.md#ambiguous-dates-read-by-the-evidence).
+
 **`measures`**: the numbers of a field of amounts with a currency, percentages or
 quantities with a unit, read as the scan's `detector` (`currency`, `percentage` or
 `quantity`) read them.
@@ -648,6 +724,13 @@ correlation `rank` (`spearman_binned`, an estimate with certain bounds); the ana
 `crosstab` has the feature kind `value` (a category against another category), `exceptions.complete`
 and the member `provided_rules`; the settings have `deep.crosstab.max_exception_cells`. A request
 can carry `rules`, which are part of the key of the table.
+
+The results `periods` and `datetime_parts` may hold a `resolution` (the ambiguous dates read by the evidence of the
+column, `deep.datetime.infer_order`), and the plan parameter `date_order`. The results `numeric_shape` of the analyzer `numeric_shape` (asymmetry, kurtosis, outliers of Tukey,
+decimals, logarithmic and equal-count histograms) and `datetime_parts` of the analyzer
+`datetime_parts` (year-month, weekday and hour, dates after a bound, ambiguous
+dates under each reading, invalid dates by reason). `strategy` of a `bins` result may be `log`. The
+settings have the members `deep.shape` and `deep.datetime`.
 
 The result `category_stats` of the analyzer `category_stats`: the count, extremes, sum, mean, spread,
 signs and histogram of a number for each value of a category, with estimated quantiles and the share

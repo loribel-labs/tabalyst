@@ -46173,6 +46173,13 @@
           "max_groups": 20,
           "max_values": 100000
         },
+        "shape": {
+          "max_values": 100000
+        },
+        "datetime": {
+          "as_of": null,
+          "infer_order": true
+        },
         "residuals": {
           "max_listed": 20,
           "max_tracked": 10000,
@@ -46186,13 +46193,13 @@
           "records": false
         }
       },
-      "settings_sha256": "87bb96be964ebcde6042e34a66cc448c5b786397afcd56662d19d2e4614d93c7",
+      "settings_sha256": "6ad3e27bea5e357558d11ea6f64d02965033bdcb5c32aed7298aef48e701aa9c",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 10,
-        "plan_id": "53bc06b050092096fd8d95ef11ebbdfbcb87c5908c24d0f85e23931743d74180",
+        "cost_model_version": 11,
+        "plan_id": "5a40d0c898a81d67bfabfcea0644932b802b60777977db7810bc87407e425234",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -46222,10 +46229,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 189,
+          "candidates": 199,
           "selected": 66,
           "already_satisfied": 70,
-          "rejected": 53,
+          "rejected": 63,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -51609,7 +51616,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "month",
-              "periods": 144
+              "periods": 144,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -51684,7 +51692,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "month",
-              "periods": 136
+              "periods": 136,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -51759,7 +51768,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "month",
-              "periods": 133
+              "periods": 133,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -51834,7 +51844,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "month",
-              "periods": 130
+              "periods": 130,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -51909,7 +51920,8 @@
             "method": "period_counts",
             "parameters": {
               "granularity": "month",
-              "periods": 118
+              "periods": 118,
+              "date_order": ""
             },
             "outputs": [
               "period_counts"
@@ -58976,25 +58988,863 @@
               "epsilon_squared": 0.003641,
               "score": 0.060345
             }
+          },
+          {
+            "id": "numeric_shape:rows:column_9",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "numero_voie",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 324784,
+                "expected": 777456,
+                "max": 1620272
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "shape:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 257600,
+                    "expected": 515200,
+                    "max": 772800
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:rows:column_13",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_13",
+            "display": "appartement",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 133684,
+                "expected": 395256,
+                "max": 1046972
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "shape:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 66500,
+                    "expected": 133000,
+                    "max": 199500
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:rows:column_26",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_26",
+            "display": "prime_annuelle",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 364684,
+                "expected": 857256,
+                "max": 1739972
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "shape:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 297500,
+                    "expected": 595000,
+                    "max": 892500
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "numeric_shape:rows:column_33",
+            "analyzer": "numeric_shape",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_33",
+            "display": "montant_reclamation",
+            "method": "value_table",
+            "parameters": {
+              "max_values": 100000,
+              "bins": 100
+            },
+            "outputs": [
+              "moments",
+              "outliers",
+              "decimals",
+              "histogram"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "numeric_shape"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 101584,
+                "expected": 331056,
+                "max": 950672
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "shape:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 34400,
+                    "expected": 68800,
+                    "max": 103200
+                  }
+                },
+                {
+                  "key": "shape_grid:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 8000,
+                    "expected": 139072,
+                    "max": 532288
+                  }
+                },
+                {
+                  "key": "shape_views:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 58160,
+                    "expected": 58160,
+                    "max": 58160
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "result:numeric_shape:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_6",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "date_naissance",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 431337,
+                "max": 1435572
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 126968,
+                    "max": 221168
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 0,
+                    "expected": 303345,
+                    "max": 1213380
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_23",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_23",
+            "display": "date_debut",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 301237,
+                "max": 1074572
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 47268,
+                    "max": 61768
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 252945,
+                    "max": 1011780
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_24",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_24",
+            "display": "date_fin",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 171077,
+                "max": 555532
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 46468,
+                    "max": 60168
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 0,
+                    "expected": 123585,
+                    "max": 494340
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_30",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_30",
+            "display": "date_creation",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 295097,
+                "max": 1052212
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 46168,
+                    "max": 59568
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 0,
+                    "expected": 247905,
+                    "max": 991620
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_31",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_31",
+            "display": "date_modification",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 260567,
+                "max": 914692
+              },
+              "cpu": "moderate",
+              "cell_ns": 2400,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 45868,
+                    "max": 58968
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 213675,
+                    "max": 854700
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "datetime_parts:rows:column_32",
+            "analyzer": "datetime_parts",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_32",
+            "display": "date_reclamation",
+            "method": "calendar_parts",
+            "parameters": {
+              "as_of": "",
+              "date_order": ""
+            },
+            "outputs": [
+              "calendar_parts",
+              "ambiguity",
+              "invalid_reasons"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "calendar_parts"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 33792,
+                "expected": 88322,
+                "max": 228112
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "parts:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 32768,
+                    "expected": 44668,
+                    "max": 56568
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 0,
+                    "expected": 42630,
+                    "max": 170520
+                  }
+                },
+                {
+                  "key": "result:datetime_parts:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T03:09:57.367830Z",
-        "duration_seconds": 0.028198,
+        "started_at": "2026-10-12T10:14:24.880279Z",
+        "duration_seconds": 0.089228,
         "timings": {
-          "reading": 0.008508,
-          "analysis": 0.00836,
-          "other": 0.01133
+          "reading": 0.050337,
+          "analysis": 0.026188,
+          "other": 0.012703
         },
         "workers": 1,
-        "peak_memory_bytes": 92422144,
+        "peak_memory_bytes": 95412224,
         "source_read": true,
         "source_verified": true,
         "records_read": 3000,
-        "cells_read": 9000,
-        "executed": 2,
-        "reused": 64,
+        "cells_read": 15000,
+        "executed": 5,
+        "reused": 61,
         "skipped": 0
       },
       "analyses": [
@@ -84808,10 +85658,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "month",
-            "periods": 144
+            "periods": 144,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "3520e3016566c41b6371590fb3cb1b9a290016ded9e1cea30e701160c4b3e432",
+          "key": "0d2292d5f260b9730343a7c5a7d83e9768c8782a630c52cfdc0ba9284394d255",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -85347,10 +86198,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "month",
-            "periods": 136
+            "periods": 136,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "62f15183871867c13a12dc8b8bd6d5c215d5581daa14d95a630f2c82c41c777b",
+          "key": "4336ea704ccaf09080f39bb4dd82d3b29d893de616f72310c086341ba459c782",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -85822,10 +86674,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "month",
-            "periods": 133
+            "periods": 133,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "3ce98f29e8752456fc036524503552164345cab51e8afcc458802626c85ea541",
+          "key": "465a6d6b93970f594b223177072329997c4d2ba1fa4c528b30cbb4582115bc19",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -86341,10 +87194,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "month",
-            "periods": 130
+            "periods": 130,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "d266ae4eb2e9c1dfecc6f425ed882dc8798f1aba9917207bdaf45057313f12ff",
+          "key": "00c7184a8f8b1d6876478da192a9068401e2b157b6b2367930b7363ac0590560",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -86832,10 +87686,11 @@
           "method": "period_counts",
           "parameters": {
             "granularity": "month",
-            "periods": 118
+            "periods": 118,
+            "date_order": ""
           },
           "domain": "analytical",
-          "key": "a3a795943f4d0fbeccc4e829e7347e8c49d46fe9291641299e2c7b14f3a18ce7",
+          "key": "0f24ec26f37a897f6d75a500bcfa32a0dfb4727b02bff9c4b523b0e6aed5a8c9",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -93746,12 +94601,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T03:09:57.849956Z",
+    "generated_at": "2026-10-12T10:14:25.460421Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.8152,
+    "processing_seconds": 0.9175,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

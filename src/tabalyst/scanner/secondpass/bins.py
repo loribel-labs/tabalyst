@@ -133,17 +133,18 @@ def exact_quantiles(values: Sequence[tuple[int, int]], count: int) -> list[Quant
     return result
 
 
-def binned_quantiles(
+def binned_quantile_fractions(
     edges: Sequence[Fraction],
     counts: Sequence[int],
     count: int,
     minimum: Fraction,
     maximum: Fraction,
-) -> list[Quantile]:
-    """The quantiles read from bins: each rank is placed at the middle of its
-    place within its bin (the bin is assumed uniform), and the bounds are those
-    of the bins that hold the two ranks, tightened by the exact minimum and
-    maximum. Raises ``Unrepresentable`` for a result float64 cannot hold."""
+) -> list[tuple[Fraction, Fraction, Fraction]]:
+    """The estimate and the certain bounds ``(value, lower, upper)`` of each
+    level of ``QUANTILE_LEVELS`` read from bins, as exact fractions: each rank
+    is placed at the middle of its place within its bin (the bin is assumed
+    uniform), and the bounds are those of the bins that hold the two ranks,
+    tightened by the exact minimum and maximum."""
     cumulative: list[int] = []
     total = 0
     for occurrences in counts:
@@ -164,14 +165,58 @@ def binned_quantiles(
         value_low, bound_low_a, bound_high_a = locate(lower)
         value_high, bound_low_b, bound_high_b = locate(upper)
         result.append(
-            Quantile(
-                level=level[0] / level[1],
-                value=output_number(_mix(value_low, value_high, weight)),
-                accuracy="estimated",
-                lower=output_number(_mix(bound_low_a, bound_low_b, weight)),
-                upper=output_number(_mix(bound_high_a, bound_high_b, weight)),
+            (
+                _mix(value_low, value_high, weight),
+                _mix(bound_low_a, bound_low_b, weight),
+                _mix(bound_high_a, bound_high_b, weight),
             )
         )
+    return result
+
+
+def binned_quantiles(
+    edges: Sequence[Fraction],
+    counts: Sequence[int],
+    count: int,
+    minimum: Fraction,
+    maximum: Fraction,
+) -> list[Quantile]:
+    """The quantiles read from bins (``binned_quantile_fractions``) as they are
+    written. Raises ``Unrepresentable`` for a result float64 cannot hold."""
+    return [
+        Quantile(
+            level=level[0] / level[1],
+            value=output_number(value),
+            accuracy="estimated",
+            lower=output_number(lower),
+            upper=output_number(upper),
+        )
+        for level, (value, lower, upper) in zip(
+            QUANTILE_LEVELS,
+            binned_quantile_fractions(edges, counts, count, minimum, maximum),
+            strict=True,
+        )
+    ]
+
+
+def exact_quantile_fractions(
+    values: Sequence[tuple[Exact, int]], count: int
+) -> list[Fraction]:
+    """The quantiles of numbers given as ascending ``(value, count)`` pairs, as
+    exact fractions, for each level of ``QUANTILE_LEVELS``."""
+    cumulative: list[int] = []
+    total = 0
+    for _, occurrences in values:
+        total += occurrences
+        cumulative.append(total)
+
+    def at(rank: int) -> Fraction:
+        return Fraction(values[bisect_right(cumulative, rank)][0])
+
+    result = []
+    for level in QUANTILE_LEVELS:
+        lower, upper, weight = ranks(count, level)
+        result.append(_mix(at(lower), at(upper), weight))
     return result
 
 

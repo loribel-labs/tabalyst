@@ -1,5 +1,80 @@
 {
   "$defs": {
+    "AmbiguitySimulation": {
+      "additionalProperties": false,
+      "description": "The ``ambiguous`` dates, which the Scan counts and never places, read\nunder each order that makes them ambiguous. Nothing is applied: it measures\nwhat the choice of ``ambiguous_order`` would change.",
+      "properties": {
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "readings": {
+          "items": {
+            "$ref": "#/$defs/AmbiguousReading"
+          },
+          "title": "Readings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ambiguous",
+        "readings"
+      ],
+      "title": "AmbiguitySimulation",
+      "type": "object"
+    },
+    "AmbiguousReading": {
+      "additionalProperties": false,
+      "description": "What the ambiguous dates would be if every one were read in the order\n``order``: only the month and the day change between the readings, so the\nyear-months and the days of the week are counted.",
+      "properties": {
+        "order": {
+          "enum": [
+            "DMY",
+            "MDY"
+          ],
+          "title": "Order",
+          "type": "string"
+        },
+        "placed": {
+          "title": "Placed",
+          "type": "integer"
+        },
+        "year_months": {
+          "items": {
+            "$ref": "#/$defs/PeriodCount"
+          },
+          "title": "Year Months",
+          "type": "array"
+        },
+        "weekdays": {
+          "items": {
+            "$ref": "#/$defs/PartCount"
+          },
+          "title": "Weekdays",
+          "type": "array"
+        },
+        "after_as_of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After As Of"
+        }
+      },
+      "required": [
+        "order",
+        "placed",
+        "year_months",
+        "weekdays"
+      ],
+      "title": "AmbiguousReading",
+      "type": "object"
+    },
     "AnalysisPlan": {
       "additionalProperties": false,
       "description": "What to add to a Scan, why, and at what cost.\n\n``plan_id`` is the SHA-256 of the rest of the plan. ``executable`` is false\nwhile a selected analysis has no implementation in this version.",
@@ -199,6 +274,7 @@
                   "bins": "#/$defs/BinnedHistogram",
                   "category_stats": "#/$defs/StatsResult",
                   "crosstab": "#/$defs/CrosstabResult",
+                  "datetime_parts": "#/$defs/PartsResult",
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
                   "distinct_limited": "#/$defs/DistinctLimited",
@@ -207,6 +283,7 @@
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
                   "measures": "#/$defs/MeasureResult",
+                  "numeric_shape": "#/$defs/ShapeResult",
                   "pattern_counts": "#/$defs/PatternCounts",
                   "pearson": "#/$defs/PearsonResult",
                   "periods": "#/$defs/PeriodCounts",
@@ -241,6 +318,12 @@
                 },
                 {
                   "$ref": "#/$defs/MeasureResult"
+                },
+                {
+                  "$ref": "#/$defs/ShapeResult"
+                },
+                {
+                  "$ref": "#/$defs/PartsResult"
                 },
                 {
                   "$ref": "#/$defs/ResidualResult"
@@ -314,7 +397,7 @@
     },
     "BinnedHistogram": {
       "additionalProperties": false,
-      "description": "Counts per bin, exact for the declared classification (HIST-05): bin\n``i`` is ``[edges[i], edges[i+1])`` and the last one is closed on the right\nso that the maximum belongs to it. The distribution inside a bin is\nunknown, so the median and quantiles are estimates with their bounds.\n\n``strategy`` is the one in force and ``requested_strategy`` the one asked\nfor; they differ, with ``reason``, when the sample could not place the\nbounds. ``bounds_source`` says where the inner bounds come from: ``range``\n(equal widths between the exact minimum and maximum), ``rows`` (quantiles\nof the row sample), ``distinct`` (quantiles of the bottom-k sample) or\n``grid`` (the multiples of a power of two of the values with a unit beyond\n``max_values``, design 20.19).\n``edges`` are written as numbers; the classification used the exact bounds,\nso an edge that is not representable may be rounded here.",
+      "description": "Counts per bin, exact for the declared classification (HIST-05): bin\n``i`` is ``[edges[i], edges[i+1])`` and the last one is closed on the right\nso that the maximum belongs to it. The distribution inside a bin is\nunknown, so the median and quantiles are estimates with their bounds.\n\n``strategy`` is the one in force and ``requested_strategy`` the one asked\nfor; they differ, with ``reason``, when the sample could not place the\nbounds. ``bounds_source`` says where the inner bounds come from: ``range``\n(equal widths between the exact minimum and maximum), ``rows`` (quantiles\nof the row sample), ``distinct`` (quantiles of the bottom-k sample) or\n``grid`` (the multiples of a power of two of the values with a unit beyond\n``max_values``, design 20.19). ``log`` places the inner bounds at equal\nratios between the exact minimum and maximum of positive numbers (design\n20.24).\n``edges`` are written as numbers; the classification used the exact bounds,\nso an edge that is not representable may be rounded here.",
       "properties": {
         "kind": {
           "const": "bins",
@@ -325,7 +408,8 @@
         "strategy": {
           "enum": [
             "linear",
-            "sample_quantile"
+            "sample_quantile",
+            "log"
           ],
           "title": "Strategy",
           "type": "string"
@@ -333,7 +417,8 @@
         "requested_strategy": {
           "enum": [
             "linear",
-            "sample_quantile"
+            "sample_quantile",
+            "log"
           ],
           "title": "Requested Strategy",
           "type": "string"
@@ -1410,6 +1495,103 @@
       "title": "CrosstabSettings",
       "type": "object"
     },
+    "DateResolution": {
+      "additionalProperties": false,
+      "description": "The order the ambiguous dates of a field were read in: ``source`` is\n``evidence`` when the unambiguous dates of the field read in only one order\n(``25/03/2020`` is day-month and none is month-day), whatever their\nseparator and with or without year-first dates. ``evidence`` counts those\nunambiguous dates by order (``DMY``, ``MDY``). The ambiguous dates, which the\nScan counts and does not place, that this reading made valid are the\n``resolved`` count of the result.",
+      "properties": {
+        "order": {
+          "enum": [
+            "DMY",
+            "MDY"
+          ],
+          "title": "Order",
+          "type": "string"
+        },
+        "source": {
+          "const": "evidence",
+          "default": "evidence",
+          "title": "Source",
+          "type": "string"
+        },
+        "evidence": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Evidence",
+          "type": "object"
+        }
+      },
+      "required": [
+        "order",
+        "evidence"
+      ],
+      "title": "DateResolution",
+      "type": "object"
+    },
+    "DatetimeSettings": {
+      "additionalProperties": false,
+      "description": "How the parts of the dates of a column are counted (design 20.25).\n\n``as_of`` is a calendar date (``YYYY-MM-DD``) after which the dates are\ncounted; it is never the date of the day, so that a result does not change\nwith the clock, and without it nothing is counted. ``infer_order`` (on by\ndefault) reads the ambiguous dates, such as ``03/04/2020``, in the order that\nthe unambiguous dates of the column give when they all give the same one\n(day-month, or month-day), and counts them with the others; off, or with both\norders present, they stay ambiguous and are not placed. ``min_evidence`` is\nthe fewest unambiguous dates that must prove the order (3 by default; below\nit the dates stay ambiguous). An order given by\n``detectors.date.ambiguous_order`` always wins. They are part of the key of a\nresult, and ``infer_order`` and ``min_evidence`` also of the distribution\nover time.",
+      "properties": {
+        "as_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "As Of"
+        },
+        "infer_order": {
+          "default": true,
+          "title": "Infer Order",
+          "type": "boolean"
+        },
+        "min_evidence": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Min Evidence",
+          "type": "integer"
+        }
+      },
+      "title": "DatetimeSettings",
+      "type": "object"
+    },
+    "DecimalScale": {
+      "additionalProperties": false,
+      "description": "How many decimals the numbers are written with, exactly: ``places`` lists\neach count of decimals that occurs, from 0 (an integer or a number written\nwithout a point), ``trailing_zero`` counts the numbers whose last written\ndecimal is a 0 (``12.50``) and ``mixed`` says that decimal numbers are\nwritten with different counts of decimals (a precision that varies).",
+      "properties": {
+        "places": {
+          "items": {
+            "$ref": "#/$defs/PlacesCount"
+          },
+          "title": "Places",
+          "type": "array"
+        },
+        "max_places": {
+          "title": "Max Places",
+          "type": "integer"
+        },
+        "trailing_zero": {
+          "title": "Trailing Zero",
+          "type": "integer"
+        },
+        "mixed": {
+          "title": "Mixed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "places",
+        "max_places",
+        "trailing_zero",
+        "mixed"
+      ],
+      "title": "DecimalScale",
+      "type": "object"
+    },
     "DeepRun": {
       "additionalProperties": false,
       "description": "What the latest run did. ``source_verified`` says that the digest of the\nreading was compared with the Scan's (PASS2-01); a run that read nothing,\nbecause every result was reused, has none. ``cells_read`` counts the cells of\nthe fields the analyses read, not of the whole source.",
@@ -1518,6 +1700,12 @@
         },
         "measures": {
           "$ref": "#/$defs/MeasureSettings"
+        },
+        "shape": {
+          "$ref": "#/$defs/ShapeSettings"
+        },
+        "datetime": {
+          "$ref": "#/$defs/DatetimeSettings"
         },
         "residuals": {
           "$ref": "#/$defs/ResidualSettings"
@@ -3432,6 +3620,199 @@
       "title": "OutsideBins",
       "type": "object"
     },
+    "PartCount": {
+      "additionalProperties": false,
+      "description": "Values placed in one part of the calendar: ``value`` is the day of the\nweek (0 for Monday to 6) or the hour (0 to 23), according to the list that\nholds it.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "PartCount",
+      "type": "object"
+    },
+    "PartsResult": {
+      "additionalProperties": false,
+      "description": "The parts of the calendar dates of a field (design 20.25): the\nyear-month, the day of the week and, for datetimes and times, the hour,\nalways counted by the date or the hour as written (the offset of an aware\ndatetime is not converted), exactly. The counts per year and per month of the\nyear are sums of the year-months and are not repeated.\n\n``values`` are the content values, of which ``count`` are dates of\n``temporal_kind`` (as many as the Scan counted), ``ambiguous`` have a day and\nmonth order the Scan could not resolve (counted, never placed), ``invalid``\nhave the shape of a date that does not hold, by reason in\n``invalid_reasons``, and ``unplaced`` are the rest; they add up. ``resolved``\nis the number of ambiguous dates that ``resolution`` made valid: they are in\n``count``, and ``ambiguous`` is what is left.\n``year_months`` lists the months that occur, in order (``YYYY-MM``),\n``weekdays`` (7) every day of the week and ``hours`` those that occur (a time\nhas hours only). ``after_as_of`` counts the dates after ``as_of`` when it is\nset. ``simulation`` exists when there are ambiguous dates.",
+      "properties": {
+        "kind": {
+          "const": "datetime_parts",
+          "default": "datetime_parts",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "temporal_kind": {
+          "enum": [
+            "date",
+            "datetime_naive",
+            "datetime_aware",
+            "time"
+          ],
+          "title": "Temporal Kind",
+          "type": "string"
+        },
+        "zone": {
+          "const": "as_written",
+          "default": "as_written",
+          "title": "Zone",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "resolved": {
+          "title": "Resolved",
+          "type": "integer"
+        },
+        "invalid": {
+          "title": "Invalid",
+          "type": "integer"
+        },
+        "unplaced": {
+          "title": "Unplaced",
+          "type": "integer"
+        },
+        "scan_not_tested": {
+          "title": "Scan Not Tested",
+          "type": "integer"
+        },
+        "invalid_reasons": {
+          "items": {
+            "$ref": "#/$defs/ReasonCount"
+          },
+          "title": "Invalid Reasons",
+          "type": "array"
+        },
+        "year_months": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PeriodCount"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year Months"
+        },
+        "weekdays": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PartCount"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weekdays"
+        },
+        "hours": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PartCount"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hours"
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "As Of"
+        },
+        "after_as_of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After As Of"
+        },
+        "simulation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AmbiguitySimulation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "temporal_kind",
+        "values",
+        "count",
+        "ambiguous",
+        "resolved",
+        "invalid",
+        "unplaced",
+        "scan_not_tested",
+        "invalid_reasons"
+      ],
+      "title": "PartsResult",
+      "type": "object"
+    },
     "PatternCounts": {
       "additionalProperties": false,
       "description": "The inferred patterns of a field counted over every occurrence (PAT-07 to\nPAT-09), in the original domain. ``values`` is the content values of the\nfield (empty cells and null markers are the Scan's ``missing``); they add up:\n``matched + other + excluded = values``, with ``matched`` the sum of the\ncandidates. A value that no candidate reads is an observation of structure,\nnever an error (PAT-10). ``computed_from`` says whether the source was read\n(``source``) or the exact counts of a Scan that holds every distinct value\nwere enough (``samples``); the result is the same.",
@@ -3963,7 +4344,7 @@
     },
     "PeriodCounts": {
       "additionalProperties": false,
-      "description": "Exact count of the dates of a field per calendar day, month or year\n(TIME-01, TIME-02). A value is placed by the calendar date it is written\nwith: the offset of an aware datetime is not converted, so a change of\ndaylight saving time moves nothing. ``count`` values are placed, as many as\nthe Scan counted of this ``temporal_kind``; ``ambiguous`` are the ones whose\nday and month order the Scan could not resolve, counted and never placed\n(TIME-03); ``unplaced`` is every other content value (not a date, invalid,\nor of another kind). ``periods`` lists the non-empty periods in order.",
+      "description": "Exact count of the dates of a field per calendar day, month or year\n(TIME-01, TIME-02). A value is placed by the calendar date it is written\nwith: the offset of an aware datetime is not converted, so a change of\ndaylight saving time moves nothing. ``count`` values are placed, as many as\nthe Scan counted of this ``temporal_kind``; ``ambiguous`` are the ones whose\nday and month order the Scan could not resolve, counted and never placed\n(TIME-03); ``unplaced`` is every other content value (not a date, invalid,\nor of another kind). ``periods`` lists the non-empty periods in order. With a\n``resolution`` the ambiguous dates were read in its order and placed with the\nothers: ``resolved`` is their number, ``ambiguous`` the ones left (0), and\n``count`` is the Scan's plus ``resolved``.",
       "properties": {
         "kind": {
           "const": "periods",
@@ -4013,6 +4394,10 @@
           "title": "Ambiguous",
           "type": "integer"
         },
+        "resolved": {
+          "title": "Resolved",
+          "type": "integer"
+        },
         "unplaced": {
           "title": "Unplaced",
           "type": "integer"
@@ -4031,6 +4416,17 @@
           },
           "title": "Periods",
           "type": "array"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DateResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -4039,12 +4435,33 @@
         "values",
         "count",
         "ambiguous",
+        "resolved",
         "unplaced",
         "first",
         "last",
         "periods"
       ],
       "title": "PeriodCounts",
+      "type": "object"
+    },
+    "PlacesCount": {
+      "additionalProperties": false,
+      "description": "Numbers written with ``places`` digits after the decimal point.",
+      "properties": {
+        "places": {
+          "title": "Places",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "places",
+        "count"
+      ],
+      "title": "PlacesCount",
       "type": "object"
     },
     "PlanBase": {
@@ -4926,6 +5343,161 @@
         "requested"
       ],
       "title": "Selection",
+      "type": "object"
+    },
+    "ShapeMoments": {
+      "additionalProperties": false,
+      "description": "The asymmetry (``skewness``, the third standardized moment of the\npopulation) and the ``excess_kurtosis`` (the fourth, minus 3) of the numbers,\nfrom centered sums merged by batch in float64 (``precision``): a relative\nerror of a few units in 1e-12, not an exact fraction. Absent, with a\n``reason``, when they are undefined (``no_variance``, ``too_few_values``) or\na number is beyond float64 (``not_representable``).",
+      "properties": {
+        "precision": {
+          "const": "float64",
+          "default": "float64",
+          "title": "Precision",
+          "type": "string"
+        },
+        "skewness": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Skewness"
+        },
+        "excess_kurtosis": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Excess Kurtosis"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "title": "ShapeMoments",
+      "type": "object"
+    },
+    "ShapeResult": {
+      "additionalProperties": false,
+      "description": "The shape of the numbers of a column beyond its histogram (design 20.24):\nthe asymmetry and the kurtosis, the outliers of Tukey, the decimals they are\nwritten with and two other views of their spread, ``log`` (bins of equal\nratio, only for positive numbers: ``log_reason`` says why it is absent) and\n``equal_count`` (bins whose bounds are quantiles of the Scan's samples, which\nfall back to equal widths, with a reason, when the samples cannot place\nthem). Counts per bin are exact over the whole source.\n\n``storage`` is ``table`` when every distinct number was counted (``accuracy``\n``exact``: exact quartiles and counts of outliers), ``grid`` beyond\n``max_values`` (``exact_counts``: the quartiles are estimates with certain\nbounds). ``distinct`` exists with the table only.",
+      "properties": {
+        "kind": {
+          "const": "numeric_shape",
+          "default": "numeric_shape",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "exact_counts"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "storage": {
+          "enum": [
+            "table",
+            "grid"
+          ],
+          "title": "Storage",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distinct"
+        },
+        "moments": {
+          "$ref": "#/$defs/ShapeMoments"
+        },
+        "tukey": {
+          "$ref": "#/$defs/Tukey"
+        },
+        "scale": {
+          "$ref": "#/$defs/DecimalScale"
+        },
+        "log": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BinnedHistogram"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "log_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Log Reason"
+        },
+        "equal_count": {
+          "$ref": "#/$defs/BinnedHistogram"
+        }
+      },
+      "required": [
+        "accuracy",
+        "storage",
+        "count",
+        "moments",
+        "tukey",
+        "scale",
+        "equal_count"
+      ],
+      "title": "ShapeResult",
+      "type": "object"
+    },
+    "ShapeSettings": {
+      "additionalProperties": false,
+      "description": "How the shape of the numbers of a column is described (design 20.24).\n\n``max_values`` distinct numbers are counted exactly in a table, which gives\nexact quantiles and exact counts of outliers; beyond, the numbers go on in\nbins whose width is a power of two, with estimated quantiles and counts of\noutliers that have certain bounds. It is part of the key of a result.",
+      "properties": {
+        "max_values": {
+          "default": 100000,
+          "maximum": 10000000,
+          "minimum": 1,
+          "title": "Max Values",
+          "type": "integer"
+        }
+      },
+      "title": "ShapeSettings",
       "type": "object"
     },
     "State": {
@@ -6143,6 +6715,120 @@
         "reverse"
       ],
       "title": "TablePurity",
+      "type": "object"
+    },
+    "Tukey": {
+      "additionalProperties": false,
+      "description": "The outliers of Tukey: the quartiles ``q1`` and ``q3``, their\ninterquartile range and the numbers beyond the fences at 1.5 (mild) and 3\n(far) ranges. ``exact`` when the numbers were counted in a table, ``bounds``\nwhen they went on in bins and the counts are bracketed.",
+      "properties": {
+        "accuracy": {
+          "enum": [
+            "exact",
+            "bounds"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "q1": {
+          "$ref": "#/$defs/Quantile"
+        },
+        "q3": {
+          "$ref": "#/$defs/Quantile"
+        },
+        "iqr": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Iqr"
+        },
+        "fences": {
+          "items": {
+            "$ref": "#/$defs/TukeyFence"
+          },
+          "title": "Fences",
+          "type": "array"
+        }
+      },
+      "required": [
+        "accuracy",
+        "q1",
+        "q3",
+        "iqr",
+        "fences"
+      ],
+      "title": "Tukey",
+      "type": "object"
+    },
+    "TukeyCount": {
+      "additionalProperties": false,
+      "description": "Numbers beyond a fence: those that are for every fence the estimated\nquartiles allow (``certain``) and those that are for at least one of them\n(``possible``). They are equal when the quartiles are exact.",
+      "properties": {
+        "certain": {
+          "title": "Certain",
+          "type": "integer"
+        },
+        "possible": {
+          "title": "Possible",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "certain",
+        "possible"
+      ],
+      "title": "TukeyCount",
+      "type": "object"
+    },
+    "TukeyFence": {
+      "additionalProperties": false,
+      "description": "The fences ``low`` and ``high`` at ``factor`` interquartile ranges beyond\nthe first and the third quartile, and the numbers strictly below the first\nand strictly above the second. With estimated quartiles the fences written\nare those of the estimates.",
+      "properties": {
+        "factor": {
+          "title": "Factor",
+          "type": "number"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Low"
+        },
+        "high": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "High"
+        },
+        "below": {
+          "$ref": "#/$defs/TukeyCount"
+        },
+        "above": {
+          "$ref": "#/$defs/TukeyCount"
+        }
+      },
+      "required": [
+        "factor",
+        "low",
+        "high",
+        "below",
+        "above"
+      ],
+      "title": "TukeyFence",
       "type": "object"
     },
     "Utility": {

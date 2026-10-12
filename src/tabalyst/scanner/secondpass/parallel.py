@@ -29,11 +29,13 @@ from tabalyst.scanner.secondpass.accumulators import (
 from tabalyst.scanner.secondpass.duplicates import DuplicateAccumulator
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
+from tabalyst.scanner.secondpass.parts import PartsAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
 from tabalyst.scanner.secondpass.routing import FieldRoute
+from tabalyst.scanner.secondpass.shape import ShapeAccumulator
 from tabalyst.scanner.workers import (
     START_TIMEOUT,
     WorkerError,
@@ -43,7 +45,18 @@ from tabalyst.scanner.workers import (
 )
 
 # The members of a route that hold an accumulator, in the order a worker returns them.
-PARTS = ("numeric", "lengths", "frequencies", "patterns", "periods", "measures", "residuals", "duplicates")
+PARTS = (
+    "numeric",
+    "lengths",
+    "frequencies",
+    "patterns",
+    "periods",
+    "parts",
+    "measures",
+    "shape",
+    "residuals",
+    "duplicates",
+)
 # The module and function a worker of the second pass runs.
 ENTRY = ("tabalyst.scanner.secondpass.parallel", "serve")
 # Reading a cell, its count and the grouping of a column, whatever the analyses.
@@ -64,8 +77,12 @@ def part_name(accumulator: object) -> str:
         return "patterns"
     if isinstance(accumulator, PeriodAccumulator):
         return "periods"
+    if isinstance(accumulator, PartsAccumulator):
+        return "parts"
     if isinstance(accumulator, MeasureAccumulator):
         return "measures"
+    if isinstance(accumulator, ShapeAccumulator):
+        return "shape"
     if isinstance(accumulator, ResidualAccumulator):
         return "residuals"
     if isinstance(accumulator, DuplicateAccumulator):
@@ -86,10 +103,14 @@ def route_weight(route: FieldRoute) -> int:
         weight += NS_PER_CELL["table"]
     if route.periods is not None:
         weight += NS_PER_CELL["period"]
+    if route.parts is not None:
+        weight += route.parts.cell_ns
     if route.patterns is not None:
         weight += NS_PER_CELL["matcher_base"]
     if route.measures is not None:
         weight += route.measures.cell_ns
+    if route.shape is not None:
+        weight += route.shape.cell_ns
     if route.residuals is not None:
         weight += route.residuals.cell_ns
     return weight
@@ -244,7 +265,9 @@ def serve() -> None:
                 route.frequencies = parts.get("frequencies")
                 route.patterns = parts.get("patterns")
                 route.periods = parts.get("periods")
+                route.parts = parts.get("parts")
                 route.measures = parts.get("measures")
+                route.shape = parts.get("shape")
                 route.residuals = parts.get("residuals")
                 route.duplicates = parts.get("duplicates")
                 route.memo_entries = memo_entries

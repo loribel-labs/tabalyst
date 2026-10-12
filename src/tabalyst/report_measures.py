@@ -4,7 +4,8 @@
 
 """Measures that the report derives from blocks the Scan already holds: the
 quantiles of the string lengths, the tail of the frequencies, the dominant unit
-or marker of a detector and the decades of the dates.
+or marker of a detector, the decades of the dates and the empty periods of
+their distribution over time.
 
 Computed when a page is rendered, from the document alone (HTML-01): no source
 is read, nothing is written to the document. A block that is limited or
@@ -15,6 +16,8 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from datetime import date
+from itertools import pairwise
 from typing import Any
 
 from tabalyst.scanner.models import Complete, DetectorComplete, FieldResult
@@ -154,3 +157,61 @@ def decades(field: FieldResult) -> list[DecadeCount] | None:
         for item in kind.years:
             total[item.year // 10 * 10] += item.count
     return [DecadeCount(decade, count) for decade, count in sorted(total.items())]
+
+
+@dataclass(frozen=True)
+class EmptyPeriods:
+    """The periods without a date between the first and the last one that has
+    one, and the longest run of them (``longest_from`` to ``longest_to``, in
+    periods of ``granularity``)."""
+
+    granularity: str
+    periods: int
+    empty: int
+    longest: int
+    longest_from: str | None
+    longest_to: str | None
+
+
+def _ordinal(period: str, granularity: str) -> int:
+    """The position of a period label (``YYYY-MM-DD``, ``YYYY-MM`` or ``YYYY``)
+    on a line of periods of that granularity."""
+    if granularity == "day":
+        return date.fromisoformat(period).toordinal()
+    if granularity == "month":
+        year, month = period.split("-")
+        return int(year) * 12 + int(month) - 1
+    return int(period)
+
+
+def _label(ordinal: int, granularity: str) -> str:
+    if granularity == "day":
+        return date.fromordinal(ordinal).isoformat()
+    if granularity == "month":
+        return f"{ordinal // 12:04d}-{ordinal % 12 + 1:02d}"
+    return f"{ordinal:04d}"
+
+
+def empty_periods(granularity: str, periods: list[str]) -> EmptyPeriods | None:
+    """The gaps in the non-empty ``periods`` (ascending labels of a distribution
+    over time), or ``None`` for fewer than two periods. Derived at render time
+    from the document: ``datetime_parts`` does not store them."""
+    if len(periods) < 2:
+        return None
+    ordinals = [_ordinal(period, granularity) for period in periods]
+    longest = 0
+    start = end = None
+    empty = 0
+    for before, after in pairwise(ordinals):
+        gap = after - before - 1
+        empty += gap
+        if gap > longest:
+            longest, start, end = gap, before + 1, after - 1
+    return EmptyPeriods(
+        granularity=granularity,
+        periods=ordinals[-1] - ordinals[0] + 1,
+        empty=empty,
+        longest=longest,
+        longest_from=None if start is None else _label(start, granularity),
+        longest_to=None if end is None else _label(end, granularity),
+    )

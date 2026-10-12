@@ -260,16 +260,23 @@ def test_D12_a_very_long_span_is_already_counted_per_year_by_the_scan(tmp_path):
 
 @pytest.mark.scan_json_lot("7c")
 def test_D12_ambiguous_dates_are_counted_and_never_placed(tmp_path):
-    rows = ["13/02/2024", "14/02/2024", "02/03/2024", "04/05/2024", "05/06/2024", "30/01/2024"]
+    # 13/02 is day first and 02/25 month first: the column proves both orders, so
+    # 02/03, 04/05 and 05/06 could be read either way and stay ambiguous. (With only
+    # one order proved they are read that way: lot 17, design 20.26.)
+    rows = [
+        "13/02/2024", "14/02/2024", "02/25/2024", "02/03/2024", "04/05/2024", "05/06/2024", "30/01/2024",
+    ]
     result, answer = _dates(tmp_path, rows)
 
     scanned = result.datasets[0].fields[0].temporal.value
     periods = answer.result
-    # 02/03, 04/05 and 05/06 could be read day first or month first.
     assert scanned.ambiguous == periods.ambiguous == 3
-    assert periods.count == scanned.kinds[0].count == 3
-    assert periods.values == 6 and periods.unplaced == 0
-    assert {p.period for p in periods.periods} == {"2024-01-30", "2024-02-13", "2024-02-14"}
+    assert periods.count == scanned.kinds[0].count == 4 and periods.resolution is None
+    assert periods.resolved == 0
+    assert periods.values == 7 and periods.unplaced == 0
+    assert {p.period for p in periods.periods} == {
+        "2024-01-30", "2024-02-13", "2024-02-14", "2024-02-25"
+    }
 
 
 @pytest.mark.scan_json_lot("7c")

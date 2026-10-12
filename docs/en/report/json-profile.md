@@ -140,7 +140,9 @@ a feature (`category_crosstab`, see [A category against a feature](../scan/deep.
 are there too, with `partner` the column of the feature and `relations.tables` in the plan, and so are the
 numbers of a column by category (`category_stats`, see [The numbers of a column by
 category](../scan/deep.md#the-numbers-of-a-column-by-category)), with `partner` the numeric column and
-`relations.stats` in the plan.
+`relations.stats` in the plan. The shape of the numbers (`numeric_shape`, see [The shape of the
+numbers](../scan/deep.md#the-shape-of-the-numbers)) and the parts of the dates (`datetime_parts`, see [The
+parts of the dates](../scan/deep.md#the-parts-of-the-dates)) are entries of `analyses` too.
 
 A report built with `--scan` reads no source: the analyses that need it are
 `skipped` with the reason `source_not_read`. A report written before the second

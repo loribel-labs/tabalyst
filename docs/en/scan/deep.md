@@ -9,7 +9,8 @@ medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
 counted on every value, the values that patterns and detectors leave out, the
-repeated values of identifiers, the dates counted per period, the numbers of amounts,
+repeated values of identifiers, the dates counted per period, the shape of the numbers
+(asymmetry, outliers, decimals), the parts of the dates (year-month, weekday, hour), the numbers of amounts,
 percentages and quantities with a unit, the correlation of
 pairs of numeric columns, tables of a category against the pattern, length,
 prefix or value of another column and the numbers of a column by category. It writes them to a
@@ -50,6 +51,8 @@ stored.
 | `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
 | `duplicates_report` | Columns of almost all different values, and combinations of two columns you ask for | The values found more than once, with their counts and first records |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
+| `datetime_parts` | Date fields, columns of datetimes and of times | The dates counted by year-month, day of the week and hour, counted after a bound you give, with the ambiguous dates read under each order and the invalid ones counted by reason |
+| `numeric_shape` | Numeric fields | The asymmetry and kurtosis, the outliers of Tukey, the decimals the numbers are written with, and a logarithmic and an equal-count histogram |
 | `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
 | `category_crosstab` | A column of a few values and another text or integer column | The count of the rows of each category in each pattern, length or prefix of the other column, with the purity of each category, the exceptions, Cramér's V and candidate rules |
@@ -525,6 +528,146 @@ partner="premium")`; the category comes first.
 **Small files.** When the scan sampled every row of a CSV file (up to 1,000 rows), the
 sample is the file: the pair is computed from it and the source is not read again
 (`source` is `samples`).
+
+## The shape of the numbers
+
+A histogram says where the numbers are; it does not say whether the column is
+lopsided, whether it has outliers or how many decimals its numbers are written
+with. The second pass counts each different number of the column (up to
+`deep.shape.max_values`, 100,000 by default) and gives the shape of the whole
+column, exactly where it can.
+
+```json
+{"kind": "numeric_shape", "accuracy": "exact", "storage": "table",
+ "count": 3000, "distinct": 2338,
+ "moments": {"precision": "float64", "skewness": 5.1256,
+             "excess_kurtosis": 51.2233},
+ "tukey": {"accuracy": "exact",
+           "q1": {"level": 0.25, "value": 9.86, "accuracy": "exact"},
+           "q3": {"level": 0.75, "value": 37.9025, "accuracy": "exact"},
+           "iqr": 28.0425,
+           "fences": [{"factor": 1.5, "low": -32.20375, "high": 79.96625,
+                       "below": {"certain": 0, "possible": 0},
+                       "above": {"certain": 235, "possible": 235}},
+                      {"factor": 3.0, "low": -74.2675, "high": 122.03,
+                       "below": {"certain": 0, "possible": 0},
+                       "above": {"certain": 90, "possible": 90}}]},
+ "scale": {"places": [{"places": 1, "count": 561}, {"places": 2, "count": 1731},
+                      {"places": 3, "count": 708}],
+           "max_places": 3, "trailing_zero": 279, "mixed": true},
+ "log": {"kind": "bins", "strategy": "log", "...": "..."},
+ "equal_count": {"kind": "bins", "strategy": "sample_quantile", "...": "..."}}
+```
+
+- **Asymmetry and kurtosis.** `skewness` is positive when the long tail is on the
+  right, `excess_kurtosis` is 0 for a normal distribution and grows with the
+  weight of the tails. They come from centered sums in 64-bit floats
+  (`precision`), so they are accurate to a few units in the twelfth digit, not
+  exact fractions. They are absent, with a `reason`, when they have no meaning:
+  `no_variance`, `too_few_values` (fewer than 3 numbers) or `not_representable`.
+- **Outliers of Tukey.** The fences are `q1 - k * iqr` and `q3 + k * iqr` for
+  `k` = 1.5 (mild) and 3 (far); `below` and `above` count the numbers strictly
+  beyond. With `storage` `table` the quartiles are exact and so are the counts
+  (`certain` equals `possible`). Beyond `deep.shape.max_values` different numbers
+  the column goes on in bins: the counts of numbers, the extremes and the decimals
+  stay exact, the quartiles become estimates with certain bounds (`accuracy`
+  `bounds`), and each count of outliers is bracketed: `certain` numbers are
+  beyond the fence whatever the true quartiles are, `possible` ones may be.
+- **Decimals.** `places` counts the numbers written with 0, 1, 2... digits after
+  the point, as they are written (`12.50` has 2); `trailing_zero` counts those
+  whose last decimal is a 0, and `mixed` says that the decimal numbers do not all
+  have the same number of decimals, which often means two sources of data.
+- **Two more views of the spread.** `log` places the bins at equal ratios between
+  the smallest and the largest number, which shows a skewed column; it needs
+  strictly positive numbers, and `log_reason` is `non_positive` otherwise.
+  `equal_count` places the inner bounds at quantiles of what the scan kept (the
+  `sample_quantile` strategy of the histogram), so that the bins hold about as
+  many numbers each. The counts of both are exact over the whole file whatever the
+  storage, and the edges are fixed by the scan alone.
+
+It is not chosen by `tabalyst report` by itself: ask for it with `--deep`
+or `tabalyst.AnalysisRequest("numeric_shape", field="price")`.
+
+## The parts of the dates
+
+The distribution over time says when, over a granularity chosen from the span. The
+parts say which month of which year, which day of the week and which hour, always
+by month. The second pass reads each date as the scan did and places it by the calendar date as
+it is written: the offset of a datetime such as `2024-03-10T23:30:00-05:00` is not
+converted, so that dates and hours are the ones in the file.
+
+```json
+{"kind": "datetime_parts", "accuracy": "exact", "temporal_kind": "date",
+ "zone": "as_written", "values": 1500, "count": 1316, "ambiguous": 0,
+ "invalid": 52, "unplaced": 132, "scan_not_tested": 0,
+ "invalid_reasons": [{"reason": "invalid_calendar_date", "count": 37},
+                     {"reason": "mixed_separators", "count": 15}],
+ "year_months": [{"period": "2022-03", "count": 38},
+                 {"period": "2022-04", "count": 36}, "... 26 others"],
+ "weekdays": [{"value": 0, "count": 190}, "... 6 others"],
+ "as_of": "2023-06-30", "after_as_of": 818}
+```
+
+- **Parts.** `year_months` lists the months that occur, in order (`YYYY-MM`), whatever
+  the span. The count per year and per month of the year are sums of it, so they are
+  not repeated: add the months of a year for the year, the months with the same
+  number for the month of the year. `weekdays` (0 for Monday to 6) lists every day of
+  the week, empty ones included; `hours` (0 to 23) lists the hours that occur, for
+  datetimes and times. A column of times has hours only.
+- **After a bound.** With `deep.datetime.as_of` set to a date (`YYYY-MM-DD`),
+  `after_as_of` counts the dates after it. The bound is never the date of the day,
+  so a result does not change with the clock; without it nothing is counted.
+- **Ambiguous dates.** A date such as `03/04/2024` can be the 3rd of April or the
+  4th of March. When the column does not settle the order (see [Ambiguous dates
+  read by the evidence](#ambiguous-dates-read-by-the-evidence)), the scan counts it
+  as `ambiguous` and does not place it, and so do the parts. `simulation` reads those dates again under each order (`DMY` and
+  `MDY`) and counts the year-months and days of the week each reading would give: only
+  the month and the day change between the readings, never the year. It measures
+  what the choice of `detectors.date.ambiguous_order` would change, and applies
+  nothing. There is no simulation when the configuration already chose an order.
+- **Invalid dates.** `invalid_reasons` counts the values that have the shape of a
+  date and do not hold, by the reason the detector gives (`invalid_calendar_date`,
+  `invalid_time`, `mixed_separators`...). Their total is the `invalid` count of the
+  scan's date detector; `unplaced` is every other value (not a date, or a date of
+  another kind).
+
+`values = count + ambiguous + invalid + unplaced`. It is not chosen by
+`tabalyst report` by itself: ask for it with `--deep` or
+`tabalyst.AnalysisRequest("datetime_parts", field="created_at")`.
+
+## Ambiguous dates read by the evidence
+
+A date such as `03/04/2020` can be the 3rd of April or the 4th of March. The scan
+does not guess: it counts it as `ambiguous` and does not place it. The second
+pass is smarter when the column itself settles the question.
+
+- If the unambiguous dates of the column are all day-month (`25/03/2020`,
+  `14-07-2021`) and none is month-day, every ambiguous date is read day-month, and
+  the other way round. The separators do not matter, and neither do dates written
+  year first (`2020-03-25`), which are never ambiguous.
+- If the column has both orders, or none (only ambiguous dates), they stay
+  ambiguous and are not placed. So do they when too few dates prove the order:
+  `deep.datetime.min_evidence` (3 by default) is the fewest unambiguous dates that
+  must read in that order and none in the other.
+- An order given by `detectors.date.ambiguous_order` always wins, and the setting
+  `deep.datetime.infer_order` set to `false` turns the rule off.
+
+When the rule applies, the dates are counted again from the source: the
+distribution over time and the parts of the dates place the ambiguous dates with
+the others, `resolved` counts them, `ambiguous` is 0, and `resolution` says what
+was done and why:
+
+```json
+"resolved": 644, "ambiguous": 0,
+"resolution": {"order": "DMY", "source": "evidence",
+               "evidence": {"DMY": 274, "MDY": 0}}
+```
+
+`resolved` counts the ambiguous dates that are valid now (they are in `count`);
+`ambiguous` is what is left. They were read day-month because 274 unambiguous
+dates are day-month and none is month-day. The scan itself is not changed: its `temporal`
+block still leaves those dates out, which is why the years it counts no longer
+answer for such a column and the second pass reads the source.
 
 ## Exact distinct count
 

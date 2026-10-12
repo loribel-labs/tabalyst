@@ -504,7 +504,7 @@ def test_G82_the_cost_of_a_value_table_and_of_a_rank_grid_is_declared_and_charge
         result, requests=[request], automatic=False, registry=default_registry().runnable()
     )
 
-    assert COST_MODEL_VERSION == 10 and plan.cost_model_version == 10
+    assert COST_MODEL_VERSION >= 10 and plan.cost_model_version == COST_MODEL_VERSION
     (table,) = [c for c in plan.candidates if c.selection.state == "selected"]
     assert table.costs.cell_ns == NS_PER_CELL["crosstab_value"]
     assert cpu_class_for(table.costs.cell_ns) == "low"
