@@ -42,7 +42,9 @@ ORIGINAL_DOMAIN_ANALYZERS = frozenset({"exact_distinct", "pattern_validation"})
 
 # A table reads a category in the analytical domain and a feature in the domain
 # its own axis names.
-MIXED_DOMAIN_ANALYZERS = frozenset({"category_crosstab"})
+# The residual tables list original values (the patterns) and analytical texts
+# (the detectors).
+MIXED_DOMAIN_ANALYZERS = frozenset({"category_crosstab", "residual_values"})
 
 
 def analysis_domain(analyzer: str) -> Literal["analytical", "original", "mixed"]:

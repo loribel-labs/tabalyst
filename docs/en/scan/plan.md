@@ -51,6 +51,8 @@ the analyses that concern it:
 | `exact_distinct` | The exact number of distinct values of an identifier-like field (runs with `--deep`) |
 | `pattern_validation` | The structural patterns counted on every occurrence, not only on a sample of the distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count |
 | `temporal_distribution` | The dates counted by day, month or year, as written (runs with `--deep`). Also for a column of datetimes |
+| `residual_values` | The values that patterns and detectors leave out, with their exact counts, and each pattern's example and distinct values (runs with `--deep`). Needs no reading when the scan holds every distinct value with its exact count, and then gives no record |
+| `duplicates_report` | The values found more than once in a column of almost all different values, with their counts (runs with `--deep`). Also the repeated combinations of two columns, when you ask for them |
 
 Each candidate gets one decision:
 
@@ -344,7 +346,9 @@ because it keeps fewer sample values than its scan. `requests` name analyses to
 choose first, and `automatic=False` selects nothing else. A request for a pair names
 both columns, `tabalyst.AnalysisRequest("pearson_correlation", field="price",
 partner="cost")`, and works for a pair the sample did not show; with `field` alone
-it asks for the listed pairs that use the column. A request for a table names the
+it asks for the listed pairs that use the column. A request for the repeated values of a combination names both columns,
+`tabalyst.AnalysisRequest("duplicates_report", field="client", partner="year")`;
+it is never proposed by itself. A request for a table names the
 category, the column and the feature,
 `tabalyst.AnalysisRequest("category_crosstab", field="region", partner="client_id",
 feature="pattern")`; without `feature` it asks for the three. A request for an

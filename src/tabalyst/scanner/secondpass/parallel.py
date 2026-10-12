@@ -26,11 +26,13 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.duplicates import DuplicateAccumulator
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
 from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
+from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
 from tabalyst.scanner.secondpass.routing import FieldRoute
 from tabalyst.scanner.workers import (
     START_TIMEOUT,
@@ -41,7 +43,7 @@ from tabalyst.scanner.workers import (
 )
 
 # The members of a route that hold an accumulator, in the order a worker returns them.
-PARTS = ("numeric", "lengths", "frequencies", "patterns", "periods", "measures")
+PARTS = ("numeric", "lengths", "frequencies", "patterns", "periods", "measures", "residuals", "duplicates")
 # The module and function a worker of the second pass runs.
 ENTRY = ("tabalyst.scanner.secondpass.parallel", "serve")
 # Reading a cell, its count and the grouping of a column, whatever the analyses.
@@ -64,6 +66,10 @@ def part_name(accumulator: object) -> str:
         return "periods"
     if isinstance(accumulator, MeasureAccumulator):
         return "measures"
+    if isinstance(accumulator, ResidualAccumulator):
+        return "residuals"
+    if isinstance(accumulator, DuplicateAccumulator):
+        return "duplicates"
     assert isinstance(accumulator, DenseAccumulator | BinAccumulator)
     return "numeric"
 
@@ -84,6 +90,8 @@ def route_weight(route: FieldRoute) -> int:
         weight += NS_PER_CELL["matcher_base"]
     if route.measures is not None:
         weight += route.measures.cell_ns
+    if route.residuals is not None:
+        weight += route.residuals.cell_ns
     return weight
 
 
@@ -101,13 +109,15 @@ class RemoteRoute:
         self.failure: str | None = None
         self.values = 0
 
-    def strings(self, column: list[str]) -> None:
-        self.pool.add(self.worker, self.rid, column)
+    def strings(self, column: list[str], start: int = 1) -> None:
+        self.pool.add(self.worker, self.rid, column, start)
 
-    def string(self, value: str) -> None:  # pragma: no cover - CSV batches only
+    def string(self, value: str, record: int = 1) -> None:  # pragma: no cover - CSV batches only
         raise NotImplementedError("a remote route takes the columns of a batch")
 
-    def native(self, native_type: str, value: object) -> None:  # pragma: no cover
+    def native(  # pragma: no cover
+        self, native_type: str, value: object, record: int = 1
+    ) -> None:
         raise NotImplementedError("a remote route takes the columns of a batch")
 
 
@@ -119,7 +129,7 @@ class SecondPassWorkers:
         self._count = count
         self._workers: list[_Worker] = []
         self._replies: queue.Queue = queue.Queue()
-        self._pending: list[list[tuple[int, list[str]]]] = [[] for _ in range(count)]
+        self._pending: list[list[tuple[int, list[str], int]]] = [[] for _ in range(count)]
         self._next = 0
 
     @property
@@ -167,9 +177,10 @@ class SecondPassWorkers:
             remotes[position] = RemoteRoute(self, worker, rid)
         return [remote for remote in remotes if remote is not None]
 
-    def add(self, worker: int, rid: int, column: list[str]) -> None:
-        """Queue the column of a route for the next message of its worker."""
-        self._pending[worker].append((rid, column))
+    def add(self, worker: int, rid: int, column: list[str], start: int) -> None:
+        """Queue the column of a route, whose first record is ``start``, for the
+        next message of its worker."""
+        self._pending[worker].append((rid, column, start))
 
     def flush(self) -> None:
         """Send each worker the columns queued for it, one message each. The
@@ -225,6 +236,7 @@ def serve() -> None:
     _write(stdout, pickle.dumps(("ready",), pickle.HIGHEST_PROTOCOL))
     try:
         while (message := _read(stdin)) is not None:
+            assert isinstance(message, tuple)
             kind = message[0]
             if kind == "setup":
                 _, rid, parts, memo_entries = message
@@ -233,15 +245,17 @@ def serve() -> None:
                 route.patterns = parts.get("patterns")
                 route.periods = parts.get("periods")
                 route.measures = parts.get("measures")
+                route.residuals = parts.get("residuals")
+                route.duplicates = parts.get("duplicates")
                 route.memo_entries = memo_entries
                 routes[rid] = route
             elif kind == "batch":
-                for rid, column in message[1]:
+                for rid, column, start in message[1]:
                     route = routes[rid]
                     if route.failure is not None:
                         continue
                     try:
-                        route.strings(column)
+                        route.strings(column, start)
                     except Exception as exc:  # noqa: BLE001 - one field fails alone
                         route.failure = type(exc).__name__
             elif kind == "finish":

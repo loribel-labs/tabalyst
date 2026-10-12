@@ -400,6 +400,183 @@ class MeasureResult(ScanModel):
         return _omit_none(handler(self), ("other", "percent_range"))
 
 
+class ResidualValue(ScanModel):
+    """A value a pattern or a detector leaves out, with the occurrences counted
+    since its first appearance (so exact) and, when the source was read, the
+    record of the first one."""
+
+    value: str
+    count: int
+    first_record: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("first_record",))
+
+
+class ReasonCount(ScanModel):
+    """Occurrences of ``invalid`` values for one reason of the detector."""
+
+    reason: str
+    count: int
+
+
+class ResidualTable(ScanModel):
+    """What one source leaves out in one state (design 20.20): the values no
+    candidate pattern reads (``other``), or the values of a detector that are
+    ``invalid`` or ``not_matched``.
+
+    ``occurrences`` is exact. ``listed`` holds the most frequent tracked values;
+    ``distinct`` counts the tracked ones and is the distinct count when
+    ``complete``. Values beyond ``max_tracked`` are only counted in
+    ``untracked`` (occurrences), and a value longer than ``max_value_length`` in
+    ``too_long``; both make ``complete`` false. ``truncated`` says that more
+    tracked values exist than are listed. ``reasons`` split the occurrences of
+    an ``invalid`` state."""
+
+    source: Literal["pattern", "detector"]
+    detector: str | None = None
+    state: Literal["other", "invalid", "not_matched"]
+    occurrences: int
+    distinct: int
+    complete: bool
+    untracked: int
+    too_long: int
+    truncated: bool
+    listed: list[ResidualValue]
+    reasons: list[ReasonCount] | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("detector", "reasons"))
+
+
+class PatternProfile(ScanModel):
+    """A candidate pattern of the Scan, seen over every occurrence: how often it
+    reads a value, one value it reads (the first one met) with its first record
+    when the source was read, and the distinct values it reads (``exact``, or
+    ``at_least`` when the sets could not be held)."""
+
+    id: str
+    render: str
+    occurrences: int
+    distinct: int
+    distinct_accuracy: Literal["exact", "at_least"]
+    example: str | None = None
+    first_record: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("example", "first_record"))
+
+
+class ResidualDetector(ScanModel):
+    """What a replayed detector made of the strings of the field, beside what the
+    Scan counted: ``scan_not_tested`` values were not tested by the Scan
+    (adaptive detection) and were read here."""
+
+    detector: str
+    eligible: int
+    matched: int
+    ambiguous: int
+    invalid: int
+    not_matched: int
+    scan_not_tested: int
+
+
+class ResidualResult(ScanModel):
+    """The values that patterns and detectors leave out, and the patterns over
+    every occurrence (design 20.20). ``records`` says that the first record of
+    each value is given, which needs the source. ``accuracy`` is ``exact`` when
+    every table is ``complete`` and every pattern distinct count ``exact``, and
+    ``exact_counts`` when occurrences are exact but a list is bounded."""
+
+    kind: Literal["residual_values"] = "residual_values"
+    accuracy: Literal["exact", "exact_counts"]
+    computed_from: Literal["source", "samples"]
+    records: bool
+    values: int
+    tables: list[ResidualTable]
+    patterns: list[PatternProfile] | None = None
+    pattern_excluded: PatternExclusions | None = None
+    detectors: list[ResidualDetector]
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("patterns", "pattern_excluded"))
+
+
+class DuplicateValue(ScanModel):
+    """A value, or a combination of values, found more than once: all its
+    ``count`` occurrences (exact: it was tracked from its second sighting, with
+    the first one counted) and, when the source was read, the record of the
+    first. A combination is written as its values in the order of ``columns``."""
+
+    value: str | list[str]
+    count: int
+    first_record: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("first_record",))
+
+
+class RepeatedValues(ScanModel):
+    """The values found more than once: how many (``distinct``) and their
+    ``occurrences`` in all, exactly. Up to ``max_tracked`` of them are tracked
+    with their count and listed, the most repeated first (``truncated`` when
+    more are tracked than listed); the occurrences of the others are only
+    counted in ``untracked``, which makes ``complete`` false."""
+
+    distinct: int
+    occurrences: int
+    tracked: int
+    untracked: int
+    complete: bool
+    truncated: bool
+    listed: list[DuplicateValue]
+
+
+class DuplicateResult(ScanModel):
+    """The repeated values of a field, or of a combination of columns (design
+    20.21). ``values`` are the values read (for a combination, the rows where
+    every column has a value, and ``incomplete`` those where one lacks);
+    ``distinct`` is exact, ``redundant`` is ``values - distinct`` and ``unique``
+    says that nothing repeats. ``records`` says that the first record of each
+    value is given, which needs the source. A value is identified by a 128-bit
+    digest when the source is read: two values collide with a probability under
+    one in 10^20 for a billion values."""
+
+    kind: Literal["duplicates"] = "duplicates"
+    accuracy: Literal["exact", "exact_counts"]
+    computed_from: Literal["source", "samples"]
+    records: bool
+    columns: list[str] | None = None
+    values: int
+    incomplete: int | None = None
+    distinct: int
+    redundant: int
+    unique: bool
+    repeated: RepeatedValues
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("columns", "incomplete"))
+
+
+class DuplicatesLimited(ScanModel):
+    """What a stopped search for repeated values proves (D08): in the
+    ``values_read`` values met before the memory budget stopped it, at least
+    ``distinct`` distinct values and ``repeated`` repeated ones. Never a
+    count."""
+
+    kind: Literal["duplicates_limited"] = "duplicates_limited"
+    accuracy: Literal["lower_bound"] = "lower_bound"
+    values_read: int
+    distinct: int
+    repeated: int
+
+
 class PearsonExclusions(ScanModel):
     """The rows a pair leaves out, because a value is missing: ``first_missing``
     has a number in the second column only, ``second_missing`` in the first only,
@@ -668,6 +845,9 @@ AnalysisOutput = Annotated[
     | PatternCounts
     | PeriodCounts
     | MeasureResult
+    | ResidualResult
+    | DuplicateResult
+    | DuplicatesLimited
     | PearsonResult
     | CrosstabResult,
     Field(discriminator="kind"),

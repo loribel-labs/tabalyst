@@ -97,6 +97,8 @@ def test_the_default_registry_lists_the_built_in_analyzers_in_plan_order():
         "pattern_validation",
         "temporal_distribution",
         "measure_extraction",
+        "residual_values",
+        "duplicates_report",
         "pearson_correlation",
         "category_crosstab",
     ]
@@ -136,6 +138,8 @@ def test_only_the_analyzers_with_an_executor_are_runnable():
         "pattern_validation",
         "temporal_distribution",
         "measure_extraction",
+        "residual_values",
+        "duplicates_report",
         "pearson_correlation",
         "category_crosstab",
     }

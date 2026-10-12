@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T23:28:18.071173Z",
-    "duration_seconds": 0.015,
+    "started_at": "2026-10-12T01:40:59.483977Z",
+    "duration_seconds": 0.01498,
     "timings": {
-      "reading": 0.002399,
-      "analysis": 0.002149,
-      "finalize": 0.008732,
-      "derived": 0.001277,
-      "other": 0.000443
+      "reading": 0.002206,
+      "analysis": 0.002151,
+      "finalize": 0.008101,
+      "derived": 0.00125,
+      "other": 0.001272
     },
     "workers": 1,
-    "peak_memory_bytes": 61513728
+    "peak_memory_bytes": 62562304
   },
   "source": {
     "format": "excel",
@@ -8634,7 +8634,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -8675,15 +8675,27 @@
         "measures": {
           "max_groups": 20,
           "max_values": 100000
+        },
+        "residuals": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "max_value_length": 100,
+          "max_detectors": 3,
+          "records": false
+        },
+        "duplicates": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "records": false
         }
       },
-      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
+      "settings_sha256": "253da5d48de90acb6de7c4231723545e5a2216062e82b98d82d9ae8daeeb16fa",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 7,
-        "plan_id": "da26f75df42dfc44d3456cadd156773c759d779b1adbd2ad5521e60c7738b7b5",
+        "cost_model_version": 8,
+        "plan_id": "5fc03d22d42ebfe34f50153a7aab9d31d3c88b410249585ed2194adc33a15af7",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -8712,16 +8724,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 41,
-          "selected": 9,
-          "already_satisfied": 18,
-          "rejected": 14,
+          "candidates": 44,
+          "selected": 10,
+          "already_satisfied": 19,
+          "rejected": 15,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 25265494,
-            "expected": 25465369,
-            "max": 26068802
+            "min": 25270614,
+            "expected": 25473594,
+            "max": 26117362
           },
           "beyond_automatic": []
         },
@@ -8840,7 +8852,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 1,
+              "priority": 2,
               "satisfied_by": null
             },
             "execution": {
@@ -9128,7 +9140,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 2,
+              "priority": 3,
               "satisfied_by": null
             },
             "execution": {
@@ -9240,7 +9252,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -9317,7 +9329,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -9859,7 +9871,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 3,
+              "priority": 4,
               "satisfied_by": null
             },
             "execution": {
@@ -9926,7 +9938,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 4,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -10029,7 +10041,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -10096,7 +10108,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -10171,11 +10183,160 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
               "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_1",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 8225,
+                "max": 48560
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 3105,
+                    "max": 24840
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 22696
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 1,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_1",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "all_distinct",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/rows/fields/column_1/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_4",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
               "available": true,
               "deterministic": true,
               "reusable": true,
@@ -11540,21 +11701,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-12T00:29:54.076849Z",
-        "duration_seconds": 8.5e-05,
+        "started_at": "2026-10-12T01:40:59.526367Z",
+        "duration_seconds": 0.008329,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 8.5e-05
+          "reading": 0.002433,
+          "analysis": 0.002329,
+          "other": 0.003567
         },
         "workers": 1,
-        "peak_memory_bytes": 64991232,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 9,
+        "peak_memory_bytes": 65777664,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 120,
+        "cells_read": 480,
+        "executed": 10,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -13722,17 +13883,61 @@
               }
             ]
           }
+        },
+        {
+          "id": "residual_values:rows:column_1",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_1",
+          "display": "order_id",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "f1eaa95e31ae149a4537bc5de8d749e0486301d889a23426d7c6f66b6d01a9a3",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 120,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'SO'-9999",
+                "occurrences": 120,
+                "distinct": 120,
+                "distinct_accuracy": "exact",
+                "example": "SO-0001",
+                "first_record": 1
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
         }
       ]
     }
   },
   "report": {
-    "generated_at": "2026-10-12T00:29:54.111234Z",
+    "generated_at": "2026-10-12T01:40:59.583495Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0634,
+    "processing_seconds": 0.116,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

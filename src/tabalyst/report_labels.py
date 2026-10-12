@@ -203,6 +203,8 @@ ANALYSIS_LABELS = {
     "pattern_validation": "Pattern validation",
     "temporal_distribution": "Distribution over time",
     "measure_extraction": "Numbers of the values with a unit",
+    "residual_values": "Values left out by patterns and detectors",
+    "duplicates_report": "Repeated values",
     "pearson_correlation": "Correlation between two columns",
     "category_crosstab": "Category against a feature of a column",
 }

@@ -259,6 +259,13 @@ def executor(source: Path, repeat: int, max_samples: int | None) -> dict[str, ob
         and c.parameters["feature"] == "length",
         "crosstab_prefix": lambda c: c.analyzer == "category_crosstab"
         and c.parameters["feature"] == "prefix",
+        # The values patterns and detectors leave out, and the repeated values
+        # (lot 15), read from the source.
+        "residual": lambda c: c.analyzer == "residual_values"
+        and c.execution.requires_source,
+        "duplicates": lambda c: c.analyzer == "duplicates_report"
+        and c.partner is None
+        and c.execution.requires_source,
         # Values with a unit (lot 14) whose numbers need the source.
         "measure": lambda c: c.analyzer == "measure_extraction"
         and c.execution.requires_source,

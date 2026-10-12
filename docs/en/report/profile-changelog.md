@@ -87,4 +87,6 @@ refusal of `numeric` for codes and the `minority_length` observation. The
 report adds no member of its own. The second pass document inside `analyses`
 is at [revision 2](../scan/deep-format.md#changelog): it may hold the numbers of
 amounts, percentages and quantities with a unit (the result `measures`), which
-the Second pass section summarizes in one line.
+the Second pass section summarizes in one line, the values that patterns and
+detectors leave out (`residual_values`) and the repeated values of identifiers
+and keys (`duplicates`, `duplicates_limited`).

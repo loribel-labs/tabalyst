@@ -36,6 +36,11 @@ from tabalyst.scanner.secondpass.accumulators import (
     LengthAccumulator,
 )
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
+from tabalyst.scanner.secondpass.duplicates import (
+    DuplicateAccumulator,
+    KeyAccumulator,
+    RawFeed,
+)
 from tabalyst.scanner.secondpass.exactset import ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
@@ -43,11 +48,14 @@ from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
+from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
 
 # The columns of the pairs and tables, converted once whatever the number of
 # analyses that read them, and the analyses that read two of them.
-Feed = ColumnFeed | CodeFeed
-PairLike = PairAccumulator | CrosstabAccumulator
+Feed = ColumnFeed | CodeFeed | RawFeed
+PairLike = PairAccumulator | CrosstabAccumulator | KeyAccumulator
+# The aligned rows of a column: floats, codes or strings.
+Rows = Sequence[float | None] | Sequence[int] | Sequence[str | None]
 
 
 def field_path(segments: Iterable[PathSegment]) -> FieldPath:
@@ -63,12 +71,28 @@ def field_path(segments: Iterable[PathSegment]) -> FieldPath:
     return tuple(path)
 
 
+def _first_record(column: list[str], start: int) -> Callable[[str], int]:
+    """The record of the first occurrence of a string in ``column``, numbered
+    from ``start``. The index of the column is built once, on the first call:
+    most batches have nothing to quote."""
+    index: dict[str, int] = {}
+
+    def first(raw: str) -> int:
+        if not index:
+            # The last assignment wins, so walking backward keeps the first one.
+            index.update(zip(reversed(column), range(len(column) - 1, -1, -1), strict=True))
+        return start + index[raw]
+
+    return first
+
+
 class FieldRoute:
     """The analyses that read one field and the way they read it: one reading
     of each raw string, shared by all of them."""
 
     __slots__ = (
         "distinct",
+        "duplicates",
         "failure",
         "frequencies",
         "lengths",
@@ -79,6 +103,7 @@ class FieldRoute:
         "patterns",
         "periods",
         "reader",
+        "residuals",
         "values",
     )
 
@@ -101,6 +126,11 @@ class FieldRoute:
         self.periods: PeriodAccumulator | None = None
         # The values with a unit read the analytical text with their detector.
         self.measures: MeasureAccumulator | None = None
+        # The values that patterns and detectors leave out (original values for
+        # the pattern, the analytical text for the detectors).
+        self.residuals: ResidualAccumulator | None = None
+        # The repeated values of an identifier (original values).
+        self.duplicates: DuplicateAccumulator | None = None
         self.memo: dict[str, Cell] = {}
         # Raw strings remembered per field across batches. A column of few distinct
         # values (the case where remembering pays) fits; one of identifiers does
@@ -112,16 +142,17 @@ class FieldRoute:
         # Values handed to the analyses, for the cells counted by the run.
         self.values = 0
 
-    def strings(self, column: list[str]) -> None:
-        """Account for the raw strings of consecutive records of the field."""
+    def strings(self, column: list[str], start: int = 1) -> None:
+        """Account for the raw strings of consecutive records of the field,
+        numbered from ``start``."""
         self.values += len(column)
-        self._counted(Counter(column))
+        self._counted(Counter(column), column, start)
 
-    def string(self, value: str) -> None:
+    def string(self, value: str, record: int = 1) -> None:
         self.values += 1
-        self._counted({value: 1})
+        self._counted({value: 1}, [value], record)
 
-    def _counted(self, counts: dict[str, int]) -> None:
+    def _counted(self, counts: dict[str, int], column: list[str], start: int) -> None:
         lengths = self.lengths
         numeric = self.numeric
         frequencies = self.frequencies
@@ -129,15 +160,29 @@ class FieldRoute:
         patterns = self.patterns
         periods = self.periods
         measures = self.measures
+        residuals = self.residuals
+        duplicates = self.duplicates
+        text_wanted = residuals is not None and residuals.needs_text
+        first = (
+            _first_record(column, start)
+            if residuals is not None or duplicates is not None
+            else None
+        )
         if (
             lengths is None
             and numeric is None
             and frequencies is None
             and periods is None
             and measures is None
+            and not text_wanted
         ):
             # Only the original values: no analytical text, no number.
-            if distinct is not None or patterns is not None:
+            if (
+                distinct is not None
+                or patterns is not None
+                or residuals is not None
+                or duplicates is not None
+            ):
                 raws = list(counts)
                 wanted = [raw for raw, ok in zip(raws, self.reader.content(raws), strict=True) if ok]
                 weights = [counts[raw] for raw in wanted]
@@ -145,6 +190,10 @@ class FieldRoute:
                     distinct.add_strings(wanted, weights)
                 if patterns is not None:
                     patterns.add_strings(wanted, weights)
+                if residuals is not None:
+                    residuals.add(self.reader, wanted, weights, None, first)
+                if duplicates is not None:
+                    duplicates.add_strings(wanted, weights, first)
             return
         memo = self.memo
         cells: dict[str, Cell] = {}
@@ -191,15 +240,30 @@ class FieldRoute:
                 cell = cells[raw]
                 if cell.length >= 0:
                     measures.add(cell.measure, count)
-        if distinct is not None or patterns is not None:
+        if (
+            distinct is not None
+            or patterns is not None
+            or residuals is not None
+            or duplicates is not None
+        ):
             wanted = [raw for raw in counts if cells[raw].length >= 0]
             weights = [counts[raw] for raw in wanted]
             if distinct is not None:
                 distinct.add_strings(wanted, weights)
             if patterns is not None:
                 patterns.add_strings(wanted, weights)
+            if residuals is not None:
+                residuals.add(
+                    self.reader,
+                    wanted,
+                    weights,
+                    [cells[raw].text for raw in wanted] if text_wanted else None,
+                    first,
+                )
+            if duplicates is not None:
+                duplicates.add_strings(wanted, weights, first)
 
-    def native(self, native_type: str, value: object) -> None:
+    def native(self, native_type: str, value: object, record: int = 1) -> None:
         """A JSON integer, number or boolean: a numeric value (but for a
         boolean), and no text. A boolean only matters to the analyses of the
         values themselves."""
@@ -209,6 +273,8 @@ class FieldRoute:
             and self.frequencies is None
             and self.patterns is None
             and self.measures is None
+            and self.residuals is None
+            and self.duplicates is None
         ):
             return
         self.values += 1
@@ -222,6 +288,10 @@ class FieldRoute:
             self.patterns.add_native()
         if self.measures is not None:
             self.measures.add_native()
+        if self.residuals is not None:
+            self.residuals.add_native()
+        if self.duplicates is not None:
+            self.duplicates.add_native(native_type, value, record)
 
 
 class Router:
@@ -302,12 +372,12 @@ class Router:
             if route.failure is not None:
                 continue
             try:
-                route.strings([row[index] for row in batch.rows])
+                route.strings([row[index] for row in batch.rows], batch.start)
             except Exception as exc:  # noqa: BLE001 - one field fails alone
                 route.failure = type(exc).__name__
         columns = self._feed_columns.get(batch.dataset)
         if columns:
-            converted: dict[int, Sequence[float | None] | Sequence[int]] = {}
+            converted: dict[int, Rows] = {}
             for index, feed in columns:
                 if feed.failure is not None:
                     continue
@@ -324,7 +394,7 @@ class Router:
     def _hand(
         self,
         dataset: str,
-        rows_of: Callable[[Feed], Sequence[float | None] | Sequence[int] | None],
+        rows_of: Callable[[Feed], Rows | None],
     ) -> None:
         """Give each pair the aligned rows of its two columns. A pair whose
         column failed is left as it was: its job fails when it is concluded."""
@@ -351,9 +421,9 @@ class Router:
             if route is not None and route.failure is None:
                 try:
                     if native_type == "string":
-                        route.string(observation.value)  # type: ignore[arg-type]
+                        route.string(observation.value, record.index)  # type: ignore[arg-type]
                     elif native_type in ("integer", "number", "boolean"):
-                        route.native(native_type, observation.value)
+                        route.native(native_type, observation.value, record.index)
                 except Exception as exc:  # noqa: BLE001 - one field fails alone
                     route.failure = type(exc).__name__
             for feed in feeds.get(observation.path, ()) if feeds else ():

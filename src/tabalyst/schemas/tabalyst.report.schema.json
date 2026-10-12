@@ -294,12 +294,15 @@
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
                   "distinct_limited": "#/$defs/DistinctLimited",
+                  "duplicates": "#/$defs/DuplicateResult",
+                  "duplicates_limited": "#/$defs/DuplicatesLimited",
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
                   "measures": "#/$defs/MeasureResult",
                   "pattern_counts": "#/$defs/PatternCounts",
                   "pearson": "#/$defs/PearsonResult",
-                  "periods": "#/$defs/PeriodCounts"
+                  "periods": "#/$defs/PeriodCounts",
+                  "residual_values": "#/$defs/ResidualResult"
                 },
                 "propertyName": "kind"
               },
@@ -330,6 +333,15 @@
                 },
                 {
                   "$ref": "#/$defs/MeasureResult"
+                },
+                {
+                  "$ref": "#/$defs/ResidualResult"
+                },
+                {
+                  "$ref": "#/$defs/DuplicateResult"
+                },
+                {
+                  "$ref": "#/$defs/DuplicatesLimited"
                 },
                 {
                   "$ref": "#/$defs/PearsonResult"
@@ -3108,7 +3120,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns\nand tables of categories are chosen, and how values with a unit are\nextracted.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns\nand tables of categories are chosen, how values with a unit are extracted,\nand how residual and repeated values are kept.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -3134,6 +3146,12 @@
         },
         "measures": {
           "$ref": "#/$defs/MeasureSettings"
+        },
+        "residuals": {
+          "$ref": "#/$defs/ResidualSettings"
+        },
+        "duplicates": {
+          "$ref": "#/$defs/DuplicateSettings"
         }
       },
       "title": "DeepSettings",
@@ -3900,6 +3918,202 @@
         "records"
       ],
       "title": "DuplicateRecords",
+      "type": "object"
+    },
+    "DuplicateResult": {
+      "additionalProperties": false,
+      "description": "The repeated values of a field, or of a combination of columns (design\n20.21). ``values`` are the values read (for a combination, the rows where\nevery column has a value, and ``incomplete`` those where one lacks);\n``distinct`` is exact, ``redundant`` is ``values - distinct`` and ``unique``\nsays that nothing repeats. ``records`` says that the first record of each\nvalue is given, which needs the source. A value is identified by a 128-bit\ndigest when the source is read: two values collide with a probability under\none in 10^20 for a billion values.",
+      "properties": {
+        "kind": {
+          "const": "duplicates",
+          "default": "duplicates",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "exact_counts"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "computed_from": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Computed From",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "boolean"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Columns"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "incomplete": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incomplete"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "redundant": {
+          "title": "Redundant",
+          "type": "integer"
+        },
+        "unique": {
+          "title": "Unique",
+          "type": "boolean"
+        },
+        "repeated": {
+          "$ref": "#/$defs/RepeatedValues"
+        }
+      },
+      "required": [
+        "accuracy",
+        "computed_from",
+        "records",
+        "values",
+        "distinct",
+        "redundant",
+        "unique",
+        "repeated"
+      ],
+      "title": "DuplicateResult",
+      "type": "object"
+    },
+    "DuplicateSettings": {
+      "additionalProperties": false,
+      "description": "How the repeated values of an identifier or of a key are reported\n(design 20.21).\n\n``max_listed`` repeated values are listed, the most repeated first;\n``max_tracked`` distinct repeated values at most are counted (beyond, the\noccurrences of new ones are only counted). ``records`` asks for the first\nrecord of each value even when the Scan already holds every distinct value,\nwhich makes the second pass read the source. All are part of the key of a\nresult.",
+      "properties": {
+        "max_listed": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        },
+        "max_tracked": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tracked",
+          "type": "integer"
+        },
+        "records": {
+          "default": false,
+          "title": "Records",
+          "type": "boolean"
+        }
+      },
+      "title": "DuplicateSettings",
+      "type": "object"
+    },
+    "DuplicateValue": {
+      "additionalProperties": false,
+      "description": "A value, or a combination of values, found more than once: all its\n``count`` occurrences (exact: it was tracked from its second sighting, with\nthe first one counted) and, when the source was read, the record of the\nfirst. A combination is written as its values in the order of ``columns``.",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "first_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Record"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "DuplicateValue",
+      "type": "object"
+    },
+    "DuplicatesLimited": {
+      "additionalProperties": false,
+      "description": "What a stopped search for repeated values proves (D08): in the\n``values_read`` values met before the memory budget stopped it, at least\n``distinct`` distinct values and ``repeated`` repeated ones. Never a\ncount.",
+      "properties": {
+        "kind": {
+          "const": "duplicates_limited",
+          "default": "duplicates_limited",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "lower_bound",
+          "default": "lower_bound",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "values_read": {
+          "title": "Values Read",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "repeated": {
+          "title": "Repeated",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "values_read",
+        "distinct",
+        "repeated"
+      ],
+      "title": "DuplicatesLimited",
       "type": "object"
     },
     "EmailSettings": {
@@ -7776,6 +7990,69 @@
       "title": "PatternPopulation",
       "type": "object"
     },
+    "PatternProfile": {
+      "additionalProperties": false,
+      "description": "A candidate pattern of the Scan, seen over every occurrence: how often it\nreads a value, one value it reads (the first one met) with its first record\nwhen the source was read, and the distinct values it reads (``exact``, or\n``at_least`` when the sets could not be held).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "distinct_accuracy": {
+          "enum": [
+            "exact",
+            "at_least"
+          ],
+          "title": "Distinct Accuracy",
+          "type": "string"
+        },
+        "example": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Example"
+        },
+        "first_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Record"
+        }
+      },
+      "required": [
+        "id",
+        "render",
+        "occurrences",
+        "distinct",
+        "distinct_accuracy"
+      ],
+      "title": "PatternProfile",
+      "type": "object"
+    },
     "PatternSettings": {
       "additionalProperties": false,
       "properties": {
@@ -8679,6 +8956,26 @@
       "title": "RareMarkers",
       "type": "object"
     },
+    "ReasonCount": {
+      "additionalProperties": false,
+      "description": "Occurrences of ``invalid`` values for one reason of the detector.",
+      "properties": {
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reason",
+        "count"
+      ],
+      "title": "ReasonCount",
+      "type": "object"
+    },
     "RecordList": {
       "additionalProperties": false,
       "properties": {
@@ -8768,6 +9065,54 @@
         }
       },
       "title": "Relations",
+      "type": "object"
+    },
+    "RepeatedValues": {
+      "additionalProperties": false,
+      "description": "The values found more than once: how many (``distinct``) and their\n``occurrences`` in all, exactly. Up to ``max_tracked`` of them are tracked\nwith their count and listed, the most repeated first (``truncated`` when\nmore are tracked than listed); the occurrences of the others are only\ncounted in ``untracked``, which makes ``complete`` false.",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "tracked": {
+          "title": "Tracked",
+          "type": "integer"
+        },
+        "untracked": {
+          "title": "Untracked",
+          "type": "integer"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/DuplicateValue"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "distinct",
+        "occurrences",
+        "tracked",
+        "untracked",
+        "complete",
+        "truncated",
+        "listed"
+      ],
+      "title": "RepeatedValues",
       "type": "object"
     },
     "ReportBlock": {
@@ -8897,6 +9242,304 @@
         "candidates"
       ],
       "title": "RequestedAnalysis",
+      "type": "object"
+    },
+    "ResidualDetector": {
+      "additionalProperties": false,
+      "description": "What a replayed detector made of the strings of the field, beside what the\nScan counted: ``scan_not_tested`` values were not tested by the Scan\n(adaptive detection) and were read here.",
+      "properties": {
+        "detector": {
+          "title": "Detector",
+          "type": "string"
+        },
+        "eligible": {
+          "title": "Eligible",
+          "type": "integer"
+        },
+        "matched": {
+          "title": "Matched",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "invalid": {
+          "title": "Invalid",
+          "type": "integer"
+        },
+        "not_matched": {
+          "title": "Not Matched",
+          "type": "integer"
+        },
+        "scan_not_tested": {
+          "title": "Scan Not Tested",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "detector",
+        "eligible",
+        "matched",
+        "ambiguous",
+        "invalid",
+        "not_matched",
+        "scan_not_tested"
+      ],
+      "title": "ResidualDetector",
+      "type": "object"
+    },
+    "ResidualResult": {
+      "additionalProperties": false,
+      "description": "The values that patterns and detectors leave out, and the patterns over\nevery occurrence (design 20.20). ``records`` says that the first record of\neach value is given, which needs the source. ``accuracy`` is ``exact`` when\nevery table is ``complete`` and every pattern distinct count ``exact``, and\n``exact_counts`` when occurrences are exact but a list is bounded.",
+      "properties": {
+        "kind": {
+          "const": "residual_values",
+          "default": "residual_values",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "exact_counts"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "computed_from": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Computed From",
+          "type": "string"
+        },
+        "records": {
+          "title": "Records",
+          "type": "boolean"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/ResidualTable"
+          },
+          "title": "Tables",
+          "type": "array"
+        },
+        "patterns": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PatternProfile"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Patterns"
+        },
+        "pattern_excluded": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PatternExclusions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detectors": {
+          "items": {
+            "$ref": "#/$defs/ResidualDetector"
+          },
+          "title": "Detectors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "accuracy",
+        "computed_from",
+        "records",
+        "values",
+        "tables",
+        "detectors"
+      ],
+      "title": "ResidualResult",
+      "type": "object"
+    },
+    "ResidualSettings": {
+      "additionalProperties": false,
+      "description": "What the values that a pattern or a detector leaves out are kept as\n(design 20.20).\n\n``max_listed`` values are listed per source and state, the most frequent\nfirst; ``max_tracked`` distinct values at most are counted per source and\nstate (beyond, the occurrences of new values are only counted); a value of\nmore than ``max_value_length`` characters is counted and never listed;\n``max_detectors`` detectors at most are replayed per field. ``records``\nasks for the first record of each value even when the Scan already holds\nevery distinct value, which makes the second pass read the source. All are\npart of the key of a result.",
+      "properties": {
+        "max_listed": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Listed",
+          "type": "integer"
+        },
+        "max_tracked": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tracked",
+          "type": "integer"
+        },
+        "max_value_length": {
+          "default": 100,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Value Length",
+          "type": "integer"
+        },
+        "max_detectors": {
+          "default": 3,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Max Detectors",
+          "type": "integer"
+        },
+        "records": {
+          "default": false,
+          "title": "Records",
+          "type": "boolean"
+        }
+      },
+      "title": "ResidualSettings",
+      "type": "object"
+    },
+    "ResidualTable": {
+      "additionalProperties": false,
+      "description": "What one source leaves out in one state (design 20.20): the values no\ncandidate pattern reads (``other``), or the values of a detector that are\n``invalid`` or ``not_matched``.\n\n``occurrences`` is exact. ``listed`` holds the most frequent tracked values;\n``distinct`` counts the tracked ones and is the distinct count when\n``complete``. Values beyond ``max_tracked`` are only counted in\n``untracked`` (occurrences), and a value longer than ``max_value_length`` in\n``too_long``; both make ``complete`` false. ``truncated`` says that more\ntracked values exist than are listed. ``reasons`` split the occurrences of\nan ``invalid`` state.",
+      "properties": {
+        "source": {
+          "enum": [
+            "pattern",
+            "detector"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "detector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detector"
+        },
+        "state": {
+          "enum": [
+            "other",
+            "invalid",
+            "not_matched"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "complete": {
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "untracked": {
+          "title": "Untracked",
+          "type": "integer"
+        },
+        "too_long": {
+          "title": "Too Long",
+          "type": "integer"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/ResidualValue"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "reasons": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ReasonCount"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasons"
+        }
+      },
+      "required": [
+        "source",
+        "state",
+        "occurrences",
+        "distinct",
+        "complete",
+        "untracked",
+        "too_long",
+        "truncated",
+        "listed"
+      ],
+      "title": "ResidualTable",
+      "type": "object"
+    },
+    "ResidualValue": {
+      "additionalProperties": false,
+      "description": "A value a pattern or a detector leaves out, with the occurrences counted\nsince its first appearance (so exact) and, when the source was read, the\nrecord of the first one.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "first_record": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Record"
+        }
+      },
+      "required": [
+        "value",
+        "count"
+      ],
+      "title": "ResidualValue",
       "type": "object"
     },
     "RowPopulation": {

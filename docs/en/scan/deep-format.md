@@ -437,12 +437,128 @@ quantities with a unit, read as the scan's `detector` (`currency`, `percentage` 
 - `computed_from` is `samples` when the scan holds every distinct value with its
   exact count: the source is not read and the result is the same.
 
+**`residual_values`**: the values that patterns and detectors leave out.
+
+```json
+{
+  "kind": "residual_values",
+  "accuracy": "exact",
+  "computed_from": "source",
+  "records": true,
+  "values": 3000,
+  "tables": [
+    {
+      "source": "pattern", "state": "other",
+      "occurrences": 100, "distinct": 3, "complete": true,
+      "untracked": 0, "too_long": 0, "truncated": false,
+      "listed": [
+        {"value": "x", "count": 38, "first_record": 23},
+        {"value": "n/a", "count": 33, "first_record": 13}
+      ]
+    },
+    {
+      "source": "detector", "detector": "date", "state": "invalid",
+      "occurrences": 131, "distinct": 83, "complete": true,
+      "untracked": 0, "too_long": 0, "truncated": true,
+      "listed": [{"value": "2002-02-31", "count": 5, "first_record": 604}],
+      "reasons": [{"reason": "invalid_calendar_date", "count": 131}]
+    }
+  ],
+  "patterns": [
+    {"id": "p1", "render": "XX9999", "occurrences": 1622,
+     "distinct": 1619, "distinct_accuracy": "exact",
+     "example": "CH7427", "first_record": 3}
+  ],
+  "pattern_excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
+  "detectors": [
+    {"detector": "date", "eligible": 3000, "matched": 2705, "ambiguous": 0,
+     "invalid": 131, "not_matched": 164, "scan_not_tested": 0}
+  ]
+}
+```
+
+- A table holds what one source leaves out in one state. The `pattern` source has
+  the state `other`: the values no candidate pattern reads. A `detector` source
+  names a detector of the scan, replayed on the analytical text of each value as the
+  first pass read it, and has the state `invalid` (the shape of the detector, but
+  a value that does not hold) or `not_matched`. A table with no occurrence is
+  absent.
+- `occurrences` is exact. A value enters the table the first time it is met, so
+  the count of every listed value is exact. At most `max_tracked` distinct values
+  are tracked per table; the occurrences of the values met after that are only
+  counted in `untracked`, a value longer than `max_value_length` characters is
+  counted in `too_long` and never listed, and `complete` is then false.
+  `distinct` counts the tracked values; `listed` holds the `max_listed` most
+  frequent, by count then text, and `truncated` says that more were tracked.
+- `reasons` split the occurrences of an `invalid` table by the reason the detector
+  gave.
+- `patterns` gives each candidate pattern of the scan its `occurrences` (each value
+  counts for the most specific pattern that reads it, as in `pattern_counts`), the
+  `distinct` values it reads over every occurrence (`exact`, or `at_least` when
+  the memory budget stopped the sets), one value it reads and, with `records`, the
+  record of that value. `pattern_excluded` counts the values the patterns do not
+  test: strings longer than the inference reads, strings of too many tokens, and
+  JSON numbers or booleans.
+- `detectors` repeats the counts of each replayed detector. They are checked against
+  the scan's coverage: exactly when the scan tested every value, and, when it left
+  values untested (adaptive detection), at least what it counted and no more than
+  those values can add. A difference is `scan_mismatch`.
+- `records` is true when the source was read: each listed value then has the
+  `first_record` (from 1) of its first occurrence. When the scan holds every
+  distinct value with its exact count, the source is not read, `computed_from` is
+  `samples`, `records` is false and the records are absent; the setting
+  `deep.residuals.records` reads the source anyway.
+
+**`duplicates`** and **`duplicates_limited`**: the values found more than once in a
+column that looks like an identifier, or in a combination of two columns.
+
+```json
+{
+  "kind": "duplicates",
+  "accuracy": "exact",
+  "computed_from": "source",
+  "records": true,
+  "values": 1000000,
+  "distinct": 999890,
+  "redundant": 110,
+  "unique": false,
+  "repeated": {
+    "distinct": 100, "occurrences": 210, "tracked": 100,
+    "untracked": 0, "complete": true, "truncated": true,
+    "listed": [{"value": "8a1f03c9d2", "count": 4, "first_record": 52113}]
+  }
+}
+```
+
+- `values` are the values read, `distinct` the distinct original values (exact),
+  `redundant` is `values - distinct` and `unique` says that nothing repeats.
+  `repeated.distinct` is how many values occur more than once and
+  `repeated.occurrences` their occurrences in all, the first of each included.
+- The value of a listed entry has its `count` (exact) and, with `records`, the
+  `first_record`. Up to `max_tracked` repeated values are tracked; the
+  occurrences of the others are in `untracked` and make `complete` false, the
+  accuracy `exact_counts`. `listed` holds the `max_listed` most repeated.
+- When the source is read, a value is held as a 128-bit BLAKE2b digest with the
+  record of its first occurrence, so that the memory does not depend on the length
+  of the values; two values collide with a probability under one in 10^20 for a
+  billion values. When the scan holds every distinct value with its exact count,
+  the repeated ones follow from it (`computed_from` `samples`, no record).
+- For a combination of two columns (a request for the analyzer with a `partner`),
+  `columns` names them, `values` are the rows where both have a value, `incomplete`
+  the rows where one has none, and `value` of a listed entry is the list of their
+  values. The source is always read.
+- `duplicates_limited` is the result when the memory budget stopped the search
+  (`status` `limited`, reason `memory_budget`): `values_read` values were met,
+  with at least `distinct` distinct values and `repeated` repeated ones. It is a
+  lower bound, never a count.
+
 ## Key and reuse
 
 The `key` of an analysis is a digest of the scan it stands on, the analyzer and
 its version, the field (and its partner, for a pair or a table), the method with its effective parameters (the number of
 bins and the strategy are among them, for a table the feature, its classes and the thresholds of its
-rules, and for an extraction the detector, `max_groups`, `max_values` and the bins) and the domain of the values. It does not
+rules, and for an extraction the detector, `max_groups`, `max_values` and the bins, for the residual values the sources and
+the settings of `deep.residuals`, for the repeated values those of `deep.duplicates`) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
 whose `base` is not the current scan's matches none of its keys, and is made
@@ -457,6 +573,11 @@ as the writer. It describes what a reader accepts.
 ## Changelog
 
 ### Version 0.2.0, revision 2
+
+The results `residual_values` of the analyzer `residual_values` (the values that patterns and
+detectors leave out, and the patterns over every occurrence) and `duplicates` and
+`duplicates_limited` of the analyzer `duplicates_report` (the repeated values of an identifier or of a
+combination of two columns). The settings have the members `deep.residuals` and `deep.duplicates`.
 
 The result `measures` of the analyzer `measure_extraction`: the numbers of the
 amounts, percentages and quantities with a unit, for the whole field and for each

@@ -27,11 +27,18 @@ from tabalyst.progress import (
 )
 from tabalyst.scanner.features import CategoryCoder, feature_coder
 from tabalyst.scanner.measures import Unrepresentable
-from tabalyst.scanner.models import DatasetResult, FieldResult, ScanResult
+from tabalyst.scanner.models import (
+    CardinalityComplete,
+    CardinalityLimited,
+    DatasetResult,
+    FieldResult,
+    ScanResult,
+)
 from tabalyst.scanner.observations import StreamItem
 from tabalyst.scanner.paths import FieldPath
 from tabalyst.scanner.planner.analyzers.measures import measure_memo
 from tabalyst.scanner.planner.costmodel import (
+    DEFAULT_MEMORY_BUDGET_BYTES,
     EXACT_SET_STATE_PREFIX,
     PERIOD_MEMO_ENTRIES,
 )
@@ -51,6 +58,14 @@ from tabalyst.scanner.secondpass.accumulators import (
 from tabalyst.scanner.secondpass.boundaries import place_edges
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.document import analysis_domain, analysis_key
+from tabalyst.scanner.secondpass.duplicates import (
+    DuplicateAccumulator,
+    KeyAccumulator,
+    RawFeed,
+)
+from tabalyst.scanner.secondpass.duplicates import (
+    derive_from_samples as duplicates_from_samples,
+)
 from tabalyst.scanner.secondpass.exactset import MEMORY_BUDGET, ExactPool, ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
 from tabalyst.scanner.secondpass.measures import MeasureAccumulator
@@ -65,6 +80,7 @@ from tabalyst.scanner.secondpass.models import (
     DeepRun,
     DeepTimings,
     DistinctLimited,
+    DuplicatesLimited,
 )
 from tabalyst.scanner.secondpass.parallel import (
     RemoteRoute,
@@ -79,6 +95,13 @@ from tabalyst.scanner.secondpass.patterns import (
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import CellReader
+from tabalyst.scanner.secondpass.residuals import (
+    PATTERN_SOURCE,
+    ResidualAccumulator,
+)
+from tabalyst.scanner.secondpass.residuals import (
+    derive_from_samples as residuals_from_samples,
+)
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
 from tabalyst.scanner.workers import worker_count
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
@@ -95,6 +118,9 @@ Accumulator = (
     | PatternAccumulator
     | PeriodAccumulator
     | MeasureAccumulator
+    | ResidualAccumulator
+    | DuplicateAccumulator
+    | KeyAccumulator
     | PairAccumulator
     | CrosstabAccumulator
 )
@@ -191,7 +217,7 @@ def _grant(candidate: Candidate) -> int:
     )
 
 
-Feeds = dict[tuple[str, FieldPath, str], ColumnFeed | CodeFeed]
+Feeds = dict[tuple[str, FieldPath, str], ColumnFeed | CodeFeed | RawFeed]
 
 
 def _setup_pair(
@@ -227,6 +253,36 @@ def _setup_pair(
         assert isinstance(feed, ColumnFeed)
         columns_of.append(feed)
     job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs)
+    job.reads_pair = True
+
+
+def _setup_keys(job: _Job, cells: CellReader, feeds: Feeds, pool: ExactPool) -> None:
+    """The accumulator of a combination of two columns: the feed of each column,
+    shared with the other combinations that use it. The row sample of the Scan
+    holds too few rows to answer, so the source is always read."""
+    candidate, dataset = job.candidate, job.dataset
+    first, second = job.field, job.partner
+    assert second is not None
+    parameters = candidate.parameters
+    columns_of = []
+    for field in (first, second):
+        where = (dataset.id, field_path(field.path), "raw")
+        feed = feeds.get(where)
+        if feed is None:
+            feed = feeds[where] = RawFeed(cells)
+        assert isinstance(feed, RawFeed)
+        columns_of.append(feed)
+    job.accumulator = KeyAccumulator(
+        columns_of[0],
+        columns_of[1],
+        DuplicateAccumulator(
+            pool,
+            max_listed=int(parameters["max_listed"]),
+            max_tracked=int(parameters["max_tracked"]),
+            columns=[first.display, second.display],
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        ),
+    )
     job.reads_pair = True
 
 
@@ -341,6 +397,48 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
         if not candidate.execution.requires_source:
             measures_from_samples(measures, field, cells)
         return
+    if candidate.analyzer == "duplicates_report":
+        parameters = candidate.parameters
+        # What the Scan answers alone holds at most its own distinct values, which
+        # the plan did not charge to the pool of the run.
+        reads = candidate.execution.requires_source
+        duplicates = DuplicateAccumulator(
+            pool if reads else ExactPool(DEFAULT_MEMORY_BUDGET_BYTES),
+            max_listed=int(parameters["max_listed"]),
+            max_tracked=int(parameters["max_tracked"]),
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        job.accumulator = duplicates
+        if not candidate.execution.requires_source:
+            duplicates_from_samples(duplicates, field)
+        return
+    if candidate.analyzer == "residual_values":
+        parameters = candidate.parameters
+        sources = str(parameters["sources"]).split(",")
+        entry = None
+        if PATTERN_SOURCE in sources:
+            entry = (
+                pattern_entry(scan.derived.patterns.fields, dataset.id, field.id)
+                if scan.derived is not None and scan.derived.patterns is not None
+                else None
+            )
+            if entry is None:
+                job.failure = ("scan_mismatch", "the scan has no inferred patterns for the field")
+                return
+        residuals = ResidualAccumulator(
+            entry=entry,
+            pattern_max_length=scan.config.pattern_inference.max_value_length,
+            detectors=[source for source in sources if source != PATTERN_SOURCE],
+            pool=pool,
+            max_listed=int(parameters["max_listed"]),
+            max_tracked=int(parameters["max_tracked"]),
+            max_value_length=int(parameters["max_value_length"]),
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        job.accumulator = residuals
+        if not candidate.execution.requires_source:
+            residuals_from_samples(residuals, field, cells)
+        return
     if candidate.analyzer == "length_distribution":
         job.accumulator = LengthAccumulator()
         return
@@ -379,6 +477,16 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
         source=placement.source,
         reason=placement.reason,
         tight=placement.tight,
+    )
+
+
+def _stopped(found: DuplicatesLimited, unit: str) -> _Finished:
+    """A search for repeated values that the memory budget stopped (D08)."""
+    return _Finished(
+        "limited",
+        found,
+        reason=MEMORY_BUDGET,
+        detail=f"stopped after {found.values_read} {unit}, at least {found.repeated} repeated",
     )
 
 
@@ -427,6 +535,37 @@ def _finish(job: _Job) -> _Finished:
     if isinstance(accumulator, MeasureAccumulator):
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(field, source))
+    if isinstance(accumulator, KeyAccumulator):
+        partner = job.partner
+        assert partner is not None
+        accumulator.check(field, partner, job.dataset.record_count)
+        found = accumulator.duplicates.result(0, None, "source", True)
+        if isinstance(found, DuplicatesLimited):
+            return _stopped(found, "rows")
+        return _Finished("complete", found)
+    if isinstance(accumulator, DuplicateAccumulator):
+        cardinality = field.values.cardinality
+        exact = cardinality.value if isinstance(cardinality, CardinalityComplete) else None
+        bound = cardinality.lower_bound if isinstance(cardinality, CardinalityLimited) else None
+        reads = job.candidate.execution.requires_source
+        found = accumulator.result(
+            field.values.count,
+            exact if exact is not None else bound,
+            "source" if reads else "samples",
+            reads,
+        )
+        if isinstance(found, DuplicatesLimited):
+            return _stopped(found, "values")
+        if exact is not None and found.distinct != exact:
+            raise ScanMismatch(
+                f"distinct values: the second pass found {found.distinct}, the scan {exact}"
+            )
+        return _Finished("complete", found)
+    if isinstance(accumulator, ResidualAccumulator):
+        reads = job.candidate.execution.requires_source
+        return _Finished(
+            "complete", accumulator.result(field, "source" if reads else "samples", reads)
+        )
     if isinstance(accumulator, PeriodAccumulator):
         assert field.temporal.status == "complete"
         stats = field.temporal.value
@@ -456,7 +595,7 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
-    if isinstance(pair, PairAccumulator | CrosstabAccumulator):
+    if isinstance(pair, PairAccumulator | CrosstabAccumulator | KeyAccumulator):
         broken = pair.failure or pair.first.failure or pair.second.failure
         if broken is not None:
             return _entry(candidate, key, "failed", reason="analysis_error", detail=broken)
@@ -496,7 +635,14 @@ def _share_out(
     local = {
         (job.dataset.id, field_path(job.field.path))
         for job in jobs
-        if isinstance(job.accumulator, ExactSet) and job.route is not None
+        if (
+            isinstance(job.accumulator, ExactSet)
+            or (
+                isinstance(job.accumulator, ResidualAccumulator | DuplicateAccumulator)
+                and job.accumulator.uses_pool
+            )
+        )
+        and job.route is not None
     }
     movable = [(where, route) for where, route in routes.items() if where not in local]
     count = min(count, len(movable))
@@ -643,7 +789,8 @@ def run_second_pass(
             sum(
                 _grant(job.candidate)
                 for job in jobs
-                if job.candidate.analyzer == "exact_distinct"
+                if job.candidate.analyzer
+                in ("exact_distinct", "residual_values", "duplicates_report")
             )
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
@@ -657,6 +804,9 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "category_crosstab":
                     _setup_table(job, cells, feeds, scan)
+                    continue
+                if job.candidate.analyzer == "duplicates_report" and job.partner is not None:
+                    _setup_keys(job, cells, feeds, pool)
                     continue
                 _setup(job, cells, pool, scan)
             except ScanMismatch as exc:
@@ -683,6 +833,10 @@ def run_second_pass(
             elif isinstance(accumulator, PeriodAccumulator):
                 route.periods = accumulator
                 route.memo_entries = max(route.memo_entries, PERIOD_MEMO_ENTRIES)
+            elif isinstance(accumulator, ResidualAccumulator):
+                route.residuals = accumulator
+            elif isinstance(accumulator, DuplicateAccumulator):
+                route.duplicates = accumulator
             elif isinstance(accumulator, MeasureAccumulator):
                 route.measures = accumulator
                 route.memo_entries = max(route.memo_entries, measure_memo(accumulator.cell_ns))
@@ -706,7 +860,9 @@ def run_second_pass(
             pairs = [
                 (job.dataset.id, job.accumulator)
                 for job in read_jobs
-                if isinstance(job.accumulator, PairAccumulator | CrosstabAccumulator)
+                if isinstance(
+                    job.accumulator, PairAccumulator | CrosstabAccumulator | KeyAccumulator
+                )
                 and job.reads_pair
             ]
             remote_of, pool = _share_out(jobs, routes, scan, workers)

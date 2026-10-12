@@ -41,6 +41,8 @@ NOT_APPLICABLE = {
     "unknown_feature": "no such feature",
     "not_a_category": "the column cannot be a category",
     "low_coverage": "fewer than half of the values carry a currency marker, a percent sign or a unit",
+    "repeated_field": "a column inside the items of an array has several values in one record",
+    "nothing_left_out": "no pattern leaves values out and no detector that reads most of the column finds invalid or unmatched ones",
 }
 
 # Why an analysis needs no further reading.
@@ -90,6 +92,9 @@ UTILITY = {
     "values_outside_candidates": "some values take no candidate pattern",
     "temporal_distribution": "shows how the dates are spread",
     "values_with_unit": "the scan counts the values with a unit but has no number for them",
+    "requested_only": "a combination of columns is only searched when it is asked for",
+    "repeated_identifier": "the values are almost all different, so those found more than once are worth a mention",
+    "values_left_out": "the scan counts values that patterns or detectors leave out but keeps only a few of them",
     "derivable_from_samples": "follows from the exact counts the scan already lists",
     "base_value": "a common analysis",
     "exploratory_correlation": "the sample suggests a linear relation between the two columns",

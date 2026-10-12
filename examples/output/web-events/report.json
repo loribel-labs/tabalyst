@@ -23,17 +23,17 @@
   },
   "status": "partial",
   "run": {
-    "started_at": "2026-10-11T23:28:16.898231Z",
-    "duration_seconds": 0.028704,
+    "started_at": "2026-10-12T01:40:58.284055Z",
+    "duration_seconds": 0.029791,
     "timings": {
-      "reading": 0.006171,
-      "analysis": 0.007929,
-      "finalize": 0.011827,
-      "derived": 0.002311,
-      "other": 0.000466
+      "reading": 0.005508,
+      "analysis": 0.008738,
+      "finalize": 0.012735,
+      "derived": 0.002366,
+      "other": 0.000445
     },
     "workers": 1,
-    "peak_memory_bytes": 62050304
+    "peak_memory_bytes": 63754240
   },
   "source": {
     "format": "jsonl",
@@ -12567,7 +12567,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -12608,15 +12608,27 @@
         "measures": {
           "max_groups": 20,
           "max_values": 100000
+        },
+        "residuals": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "max_value_length": 100,
+          "max_detectors": 3,
+          "records": false
+        },
+        "duplicates": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "records": false
         }
       },
-      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
+      "settings_sha256": "253da5d48de90acb6de7c4231723545e5a2216062e82b98d82d9ae8daeeb16fa",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 7,
-        "plan_id": "2f8040f0f8c781c95cb279ba4e68f70b8befda7dde4a86b1a476448664034993",
+        "cost_model_version": 8,
+        "plan_id": "00d8819fd2970aee6fa648f5f713a8c1326e38cf3d0a579e8c0cc5608389de66",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -12645,16 +12657,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 78,
-          "selected": 14,
-          "already_satisfied": 37,
+          "candidates": 84,
+          "selected": 18,
+          "already_satisfied": 39,
           "rejected": 27,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 25358172,
-            "expected": 25678172,
-            "max": 26638172
+            "min": 25378652,
+            "expected": 25715082,
+            "max": 26889674
           },
           "beyond_automatic": []
         },
@@ -12780,7 +12792,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 1,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -12856,7 +12868,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 2,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -13464,7 +13476,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 16,
               "satisfied_by": null
             },
             "execution": {
@@ -13541,7 +13553,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -13618,7 +13630,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -14599,7 +14611,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 3,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -14666,7 +14678,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 4,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
@@ -14733,7 +14745,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -14800,7 +14812,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -14867,7 +14879,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -14934,7 +14946,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -15001,7 +15013,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -15068,7 +15080,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -15171,7 +15183,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 14,
               "satisfied_by": null
             },
             "execution": {
@@ -15206,6 +15218,392 @@
               "requested": false,
               "priority": null,
               "satisfied_by": "datasets/$[]/fields/f2/temporal"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$[]:f1",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 12957,
+                "max": 114920
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 7837,
+                    "max": 62700
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$[]/fields/f1",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 51196
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 3,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$[]:f2",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 13370,
+                "max": 121520
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 8250,
+                    "max": 66000
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$[]/fields/f2",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 54496
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 4,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$[]:f3",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5250,
+                "max": 6950
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 130,
+                    "max": 1045
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 4881
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 1,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$[]:f11",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5333,
+                "max": 8112
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 0,
+                    "expected": 213,
+                    "max": 1704
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 5384
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 2,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$[]:f1",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f1",
+            "display": "event_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "all_distinct",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f1/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$[]:f2",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f2",
+            "display": "timestamp",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "all_distinct",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$[]/fields/f2/values/cardinality"
             },
             "execution": {
               "requires_source": false,
@@ -17918,21 +18316,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-12T00:29:53.026517Z",
-        "duration_seconds": 0.000118,
+        "started_at": "2026-10-12T01:40:58.358408Z",
+        "duration_seconds": 0.015956,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000118
+          "reading": 0.005077,
+          "analysis": 0.00578,
+          "other": 0.0051
         },
         "workers": 1,
-        "peak_memory_bytes": 67997696,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 14,
+        "peak_memory_bytes": 66895872,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 300,
+        "cells_read": 876,
+        "executed": 18,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -22073,17 +22471,229 @@
             },
             "overlaps": []
           }
+        },
+        {
+          "id": "residual_values:$[]:f1",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f1",
+          "display": "event_id",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "7f48bcacf118515625f4ce03439bf896e95a6960bcfe9e04779ee87ebc343e36",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 300,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'evt'-99999",
+                "occurrences": 300,
+                "distinct": 300,
+                "distinct_accuracy": "exact",
+                "example": "evt-00001",
+                "first_record": 1
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:$[]:f2",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f2",
+          "display": "timestamp",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "da1401aba80ef25c0168bc9eeb590109a1d5153d164b3dd5f98a142004489eee",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 300,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'2026'-'03'-'01''T'99:99:99'Z'",
+                "occurrences": 300,
+                "distinct": 300,
+                "distinct_accuracy": "exact",
+                "example": "2026-03-01T08:00:16Z",
+                "first_record": 1
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:$[]:f3",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f3",
+          "display": "type",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "81d84d7fdc299bdcf807a94f443c3fe120895392a08c14c129012ceec38f79f7",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 300,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 152,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "page_view",
+                    "count": 152
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "x{5,8}",
+                "occurrences": 148,
+                "distinct": 4,
+                "distinct_accuracy": "exact",
+                "example": "purchase"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:$[]:f11",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$[]",
+          "field": "f11",
+          "display": "page",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "e08df02df0106d227ae17382e5e6eb67b628c29170c870be8dcd2344b670423f",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 300,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 60,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "/",
+                    "count": 31
+                  },
+                  {
+                    "value": "/docs/install",
+                    "count": 29
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "/x{4,8}",
+                "occurrences": 240,
+                "distinct": 6,
+                "distinct_accuracy": "exact",
+                "example": "/login"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
         }
       ]
     }
   },
   "report": {
-    "generated_at": "2026-10-12T00:29:53.271960Z",
+    "generated_at": "2026-10-12T01:40:58.652794Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.2915,
+    "processing_seconds": 0.3883,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

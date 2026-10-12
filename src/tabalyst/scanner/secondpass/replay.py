@@ -24,6 +24,8 @@ from tabalyst.scanner.detectors.currency import CurrencyDetector
 from tabalyst.scanner.detectors.number import NumberDetector
 from tabalyst.scanner.detectors.percentage import PercentageDetector
 from tabalyst.scanner.detectors.quantity import QuantityDetector
+from tabalyst.scanner.detectors.registry import replayable
+from tabalyst.scanner.detectors.shape import shape
 from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.field import StringClassifier
 from tabalyst.scanner.measures import UNCONVERTIBLE, decimal_or_unconvertible
@@ -72,6 +74,15 @@ MEASURE_DETECTORS: dict[str, type[MeasureDetector]] = {
     "quantity": QuantityDetector,
 }
 _INVALID = Measure("invalid")
+# What a replayed detector made of a text: its state (``matched``, ``ambiguous``,
+# ``invalid``, ``not_matched`` or ``not_tested``) and, for an invalid text, the
+# reason the detector gave.
+Reading = tuple[str, str | None]
+_NOT_TESTED: Reading = ("not_tested", None)
+_NOT_MATCHED: Reading = ("not_matched", None)
+_MATCHED: Reading = ("matched", None)
+_AMBIGUOUS: Reading = ("ambiguous", None)
+UNSPECIFIED = "unspecified"
 
 
 def measure_of(reading: object) -> Measure | None:
@@ -129,6 +140,7 @@ class CellReader:
         )
         self.config = config
         self.measure_detectors: dict[str, MeasureDetector | None] = {}
+        self.replays: dict[str, Detector | None] = {}
 
     def analytical(self, raw: str) -> str:
         """The analytical text of a content string: what ``string_lengths`` and
@@ -203,6 +215,58 @@ class CellReader:
                 found.append(measure_of(measure(text)))
             except Exception:  # noqa: BLE001 - a value the detector raises on is not read
                 found.append(None)
+        return found
+
+    def replay_detector(self, detector: str) -> Detector | None:
+        """The built-in detector of that id with the settings the Scan recorded,
+        or ``None`` when the Scan turned it off or it cannot be replayed."""
+        if detector not in self.replays:
+            kind = replayable().get(detector)
+            section = getattr(self.config.detectors, detector, None)
+            settings = {} if section is None else section.model_dump()
+            self.replays[detector] = (
+                kind(settings) if kind is not None and settings.get("enabled", True) else None
+            )
+        return self.replays[detector]
+
+    def readings(self, detector: str, texts: Sequence[str]) -> list[Reading] | None:
+        """What the detector makes of each analytical text, as the first pass
+        decides it (design 12): a text above the input cap is not tested, one
+        whose shape the detector rules out is not matched without being
+        classified, and the others go through ``classify_many``. ``None`` when
+        the detector cannot be replayed."""
+        reader = self.replay_detector(detector)
+        if reader is None:
+            return None
+        cap = reader.max_input_length
+        pattern = reader.shapes
+        found: list[Reading] = [_NOT_TESTED] * len(texts)
+        wanted: list[int] = []
+        for position, text in enumerate(texts):
+            if cap is not None and len(text) > cap:
+                continue
+            if pattern is not None and pattern.fullmatch(shape(text)) is None:
+                found[position] = _NOT_MATCHED
+            else:
+                wanted.append(position)
+        batch = [texts[position] for position in wanted]
+        try:
+            results = reader.classify_many(batch)
+            if len(results) != len(batch):
+                raise ValueError("classify_many returned a wrong number of results")
+        except Exception:  # noqa: BLE001 - detector code is isolated, as in the scan
+            results = [self._one(reader, text) for text in batch]  # type: ignore[misc]
+        for position, result in zip(wanted, results, strict=True):
+            if result is None:
+                found[position] = _NOT_MATCHED
+                continue
+            state = result.state
+            if state == "matched":
+                found[position] = _MATCHED
+            elif state == "ambiguous":
+                found[position] = _AMBIGUOUS
+            else:
+                found[position] = ("invalid", result.reason or UNSPECIFIED)
         return found
 
     def content(self, raws: Sequence[str]) -> list[bool]:
