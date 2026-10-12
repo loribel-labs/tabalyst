@@ -80,11 +80,13 @@ Keep these exactly as written in every language:
 | common rows | lignes communes | The rows where both columns of a pair have a number; the means and the coefficient of a pair are those of these rows only (`pairwise_complete`) |
 | undefined coefficient | coefficient non défini | A correlation that cannot be computed, because too few common rows or a column that does not vary; the result says why and never writes `0` |
 | category | catégorie | A column of a few repeated values, such as a region, whose value is the row of a table; its exact frequencies come from the scan |
-| feature | caractéristique dérivée | What a table reads of a column to make its classes: the `pattern` that reads the value, its `length` or its `prefix` |
+| feature | caractéristique dérivée | What a table reads of a column to make its classes: the `pattern` that reads the value, its `length`, its `prefix` or its `value` (another category) |
 | table of a category against a feature | table croisée | The exact count of the rows of each category in each class of a feature of another column, computed by the second pass over every row (`category_crosstab`) |
 | class | classe | A column of a table: a pattern, a length or a prefix; the last one is always `other`, what the others do not take |
 | purity | pureté | The share of the classified rows of a category that sit in its dominant class; the purity of a table is that of all its categories together, and it differs from category to class and from class to category |
 | exception | exception | A row outside the dominant class of its category, counted exactly and shown with its first rows |
+| rank correlation | corrélation de rang | The Spearman coefficient of a pair: the Pearson coefficient of the ranks, which sees a relation that always goes up without being a line. The second pass estimates it from a grid of bins and gives certain bounds |
+| provided rule | règle fournie | A rule you wrote for a table, such as "region east takes plan basic", checked as it is against the counts with its counterexamples; it is never proposed by itself |
 | candidate rule | règle candidate | A relation learned from the data, such as "region QC reads pattern XX9999", that nobody validated; it is not a rule of the data |
 | Cramér's V | V de Cramér | The strength of the association of two columns in a table, from 0 to 1, computed from the counts; the corrected form does not grow with the number of classes and is what Tabalyst ranks by. It is not defined, never 0, when a single category or class has rows |
 | exact distinct count | nombre exact de valeurs distinctes | The number of different original values of a field, counted exactly by the second pass when the scan only estimated it; `redundant` is the occurrences beyond the first of each value |

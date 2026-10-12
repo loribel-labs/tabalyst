@@ -153,10 +153,15 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         if result.coefficient is None:
             why = PEARSON_REASONS.get(result.reason or "", result.reason or "undefined")
             return f"no coefficient: {why} ({_plural(result.pairs, 'common row')}){tail}", EXACT
-        return (
-            f"r = {result.coefficient:+.3f} over {_plural(result.pairs, 'common row')}{tail}",
-            EXACT,
+        line = f"; slope {result.slope:+.4g}" if result.slope is not None else ""
+        rank = result.rank
+        ranked = (
+            f"; rank {rank.coefficient:+.3f} (between {rank.lower:+.3f} and {rank.upper:+.3f})"
+            if rank is not None and rank.coefficient is not None
+            else ""
         )
+        head = f"r = {result.coefficient:+.3f} over {_plural(result.pairs, 'common row')}"
+        return f"{head}{line}{ranked}{tail}", EXACT
     if isinstance(result, CrosstabResult):
         word = FEATURE_WORDS.get(result.feature.kind, result.feature.kind)
         head = f"{result.counted:,} of {result.rows:,} rows by {word}"

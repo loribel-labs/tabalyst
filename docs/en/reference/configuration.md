@@ -242,11 +242,13 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.pearson.automatic_pairs` | `8` | Pairs `tabalyst report` picks by itself at most; `0` picks none. A pair is picked when the lower end of its 95% interval is 0.45 or more |
 | `deep.pearson.explore_min_pairs` | `30` | Rows both columns need in the sample for the exploration to score a pair |
 | `deep.pearson.min_pairs` | `10` | Rows both columns need in the file for a coefficient to be defined. Changing it computes the pairs again |
+| `deep.pearson.rank_bins` | `64` | Bins per column of the grid the rank (Spearman) correlation is read from; `0` turns the rank correlation off, in the result and in the rating of the pairs. From 4 to 1,024. Changing it computes the pairs again |
 | `deep.crosstab.max_categories` | `30` | Categories a table keeps as rows, the most frequent; the others are `other`. From 2 to 200. Changing it computes the tables again |
-| `deep.crosstab.max_classes` | `12` | Classes of a length or a prefix, `other` included, from 3 to 50. Changing it computes those tables again |
+| `deep.crosstab.max_classes` | `12` | Classes of a length, a prefix or a value, `other` included, from 3 to 50. Changing it computes those tables again |
 | `deep.crosstab.max_distinct` | `100` | Most distinct values a column may have to be a category, from 2 to 1,000 (the scan lists the frequencies of 100 values by default, `scan.limits.max_listed_frequencies`) |
 | `deep.crosstab.prefix_length` | `2` | Characters of a prefix, from 1 to 8. Changing it computes the prefix tables again |
 | `deep.crosstab.examples` | `3` | Rows kept as examples for each cell of a table, from 0 to 10 |
+| `deep.crosstab.max_exception_cells` | `20` | Cells of exceptions a table lists at most, the largest first, from 1 to 1,000; the result says whether that was all of them. Changing it computes the tables again |
 | `deep.crosstab.rule_purity`, `deep.crosstab.rule_support` | `90`, `30` | A category gives a candidate rule when at least `rule_support` counted rows are in its dominant class and `rule_purity` percent of them |
 | `deep.crosstab.max_columns`, `deep.crosstab.max_work` | `50`, `1000000` | Columns explored for tables, and tables times rows coded by the exploration of the row sample |
 | `deep.crosstab.max_candidates`, `deep.crosstab.automatic_tables` | `20`, `8` | Tables the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A table is picked when its corrected Cramér's V is 0.45 or more |

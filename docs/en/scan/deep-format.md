@@ -289,7 +289,15 @@ have a number.
   "mean_second": 0.5288,
   "std_first": 1.0016,
   "std_second": 3.0249,
-  "covariance": 3.0158
+  "covariance": 3.0158,
+  "slope": 3.0062,
+  "intercept": 0.5041,
+  "r_squared": 0.99093,
+  "rank": {
+    "kind": "spearman_binned", "accuracy": "estimated", "bins": 64,
+    "bins_first": 64, "bins_second": 64, "edges_first": "rows", "edges_second": "rows",
+    "defined": true, "coefficient": 0.99337, "lower": 0.96413, "upper": 0.99999
+  }
 }
 ```
 
@@ -302,6 +310,16 @@ nor means, and `reason` is `insufficient_pairs` (fewer than `min_pairs` common r
 `zero_variance_first` or `zero_variance_second`; a coefficient is never written as
 `0` for lack of data. `source` is `samples` when the complete row sample of the scan
 held every row (CSV files of up to 1,000 rows), `source` when the file was read.
+
+`slope`, `intercept` and `r_squared` are the line of the second field on the first over the
+`pairs` common rows, from the same co-moments; they are present when `coefficient` is. `rank`
+is present when `deep.pearson.rank_bins` is not `0`: the Spearman coefficient read from a grid
+of `bins` by `bins` bins cut at quantiles of what the scan kept (`edges_first` and `edges_second`
+are `rows`, `distinct` or `range`). It is an **estimate** (`accuracy` `estimated`): `coefficient`
+is the Pearson coefficient of the mid-ranks of the bins and `lower` and `upper` bound the exact
+Spearman coefficient whatever the order of the values inside their bins. `bins_first` and
+`bins_second` count the bins that hold a row. When `defined` is false there is no coefficient and
+`reason` is `insufficient_pairs`, `single_bin_first` or `single_bin_second`.
 
 **`crosstab`**: the table of the rows of each category by class of a feature of another
 field. See [A category against a feature](deep.md#a-category-against-a-feature-of-another-column).
@@ -331,8 +349,9 @@ both_missing + unclassified`, and the margins add up to `counted`. The first axi
 `categories`, is the rows of `counts`, the second, `classes`, its columns; the
 last class of each axis is `other`, which stays when no row falls in it. The `domain` of
 an axis is the domain of the values it reads: a category is `analytical`, a
-`pattern` or a `prefix` is `original` and a `length` is `analytical`. The analysis itself has the
-domain `mixed`.
+`pattern` or a `prefix` is `original` and a `length` or a `value` is `analytical`. The analysis itself has the
+domain `mixed`. The `feature` kind is `pattern`, `length`, `prefix` or `value` (the value of the field
+itself, against its most frequent values).
 
 - `by_category[i]` has `rows`, `classified` (the rows in the table), `feature_missing`,
   `unclassified`, `coverage` (`classified / rows`), `dominant` (the index of the class that
@@ -346,11 +365,17 @@ domain `mixed`.
   the axes of at least 5 rows), `stable` and `sparse` (the number of axes with fewer than
   5 rows, which stay in the table and do not take part in `stable`). When `defined` is false there is no score and `reason` is `single_category`,
   `single_class` or `too_few_rows`; a score is never written as `0` for lack of data.
-- `exceptions` has `count` (the rows outside the dominant class of their category), `cells`
-  and `listed`, the 20 largest cells, each with `category` and `column` (indexes), `count` and
+- `exceptions` has `count` (the rows outside the dominant class of their category), `cells`,
+  `complete` (every cell is listed) and `listed`, the largest cells, 20 at most by default
+  (`deep.crosstab.max_exception_cells`), each with `category` and `column` (indexes), `count` and
   `examples`: up to three `{record, value}` in file order, the value cut at 64 characters.
 - `rules` are candidates only: `status` `candidate`, `provenance` `learned`, `category`
   and `column` (indexes), `support`, `confidence` and `exceptions`.
+- `provided_rules` (only when the request gave rules) check the rules a user wrote:
+  `provenance` `provided`, `status` (`holds`, `violated`, `no_rows`, `unknown_category`,
+  `unknown_class`), `category_label` and `class_label`, `category` and `column` (indexes, absent
+  for an unknown label), `support` (the classified rows of the category), `confidence`,
+  `exceptions` and `counter_examples`, the cells outside the class in the form of `listed`.
 
 The counts are exact and the figures computed from them (purity, V) are 64-bit floats
 (`precision`). `source` is `samples` when the complete row sample of the scan held every row
@@ -573,6 +598,13 @@ as the writer. It describes what a reader accepts.
 ## Changelog
 
 ### Version 0.2.0, revision 2
+
+The result `pearson` has the line of the pair (`slope`, `intercept`, `r_squared`) and the rank
+correlation `rank` (`spearman_binned`, an estimate with certain bounds); the analyzer
+`pearson_correlation` is at version 2 and the settings have `deep.pearson.rank_bins`. The result
+`crosstab` has the feature kind `value` (a category against another category), `exceptions.complete`
+and the member `provided_rules`; the settings have `deep.crosstab.max_exception_cells`. A request
+can carry `rules`, which are part of the key of the table.
 
 The results `residual_values` of the analyzer `residual_values` (the values that patterns and
 detectors leave out, and the patterns over every occurrence) and `duplicates` and

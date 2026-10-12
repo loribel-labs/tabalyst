@@ -6,7 +6,8 @@
 
 A feature turns each value of a column into a class of a small, fixed set known
 before the source is read again (REL-01, REL-12): the pattern that reads it, its
-length, or its first characters. A category column is coded the same way against
+length, its first characters, or the value itself (design 20.22). A category
+column is coded the same way against
 the exact table of frequencies of the Scan. A value is coded ``MISSING`` when
 the row has none and ``UNCLASSIFIED`` when the feature cannot classify it; any
 other value goes to a named class or to the explicit class ``other``, so nothing
@@ -48,7 +49,7 @@ MISSING = -1
 UNCLASSIFIED = -2
 
 # The features a column offers, in the order of their precedence in a tie.
-FEATURES = ("pattern", "length", "prefix")
+FEATURES = ("pattern", "length", "prefix", "value")
 FEATURE_VERSION = 1
 OTHER_ID = "other"
 
@@ -243,6 +244,15 @@ class CategoryCoder(Coder):
         ]
 
 
+class ValueCoder(CategoryCoder):
+    """The value itself, against the exact frequencies of the Scan: the most
+    frequent analytical values are classes and the rest is ``other``. It is the
+    category coder on the column side of a table, so a category can be set
+    against another category (design 20.22)."""
+
+    kind = "value"
+
+
 class PatternCoder(Coder):
     """The inferred pattern that reads a value, by the exclusive classification
     of the Scan (PAT-08), over the original values. A value the population of
@@ -357,10 +367,14 @@ def feature_coder(
     max_classes: int,
     prefix_length: int,
     max_value_length: int,
+    max_distinct: int | None = None,
 ) -> tuple[Coder | None, str | None]:
     """The coder of a feature of a column, or why the column does not offer it.
     The classes come from the Scan only: the candidates of the inference, the
-    lengths of the exact histogram, the prefixes of the values it lists."""
+    lengths of the exact histogram, the prefixes and the values it lists.
+    ``max_distinct`` caps the distinct values of a column that offers its
+    ``value``; the second pass, which stands on a plan that already checked it,
+    leaves it out."""
     if feature == "pattern":
         if patterns is None or not patterns.candidates:
             return None, NO_PATTERN
@@ -387,4 +401,16 @@ def feature_coder(
             return None, FEW_PREFIXES
         ranked = sorted(tally, key=lambda text: (-tally[text], text))[: max_classes - 1]
         return PrefixCoder(reader, prefix_length, ranked), None
+    if feature == "value":
+        measure = field.values.frequencies
+        if measure.status != "complete":
+            return None, NO_FREQUENCIES
+        frequencies = measure.value
+        if len(frequencies.listed) < min(frequencies.distinct, max_classes - 1):
+            return None, NO_FREQUENCIES
+        if frequencies.distinct < 2:
+            return None, SINGLE_VALUE
+        if max_distinct is not None and frequencies.distinct > max_distinct:
+            return None, TOO_MANY_CATEGORIES
+        return ValueCoder(reader, frequencies, max_classes - 1), None
     return None, UNKNOWN_FEATURE

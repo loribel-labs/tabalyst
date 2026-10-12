@@ -38,6 +38,7 @@ from tabalyst.scanner.secondpass.models import (
     CrosstabResult,
     ExceptionCell,
     ExceptionExample,
+    ProvidedRule,
     PurityFigure,
     TableAssociation,
     TableAxis,
@@ -50,7 +51,8 @@ from tabalyst.scanner.secondpass.models import (
 
 # Characters of the value an example of an exception shows.
 EXAMPLE_CHARS = 64
-# Exception cells a result lists, with their examples.
+# Exception cells a result lists, with their examples, unless the settings say
+# otherwise (``deep.crosstab.max_exception_cells``).
 MAX_EXCEPTION_CELLS = 20
 
 
@@ -190,6 +192,8 @@ class CrosstabAccumulator:
         examples: int,
         rule_purity: int,
         rule_support: int,
+        max_exception_cells: int = MAX_EXCEPTION_CELLS,
+        provided: Sequence[tuple[str, str]] = (),
     ) -> None:
         self.first = first
         self.second = second
@@ -198,6 +202,8 @@ class CrosstabAccumulator:
         self.examples = examples
         self.rule_purity = rule_purity
         self.rule_support = rule_support
+        self.max_exception_cells = max_exception_cells
+        self.provided = tuple(provided)
         self.failure: str | None = None
         self.rows = 0
         self.first_present = 0
@@ -331,7 +337,7 @@ class CrosstabAccumulator:
                 count=count,
                 examples=self.kept.get((a, b), []),
             )
-            for a, b, count in exception_cells[:MAX_EXCEPTION_CELLS]
+            for a, b, count in exception_cells[: self.max_exception_cells]
         ]
         found = association(table)
         forward, reverse = purity_forward(table), purity_reverse(table)
@@ -375,8 +381,84 @@ class CrosstabAccumulator:
                 reason=found.reason,
             ),
             exceptions=TableExceptions(
-                count=exceptions, cells=len(exception_cells), listed=listed
+                count=exceptions,
+                cells=len(exception_cells),
+                complete=len(exception_cells) <= self.max_exception_cells,
+                listed=listed,
             ),
             rules=rules,
+            provided_rules=self._check_provided(table, totals.rows, categories, classes)
+            if self.provided
+            else None,
         )
+
+    def _check_provided(
+        self,
+        table: list[list[int]],
+        row_totals: Sequence[int],
+        categories: Coder,
+        classes: Coder,
+    ) -> list[ProvidedRule]:
+        """The rules a user gave, each checked against the counts of its
+        category: no threshold, and the cells that break it as counter-examples
+        (a category has at most as many cells as the table has classes)."""
+        # Two classes can share a label (the string "1" and the integer 1 of a JSON
+        # file): the first, the most frequent, is the one a rule names.
+        rows: dict[str, int] = {}
+        columns: dict[str, int] = {}
+        for index, item in enumerate(categories.classes):
+            rows.setdefault(item.label, index)
+        for index, item in enumerate(classes.classes):
+            columns.setdefault(item.label, index)
+        checked: list[ProvidedRule] = []
+        for category_label, class_label in self.provided:
+            row, column = rows.get(category_label), columns.get(class_label)
+            if row is None or column is None:
+                checked.append(
+                    ProvidedRule(
+                        status="unknown_category" if row is None else "unknown_class",
+                        category_label=category_label,
+                        class_label=class_label,
+                    )
+                )
+                continue
+            support = row_totals[row]
+            if support == 0:
+                checked.append(
+                    ProvidedRule(
+                        status="no_rows",
+                        category_label=category_label,
+                        class_label=class_label,
+                        category=row,
+                        column=column,
+                    )
+                )
+                continue
+            broken = [
+                (count, other) for other, count in enumerate(table[row]) if count and other != column
+            ]
+            broken.sort(key=lambda item: (-item[0], item[1]))
+            taken = table[row][column]
+            checked.append(
+                ProvidedRule(
+                    status="holds" if taken == support else "violated",
+                    category_label=category_label,
+                    class_label=class_label,
+                    category=row,
+                    column=column,
+                    support=support,
+                    confidence=taken / support,
+                    exceptions=support - taken,
+                    counter_examples=[
+                        ExceptionCell(
+                            category=row,
+                            column=other,
+                            count=count,
+                            examples=self.kept.get((row, other), []),
+                        )
+                        for count, other in broken
+                    ],
+                )
+            )
+        return checked
 

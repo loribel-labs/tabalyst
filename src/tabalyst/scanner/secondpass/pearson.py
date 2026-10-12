@@ -18,6 +18,7 @@ from collections.abc import Sequence
 from tabalyst.scanner.models import NumericStats
 from tabalyst.scanner.pearson import (
     EMPTY,
+    INSUFFICIENT_PAIRS,
     CoMoments,
     coefficient,
     comoments,
@@ -25,8 +26,14 @@ from tabalyst.scanner.pearson import (
     to_float,
 )
 from tabalyst.scanner.planner.costmodel import REPLAY_MEMO_ENTRIES
+from tabalyst.scanner.rankcorr import BinnedRank
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
-from tabalyst.scanner.secondpass.models import PearsonExclusions, PearsonResult
+from tabalyst.scanner.secondpass.models import (
+    PearsonExclusions,
+    PearsonResult,
+    RankEstimate,
+)
+from tabalyst.scanner.secondpass.ranks import RankGrid
 from tabalyst.scanner.secondpass.replay import CellReader, native_number
 
 # A raw string's float (``None`` when it is not a number) and whether it is one.
@@ -122,12 +129,20 @@ class ColumnFeed:
 
 class PairAccumulator:
     """The co-moments of one pair over the rows where both columns have a
-    number, and the rows left out (REL-07 to REL-09)."""
+    number, and the rows left out (REL-07 to REL-09). With a ``rank`` grid it
+    also counts those rows by bin of each column (design 20.22)."""
 
-    def __init__(self, first: ColumnFeed, second: ColumnFeed, min_pairs: int) -> None:
+    def __init__(
+        self,
+        first: ColumnFeed,
+        second: ColumnFeed,
+        min_pairs: int,
+        rank: RankGrid | None = None,
+    ) -> None:
         self.first = first
         self.second = second
         self.min_pairs = min_pairs
+        self.rank = rank
         self.moments: CoMoments = EMPTY
         self.failure: str | None = None
         self.rows = 0
@@ -138,6 +153,8 @@ class PairAccumulator:
     def add(self, first: Sequence[float | None], second: Sequence[float | None]) -> None:
         """Account for aligned rows of the two columns."""
         batch = comoments(first, second)
+        if self.rank is not None and batch.n:
+            self.rank.add_rows(first, second)
         total = len(first)
         first_none = first.count(None)
         second_none = second.count(None)
@@ -165,6 +182,7 @@ class PairAccumulator:
         moments = self.moments
         r, reason = coefficient(moments, self.min_pairs)
         have = moments.n > 0
+        slope = None if r is None else moments.cross / moments.m2_first
         return PearsonResult(
             source=source,  # type: ignore[arg-type]
             min_pairs=self.min_pairs,
@@ -183,5 +201,30 @@ class PairAccumulator:
             std_first=math.sqrt(moments.m2_first / moments.n) if have else None,
             std_second=math.sqrt(moments.m2_second / moments.n) if have else None,
             covariance=moments.covariance,
+            slope=slope,
+            intercept=None if slope is None else moments.mean_second - slope * moments.mean_first,
+            r_squared=None if r is None else r * r,
+            rank=self._rank(moments.n),
+        )
+
+    def _rank(self, pairs: int) -> RankEstimate | None:
+        """The rank correlation of the grid, or why there is none."""
+        grid = self.rank
+        if grid is None:
+            return None
+        found = (
+            BinnedRank(reason=INSUFFICIENT_PAIRS) if pairs < self.min_pairs else grid.estimate()
+        )
+        return RankEstimate(
+            bins=max(len(grid.first.inner), len(grid.second.inner)) + 1,
+            bins_first=found.bins_first,
+            bins_second=found.bins_second,
+            edges_first=grid.first.source,  # type: ignore[arg-type]
+            edges_second=grid.second.source,  # type: ignore[arg-type]
+            defined=found.coefficient is not None,
+            coefficient=found.coefficient,
+            lower=found.lower,
+            upper=found.upper,
+            reason=found.reason,
         )
 

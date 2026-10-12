@@ -76,6 +76,7 @@ lot, with the reason recorded in section 17.
 | O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
 | O49 | Insight lot 15: the values that patterns and detectors leave out | The analyzer `residual_values` keeps, per field, the values no candidate pattern reads and the values of up to three replayable detectors (`replayable()`: value scope, strings only) that are `invalid` or `not_matched`, with exact counts (a value is tracked from its first appearance, up to `deep.residuals.max_tracked`), the reasons of the invalid ones and, when the source is read, the record of the first occurrence. Each candidate pattern gets an example, its first record and its distinct values over every occurrence (an `ExactSet` of the run's pool). When the Scan holds every distinct value with its exact count the result follows from them, without records (D1); `deep.residuals.records` reads the source anyway. The detector counts are checked against the coverage of the Scan. The record number is handed to the routes (`strings(column, start)`, `string(value, record)`). Second-pass document revision 2 (same release). | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.20, 20.5, 20.7 |
 | O50 | Insight lot 15: the repeated values of identifiers and keys | The analyzer `duplicates_report` lists the values found more than once in a column of almost all different values (a proven unique column is `already_satisfied`), with exact counts and, when the source is read, the first record. Values are 128-bit BLAKE2b digests with the record of their first occurrence, charged to the pool of the exact sets; a search the pool stops is `duplicates_limited`. A combination of two columns is searched on request only (`AnalysisRequest(partner=)`): `DuplicatesReport` is also a `PairAnalyzer` with `per_field`. `deep.duplicates` holds `max_listed`, `max_tracked`, `records`. | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.21, 20.5 |
+| O51 | Insight lot 16 (16a and 16b): the line and the rank of a pair, tables of a category against the values of another, exceptions bounded, rules a user gives | `pearson_correlation` (version 2) gives `slope`, `intercept` and `r_squared` from the co-moments and, with `deep.pearson.rank_bins` (64, 0 off), a `rank` member: the Spearman coefficient estimated from a grid of bins cut at quantiles of what the Scan kept, with certain bounds (the deviation of the true centered ranks from the mid-ranks is orthogonal to them and bounded by the sum of n(n^2-1)/12 over the bins, so the angle between the rank vectors moves by at most the sum of two arctangents). The exploration rates a pair by the larger of the scores of the linear and the rank coefficient of the sample. `category_crosstab` has a fourth feature, `value` (the most frequent values of the column, coded like a category), read in one direction by the exploration (the column with fewer distinct values is the row axis); `deep.crosstab.max_exception_cells` bounds the listed exceptions and `exceptions.complete` says whether all are listed; `AnalysisRequest.rules` gives rules to check, each in `provided_rules` with its counter-examples (provenance `provided`). The analyzer `category_stats` (16c) is not done. | Accepted 2026-10-11 (maintainer: "ok avec propositions", Q1 to Q5) | 20.22, 20.12, 20.13 |
 | O48 | Insight lot 14: numbers of the values with a unit | The analyzer `measure_extraction` (second pass only, Q7) reads the values of a field that the `currency`, `percentage` or `quantity` detector reads for at least half of its values, with that detector of the Scan's configuration, and gives three levels: the metrics of a numeric field (the members of `numeric`, a histogram and its quantiles) for every parsed value, the same for each marker or unit (`max_groups`, the rest in `other`), and the markers as an enumeration. Nothing is converted. Numbers are counted exactly per marker up to `deep.measures.max_values` distinct pairs, then every group goes on in bins whose width is a power of two (exact counts and moments, estimated quantiles; the width depends on the range only). Counts are checked against the detector of the Scan, exactly when it tested every value, bounded by `not_tested` otherwise. The second-pass document moves to revision 2. | Accepted 2026-10-11 | 20.19, 20.5, 20.7 |
 | O44 | Selection of the rows of a smart sample and its report | The selection reads the source once, with the configuration the Scan recorded, and tests each row against the targets of the plan through tests resolved from the Scan before the reading (`scanner/smart/evaluate.py`); a target that cannot be resolved is left out with a reason, never guessed. It keeps a bounded pool of whole candidate rows (at most `candidates_per_target` for each target, the best by a seeded hash of the position, one copy of a row whatever the targets it holds) and a bottom-k reserve of ordinary rows, in a byte budget; a row the budget turns away is counted and never shortened. A greedy cover then chooses the rows: the mandatory targets first, then the weight not yet covered; what is left of the size goes to ordinary rows. The rows are written in the order of the source after the digest of the reading agrees with the Scan's. The report is a document of its own, `tabalyst.sample` (0.2.0 revision 1), with the plan, the selection and the coverage of the catalog of targets by family and weighted, the missed targets with their reason, and a verification of every exact count of the plan against the rows found. The time of the selection is estimated apart from the plan and asks for a confirmation as a second pass does. | Accepted 2026-10-09 (maintainer, lot 10b) | 15 of the specification, 20.16 |
 | O42 | Help with stratification | The plan can carry advice on stratified sampling (`AnalysisPlan.stratification`, from `Stratify`), computed from the Scan alone and never read from the source: for each column whether it is a key (not an identifier, not nearly unique, 2 to 50 strata, no exposure), its strata (distinct original values plus one for the missing values) with their basis (`exact`, `estimate`, `bound`), the rarest and largest shares, the sample size from which the rarest stratum cannot get zero, and with a sample size the strata the classic allocation leaves without a row; for each combination asked for a saturating bound of the product of the strata, capped by the records, an estimate apart and labelled, the combinations the row sample holds (exact when it holds every row), a risk and suggestions. The classic `stratified` mode keeps its meaning (STRAT-01): proportional, no minimum of one row, the same rounding, now in `scanner/stratify.py`; it gains several fields (tuple keys), a ceiling of 100,000 strata that stops the scan with an error (STRAT-08) and a balance of known, sampled and uncovered strata (STRAT-02). The advice takes no part in the choice of the analyses and is not written in the second-pass document. | Accepted 2026-10-09 (maintainer, lot 9) | 14 of the specification, 20.5, 20.14 |
@@ -1781,6 +1782,7 @@ makes by itself writes none.
 | 2026-10-11 | IN-13 | New decision O47, notes in 18.13: `numeric.coverage`, the refusal of `numeric` for codes, the rule `minority_length` (observations version 2), `report_measures.py`, Scan and Report format revision 3. | Insight lot 13: manques 2 and 3 of the technical documentation 10.29, leads A1 to A3 of 10.30. |
 | 2026-10-11 | IN-14 | New decision O48, new section 20.19, rows in 20.5 and 20.2: `measure_extraction`, `secondpass/measures.py`, `CellReader.cells(measure=)`, `deep.measures`, `COST_MODEL_VERSION` 7, second-pass document revision 2. | Insight lot 14: manque 1 and the remaining part of manque 4 of the technical documentation 10.29, lead B1 of 10.30. |
 | 2026-10-11 | IN-15 | New decisions O49 and O50, new sections 20.20 and 20.21, rows in 20.5 and 20.2: `residual_values` (`secondpass/residuals.py`) and `duplicates_report` (`secondpass/duplicates.py`, also a `PairAnalyzer` with `per_field`), `CellReader.readings`, `detectors.registry.replayable`, the record handed to the routes, `deep.residuals` and `deep.duplicates`, `COST_MODEL_VERSION` 8. | Insight lot 15: leads B2 and B6 of 10.30 of the technical documentation. |
+| 2026-10-11 | IN-16 | New decision O51, new section 20.22, notes in 20.12 and 20.13: `slope`, `intercept`, `r_squared` and `rank` of `PearsonResult`, `scanner/rankcorr.py`, `secondpass/ranks.py`, `deep.pearson.rank_bins`, the `rank_*` members of `Exploration`, the feature `value`, `deep.crosstab.max_exception_cells`, `exceptions.complete`, `AnalysisRequest.rules` and `provided_rules`, `COST_MODEL_VERSION` 9. | Insight lot 16 (16a and 16b): lead B3 of 10.30 of the technical documentation, in part. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -3711,6 +3713,7 @@ decides: nothing creates an axis while the source streams. Every set ends with t
 | `pattern` | the original string | `original` | the candidates of `derived.patterns`, by the exclusive classification of 18.12 and 20.9 (`PatternClassifier`, shared with the validation) |
 | `length` | the analytical text, in characters | `analytical` | the `max_classes` - 1 most frequent lengths of the exact histogram of the Scan, in increasing order |
 | `prefix` | the first `prefix_length` characters of the original string | `original` | the `max_classes` - 1 most frequent prefixes of the values the Scan lists, counted with their exact counts |
+| `value` (lot 16, 20.22) | the analytical text, as a category | `analytical` | the `max_classes` - 1 most frequent values of the exact frequencies of the Scan |
 
 A category is read in the analytical domain against the exact frequencies of the Scan: its
 `max_categories` most frequent values are rows, the rest is `other` (a JSON value keeps its native type,
@@ -4285,6 +4288,71 @@ rows with a value are checked against the Scan's `values.count`.
 
 **Not yet.** More than two columns; the exploration of the combinations that make a key (the planner cannot tell which
 columns they are); the same digest table shared with `exact_distinct` when both are selected on a field.
+
+### 20.22 The line and the rank of a pair, tables of a category against a value, rules a user gives (Insight lot 16, B3, O51)
+
+**The line.** `PearsonResult` has `slope`, `intercept` and `r_squared` when the coefficient is defined: `slope = cross /
+m2_first` (the least-squares line of the second column on the first over the common rows), `intercept = mean_second - slope *
+mean_first`, `r_squared = r^2`. They come from the co-moments of 20.12 and cost nothing. `PearsonCorrelation.version` is 2, so a
+result stored before the lot is computed again.
+
+**The rank correlation.** `deep.pearson.rank_bins` (64; 0 turns it off; otherwise 4 to 1,024) is a parameter of the method, so it
+is part of the key. Each column of a pair has its inner edges fixed before the reading (`secondpass/ranks.py`, `rank_edges`): the
+quantiles of the numbers of the row sample of the Scan, else of its distinct values, else equal widths between the exact bounds
+(`edges_first` and `edges_second`: `rows`, `distinct`, `range`); the Scan alone decides them, so the grid does not depend on the
+order of the reading or on the machine. A number goes to bin `bisect_right(inner, x)`, so equal numbers share a bin. The
+accumulator counts the common rows in a `bins x bins` grid (a list of integers, `RANK_CELL_BYTES` 40 a cell in the plan). The
+coefficient of `binned_spearman` (`scanner/rankcorr.py`) is the Pearson coefficient of the centered mid-ranks of the bins, an
+`estimated` figure. Bounds: let `u` be the true centered average-rank vector of a column (ties share the mean of their ranks) and
+`u~` the same with every row given the mid-rank of its bin. The ranks of a bin sum to its mid-rank times its size, even with ties,
+so `u - u~` is orthogonal to `u~`, and its squared norm is at most the sum over the bins of `n (n^2 - 1) / 12` (reached when no
+values tie). The angle between `u` and `u~` is therefore at most `atan(sqrt(spread) / norm(u~))`; the angle between the two rank
+vectors differs from the estimated one by at most the sum of the two (triangle inequality on angles), and `lower`, `upper` are
+the cosines of the bounding angles, with a slack of 1e-12 for rounding. The tests check by 400 random draws with many ties that the
+exact coefficient is always inside, and that a grid in which every value has its own bin gives exact bounds. A column that fits in
+one bin has no rank (`single_bin_first` or `single_bin_second`), a pair with fewer than `min_pairs` common rows
+`insufficient_pairs`; never 0. `bins_first` and `bins_second` count the bins that hold a row.
+
+**Exploration.** With `rank_bins` on, `explore_pair` also scores the pair by the Spearman coefficient of the sample (average ranks,
+Pearson on them, interval of Fisher with the variance of Bonett and Wright, `rank_*` members of `Exploration`). The rating of the
+pair is the larger of `score` and `rank_score` (`effective_score`), so a monotone relation that is not a line is listed and can be
+picked by itself; `score` keeps its meaning. A column that does not vary has no rank either (the reason stays).
+
+**The feature `value`.** `FEATURES` is `pattern`, `length`, `prefix`, `value`. A `ValueCoder` is a `CategoryCoder` (domain
+`analytical`) on the column side: its classes are the `max_classes - 1` most frequent values of the exact frequencies of the Scan,
+then `other`. A column offers it when the Scan holds its complete frequencies down to that rank and it has 2 to `max_distinct`
+distinct values (`feature_coder(max_distinct=)`; the second pass, standing on a plan that already checked, passes none). The
+exploration reads a pair of columns that could both be a category in one direction only (`value_direction`): the column with fewer
+distinct values is the row axis, the first of the document on a tie; so one phenomenon does not take two tables of the automatic
+choice. A request names the other direction (`explicit_proposals` does not apply the rule). `max_classes` is a parameter of the
+`value` table. `NS_PER_CELL["crosstab_value"]` is 500 (measured 117 ns a cell on the executor, `lot16/measure_costs.py`, 1 million
+rows, like the other features once rounded up).
+
+**Exceptions.** `deep.crosstab.max_exception_cells` (20 by default, 1 to 1,000) replaces the constant that bounded `exceptions.listed`;
+it is a parameter of the method, so part of the key. `TableExceptions.complete` is true when every cell outside the dominant class is
+listed (`cells` is their number).
+
+**Rules a user gives.** `AnalysisRequest.rules` is a tuple of `(category label, class label)`; it needs the category, the column and
+the feature of the request (`_check_requests` refuses it otherwise, and for an analyzer without features). The planner attaches the
+rules of the requests that match a table to its `PairProposal` (`CategoryCrosstab._with_rules`), sorted and without repeats, and writes
+them in the parameter `rules` as compact JSON, so they are part of the key; a table with other rules is another analysis. A rule is
+checked at the end of the reading against the counts (`CrosstabAccumulator._check_provided`): `support` is the classified rows of the
+category, `confidence` the share in the class, `exceptions` the others, `counter_examples` the cells of the category outside the class
+(`ExceptionCell`, their first `examples` rows). `status` is `holds`, `violated`, `no_rows`, `unknown_category` or `unknown_class` (the
+label is matched against the labels of the axes, so a class `other` can be named). No threshold applies and the rule is never proposed by
+itself. The member `provided_rules` is absent when no rule was given, so a table without rules is byte-identical to before. A plan's
+`objective.requested[]` has `rules`, the number of rules of the request.
+
+**Costs.** Measured on the executor (`artifacts/lot16/measure_costs.py`, 1 million rows, one process, the reading of the cell included):
+a pair of two columns of 4 decimals, all distinct, 2,340 ns a cell without the grid and 2,372 with it; four pairs that share columns
+2,538 and 2,690 ns (the grid adds 30 to 150 ns a cell). The figure of lot 8a (`pearson` 1,500) was calibrated on other columns and is
+below what all-distinct decimals cost, because the number detector runs on every string; it is left as it is, since it decides the
+class `moderate` and so whether a Report picks the pair, until the matrix of benchmarks is replayed (lot 20). Memory: the grid is
+`bins^2 * RANK_CELL_BYTES`. `COST_MODEL_VERSION` is 9.
+
+**Not yet (16c).** `category_stats`: count, extremes, mean, spread and a histogram of a numeric column by category, with the correlation ratio
+that rates the pairs; the unit of a measure as a virtual category (20.19); the rendering of all this in the HTML report (lot 20: the Second
+pass section has a one-line summary of the line, the rank and the value tables).
 
 ## 21. Original value domain (O32)
 

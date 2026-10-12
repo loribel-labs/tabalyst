@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
+from dataclasses import replace
 from typing import TYPE_CHECKING, ClassVar
 
 from tabalyst.scanner.features import FEATURES
@@ -119,7 +121,19 @@ class CategoryCrosstab(PairAnalyzer):
                         continue
                     known.add(key)
                     proposals.append(proposal)
-        return proposals, blocks
+        return [self._with_rules(proposal, requests) for proposal in proposals], blocks
+
+    def _with_rules(
+        self, proposal: PairProposal, requests: Sequence[AnalysisRequest]
+    ) -> PairProposal:
+        """The proposal with the rules that requests gave for its table."""
+        rules = {
+            rule
+            for request in requests
+            if request.analyzer == self.id and request.rules and self.matches(request, proposal)
+            for rule in request.rules
+        }
+        return replace(proposal, rules=tuple(sorted(rules))) if rules else proposal
 
     def matches(self, request: AnalysisRequest, proposal: PairProposal) -> bool:
         """Whether a request concerns the table: the category, the column and the
@@ -146,11 +160,16 @@ class CategoryCrosstab(PairAnalyzer):
             "feature": feature,
             "max_categories": crosstab.max_categories,
             "examples": crosstab.examples,
+            "max_exception_cells": crosstab.max_exception_cells,
             "rule_purity": crosstab.rule_purity,
             "rule_support": crosstab.rule_support,
         }
-        if feature in ("length", "prefix"):
+        if feature in ("length", "prefix", "value"):
             parameters["max_classes"] = crosstab.max_classes
+        if proposal.rules:
+            parameters["rules"] = json.dumps(
+                proposal.rules, ensure_ascii=False, separators=(",", ":")
+            )
         if feature == "prefix":
             parameters["prefix_length"] = crosstab.prefix_length
         return Assessment(

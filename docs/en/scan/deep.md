@@ -11,8 +11,8 @@ length distribution of a text field when the scan lacks it, the inferred pattern
 counted on every value, the values that patterns and detectors leave out, the
 repeated values of identifiers, the dates counted per period, the numbers of amounts,
 percentages and quantities with a unit, the correlation of
-pairs of numeric columns and tables of a category against the pattern, length or
-prefix of another column. It writes them to a
+pairs of numeric columns and tables of a category against the pattern, length,
+prefix or value of another column. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
 experimental in the beta. [`tabalyst report`](../reference/cli/report.md#second-pass)
 runs it by itself for the analyses that are useful and cheap, and puts the results
@@ -235,7 +235,12 @@ source, keeps the best ones, and reads the file once for them.
               "both_missing": 0},
  "defined": true, "coefficient": 0.995454, "mean_first": 0.0082,
  "mean_second": 0.5288, "std_first": 1.0016, "std_second": 3.0249,
- "covariance": 3.0158}
+ "covariance": 3.0158, "slope": 3.0062, "intercept": 0.5041,
+ "r_squared": 0.99093,
+ "rank": {"kind": "spearman_binned", "accuracy": "estimated", "bins": 64,
+          "bins_first": 64, "bins_second": 64, "edges_first": "rows",
+          "edges_second": "rows", "defined": true, "coefficient": 0.99337,
+          "lower": 0.96413, "upper": 0.99999}}
 ```
 
 Only the rows where **both** columns have a number count (`pairwise_complete`).
@@ -253,6 +258,27 @@ coefficient is computed in 64-bit floats from stable co-moments, which keeps its
 digits even for numbers with a large common offset. It measures a linear
 association between two columns. It does not show that one causes the other, and
 it can be small for a relation that is not a line.
+
+**The line.** `slope` and `intercept` are the least-squares line of the second
+column on the first over the common rows, `slope = covariance / variance of the
+first column`, and `r_squared` is the share of the variance of the second column
+that the line explains. They come from the same co-moments as the coefficient at no
+extra cost, exist when the coefficient does, and stop at the common rows: the line
+says nothing of rows outside the range of the first column.
+
+**The rank correlation.** A relation that always goes up (or always down) without
+being a line has a small Pearson coefficient and a large Spearman one, the Pearson
+coefficient of the ranks. The file cannot be sorted in memory, so the second pass
+counts the common rows in a grid of `bins` by `bins` bins (`deep.pearson.rank_bins`,
+64; `0` turns it off), with the edges of each column at quantiles of what the scan
+kept of it (`edges_first` and `edges_second` say whether that was the row sample,
+the distinct values or, when the scan kept too little, equal widths). The
+`coefficient` is the Pearson coefficient of the mid-ranks of the bins and is an
+**estimate** (`accuracy` `estimated`). `lower` and `upper` are certain bounds: the
+exact Spearman coefficient, whatever order the values have inside their bins and
+however many of them tie, is between them. Bins that hold few rows make the bounds
+close; a column that fits in one bin has no rank, and `reason` is `single_bin_first`
+or `single_bin_second` (never `0`).
 
 **How the pairs are chosen.** A column takes part when it is numeric, varies, is
 not an identifier, is not hidden by exposure, does not repeat inside a record (the
@@ -276,12 +302,18 @@ pair, even one that the sample did not show.
 rows), the sample is the file: the pair is computed from it and the source is not
 read again (`source` is `samples`).
 
+When the rank correlation is on, the sample also gives each pair a Spearman
+coefficient (`rank_coefficient`, `rank_lower`, `rank_upper`, `rank_score` in the
+`exploration` of the plan), and a pair is ranked by the larger of its two scores, so
+a relation that is monotone without being a line can be picked by itself.
+
 ## A category against a feature of another column
 
 A column of a few values, such as a region, can determine the shape of another
 column, such as a client identifier. The second pass counts, over every row, how
 many rows of each category fall in each class of a **feature** of that other
-column: the pattern that reads its value, its length, or its first characters. It
+column: the pattern that reads its value, its length, its first characters, or the
+value itself (another category). It
 does not try every combination of the file. It first scores them on the rows the
 scan sampled, which needs no reading of the source, keeps the best ones, and reads
 the file once for them.
@@ -322,7 +354,9 @@ every cell in `counts` and up to three rows per exception.)
 scan holds, so no row can create a new one: the categories are the most frequent
 values of the column (at most 30), the classes of a `pattern` are the patterns the
 scan inferred, those of a `length` the lengths it counted, those of a `prefix` the
-most frequent first two characters of the values it lists. Whatever is not one of
+most frequent first two characters of the values it lists, those of a `value` the
+most frequent values of the column (at most `deep.crosstab.max_classes` less one).
+Whatever is not one of
 them is `other`, which stays in the table with zeros when no row falls in it. Rows
 with no category, no value, or a value the feature cannot classify (a JSON number
 has no pattern) are left out of the table and counted by cause in `excluded`, so
@@ -336,7 +370,9 @@ shows the share of each category in every class before any score.
 - `dominant` is the class that holds most of a category (a tie goes to the first
   class listed) and its `purity` the share of the category's classified rows in it.
   The other rows are its `exceptions`, with exact counts and the first three rows of
-  each cell, in file order, with the record number.
+  each cell, in file order, with the record number. The listed cells are the 20 largest
+  (`deep.crosstab.max_exception_cells`); `exceptions.complete` says whether that was all of
+  them, and `cells` how many there are.
 - `purity.forward` is the same figure for the whole table, from category to class;
   `reverse` goes from class to category and is another number. `baseline` is the
   share of the most frequent class: a purity close to it says nothing.
@@ -357,8 +393,28 @@ shows the share of each category in every class before any score.
   anyone, and the exceptions are its counterexamples. A rule that you approve is a
   different thing.
 
+- `provided_rules` exist only when you gave rules to check (see below).
+
 An association is not a cause, and the pattern of an identifier that follows its
 region is a fact about the file, not a constraint of the source system.
+
+**Two categories.** The feature `value` sets a category against the values of another
+column that is a category too, for instance a region against a plan. Two columns that
+could both be the category are read in one direction by the planner, with the column
+that has fewer distinct values as the rows (the first of the file on a tie), so one
+phenomenon does not take two tables of the automatic choice. A request can ask for
+the other direction.
+
+**A rule you give.** The API can ask the table to check rules you wrote, each the
+label of a category and the label of the class its rows should take,
+`tabalyst.AnalysisRequest("category_crosstab", field="region", partner="plan",
+feature="value", rules=[("east", "basic")])`. Each rule is checked as it is, without a
+threshold, in `provided_rules`: `provenance` `provided`, `status` (`holds`, `violated`,
+`no_rows` when the category has no classified row, `unknown_category` or
+`unknown_class` when a label is not on an axis of the table), `support` (the
+classified rows of the category), `confidence`, `exceptions` and the
+`counter_examples`: the cells that break the rule, with their exact counts and first
+rows. A rule you give is never proposed by itself and is part of the key of the result.
 
 **Several features of the same two columns.** The pattern, the length and the
 prefix of an identifier often say the same thing. `tabalyst report` picks by itself

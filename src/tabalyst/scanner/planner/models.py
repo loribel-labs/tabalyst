@@ -106,7 +106,10 @@ class Exploration(ScanModel):
     beyond them: a pair not detected here may still hold elsewhere. The figures
     are rounded to six decimals, which keeps the plan the same on any machine.
     ``score`` is the lower bound of the absolute coefficient that the planner
-    ranks by."""
+    ranks by. The ``rank_*`` members are the same for the Spearman coefficient
+    of the sample (design 20.22): a monotone relation that is not a line has a
+    low ``score`` and a high ``rank_score``, and the pair is rated by the larger
+    of the two."""
 
     scope: Literal["interior_rows", "all_rows"]
     pairs: int
@@ -115,10 +118,27 @@ class Exploration(ScanModel):
     upper: float | None = None
     score: float | None = None
     reason: str | None = None
+    rank_coefficient: float | None = None
+    rank_lower: float | None = None
+    rank_upper: float | None = None
+    rank_score: float | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("coefficient", "lower", "upper", "score", "reason"))
+        return _omit_none(
+            handler(self),
+            (
+                "coefficient",
+                "lower",
+                "upper",
+                "score",
+                "reason",
+                "rank_coefficient",
+                "rank_lower",
+                "rank_upper",
+                "rank_score",
+            ),
+        )
 
 
 class TableExploration(ScanModel):
@@ -195,11 +215,15 @@ class RequestedAnalysis(ScanModel):
     field: str | None = None
     partner: str | None = None
     feature: str | None = None
+    rules: int = 0
     candidates: int
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("partner", "feature"))
+        data = _omit_none(handler(self), ("partner", "feature"))
+        if not data.get("rules"):
+            data.pop("rules", None)
+        return data
 
 
 class Objective(ScanModel):

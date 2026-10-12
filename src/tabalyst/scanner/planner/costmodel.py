@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 8
+COST_MODEL_VERSION = 9
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -60,6 +60,9 @@ RESULT_BYTES = 1_024
 PAIR_STATE_BYTES = 512
 PAIR_FEED_ROWS = 4_096
 PAIR_FEED_ENTRY_BYTES = 32
+# A cell of the grid of ranks of a pair (lot 16): one counter of a list, the
+# integer it points to (28 bytes once it leaves the cache of small integers).
+RANK_CELL_BYTES = 40
 # A table of a category against a feature (lot 8b): a counter of a cell is a
 # dictionary entry keyed by a pair of codes, an example of an exception holds a
 # record number and a value of up to 64 characters; the batch of codes of a
@@ -189,7 +192,12 @@ NS_PER_CELL = {
     "matcher_base": 800,
     "matcher": 100,
     # A pair of numeric columns (lot 8a): the nanoseconds a cell of either
-    # column adds, the reading of the cell included. Calibrated below.
+    # column adds, the reading of the cell included. Calibrated below. Lot 16
+    # measured 2,340 ns on columns of one million distinct decimals (the number
+    # detector runs on every string) and the grid of ranks adds 30 to 150 ns; the
+    # figure is left as lot 8a set it, since it decides the class of the pair
+    # (``moderate``) and so whether a Report picks it, until the matrix of the
+    # benchmarks is replayed (lot 20).
     "pearson": 1_500,
     # A table (lot 8b): the nanoseconds a cell of either column of a table adds
     # (the category and the column of the feature), the reading of the cell
@@ -202,6 +210,11 @@ NS_PER_CELL = {
     "crosstab_pattern": 600,
     "crosstab_length": 500,
     "crosstab_prefix": 300,
+    # The values of a column as the classes of a table (lot 16), coded like a
+    # category: measured 117 ns for each cell of either column on the executor
+    # (`lot16/measure_costs.py`, 1 million rows, one process), like the other
+    # features; rounded up as the length, which reads the same analytical text.
+    "crosstab_value": 500,
     # The numbers of the values with a unit (lot 14), measured on the executor
     # (1 million rows, one process, the reading of the cell included). The
     # detector runs once for each distinct string the route remembers

@@ -12,6 +12,7 @@ the Scan, or an analysis that raises, fails alone with its reason.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -56,7 +57,11 @@ from tabalyst.scanner.secondpass.accumulators import (
     ScanMismatch,
 )
 from tabalyst.scanner.secondpass.boundaries import place_edges
-from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
+from tabalyst.scanner.secondpass.crosstab import (
+    MAX_EXCEPTION_CELLS,
+    CodeFeed,
+    CrosstabAccumulator,
+)
 from tabalyst.scanner.secondpass.document import analysis_domain, analysis_key
 from tabalyst.scanner.secondpass.duplicates import (
     DuplicateAccumulator,
@@ -94,6 +99,7 @@ from tabalyst.scanner.secondpass.patterns import (
 )
 from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
+from tabalyst.scanner.secondpass.ranks import RankEdges, RankGrid, rank_edges
 from tabalyst.scanner.secondpass.replay import CellReader
 from tabalyst.scanner.secondpass.residuals import (
     PATTERN_SOURCE,
@@ -224,6 +230,7 @@ def _setup_pair(
     job: _Job,
     cells: CellReader,
     feeds: Feeds,
+    edge_cache: dict[tuple[str, str, int], RankEdges],
 ) -> None:
     """The accumulator of a pair. A pair whose rows the complete sample of the
     Scan holds is counted from them now and reads nothing; the others get the
@@ -232,6 +239,21 @@ def _setup_pair(
     first, second = job.field, job.partner
     assert second is not None
     min_pairs = int(candidate.parameters["min_pairs"])
+    rank_bins = int(candidate.parameters.get("rank_bins", 0))
+    grid: RankGrid | None = None
+    if rank_bins:
+        if first.numeric.status != "complete" or second.numeric.status != "complete":
+            raise ScanMismatch("the numeric measure of the scan is not complete")
+        sides = []
+        for column in (first, second):
+            # The edges of a column are the same in every pair that uses it.
+            edges = edge_cache.get((dataset.id, column.id, rank_bins))
+            if edges is None:
+                assert column.numeric.status == "complete"
+                edges = rank_edges(dataset, column, column.numeric.value, rank_bins, cells)
+                edge_cache[(dataset.id, column.id, rank_bins)] = edges
+            sides.append(edges)
+        grid = RankGrid(sides[0], sides[1])
     if not candidate.execution.requires_source:
         sample = dataset.records.sample
         ids = [first.id, second.id]
@@ -240,7 +262,7 @@ def _setup_pair(
         columns = [column_floats(sample.rows, field_id, cells, lenient=False) for field_id in ids]
         left, right = ColumnFeed(cells), ColumnFeed(cells)
         left.numbers, right.numbers = columns[0][1], columns[1][1]
-        pair = PairAccumulator(left, right, min_pairs)
+        pair = PairAccumulator(left, right, min_pairs, grid)
         pair.add(columns[0][0], columns[1][0])
         job.accumulator = pair
         return
@@ -252,7 +274,7 @@ def _setup_pair(
             feed = feeds[(*where, "number")] = ColumnFeed(cells)
         assert isinstance(feed, ColumnFeed)
         columns_of.append(feed)
-    job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs)
+    job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs, grid)
     job.reads_pair = True
 
 
@@ -321,12 +343,18 @@ def _setup_table(job: _Job, cells: CellReader, feeds: Feeds, scan: ScanResult) -
     )
     if coder is None:
         raise ScanMismatch(f"the scan no longer offers the feature: {why}")
+    provided = [
+        (str(category_label), str(class_label))
+        for category_label, class_label in json.loads(str(parameters.get("rules", "[]")))
+    ]
     rules = {
         "feature": feature,
         "prefix_length": prefix_length or None,
         "examples": int(parameters["examples"]),
         "rule_purity": int(parameters["rule_purity"]),
         "rule_support": int(parameters["rule_support"]),
+        "max_exception_cells": int(parameters.get("max_exception_cells", MAX_EXCEPTION_CELLS)),
+        "provided": provided,
     }
     if not candidate.execution.requires_source:
         sample = dataset.records.sample
@@ -795,12 +823,13 @@ def run_second_pass(
         )
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
         feeds: Feeds = {}
+        edge_cache: dict[tuple[str, str, int], RankEdges] = {}
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
             try:
                 if job.candidate.analyzer == "pearson_correlation":
-                    _setup_pair(job, cells, feeds)
+                    _setup_pair(job, cells, feeds, edge_cache)
                     continue
                 if job.candidate.analyzer == "category_crosstab":
                     _setup_table(job, cells, feeds, scan)

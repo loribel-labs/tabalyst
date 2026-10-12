@@ -128,14 +128,19 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
 
     ids = {e.display: e.id for e in first.outcome.document.analyses}
     # Two histograms, the patterns of the names (which the Scan answers alone) and
-    # the table of the names against the first characters of the ages.
-    assert len(first.outcome.executed) == 4 and first.outcome.read_source
+    # the tables of the names against the first characters and the values of the ages.
+    assert len(first.outcome.executed) == 5 and first.outcome.read_source
     # Complete: every result is valid, so the source is not read and the file is not rewritten.
     assert again.outcome.read_source is False and again.written is False
     assert again.outcome.reused == first.outcome.executed
     # Settings that change only the bins recompute the histogram that uses them.
     assert changed.outcome.executed == (ids["price"],)
-    assert set(changed.outcome.reused) == {ids["age"], ids["name"], ids["name and age (prefix)"]}
+    assert set(changed.outcome.reused) == {
+        ids["age"],
+        ids["name"],
+        ids["name and age (prefix)"],
+        ids["name and age (value)"],
+    }
 
     # A partial cache: a missing entry and a failed one are computed again.
     path = changed.job.deep_path
