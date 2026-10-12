@@ -39,12 +39,20 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.patterninfer import MAX_VALUES
 
-OBSERVATIONS_VERSION = 1
+OBSERVATIONS_VERSION = 2
 # A minority pattern (``minority_pattern``): a candidate that covers at most
 # this share of the distinct values next to a principal one that covers at
 # least ``PRINCIPAL_MIN_SHARE``. Constants of the rule version, not settings.
 PRINCIPAL_MIN_SHARE = 0.8
 MINORITY_MAX_SHARE = 0.05
+# A minority length (``minority_length``): one length holds at least
+# ``DOMINANT_LENGTH_MIN_SHARE`` of the content strings, so the others (at most
+# ``MINORITY_LENGTH_MAX_SHARE`` together) stand out; the histogram needs
+# ``MINORITY_LENGTH_MIN_VALUES`` strings to say anything. Constants of the rule
+# version, not settings.
+DOMINANT_LENGTH_MIN_SHARE = 0.95
+MINORITY_LENGTH_MAX_SHARE = 0.05
+MINORITY_LENGTH_MIN_VALUES = 20
 # Diagnostics of records excluded under the tolerant error policy.
 EXCLUSION_CODES = frozenset(
     {
@@ -68,6 +76,7 @@ RULES: dict[str, tuple[str, str]] = {
     "ambiguous_dates": ("dates", "candidate_anomaly"),
     "variant_groups": ("normalization", "candidate_anomaly"),
     "minority_pattern": ("patterns", "candidate_anomaly"),
+    "minority_length": ("patterns", "candidate_anomaly"),
     "missing_values": ("presence", "informational"),
     "empty_column": ("presence", "informational"),
     "constant_column": ("values", "informational"),
@@ -532,6 +541,32 @@ def _field_observations(
             add(_Draft("ambiguous_header", "columns", written, **where))
     if isinstance(entry, FieldPatternsComplete):
         _minority_pattern(entry, pattern_limits, where, add)
+    _minority_length(field_result, where, add)
+
+
+def _minority_length(
+    field_result: FieldResult,
+    where: dict[str, str],
+    add: Callable[[_Draft], None],
+) -> None:
+    """Strings far from the one length nearly all of them share: a malformed
+    value that a pattern with a repetition range absorbs (``CLI-12`` among
+    ``CLI-1000001``). Read from the exact histogram, nothing is recomputed."""
+    lengths = field_result.string_lengths
+    if not isinstance(lengths, Complete):
+        return
+    total = lengths.value.count
+    if total < MINORITY_LENGTH_MIN_VALUES:
+        return
+    dominant = max(item.count for item in lengths.value.length_histogram)
+    rest = total - dominant
+    if (
+        not rest
+        or dominant < DOMINANT_LENGTH_MIN_SHARE * total
+        or rest > MINORITY_LENGTH_MAX_SHARE * total
+    ):
+        return
+    add(_Draft("minority_length", "content_strings", rest, of=total, **where))
 
 
 def _minority_pattern(

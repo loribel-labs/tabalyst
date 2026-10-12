@@ -162,7 +162,14 @@ def _announce(preparation: DeepPreparation, *, quiet: bool) -> None:
     for job in preparation.jobs:
         count = job.pending
         if not count:
-            if job.second.plan.summary.selected:
+            if job.from_scan:
+                typer.echo(
+                    f"Second pass [{job.source.name}]: "
+                    f"{plural(job.from_scan, 'analysis')} computed from the scan, "
+                    "the source is not read again.",
+                    err=True,
+                )
+            elif job.second.plan.summary.selected:
                 typer.echo(
                     f"Second pass [{job.source.name}]: every result is already "
                     "stored, the source is not read again.",

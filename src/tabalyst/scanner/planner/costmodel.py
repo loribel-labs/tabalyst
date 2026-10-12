@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 6
+COST_MODEL_VERSION = 7
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -88,6 +88,22 @@ REPLAY_ENTRY_BYTES = 250
 # 380 to 410 bytes, `planner_costs.py executor`).
 PERIOD_MEMO_ENTRIES = 16_384
 PERIOD_ENTRY_BYTES = 420
+# The values with a unit (lot 14) repeat like dates (prices, sizes): the
+# extraction remembers as many strings, and an entry also holds what the
+# detector made of the string, as for the dates.
+MEASURE_MEMO_ENTRIES = 16_384
+MEASURE_MEMO_ENTRY_BYTES = 450
+# An exact pair of a marker and a number in the table of its group: the slot,
+# the count and the key (measured 61 to 85 bytes for an int key, 134 to 170 for
+# a Decimal, peak of a growing table included, 10,000 and 100,000 entries), and
+# the entry of the table of the whole field merged from the groups at the end.
+MEASURE_ENTRY_BYTES = 200
+MEASURE_MERGE_BYTES = 100
+# A group of the extraction: its numeric accumulator, its dictionaries and the
+# entry of its marker (measured 3,048 bytes with a grid of 100 bins), and a bin
+# of its grid (a key, a count and its slot).
+MEASURE_GROUP_BYTES = 1_536
+GRID_BIN_BYTES = 80
 # An exact edge of a bin (a fraction of two integers) and its float, in the
 # lists of the bins of a histogram.
 EDGE_BYTES = 280
@@ -176,7 +192,21 @@ NS_PER_CELL = {
     "crosstab_pattern": 600,
     "crosstab_length": 500,
     "crosstab_prefix": 300,
+    # The numbers of the values with a unit (lot 14), measured on the executor
+    # (1 million rows, one process, the reading of the cell included). The
+    # detector runs once for each distinct string the route remembers
+    # (`MEASURE_MEMO_ENTRIES`) and once for each distinct string of a batch
+    # beyond, so the cost follows the distinct values of the field: 151 ns a cell
+    # for about 20 of them, 500 for 1,400 to 1,700, 1,235 for 9,000 and 4,963 for
+    # one million (the grid, every value distinct). Rounded up by tier
+    # (`measure_tier`).
+    "measure_few": 300,
+    "measure": 1_500,
+    "measure_wide": 5_000,
 }
+# Distinct values up to which an extraction is in the tier ``measure_few``, and
+# then ``measure`` up to the strings the route remembers.
+MEASURE_FEW_DISTINCT = 1_000
 # Upper limits of ``very_low``, ``low`` and ``moderate`` in nanoseconds a cell.
 # The first pass spends about 600 ns on a cell of the baseline (20.6 s for 34
 # million cells): ``low`` is an analysis that costs no more than that,

@@ -22,7 +22,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 2
+FORMAT_REVISION = 3
 
 
 class ScanModel(BaseModel):
@@ -476,6 +476,14 @@ class StringLengths(ScanModel):
 Number = int | float
 
 
+class NumericCoverage(ScanModel):
+    """The values of the field that the numeric block describes: ``count`` of
+    the block out of ``of``, the analyzable values (``values.count``)."""
+
+    of: int
+    share: float
+
+
 class NumericStats(ScanModel):
     count: int
     native_count: int
@@ -491,6 +499,7 @@ class NumericStats(ScanModel):
     zero: int
     integral_decimals: int
     median: measure(Number)
+    coverage: NumericCoverage
 
 
 class BooleanCounts(ScanModel):

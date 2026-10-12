@@ -1085,7 +1085,9 @@ class ValueProcessor:
             "string_characteristics": measures.string_characteristics(),
             "string_lengths": measures.string_lengths(),
             "numeric": (
-                _WITHHELD if withheld else measures.numeric.finalize(self.limited)
+                _WITHHELD
+                if withheld
+                else _numeric_block(measures, self.limited, results)
             ),
             "booleans": (
                 Complete[BooleanCounts](value=BooleanCounts(true=true, false=false))
@@ -1110,6 +1112,34 @@ class ValueProcessor:
             "sensitive": exposure is not None,
             "exposure": None if exposure is None else exposure.mode,
         }
+
+
+# Detectors of identifiers that digits can spell: statistics on the numbers of
+# such a field (the median of the postal codes) mean nothing.
+CODE_DETECTORS = frozenset({"postal_code", "phone", "uuid", "ip_address"})
+CODE_MIN_SHARE = 0.5
+
+
+def _numeric_block(
+    measures: ValueMeasures, limited: Limited | None, results: list
+) -> Any:
+    """The ``numeric`` block, withheld (``code_interpretation``) when a code
+    detector reads at least ``CODE_MIN_SHARE`` of the eligible values and at
+    least as many values as the block holds: its numbers are then codes."""
+    block = measures.numeric.finalize(limited, sum(measures.families.values()))
+    if not isinstance(block, Complete):
+        return block
+    for result in results:
+        if result.id not in CODE_DETECTORS or result.status != "complete":
+            continue
+        coverage = result.coverage
+        if (
+            coverage.eligible
+            and coverage.matched / coverage.eligible >= CODE_MIN_SHARE
+            and coverage.matched >= block.value.count
+        ):
+            return NotApplicable(reason="code_interpretation")
+    return block
 
 
 def _offsets(group, positions) -> set[int]:

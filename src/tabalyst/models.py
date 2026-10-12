@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Serializable report document (format ``tabalyst.report``, revision 2).
+"""Serializable report document (format ``tabalyst.report``, revision 3).
 
 The document is the Scan base at the same paths, plus a ``report`` block with
 the generation data, the presentation settings and the projections by dataset
@@ -35,7 +35,7 @@ from tabalyst.scanner.secondpass.models import DeepResult
 
 FORMAT = "tabalyst.report"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 2
+FORMAT_REVISION = 3
 
 
 class ResultModel(BaseModel):
@@ -331,7 +331,7 @@ class ReportProfile(ResultModel):
 
     format: Literal["tabalyst.report"] = FORMAT
     format_version: Literal["0.2.0"] = FORMAT_VERSION
-    format_revision: Literal[2] = FORMAT_REVISION
+    format_revision: Literal[3] = FORMAT_REVISION
     engine: EngineInfo
     status: Literal["complete", "partial"]
     run: RunInfo

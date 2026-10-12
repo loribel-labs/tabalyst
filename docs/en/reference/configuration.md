@@ -234,7 +234,7 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `deep.bins` | `100` | Number of bins of the histogram of a numeric field that is not counted per integer. From 2 to 1,000 |
+| `deep.bins` | `100` | Number of bins of the histogram of a numeric field that is not counted per integer, and of the numbers of amounts, percentages and quantities (at most, for those in bins whose width is a power of two). From 2 to 1,000 |
 | `deep.mode` | `auto` | What `tabalyst report` does about the second pass. `auto`: the planner adds the analyses that are useful and cheap. `off`: none, for a script that must read each file once. `force`: the same as `--deep`, with its confirmation. `tabalyst scan --deep` is an explicit request and runs whatever the mode |
 | `deep.pearson.max_columns` | `50` | Numeric columns of a dataset explored for pairs, from 2 to 200. The least present columns beyond it are left out, and the plan counts them |
 | `deep.pearson.max_work` | `1000000` | Pairs times rows compared by the exploration of the row sample. It lowers the number of columns explored when `max_columns` is not enough |
@@ -251,6 +251,8 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.crosstab.max_columns`, `deep.crosstab.max_work` | `50`, `1000000` | Columns explored for tables, and tables times rows coded by the exploration of the row sample |
 | `deep.crosstab.max_candidates`, `deep.crosstab.automatic_tables` | `20`, `8` | Tables the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A table is picked when its corrected Cramér's V is 0.45 or more |
 | `deep.crosstab.explore_min_rows` | `30` | Rows a table needs in the sample for the exploration to score it |
+| `deep.measures.max_groups` | `20` | Currencies or units of a field of amounts, percentages or quantities that get metrics of their own, the most frequent first; the others are counted together in `other`. From 1 to 1,000. Changing it computes the extraction again |
+| `deep.measures.max_values` | `100000` | Different pairs of a currency or unit and a number counted exactly in a field. Beyond, every group goes on in bins: counts, sums and extremes stay exact, the median and quantiles are estimated. From 1 to 10,000,000. Changing it computes the extraction again |
 | `deep.bin_strategy` | `linear` | `linear`: bins of equal width between the exact minimum and maximum. `sample_quantile`: inner edges at the quantiles of the sample kept by the scan, for a very skewed distribution; it falls back to `linear` when the sample is too small, and says so |
 
 The counts per bin are exact with either strategy.

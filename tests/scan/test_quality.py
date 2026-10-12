@@ -456,11 +456,11 @@ def test_a_report_carries_the_observations_of_its_scan():
     assert profile.observations == result.observations
     assert base_of(profile).observations == result.observations
     document = json.loads(profile.model_dump_json(by_alias=True))
-    assert document["observations"]["version"] == 1
+    assert document["observations"]["version"] == 2
     assert check_scan(base_of(profile)) == []
 
 
-def test_the_rules_of_version_1_are_these():
+def test_the_rules_of_version_2_are_these():
     # A rule added or removed changes the version of the rules (design 18.13).
     assert set(RULES) == {
         "excluded_records",
@@ -471,6 +471,7 @@ def test_the_rules_of_version_1_are_these():
         "ambiguous_dates",
         "variant_groups",
         "minority_pattern",
+        "minority_length",
         "missing_values",
         "empty_column",
         "constant_column",

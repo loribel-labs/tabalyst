@@ -22,7 +22,7 @@ documents reads the profile too: see [Reading the base](#reading-the-base).
 
 The format is **experimental**: it can change incompatibly between releases.
 Always check `format_version` and `format_revision` first. This page describes
-format `0.2.0`, revision `2`.
+format `0.2.0`, revision `3`.
 
 ## Example
 
@@ -32,7 +32,7 @@ A shortened profile for a five-row `orders.csv`:
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": { "...": "versions of the engine and the detectors" },
   "status": "complete",
   "run": { "...": "start, duration and timings of the scan" },
@@ -64,7 +64,7 @@ A shortened profile for a five-row `orders.csv`:
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "engine_version": "0.7.0",
       "source_sha256": "7d426449...",
       "config_sha256": "e3b0c442...",

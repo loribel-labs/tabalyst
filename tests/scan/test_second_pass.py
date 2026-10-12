@@ -309,7 +309,7 @@ def test_the_document_validates_against_its_committed_schema(tmp_path):
         check=False,
     )
     assert outcome.returncode == 0, outcome.stdout + outcome.stderr
-    assert deep_models.FORMAT == "tabalyst.scan.deep" and deep_models.FORMAT_REVISION == 1
+    assert deep_models.FORMAT == "tabalyst.scan.deep" and deep_models.FORMAT_REVISION == 2
 
 
 def test_only_the_analyzers_the_executor_runs_are_named_executable():

@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T01:27:46.077757Z",
-    "duration_seconds": 0.004705,
+    "started_at": "2026-10-11T23:28:11.401683Z",
+    "duration_seconds": 0.005119,
     "timings": {
-      "reading": 0.000404,
-      "analysis": 0.000143,
-      "finalize": 0.003129,
-      "derived": 0.000678,
-      "other": 0.000352
+      "reading": 0.00046,
+      "analysis": 0.000155,
+      "finalize": 0.003217,
+      "derived": 0.000737,
+      "other": 0.00055
     },
     "workers": 1,
-    "peak_memory_bytes": 59138048
+    "peak_memory_bytes": 59465728
   },
   "source": {
     "format": "csv",
@@ -2003,6 +2003,10 @@
               "median": {
                 "status": "complete",
                 "value": 25
+              },
+              "coverage": {
+                "of": 4,
+                "share": 0.75
               }
             }
           },
@@ -5061,7 +5065,7 @@
     }
   },
   "observations": {
-    "version": 1,
+    "version": 2,
     "truncated": false,
     "summary": {
       "informational": 2,
@@ -5140,18 +5144,18 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
-      "format_revision": 1,
+      "format_revision": 2,
       "status": "complete",
       "base": {
-        "format_revision": 2,
+        "format_revision": 3,
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
         "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
-        "facts_sha256": "b4e7a1248ab1f30a2c6f78bbf6480a15e2a1055afb039c0205595d68b46279a0"
+        "facts_sha256": "c790eaa855f664472c86bb44d9862199b0e45d946447e2578f08678a4cb8ad7d"
       },
       "settings": {
         "bins": 100,
@@ -5177,21 +5181,25 @@
           "max_candidates": 20,
           "automatic_tables": 8,
           "explore_min_rows": 30
+        },
+        "measures": {
+          "max_groups": 20,
+          "max_values": 100000
         }
       },
-      "settings_sha256": "2906c7b25694e867e29895695422b5fbfddfa696e2b6f8c0fca3a192fd44d416",
+      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 6,
-        "plan_id": "c4c411709cc72c2b9f7e72bc1776264396cee86533a6314d2ef1b910e6b9f132",
+        "cost_model_version": 7,
+        "plan_id": "0dd733b285c83a18e992fda3013174acfabf413d0763666d027771b8fcb5e2d4",
         "base": {
-          "format_revision": 2,
+          "format_revision": 3,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
           "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
-          "facts_sha256": "b4e7a1248ab1f30a2c6f78bbf6480a15e2a1055afb039c0205595d68b46279a0"
+          "facts_sha256": "c790eaa855f664472c86bb44d9862199b0e45d946447e2578f08678a4cb8ad7d"
         },
         "objective": {
           "automatic": true,
@@ -6179,21 +6187,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-11T01:27:46.096793Z",
-        "duration_seconds": 0.002163,
+        "started_at": "2026-10-12T00:30:00.047905Z",
+        "duration_seconds": 6.8e-05,
         "timings": {
-          "reading": 0.000379,
-          "analysis": 6.1e-05,
-          "other": 0.001723
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 6.8e-05
         },
         "workers": 1,
-        "peak_memory_bytes": 61341696,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 5,
-        "cells_read": 5,
-        "executed": 5,
-        "reused": 0,
+        "peak_memory_bytes": 62562304,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 5,
         "skipped": 0
       },
       "analyses": [
@@ -6209,7 +6217,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "c39041b94ed145baf3b7a2298db4013e14a430bb76e7733429ab02829a7be715",
+          "key": "249cccc12a2cd95ce58b9213b174ef430b8d45eba4fd53aeef2ca8545cae2f16",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -6246,7 +6254,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "2ee4309d2e476ca7dd1cda65fe84ab092ad48d5330ffad495f6f16b88101df26",
+          "key": "b14846cc09fda8fe08a0d367c778591daf0c2ccb0c90c52814f480aaf7603fae",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -6283,7 +6291,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "14f476be93b0a454f2aa32f677f5a42b1ddeb124a83d21eb8a2ccb7dd47ca8b0",
+          "key": "8ec432f0d485b4f6d220aa4acbcc1af08533bef19db923d5e24ad7af83e4cff6",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -6320,7 +6328,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "ae8fa844a1dad2eba19e423da2898ea3b94067a8b5ba4753c3b7278b9b160689",
+          "key": "17af0f359e3e675c1374c00653b4e6c72f3d695ab128870ff70a32db9fd0f040",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -6358,7 +6366,7 @@
             "periods": 91
           },
           "domain": "analytical",
-          "key": "52b444e26b38e459d75c188e09c39fefae0696ac5c6c5232fd93c95e25bdb5fb",
+          "key": "d5745080c50fa48a8868cdf42da55445ad4885d3d22427221c710dca2ef317c8",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -6396,12 +6404,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-11T01:27:46.103813Z",
+    "generated_at": "2026-10-12T00:30:00.048905Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0401,
+    "processing_seconds": 0.0173,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -6431,11 +6439,11 @@
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
       "config_sha256": "f3bacd1e515cbb74c00c21e5c13433158db20d2692215e40611a936ab72abf64",
-      "facts_sha256": "b4e7a1248ab1f30a2c6f78bbf6480a15e2a1055afb039c0205595d68b46279a0"
+      "facts_sha256": "c790eaa855f664472c86bb44d9862199b0e45d946447e2578f08678a4cb8ad7d"
     },
     "datasets": [
       {

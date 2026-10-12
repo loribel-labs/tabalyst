@@ -296,6 +296,7 @@
                   "distinct_limited": "#/$defs/DistinctLimited",
                   "frequencies": "#/$defs/FrequencyTable",
                   "lengths": "#/$defs/LengthDistribution",
+                  "measures": "#/$defs/MeasureResult",
                   "pattern_counts": "#/$defs/PatternCounts",
                   "pearson": "#/$defs/PearsonResult",
                   "periods": "#/$defs/PeriodCounts"
@@ -326,6 +327,9 @@
                 },
                 {
                   "$ref": "#/$defs/PeriodCounts"
+                },
+                {
+                  "$ref": "#/$defs/MeasureResult"
                 },
                 {
                   "$ref": "#/$defs/PearsonResult"
@@ -520,7 +524,7 @@
     },
     "BinnedHistogram": {
       "additionalProperties": false,
-      "description": "Counts per bin, exact for the declared classification (HIST-05): bin\n``i`` is ``[edges[i], edges[i+1])`` and the last one is closed on the right\nso that the maximum belongs to it. The distribution inside a bin is\nunknown, so the median and quantiles are estimates with their bounds.\n\n``strategy`` is the one in force and ``requested_strategy`` the one asked\nfor; they differ, with ``reason``, when the sample could not place the\nbounds. ``bounds_source`` says where the inner bounds come from: ``range``\n(equal widths between the exact minimum and maximum), ``rows`` (quantiles\nof the row sample) or ``distinct`` (quantiles of the bottom-k sample).\n``edges`` are written as numbers; the classification used the exact bounds,\nso an edge that is not representable may be rounded here.",
+      "description": "Counts per bin, exact for the declared classification (HIST-05): bin\n``i`` is ``[edges[i], edges[i+1])`` and the last one is closed on the right\nso that the maximum belongs to it. The distribution inside a bin is\nunknown, so the median and quantiles are estimates with their bounds.\n\n``strategy`` is the one in force and ``requested_strategy`` the one asked\nfor; they differ, with ``reason``, when the sample could not place the\nbounds. ``bounds_source`` says where the inner bounds come from: ``range``\n(equal widths between the exact minimum and maximum), ``rows`` (quantiles\nof the row sample), ``distinct`` (quantiles of the bottom-k sample) or\n``grid`` (the multiples of a power of two of the values with a unit beyond\n``max_values``, design 20.19).\n``edges`` are written as numbers; the classification used the exact bounds,\nso an edge that is not representable may be rounded here.",
       "properties": {
         "kind": {
           "const": "bins",
@@ -548,7 +552,8 @@
           "enum": [
             "range",
             "rows",
-            "distinct"
+            "distinct",
+            "grid"
           ],
           "title": "Bounds Source",
           "type": "string"
@@ -2973,7 +2978,7 @@
           "type": "string"
         },
         "format_revision": {
-          "default": 1,
+          "default": 2,
           "title": "Format Revision",
           "type": "integer"
         },
@@ -3103,7 +3108,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, and how pairs of numeric\ncolumns and tables of categories are chosen.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns\nand tables of categories are chosen, and how values with a unit are\nextracted.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -3126,6 +3131,9 @@
         },
         "crosstab": {
           "$ref": "#/$defs/CrosstabSettings"
+        },
+        "measures": {
+          "$ref": "#/$defs/MeasureSettings"
         }
       },
       "title": "DeepSettings",
@@ -6053,6 +6061,540 @@
       "title": "LongTexts",
       "type": "object"
     },
+    "MarkerCount": {
+      "additionalProperties": false,
+      "description": "One marker or unit: ``count`` values are written with it, ``parsed`` of\nthem have a number (the others are ambiguous), ``share`` is ``count`` over\nevery value written with a marker.",
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "parsed": {
+          "title": "Parsed",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "count",
+        "parsed",
+        "share"
+      ],
+      "title": "MarkerCount",
+      "type": "object"
+    },
+    "MarkerEnumeration": {
+      "additionalProperties": false,
+      "description": "The markers or units as an enumeration of the values written with one\n(parsed or ambiguous): exact counts of every marker, ``listed`` by\ndecreasing count then text (``truncated`` beyond 1,000), the ``modes`` and\nthe share of the first one.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "currency",
+            "percent",
+            "unit"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/MarkerCount"
+          },
+          "title": "Listed",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        },
+        "modes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Modes",
+          "type": "array"
+        },
+        "dominant_share": {
+          "title": "Dominant Share",
+          "type": "number"
+        },
+        "rare": {
+          "$ref": "#/$defs/RareMarkers"
+        },
+        "layout": {
+          "$ref": "#/$defs/MarkerLayout"
+        }
+      },
+      "required": [
+        "kind",
+        "count",
+        "distinct",
+        "listed",
+        "truncated",
+        "modes",
+        "dominant_share",
+        "rare",
+        "layout"
+      ],
+      "title": "MarkerEnumeration",
+      "type": "object"
+    },
+    "MarkerLayout": {
+      "additionalProperties": false,
+      "description": "How the values with a marker are written: the marker ``before`` or\n``after`` the number, with a space between them (``spaced``) or not.",
+      "properties": {
+        "before": {
+          "title": "Before",
+          "type": "integer"
+        },
+        "after": {
+          "title": "After",
+          "type": "integer"
+        },
+        "spaced": {
+          "title": "Spaced",
+          "type": "integer"
+        },
+        "unspaced": {
+          "title": "Unspaced",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "spaced",
+        "unspaced"
+      ],
+      "title": "MarkerLayout",
+      "type": "object"
+    },
+    "MeasureGroup": {
+      "additionalProperties": false,
+      "description": "The numbers written with one marker or unit.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distinct"
+        },
+        "numeric": {
+          "$ref": "#/$defs/NumericStats"
+        },
+        "modes": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes"
+        },
+        "modes_truncated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes Truncated"
+        },
+        "histogram": {
+          "discriminator": {
+            "mapping": {
+              "bins": "#/$defs/BinnedHistogram",
+              "dense_counts": "#/$defs/DenseHistogram"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/DenseHistogram"
+            },
+            {
+              "$ref": "#/$defs/BinnedHistogram"
+            }
+          ],
+          "title": "Histogram"
+        },
+        "marker": {
+          "title": "Marker",
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "numeric",
+        "histogram",
+        "marker"
+      ],
+      "title": "MeasureGroup",
+      "type": "object"
+    },
+    "MeasureLevel": {
+      "additionalProperties": false,
+      "description": "The numbers of one population of values with a unit or a marker: the\nwhole field, one marker, or the markers beyond ``max_groups``.\n\n``numeric`` has the members of the ``numeric`` block of the Scan, computed\nthe same way, with ``coverage`` the share of the content values of the\nfield. Its median is exact when the numbers were counted in a table, and\n``limited`` (``max_values``) when they went on in bins, whose ``histogram``\nthen holds the estimate. ``distinct`` (numbers that differ) and ``modes``\n(ten at most) exist only with the table.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distinct"
+        },
+        "numeric": {
+          "$ref": "#/$defs/NumericStats"
+        },
+        "modes": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes"
+        },
+        "modes_truncated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes Truncated"
+        },
+        "histogram": {
+          "discriminator": {
+            "mapping": {
+              "bins": "#/$defs/BinnedHistogram",
+              "dense_counts": "#/$defs/DenseHistogram"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/DenseHistogram"
+            },
+            {
+              "$ref": "#/$defs/BinnedHistogram"
+            }
+          ],
+          "title": "Histogram"
+        }
+      },
+      "required": [
+        "count",
+        "numeric",
+        "histogram"
+      ],
+      "title": "MeasureLevel",
+      "type": "object"
+    },
+    "MeasureOther": {
+      "additionalProperties": false,
+      "description": "The numbers of the ``markers`` beyond the groups, together. Mixing units\nmakes their numbers a count more than a quantity.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "distinct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distinct"
+        },
+        "numeric": {
+          "$ref": "#/$defs/NumericStats"
+        },
+        "modes": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes"
+        },
+        "modes_truncated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modes Truncated"
+        },
+        "histogram": {
+          "discriminator": {
+            "mapping": {
+              "bins": "#/$defs/BinnedHistogram",
+              "dense_counts": "#/$defs/DenseHistogram"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/DenseHistogram"
+            },
+            {
+              "$ref": "#/$defs/BinnedHistogram"
+            }
+          ],
+          "title": "Histogram"
+        },
+        "markers": {
+          "title": "Markers",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "numeric",
+        "histogram",
+        "markers"
+      ],
+      "title": "MeasureOther",
+      "type": "object"
+    },
+    "MeasureResult": {
+      "additionalProperties": false,
+      "description": "The numbers of the values with a currency marker, a percent sign or a\nunit, extracted as the ``detector`` of the Scan reads them (design 20.19).\n\n``values`` are the content values of the field: ``parsed`` have a number,\n``ambiguous`` a number part the configuration cannot read one way (counted\nand never placed), ``invalid`` the shape of a value that does not hold, and\n``unparsed`` the rest; they add up. ``scan_not_tested`` are the values the\nScan's detector did not test (adaptive detection) and this pass read.\n\n``overall`` gives the metrics of a numeric field for every parsed value,\n``groups`` the same for each marker, the most frequent first, and ``other``\nfor the markers beyond ``max_groups``. ``homogeneous`` is false when the\nnumbers mix markers: no conversion is made, so their overall metrics add\nquantities that differ. ``storage`` is ``table`` when every number was\ncounted exactly (``accuracy`` ``exact``), ``grid`` when the distinct numbers\npassed ``max_values`` and every group went on in bins: counts, sums and\nextremes stay exact, the quantiles are estimates with certain bounds\n(``exact_counts``).",
+      "properties": {
+        "kind": {
+          "const": "measures",
+          "default": "measures",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "exact_counts"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "storage": {
+          "enum": [
+            "table",
+            "grid"
+          ],
+          "title": "Storage",
+          "type": "string"
+        },
+        "computed_from": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Computed From",
+          "type": "string"
+        },
+        "detector": {
+          "enum": [
+            "currency",
+            "percentage",
+            "quantity"
+          ],
+          "title": "Detector",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "parsed": {
+          "title": "Parsed",
+          "type": "integer"
+        },
+        "ambiguous": {
+          "title": "Ambiguous",
+          "type": "integer"
+        },
+        "invalid": {
+          "title": "Invalid",
+          "type": "integer"
+        },
+        "unparsed": {
+          "title": "Unparsed",
+          "type": "integer"
+        },
+        "scan_not_tested": {
+          "title": "Scan Not Tested",
+          "type": "integer"
+        },
+        "homogeneous": {
+          "title": "Homogeneous",
+          "type": "boolean"
+        },
+        "overall": {
+          "$ref": "#/$defs/MeasureLevel"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/MeasureGroup"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "other": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MeasureOther"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "markers": {
+          "$ref": "#/$defs/MarkerEnumeration"
+        },
+        "percent_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PercentRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "accuracy",
+        "storage",
+        "computed_from",
+        "detector",
+        "values",
+        "parsed",
+        "ambiguous",
+        "invalid",
+        "unparsed",
+        "scan_not_tested",
+        "homogeneous",
+        "overall",
+        "groups",
+        "markers"
+      ],
+      "title": "MeasureResult",
+      "type": "object"
+    },
+    "MeasureSettings": {
+      "additionalProperties": false,
+      "description": "How the values with a unit, a currency marker or a percent sign are\nextracted (design 20.19).\n\n``max_groups`` markers or units at most get metrics of their own, the most\nfrequent first; the others are summed up in ``other``. ``max_values``\ndistinct pairs of a marker and a number are counted exactly; beyond, every\ngroup goes on in bins whose width is a power of two, with exact counts and\nmoments and estimated quantiles. Both are part of the key of a result.",
+      "properties": {
+        "max_groups": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Groups",
+          "type": "integer"
+        },
+        "max_values": {
+          "default": 100000,
+          "maximum": 10000000,
+          "minimum": 1,
+          "title": "Max Values",
+          "type": "integer"
+        }
+      },
+      "title": "MeasureSettings",
+      "type": "object"
+    },
     "Memory": {
       "additionalProperties": false,
       "description": "Bytes of a state in three scenarios. ``max`` is a firm bound taken from\nthe counts of the Scan, ``min`` what the Scan already proves and\n``expected`` the likely size. They are payloads of the structures, not a\npromise of process memory.",
@@ -6373,6 +6915,26 @@
       "title": "NumberSettings",
       "type": "object"
     },
+    "NumericCoverage": {
+      "additionalProperties": false,
+      "description": "The values of the field that the numeric block describes: ``count`` of\nthe block out of ``of``, the analyzable values (``values.count``).",
+      "properties": {
+        "of": {
+          "title": "Of",
+          "type": "integer"
+        },
+        "share": {
+          "title": "Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "of",
+        "share"
+      ],
+      "title": "NumericCoverage",
+      "type": "object"
+    },
     "NumericStats": {
       "additionalProperties": false,
       "properties": {
@@ -6499,6 +7061,9 @@
             }
           ],
           "title": "Median"
+        },
+        "coverage": {
+          "$ref": "#/$defs/NumericCoverage"
         }
       },
       "required": [
@@ -6515,7 +7080,8 @@
         "negative",
         "zero",
         "integral_decimals",
-        "median"
+        "median",
+        "coverage"
       ],
       "title": "NumericStats",
       "type": "object"
@@ -7563,6 +8129,31 @@
       "title": "PearsonSettings",
       "type": "object"
     },
+    "PercentRange": {
+      "additionalProperties": false,
+      "description": "The parsed percentages below 0, from 0 to 100, and above 100: a share\nabove 100 is a fact of the data, never an error.",
+      "properties": {
+        "below": {
+          "title": "Below",
+          "type": "integer"
+        },
+        "within": {
+          "title": "Within",
+          "type": "integer"
+        },
+        "above": {
+          "title": "Above",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "below",
+        "within",
+        "above"
+      ],
+      "title": "PercentRange",
+      "type": "object"
+    },
     "PercentageSettings": {
       "additionalProperties": false,
       "description": "Conventions of the number part of percentages, set independently of\n``detectors.number``.",
@@ -8061,6 +8652,31 @@
         }
       },
       "title": "QuantitySettings",
+      "type": "object"
+    },
+    "RareMarkers": {
+      "additionalProperties": false,
+      "description": "The markers each written in less than ``share_below`` of the values\nwith a marker, and the values written with them.",
+      "properties": {
+        "share_below": {
+          "title": "Share Below",
+          "type": "number"
+        },
+        "markers": {
+          "title": "Markers",
+          "type": "integer"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "share_below",
+        "markers",
+        "count"
+      ],
+      "title": "RareMarkers",
       "type": "object"
     },
     "RecordList": {
@@ -11050,7 +11666,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Document tabalyst.report, format 0.2.0 revision 2: the Scan base at the same paths, plus the report block.",
+  "description": "Document tabalyst.report, format 0.2.0 revision 3: the Scan base at the same paths, plus the report block.",
   "properties": {
     "format": {
       "const": "tabalyst.report",
@@ -11065,7 +11681,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 2
+      "const": 3
     },
     "engine": {
       "$ref": "#/$defs/EngineInfo"

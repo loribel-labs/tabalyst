@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T01:27:53.642156Z",
-    "duration_seconds": 0.282049,
+    "started_at": "2026-10-12T00:29:48.327278Z",
+    "duration_seconds": 0.264398,
     "timings": {
-      "reading": 0.009882,
-      "analysis": 0.023406,
-      "finalize": 0.23908,
-      "derived": 0.009224,
-      "other": 0.000458
+      "reading": 0.009726,
+      "analysis": 0.022262,
+      "finalize": 0.223187,
+      "derived": 0.008789,
+      "other": 0.000433
     },
     "workers": 1,
-    "peak_memory_bytes": 77279232
+    "peak_memory_bytes": 79437824
   },
   "source": {
     "format": "csv",
@@ -12250,6 +12250,10 @@
               "median": {
                 "status": "complete",
                 "value": 4858
+              },
+              "coverage": {
+                "of": 3000,
+                "share": 1.0
               }
             }
           },
@@ -17662,6 +17666,10 @@
               "median": {
                 "status": "complete",
                 "value": 501
+              },
+              "coverage": {
+                "of": 1072,
+                "share": 1.0
               }
             }
           },
@@ -33860,6 +33868,10 @@
               "median": {
                 "status": "complete",
                 "value": 1101.34
+              },
+              "coverage": {
+                "of": 3000,
+                "share": 1.0
               }
             }
           },
@@ -42595,6 +42607,10 @@
               "median": {
                 "status": "complete",
                 "value": 19513.98
+              },
+              "coverage": {
+                "of": 349,
+                "share": 1.0
               }
             }
           },
@@ -47449,11 +47465,11 @@
     }
   },
   "observations": {
-    "version": 1,
+    "version": 2,
     "truncated": false,
     "summary": {
       "informational": 19,
-      "candidate_anomalies": 24,
+      "candidate_anomalies": 27,
       "confirmed_issues": 0,
       "limits": 7,
       "has_observations": true,
@@ -47464,7 +47480,7 @@
       {
         "dataset": "rows",
         "informational": 19,
-        "candidate_anomalies": 24,
+        "candidate_anomalies": 27,
         "confirmed_issues": 0,
         "limits": 7,
         "has_observations": true,
@@ -47624,6 +47640,18 @@
       },
       {
         "id": "o13",
+        "rule": "minority_length",
+        "category": "patterns",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "field": "column_17",
+        "population": "content_strings",
+        "count": 21,
+        "of": 3000,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o14",
         "rule": "variant_groups",
         "category": "normalization",
         "status": "candidate_anomaly",
@@ -47634,7 +47662,19 @@
         "accuracy": "exact"
       },
       {
-        "id": "o14",
+        "id": "o15",
+        "rule": "minority_length",
+        "category": "patterns",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "field": "column_21",
+        "population": "content_strings",
+        "count": 36,
+        "of": 2991,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o16",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47646,7 +47686,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o15",
+        "id": "o17",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47658,7 +47698,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o16",
+        "id": "o18",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47670,7 +47710,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o17",
+        "id": "o19",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47682,7 +47722,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o18",
+        "id": "o20",
         "rule": "variant_groups",
         "category": "normalization",
         "status": "candidate_anomaly",
@@ -47693,7 +47733,19 @@
         "accuracy": "exact"
       },
       {
-        "id": "o19",
+        "id": "o21",
+        "rule": "minority_length",
+        "category": "patterns",
+        "status": "candidate_anomaly",
+        "dataset": "rows",
+        "field": "column_29",
+        "population": "content_strings",
+        "count": 16,
+        "of": 3000,
+        "accuracy": "exact"
+      },
+      {
+        "id": "o22",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47705,7 +47757,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o20",
+        "id": "o23",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47717,7 +47769,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o21",
+        "id": "o24",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47729,7 +47781,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o22",
+        "id": "o25",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47741,7 +47793,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o23",
+        "id": "o26",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47753,7 +47805,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o24",
+        "id": "o27",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47765,7 +47817,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o25",
+        "id": "o28",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47777,7 +47829,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o26",
+        "id": "o29",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47789,7 +47841,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o27",
+        "id": "o30",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47801,7 +47853,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o28",
+        "id": "o31",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47813,7 +47865,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o29",
+        "id": "o32",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47825,7 +47877,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o30",
+        "id": "o33",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47837,7 +47889,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o31",
+        "id": "o34",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47849,7 +47901,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o32",
+        "id": "o35",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47861,7 +47913,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o33",
+        "id": "o36",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47873,7 +47925,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o34",
+        "id": "o37",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47885,7 +47937,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o35",
+        "id": "o38",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47897,7 +47949,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o36",
+        "id": "o39",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47909,7 +47961,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o37",
+        "id": "o40",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47921,7 +47973,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o38",
+        "id": "o41",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47933,7 +47985,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o39",
+        "id": "o42",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47945,7 +47997,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o40",
+        "id": "o43",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47957,7 +48009,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o41",
+        "id": "o44",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47969,7 +48021,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o42",
+        "id": "o45",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47981,7 +48033,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o43",
+        "id": "o46",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",

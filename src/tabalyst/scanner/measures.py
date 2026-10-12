@@ -35,6 +35,7 @@ from tabalyst.scanner.models import (
     LengthCount,
     Limited,
     NotApplicable,
+    NumericCoverage,
     NumericStats,
     StringCharacteristics,
     StringLengths,
@@ -263,13 +264,39 @@ class NumericAccumulator:
         if self.median_values is not None:
             self.median_values.append((number, count))
 
-    def finalize(self, table_limit: Limited | None):
+    def merge(self, other: NumericAccumulator) -> None:
+        """Add what ``other`` counted, as if its values had been added here.
+        The median values are not merged: the caller computes the median."""
+        self.count += other.count
+        self.native_count += other.native_count
+        self.median_values = None
+        if other.imprecise:
+            self.imprecise = True
+        if self.imprecise or not other.count:
+            return
+        self.int_sum += other.int_sum
+        self.int_sumsq += other.int_sumsq
+        context = _EXACT
+        self.dec_sum = context.add(self.dec_sum, other.dec_sum)
+        self.dec_sumsq = context.add(self.dec_sumsq, other.dec_sumsq)
+        self.integral_decimals += other.integral_decimals
+        self.positive += other.positive
+        self.negative += other.negative
+        self.zero += other.zero
+        if self.minimum is None or other.minimum < self.minimum:  # type: ignore[operator]
+            self.minimum = other.minimum
+        if self.maximum is None or other.maximum > self.maximum:  # type: ignore[operator]
+            self.maximum = other.maximum
+
+    def finalize(self, table_limit: Limited | None, values: int | None = None):
+        """``values`` is the analyzable values of the field, for ``coverage``."""
         if not self.count:
             return NotApplicable(reason="no_values")
         imprecise = Limited(reason="precision", limit=PRECISION)
         if self.imprecise:
             return imprecise
         n = self.count
+        of = max(values or n, n)
         total = self.int_sum + Fraction(self.dec_sum)
         squares = self.int_sumsq + Fraction(self.dec_sumsq)
         variance = (n * squares - total * total) / (n * n)
@@ -296,6 +323,9 @@ class NumericAccumulator:
                     zero=self.zero,
                     integral_decimals=self.integral_decimals,
                     median=median,
+                    coverage=NumericCoverage(
+                        of=of, share=n / of
+                    ),
                 )
             )
         except Unrepresentable:

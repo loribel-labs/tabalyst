@@ -12,6 +12,7 @@ from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
 from tabalyst.scanner.planner.analyzers.frequencies import ExactFrequencies
 from tabalyst.scanner.planner.analyzers.histogram import NumericHistogram
 from tabalyst.scanner.planner.analyzers.lengths import LengthDistribution
+from tabalyst.scanner.planner.analyzers.measures import MeasureExtraction
 from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
 from tabalyst.scanner.planner.analyzers.pearson import PearsonCorrelation
 from tabalyst.scanner.planner.analyzers.temporal import TemporalDistribution
@@ -23,6 +24,7 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     ExactDistinct,
     PatternValidation,
     TemporalDistribution,
+    MeasureExtraction,
     PearsonCorrelation,
     CategoryCrosstab,
 )

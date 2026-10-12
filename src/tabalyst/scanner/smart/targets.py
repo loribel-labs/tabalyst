@@ -63,6 +63,7 @@ EVALUABLE_RULES = frozenset(
 NOT_EVALUABLE_RULES = {
     "duplicate_rows": "needs_row_digest",
     "variant_groups": "needs_variant_keys",
+    "minority_length": "needs_length_test",
 }
 
 # Analyzers of the second pass that bring or sharpen the targets of a family.

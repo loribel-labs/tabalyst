@@ -102,6 +102,9 @@ RULES: dict[str, RuleLabel] = {
     "minority_pattern": RuleLabel(
         "Rare patterns among otherwise uniform values", "patterns"
     ),
+    "minority_length": RuleLabel(
+        "Rare lengths among otherwise uniform values", "patterns"
+    ),
     "missing_values": RuleLabel("Missing values", "columns"),
     "empty_column": RuleLabel(
         "Columns without any present values", "columns", headline="fields"
@@ -199,6 +202,7 @@ ANALYSIS_LABELS = {
     "exact_distinct": "Exact distinct count",
     "pattern_validation": "Pattern validation",
     "temporal_distribution": "Distribution over time",
+    "measure_extraction": "Numbers of the values with a unit",
     "pearson_correlation": "Correlation between two columns",
     "category_crosstab": "Category against a feature of a column",
 }

@@ -6,7 +6,7 @@ description: Structure of the JSON document written by tabalyst scan, with its t
 `tabalyst scan data.csv` writes a reusable `scan.json` by default;
 `-o` and `-d` export a standalone `<stem>.scan.json`. Both are JSON documents that
 describe every field of the source. This page describes format
-`tabalyst.scan`, version `0.2.0`, revision `2`. The format is
+`tabalyst.scan`, version `0.2.0`, revision `3`. The format is
 **experimental**: it can change incompatibly between releases. Always check
 `format`, `format_version` and `format_revision` first; changes are listed in
 the [scan format changelog](format-changelog.md).
@@ -17,7 +17,7 @@ the [scan format changelog](format-changelog.md).
 {
   "format": "tabalyst.scan",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -288,7 +288,7 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 | `arrays` | For array fields: count, empty arrays, minimum, maximum and total length. |
 | `values` | Analyzable values: `count`, `cardinality`, `frequencies`, `samples`, `first` and `last`. |
 | `string_characteristics`, `string_lengths` | Case, non-ASCII characters, line breaks and whitespace; length statistics and histogram. |
-| `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. |
+| `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. `numeric.coverage` gives the share of the analyzable values the statistics describe; a field that a code detector reads (`postal_code`, `phone`, `uuid`, `ip_address`) has no `numeric` block (`not_applicable`, reason `code_interpretation`). |
 | `normalization` | For each normalization stage, how many values it changed and the distinct values left, plus groups of variants that normalize to the same value (see [Normalization stages](#normalization-stages)). |
 | `technical_type` | `integer`, `number`, `date`, `boolean`, `text`, `mixed` or `empty`, with `confidence`, `counts` and `outside_count`. |
 | `detectors` | One result per detector, described below. |
@@ -741,9 +741,11 @@ counts and references (fields, records, diagnostics, patterns).
   `population` says what `count` counts out of `of`; `accuracy` is `exact`,
   `lower_bound` (a limit stops the count from being exact, and `limited_by`
   names it) or `sample`.
-- The rules of version 1 are `excluded_records`, `ambiguous_header`,
+- The rules of version 2 are `excluded_records`, `ambiguous_header`,
   `duplicate_rows`, `mixed_types`, `type_outliers`, `ambiguous_dates`,
-  `variant_groups`, `minority_pattern`, `missing_values`, `empty_column`,
+  `variant_groups`, `minority_pattern`, `minority_length` (one length holds at
+  least 95% of at least 20 strings and the others at most 5%: a malformed value
+  that a pattern absorbed), `missing_values`, `empty_column`,
   `constant_column`, `trimmed_cells` and `collapsed_whitespace`. A rule applies
   to a field, a dataset or the whole scan (no `dataset`). Their thresholds are
   constants of the version.

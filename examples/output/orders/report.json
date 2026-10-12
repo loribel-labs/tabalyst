@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T01:27:50.627901Z",
-    "duration_seconds": 0.020611,
+    "started_at": "2026-10-11T23:28:15.896144Z",
+    "duration_seconds": 0.020255,
     "timings": {
-      "reading": 0.00398,
-      "analysis": 0.003291,
-      "finalize": 0.010604,
-      "derived": 0.00236,
-      "other": 0.000375
+      "reading": 0.003114,
+      "analysis": 0.003111,
+      "finalize": 0.011249,
+      "derived": 0.002329,
+      "other": 0.000451
     },
     "workers": 1,
-    "peak_memory_bytes": 63492096
+    "peak_memory_bytes": 61165568
   },
   "source": {
     "format": "json",
@@ -5424,26 +5424,8 @@
             }
           },
           "numeric": {
-            "status": "complete",
-            "value": {
-              "count": 51,
-              "native_count": 0,
-              "text_count": 51,
-              "min": 33000,
-              "max": 75011,
-              "sum": 3017155,
-              "mean": 59159.901960784315,
-              "population_variance": 207747398.91195694,
-              "population_std": 14413.445074372641,
-              "positive": 51,
-              "negative": 0,
-              "zero": 0,
-              "integral_decimals": 0,
-              "median": {
-                "status": "complete",
-                "value": 59000
-              }
-            }
+            "status": "not_applicable",
+            "reason": "code_interpretation"
           },
           "booleans": {
             "status": "not_applicable",
@@ -13978,6 +13960,10 @@
               "median": {
                 "status": "complete",
                 "value": 2
+              },
+              "coverage": {
+                "of": 119,
+                "share": 1.0
               }
             }
           },
@@ -14311,6 +14297,10 @@
               "median": {
                 "status": "complete",
                 "value": 29.9
+              },
+              "coverage": {
+                "of": 119,
+                "share": 1.0
               }
             }
           },
@@ -14699,6 +14689,10 @@
               "median": {
                 "status": "complete",
                 "value": 54
+              },
+              "coverage": {
+                "of": 108,
+                "share": 1.0
               }
             }
           },
@@ -16190,7 +16184,7 @@
     }
   },
   "observations": {
-    "version": 1,
+    "version": 2,
     "truncated": false,
     "summary": {
       "informational": 12,
@@ -16378,18 +16372,18 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
-      "format_revision": 1,
+      "format_revision": 2,
       "status": "complete",
       "base": {
-        "format_revision": 2,
+        "format_revision": 3,
         "engine_version": "0.7.0",
         "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
         "config_sha256": "41457814799ce6b722db24877dce5fcf15d6022128f7c0bf6de8edd10a43f7f1",
-        "facts_sha256": "f6e2330b10b086f3c6c120aaf70788c648a36158ab014dbd82ba35ccbcf532e7"
+        "facts_sha256": "69a1e2a37db20882a16c6204a1bd28faaf88b5588aeeb7947bfc75f3137e0b6f"
       },
       "settings": {
         "bins": 100,
@@ -16415,21 +16409,25 @@
           "max_candidates": 20,
           "automatic_tables": 8,
           "explore_min_rows": 30
+        },
+        "measures": {
+          "max_groups": 20,
+          "max_values": 100000
         }
       },
-      "settings_sha256": "2906c7b25694e867e29895695422b5fbfddfa696e2b6f8c0fca3a192fd44d416",
+      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 6,
-        "plan_id": "db9627e2f7848118d578b0703ae46b91b47e7285cf83162bb2832f382478f20b",
+        "cost_model_version": 7,
+        "plan_id": "94cdded388407fbad5de0471486ad0683de5f695dc6326f2f2b7e72e4a58fc1e",
         "base": {
-          "format_revision": 2,
+          "format_revision": 3,
           "engine_version": "0.7.0",
           "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
           "config_sha256": "41457814799ce6b722db24877dce5fcf15d6022128f7c0bf6de8edd10a43f7f1",
-          "facts_sha256": "f6e2330b10b086f3c6c120aaf70788c648a36158ab014dbd82ba35ccbcf532e7"
+          "facts_sha256": "69a1e2a37db20882a16c6204a1bd28faaf88b5588aeeb7947bfc75f3137e0b6f"
         },
         "objective": {
           "automatic": true,
@@ -16453,15 +16451,15 @@
         },
         "summary": {
           "candidates": 84,
-          "selected": 16,
+          "selected": 15,
           "already_satisfied": 37,
-          "rejected": 31,
+          "rejected": 32,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 26608389,
-            "expected": 27060789,
-            "max": 28330239
+            "min": 26271269,
+            "expected": 26723669,
+            "max": 27993119
           },
           "beyond_automatic": []
         },
@@ -16472,8 +16470,9 @@
               "scope": "all_rows",
               "rows": 60,
               "numeric": 4,
-              "columns": 1,
+              "columns": 0,
               "excluded": {
+                "measure_unavailable": 1,
                 "repeated_path": 3
               },
               "possible": 0,
@@ -17389,70 +17388,30 @@
             "dataset": "$.customers[]",
             "field": "f7",
             "display": "address.postal_code",
-            "method": "dense_counts",
-            "parameters": {
-              "domain": 42012
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "histogram",
               "quantiles",
               "median_estimate"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 60,
+              "state": "not_applicable",
               "reasons": [
-                "numeric_distribution",
-                "same_state_exact_median"
+                "measure_unavailable"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 337120,
-                "expected": 401120,
-                "max": 593120
-              },
-              "cpu": "moderate",
-              "cell_ns": 900,
-              "states": [
-                {
-                  "key": "dense_counts:datasets/$.customers[]/fields/f7",
-                  "memory": {
-                    "min": 336096,
-                    "expected": 336096,
-                    "max": 336096
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f7",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "result:numeric_histogram:datasets/$.customers[]/fields/f7",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 16,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
-              "requires_source": true,
+              "requires_source": false,
               "available": true,
               "deterministic": true,
               "reusable": true,
@@ -21175,21 +21134,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-11T01:27:50.691699Z",
-        "duration_seconds": 0.013091,
+        "started_at": "2026-10-12T00:29:52.131025Z",
+        "duration_seconds": 0.000145,
         "timings": {
-          "reading": 0.003048,
-          "analysis": 0.003411,
-          "other": 0.006632
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000145
         },
         "workers": 1,
-        "peak_memory_bytes": 69832704,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 60,
-        "cells_read": 917,
-        "executed": 16,
-        "reused": 0,
+        "peak_memory_bytes": 66879488,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 15,
         "skipped": 0
       },
       "analyses": [
@@ -21205,7 +21164,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "8a775269c4ea08999237f6e91f20222b2268af3ea2cad9f406b353fba9cb1074",
+          "key": "8c83d398580113f8252ce32328de70974783c67f8e7c22c346b41d3c42f68995",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -21864,86 +21823,6 @@
           }
         },
         {
-          "id": "numeric_histogram:$.customers[]:f7",
-          "analyzer": "numeric_histogram",
-          "analyzer_version": 1,
-          "dataset": "$.customers[]",
-          "field": "f7",
-          "display": "address.postal_code",
-          "method": "dense_counts",
-          "parameters": {
-            "domain": 42012
-          },
-          "domain": "analytical",
-          "key": "bdf021a754f9559c09f7b155fe83803d7683676aeaeb0bd4f83421694bec5261",
-          "status": "complete",
-          "result": {
-            "kind": "dense_counts",
-            "count": 51,
-            "min": 33000,
-            "max": 75011,
-            "distinct": 5,
-            "values": [
-              {
-                "value": 33000,
-                "count": 7
-              },
-              {
-                "value": 44000,
-                "count": 8
-              },
-              {
-                "value": 59000,
-                "count": 11
-              },
-              {
-                "value": 69003,
-                "count": 15
-              },
-              {
-                "value": 75011,
-                "count": 10
-              }
-            ],
-            "modes": [
-              69003
-            ],
-            "modes_truncated": false,
-            "median": {
-              "level": 0.5,
-              "value": 59000,
-              "accuracy": "exact"
-            },
-            "quantiles": [
-              {
-                "level": 0.05,
-                "value": 33000,
-                "accuracy": "exact"
-              },
-              {
-                "level": 0.25,
-                "value": 44000,
-                "accuracy": "exact"
-              },
-              {
-                "level": 0.5,
-                "value": 59000,
-                "accuracy": "exact"
-              },
-              {
-                "level": 0.75,
-                "value": 69003,
-                "accuracy": "exact"
-              },
-              {
-                "level": 0.95,
-                "value": 75011,
-                "accuracy": "exact"
-              }
-            ]
-          }
-        },
-        {
           "id": "numeric_histogram:$.customers[]:f20",
           "analyzer": "numeric_histogram",
           "analyzer_version": 1,
@@ -21955,7 +21834,7 @@
             "domain": 3
           },
           "domain": "analytical",
-          "key": "635fadb99d1597f564cdf2e63aae81c9773251a93c256730bbb7b4698d1bb7f1",
+          "key": "2d888343086f00655971ffd8aa86505c8b9d83cfcb4d1ebbfa2c00459934b397",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -22028,7 +21907,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "7fd320684d0616eebee9e0d127249cd829226b219ca4885d8bd4c80e5e0efc85",
+          "key": "c5580954ca2e80a133336f7102f4611c3be5238a70f9ad87bb1d415e21f65ae3",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -22306,7 +22185,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "bc590d47ac47d39fdad2d8718a65095730e4694e91850681454bb5eaf8787f68",
+          "key": "1ab25a4bbbce35f10bb0f3366e682b12549aa6d31bea649a27a13a62c7ff89c5",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -22583,7 +22462,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "f53895d4463bfe2d150c1f2be2df80d6170c6e241856b7593f4eefe821b5196d",
+          "key": "c3cb9a257c3225f2bec2645e42ef6f4b3e382d7a12c62f73ea9c309d42fe2770",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22620,7 +22499,7 @@
             "patterns": 2
           },
           "domain": "original",
-          "key": "1baf037832dc685b52340b2a0db0bce4d64509b6e0862eee5d816db9e9a86ce0",
+          "key": "45a7291384a20ebd98697d95be1b4e381038963a12e54783c0e3bf239e5f1add",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22670,7 +22549,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "ded6a958123d9be5b6b8a2360189fec5f395568b5012a6facbd181d4e8c9040d",
+          "key": "eb992c06086c28fd376ba9ec7d9bf25402fff82414a62554fab87c4d1a1d99b9",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22707,7 +22586,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "ee52e8f89d98cd0e1a509ab9e0055308cbff606a72cb6ae0f687ca5df93b369b",
+          "key": "0aeb1b7f1bb252a4b5677e5314afe06deec5308dbda4e4d8985b24d799fad1db",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22744,7 +22623,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "cc71967307e1af25fe369ca0bb74304977db2cc84ac31d228a1bfcbc44cae44d",
+          "key": "f4ccac52639d2ba8f1d65da22afe9f7e3e74cc5024d4b1bfe20f7354ab6fb047",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22781,7 +22660,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "111b987dbd493c4918c3c8f336ee51d90833eea682f7c72a598942d3d7e57964",
+          "key": "1fca7bb184bebfa5ee8d717b8373b4594740a75f0f07cca2817600db18069fc0",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22818,7 +22697,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "964d0699d50b06eb3dc789d950c1bc8cccc8240b6e9511e2b800e1d8ef6a173f",
+          "key": "69975152a7325b16a11594b2fd01dd44846ba9e69a8a71aaf4c9486fdc54e207",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -22856,7 +22735,7 @@
             "periods": 359
           },
           "domain": "analytical",
-          "key": "fde105e7153949d68e1a39362ec33ae983a1522fd148132679531280a2f9b9f2",
+          "key": "5b504d51c571028203ce66ea83487223337857fbdd64b621b0075f7871056f7f",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -23119,7 +22998,7 @@
             "periods": 240
           },
           "domain": "analytical",
-          "key": "2051887b493cb0ed1c5617cedf07b4ec97aa082bd0e379239317f3550922e018",
+          "key": "451b54b74548f12d948538da4d5e35f2a9eadfce5cbd10dfa1354c9dc5e06546",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -23524,7 +23403,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "e5d9b0d0e44ddb87e104e90bfb102621835e5aabcd7f6967cb392f50df586653",
+          "key": "0f9f804937ae57511c9ed8693947a853b2568b9fcb50fb7de15e714897abadf1",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -23825,7 +23704,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "daf739ac5b103266dc49ffa70b4b249a573ab961ce02c73f77308feac940963e",
+          "key": "4ac9a6b2e0ad1a1ee7a05cfb01e3cc083a49eb7e2bb94b273b1512e5b3b52230",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -24100,12 +23979,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-11T01:27:50.788082Z",
+    "generated_at": "2026-10-12T00:29:52.198667Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1928,
+    "processing_seconds": 0.1078,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -24135,11 +24014,11 @@
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "engine_version": "0.7.0",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
       "config_sha256": "41457814799ce6b722db24877dce5fcf15d6022128f7c0bf6de8edd10a43f7f1",
-      "facts_sha256": "f6e2330b10b086f3c6c120aaf70788c648a36158ab014dbd82ba35ccbcf532e7"
+      "facts_sha256": "69a1e2a37db20882a16c6204a1bd28faaf88b5588aeeb7947bfc75f3137e0b6f"
     },
     "datasets": [
       {
@@ -24158,7 +24037,7 @@
           "empty_row_count": 0,
           "empty_column_count": 0,
           "constant_column_count": 1,
-          "numeric_column_count": 4,
+          "numeric_column_count": 3,
           "date_column_count": 2,
           "string_column_count": 10,
           "inferred_type_counts": {

@@ -213,10 +213,28 @@ class CrosstabSettings(BaseModel):
     explore_min_rows: int = Field(default=30, ge=4)
 
 
+class MeasureSettings(BaseModel):
+    """How the values with a unit, a currency marker or a percent sign are
+    extracted (design 20.19).
+
+    ``max_groups`` markers or units at most get metrics of their own, the most
+    frequent first; the others are summed up in ``other``. ``max_values``
+    distinct pairs of a marker and a number are counted exactly; beyond, every
+    group goes on in bins whose width is a power of two, with exact counts and
+    moments and estimated quantiles. Both are part of the key of a result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_groups: int = Field(default=20, ge=1, le=1_000)
+    max_values: int = Field(default=100_000, ge=1, le=10_000_000)
+
+
 class DeepSettings(BaseModel):
     """What the second pass computes beyond the plan: the number of bins of a
-    histogram and where their bounds come from, and how pairs of numeric
-    columns and tables of categories are chosen.
+    histogram and where their bounds come from, how pairs of numeric columns
+    and tables of categories are chosen, and how values with a unit are
+    extracted.
 
     ``linear`` splits the exact range of the Scan into bins of equal width;
     ``sample_quantile`` places the inner bounds at quantiles of the row sample
@@ -232,6 +250,7 @@ class DeepSettings(BaseModel):
     bin_strategy: BinStrategy = "linear"
     pearson: PearsonSettings = Field(default_factory=PearsonSettings)
     crosstab: CrosstabSettings = Field(default_factory=CrosstabSettings)
+    measures: MeasureSettings = Field(default_factory=MeasureSettings)
 
     def sha256(self) -> str:
         """Digest of the settings, for the document that used them."""

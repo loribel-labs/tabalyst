@@ -30,6 +30,7 @@ from tabalyst.scanner.measures import Unrepresentable
 from tabalyst.scanner.models import DatasetResult, FieldResult, ScanResult
 from tabalyst.scanner.observations import StreamItem
 from tabalyst.scanner.paths import FieldPath
+from tabalyst.scanner.planner.analyzers.measures import measure_memo
 from tabalyst.scanner.planner.costmodel import (
     EXACT_SET_STATE_PREFIX,
     PERIOD_MEMO_ENTRIES,
@@ -52,6 +53,10 @@ from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.document import analysis_domain, analysis_key
 from tabalyst.scanner.secondpass.exactset import MEMORY_BUDGET, ExactPool, ExactSet
 from tabalyst.scanner.secondpass.frequencies import FrequencyAccumulator
+from tabalyst.scanner.secondpass.measures import MeasureAccumulator
+from tabalyst.scanner.secondpass.measures import (
+    derive_from_samples as measures_from_samples,
+)
 from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     AnalysisResult,
@@ -89,6 +94,7 @@ Accumulator = (
     | FrequencyAccumulator
     | PatternAccumulator
     | PeriodAccumulator
+    | MeasureAccumulator
     | PairAccumulator
     | CrosstabAccumulator
 )
@@ -322,6 +328,19 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
             str(candidate.parameters["granularity"]), temporal.kinds[0].kind
         )
         return
+    if candidate.analyzer == "measure_extraction":
+        parameters = candidate.parameters
+        measures = MeasureAccumulator(
+            str(parameters["detector"]),
+            max_groups=int(parameters["max_groups"]),
+            max_values=int(parameters["max_values"]),
+            bins=int(parameters["bins"]),
+            cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        job.accumulator = measures
+        if not candidate.execution.requires_source:
+            measures_from_samples(measures, field, cells)
+        return
     if candidate.analyzer == "length_distribution":
         job.accumulator = LengthAccumulator()
         return
@@ -405,6 +424,9 @@ def _finish(job: _Job) -> _Finished:
         assert partner is not None
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(source, field, partner))
+    if isinstance(accumulator, MeasureAccumulator):
+        source = "source" if job.candidate.execution.requires_source else "samples"
+        return _Finished("complete", accumulator.result(field, source))
     if isinstance(accumulator, PeriodAccumulator):
         assert field.temporal.status == "complete"
         stats = field.temporal.value
@@ -660,7 +682,10 @@ def run_second_pass(
                 route.patterns = accumulator
             elif isinstance(accumulator, PeriodAccumulator):
                 route.periods = accumulator
-                route.memo_entries = PERIOD_MEMO_ENTRIES
+                route.memo_entries = max(route.memo_entries, PERIOD_MEMO_ENTRIES)
+            elif isinstance(accumulator, MeasureAccumulator):
+                route.measures = accumulator
+                route.memo_entries = max(route.memo_entries, measure_memo(accumulator.cell_ns))
             else:
                 route.numeric = accumulator
             job.route = route
