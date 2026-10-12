@@ -319,6 +319,9 @@ def test_the_estimate_of_the_selection_grows_with_the_distinct_share_of_the_test
     results = []
     for source in (few, many):
         result = scan(source)
+        # The reading time of a file this small is noise, and the estimate adds it.
+        timings = result.run.timings.model_copy(update={"reading": 0.0})
+        result = result.model_copy(update={"run": result.run.model_copy(update={"timings": timings})})
         plan = plan_sampling(result, size=100)
         results.append((distinct_share(plan, result), estimate_selection(plan, result).estimate.high_seconds))
 
