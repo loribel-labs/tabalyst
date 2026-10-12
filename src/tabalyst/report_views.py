@@ -291,6 +291,79 @@ class ColumnAnalyses(ResultModel):
     frequencies: FrequencyTable | None = None
 
 
+InsightKind = Literal["exact", "estimated", "sample", "at_least"]
+
+
+class InsightFact(ResultModel):
+    """One figure of an insight card, in words, with the accuracy of the figure
+    itself: a card can hold exact counts beside an estimated median."""
+
+    label: str
+    value: str
+    kind: InsightKind = "exact"
+    note: str | None = None
+
+
+class InsightBar(ResultModel):
+    """One bar of a distribution: the exact count of a range of values and its
+    share of the values the distribution counts."""
+
+    label: str
+    count: int
+    share: float
+
+
+class InsightBars(ResultModel):
+    """A distribution drawn as bars. ``kind`` is the accuracy of the counts."""
+
+    caption: str
+    kind: InsightKind = "exact"
+    items: list[InsightBar]
+    note: str | None = None
+
+
+class InsightTable(ResultModel):
+    """A small table of an insight card. The cells are text; ``code`` lists the
+    columns whose cells are values of the data, shown as code. ``kind`` is the
+    accuracy of the figures of the table."""
+
+    caption: str
+    kind: InsightKind = "exact"
+    headers: list[str]
+    rows: list[list[str]]
+    code: list[int] = Field(default_factory=list)
+    note: str | None = None
+
+
+class InsightCard(ResultModel):
+    """What one analysis found, laid out for a reader (design 20.19 to 20.28):
+    figures, distributions and tables, each qualified by its accuracy. It is
+    derived when a page is rendered, from the document alone, and never
+    serialized. ``fields`` are the ids of the columns it concerns; ``source``
+    says where its figures come from: the second pass, or the Scan."""
+
+    id: str
+    family: str
+    title: str
+    column: str
+    fields: list[str]
+    source: Literal["second_pass", "scan"] = "second_pass"
+    summary: str = ""
+    facts: list[InsightFact] = Field(default_factory=list)
+    bars: list[InsightBars] = Field(default_factory=list)
+    tables: list[InsightTable] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+    @property
+    def kinds(self) -> list[str]:
+        """The accuracies that occur in the card, the exact one first."""
+        found = {fact.kind for fact in self.facts}
+        found.update(bars.kind for bars in self.bars)
+        found.update(table.kind for table in self.tables)
+        order = ("exact", "estimated", "sample", "at_least")
+        return [kind for kind in order if kind in found]
+
+
 class SecondPassRow(ResultModel):
     """One analysis of the second pass, in words: what it was, how it ended and
     what it found. ``kind`` is the accuracy of its figures (``exact``, ``at_least``
@@ -463,6 +536,7 @@ class ColumnView(ColumnProfile):
     limits: list[LimitView] = Field(default_factory=list)
     patterns: PatternView
     deep: ColumnAnalyses = Field(default_factory=ColumnAnalyses)
+    insights: list[InsightCard] = Field(default_factory=list)
 
     @property
     def has_quality_issues(self) -> bool:
@@ -490,3 +564,4 @@ class DatasetView(DatasetProfile):
     observation_column_count: int
     second_pass: SecondPassView = Field(default_factory=SecondPassView)
     relations: RelationsView = Field(default_factory=RelationsView)
+    insights: list[InsightCard] = Field(default_factory=list)

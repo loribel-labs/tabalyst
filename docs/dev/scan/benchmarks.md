@@ -1184,3 +1184,61 @@ The second pass reads the ambiguous numbers of `measure_extraction` in the conve
 The traced peak is the same (23 MB for the five columns). The differences are of the size of the drift between runs of one
 session (3 to 4 points, above), so the tiers of `NS_PER_CELL` and `COST_MODEL_VERSION` (11) stay as they are: the reading adds one
 comparison per matched value under `comma`, and a column that resolves ambiguous values holds more numbers in its table.
+
+## The matrix replayed, the cost model reviewed (Insight lot 20)
+
+Lot 20 replays the full matrix of lot 12 (`benchmarks/final_matrix.py --profile full`, all four tasks, two repeats, outputs
+under `D:/GIT.test/tabalyst/artifacts/lot20/`) with the analyzers of lots 13 to 17d, on `1072f3d` (Tabalyst 0.7.0, branch
+`scan-json/e`), and compares it with the table of lot 12 (`lot12/matrix-full`, three repeats). The machine is the same, and
+drifts: the Scan of the same file takes 9% to 17% more than in lot 12 in every case, which the interleaved comparison below
+shows is the machine and not the code.
+
+### The first pass, against the 0.7.0 base in the same session (PERF-06)
+
+`a024b8f` (the release preparation, a copy of the tree) against the head, task `scan`, three alternated series,
+`benchmarks/interleave.py`:
+
+| File | Base, three runs (s) | Head, three runs (s) | Paired change | Peak (MB), base then head |
+| --- | --- | --- | ---: | --- |
+| insurance-combined (1 M rows, 34 columns) | 13.44, 13.59, 13.18 | 13.31, 13.48, 13.38 | -0.8% | 776, 778 |
+| worst-width-1m (1 M rows, worst width) | 17.09, 16.82, 17.20 | 16.81, 17.21, 17.14 | -0.4% | 922, 925 |
+
+Lots 13 to 17d together stay far inside the guardrails (+20%, +35%, +10% of memory): the first pass costs what it cost in 0.7.0.
+
+### The matrix
+
+Every task of every case against lot 12 (medians, seconds; the Scan column is the drift of the machine):
+
+| Case | Scan | Report without second pass | Report (automatic) | Smart sample | Peak, Report |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| insurance-combined | +13.9% | +15.7% | +37.7% | +12.6% | +2.7% |
+| worst-width-1m | +11.9% | +13.8% | +16.5% | +12.3% | +2.3% |
+| many-lengths-500k | +12.3% | +10.8% | +12.4% | +12.5% | +2.6% |
+| long-text-60k | +9.0% | +8.0% | +14.4% | +9.4% | +2.1% |
+| high-cardinality | +10.5% | +12.0% | +12.8% | +8.2% | +2.2% |
+| short-ids | +12.3% | +14.3% | +15.8% | +14.7% | +3.1% |
+| repeated-550k | +15.8% | +15.1% | +14.2% | +8.5% | +2.2% |
+| wide-100 (200,000 rows) | +7.3% | +9.8% | +15.4% | +5.4% | +4.8% |
+| wide-500 | +8.9% | +12.1% | +13.3% | +7.2% | +0.2% |
+| wide-1000 | +17.2% | +9.8% | +10.2% | +7.9% | +0.6% |
+| growth-2M | +11.5% | +11.4% | +8.3% | +7.8% | +1.2% |
+| low-cardinality-2M | +5.8% | +5.6% | +5.1% | +11.5% | +3.6% |
+
+(the other cases, `transition-*`, `growth-250k` and `-500k`, `normalization-*`, `low-cardinality`, lie in the same bands; the full table is
+`lot20/matrix-full/results.md`). The memory of the Scan moves by +0.4% to +4.8%, with the plateau independent of the rows
+(`growth-2M` 816 MB against 810). The one outlier is the second pass of the realistic file (7.18 s then, 12.80 s now, 78% more,
+56% once the drift is taken out): it is the five pairs of `category_stats` that the Report picks by itself (lot 16c noted it,
+`automatic_stats` 8).
+
+### The levers
+
+| Question | Measure (realistic file, one scan, alternated runs of the executor, median of three) | Decision |
+| --- | --- | --- |
+| `deep.stats.automatic_stats` 0, 2, 4, 8 | second pass 10.7, 11.8, 15.3 and 15.4 s (the plan holds 5 pairs, so 4 and 8 choose almost the same) | 2 (maintainer, 2026-10-12): the second pass of the Report goes to 8.86 s (23.01 s the Report, against 27.42 s with 8) |
+| Ceiling of the tiers of the shape and of the parts (2,400 ns) | a forced plan is estimated between 61 and 239 s and takes 25 s (the model counts one process; the workers share the reading); with the measured costs (4,300 and 3,700 ns) the estimate is 67 to 261 s and the plan becomes `high`, so `--deep` asks for a confirmation | stays |
+| `pearson` 1,500 ns (measured 2,340 to 2,690 in lot 16) | same reasoning: it decides the class `moderate` of the pair, the estimate is already above the real time | stays |
+| Utility 40 of `numeric_shape` and `datetime_parts` | at 50 for the tiers few and mid: 49 and 57 analyses instead of 48, the second pass 15.19 and 15.77 s against 15.30 s (+3.0% for all), same peak memory (328 MB) | stays 40 (maintainer, 2026-10-12) |
+
+After the change of `automatic_stats` the two heaviest cases again, same session, two repeats: insurance-combined Report 23.01 s
+(second pass 8.86 s, peak 1,127 MB), worst-width-1m Report 31.26 s (second pass 13.37 s, peak 1,209 MB). `COST_MODEL_VERSION`
+stays 11 (no cost changes, a budget of the plan changes).

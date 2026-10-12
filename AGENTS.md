@@ -50,6 +50,11 @@ support is not yet required. Record format changes in the relevant changelogs.
   qualified counts), computed at render time, and the words they print. See
   `docs/dev/scan/design.md` 18.14. `report_relations.py` builds the Relationships
   section (tables of a category against a feature, correlations) from `analyses`.
+- `src/tabalyst/report_insights.py`: the insight cards of the report (values with a unit, shape of
+  the numbers, parts of the dates, values left out, repeated values, numbers by category, and the
+  measures derived from the Scan), each figure with its accuracy, computed at render time from
+  `analyses` alone; `templates/insights.html` is their macro, shared by the report and the column
+  pages.
 - `src/tabalyst/scan_reuse.py`: scan documents reused by the report, with the
   staleness rule.
 - `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation

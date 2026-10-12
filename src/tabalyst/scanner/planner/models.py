@@ -277,7 +277,7 @@ class Budgets(ScanModel):
     # 20.13).
     automatic_pairs: int = 8
     automatic_tables: int = 8
-    automatic_stats: int = 8
+    automatic_stats: int = 2
 
 
 class CommonCost(ScanModel):

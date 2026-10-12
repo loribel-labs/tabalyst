@@ -178,7 +178,8 @@ apply it to ambiguous values.
 Below the table, **Distribution over time** counts the valid dates of a column per
 day, month or year, exactly, when the second pass computed them. A date is placed
 by the date it is written with; ambiguous dates are counted apart and never
-placed. Open a column to see its periods; the table is the alternative to a chart.
+placed, unless the unambiguous dates of the column prove one day-month order: the
+second pass then reads them with it and the row says so. Open a column to see its periods; the table is the alternative to a chart.
 
 ## String analysis
 
@@ -238,7 +239,7 @@ such as a number or a masked column, says why on its own page.
 
 **Purpose:** show how one column goes with another, from the second pass. The section
 appears when the second pass computed a table of a category against a feature, or a
-correlation of two numeric columns, and sits before the Second pass section.
+correlation of two numeric columns, and sits before the Insights section.
 
 | Report part | Meaning | What to check |
 | --- | --- | --- |
@@ -256,6 +257,37 @@ it says *Unstable: low counts* instead of a word. A category or class of fewer t
 count is exact. A note under the tables says what the planner explored on the rows the
 scan sampled: a relation that sample does not show can still exist in the file.
 
+## Insights
+
+**Purpose:** show what the later analyses of the second pass found, one card per
+analysis and column, with the accuracy of each figure. The section appears when the
+second pass computed at least one of them, and sits before the Second pass section.
+The page of each column (`--details`) shows the cards that concern it, and what the
+report reads from the Scan for that column.
+
+| Family | What a card tells | What to check |
+| --- | --- | --- |
+| Values with a unit | The numbers read from amounts, percentages and quantities: how many, how many were ambiguous, invalid or not read, the numbers of each unit (minimum, median, mean, maximum) and their distribution. | Units are never converted. When a column mixes units, the overall figures are not shown and each unit is read alone. A percentage above 100 is counted, not corrected. |
+| Shape of the numbers | Skewness, excess kurtosis, quartiles, the outliers of Tukey (mild beyond 1.5 and far beyond 3 interquartile ranges), the decimals the numbers are written with, and two views of their spread: bins of equal ratio and bins of about equal counts. | The outliers are a rule of thumb, not errors. With many distinct numbers the quartiles are estimates and the outliers are given as a range. |
+| Parts of the dates | The day of the week, the hour, the month or year, the dates after a cut-off when one is configured, the invalid dates by reason and, for ambiguous dates, what each reading would change. | Dates are counted as written; an offset is never converted. The simulation changes nothing. |
+| Values left out | The values no pattern reads and the values a detector finds invalid or does not match, with their exact counts and first record, and every pattern over every occurrence. | A list is bounded when it says so; the counts of the values it holds stay exact. |
+| Repeated values | The values found more than once, their occurrences and first record, and the combinations of two columns when asked for. | Without the source, the first record is absent. |
+| Numbers by category | For each value of a category, its rows, how many have a number, and the minimum, median, mean and maximum, with the share of the variance the categories explain. | It shows an association between two columns, not a cause. |
+| Read from the Scan | On a column page only: the quartiles of the lengths, the values outside the listed frequencies, the dominant unit, the dates by decade and the empty periods. | Computed from the document, without reading the source. |
+
+Every figure carries its own label (see [How counts are
+qualified](#how-counts-are-qualified)), because one card can hold exact counts beside
+an estimated median: when the distinct numbers pass `deep.measures.max_values`, counts,
+sums and extremes stay exact and the quantiles are estimates between certain bounds.
+A card from a report built from a scan document says which figures come from the values
+the Scan kept.
+
+When the unambiguous values of a column prove how its ambiguous ones are written, the
+card says it: *150 read as DMY, proved by 150 unambiguous dates* for dates, or *75 with
+the decimal comma convention, proved by 150 unambiguous values* for numbers. The
+ambiguous values are then counted with the others. Values of a column with an exposure
+of `mask` or `hide` are never listed.
+
 ## Second pass
 
 **Purpose:** say what the second pass added to the report and what it left out. The
@@ -271,7 +303,8 @@ second pass existed.
 | Table | Each analysis with its status, what it found and its accuracy. | Exact counts are marked exact; a stopped distinct count is a lower bound. |
 | Footnote | Whether the source was read again and checked against the digest of the scan. | The source is checked, so no result mixes two versions of the file. |
 
-The second pass also completes figures elsewhere: the exact distinct count of a
+The results of the later analyses are laid out in [Insights](#insights). The second
+pass also completes figures elsewhere: the exact distinct count of a
 column the scan stopped counting (marked *2nd pass*), the median of a numeric
 column, the validated occurrences of each pattern and the distribution of dates
 over time.

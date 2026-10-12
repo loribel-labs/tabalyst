@@ -255,7 +255,7 @@ class StatsSettings(BaseModel):
     max_columns: int = Field(default=50, ge=2, le=200)
     max_work: int = Field(default=1_000_000, ge=1)
     max_candidates: int = Field(default=20, ge=0, le=1_000)
-    automatic_stats: int = Field(default=8, ge=0, le=1_000)
+    automatic_stats: int = Field(default=2, ge=0, le=1_000)
     explore_min_rows: int = Field(default=30, ge=4)
 
 

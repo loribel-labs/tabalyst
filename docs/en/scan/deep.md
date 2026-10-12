@@ -555,7 +555,7 @@ is the category, so that one relation does not take two places. A request can as
 the other direction.
 
 **What is automatic.** `tabalyst report` picks by itself the pairs whose `score` is
-0.45 or more, eight at most (`deep.stats.automatic_stats`). `--deep` takes every pair
+0.45 or more, two at most (`deep.stats.automatic_stats`). `--deep` takes every pair
 the plan lists, twenty at most, after asking if the estimate calls for it. The API can
 ask for any pair, even one that the sample did not show:
 `tabalyst.AnalysisRequest("category_stats", field="contract_type",

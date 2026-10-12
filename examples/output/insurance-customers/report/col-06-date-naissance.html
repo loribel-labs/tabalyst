@@ -596,9 +596,35 @@ td.ex .tip.show{display:block}
 .rel-grid td.rel-c.dom{box-shadow:inset 0 -2px 0 var(--d3)}
 .rel-grid td.rel-c.exc b{color:var(--attn-text)}
 .rel-grid tfoot th,.rel-grid tfoot td{border-top:1px solid var(--line-strong);font-weight:600}
+
+/* Insight cards (second-pass results laid out with their accuracy) */
+.ins{border:1px solid var(--line);border-radius:var(--r-md);background:var(--g-card);box-shadow:var(--hl);padding:4px 16px 14px;margin-top:var(--joint);min-width:0}
+.ins-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.ins-h .subh{margin:14px 0 4px;min-width:0;overflow-wrap:anywhere}
+.ins-acc{display:inline-flex;flex-wrap:wrap;gap:6px}
+.ins-sum{margin:0 0 8px;font-size:12.5px}
+.ins-facts{margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 var(--joint)}
+.ins-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
+.ins-facts dt{flex:0 0 auto;max-width:50%;color:var(--text-2);font-size:13px;overflow-wrap:break-word}
+.ins-facts dd{margin:0;font:500 12.5px/1.4 var(--f-mono);color:var(--text);text-align:right;min-width:0;flex:1 1 0;overflow-wrap:anywhere}
+.ins-bars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:4px var(--joint);margin-top:14px}
+.ins-bars{min-width:0}
+.ins-bars .rcard-title{margin-bottom:6px;font-size:13px}
+.ins-bar{display:grid;grid-template-columns:minmax(64px,28%) 1fr auto;align-items:center;gap:10px;padding:2px 0;font:400 12px/1.4 var(--f-mono);color:var(--text-2)}
+.ins-bar .l{min-width:0;overflow-wrap:anywhere}
+.ins-bar .tr{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.ins-bar .tr span{display:block;height:100%;min-width:2px;background:var(--d2);border-radius:3px}
+.ins-bar b{font-weight:500;color:var(--text);text-align:right;white-space:nowrap}
+.ins-bar b small{margin-left:8px;color:var(--text-3);font-weight:400}
+.ins-cap{margin:16px 0 6px}
+.ins td.ins-v{text-align:left}
+.ins td code{white-space:pre-wrap;overflow-wrap:anywhere}
+.ins-fam{margin:26px 0 0}
+@media (max-width:650px){.ins{padding:2px 12px 12px}.ins-facts>div{flex-direction:column;gap:2px}.ins-facts dt{max-width:none}.ins-facts dd{text-align:left;flex:none}.ins-bar{grid-template-columns:minmax(56px,34%) 1fr auto}}
 </style>
 </head>
 <body>
+
 
 
 
@@ -620,6 +646,7 @@ td.ex .tip.show{display:block}
     <a class="rep-tab" href="#scan-evidence"><small>09</small>Scan evidence</a>
     <a class="rep-tab" href="#sample"><small>10</small>Data sample<span class="ct">30</span></a>
 
+    <a class="rep-tab" href="#insights"><small>12</small>Insights<span class="ct">2</span></a>
     <p class="side-group">Navigation</p>
     <a class="rep-tab" href="../report.html"><small>↖</small>Full report</a>
   </nav>
@@ -671,6 +698,17 @@ td.ex .tip.show{display:block}
 </div></section>
 <section class="panel" id="sample" aria-labelledby="sample-h"><div class="phead"><div><p class="eyebrow">10 / Raw values</p><h2 id="sample-h">Data sample</h2><p>10 at the start, 10 sampled from the interior and 10 at the end, with original row numbers. The sampled rows are not uniform over the whole file.</p></div></div><div class="pbody"><div class="column-list"><div class="column-line"><b>Row 1</b><span class="pill">Start</span><span><code>1961-03-31</code></span></div><div class="column-line"><b>Row 2</b><span class="pill">Start</span><span><code>1983-01-14</code></span></div><div class="column-line"><b>Row 3</b><span class="pill">Start</span><span><code>1941-09-10</code></span></div><div class="column-line"><b>Row 4</b><span class="pill">Start</span><span><code>1936-12-13</code></span></div><div class="column-line"><b>Row 5</b><span class="pill">Start</span><span><code>1943-04-16</code></span></div><div class="column-line"><b>Row 6</b><span class="pill">Start</span><span><code>1979-07-29</code></span></div><div class="column-line"><b>Row 7</b><span class="pill">Start</span><span><code>1996-03-27</code></span></div><div class="column-line"><b>Row 8</b><span class="pill">Start</span><span><code>1958-01-22</code></span></div><div class="column-line"><b>Row 9</b><span class="pill">Start</span><span><code>1987-11-05</code></span></div><div class="column-line"><b>Row 10</b><span class="pill">Start</span><span><code>1981-09-04</code></span></div><div class="column-line"><b>Row 405</b><span class="pill">Sampled</span><span><code>1991-05-15</code></span></div><div class="column-line"><b>Row 427</b><span class="pill">Sampled</span><span><code>2003-09-05</code></span></div><div class="column-line"><b>Row 470</b><span class="pill">Sampled</span><span><code>2000-06-02</code></span></div><div class="column-line"><b>Row 493</b><span class="pill">Sampled</span><span><code>1965-01-15</code></span></div><div class="column-line"><b>Row 782</b><span class="pill">Sampled</span><span><code>1954-10-26</code></span></div><div class="column-line"><b>Row 1305</b><span class="pill">Sampled</span><span><code>20-05-1961</code></span></div><div class="column-line"><b>Row 1761</b><span class="pill">Sampled</span><span><code>1967-11-05</code></span></div><div class="column-line"><b>Row 2020</b><span class="pill">Sampled</span><span><code>1971-10-07</code></span></div><div class="column-line"><b>Row 2044</b><span class="pill">Sampled</span><span><code>1961-01-05</code></span></div><div class="column-line"><b>Row 2277</b><span class="pill">Sampled</span><span><code>1972-10-12</code></span></div><div class="column-line"><b>Row 2991</b><span class="pill">End</span><span><code>17-04-1965</code></span></div><div class="column-line"><b>Row 2992</b><span class="pill">End</span><span><code>07-12-1967</code></span></div><div class="column-line"><b>Row 2993</b><span class="pill">End</span><span><code>21-11-1979</code></span></div><div class="column-line"><b>Row 2994</b><span class="pill">End</span><span><code>17-12-1968</code></span></div><div class="column-line"><b>Row 2995</b><span class="pill">End</span><span><code>14-01-1983</code></span></div><div class="column-line"><b>Row 2996</b><span class="pill">End</span><span><code>19-09-1951</code></span></div><div class="column-line"><b>Row 2997</b><span class="pill">End</span><span><code>22-12-1997</code></span></div><div class="column-line"><b>Row 2998</b><span class="pill">End</span><span><code>20-09-1967</code></span></div><div class="column-line"><b>Row 2999</b><span class="pill">End</span><span><code>01-10-1976</code></span></div><div class="column-line"><b>Row 3000</b><span class="pill">End</span><span><code>01-10-1949</code></span></div></div></div></section>
 
+<section class="panel" id="insights" aria-labelledby="insights-h"><div class="phead"><div><p class="eyebrow">12 / Insights</p><h2 id="insights-h">Insights<span class="n">(2)</span></h2><p>What the second pass found in the values of this column, and what the report reads from the Scan, with the accuracy of each figure.</p></div></div><div class="pbody"><article class="ins" id="c-i-4-residual-values-residuals" aria-labelledby="c-i-4-residual-values-residuals-h"><header class="ins-h"><h3 class="subh" id="c-i-4-residual-values-residuals-h">Values left out by patterns and detectors<span class="n"><code>date_naissance</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
+<p class="muted ins-sum">2,994 values read.</p>
+<dl class="ins-facts"><div><dt>Values read</dt><dd>2,994</dd></div><div><dt>Left out: date found them invalid</dt><dd>3 occurrences<small class="sub-n">1 distinct values</small></dd></div></dl>
+
+<p class="rcard-title ins-cap">Why date found them invalid <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Why date found them invalid"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Reason</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Occurrences</span></div></th></tr></thead><tbody><tr><th scope="row">invalid calendar date</th><td class="num">3</td></tr></tbody></table></div><p class="rcard-title ins-cap">Most frequent values left out (1) <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Most frequent values left out (1)"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Value</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Occurrences</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">First record</span></div></th></tr></thead><tbody><tr><th scope="row"><code>2026-13-40</code></th><td class="num">3</td><td class="num">296</td></tr></tbody></table></div><p class="rcard-title ins-cap">Detectors replayed on every value <span class="acc acc-exact" title="Counted on every value of the file">exact</span></p><div class="tscroll" tabindex="0" role="region" aria-label="Detectors replayed on every value"><table class="dtable"><thead><tr><th scope="col"><div class="hc"><span class="ht">Detector</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Eligible</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Matched</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Ambiguous</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Invalid</span></div></th><th scope="col" class="r"><div class="hc"><span class="ht">Not matched</span></div></th></tr></thead><tbody><tr><th scope="row"><code>date</code></th><td class="num">2,994</td><td class="num">2,635</td><td class="num">356</td><td class="num">3</td><td class="num">0</td></tr></tbody></table></div>
+</article><article class="ins" id="c-s-column_6" aria-labelledby="c-s-column_6-h"><header class="ins-h"><h3 class="subh" id="c-s-column_6-h">Read from the Scan<span class="n"><code>date_naissance</code></span></h3><span class="ins-acc"><span class="acc acc-exact" title="Counted on every value of the file">exact</span></span></header>
+<p class="muted ins-sum">Derived from the Scan, without reading the source again.</p>
+<dl class="ins-facts"><div><dt>Values outside the listed frequencies</dt><dd>2,791 of 2,994 (93.2%)</dd></div><div><dt>Dates by decade</dt><dd>1930s 107, 1940s 376, 1950s 378, 1960s 416, 1970s 354, 1980s 368, 1990s 329, 2000s 307</dd></div></dl>
+
+
+</article></div></section>
 </main></div><footer class="foot" aria-label="About Tabalyst"><div class="wrap"><div class="foot-in"><div><a class="brand" href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer" aria-label="Tabalyst official website">Tabalyst<span class="ver">v0.7.0</span></a><p>Local-first CSV and JSON profiling.</p></div><nav aria-label="Tabalyst links"><a href="https://tabalyst.com/" target="_blank" rel="noopener noreferrer">Official website <span aria-hidden="true">↗</span></a><a href="https://docs.tabalyst.com/" target="_blank" rel="noopener noreferrer">Documentation <span aria-hidden="true">↗</span></a><a href="https://github.com/loribel-labs/tabalyst" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav></div><div class="foot-meta"><span>Tabalyst © 2026 Gregory Borelli · MPL-2.0 · Open source project by Loribel Labs</span><span>Report generated locally</span></div></div></footer></div></div>
 <script>// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this

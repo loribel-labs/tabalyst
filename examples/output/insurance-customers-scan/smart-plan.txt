@@ -1,4 +1,5 @@
-Plan for insurance-customers.csv (plan 46fecfd91265, planner 1).
+Scan: D:\GIT.test\tabalyst\artifacts\lot20\home-demos\workspaces\local\scans\a1f69c6521b37d26018f49b765cadde6f13f12c40882401f306296172212d9ef\scan.json (reused)
+Plan for insurance-customers.csv (plan 6adec39e0d86, planner 1).
 199 candidates: 66 selected, 70 already answered by the scan, 63 left out.
 
 Selected:

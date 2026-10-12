@@ -188,7 +188,7 @@ def test_a_report_without_relations_has_no_section_and_no_tab(tmp_path):
     assert not _view(profile).available
     assert 'id="relationships"' not in html and ">Relationships<" not in html
     # The sections that follow keep their numbers.
-    assert "12 / Second pass" in html and "14 / Raw values" in html
+    assert "13 / Second pass" in html and "15 / Raw values" in html
 
 
 def test_a_report_of_an_earlier_build_without_analyses_has_no_relationships(tmp_path):

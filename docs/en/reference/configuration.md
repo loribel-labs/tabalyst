@@ -251,7 +251,7 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.crosstab.max_exception_cells` | `20` | Cells of exceptions a table lists at most, the largest first, from 1 to 1,000; the result says whether that was all of them. Changing it computes the tables again |
 | `deep.crosstab.rule_purity`, `deep.crosstab.rule_support` | `90`, `30` | A category gives a candidate rule when at least `rule_support` counted rows are in its dominant class and `rule_purity` percent of them |
 | `deep.crosstab.max_columns`, `deep.crosstab.max_work` | `50`, `1000000` | Columns explored for tables, and tables times rows coded by the exploration of the row sample |
-| `deep.crosstab.max_candidates`, `deep.crosstab.automatic_tables` | `20`, `8` | Tables the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A table is picked when its corrected Cramér's V is 0.45 or more |
+| `deep.crosstab.max_candidates`, `deep.crosstab.automatic_tables` | `20`, `2` | Tables the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A table is picked when its corrected Cramér's V is 0.45 or more |
 | `deep.crosstab.explore_min_rows` | `30` | Rows a table needs in the sample for the exploration to score it |
 | `deep.stats.max_categories` | `30` | Categories the numbers are described for, the most frequent; the others are `other`. From 2 to 200. Changing it computes those analyses again |
 | `deep.stats.bins` | `50` | Bins every category is counted in, placed as `deep.bin_strategy` says, from 2 to 1,000. Changing it computes those analyses again |

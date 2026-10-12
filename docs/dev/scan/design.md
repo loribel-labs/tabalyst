@@ -76,6 +76,7 @@ lot, with the reason recorded in section 17.
 | O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
 | O49 | Insight lot 15: the values that patterns and detectors leave out | The analyzer `residual_values` keeps, per field, the values no candidate pattern reads and the values of up to three replayable detectors (`replayable()`: value scope, strings only) that are `invalid` or `not_matched`, with exact counts (a value is tracked from its first appearance, up to `deep.residuals.max_tracked`), the reasons of the invalid ones and, when the source is read, the record of the first occurrence. Each candidate pattern gets an example, its first record and its distinct values over every occurrence (an `ExactSet` of the run's pool). When the Scan holds every distinct value with its exact count the result follows from them, without records (D1); `deep.residuals.records` reads the source anyway. The detector counts are checked against the coverage of the Scan. The record number is handed to the routes (`strings(column, start)`, `string(value, record)`). Second-pass document revision 2 (same release). | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.20, 20.5, 20.7 |
 | O50 | Insight lot 15: the repeated values of identifiers and keys | The analyzer `duplicates_report` lists the values found more than once in a column of almost all different values (a proven unique column is `already_satisfied`), with exact counts and, when the source is read, the first record. Values are 128-bit BLAKE2b digests with the record of their first occurrence, charged to the pool of the exact sets; a search the pool stops is `duplicates_limited`. A combination of two columns is searched on request only (`AnalysisRequest(partner=)`): `DuplicatesReport` is also a `PairAnalyzer` with `per_field`. `deep.duplicates` holds `max_listed`, `max_tracked`, `records`. | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.21, 20.5 |
+| O58 | Insight lot 20: the Report reads the later analyses with the accuracy of each figure | The Report prints, from the document alone, one insight card for each result of the values with a unit, the shape of the numbers, the parts of the dates, the values left out, the repeated values and the numbers by category, and the measures derived from the Scan, each fact, distribution and table with its own kind (exact, estimated, sample, at least). A section Insights (before the Second pass) and a section of the column page hold them; the Dates section says how many ambiguous dates the evidence read. No format changes. The cost model is reviewed with the matrix: the ceiling of the tiers of 17a and 17b, `pearson` and the utility 40 stay; `automatic_stats` goes from 8 to 2 (the second pass of the realistic file: 15.4 s to 11.8 s). Lots 18 and 19 are reported after the milestone. | Accepted 2026-10-12 (maintainer, lot 20; Porte E pending) | 20.29, 20.17, 18.14 |
 | O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
 | O55 | Insight lot 17c: ambiguous dates read by the evidence of the column | In the second pass the ambiguous dates (`03/04/2020`) are read in the order that the unambiguous dates of the column prove when only one of `DMY` and `MDY` occurs, whatever the separators and the year-first dates, and counted with the others (`DateResolution`, plan parameter `date_order`, `deep.datetime.infer_order`, `deep.datetime.min_evidence`, 3 proofs at least); with both orders or none they stay ambiguous; `ambiguous_order` of the configuration wins. It reverses, for the second pass only, the rule of 12.6 that the evidence is exposed and never applied. | Accepted 2026-10-12 (maintainer) | 20.26, 12.6, 20.10 |
@@ -1808,6 +1809,7 @@ makes by itself writes none.
 | 2026-10-12 | IN-20 | New decision O55, new section 20.26: `inferred_order`, `date_evidence`, `DateResolution`, `CellReader.cells(dates=<order>)`, `deep.datetime.infer_order`, the plan parameter `date_order`. | Insight lot 17c: the maintainer's rule for ambiguous dates. |
 | 2026-10-12 | IN-22 | New decision O57, new section 20.28: `MeasureFacts.convention` and `readable`, the plan parameter `number_convention`, the reason `ambiguous_numbers_read_by_evidence`, `CellReader.cells(convention=)` and `measure_detector(detector, convention)`, `Measure.resolved`, `MeasureAccumulator.convention` and `resolved`, `NumberResolution`, `MeasureResult.resolved` and `resolution`, `dotted_thousands` for a format with affixes. | Insight lot 17d.2b: values with a unit follow the rule of the numbers. |
 | 2026-10-12 | IN-21 | New decision O56, new section 20.27, notes in 9.4 and 12.6: `scanner/convention_rule.py` (`single_reading`, `NumberRule`, `scan_convention`), `ThousandsReadings` and `NumericAccumulator.absorb`, `DetectorSet.number_convention`, `CellReader.for_field`, `detectors.number.infer_convention` and `min_evidence`, `resolution` with `source: evidence`. | Insight lot 17d.2a: the maintainer's rule for ambiguous numbers (gate N). |
+| 2026-10-12 | IN-23 | New decision O58, new section 20.29, a row in 20.17: `report_insights.py`, `InsightCard`, `templates/insights.html`, the Insights sections of the Report and of the column page, the resolution of the dates in the Dates section, `tests/scan/test_report_insights_html.py`, `test_explore_06`, `automatic_stats` 2. | Lot 20 of the Insight milestone: the Report reads what lots 13 to 17d add, the cost model is reviewed with the replayed matrix. |
 
 ## 18. Bottom-k samplers (O26, O28)
 
@@ -4117,6 +4119,7 @@ what a Scan, a Report and a second pass give it, so that it can be built without
 | Global profile against filtered result (EXPLORE-03) | Every count names its population and domain (`domain`, `scope`, `population`); nothing in the profile is the count of a selection | A filtered count comes from a query or an analysis whose scope names the filter; the counts of the Scan are never shown as counts of the selection |
 | Reuse of a second pass (EXPLORE-04) | `<stem>.deep.json` and the `analyses` member of a Report, keyed by the source, the settings and the engine (`PlanBase`); a result that matches the source and the scope is reused (`run.reused`) | A different scope (a filter) is a different analysis. A facet of patterns uses the feature and the version of its validation; a column of high cardinality is better served by a search or a range than by a list of values |
 | Initial profile (EXPLORE-05) | A Report is autonomous: it carries the Scan base and the analyses, and its HTML is rendered from the JSON alone | Reading the rows still needs the source or a valid cache |
+| Later analyses (lot 20) | The results `measures`, `numeric_shape`, `datetime_parts`, `residual_values`, `duplicates`, `category_stats` of a forced second pass: each has a `kind` to dispatch on and an `accuracy` (`exact`, or `exact_counts` when the quantiles of a grid are estimates with certain bounds); a facet shows the distribution of the shape of the numbers, the weekday, the hour or the unit without the source | The Report prints them as insight cards (20.29); a card is derived at render time and is not part of any format. `tests/scan/test_explore_contract.py` keeps it true |
 
 Decisions. Explore never edits a Scan, a Report or a second-pass document; it reads them, and writes its own
 documents. The backend that serves the rows is its own choice and is outside this work.
@@ -4401,7 +4404,7 @@ square root. The class `other` (the categories beyond `max_categories`) is count
 the ratio. Undefined, never 0: `too_few_rows` (fewer than `explore_min_rows`, or no more rows than groups),
 `single_category`, `no_variance` (all the numbers equal). The exploration rounds to six decimals; the utility is 100
 times the score (reason `exploratory_correlation_ratio`) and the planner picks by itself the pairs of 45 or more,
-`automatic_stats` (8) at most (`stats_budget`).
+`automatic_stats` (8 until lot 20, then 2; 20.29) at most (`stats_budget`).
 
 **Executor (`secondpass/stats.py`).** The category goes through the `CodeFeed` of 20.13 (key `category:<max_categories>`,
 shared with the tables) and the number through the `ColumnFeed` of 20.12 (key `number`, shared with the correlations), so
@@ -4663,6 +4666,57 @@ values prove it. `percent_range` counts the resolved percentages too.
 **Limits.** The residual values (20.20) replay the Scan's own reading, so an ambiguous value stays ambiguous there. No proof is
 borrowed from another detector or column: a column of quantities is proved by the `quantity` detector alone. The second pass stays
 at revision 2 (same release).
+
+### 20.29 The Report reads the later analyses (Insight lot 20, O58)
+
+The Report printed one sentence for each result of lots 14 to 17d (the Second pass table, 18.14). Lot 20 lays the results out
+with the accuracy of each figure, from the document alone (HTML-01, F01): no source, no recomputation, nothing written to any
+format (the Report stays at revision 3 of its family, the second pass at revision 2).
+
+**Cards.** `report_insights.py` turns a `complete` or `limited` result into an `InsightCard` (`report_views.py`: `facts`, `bars`,
+`tables`, `notes`; never serialized). One family each: `measures` (values with a unit), `shape`, `parts`, `residuals`,
+`duplicates`, `categories` (`category_stats`), and `scan` (what `report_measures.py` derives from the Scan: quartiles of the
+lengths, tail of the frequencies, dominant unit, decades, empty periods; shown on the column page only). `dataset_insights` lists
+the cards of a dataset by family; `ColumnView.insights` holds those of a column, a pair belonging to both of its columns. The
+macro is `templates/insights.html`, shared by the Report (section 12, Insights, before the Second pass; the sections after it
+move to 13 to 16) and the column pages (section 12). The Dates section also says, for the periods, how many ambiguous dates the
+evidence read (`PeriodCounts.resolution`).
+
+**Accuracy.** Every fact, distribution and table carries its own kind (`exact`, `estimated`, `sample`, `at_least`): a card can
+hold exact counts beside an estimated median. `exact_counts` results (storage `grid`) have exact counts, sums and extremes and
+estimated quantiles with their certain bounds (`Quantile.lower`, `upper`), and the outliers of Tukey are written as a range
+(`certain` to `possible`). The moments (skewness, kurtosis) are float64 with a stated relative error. A distribution is merged
+into at most 16 bars by summing consecutive bins (the counts stay exact); the weekday, the hour and the month are not merged
+(a year beyond 36 months). A list of values shows 15 rows and a table of categories 25; the document holds the rest and the card
+says so when it is bounded.
+
+**Reading the evidence.** The card of the values with a unit says how many ambiguous numbers were read in which convention and by
+how many unambiguous values (`NumberResolution`, 20.27, 20.28); the card of the parts of the dates does the same for the order
+(`DateResolution`, 20.26) and prints the simulation of the ambiguous dates under each order, which applies nothing.
+
+**Exposure.** The planner already leaves a field with exposure `mask` or `hide` out of the second pass; the cards check it again
+at render time (a document can be edited): a hidden or masked column lists no value, only counts.
+
+**Cost model, reviewed with the matrix (lot 20).** Measures in `benchmarks.md`, lot 20. (1) The ceiling of the upper tiers of
+`numeric_shape` and `datetime_parts` (2,400 ns, the top of `moderate`, 20.24, 20.25) stays: on the realistic file a forced plan
+is estimated between 61 and 239 s and takes 25 s (the model counts one process and the second pass runs in workers), so the
+estimate is not low; declaring the measured costs (4,300 and 3,700 ns) puts the tier `high`, which makes `--deep` ask for a
+confirmation (`cpu_over_automatic`) for a run of 25 s. `pearson` stays at 1,500 ns for the same reason (measured 2,340 to 2,690).
+(2) The utility 40 of the two analyses stays, which keeps them out of an automatic Report: choosing them for the tiers `few` and
+`mid` (utility 50) would add 3.0% to the second pass of the realistic file (57 analyses instead of 48, memory unchanged); the
+maintainer kept 40 (2026-10-12). (3) `deep.stats.automatic_stats` goes from 8 to 2: in the same session the second pass of the
+realistic file takes 10.7 s with 0 pairs, 11.8 s with 2, 15.3 s with 4 and 15.4 s with 8 (the plan only holds 5), because each pair
+reads its numeric column through the number detector, which the histogram route does not share; two pairs are the strongest by
+score (`type_contrat` against `montant_reclamation` and `prime_annuelle` in the demo), `--deep` still takes the 20 the plan lists.
+The key of a result does not depend on the budget, so nothing is computed again. Sharing the reading of a column between routes
+is the lever that would give the others back, and is left to a later lot.
+
+**Lots 18 and 19** (JSON, long texts and sensitive fields; drift by position and missing matrix) are not part of this milestone:
+they are reported after the Porte E, without any regression (nothing of lots 13 to 17d depends on them).
+
+**Limits.** The cards are derived, so a Report written by an earlier build shows them for the results it holds, and a result that
+a later build adds (a new kind) is ignored until the renderer learns it, never rebuilt from less. The Second pass table keeps its
+sentences, which `result_summary` still produces for every kind.
 
 ## 21. Original value domain (O32)
 

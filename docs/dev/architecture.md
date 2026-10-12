@@ -510,6 +510,9 @@ second pass, the profile and the files), so that `report_service.generate_report
 the whole batch of a forced second pass between the two. The renderer stays pure: `report_deep.py`
 builds the views of the `analyses` member (the Second pass section, the exact distinct count, the
 median, the validated patterns, the periods) and reads no source.
+`report_insights.py` (lot 20, design 20.29) builds from the same member the insight cards of the Report
+(`InsightCard`: facts, bars and tables, each with its own accuracy) and the figures derived from the Scan
+(`report_measures.py`); `templates/insights.html` is the macro the report and the column pages share.
 
 `scanner/lengthsample.py` (lot 3a) is the bottom-k per length, a stratum for each
 of a bounded number of lengths (design 18.7). `ValueSample` starts it when the

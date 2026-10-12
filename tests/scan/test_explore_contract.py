@@ -125,3 +125,26 @@ def test_explore_05_a_report_gives_the_initial_profile_without_the_source(tmp_pa
     # The profile still carries the identity of the source it describes, which is
     # what Explore checks before it trusts a cache of the rows.
     assert profile.source.sha256 and profile.source.size_bytes
+
+
+def test_explore_06_the_later_analyses_are_readable_with_their_accuracy_from_the_json(tmp_path):
+    source = write_text(tmp_path, "data.csv", HEADER + "\n" + "\n".join(ROWS) + "\n")
+    batch = generate_reports(
+        [source], output_dir=tmp_path / "forced", force=True, deep=True, confirmed=True
+    )
+    assert not batch.failures
+    document = json.loads((tmp_path / "forced" / "data.json").read_text(encoding="utf-8"))
+
+    results = [
+        item["result"]
+        for item in document["analyses"]["deep"]["analyses"]
+        if item["status"] in ("complete", "limited") and "result" in item
+    ]
+
+    kinds = {result["kind"] for result in results}
+    # A facet of Explore can read each of them without the source: a kind to
+    # dispatch on, and the accuracy of its counts (or of its quantiles).
+    assert {"numeric_shape", "datetime_parts"} <= kinds
+    for result in results:
+        if result["kind"] in ("numeric_shape", "datetime_parts", "residual_values", "measures"):
+            assert result["accuracy"] in ("exact", "exact_counts")
