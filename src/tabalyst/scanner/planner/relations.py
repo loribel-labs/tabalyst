@@ -161,7 +161,7 @@ def _explored(
     )
 
 
-def _column_state(facts: FieldFacts) -> str | None:
+def column_state(facts: FieldFacts) -> str | None:
     """Why a field cannot be a column of an exploration, from the Scan alone."""
     if facts.technical_type not in NUMERIC_TYPES:
         return NOT_NUMERIC
@@ -210,7 +210,7 @@ def explore_dataset(
     columns: list[_Column] = []
     fields_in_sample = set(usable.sample.fields)
     for item in numeric:
-        reason = _column_state(item)
+        reason = column_state(item)
         if reason is None and (
             item.field not in fields_in_sample or not usable.sample.covers([item.field])
         ):

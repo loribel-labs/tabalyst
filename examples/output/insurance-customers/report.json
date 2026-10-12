@@ -46159,6 +46159,16 @@
           "automatic_tables": 8,
           "explore_min_rows": 30
         },
+        "stats": {
+          "max_categories": 30,
+          "max_distinct": 100,
+          "bins": 50,
+          "max_columns": 50,
+          "max_work": 1000000,
+          "max_candidates": 20,
+          "automatic_stats": 8,
+          "explore_min_rows": 30
+        },
         "measures": {
           "max_groups": 20,
           "max_values": 100000
@@ -46176,13 +46186,13 @@
           "records": false
         }
       },
-      "settings_sha256": "7a4842b52162eb3e7078c59b2465e3f32f0edad3dfe9bb13b6e05c596b76ae57",
+      "settings_sha256": "87bb96be964ebcde6042e34a66cc448c5b786397afcd56662d19d2e4614d93c7",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 8,
-        "plan_id": "4a4b25fbc8d72d40c4dda7df8503687e8ccbe95ff93556242ebe0bee9b415b3f",
+        "cost_model_version": 10,
+        "plan_id": "53bc06b050092096fd8d95ef11ebbdfbcb87c5908c24d0f85e23931743d74180",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -46202,7 +46212,8 @@
           "automatic_max_cpu": "moderate",
           "overflow": "reject",
           "automatic_pairs": 8,
-          "automatic_tables": 8
+          "automatic_tables": 8,
+          "automatic_stats": 8
         },
         "common": {
           "requires_source": true,
@@ -46211,16 +46222,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 169,
-          "selected": 64,
+          "candidates": 189,
+          "selected": 66,
           "already_satisfied": 70,
-          "rejected": 35,
+          "rejected": 53,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 32776269,
-            "expected": 37438420,
-            "max": 54557088
+            "min": 33283321,
+            "expected": 38025348,
+            "max": 55357184
           },
           "beyond_automatic": []
         },
@@ -46273,6 +46284,31 @@
               "listed": 20,
               "work": 897300,
               "cells": 372
+            }
+          ],
+          "stats": [
+            {
+              "dataset": "rows",
+              "scope": "interior_rows",
+              "rows": 900,
+              "categories": 15,
+              "numeric": 4,
+              "excluded_categories": {
+                "identifier_like": 3,
+                "near_unique": 9,
+                "sensitive_exposure": 2,
+                "too_many_categories": 5
+              },
+              "excluded_numeric": {},
+              "possible": 60,
+              "evaluated": 60,
+              "undefined": 2,
+              "undefined_reasons": {
+                "single_category": 1,
+                "too_few_rows": 1
+              },
+              "listed": 20,
+              "work": 54000
             }
           ]
         },
@@ -46449,7 +46485,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 18,
+              "priority": 20,
               "satisfied_by": null
             },
             "execution": {
@@ -46525,7 +46561,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 19,
+              "priority": 21,
               "satisfied_by": null
             },
             "execution": {
@@ -46780,7 +46816,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 20,
+              "priority": 22,
               "satisfied_by": null
             },
             "execution": {
@@ -46891,7 +46927,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 21,
+              "priority": 23,
               "satisfied_by": null
             },
             "execution": {
@@ -46967,7 +47003,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 22,
+              "priority": 24,
               "satisfied_by": null
             },
             "execution": {
@@ -47656,7 +47692,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 23,
+              "priority": 25,
               "satisfied_by": null
             },
             "execution": {
@@ -47732,7 +47768,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 24,
+              "priority": 26,
               "satisfied_by": null
             },
             "execution": {
@@ -47844,7 +47880,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 47,
+              "priority": 49,
               "satisfied_by": null
             },
             "execution": {
@@ -47921,7 +47957,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 46,
+              "priority": 48,
               "satisfied_by": null
             },
             "execution": {
@@ -47998,7 +48034,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 48,
+              "priority": 50,
               "satisfied_by": null
             },
             "execution": {
@@ -48075,7 +48111,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 49,
+              "priority": 51,
               "satisfied_by": null
             },
             "execution": {
@@ -50098,7 +50134,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 26,
+              "priority": 28,
               "satisfied_by": null
             },
             "execution": {
@@ -50165,7 +50201,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 36,
+              "priority": 38,
               "satisfied_by": null
             },
             "execution": {
@@ -50269,7 +50305,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 41,
+              "priority": 43,
               "satisfied_by": null
             },
             "execution": {
@@ -50337,7 +50373,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 42,
+              "priority": 44,
               "satisfied_by": null
             },
             "execution": {
@@ -50404,7 +50440,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 27,
+              "priority": 29,
               "satisfied_by": null
             },
             "execution": {
@@ -50471,7 +50507,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 28,
+              "priority": 30,
               "satisfied_by": null
             },
             "execution": {
@@ -50538,7 +50574,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 37,
+              "priority": 39,
               "satisfied_by": null
             },
             "execution": {
@@ -50606,7 +50642,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 43,
+              "priority": 45,
               "satisfied_by": null
             },
             "execution": {
@@ -50673,7 +50709,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 29,
+              "priority": 31,
               "satisfied_by": null
             },
             "execution": {
@@ -50741,7 +50777,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 44,
+              "priority": 46,
               "satisfied_by": null
             },
             "execution": {
@@ -50808,7 +50844,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 32,
+              "priority": 34,
               "satisfied_by": null
             },
             "execution": {
@@ -50875,7 +50911,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 38,
+              "priority": 40,
               "satisfied_by": null
             },
             "execution": {
@@ -50942,7 +50978,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 40,
+              "priority": 42,
               "satisfied_by": null
             },
             "execution": {
@@ -51117,7 +51153,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 25,
+              "priority": 27,
               "satisfied_by": null
             },
             "execution": {
@@ -51184,7 +51220,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 33,
+              "priority": 35,
               "satisfied_by": null
             },
             "execution": {
@@ -51251,7 +51287,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 34,
+              "priority": 36,
               "satisfied_by": null
             },
             "execution": {
@@ -51318,7 +51354,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 35,
+              "priority": 37,
               "satisfied_by": null
             },
             "execution": {
@@ -51385,7 +51421,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 39,
+              "priority": 41,
               "satisfied_by": null
             },
             "execution": {
@@ -51452,7 +51488,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 30,
+              "priority": 32,
               "satisfied_by": null
             },
             "execution": {
@@ -51519,7 +51555,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 31,
+              "priority": 33,
               "satisfied_by": null
             },
             "execution": {
@@ -51627,7 +51663,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 54,
+              "priority": 56,
               "satisfied_by": null
             },
             "execution": {
@@ -51702,7 +51738,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 50,
+              "priority": 52,
               "satisfied_by": null
             },
             "execution": {
@@ -51777,7 +51813,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 53,
+              "priority": 55,
               "satisfied_by": null
             },
             "execution": {
@@ -51852,7 +51888,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 51,
+              "priority": 53,
               "satisfied_by": null
             },
             "execution": {
@@ -51927,7 +51963,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 45,
+              "priority": 47,
               "satisfied_by": null
             },
             "execution": {
@@ -52006,7 +52042,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 55,
+              "priority": 57,
               "satisfied_by": null
             },
             "execution": {
@@ -52085,7 +52121,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -52164,7 +52200,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 16,
               "satisfied_by": null
             },
             "execution": {
@@ -52251,7 +52287,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 63,
+              "priority": 65,
               "satisfied_by": null
             },
             "execution": {
@@ -52330,7 +52366,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -52409,7 +52445,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 16,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -52489,7 +52525,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -52584,7 +52620,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 64,
+              "priority": 66,
               "satisfied_by": null
             },
             "execution": {
@@ -52699,7 +52735,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 56,
+              "priority": 58,
               "satisfied_by": null
             },
             "execution": {
@@ -52786,7 +52822,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 61,
+              "priority": 63,
               "satisfied_by": null
             },
             "execution": {
@@ -52873,7 +52909,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 52,
+              "priority": 54,
               "satisfied_by": null
             },
             "execution": {
@@ -52953,7 +52989,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -53033,7 +53069,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -53120,7 +53156,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 62,
+              "priority": 64,
               "satisfied_by": null
             },
             "execution": {
@@ -53207,7 +53243,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 60,
+              "priority": 62,
               "satisfied_by": null
             },
             "execution": {
@@ -53294,7 +53330,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 17,
+              "priority": 19,
               "satisfied_by": null
             },
             "execution": {
@@ -53374,7 +53410,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -53452,7 +53488,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 57,
+              "priority": 59,
               "satisfied_by": null
             },
             "execution": {
@@ -53530,7 +53566,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 58,
+              "priority": 60,
               "satisfied_by": null
             },
             "execution": {
@@ -53644,7 +53680,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 59,
+              "priority": 61,
               "satisfied_by": null
             },
             "execution": {
@@ -54230,7 +54266,7 @@
                 "max": 1020560
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/rows/fields/column_3>column_7:value",
@@ -54774,7 +54810,7 @@
                 "max": 1020560
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/rows/fields/column_8>column_12:value",
@@ -55184,7 +55220,7 @@
                 "max": 1020560
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/rows/fields/column_8>column_10:value",
@@ -55320,7 +55356,7 @@
                 "max": 1031360
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/rows/fields/column_1>column_29:value",
@@ -56500,25 +56536,2465 @@
               "score": 0.347655,
               "stable": true
             }
+          },
+          {
+            "id": "category_stats:rows:column_22>column_33",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "type_contrat and montant_reclamation",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 71,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_22>column_33",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_22>column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_22:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_22:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 9,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_33",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 87,
+              "groups": 4,
+              "eta_squared": 0.5155,
+              "epsilon_squared": 0.497988,
+              "score": 0.705683
+            }
+          },
+          {
+            "id": "category_stats:rows:column_22>column_26",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "type_contrat and prime_annuelle",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 56,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_22>column_26",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_22>column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_22:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_22:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_22",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 14,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_26",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 6,
+              "eta_squared": 0.318467,
+              "epsilon_squared": 0.314655,
+              "score": 0.560941
+            }
+          },
+          {
+            "id": "category_stats:rows:column_3>column_33",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "civilite and montant_reclamation",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 20,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 370798,
+                "expected": 502200,
+                "max": 890736
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_3>column_33",
+                  "memory": {
+                    "min": 1134,
+                    "expected": 4536,
+                    "max": 9072
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_3>column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_33",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 87,
+              "groups": 2,
+              "eta_squared": 0.049835,
+              "epsilon_squared": 0.038656,
+              "score": 0.196612
+            }
+          },
+          {
+            "id": "category_stats:rows:column_7>column_33",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "sexe and montant_reclamation",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 20,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 370798,
+                "expected": 502200,
+                "max": 890736
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_7>column_33",
+                  "memory": {
+                    "min": 1134,
+                    "expected": 4536,
+                    "max": 9072
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_7>column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_7:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_7:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_33",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 87,
+              "groups": 2,
+              "eta_squared": 0.049835,
+              "epsilon_squared": 0.038656,
+              "score": 0.196612
+            }
+          },
+          {
+            "id": "category_stats:rows:column_27>column_33",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_27",
+            "display": "frequence_paiement and montant_reclamation",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 17,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_27>column_33",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_27>column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_27",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_33",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 87,
+              "groups": 4,
+              "eta_squared": 0.06213,
+              "epsilon_squared": 0.028231,
+              "score": 0.168022
+            }
+          },
+          {
+            "id": "category_stats:rows:column_34>column_13",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_34",
+            "display": "reclamation_status and appartement",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 17,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 371554,
+                "expected": 505224,
+                "max": 896784
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_34>column_13",
+                  "memory": {
+                    "min": 1890,
+                    "expected": 7560,
+                    "max": 15120
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_34>column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_34:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_34:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_34",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_13",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 52,
+              "groups": 4,
+              "eta_squared": 0.085346,
+              "epsilon_squared": 0.02818,
+              "score": 0.16787
+            }
+          },
+          {
+            "id": "category_stats:rows:column_12>column_13",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_12",
+            "display": "orientation and appartement",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 16,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 373066,
+                "expected": 511272,
+                "max": 908880
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_12>column_13",
+                  "memory": {
+                    "min": 3402,
+                    "expected": 13608,
+                    "max": 27216
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_12>column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_12:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_12:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_12",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_13",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 88,
+              "groups": 8,
+              "eta_squared": 0.105041,
+              "epsilon_squared": 0.026732,
+              "score": 0.163499
+            }
+          },
+          {
+            "id": "category_stats:rows:column_27>column_13",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_27",
+            "display": "frequence_paiement and appartement",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 13,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_27>column_13",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_27>column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_27",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_13",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 318,
+              "groups": 4,
+              "eta_squared": 0.026571,
+              "epsilon_squared": 0.017271,
+              "score": 0.131418
+            }
+          },
+          {
+            "id": "category_stats:rows:column_1>column_33",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale and montant_reclamation",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 13,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 371176,
+                "expected": 503712,
+                "max": 893760
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_1>column_33",
+                  "memory": {
+                    "min": 1512,
+                    "expected": 6048,
+                    "max": 12096
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_1>column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_33",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 87,
+              "groups": 3,
+              "eta_squared": 0.039089,
+              "epsilon_squared": 0.01621,
+              "score": 0.127319
+            }
+          },
+          {
+            "id": "category_stats:rows:column_16>column_26",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_16",
+            "display": "province_nom and prime_annuelle",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 11,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 376846,
+                "expected": 526392,
+                "max": 939120
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_16>column_26",
+                  "memory": {
+                    "min": 7182,
+                    "expected": 28728,
+                    "max": 57456
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_16>column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_16:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_16:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_26",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 16,
+              "eta_squared": 0.028525,
+              "epsilon_squared": 0.012041,
+              "score": 0.109732
+            }
+          },
+          {
+            "id": "category_stats:rows:column_12>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_12",
+            "display": "orientation and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 11,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 373066,
+                "expected": 511272,
+                "max": 908880
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_12>column_9",
+                  "memory": {
+                    "min": 3402,
+                    "expected": 13608,
+                    "max": 27216
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_12>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_12:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_12:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_12",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 239,
+              "groups": 8,
+              "eta_squared": 0.040312,
+              "epsilon_squared": 0.01123,
+              "score": 0.105972
+            }
+          },
+          {
+            "id": "category_stats:rows:column_28>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_28",
+            "display": "mode_paiement and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 10,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 373444,
+                "expected": 512784,
+                "max": 911904
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_28>column_9",
+                  "memory": {
+                    "min": 3780,
+                    "expected": 15120,
+                    "max": 30240
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_28>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_28:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_28:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_28",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 7,
+              "eta_squared": 0.016874,
+              "epsilon_squared": 0.010269,
+              "score": 0.101334
+            }
+          },
+          {
+            "id": "category_stats:rows:column_27>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_27",
+            "display": "frequence_paiement and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 10,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_27>column_9",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_27>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_27:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_27",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 5,
+              "eta_squared": 0.013574,
+              "epsilon_squared": 0.009165,
+              "score": 0.095735
+            }
+          },
+          {
+            "id": "category_stats:rows:column_16>column_13",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_16",
+            "display": "province_nom and appartement",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 8,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 376846,
+                "expected": 526392,
+                "max": 939120
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_16>column_13",
+                  "memory": {
+                    "min": 7182,
+                    "expected": 28728,
+                    "max": 57456
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_16>column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_16:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_16:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_13",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 318,
+              "groups": 11,
+              "eta_squared": 0.037244,
+              "epsilon_squared": 0.005884,
+              "score": 0.076707
+            }
+          },
+          {
+            "id": "category_stats:rows:column_1>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 8,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 371176,
+                "expected": 503712,
+                "max": 893760
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_1>column_9",
+                  "memory": {
+                    "min": 1512,
+                    "expected": 6048,
+                    "max": 12096
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_1>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_1:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 3,
+              "eta_squared": 0.008024,
+              "epsilon_squared": 0.005812,
+              "score": 0.076236
+            }
+          },
+          {
+            "id": "category_stats:rows:column_29>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "agence_code and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 7,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 380248,
+                "expected": 540000,
+                "max": 966336
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_29>column_9",
+                  "memory": {
+                    "min": 10584,
+                    "expected": 42336,
+                    "max": 84672
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_29>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_29:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_29:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_29",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 25,
+              "eta_squared": 0.032053,
+              "epsilon_squared": 0.005504,
+              "score": 0.074187
+            }
+          },
+          {
+            "id": "category_stats:rows:column_25>column_9",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_25",
+            "display": "statut_contrat and numero_voie",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 7,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 372310,
+                "expected": 508248,
+                "max": 902832
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_25>column_9",
+                  "memory": {
+                    "min": 2646,
+                    "expected": 10584,
+                    "max": 21168
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_25>column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_25:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_25:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_25",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_9",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 5,
+              "eta_squared": 0.008985,
+              "epsilon_squared": 0.004556,
+              "score": 0.067499
+            }
+          },
+          {
+            "id": "category_stats:rows:column_8>column_26",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee and prime_annuelle",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 7,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 370798,
+                "expected": 502200,
+                "max": 890736
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_8>column_26",
+                  "memory": {
+                    "min": 1134,
+                    "expected": 4536,
+                    "max": 9072
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_8>column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_8:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_8",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_26",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 2,
+              "eta_squared": 0.005342,
+              "epsilon_squared": 0.004234,
+              "score": 0.065071
+            }
+          },
+          {
+            "id": "category_stats:rows:column_3>column_26",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "civilite and prime_annuelle",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 6,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 370798,
+                "expected": 502200,
+                "max": 890736
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_3>column_26",
+                  "memory": {
+                    "min": 1134,
+                    "expected": 4536,
+                    "max": 9072
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_3>column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_3:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_26",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 2,
+              "eta_squared": 0.00475,
+              "epsilon_squared": 0.003641,
+              "score": 0.060345
+            }
+          },
+          {
+            "id": "category_stats:rows:column_7>column_26",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "sexe and prime_annuelle",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 6,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 370798,
+                "expected": 502200,
+                "max": 890736
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/rows/fields/column_7>column_26",
+                  "memory": {
+                    "min": 1134,
+                    "expected": 4536,
+                    "max": 9072
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/rows/fields/column_7>column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/rows/fields/column_7:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/rows/fields/column_7:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "column_26",
+            "exploration": {
+              "scope": "interior_rows",
+              "rows": 900,
+              "groups": 2,
+              "eta_squared": 0.00475,
+              "epsilon_squared": 0.003641,
+              "score": 0.060345
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T02:14:13.591029Z",
-        "duration_seconds": 0.122112,
+        "started_at": "2026-10-12T03:09:57.367830Z",
+        "duration_seconds": 0.028198,
         "timings": {
-          "reading": 0.008445,
-          "analysis": 0.101289,
-          "other": 0.012378
+          "reading": 0.008508,
+          "analysis": 0.00836,
+          "other": 0.01133
         },
         "workers": 1,
-        "peak_memory_bytes": 94277632,
+        "peak_memory_bytes": 92422144,
         "source_read": true,
         "source_verified": true,
         "records_read": 3000,
-        "cells_read": 78000,
-        "executed": 28,
-        "reused": 36,
+        "cells_read": 9000,
+        "executed": 2,
+        "reused": 64,
         "skipped": 0
       },
       "analyses": [
@@ -89439,17 +91915,1843 @@
             },
             "rules": []
           }
+        },
+        {
+          "id": "category_stats:rows:column_22>column_33",
+          "analyzer": "category_stats",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_22",
+          "partner": "column_33",
+          "display": "type_contrat and montant_reclamation",
+          "method": "group_moments",
+          "parameters": {
+            "max_categories": 30,
+            "bins": 50,
+            "strategy": "linear"
+          },
+          "domain": "analytical",
+          "key": "5ebd67f2bb30a71c6c69734f46d72462551c34838f7d4cca9e547eafdaef9a7c",
+          "status": "complete",
+          "result": {
+            "kind": "category_stats",
+            "accuracy": "exact_counts",
+            "precision": "float64",
+            "source": "source",
+            "categories": {
+              "field": "column_22",
+              "display": "type_contrat",
+              "domain": "analytical",
+              "classes": [
+                {
+                  "id": "c1",
+                  "label": "auto",
+                  "kind": "value"
+                },
+                {
+                  "id": "c2",
+                  "label": "habitation",
+                  "kind": "value"
+                },
+                {
+                  "id": "c3",
+                  "label": "voyage",
+                  "kind": "value"
+                },
+                {
+                  "id": "c4",
+                  "label": "vie",
+                  "kind": "value"
+                },
+                {
+                  "id": "c5",
+                  "label": "habitation_X",
+                  "kind": "value"
+                },
+                {
+                  "id": "c6",
+                  "label": "voyage_X",
+                  "kind": "value"
+                },
+                {
+                  "id": "other",
+                  "label": "other",
+                  "kind": "other"
+                }
+              ]
+            },
+            "rows": 3000,
+            "counted": 348,
+            "excluded": {
+              "category_missing": 1,
+              "value_missing": 2650,
+              "both_missing": 1
+            },
+            "bins": {
+              "strategy": "linear",
+              "requested_strategy": "linear",
+              "bounds_source": "range",
+              "edges": [
+                -63902.75,
+                -59024.777400000006,
+                -54146.804800000005,
+                -49268.832200000004,
+                -44390.8596,
+                -39512.887,
+                -34634.9144,
+                -29756.9418,
+                -24878.9692,
+                -20000.9966,
+                -15123.024,
+                -10245.051399999998,
+                -5367.0787999999975,
+                -489.1061999999966,
+                4388.866400000004,
+                9266.839000000005,
+                14144.811600000006,
+                19022.784200000006,
+                23900.756800000006,
+                28778.729400000007,
+                33656.70200000001,
+                38534.67460000001,
+                43412.647200000014,
+                48290.619800000015,
+                53168.592400000016,
+                58046.56500000002,
+                62924.53760000001,
+                67802.51020000002,
+                72680.48280000001,
+                77558.45540000002,
+                82436.42800000001,
+                87314.40060000002,
+                92192.37320000002,
+                97070.34580000002,
+                101948.31840000002,
+                106826.29100000003,
+                111704.26360000002,
+                116582.23620000003,
+                121460.20880000002,
+                126338.18140000003,
+                131216.15400000004,
+                136094.12660000002,
+                140972.09920000003,
+                145850.07180000003,
+                150728.04440000004,
+                155606.01700000002,
+                160483.98960000003,
+                165361.96220000004,
+                170239.93480000005,
+                175117.90740000003,
+                179995.88
+              ]
+            },
+            "overall": {
+              "count": 348,
+              "min": -63902.75,
+              "max": 179995.88,
+              "sum": 10074674.280000001,
+              "mean": 28950.213448275867,
+              "std": 28929.472841140654,
+              "positive": 342,
+              "negative": 1,
+              "zero": 5,
+              "counts": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                17,
+                38,
+                67,
+                46,
+                32,
+                30,
+                26,
+                13,
+                18,
+                12,
+                5,
+                2,
+                6,
+                4,
+                1,
+                4,
+                2,
+                2,
+                1,
+                1,
+                5,
+                1,
+                1,
+                4,
+                1,
+                2,
+                3,
+                1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+              ],
+              "median": {
+                "level": 0.5,
+                "value": 19784.967418750006,
+                "accuracy": "estimated",
+                "lower": 19022.784200000006,
+                "upper": 23900.756800000006
+              },
+              "quantiles": [
+                {
+                  "level": 0.05,
+                  "value": 4318.075388970593,
+                  "accuracy": "estimated",
+                  "lower": 1218.1842100000038,
+                  "upper": 6096.156810000005
+                },
+                {
+                  "level": 0.25,
+                  "value": 11542.012787313439,
+                  "accuracy": "estimated",
+                  "lower": 9266.839000000005,
+                  "upper": 14144.811600000006
+                },
+                {
+                  "level": 0.5,
+                  "value": 19784.967418750006,
+                  "accuracy": "estimated",
+                  "lower": 19022.784200000006,
+                  "upper": 23900.756800000006
+                },
+                {
+                  "level": 0.75,
+                  "value": 35063.80948076924,
+                  "accuracy": "estimated",
+                  "lower": 33656.70200000001,
+                  "upper": 38534.67460000001
+                },
+                {
+                  "level": 0.95,
+                  "value": 99167.87401800002,
+                  "accuracy": "estimated",
+                  "lower": 97070.34580000002,
+                  "upper": 101948.31840000002
+                }
+              ]
+            },
+            "groups": [
+              {
+                "count": 228,
+                "min": 0.0,
+                "max": 48146.16,
+                "sum": 4291439.970000001,
+                "mean": 18822.105131578952,
+                "std": 10323.127582148425,
+                "positive": 226,
+                "negative": 0,
+                "zero": 2,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  8,
+                  30,
+                  56,
+                  40,
+                  26,
+                  26,
+                  20,
+                  8,
+                  10,
+                  4,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 16583.797900000005,
+                  "accuracy": "estimated",
+                  "lower": 14144.811600000006,
+                  "upper": 19022.784200000006
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 5014.872883666671,
+                    "accuracy": "estimated",
+                    "lower": 4388.866400000004,
+                    "upper": 9266.839000000005
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 10943.642081250006,
+                    "accuracy": "estimated",
+                    "lower": 9266.839000000005,
+                    "upper": 14144.811600000006
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 16583.797900000005,
+                    "accuracy": "estimated",
+                    "lower": 14144.811600000006,
+                    "upper": 19022.784200000006
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 25917.61085576924,
+                    "accuracy": "estimated",
+                    "lower": 23900.756800000006,
+                    "upper": 28778.729400000007
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 39583.43870900002,
+                    "accuracy": "estimated",
+                    "lower": 38534.67460000001,
+                    "upper": 43412.647200000014
+                  }
+                ],
+                "rows": 1228,
+                "value_missing": 1000
+              },
+              {
+                "count": 87,
+                "min": -63902.75,
+                "max": 134463.41,
+                "sum": 4923768.71,
+                "mean": 56595.04264367816,
+                "std": 36234.09726678962,
+                "positive": 83,
+                "negative": 1,
+                "zero": 3,
+                "counts": [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  4,
+                  0,
+                  1,
+                  4,
+                  3,
+                  3,
+                  6,
+                  5,
+                  8,
+                  8,
+                  5,
+                  2,
+                  6,
+                  4,
+                  1,
+                  4,
+                  2,
+                  2,
+                  1,
+                  1,
+                  4,
+                  1,
+                  1,
+                  4,
+                  1,
+                  1,
+                  3,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 48778.417060000014,
+                  "accuracy": "estimated",
+                  "lower": 48290.619800000015,
+                  "upper": 53168.592400000016
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 6157.131467500005,
+                    "accuracy": "estimated",
+                    "lower": 2437.6773600000042,
+                    "upper": 7315.649960000005
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 33697.351771666676,
+                    "accuracy": "estimated",
+                    "lower": 31217.715700000008,
+                    "upper": 36095.68830000001
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 48778.417060000014,
+                    "accuracy": "estimated",
+                    "lower": 48290.619800000015,
+                    "upper": 53168.592400000016
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 77863.32868750002,
+                    "accuracy": "estimated",
+                    "lower": 75119.46910000002,
+                    "upper": 79997.44170000002
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 122435.80332000002,
+                    "accuracy": "estimated",
+                    "lower": 119996.81702000002,
+                    "upper": 124874.78962000003
+                  }
+                ],
+                "rows": 910,
+                "value_missing": 823
+              },
+              {
+                "count": 29,
+                "min": 2245.0,
+                "max": 28729.85,
+                "sum": 303561.71,
+                "mean": 10467.645172413793,
+                "std": 6104.386162687545,
+                "positive": 29,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  5,
+                  8,
+                  10,
+                  2,
+                  3,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 9998.534890000006,
+                  "accuracy": "estimated",
+                  "lower": 9266.839000000005,
+                  "upper": 14144.811600000006
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 3059.6692320000016,
+                    "accuracy": "estimated",
+                    "lower": 2245,
+                    "upper": 4388.866400000004
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 5913.232837500005,
+                    "accuracy": "estimated",
+                    "lower": 4388.866400000004,
+                    "upper": 9266.839000000005
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 9998.534890000006,
+                    "accuracy": "estimated",
+                    "lower": 9266.839000000005,
+                    "upper": 14144.811600000006
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 13413.115710000005,
+                    "accuracy": "estimated",
+                    "lower": 9266.839000000005,
+                    "upper": 14144.811600000006
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 22437.365020000005,
+                    "accuracy": "estimated",
+                    "lower": 19022.784200000006,
+                    "upper": 23900.756800000006
+                  }
+                ],
+                "rows": 505,
+                "value_missing": 476
+              },
+              {
+                "count": 4,
+                "min": 100676.43,
+                "max": 179995.88,
+                "sum": 555903.89,
+                "mean": 138975.9725,
+                "std": 29323.302458814538,
+                "positive": 4,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 136094.12660000002,
+                  "accuracy": "estimated",
+                  "lower": 133655.14030000003,
+                  "upper": 138533.11290000004
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 104700.39733500002,
+                    "accuracy": "estimated",
+                    "lower": 103793.99682,
+                    "upper": 105606.79785000002
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 118252.48987500003,
+                    "accuracy": "estimated",
+                    "lower": 116264.26410000001,
+                    "upper": 120240.71565000003
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 136094.12660000002,
+                    "accuracy": "estimated",
+                    "lower": 133655.14030000003,
+                    "upper": 138533.11290000004
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 155606.01700000002,
+                    "accuracy": "estimated",
+                    "lower": 153167.03070000003,
+                    "upper": 158045.00330000004
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 173166.71836000003,
+                    "accuracy": "estimated",
+                    "lower": 170727.73206000004,
+                    "upper": 175605.70466000002
+                  }
+                ],
+                "rows": 349,
+                "value_missing": 345
+              },
+              {
+                "count": 0,
+                "positive": 0,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "rows": 5,
+                "value_missing": 5
+              },
+              {
+                "count": 0,
+                "positive": 0,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "rows": 1,
+                "value_missing": 1
+              },
+              {
+                "count": 0,
+                "positive": 0,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "rows": 0,
+                "value_missing": 0
+              }
+            ],
+            "association": {
+              "defined": true,
+              "n": 348,
+              "groups": 4,
+              "eta_squared": 0.5088674738497705,
+              "epsilon_squared": 0.5045843413542743,
+              "score": 0.7103410035710133
+            }
+          }
+        },
+        {
+          "id": "category_stats:rows:column_22>column_26",
+          "analyzer": "category_stats",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_22",
+          "partner": "column_26",
+          "display": "type_contrat and prime_annuelle",
+          "method": "group_moments",
+          "parameters": {
+            "max_categories": 30,
+            "bins": 50,
+            "strategy": "linear"
+          },
+          "domain": "analytical",
+          "key": "31ca0a0d91ddf62797fc80ebeefd6bff0ff4318f2f92784d76189a4526c78bb8",
+          "status": "complete",
+          "result": {
+            "kind": "category_stats",
+            "accuracy": "exact_counts",
+            "precision": "float64",
+            "source": "source",
+            "categories": {
+              "field": "column_22",
+              "display": "type_contrat",
+              "domain": "analytical",
+              "classes": [
+                {
+                  "id": "c1",
+                  "label": "auto",
+                  "kind": "value"
+                },
+                {
+                  "id": "c2",
+                  "label": "habitation",
+                  "kind": "value"
+                },
+                {
+                  "id": "c3",
+                  "label": "voyage",
+                  "kind": "value"
+                },
+                {
+                  "id": "c4",
+                  "label": "vie",
+                  "kind": "value"
+                },
+                {
+                  "id": "c5",
+                  "label": "habitation_X",
+                  "kind": "value"
+                },
+                {
+                  "id": "c6",
+                  "label": "voyage_X",
+                  "kind": "value"
+                },
+                {
+                  "id": "other",
+                  "label": "other",
+                  "kind": "other"
+                }
+              ]
+            },
+            "rows": 3000,
+            "counted": 2998,
+            "excluded": {
+              "category_missing": 2,
+              "value_missing": 0,
+              "both_missing": 0
+            },
+            "bins": {
+              "strategy": "linear",
+              "requested_strategy": "linear",
+              "bounds_source": "range",
+              "edges": [
+                -3097.96,
+                -2937.0376000000006,
+                -2776.1152000000006,
+                -2615.1928000000003,
+                -2454.2704000000003,
+                -2293.3480000000004,
+                -2132.4256000000005,
+                -1971.5032000000003,
+                -1810.5808000000002,
+                -1649.6584000000003,
+                -1488.7360000000003,
+                -1327.8136000000002,
+                -1166.8912000000003,
+                -1005.9688000000002,
+                -845.0464000000002,
+                -684.1240000000001,
+                -523.2016000000001,
+                -362.27920000000006,
+                -201.35680000000005,
+                -40.43440000000001,
+                120.48800000000001,
+                281.41040000000004,
+                442.3328000000001,
+                603.2552000000001,
+                764.1776000000001,
+                925.1000000000001,
+                1086.0224,
+                1246.9448000000002,
+                1407.8672000000001,
+                1568.7896000000003,
+                1729.7120000000002,
+                1890.6344000000004,
+                2051.5568000000003,
+                2212.4792,
+                2373.4016,
+                2534.3240000000005,
+                2695.2464000000004,
+                2856.1688000000004,
+                3017.0912000000003,
+                3178.0136000000007,
+                3338.9360000000006,
+                3499.8584000000005,
+                3660.7808000000005,
+                3821.7032000000004,
+                3982.6256000000008,
+                4143.548000000001,
+                4304.470400000001,
+                4465.3928000000005,
+                4626.315200000001,
+                4787.2376,
+                4948.16
+              ]
+            },
+            "overall": {
+              "count": 2998,
+              "min": -3097.96,
+              "max": 4948.16,
+              "sum": 3669685.72,
+              "mean": 1224.0446030687126,
+              "std": 825.8853433602092,
+              "positive": 2973,
+              "negative": 25,
+              "zero": 0,
+              "counts": [
+                1,
+                0,
+                1,
+                1,
+                1,
+                0,
+                1,
+                0,
+                0,
+                2,
+                0,
+                3,
+                2,
+                1,
+                5,
+                3,
+                2,
+                1,
+                1,
+                30,
+                203,
+                244,
+                256,
+                261,
+                222,
+                232,
+                233,
+                196,
+                176,
+                173,
+                138,
+                125,
+                121,
+                99,
+                54,
+                55,
+                35,
+                36,
+                27,
+                15,
+                14,
+                5,
+                3,
+                6,
+                2,
+                3,
+                5,
+                1,
+                1,
+                2
+              ],
+              "median": {
+                "level": 0.5,
+                "value": 1103.9794060085837,
+                "accuracy": "estimated",
+                "lower": 1086.0224,
+                "upper": 1246.9448000000002
+              },
+              "quantiles": [
+                {
+                  "level": 0.05,
+                  "value": 196.07396472906407,
+                  "accuracy": "estimated",
+                  "lower": 120.48800000000001,
+                  "upper": 281.41040000000004
+                },
+                {
+                  "level": 0.25,
+                  "value": 598.06922421875,
+                  "accuracy": "estimated",
+                  "lower": 442.3328000000001,
+                  "upper": 603.2552000000001
+                },
+                {
+                  "level": 0.5,
+                  "value": 1103.9794060085837,
+                  "accuracy": "estimated",
+                  "lower": 1086.0224,
+                  "upper": 1246.9448000000002
+                },
+                {
+                  "level": 0.75,
+                  "value": 1727.1539849710985,
+                  "accuracy": "estimated",
+                  "lower": 1568.7896000000003,
+                  "upper": 1729.7120000000002
+                },
+                {
+                  "level": 0.95,
+                  "value": 2716.626090285715,
+                  "accuracy": "estimated",
+                  "lower": 2695.2464000000004,
+                  "upper": 2856.1688000000004
+                }
+              ]
+            },
+            "groups": [
+              {
+                "count": 1228,
+                "min": -1636.84,
+                "max": 2736.77,
+                "sum": 1358808.1400000001,
+                "mean": 1106.5212866449513,
+                "std": 571.4410479840819,
+                "positive": 1217,
+                "negative": 11,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  2,
+                  0,
+                  0,
+                  2,
+                  0,
+                  4,
+                  2,
+                  1,
+                  0,
+                  0,
+                  0,
+                  25,
+                  79,
+                  118,
+                  149,
+                  140,
+                  130,
+                  114,
+                  100,
+                  91,
+                  73,
+                  66,
+                  48,
+                  46,
+                  29,
+                  7,
+                  1,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 1038.9835446153847,
+                  "accuracy": "estimated",
+                  "lower": 925.1000000000001,
+                  "upper": 1086.0224
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 334.0666536708861,
+                    "accuracy": "estimated",
+                    "lower": 281.41040000000004,
+                    "upper": 442.3328000000001
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 683.4463959731545,
+                    "accuracy": "estimated",
+                    "lower": 603.2552000000001,
+                    "upper": 764.1776000000001
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 1038.9835446153847,
+                    "accuracy": "estimated",
+                    "lower": 925.1000000000001,
+                    "upper": 1086.0224
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 1504.685896703297,
+                    "accuracy": "estimated",
+                    "lower": 1407.8672000000001,
+                    "upper": 1568.7896000000003
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 2129.0444339130436,
+                    "accuracy": "estimated",
+                    "lower": 2051.5568000000003,
+                    "upper": 2212.4792
+                  }
+                ],
+                "rows": 1228,
+                "value_missing": 0
+              },
+              {
+                "count": 910,
+                "min": -2505.91,
+                "max": 3329.12,
+                "sum": 1443924.88,
+                "mean": 1586.7306373626373,
+                "std": 735.4792579292832,
+                "positive": 905,
+                "negative": 5,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  2,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  9,
+                  32,
+                  57,
+                  65,
+                  80,
+                  90,
+                  78,
+                  64,
+                  72,
+                  54,
+                  51,
+                  54,
+                  53,
+                  34,
+                  40,
+                  23,
+                  22,
+                  16,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 1503.4148750000002,
+                  "accuracy": "estimated",
+                  "lower": 1407.8672000000001,
+                  "upper": 1568.7896000000003
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 597.9749337500001,
+                    "accuracy": "estimated",
+                    "lower": 442.3328000000001,
+                    "upper": 603.2552000000001
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 1043.2773875,
+                    "accuracy": "estimated",
+                    "lower": 925.1000000000001,
+                    "upper": 1086.0224
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 1503.4148750000002,
+                    "accuracy": "estimated",
+                    "lower": 1407.8672000000001,
+                    "upper": 1568.7896000000003
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 2123.822877777778,
+                    "accuracy": "estimated",
+                    "lower": 2051.5568000000003,
+                    "upper": 2212.4792
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 2871.1638418181824,
+                    "accuracy": "estimated",
+                    "lower": 2856.1688000000004,
+                    "upper": 3017.0912000000003
+                  }
+                ],
+                "rows": 910,
+                "value_missing": 0
+              },
+              {
+                "count": 505,
+                "min": -573.6,
+                "max": 2669.18,
+                "sum": 177080.1,
+                "mean": 350.6536633663367,
+                "std": 206.10530686488127,
+                "positive": 501,
+                "negative": 4,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  1,
+                  1,
+                  1,
+                  30,
+                  175,
+                  150,
+                  98,
+                  45,
+                  1,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 328.07789600000007,
+                  "accuracy": "estimated",
+                  "lower": 281.41040000000004,
+                  "upper": 442.3328000000001
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 75.966136,
+                    "accuracy": "estimated",
+                    "lower": -40.43440000000001,
+                    "upper": 120.48800000000001
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 205.5469828571429,
+                    "accuracy": "estimated",
+                    "lower": 120.48800000000001,
+                    "upper": 281.41040000000004
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 328.07789600000007,
+                    "accuracy": "estimated",
+                    "lower": 281.41040000000004,
+                    "upper": 442.3328000000001
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 474.3530734693878,
+                    "accuracy": "estimated",
+                    "lower": 442.3328000000001,
+                    "upper": 603.2552000000001
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 683.0011893333334,
+                    "accuracy": "estimated",
+                    "lower": 603.2552000000001,
+                    "upper": 764.1776000000001
+                  }
+                ],
+                "rows": 505,
+                "value_missing": 0
+              },
+              {
+                "count": 349,
+                "min": -3097.96,
+                "max": 4948.16,
+                "sum": 680574.37,
+                "mean": 1950.0698280802292,
+                "std": 1096.872535523712,
+                "positive": 344,
+                "negative": 5,
+                "zero": 0,
+                "counts": [
+                  1,
+                  0,
+                  1,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  6,
+                  8,
+                  9,
+                  16,
+                  22,
+                  28,
+                  18,
+                  21,
+                  27,
+                  18,
+                  26,
+                  20,
+                  15,
+                  13,
+                  13,
+                  11,
+                  14,
+                  11,
+                  5,
+                  14,
+                  5,
+                  3,
+                  6,
+                  2,
+                  3,
+                  5,
+                  1,
+                  1,
+                  2
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 1850.4038000000003,
+                  "accuracy": "estimated",
+                  "lower": 1729.7120000000002,
+                  "upper": 1890.6344000000004
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 561.0130700000001,
+                    "accuracy": "estimated",
+                    "lower": 442.3328000000001,
+                    "upper": 603.2552000000001
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 1203.840585714286,
+                    "accuracy": "estimated",
+                    "lower": 1086.0224,
+                    "upper": 1246.9448000000002
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 1850.4038000000003,
+                    "accuracy": "estimated",
+                    "lower": 1729.7120000000002,
+                    "upper": 1890.6344000000004
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 2639.5424923076926,
+                    "accuracy": "estimated",
+                    "lower": 2534.3240000000005,
+                    "upper": 2695.2464000000004
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 3878.0260400000006,
+                    "accuracy": "estimated",
+                    "lower": 3821.7032000000004,
+                    "upper": 3982.6256000000008
+                  }
+                ],
+                "rows": 349,
+                "value_missing": 0
+              },
+              {
+                "count": 5,
+                "min": 694.5,
+                "max": 2353.71,
+                "sum": 9031.73,
+                "mean": 1806.346,
+                "std": 608.3524332029913,
+                "positive": 5,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  1,
+                  2,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 2132.018,
+                  "accuracy": "estimated",
+                  "lower": 2051.5568000000003,
+                  "upper": 2212.4792
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 913.3212000000001,
+                    "accuracy": "estimated",
+                    "lower": 869.35792,
+                    "upper": 957.2844800000001
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 1649.2508000000003,
+                    "accuracy": "estimated",
+                    "lower": 1568.7896000000003,
+                    "upper": 1729.7120000000002
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 2132.018,
+                    "accuracy": "estimated",
+                    "lower": 2051.5568000000003,
+                    "upper": 2212.4792
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 2247.7869,
+                    "accuracy": "estimated",
+                    "lower": 2212.4792,
+                    "upper": 2353.71
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 2304.27922,
+                    "accuracy": "estimated",
+                    "lower": 2212.4792,
+                    "upper": 2353.71
+                  }
+                ],
+                "rows": 5,
+                "value_missing": 0
+              },
+              {
+                "count": 1,
+                "min": 266.5,
+                "max": 266.5,
+                "sum": 266.5,
+                "mean": 266.5,
+                "std": 0.0,
+                "positive": 1,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "median": {
+                  "level": 0.5,
+                  "value": 266.5,
+                  "accuracy": "estimated",
+                  "lower": 266.5,
+                  "upper": 266.5
+                },
+                "quantiles": [
+                  {
+                    "level": 0.05,
+                    "value": 266.5,
+                    "accuracy": "estimated",
+                    "lower": 266.5,
+                    "upper": 266.5
+                  },
+                  {
+                    "level": 0.25,
+                    "value": 266.5,
+                    "accuracy": "estimated",
+                    "lower": 266.5,
+                    "upper": 266.5
+                  },
+                  {
+                    "level": 0.5,
+                    "value": 266.5,
+                    "accuracy": "estimated",
+                    "lower": 266.5,
+                    "upper": 266.5
+                  },
+                  {
+                    "level": 0.75,
+                    "value": 266.5,
+                    "accuracy": "estimated",
+                    "lower": 266.5,
+                    "upper": 266.5
+                  },
+                  {
+                    "level": 0.95,
+                    "value": 266.5,
+                    "accuracy": "estimated",
+                    "lower": 266.5,
+                    "upper": 266.5
+                  }
+                ],
+                "rows": 1,
+                "value_missing": 0
+              },
+              {
+                "count": 0,
+                "positive": 0,
+                "negative": 0,
+                "zero": 0,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "rows": 0,
+                "value_missing": 0
+              }
+            ],
+            "association": {
+              "defined": true,
+              "n": 2998,
+              "groups": 6,
+              "eta_squared": 0.34645179363002454,
+              "epsilon_squared": 0.3453596341942458,
+              "score": 0.5876730674399209
+            }
+          }
         }
       ]
     }
   },
   "report": {
-    "generated_at": "2026-10-12T02:14:14.150165Z",
+    "generated_at": "2026-10-12T03:09:57.849956Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.89,
+    "processing_seconds": 0.8152,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

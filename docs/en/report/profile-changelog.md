@@ -91,4 +91,6 @@ the Second pass section summarizes in one line, the values that patterns and
 detectors leave out (`residual_values`) and the repeated values of identifiers
 and keys (`duplicates`, `duplicates_limited`), the line and the rank correlation of a
 pair (`slope`, `intercept`, `rank`), and the tables of a category against the values
-of another column with the rules you gave (`provided_rules`).
+of another column with the rules you gave (`provided_rules`), and the numbers of a column
+described by category (`category_stats`: count, extremes, mean, spread and histogram of each
+category, and the share of the variance the categories explain).

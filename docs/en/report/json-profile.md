@@ -137,7 +137,10 @@ The results include the correlation of the pairs of numeric columns that the pla
 an entry of `analyses` names both fields (`field` and `partner`) and the plan has a
 `relations` member that says which columns were explored. The tables of a category against
 a feature (`category_crosstab`, see [A category against a feature](../scan/deep.md#a-category-against-a-feature-of-another-column))
-are there too, with `partner` the column of the feature and `relations.tables` in the plan.
+are there too, with `partner` the column of the feature and `relations.tables` in the plan, and so are the
+numbers of a column by category (`category_stats`, see [The numbers of a column by
+category](../scan/deep.md#the-numbers-of-a-column-by-category)), with `partner` the numeric column and
+`relations.stats` in the plan.
 
 A report built with `--scan` reads no source: the analyses that need it are
 `skipped` with the reason `source_not_read`. A report written before the second

@@ -290,6 +290,7 @@
               "discriminator": {
                 "mapping": {
                   "bins": "#/$defs/BinnedHistogram",
+                  "category_stats": "#/$defs/StatsResult",
                   "crosstab": "#/$defs/CrosstabResult",
                   "dense_counts": "#/$defs/DenseHistogram",
                   "distinct": "#/$defs/DistinctCount",
@@ -348,6 +349,9 @@
                 },
                 {
                   "$ref": "#/$defs/CrosstabResult"
+                },
+                {
+                  "$ref": "#/$defs/StatsResult"
                 }
               ]
             },
@@ -755,6 +759,11 @@
           "default": 8,
           "title": "Automatic Tables",
           "type": "integer"
+        },
+        "automatic_stats": {
+          "default": 8,
+          "title": "Automatic Stats",
+          "type": "integer"
         }
       },
       "required": [
@@ -970,6 +979,9 @@
             },
             {
               "$ref": "#/$defs/TableExploration"
+            },
+            {
+              "$ref": "#/$defs/StatsExploration"
             },
             {
               "type": "null"
@@ -3142,7 +3154,7 @@
     },
     "DeepSettings": {
       "additionalProperties": false,
-      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns\nand tables of categories are chosen, how values with a unit are extracted,\nand how residual and repeated values are kept.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
+      "description": "What the second pass computes beyond the plan: the number of bins of a\nhistogram and where their bounds come from, how pairs of numeric columns,\ntables of categories and numbers by category are chosen, how values with a\nunit are extracted, and how residual and repeated values are kept.\n\n``linear`` splits the exact range of the Scan into bins of equal width;\n``sample_quantile`` places the inner bounds at quantiles of the row sample\n(the shape of the occurrences) or, without enough rows, of the bottom-k\nsample (the distinct values), for a very skewed distribution. The outer\nbounds are always the exact minimum and maximum, and the counts per bin\nare exact in both.",
       "properties": {
         "bins": {
           "default": 100,
@@ -3165,6 +3177,9 @@
         },
         "crosstab": {
           "$ref": "#/$defs/CrosstabSettings"
+        },
+        "stats": {
+          "$ref": "#/$defs/StatsSettings"
         },
         "measures": {
           "$ref": "#/$defs/MeasureSettings"
@@ -4754,6 +4769,110 @@
         "dataset"
       ],
       "title": "ExploredDataset",
+      "type": "object"
+    },
+    "ExploredStats": {
+      "additionalProperties": false,
+      "description": "The exploration of the numbers by category of one dataset (design 20.23).\n\n``categories`` columns are eligible categories and ``numeric`` columns\neligible numbers; those left out are counted by reason in\n``excluded_categories`` and ``excluded_numeric``. Of the ``possible``\nanalyses, ``evaluated`` were scored on ``rows`` rows of the sample (``scope``\nsays which), ``undefined`` have no score (reasons in ``undefined_reasons``)\nand ``listed`` are candidates of the plan. ``work`` is the analyses times the\nrows compared, the post-processing budget (COST-05). ``unavailable`` says why\nthe dataset was not explored.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "interior_rows",
+                "all_rows"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "rows": {
+          "default": 0,
+          "title": "Rows",
+          "type": "integer"
+        },
+        "categories": {
+          "default": 0,
+          "title": "Categories",
+          "type": "integer"
+        },
+        "numeric": {
+          "default": 0,
+          "title": "Numeric",
+          "type": "integer"
+        },
+        "excluded_categories": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded Categories",
+          "type": "object"
+        },
+        "excluded_numeric": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Excluded Numeric",
+          "type": "object"
+        },
+        "possible": {
+          "default": 0,
+          "title": "Possible",
+          "type": "integer"
+        },
+        "evaluated": {
+          "default": 0,
+          "title": "Evaluated",
+          "type": "integer"
+        },
+        "undefined": {
+          "default": 0,
+          "title": "Undefined",
+          "type": "integer"
+        },
+        "undefined_reasons": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Undefined Reasons",
+          "type": "object"
+        },
+        "listed": {
+          "default": 0,
+          "title": "Listed",
+          "type": "integer"
+        },
+        "work": {
+          "default": 0,
+          "title": "Work",
+          "type": "integer"
+        },
+        "unavailable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable"
+        }
+      },
+      "required": [
+        "dataset"
+      ],
+      "title": "ExploredStats",
       "type": "object"
     },
     "ExploredTables": {
@@ -9372,7 +9491,7 @@
     },
     "Relations": {
       "additionalProperties": false,
-      "description": "What the planner looked at to propose pairs of columns (``datasets``: one\nentry per dataset with at least two numeric columns) and tables of a\ncategory against a feature (``tables``: one per dataset with a category).",
+      "description": "What the planner looked at to propose pairs of columns (``datasets``: one\nentry per dataset with at least two numeric columns) and tables of a\ncategory against a feature (``tables``: one per dataset with a category) and\nof the numbers by category (``stats``: one per dataset with a category and a\nnumber).",
       "properties": {
         "datasets": {
           "items": {
@@ -9386,6 +9505,13 @@
             "$ref": "#/$defs/ExploredTables"
           },
           "title": "Tables",
+          "type": "array"
+        },
+        "stats": {
+          "items": {
+            "$ref": "#/$defs/ExploredStats"
+          },
+          "title": "Stats",
           "type": "array"
         }
       },
@@ -10821,6 +10947,637 @@
         "memory"
       ],
       "title": "State",
+      "type": "object"
+    },
+    "StatsAssociation": {
+      "additionalProperties": false,
+      "description": "How much of the variance of the number the categories explain (design\n20.23): the correlation ratio ``eta_squared`` and the same corrected for the\nbias that grows with the number of ``groups`` (``epsilon_squared``, not below\n0), over the ``n`` numbers of the named categories (``other`` takes no part).\n``score`` is the square root of the corrected ratio. Without them the\n``reason`` says why: never 0.",
+      "properties": {
+        "defined": {
+          "title": "Defined",
+          "type": "boolean"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "groups": {
+          "title": "Groups",
+          "type": "integer"
+        },
+        "eta_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Eta Squared"
+        },
+        "epsilon_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Epsilon Squared"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "defined",
+        "n",
+        "groups"
+      ],
+      "title": "StatsAssociation",
+      "type": "object"
+    },
+    "StatsBins": {
+      "additionalProperties": false,
+      "description": "The bins every category is counted in. Bin ``i`` is ``[edges[i],\nedges[i + 1])`` and the last one is closed on the right so that the maximum\nbelongs to it; the edges are the same for every category, so the histograms\ncompare. ``strategy`` is the one in force and ``requested_strategy`` the one\nasked for; they differ, with ``reason``, when the sample could not place the\nedges. ``bounds_source`` says where they come from (``range``, ``rows`` or\n``distinct``, as for ``BinnedHistogram``). A number goes to a bin by\ncomparison of float64 values.",
+      "properties": {
+        "strategy": {
+          "enum": [
+            "linear",
+            "sample_quantile"
+          ],
+          "title": "Strategy",
+          "type": "string"
+        },
+        "requested_strategy": {
+          "enum": [
+            "linear",
+            "sample_quantile"
+          ],
+          "title": "Requested Strategy",
+          "type": "string"
+        },
+        "bounds_source": {
+          "enum": [
+            "range",
+            "rows",
+            "distinct"
+          ],
+          "title": "Bounds Source",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "edges": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "title": "Edges",
+          "type": "array"
+        }
+      },
+      "required": [
+        "strategy",
+        "requested_strategy",
+        "bounds_source",
+        "edges"
+      ],
+      "title": "StatsBins",
+      "type": "object"
+    },
+    "StatsExclusions": {
+      "additionalProperties": false,
+      "description": "The rows left out of the numbers by category. ``category_missing`` has a\nnumber and no category, ``value_missing`` a category and no number (the row\nhas none, it is not a number, or the number does not fit a float64) and\n``both_missing`` neither.",
+      "properties": {
+        "category_missing": {
+          "title": "Category Missing",
+          "type": "integer"
+        },
+        "value_missing": {
+          "title": "Value Missing",
+          "type": "integer"
+        },
+        "both_missing": {
+          "title": "Both Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "category_missing",
+        "value_missing",
+        "both_missing"
+      ],
+      "title": "StatsExclusions",
+      "type": "object"
+    },
+    "StatsExploration": {
+      "additionalProperties": false,
+      "description": "What the row sample says of the numbers of a column by category (design\n20.23, REL-05): the ``rows`` that have a category and a number, the effective\n``groups`` (categories with a row) and the correlation ratio ``eta_squared``,\nits corrected ``epsilon_squared`` and the ``score`` the planner ranks by\n(its square root), or the ``reason`` there is none. It says nothing of the\npopulation beyond the ``scope`` rows. Figures are rounded to six decimals.",
+      "properties": {
+        "scope": {
+          "enum": [
+            "interior_rows",
+            "all_rows"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "groups": {
+          "title": "Groups",
+          "type": "integer"
+        },
+        "eta_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Eta Squared"
+        },
+        "epsilon_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Epsilon Squared"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "scope",
+        "rows",
+        "groups"
+      ],
+      "title": "StatsExploration",
+      "type": "object"
+    },
+    "StatsGroup": {
+      "additionalProperties": false,
+      "description": "The numbers of one category, in the order of the axis. ``rows`` are all\nits rows: ``count`` of them have a number, ``value_missing`` do not.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "sum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sum"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean"
+        },
+        "std": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std"
+        },
+        "positive": {
+          "default": 0,
+          "title": "Positive",
+          "type": "integer"
+        },
+        "negative": {
+          "default": 0,
+          "title": "Negative",
+          "type": "integer"
+        },
+        "zero": {
+          "default": 0,
+          "title": "Zero",
+          "type": "integer"
+        },
+        "counts": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "array"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantile"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantiles": {
+          "items": {
+            "$ref": "#/$defs/Quantile"
+          },
+          "title": "Quantiles",
+          "type": "array"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "value_missing": {
+          "title": "Value Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "counts",
+        "rows",
+        "value_missing"
+      ],
+      "title": "StatsGroup",
+      "type": "object"
+    },
+    "StatsResult": {
+      "additionalProperties": false,
+      "description": "The numbers of a column described for each value of a category, over every\nrow. The counts are exact; the minimum, maximum, sum, mean and spread are\ncomputed in float64 from the numbers as float64 (``precision``), the sum from\ncorrectly rounded partial sums and the spread from stable moments. ``rows`` is\n``counted`` (a category and a number) plus the ``excluded`` rows, and the\ngroups add up to ``counted``. It shows an association between two columns,\nnot a cause. ``source`` says whether the rows were read from the source or are\nthe complete sample of the Scan.",
+      "properties": {
+        "kind": {
+          "const": "category_stats",
+          "default": "category_stats",
+          "title": "Kind",
+          "type": "string"
+        },
+        "accuracy": {
+          "const": "exact_counts",
+          "default": "exact_counts",
+          "title": "Accuracy",
+          "type": "string"
+        },
+        "precision": {
+          "const": "float64",
+          "default": "float64",
+          "title": "Precision",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "source",
+            "samples"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "categories": {
+          "$ref": "#/$defs/TableAxis"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "counted": {
+          "title": "Counted",
+          "type": "integer"
+        },
+        "excluded": {
+          "$ref": "#/$defs/StatsExclusions"
+        },
+        "bins": {
+          "$ref": "#/$defs/StatsBins"
+        },
+        "overall": {
+          "$ref": "#/$defs/StatsSummary"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/StatsGroup"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "association": {
+          "$ref": "#/$defs/StatsAssociation"
+        }
+      },
+      "required": [
+        "source",
+        "categories",
+        "rows",
+        "counted",
+        "excluded",
+        "bins",
+        "overall",
+        "groups",
+        "association"
+      ],
+      "title": "StatsResult",
+      "type": "object"
+    },
+    "StatsSettings": {
+      "additionalProperties": false,
+      "description": "How the numbers of a column are described by category (design 20.23).\n\nA table has at most ``max_categories`` category rows (the most frequent\nvalues, the rest is ``other``) and a column with more than ``max_distinct``\ndistinct values is not a category. Every category gets the same ``bins``\nbins, placed as ``deep.bin_strategy`` says. The exploration reads the row\nsample, never the source: ``max_columns`` and ``max_work`` (analyses times\nrows compared) bound its cost, ``max_candidates`` analyses at most are\nwritten in the plan and ``automatic_stats`` of them at most are chosen\nwithout being asked. ``explore_min_rows`` is the smallest number of rows an\nanalysis needs in the sample to be scored.\n\n``max_categories`` and ``bins`` are part of the key of a result; the\nbudgets of the exploration are not.",
+      "properties": {
+        "max_categories": {
+          "default": 30,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Categories",
+          "type": "integer"
+        },
+        "max_distinct": {
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Max Distinct",
+          "type": "integer"
+        },
+        "bins": {
+          "default": 50,
+          "maximum": 1000,
+          "minimum": 2,
+          "title": "Bins",
+          "type": "integer"
+        },
+        "max_columns": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 2,
+          "title": "Max Columns",
+          "type": "integer"
+        },
+        "max_work": {
+          "default": 1000000,
+          "minimum": 1,
+          "title": "Max Work",
+          "type": "integer"
+        },
+        "max_candidates": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Candidates",
+          "type": "integer"
+        },
+        "automatic_stats": {
+          "default": 8,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Automatic Stats",
+          "type": "integer"
+        },
+        "explore_min_rows": {
+          "default": 30,
+          "minimum": 4,
+          "title": "Explore Min Rows",
+          "type": "integer"
+        }
+      },
+      "title": "StatsSettings",
+      "type": "object"
+    },
+    "StatsSummary": {
+      "additionalProperties": false,
+      "description": "The numbers of a population of rows: ``count`` numbers, and when there is\none their extremes, ``sum``, ``mean``, population standard deviation and the\ncounts of positive, negative and zero numbers, which add up to ``count``.\n``counts`` holds one counter per bin of ``StatsResult.bins`` (they add up to\n``count``) and ``quantiles`` are read from them: estimates with ``lower`` and\n``upper`` bounds the true value cannot leave, tightened by the extremes.",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "sum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sum"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean"
+        },
+        "std": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Std"
+        },
+        "positive": {
+          "default": 0,
+          "title": "Positive",
+          "type": "integer"
+        },
+        "negative": {
+          "default": 0,
+          "title": "Negative",
+          "type": "integer"
+        },
+        "zero": {
+          "default": 0,
+          "title": "Zero",
+          "type": "integer"
+        },
+        "counts": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "array"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantile"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quantiles": {
+          "items": {
+            "$ref": "#/$defs/Quantile"
+          },
+          "title": "Quantiles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "count",
+        "counts"
+      ],
+      "title": "StatsSummary",
       "type": "object"
     },
     "Stratification": {

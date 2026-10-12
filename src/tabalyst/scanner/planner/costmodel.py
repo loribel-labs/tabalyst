@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 9
+COST_MODEL_VERSION = 10
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -75,6 +75,11 @@ CODE_FEED_ENTRY_BYTES = 56
 # of the raw strings it remembered (``REPLAY_MEMO_ENTRIES``, about as large as a
 # remembered cell).
 CODER_BYTES = 8_192
+# The numbers of a column by category (lot 16c): a category keeps its moments, its
+# extremes, the partial sums and the counters of its bins (``RANK_CELL_BYTES``
+# each); the batch of floats of the numeric column and the codes of the category
+# are shared with the pairs and the tables that read them.
+STATS_GROUP_BYTES = 1_024
 # Reading the source once: the readers hold at most 8 MiB of batch (a CSV batch
 # is closed by size); the worst measured peak is 19 MB (60,000 rows of texts
 # up to 8,000 characters), 7 to 8 MB for the other files.
@@ -245,6 +250,14 @@ NS_PER_CELL = {
     # for each), and 702 to 734 for each cell of a combination of two columns.
     "duplicates": 1_100,
     "duplicates_key": 1_000,
+    # The numbers of a column by category (lot 16c), measured on the executor
+    # (`lot16/measure_stats.py`, 1 million rows, one process, the reading of the
+    # cell included): 909 to 954 ns for a cell of a category and of an amount of
+    # 2 decimals, 1,431 for a column of 4 decimals nearly all distinct, 1,758 for 3
+    # decimals, 1,864 for three pairs that share their category; the same session
+    # measured 2,520 for a pair of correlated columns. The number detector
+    # dominates, as for the pairs. Rounded up to one figure, ``moderate``.
+    "category_stats": 2_000,
 }
 # Distinct values up to which an extraction is in the tier ``measure_few``, and
 # then ``measure`` up to the strings the route remembers.

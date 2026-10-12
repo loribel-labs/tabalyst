@@ -80,6 +80,7 @@ Keep these exactly as written in every language:
 | common rows | lignes communes | The rows where both columns of a pair have a number; the means and the coefficient of a pair are those of these rows only (`pairwise_complete`) |
 | undefined coefficient | coefficient non défini | A correlation that cannot be computed, because too few common rows or a column that does not vary; the result says why and never writes `0` |
 | category | catégorie | A column of a few repeated values, such as a region, whose value is the row of a table; its exact frequencies come from the scan |
+| correlation ratio | rapport de corrélation | The share of the variance of a number that the categories of another column explain, from 0 to 1 (`eta_squared`). The second pass also gives it corrected for the number of categories (`epsilon_squared`), and the planner rates a pair by its square root |
 | feature | caractéristique dérivée | What a table reads of a column to make its classes: the `pattern` that reads the value, its `length`, its `prefix` or its `value` (another category) |
 | table of a category against a feature | table croisée | The exact count of the rows of each category in each class of a feature of another column, computed by the second pass over every row (`category_crosstab`) |
 | class | classe | A column of a table: a pattern, a length or a prefix; the last one is always `other`, what the others do not take |

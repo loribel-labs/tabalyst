@@ -17,6 +17,7 @@ from tabalyst.scanner.planner.analyzers.measures import MeasureExtraction
 from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
 from tabalyst.scanner.planner.analyzers.pearson import PearsonCorrelation
 from tabalyst.scanner.planner.analyzers.residuals import ResidualValues
+from tabalyst.scanner.planner.analyzers.stats import CategoryStats
 from tabalyst.scanner.planner.analyzers.temporal import TemporalDistribution
 
 BUILT_INS: tuple[type[Analyzer], ...] = (
@@ -31,4 +32,5 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     DuplicatesReport,
     PearsonCorrelation,
     CategoryCrosstab,
+    CategoryStats,
 )

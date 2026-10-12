@@ -167,6 +167,27 @@ class TableExploration(ScanModel):
         return _omit_none(handler(self), ("purity", "cramers_v", "score", "stable", "reason"))
 
 
+class StatsExploration(ScanModel):
+    """What the row sample says of the numbers of a column by category (design
+    20.23, REL-05): the ``rows`` that have a category and a number, the effective
+    ``groups`` (categories with a row) and the correlation ratio ``eta_squared``,
+    its corrected ``epsilon_squared`` and the ``score`` the planner ranks by
+    (its square root), or the ``reason`` there is none. It says nothing of the
+    population beyond the ``scope`` rows. Figures are rounded to six decimals."""
+
+    scope: Literal["interior_rows", "all_rows"]
+    rows: int
+    groups: int
+    eta_squared: float | None = None
+    epsilon_squared: float | None = None
+    score: float | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("eta_squared", "epsilon_squared", "score", "reason"))
+
+
 class Candidate(ScanModel):
     """One analysis of one field with its decision. ``method`` and ``parameters``
     are absent for an analysis that does not apply; ``costs`` too. An analysis
@@ -188,7 +209,7 @@ class Candidate(ScanModel):
     selection: Selection
     execution: Execution
     partner: str | None = None
-    exploration: Exploration | TableExploration | None = None
+    exploration: Exploration | TableExploration | StatsExploration | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unknown(self, handler) -> dict[str, Any]:
@@ -256,6 +277,7 @@ class Budgets(ScanModel):
     # 20.13).
     automatic_pairs: int = 8
     automatic_tables: int = 8
+    automatic_stats: int = 8
 
 
 class CommonCost(ScanModel):
@@ -349,18 +371,53 @@ class ExploredTables(ScanModel):
         return _omit_none(handler(self), ("scope", "unavailable"))
 
 
+class ExploredStats(ScanModel):
+    """The exploration of the numbers by category of one dataset (design 20.23).
+
+    ``categories`` columns are eligible categories and ``numeric`` columns
+    eligible numbers; those left out are counted by reason in
+    ``excluded_categories`` and ``excluded_numeric``. Of the ``possible``
+    analyses, ``evaluated`` were scored on ``rows`` rows of the sample (``scope``
+    says which), ``undefined`` have no score (reasons in ``undefined_reasons``)
+    and ``listed`` are candidates of the plan. ``work`` is the analyses times the
+    rows compared, the post-processing budget (COST-05). ``unavailable`` says why
+    the dataset was not explored."""
+
+    dataset: str
+    scope: Literal["interior_rows", "all_rows"] | None = None
+    rows: int = 0
+    categories: int = 0
+    numeric: int = 0
+    excluded_categories: dict[str, int] = Field(default_factory=dict)
+    excluded_numeric: dict[str, int] = Field(default_factory=dict)
+    possible: int = 0
+    evaluated: int = 0
+    undefined: int = 0
+    undefined_reasons: dict[str, int] = Field(default_factory=dict)
+    listed: int = 0
+    work: int = 0
+    unavailable: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("scope", "unavailable"))
+
+
 class Relations(ScanModel):
     """What the planner looked at to propose pairs of columns (``datasets``: one
     entry per dataset with at least two numeric columns) and tables of a
-    category against a feature (``tables``: one per dataset with a category)."""
+    category against a feature (``tables``: one per dataset with a category) and
+    of the numbers by category (``stats``: one per dataset with a category and a
+    number)."""
 
     datasets: list[ExploredDataset] = Field(default_factory=list)
     tables: list[ExploredTables] = Field(default_factory=list)
+    stats: list[ExploredStats] = Field(default_factory=list)
 
     @model_serializer(mode="wrap")
     def _omit_empty(self, handler) -> dict[str, Any]:
         data = handler(self)
-        for name in ("datasets", "tables"):
+        for name in ("datasets", "tables", "stats"):
             if not data.get(name):
                 data.pop(name, None)
         return data

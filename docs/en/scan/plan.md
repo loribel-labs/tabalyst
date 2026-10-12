@@ -157,6 +157,36 @@ The feature `value` sets a category against another category; of two columns tha
 be the category, only the one with fewer distinct values (the first of the file on a tie) is
 the row axis in the exploration, and a request can ask for the other.
 
+## Numbers by category
+
+`category_stats` concerns a category and a numeric column, whose numbers it describes for each
+category. It is a candidate with a `partner` (the numeric column) and no feature, and the order
+matters: `column_1>column_2` is the category `column_1` and the number `column_2`.
+
+```json
+{"id": "category_stats:rows:column_1>column_2",
+ "display": "type_contrat and prime_annuelle", "partner": "column_2",
+ "method": "group_moments",
+ "parameters": {"max_categories": 30, "bins": 50, "strategy": "linear"},
+ "exploration": {"scope": "interior_rows", "rows": 900, "groups": 6,
+                 "eta_squared": 0.35, "epsilon_squared": 0.34, "score": 0.58}}
+```
+
+`score` is the square root of the corrected correlation ratio of the pair on the sample (the share of
+the variance of the number that the categories explain, corrected for their number), which ranks the
+pairs and gives the benefit (100 times the score, 45 at least for an automatic choice). `rows` are the
+sample rows that have a category and a number, and `groups` the categories among them (`other` takes
+no part). A pair without a score, because only one category has rows, there are too few of them or the
+number does not vary, carries a `reason` instead and is not listed unless you asked for it.
+
+The plan's `relations.stats` member says what the exploration did for each dataset with a category
+and a number: the rows it used, the categories and numeric columns it kept, those it left out by
+reason (as for the tables and the pairs), the pairs that were possible, scored and left undefined (by
+reason), the pairs listed and the `work` spent (pairs times rows). It is bounded by
+`deep.stats.max_columns` (50) and `deep.stats.max_work` (1,000,000). The planner lists 20 pairs at most
+and picks 8 at most by itself (`automatic_stats`; the others say `stats_budget`). Of two columns that
+could both be the category, only the one with fewer distinct values is the category in the exploration.
+
 ## Stratification advice
 
 ```console

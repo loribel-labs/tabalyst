@@ -48,6 +48,7 @@ from tabalyst.scanner.planner.models import (
     Execution,
     Exploration,
     ExploredDataset,
+    ExploredStats,
     ExploredTables,
     Memory,
     Objective,
@@ -56,6 +57,7 @@ from tabalyst.scanner.planner.models import (
     RequestedAnalysis,
     Selection,
     State,
+    StatsExploration,
     Summary,
     TableExploration,
     Utility,
@@ -79,6 +81,7 @@ def default_budgets(deep: DeepSettings | None = None) -> Budgets:
         automatic_max_cpu="moderate",
         automatic_pairs=deep.pearson.automatic_pairs,
         automatic_tables=deep.crosstab.automatic_tables,
+        automatic_stats=deep.stats.automatic_stats,
     )
 
 
@@ -96,7 +99,7 @@ class _Entry:
     selection: Selection | None = None
     # The second field of a pair and what the sample says of it.
     partner: FieldFacts | None = None
-    exploration: Exploration | TableExploration | None = None
+    exploration: Exploration | TableExploration | StatsExploration | None = None
     # The feature of the second column of a table, and whether another feature
     # of the same two columns scored higher (REL-16).
     feature: str | None = None
@@ -455,7 +458,7 @@ def _pair_entries(
     facts_list: Sequence[FieldFacts],
     requests: Sequence[AnalysisRequest],
     start: int,
-) -> tuple[list[_Entry], list[ExploredDataset] | list[ExploredTables]]:
+) -> tuple[list[_Entry], list[ExploredDataset] | list[ExploredTables] | list[ExploredStats]]:
     """The candidates of the pairs of columns an analyzer proposes: the best its
     exploration of the row sample found, then the pairs a request named that it
     did not list (REL-06). Reads the row sample of the Scan and nothing else."""
@@ -595,7 +598,11 @@ def plan_analyses(
             beyond_automatic=_beyond_automatic(selected, ledger, budgets, cells),
         ),
         relations=(
-            Relations(datasets=explored.get("datasets", []), tables=explored.get("tables", []))
+            Relations(
+                datasets=explored.get("datasets", []),
+                tables=explored.get("tables", []),
+                stats=explored.get("stats", []),
+            )
             if any(explored.values())
             else None
         ),

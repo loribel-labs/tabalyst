@@ -67,6 +67,7 @@ SELECTION = {
     "cells_budget": "the shared reading exceeds the automatic cell budget",
     "pairs_budget": "enough pairs were already chosen automatically",
     "tables_budget": "enough tables were already chosen automatically",
+    "stats_budget": "enough numbers by category were already chosen automatically",
     "redundant_feature": "another feature of the same two columns says more",
     "budget": "its memory does not fit in the budget with the analyses already selected",
 }
@@ -100,6 +101,7 @@ UTILITY = {
     "exploratory_correlation": "the sample suggests a linear relation between the two columns",
     "not_explored": "the sample could not score this pair",
     "exploratory_association": "the sample suggests that the category determines the feature",
+    "exploratory_correlation_ratio": "the sample suggests that the category explains the number",
 }
 
 # The advice on stratified sampling (design 20.14). Kept apart: a code such as

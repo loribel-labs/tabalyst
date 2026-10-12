@@ -12567,7 +12567,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "ran",
+    "outcome": "reused",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -12607,6 +12607,16 @@
           "automatic_tables": 8,
           "explore_min_rows": 30
         },
+        "stats": {
+          "max_categories": 30,
+          "max_distinct": 100,
+          "bins": 50,
+          "max_columns": 50,
+          "max_work": 1000000,
+          "max_candidates": 20,
+          "automatic_stats": 8,
+          "explore_min_rows": 30
+        },
         "measures": {
           "max_groups": 20,
           "max_values": 100000
@@ -12624,13 +12634,13 @@
           "records": false
         }
       },
-      "settings_sha256": "7a4842b52162eb3e7078c59b2465e3f32f0edad3dfe9bb13b6e05c596b76ae57",
+      "settings_sha256": "87bb96be964ebcde6042e34a66cc448c5b786397afcd56662d19d2e4614d93c7",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 8,
-        "plan_id": "1a5609df65f7effd093cbeb9d63ce4e84d44deadacaa1b5d5e6ff5da4949032a",
+        "cost_model_version": 10,
+        "plan_id": "28809f931418906dba942a5479b6189aa8156ceba265431c0dab3d6cfecbf888",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -12650,7 +12660,8 @@
           "automatic_max_cpu": "moderate",
           "overflow": "reject",
           "automatic_pairs": 8,
-          "automatic_tables": 8
+          "automatic_tables": 8,
+          "automatic_stats": 8
         },
         "common": {
           "requires_source": true,
@@ -12659,10 +12670,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 84,
+          "candidates": 87,
           "selected": 18,
           "already_satisfied": 39,
-          "rejected": 27,
+          "rejected": 30,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -12727,6 +12738,33 @@
               "listed": 20,
               "work": 54600,
               "cells": 248
+            }
+          ],
+          "stats": [
+            {
+              "dataset": "$[]",
+              "scope": "all_rows",
+              "rows": 300,
+              "categories": 9,
+              "numeric": 1,
+              "excluded_categories": {
+                "identifier_like": 1,
+                "near_unique": 2,
+                "no_values": 3,
+                "repeated_path": 1,
+                "single_value": 1
+              },
+              "excluded_numeric": {
+                "too_few_values": 2
+              },
+              "possible": 8,
+              "evaluated": 8,
+              "undefined": 2,
+              "undefined_reasons": {
+                "too_few_rows": 2
+              },
+              "listed": 3,
+              "work": 2400
             }
           ]
         },
@@ -16473,7 +16511,7 @@
                 "max": 1052960
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/$[]/fields/f9>f11:value",
@@ -17698,7 +17736,7 @@
                 "max": 1031360
               },
               "cpu": "low",
-              "cell_ns": 600,
+              "cell_ns": 500,
               "states": [
                 {
                   "key": "crosstab:datasets/$[]/fields/f7>f9:value",
@@ -18334,25 +18372,391 @@
               "score": 0.255684,
               "stable": false
             }
+          },
+          {
+            "id": "category_stats:$[]:f11>f5",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f11",
+            "display": "page and user.id",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 16,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 373066,
+                "expected": 511272,
+                "max": 908880
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/$[]/fields/f11>f5",
+                  "memory": {
+                    "min": 3402,
+                    "expected": 13608,
+                    "max": 27216
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/$[]/fields/f11>f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/$[]/fields/f11:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/$[]/fields/f11:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f11",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "f5",
+            "exploration": {
+              "scope": "all_rows",
+              "rows": 229,
+              "groups": 8,
+              "eta_squared": 0.055183,
+              "epsilon_squared": 0.025256,
+              "score": 0.158923
+            }
+          },
+          {
+            "id": "category_stats:$[]:f3>f5",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f3",
+            "display": "type and user.id",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 5,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 371932,
+                "expected": 506736,
+                "max": 899808
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/$[]/fields/f3>f5",
+                  "memory": {
+                    "min": 2268,
+                    "expected": 9072,
+                    "max": 18144
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/$[]/fields/f3>f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/$[]/fields/f3:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/$[]/fields/f3:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f3",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "f5",
+            "exploration": {
+              "scope": "all_rows",
+              "rows": 229,
+              "groups": 5,
+              "eta_squared": 0.019857,
+              "epsilon_squared": 0.002354,
+              "score": 0.048521
+            }
+          },
+          {
+            "id": "category_stats:$[]:f7>f5",
+            "analyzer": "category_stats",
+            "analyzer_version": 1,
+            "dataset": "$[]",
+            "field": "f7",
+            "display": "user.plan and user.id",
+            "method": "group_moments",
+            "parameters": {
+              "max_categories": 30,
+              "bins": 50,
+              "strategy": "linear"
+            },
+            "outputs": [
+              "group_counts",
+              "group_extremes",
+              "group_moments",
+              "group_histograms",
+              "group_quantiles",
+              "correlation_ratio"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 4,
+              "reasons": [
+                "exploratory_correlation_ratio"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 371176,
+                "expected": 503712,
+                "max": 893760
+              },
+              "cpu": "moderate",
+              "cell_ns": 2000,
+              "states": [
+                {
+                  "key": "stats:datasets/$[]/fields/f7>f5",
+                  "memory": {
+                    "min": 1512,
+                    "expected": 6048,
+                    "max": 12096
+                  }
+                },
+                {
+                  "key": "result:category_stats:datasets/$[]/fields/f7>f5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "pearson_feed:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 131072,
+                    "expected": 131072,
+                    "max": 131072
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "code_feed:datasets/$[]/fields/f7:category",
+                  "memory": {
+                    "min": 229376,
+                    "expected": 229376,
+                    "max": 229376
+                  }
+                },
+                {
+                  "key": "coder:datasets/$[]/fields/f7:category",
+                  "memory": {
+                    "min": 8192,
+                    "expected": 8192,
+                    "max": 8192
+                  }
+                },
+                {
+                  "key": "replay:datasets/$[]/fields/f7",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            },
+            "partner": "f5",
+            "exploration": {
+              "scope": "all_rows",
+              "rows": 229,
+              "groups": 3,
+              "eta_squared": 0.010166,
+              "epsilon_squared": 0.001407,
+              "score": 0.037505
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-12T02:14:17.728403Z",
-        "duration_seconds": 0.010451,
+        "started_at": "2026-10-12T03:10:01.378475Z",
+        "duration_seconds": 0.000161,
         "timings": {
-          "reading": 0.004374,
-          "analysis": 0.00285,
-          "other": 0.003227
+          "reading": 0.0,
+          "analysis": 0.0,
+          "other": 0.000161
         },
         "workers": 1,
-        "peak_memory_bytes": 69935104,
-        "source_read": true,
-        "source_verified": true,
-        "records_read": 300,
-        "cells_read": 600,
-        "executed": 4,
-        "reused": 14,
+        "peak_memory_bytes": 69132288,
+        "source_read": false,
+        "source_verified": false,
+        "records_read": 0,
+        "cells_read": 0,
+        "executed": 0,
+        "reused": 18,
         "skipped": 0
       },
       "analyses": [
@@ -22710,12 +23114,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T02:14:18.007858Z",
+    "generated_at": "2026-10-12T03:10:01.631854Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.3261,
+    "processing_seconds": 0.2989,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

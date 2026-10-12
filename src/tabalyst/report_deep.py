@@ -20,6 +20,7 @@ from tabalyst.report_labels import (
     EXACT,
     FEATURE_WORDS,
     PEARSON_REASONS,
+    STATS_REASONS,
     TABLE_REASONS,
 )
 from tabalyst.report_views import (
@@ -46,6 +47,7 @@ from tabalyst.scanner.secondpass.models import (
     PearsonResult,
     PeriodCounts,
     ResidualResult,
+    StatsResult,
 )
 
 _NOT_COMPUTED = "not_computed"
@@ -177,6 +179,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             + (f"; {len(result.rules):,} candidate rules" if result.rules else ""),
             EXACT,
         )
+    if isinstance(result, StatsResult):
+        return _stats_summary(result), EXACT
     if isinstance(result, MeasureResult):
         return _measures_summary(result), EXACT
     if isinstance(result, ResidualResult):
@@ -206,6 +210,20 @@ _MEASURE_WORDS = {
     "percentage": ("percentage", "sign"),
     "quantity": ("quantity", "unit"),
 }
+
+
+def _stats_summary(result: StatsResult) -> str:
+    described = sum(1 for group in result.groups if group.count)
+    noun = "category" if described == 1 else "categories"
+    head = f"{result.counted:,} of {result.rows:,} rows described by {described:,} {noun}"
+    found = result.association
+    if found.epsilon_squared is None or found.eta_squared is None:
+        why = STATS_REASONS.get(found.reason or "", found.reason or "undefined")
+        return f"{head}; no score: {why}"
+    return (
+        f"{head}; the categories explain {found.eta_squared:.1%} of the variance "
+        f"({found.epsilon_squared:.1%} once corrected)"
+    )
 
 
 def _measures_summary(result: MeasureResult) -> str:

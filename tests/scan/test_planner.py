@@ -101,6 +101,7 @@ def test_the_default_registry_lists_the_built_in_analyzers_in_plan_order():
         "duplicates_report",
         "pearson_correlation",
         "category_crosstab",
+        "category_stats",
     ]
 
 
@@ -142,6 +143,7 @@ def test_only_the_analyzers_with_an_executor_are_runnable():
         "duplicates_report",
         "pearson_correlation",
         "category_crosstab",
+        "category_stats",
     }
     assert [a.id for a in registry if a.available] == [a.id for a in runnable]
 
