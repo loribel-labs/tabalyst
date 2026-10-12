@@ -138,7 +138,7 @@ def explore_table(
     )
 
 
-def _category_state(facts: FieldFacts) -> str | None:
+def category_state(facts: FieldFacts) -> str | None:
     """Why a field cannot be a category, from the Scan alone."""
     if facts.values == 0:
         return NO_VALUES
@@ -226,7 +226,7 @@ def explore_dataset(
     excluded_categories: dict[str, int] = {}
     categories: list[_Column] = []
     for item in facts:
-        reason = _category_state(item)
+        reason = category_state(item)
         coder: Coder | None = None
         if reason is None:
             coder, reason = category_coder(
@@ -435,7 +435,7 @@ def explicit_proposals(
     proposals: list[PairProposal] = []
     if category.field == column.field:
         return [PairProposal(category, column, None, (SAME_COLUMN,), feature=f) for f in features]
-    reason = _category_state(category)
+    reason = category_state(category)
     coder: Coder | None = None
     if reason in (None, IDENTIFIER, NEAR_UNIQUE):
         # A request may name an identifier as category: it is asked for.

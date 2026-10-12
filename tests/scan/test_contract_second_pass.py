@@ -128,8 +128,11 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
 
     ids = {e.display: e.id for e in first.outcome.document.analyses}
     # Two histograms, the patterns of the names (which the Scan answers alone) and
-    # the tables of the names against the first characters and the values of the ages.
-    assert len(first.outcome.executed) == 5 and first.outcome.read_source
+    # the tables of the names against the first characters and the values of the ages,
+    # and the prices described by the ages and by the names.
+    stats = {e.id for e in first.outcome.document.analyses if e.analyzer == "category_stats"}
+    assert len(stats) == 2
+    assert len(first.outcome.executed) == 5 + len(stats) and first.outcome.read_source
     # Complete: every result is valid, so the source is not read and the file is not rewritten.
     assert again.outcome.read_source is False and again.written is False
     assert again.outcome.reused == first.outcome.executed
@@ -140,6 +143,7 @@ def test_A15_a_complete_cache_reads_nothing_and_a_partial_one_computes_only_the_
         ids["name"],
         ids["name and age (prefix)"],
         ids["name and age (value)"],
+        *stats,
     }
 
     # A partial cache: a missing entry and a failed one are computed again.

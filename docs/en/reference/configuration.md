@@ -253,6 +253,12 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.crosstab.max_columns`, `deep.crosstab.max_work` | `50`, `1000000` | Columns explored for tables, and tables times rows coded by the exploration of the row sample |
 | `deep.crosstab.max_candidates`, `deep.crosstab.automatic_tables` | `20`, `8` | Tables the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A table is picked when its corrected Cramér's V is 0.45 or more |
 | `deep.crosstab.explore_min_rows` | `30` | Rows a table needs in the sample for the exploration to score it |
+| `deep.stats.max_categories` | `30` | Categories the numbers are described for, the most frequent; the others are `other`. From 2 to 200. Changing it computes those analyses again |
+| `deep.stats.bins` | `50` | Bins every category is counted in, placed as `deep.bin_strategy` says, from 2 to 1,000. Changing it computes those analyses again |
+| `deep.stats.max_distinct` | `100` | Most distinct values a column may have to be a category, from 2 to 1,000 |
+| `deep.stats.max_columns`, `deep.stats.max_work` | `50`, `1000000` | Columns explored for numbers by category, and pairs times rows compared by the exploration of the row sample |
+| `deep.stats.max_candidates`, `deep.stats.automatic_stats` | `20`, `8` | Pairs the plan lists at most, and `tabalyst report` picks by itself at most (`0` picks none). A pair is picked when the square root of its corrected correlation ratio is 0.45 or more |
+| `deep.stats.explore_min_rows` | `30` | Rows a pair needs in the sample for the exploration to score it |
 | `deep.measures.max_groups` | `20` | Currencies or units of a field of amounts, percentages or quantities that get metrics of their own, the most frequent first; the others are counted together in `other`. From 1 to 1,000. Changing it computes the extraction again |
 | `deep.measures.max_values` | `100000` | Different pairs of a currency or unit and a number counted exactly in a field. Beyond, every group goes on in bins: counts, sums and extremes stay exact, the median and quantiles are estimated. From 1 to 10,000,000. Changing it computes the extraction again |
 | `deep.residuals.max_listed` | `20` | Values listed per source and state in the values that patterns and detectors leave out, the most frequent first. From 1 to 1,000. Changing it computes the analysis again |

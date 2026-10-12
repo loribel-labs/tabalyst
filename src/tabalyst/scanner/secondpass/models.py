@@ -911,6 +911,120 @@ class CrosstabResult(ScanModel):
         return _omit_none(handler(self), ("provided_rules",))
 
 
+class StatsExclusions(ScanModel):
+    """The rows left out of the numbers by category. ``category_missing`` has a
+    number and no category, ``value_missing`` a category and no number (the row
+    has none, it is not a number, or the number does not fit a float64) and
+    ``both_missing`` neither."""
+
+    category_missing: int
+    value_missing: int
+    both_missing: int
+
+
+class StatsBins(ScanModel):
+    """The bins every category is counted in. Bin ``i`` is ``[edges[i],
+    edges[i + 1])`` and the last one is closed on the right so that the maximum
+    belongs to it; the edges are the same for every category, so the histograms
+    compare. ``strategy`` is the one in force and ``requested_strategy`` the one
+    asked for; they differ, with ``reason``, when the sample could not place the
+    edges. ``bounds_source`` says where they come from (``range``, ``rows`` or
+    ``distinct``, as for ``BinnedHistogram``). A number goes to a bin by
+    comparison of float64 values."""
+
+    strategy: Literal["linear", "sample_quantile"]
+    requested_strategy: Literal["linear", "sample_quantile"]
+    bounds_source: Literal["range", "rows", "distinct"]
+    reason: str | None = None
+    edges: list[Number]
+
+    @model_serializer(mode="wrap")
+    def _omit_reason(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("reason",))
+
+
+class StatsSummary(ScanModel):
+    """The numbers of a population of rows: ``count`` numbers, and when there is
+    one their extremes, ``sum``, ``mean``, population standard deviation and the
+    counts of positive, negative and zero numbers, which add up to ``count``.
+    ``counts`` holds one counter per bin of ``StatsResult.bins`` (they add up to
+    ``count``) and ``quantiles`` are read from them: estimates with ``lower`` and
+    ``upper`` bounds the true value cannot leave, tightened by the extremes."""
+
+    count: int
+    min: Number | None = None
+    max: Number | None = None
+    sum: float | None = None
+    mean: float | None = None
+    std: float | None = None
+    positive: int = 0
+    negative: int = 0
+    zero: int = 0
+    counts: list[int]
+    median: Quantile | None = None
+    quantiles: list[Quantile] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        data = _omit_none(handler(self), ("min", "max", "sum", "mean", "std", "median"))
+        if not data.get("quantiles"):
+            data.pop("quantiles", None)
+        return data
+
+
+class StatsGroup(StatsSummary):
+    """The numbers of one category, in the order of the axis. ``rows`` are all
+    its rows: ``count`` of them have a number, ``value_missing`` do not."""
+
+    rows: int
+    value_missing: int
+
+
+class StatsAssociation(ScanModel):
+    """How much of the variance of the number the categories explain (design
+    20.23): the correlation ratio ``eta_squared`` and the same corrected for the
+    bias that grows with the number of ``groups`` (``epsilon_squared``, not below
+    0), over the ``n`` numbers of the named categories (``other`` takes no part).
+    ``score`` is the square root of the corrected ratio. Without them the
+    ``reason`` says why: never 0."""
+
+    defined: bool
+    n: int
+    groups: int
+    eta_squared: float | None = None
+    epsilon_squared: float | None = None
+    score: float | None = None
+    reason: str | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unknown(self, handler) -> dict[str, Any]:
+        return _omit_none(handler(self), ("eta_squared", "epsilon_squared", "score", "reason"))
+
+
+class StatsResult(ScanModel):
+    """The numbers of a column described for each value of a category, over every
+    row. The counts are exact; the minimum, maximum, sum, mean and spread are
+    computed in float64 from the numbers as float64 (``precision``), the sum from
+    correctly rounded partial sums and the spread from stable moments. ``rows`` is
+    ``counted`` (a category and a number) plus the ``excluded`` rows, and the
+    groups add up to ``counted``. It shows an association between two columns,
+    not a cause. ``source`` says whether the rows were read from the source or are
+    the complete sample of the Scan."""
+
+    kind: Literal["category_stats"] = "category_stats"
+    accuracy: Literal["exact_counts"] = "exact_counts"
+    precision: Literal["float64"] = "float64"
+    source: Literal["source", "samples"]
+    categories: TableAxis
+    rows: int
+    counted: int
+    excluded: StatsExclusions
+    bins: StatsBins
+    overall: StatsSummary
+    groups: list[StatsGroup]
+    association: StatsAssociation
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
@@ -925,7 +1039,8 @@ AnalysisOutput = Annotated[
     | DuplicateResult
     | DuplicatesLimited
     | PearsonResult
-    | CrosstabResult,
+    | CrosstabResult
+    | StatsResult,
     Field(discriminator="kind"),
 ]
 

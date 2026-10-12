@@ -11,8 +11,8 @@ length distribution of a text field when the scan lacks it, the inferred pattern
 counted on every value, the values that patterns and detectors leave out, the
 repeated values of identifiers, the dates counted per period, the numbers of amounts,
 percentages and quantities with a unit, the correlation of
-pairs of numeric columns and tables of a category against the pattern, length,
-prefix or value of another column. It writes them to a
+pairs of numeric columns, tables of a category against the pattern, length,
+prefix or value of another column and the numbers of a column by category. It writes them to a
 separate document, `deep.json`, and never changes the scan. The second pass is
 experimental in the beta. [`tabalyst report`](../reference/cli/report.md#second-pass)
 runs it by itself for the analyses that are useful and cheap, and puts the results
@@ -53,6 +53,7 @@ stored.
 | `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
 | `category_crosstab` | A column of a few values and another text or integer column | The count of the rows of each category in each pattern, length or prefix of the other column, with the purity of each category, the exceptions, Cramér's V and candidate rules |
+| `category_stats` | A column of a few values and a numeric column | For each category: the count, extremes, sum, mean, spread, signs and a histogram of the numbers, with estimated quantiles, and the share of the variance the categories explain |
 
 A scan always holds the length histogram of a text field unless it was limited
 or turned off, so `length_distribution` is rare. `tabalyst scan --plan --deep`
@@ -442,6 +443,89 @@ API can ask for any table, even one that the sample did not show.
 sample is the file: the table is computed from it and the source is not read again
 (`source` is `samples`).
 
+## The numbers of a column by category
+
+A category, such as a contract type, often explains a number, such as a premium. The
+second pass describes the number for each value of the category, over every row: how
+many numbers there are, their smallest and largest, their sum, mean and spread, how
+many are positive, negative or zero, and a histogram. As for the correlations, it does
+not try every pair of the file: it first rates them on the rows the scan sampled,
+which needs no reading of the source, keeps the best ones, and reads the file once
+for them.
+
+```json
+{"kind": "category_stats", "accuracy": "exact_counts", "precision": "float64",
+ "source": "source", "rows": 3000, "counted": 2998,
+ "excluded": {"category_missing": 2, "value_missing": 0, "both_missing": 0},
+ "bins": {"strategy": "linear", "requested_strategy": "linear",
+          "bounds_source": "range", "edges": [-3097.96, -2937.04, "..."]},
+ "overall": {"count": 2998, "min": -3097.96, "max": 4948.16,
+             "sum": 3669685.72, "mean": 1224.04, "std": 825.89,
+             "positive": 2973, "negative": 25, "zero": 0,
+             "counts": ["..."], "median": {"...": "..."}, "quantiles": ["..."]},
+ "groups": [{"rows": 1228, "value_missing": 0, "count": 1228,
+             "min": -1636.84, "max": 2736.77, "sum": 1358808.14,
+             "mean": 1106.52, "std": 571.44,
+             "positive": 1217, "negative": 11, "zero": 0,
+             "counts": ["..."],
+             "median": {"level": 0.5, "value": 1038.98,
+                        "accuracy": "estimated", "lower": 925.1,
+                        "upper": 1086.02},
+             "quantiles": ["..."]}, "..."],
+ "association": {"defined": true, "n": 2998, "groups": 6,
+                 "eta_squared": 0.3465, "epsilon_squared": 0.3454,
+                 "score": 0.5877}}
+```
+
+`groups` follow the classes of `categories` (the most frequent values of the category,
+then `other` for the rest), and `rows` is `counted` plus the three exclusions: a row
+with a number and no category (`category_missing`), a row with a category and no number
+(`value_missing`: the cell is empty, is not a number, or does not fit a 64-bit float)
+and a row with neither. A category with no number is listed with its `rows` and a
+`count` of `0`, and nothing else.
+
+**Exact or estimated.** The counts (`count`, `positive`, `negative`, `zero`, the
+`counts` of the bins) are exact, and so are the smallest and largest numbers. The
+sum, the mean and the spread (`std`, the population standard deviation) are computed
+in 64-bit floats, the sum from correctly rounded partial sums and the spread from
+stable moments. Every category is counted in the **same bins** (`bins.edges`, placed
+as the other histograms are, see `deep.bin_strategy`), so the histograms of two
+categories can be set side by side. A bin does not say where its numbers are, so the
+quantiles (5, 25, 50, 75 and 95%) are **estimates**: each comes with the lowest and
+highest value it can have, tightened by the extremes of the category, and the true
+value is always between them.
+
+**What the categories explain.** `eta_squared` is the share of the variance of the
+number that the categories explain (the correlation ratio, from 0 to 1).
+`epsilon_squared` is the same share corrected for the bias that grows with the number
+of categories, which is why a column of many values does not look better than it is,
+and `score` is its square root. The class `other` takes no part in them. There is no
+`score` when the categories cannot be compared, and `reason` says why instead of
+giving `0`: `too_few_rows`, `single_category` (only one category has a number) or
+`no_variance` (the number never varies). It shows an association, not a cause: a
+region can explain a price without causing it.
+
+**How the pairs are chosen.** The category follows the rules of the tables above
+(2 to 100 distinct values, repeated, not an identifier, not hidden by exposure) and the
+number those of the correlations (numeric, varies, not an identifier). The plan
+counts the columns it left out, by reason, in `relations.stats`. A pair is rated by
+the corrected ratio on the interior rows of the sample (a complete sample is used
+whole), and "not found in the sample" does not mean "absent". When both columns could
+be the category, such as two small integer codes, the one with fewer distinct values
+is the category, so that one relation does not take two places. A request can ask for
+the other direction.
+
+**What is automatic.** `tabalyst report` picks by itself the pairs whose `score` is
+0.45 or more, eight at most (`deep.stats.automatic_stats`). `--deep` takes every pair
+the plan lists, twenty at most, after asking if the estimate calls for it. The API can
+ask for any pair, even one that the sample did not show:
+`tabalyst.AnalysisRequest("category_stats", field="contract_type",
+partner="premium")`; the category comes first.
+
+**Small files.** When the scan sampled every row of a CSV file (up to 1,000 rows), the
+sample is the file: the pair is computed from it and the source is not read again
+(`source` is `samples`).
+
 ## Exact distinct count
 
 A scan stops counting the distinct values of a field after 100,000 of them (the
@@ -502,7 +586,8 @@ The `deep.pearson` object chooses the pairs of numeric columns: how many
 columns are explored, how much work that may take and how many pairs the plan lists
 or picks by itself. The `deep.crosstab` object does the same for the tables of a
 category against a feature, and sets their classes (the categories kept, the length
-of a prefix) and the thresholds of the candidate rules. The `deep.measures` object
+of a prefix) and the thresholds of the candidate rules. The `deep.stats` object does
+it for the numbers by category, and sets the categories kept and the bins. The `deep.measures` object
 sets how many currencies or units get metrics of their own and how many numbers
 are counted exactly. The `deep.residuals` and `deep.duplicates` objects set how many
 values are listed and tracked, and whether to read the source for the records. See [Deep

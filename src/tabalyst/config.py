@@ -229,6 +229,35 @@ class CrosstabSettings(BaseModel):
     explore_min_rows: int = Field(default=30, ge=4)
 
 
+class StatsSettings(BaseModel):
+    """How the numbers of a column are described by category (design 20.23).
+
+    A table has at most ``max_categories`` category rows (the most frequent
+    values, the rest is ``other``) and a column with more than ``max_distinct``
+    distinct values is not a category. Every category gets the same ``bins``
+    bins, placed as ``deep.bin_strategy`` says. The exploration reads the row
+    sample, never the source: ``max_columns`` and ``max_work`` (analyses times
+    rows compared) bound its cost, ``max_candidates`` analyses at most are
+    written in the plan and ``automatic_stats`` of them at most are chosen
+    without being asked. ``explore_min_rows`` is the smallest number of rows an
+    analysis needs in the sample to be scored.
+
+    ``max_categories`` and ``bins`` are part of the key of a result; the
+    budgets of the exploration are not.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_categories: int = Field(default=30, ge=2, le=200)
+    max_distinct: int = Field(default=100, ge=2, le=1_000)
+    bins: int = Field(default=50, ge=BINS_MIN, le=BINS_MAX)
+    max_columns: int = Field(default=50, ge=2, le=200)
+    max_work: int = Field(default=1_000_000, ge=1)
+    max_candidates: int = Field(default=20, ge=0, le=1_000)
+    automatic_stats: int = Field(default=8, ge=0, le=1_000)
+    explore_min_rows: int = Field(default=30, ge=4)
+
+
 class MeasureSettings(BaseModel):
     """How the values with a unit, a currency marker or a percent sign are
     extracted (design 20.19).
@@ -290,9 +319,9 @@ class DuplicateSettings(BaseModel):
 
 class DeepSettings(BaseModel):
     """What the second pass computes beyond the plan: the number of bins of a
-    histogram and where their bounds come from, how pairs of numeric columns
-    and tables of categories are chosen, how values with a unit are extracted,
-    and how residual and repeated values are kept.
+    histogram and where their bounds come from, how pairs of numeric columns,
+    tables of categories and numbers by category are chosen, how values with a
+    unit are extracted, and how residual and repeated values are kept.
 
     ``linear`` splits the exact range of the Scan into bins of equal width;
     ``sample_quantile`` places the inner bounds at quantiles of the row sample
@@ -308,6 +337,7 @@ class DeepSettings(BaseModel):
     bin_strategy: BinStrategy = "linear"
     pearson: PearsonSettings = Field(default_factory=PearsonSettings)
     crosstab: CrosstabSettings = Field(default_factory=CrosstabSettings)
+    stats: StatsSettings = Field(default_factory=StatsSettings)
     measures: MeasureSettings = Field(default_factory=MeasureSettings)
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)

@@ -49,11 +49,12 @@ from tabalyst.scanner.secondpass.pearson import ColumnFeed, PairAccumulator
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
 from tabalyst.scanner.secondpass.replay import Cell, CellReader, native_number
 from tabalyst.scanner.secondpass.residuals import ResidualAccumulator
+from tabalyst.scanner.secondpass.stats import StatsAccumulator
 
 # The columns of the pairs and tables, converted once whatever the number of
 # analyses that read them, and the analyses that read two of them.
 Feed = ColumnFeed | CodeFeed | RawFeed
-PairLike = PairAccumulator | CrosstabAccumulator | KeyAccumulator
+PairLike = PairAccumulator | CrosstabAccumulator | KeyAccumulator | StatsAccumulator
 # The aligned rows of a column: floats, codes or strings.
 Rows = Sequence[float | None] | Sequence[int] | Sequence[str | None]
 

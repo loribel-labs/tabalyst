@@ -207,6 +207,7 @@ ANALYSIS_LABELS = {
     "duplicates_report": "Repeated values",
     "pearson_correlation": "Correlation between two columns",
     "category_crosstab": "Category against a feature of a column",
+    "category_stats": "Numbers of a column by category",
 }
 # The features of a column that a table reads (design 20.13), as a noun phrase.
 FEATURE_WORDS = {
@@ -222,6 +223,12 @@ TABLE_REASONS = {
     "too_few_rows": "too few rows are classified in both columns",
     "single_category": "only one category has rows",
     "single_class": "only one class has rows",
+}
+# Why the categories explain no share of a number (``StatsAssociation.reason``), in words.
+STATS_REASONS = {
+    "too_few_rows": "too few rows have a category and a number",
+    "single_category": "only one category has rows",
+    "no_variance": "the number does not vary",
 }
 # Why a correlation has no coefficient (``PearsonResult.reason``), in words.
 PEARSON_REASONS = {

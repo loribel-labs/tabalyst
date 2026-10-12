@@ -33,9 +33,11 @@ from tabalyst.scanner.planner.models import (
     CpuClass,
     Exploration,
     ExploredDataset,
+    ExploredStats,
     ExploredTables,
     Memory,
     State,
+    StatsExploration,
     TableExploration,
     Utility,
 )
@@ -188,7 +190,7 @@ class PairProposal:
 
     first: FieldFacts
     second: FieldFacts
-    exploration: Exploration | TableExploration | None
+    exploration: Exploration | TableExploration | StatsExploration | None
     reasons: tuple[str, ...] = ()
     # Both columns are fully in a complete sample: the Scan alone answers.
     from_samples: bool = False
@@ -242,7 +244,10 @@ class PairAnalyzer(Analyzer):
         requests: Sequence[AnalysisRequest],
         reader: CellReader,
         lenient: bool,
-    ) -> tuple[list[PairProposal], list[ExploredDataset] | list[ExploredTables]]:
+    ) -> tuple[
+        list[PairProposal],
+        list[ExploredDataset] | list[ExploredTables] | list[ExploredStats],
+    ]:
         """The pairs to list: the best the exploration of each dataset found,
         then those a request named that it did not list (REL-06), and the blocks
         that describe the exploration. Reads the row sample of the Scan only."""

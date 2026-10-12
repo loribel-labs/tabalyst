@@ -381,6 +381,49 @@ The counts are exact and the figures computed from them (purity, V) are 64-bit f
 (`precision`). `source` is `samples` when the complete row sample of the scan held every row
 (CSV files of up to 1,000 rows).
 
+**`category_stats`**: the numbers of a column described for each value of a category. See
+[The numbers of a column by category](deep.md#the-numbers-of-a-column-by-category).
+
+```json
+{
+  "kind": "category_stats",
+  "accuracy": "exact_counts",
+  "precision": "float64",
+  "source": "source",
+  "categories": {"field": "column_22", "display": "type_contrat", "domain": "analytical",
+                 "classes": [{"id": "c1", "label": "auto"}, {"id": "other", "label": "other", "kind": "other"}]},
+  "rows": 3000, "counted": 2998,
+  "excluded": {"category_missing": 2, "value_missing": 0, "both_missing": 0},
+  "bins": {"strategy": "linear", "requested_strategy": "linear", "bounds_source": "range",
+           "edges": [-3097.96, -2937.04, "...", 4948.16]},
+  "overall": {"count": 2998, "min": -3097.96, "max": 4948.16, "sum": 3669685.72,
+              "mean": 1224.04, "std": 825.89, "positive": 2973, "negative": 25, "zero": 0,
+              "counts": ["..."], "median": {"...": "..."}, "quantiles": ["..."]},
+  "groups": [{"rows": 1228, "value_missing": 0, "count": 1228, "...": "..."}],
+  "association": {"defined": true, "n": 2998, "groups": 6, "eta_squared": 0.3465,
+                  "epsilon_squared": 0.3454, "score": 0.5877}
+}
+```
+
+`rows = counted + category_missing + value_missing + both_missing`: a row with a number and no category,
+a row with a category and no number (the cell is empty, is not a number or does not fit a 64-bit float)
+and a row with neither. `groups` follow `categories.classes` (`other` last) and each is a summary of the
+numbers of one category: `count`, `min`, `max`, `sum`, `mean`, `std` (population), `positive`, `negative`
+and `zero` (they add up to `count`), `counts` (one counter per bin of `bins`, adding up to `count`),
+`median` and `quantiles` (levels 5, 25, 50, 75 and 95%), plus its `rows` (with or without a number) and
+`value_missing`. A category with no number has `count` `0` and none of the other members except `counts`.
+`overall` is the same summary for all the groups together. `bins.edges` has the extremes of the scan and
+the inner edges, strictly increasing; bin `i` is `[edges[i], edges[i + 1])`, the last one closed on the right,
+and a number goes to a bin by comparison of 64-bit floats. `bounds_source` is `range`, `rows` or `distinct`.
+The counts, the minima and the maxima are exact; the sum, mean and spread are computed in 64-bit floats
+(`precision`); the quantiles are estimates read from the bins (`accuracy` `estimated`) with `lower` and
+`upper` bounds the true value cannot leave. `association` is the share of the variance the categories
+explain: `eta_squared`, the same corrected for the number of groups (`epsilon_squared`, not below 0) and
+its square root `score`, over the `n` numbers of the `groups` named categories (`other` takes no part).
+When `defined` is false there is no figure and `reason` is `too_few_rows`, `single_category` or
+`no_variance`. `source` is `samples` when the complete row sample of the scan held every row
+(CSV files of up to 1,000 rows).
+
 **`measures`**: the numbers of a field of amounts with a currency, percentages or
 quantities with a unit, read as the scan's `detector` (`currency`, `percentage` or
 `quantity`) read them.
@@ -583,7 +626,7 @@ The `key` of an analysis is a digest of the scan it stands on, the analyzer and
 its version, the field (and its partner, for a pair or a table), the method with its effective parameters (the number of
 bins and the strategy are among them, for a table the feature, its classes and the thresholds of its
 rules, and for an extraction the detector, `max_groups`, `max_values` and the bins, for the residual values the sources and
-the settings of `deep.residuals`, for the repeated values those of `deep.duplicates`) and the domain of the values. It does not
+the settings of `deep.residuals`, for the repeated values those of `deep.duplicates`, for the numbers by category the categories kept, the bins and their strategy) and the domain of the values. It does not
 hold budgets, estimates or presentation. A run keeps the complete analyses of the
 stored document whose key it would give again, and computes the others. A document
 whose `base` is not the current scan's matches none of its keys, and is made
@@ -605,6 +648,11 @@ correlation `rank` (`spearman_binned`, an estimate with certain bounds); the ana
 `crosstab` has the feature kind `value` (a category against another category), `exceptions.complete`
 and the member `provided_rules`; the settings have `deep.crosstab.max_exception_cells`. A request
 can carry `rules`, which are part of the key of the table.
+
+The result `category_stats` of the analyzer `category_stats`: the count, extremes, sum, mean, spread,
+signs and histogram of a number for each value of a category, with estimated quantiles and the share
+of the variance the categories explain. The settings have the member `deep.stats`, and the plan the
+members `relations.stats` and `budgets.automatic_stats`.
 
 The results `residual_values` of the analyzer `residual_values` (the values that patterns and
 detectors leave out, and the patterns over every occurrence) and `duplicates` and

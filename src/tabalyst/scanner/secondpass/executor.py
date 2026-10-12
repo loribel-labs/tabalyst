@@ -109,6 +109,7 @@ from tabalyst.scanner.secondpass.residuals import (
     derive_from_samples as residuals_from_samples,
 )
 from tabalyst.scanner.secondpass.routing import FieldRoute, Router, field_path
+from tabalyst.scanner.secondpass.stats import StatsAccumulator, StatsEdges, stats_edges
 from tabalyst.scanner.workers import worker_count
 from tabalyst.source_guard import SourceGuard, check_plan_base, prepare_second_pass
 
@@ -129,6 +130,7 @@ Accumulator = (
     | KeyAccumulator
     | PairAccumulator
     | CrosstabAccumulator
+    | StatsAccumulator
 )
 
 
@@ -275,6 +277,63 @@ def _setup_pair(
         assert isinstance(feed, ColumnFeed)
         columns_of.append(feed)
     job.accumulator = PairAccumulator(columns_of[0], columns_of[1], min_pairs, grid)
+    job.reads_pair = True
+
+
+def _setup_stats(
+    job: _Job,
+    cells: CellReader,
+    feeds: Feeds,
+    edge_cache: dict[tuple[str, str, int, str], StatsEdges],
+) -> None:
+    """The accumulator of the numbers by category. The classes and the edges of
+    the bins come from the Scan alone, as they did when the pair was planned. A
+    pair whose rows the complete sample of the Scan holds is counted from them now
+    and reads nothing; the others get the feed of each column, shared with the
+    other pairs and tables that use it."""
+    candidate, dataset = job.candidate, job.dataset
+    category, column = job.field, job.partner
+    assert column is not None
+    parameters = candidate.parameters
+    max_categories = int(parameters["max_categories"])
+    bins = int(parameters["bins"])
+    strategy = str(parameters["strategy"])
+    measure = category.values.frequencies
+    if measure.status != "complete" or len(measure.value.listed) < min(
+        measure.value.distinct, max_categories
+    ):
+        raise ScanMismatch("the frequencies of the scan no longer reach the categories")
+    if column.numeric.status != "complete":
+        raise ScanMismatch("the numeric measure of the scan is not complete")
+    coder = CategoryCoder(cells, measure.value, max_categories)
+    edges = edge_cache.get((dataset.id, column.id, bins, strategy))
+    if edges is None:
+        edges = stats_edges(dataset, column, column.numeric.value, bins, strategy, cells)
+        edge_cache[(dataset.id, column.id, bins, strategy)] = edges
+    if not candidate.execution.requires_source:
+        sample = dataset.records.sample
+        ids = [category.id, column.id]
+        if sample is None or not sample.complete or not sample.covers(ids):
+            raise ScanMismatch("the scan no longer holds every row of the pair")
+        floats, found = column_floats(sample.rows, column.id, cells, lenient=False)
+        left, right = CodeFeed(coder), ColumnFeed(cells)
+        right.numbers = found
+        table = StatsAccumulator(left, right, edges)
+        table.add(code_rows(coder, sample.rows, category.id), floats)
+        job.accumulator = table
+        return
+    where = (dataset.id, field_path(category.path), f"category:{max_categories}")
+    feed = feeds.get(where)
+    if feed is None:
+        feed = feeds[where] = CodeFeed(coder)
+    assert isinstance(feed, CodeFeed)
+    left = feed
+    where = (dataset.id, field_path(column.path), "number")
+    number_feed = feeds.get(where)
+    if number_feed is None:
+        number_feed = feeds[where] = ColumnFeed(cells)
+    assert isinstance(number_feed, ColumnFeed)
+    job.accumulator = StatsAccumulator(left, number_feed, edges)
     job.reads_pair = True
 
 
@@ -560,6 +619,13 @@ def _finish(job: _Job) -> _Finished:
         assert partner is not None
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(source, field, partner))
+    if isinstance(accumulator, StatsAccumulator):
+        partner = job.partner
+        assert partner is not None
+        if partner.numeric.status != "complete":
+            raise ScanMismatch("the numeric measure of the scan is not complete")
+        source = "source" if job.candidate.execution.requires_source else "samples"
+        return _Finished("complete", accumulator.result(source, field, partner.numeric.value))
     if isinstance(accumulator, MeasureAccumulator):
         source = "source" if job.candidate.execution.requires_source else "samples"
         return _Finished("complete", accumulator.result(field, source))
@@ -623,7 +689,9 @@ def _conclude(job: _Job) -> AnalysisResult:
     if job.route is not None and job.route.failure is not None:
         return _entry(candidate, key, "failed", reason="analysis_error", detail=job.route.failure)
     pair = job.accumulator
-    if isinstance(pair, PairAccumulator | CrosstabAccumulator | KeyAccumulator):
+    if isinstance(
+        pair, PairAccumulator | CrosstabAccumulator | KeyAccumulator | StatsAccumulator
+    ):
         broken = pair.failure or pair.first.failure or pair.second.failure
         if broken is not None:
             return _entry(candidate, key, "failed", reason="analysis_error", detail=broken)
@@ -824,6 +892,7 @@ def run_second_pass(
         routes: dict[tuple[str, FieldPath], FieldRoute] = {}
         feeds: Feeds = {}
         edge_cache: dict[tuple[str, str, int], RankEdges] = {}
+        stats_cache: dict[tuple[str, str, int, str], StatsEdges] = {}
         # An analysis the Scan can answer alone (the patterns of a field whose
         # every distinct value it holds) does not read the source.
         for job in jobs:
@@ -833,6 +902,9 @@ def run_second_pass(
                     continue
                 if job.candidate.analyzer == "category_crosstab":
                     _setup_table(job, cells, feeds, scan)
+                    continue
+                if job.candidate.analyzer == "category_stats":
+                    _setup_stats(job, cells, feeds, stats_cache)
                     continue
                 if job.candidate.analyzer == "duplicates_report" and job.partner is not None:
                     _setup_keys(job, cells, feeds, pool)
@@ -890,7 +962,8 @@ def run_second_pass(
                 (job.dataset.id, job.accumulator)
                 for job in read_jobs
                 if isinstance(
-                    job.accumulator, PairAccumulator | CrosstabAccumulator | KeyAccumulator
+                    job.accumulator,
+                    PairAccumulator | CrosstabAccumulator | KeyAccumulator | StatsAccumulator,
                 )
                 and job.reads_pair
             ]
