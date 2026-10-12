@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 7
+COST_MODEL_VERSION = 8
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -104,6 +104,16 @@ MEASURE_MERGE_BYTES = 100
 # of its grid (a key, a count and its slot).
 MEASURE_GROUP_BYTES = 1_536
 GRID_BIN_BYTES = 80
+# A value kept by the residual tables (lot 15): the slot of the dictionary, the
+# list of its count and first record, and the key text (to be added); a text
+# remembered with the reading a replayed detector made of it.
+RESIDUAL_ENTRY_BYTES = 200
+RESIDUAL_MEMO_ENTRY_BYTES = 250
+# A distinct value held as a digest by the search for repeated values (lot 15):
+# the key, the integer of its record and flag and the slot of the dictionary, in
+# the three scenarios (minimum, expected, firm bound); measured 121 to 123 bytes
+# an entry for one million identifiers (peak included).
+DUPLICATE_ENTRY_BYTES = (110, 140, 200)
 # An exact edge of a bin (a fraction of two integers) and its float, in the
 # lists of the bins of a histogram.
 EDGE_BYTES = 280
@@ -203,6 +213,25 @@ NS_PER_CELL = {
     "measure_few": 300,
     "measure": 1_500,
     "measure_wide": 5_000,
+    # The values that patterns and detectors leave out (lot 15), measured on the
+    # executor (`lot15/measure_costs.py`, 1 million rows, one process, the reading of
+    # the cell included; the cost follows the distinct values of the field, as for
+    # the values with a unit). A pattern with the distinct values of each candidate:
+    # 217 ns for 400 distinct values, 501 for 5,000, 844 to 1,749 for one million.
+    # The replay of a detector: 357 for 1,500 distinct dates, 831 for 8,000 numbers,
+    # 2,051 for 40,000 dates, 1,729 for one million numbers. Rounded up by tier
+    # (`residual_tier`); a field with both pays the larger and 30% of the other.
+    "residual_pattern_few": 300,
+    "residual_pattern": 700,
+    "residual_pattern_wide": 2_000,
+    "residual_few": 300,
+    "residual": 900,
+    "residual_wide": 2_500,
+    # The search for repeated values (lot 15), measured as above: 897 and 959 ns for
+    # a column of one million distinct identifiers (a digest and a dictionary entry
+    # for each), and 702 to 734 for each cell of a combination of two columns.
+    "duplicates": 1_100,
+    "duplicates_key": 1_000,
 }
 # Distinct values up to which an extraction is in the tier ``measure_few``, and
 # then ``measure`` up to the strings the route remembers.

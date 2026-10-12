@@ -208,6 +208,9 @@ class PairAnalyzer(Analyzer):
     directed: ClassVar[bool] = False
     # The reason the plan gives to the pairs beyond the count it picks by itself.
     budget_reason: ClassVar[str] = "pairs_budget"
+    # Whether the analyzer also has a candidate for each field (a repeated value
+    # of one column, a repeated combination of two).
+    per_field: ClassVar[bool] = False
 
     def relevant(self, facts: FieldFacts) -> bool:
         return False

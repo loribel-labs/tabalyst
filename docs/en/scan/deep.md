@@ -8,7 +8,8 @@ scan does not hold: histograms of numeric fields, with exact or estimated
 medians and quantiles, the exact number of distinct values of an identifier-like
 field, the exact counts of a field whose scan lists only some of them, the
 length distribution of a text field when the scan lacks it, the inferred patterns
-counted on every value, the dates counted per period, the numbers of amounts,
+counted on every value, the values that patterns and detectors leave out, the
+repeated values of identifiers, the dates counted per period, the numbers of amounts,
 percentages and quantities with a unit, the correlation of
 pairs of numeric columns and tables of a category against the pattern, length or
 prefix of another column. It writes them to a
@@ -46,6 +47,8 @@ stored.
 | `exact_distinct` | Fields whose scan stopped counting distinct values | The exact number of distinct values, the number of values it counts over and how many of them repeat an earlier one |
 | `exact_frequencies` | Fields of at most 1,000 distinct values whose scan lists only the most frequent | The exact count of every value |
 | `pattern_validation` | Text fields with inferred patterns | How many values of the whole file each pattern reads, how many none reads, and how many were not tested |
+| `residual_values` | Fields whose patterns leave values out, or that a detector mostly reads but finds some invalid or unmatched values in | The values themselves with their exact counts and first records, and for each pattern an example and its distinct values |
+| `duplicates_report` | Columns of almost all different values, and combinations of two columns you ask for | The values found more than once, with their counts and first records |
 | `temporal_distribution` | Date fields, and columns of datetimes | The dates counted per day, month or year |
 | `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |
 | `pearson_correlation` | Pairs of numeric columns of one dataset | The Pearson correlation over every row where both columns have a number, with the number of those rows and of the rows left out |
@@ -98,6 +101,71 @@ datetimes are not merged: a column of both has no distribution.
 
 The count of placed dates and the number of ambiguous values are those of the
 scan; a difference fails the analysis rather than giving a result.
+
+## Values that patterns and detectors leave out
+
+The scan counts how many distinct values no pattern reads and how many values a
+detector finds invalid or does not match, and keeps a few examples. The second
+pass keeps the values themselves, with their exact counts:
+
+```json
+{"kind": "residual_values", "records": true,
+ "tables": [{"source": "pattern", "state": "other", "occurrences": 100,
+             "distinct": 3, "complete": true,
+             "listed": [{"value": "x", "count": 38, "first_record": 23},
+                        {"value": "n/a", "count": 33, "first_record": 13},
+                        {"value": "??", "count": 29, "first_record": 169}]}]}
+```
+
+This tells what the 100 values of a code column that follow no pattern are (`n/a`,
+`??` and `x`) without opening the file, and where the first of each is. It does the
+same for a detector that reads most of a column: the `invalid` values of a date column
+(`2024-02-30`, with the reason `invalid_calendar_date` and the occurrences of each
+reason) and its `not_matched` values (`unknown`). Each value is counted from the
+first time it is met, so its count is exact; at most 10,000 distinct values are
+tracked per table (`deep.residuals.max_tracked`), the occurrences of the others
+are counted without their values and the result says it is bounded (`complete`
+is false).
+
+The same result gives each pattern of the scan an example, the record of its first
+value and the exact number of distinct values it reads over every occurrence,
+where the scan counted the distinct values of a sample.
+
+When the scan holds every distinct value of the field with its exact count, the
+source is not read: the values and counts follow from it (`computed_from` is
+`samples`), without the records. Set `deep.residuals.records` to `true` to read
+the source anyway and get them. A field whose values the exposure setting masks or
+hides is left out.
+
+## Repeated values
+
+The second pass lists the values that occur more than once in a column that looks
+like an identifier (almost all values different, or half of them under a name such
+as `id` or `ref`), with the exact number of occurrences of each and the record of
+the first:
+
+```json
+{"kind": "duplicates", "values": 1000000, "distinct": 999890,
+ "redundant": 110, "unique": false,
+ "repeated": {"distinct": 100, "occurrences": 210,
+              "listed": [{"value": "8a1f03c9d2", "count": 4,
+                          "first_record": 52113}]}}
+```
+
+A column the scan proved unique is not read. When the scan holds every distinct
+value, the repeated ones follow from its exact counts without reading the source
+(no record: set `deep.duplicates.records` to `true` to read it anyway). Otherwise
+each value is held as a 128-bit digest and the record of its first occurrence, so
+the memory grows with the number of distinct values but not with their length; it
+is drawn from the same budget as the exact distinct count, and a search the budget
+stops proves only a lower bound (`duplicates_limited`), never a count.
+
+A combination of two columns is searched only when you ask for it, with a
+request of the [Python API](plan.md#python-api) that names both columns,
+`tabalyst.AnalysisRequest("duplicates_report", field="client", partner="year")`; the
+planner never proposes one by itself. The result gives the combinations that repeat (`columns` names the two columns),
+the rows where one of them has no value (`incomplete`) and the first record of
+each. The source is always read.
 
 ## Amounts, percentages and quantities
 
@@ -380,7 +448,8 @@ or picks by itself. The `deep.crosstab` object does the same for the tables of a
 category against a feature, and sets their classes (the categories kept, the length
 of a prefix) and the thresholds of the candidate rules. The `deep.measures` object
 sets how many currencies or units get metrics of their own and how many numbers
-are counted exactly. See [Deep
+are counted exactly. The `deep.residuals` and `deep.duplicates` objects set how many
+values are listed and tracked, and whether to read the source for the records. See [Deep
 settings](../reference/configuration.md#deep-settings).
 
 `bin_strategy: "sample_quantile"` places the inner edges where the sample of

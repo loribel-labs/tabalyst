@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from tabalyst.scanner.detectors.registry import replayable
 from tabalyst.scanner.models import (
     CardinalityComplete,
     CardinalityLimited,
@@ -73,6 +74,19 @@ class MeasureFacts:
 
 
 @dataclass(frozen=True, slots=True)
+class DetectorFacts:
+    """The coverage of a detector the second pass can replay (lot 15)."""
+
+    detector: str
+    eligible: int
+    matched: int
+    ambiguous: int
+    invalid: int
+    not_matched: int
+    not_tested: int
+
+
+@dataclass(frozen=True, slots=True)
 class FieldFacts:
     """Everything the planner knows about a field. ``where`` is the location of
     the field in the Scan (``datasets/<id>/fields/<id>``)."""
@@ -113,6 +127,8 @@ class FieldFacts:
     patterns: PatternFacts | None
     # The detectors of values with a marker that read at least one value.
     measures: tuple[MeasureFacts, ...] = ()
+    # The replayable detectors that read at least one value.
+    detectors: tuple[DetectorFacts, ...] = ()
 
     @property
     def withheld(self) -> bool:
@@ -178,6 +194,29 @@ def _measures(field: FieldResult) -> tuple[MeasureFacts, ...]:
                 invalid=coverage.invalid,
                 not_tested=coverage.not_tested,
                 markers=_markers(result),
+            )
+        )
+    return tuple(found)
+
+
+def _detectors(field: FieldResult) -> tuple[DetectorFacts, ...]:
+    ids = replayable()
+    found = []
+    for result in field.detectors:
+        if result.id not in ids or not isinstance(result, DetectorComplete):
+            continue
+        coverage = result.coverage
+        if not coverage.matched and not coverage.ambiguous:
+            continue
+        found.append(
+            DetectorFacts(
+                detector=result.id,
+                eligible=coverage.eligible,
+                matched=coverage.matched,
+                ambiguous=coverage.ambiguous,
+                invalid=coverage.invalid,
+                not_matched=coverage.not_matched,
+                not_tested=coverage.not_tested,
             )
         )
     return tuple(found)
@@ -262,6 +301,7 @@ def _facts(
         temporal_status=temporal_status,
         patterns=_patterns(index, dataset.id, field.id),
         measures=_measures(field),
+        detectors=_detectors(field),
     )
 
 

@@ -253,6 +253,13 @@ It is not part of the `scan` object: changing it never makes a stored scan stale
 | `deep.crosstab.explore_min_rows` | `30` | Rows a table needs in the sample for the exploration to score it |
 | `deep.measures.max_groups` | `20` | Currencies or units of a field of amounts, percentages or quantities that get metrics of their own, the most frequent first; the others are counted together in `other`. From 1 to 1,000. Changing it computes the extraction again |
 | `deep.measures.max_values` | `100000` | Different pairs of a currency or unit and a number counted exactly in a field. Beyond, every group goes on in bins: counts, sums and extremes stay exact, the median and quantiles are estimated. From 1 to 10,000,000. Changing it computes the extraction again |
+| `deep.residuals.max_listed` | `20` | Values listed per source and state in the values that patterns and detectors leave out, the most frequent first. From 1 to 1,000. Changing it computes the analysis again |
+| `deep.residuals.max_tracked` | `10000` | Distinct values counted per source and state; the occurrences of the values met after that are only counted. From 1 to 1,000,000 |
+| `deep.residuals.max_value_length` | `100` | A value longer than this many characters is counted and never listed. From 1 to 10,000 |
+| `deep.residuals.max_detectors` | `3` | Detectors replayed per field, the one that read the most values first. From 1 to 20 |
+| `deep.residuals.records` | `false` | Give the first record of each value even when the scan holds every distinct value, which makes the second pass read the source |
+| `deep.duplicates.max_listed`, `deep.duplicates.max_tracked` | `20`, `10000` | Repeated values listed, the most repeated first (1 to 1,000), and repeated values whose count is tracked (1 to 1,000,000); the occurrences of the others are only counted |
+| `deep.duplicates.records` | `false` | Give the first record of each repeated value even when the scan holds every distinct value, which makes the second pass read the source |
 | `deep.bin_strategy` | `linear` | `linear`: bins of equal width between the exact minimum and maximum. `sample_quantile`: inner edges at the quantiles of the sample kept by the scan, for a very skewed distribution; it falls back to `linear` when the sample is too small, and says so |
 
 The counts per bin are exact with either strategy.

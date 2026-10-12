@@ -118,6 +118,17 @@ class DetectorRegistry:
         return identifier in self._classes
 
 
+def replayable() -> dict[str, type[Detector]]:
+    """The built-in detectors a second pass can replay on the strings of a field
+    (design 20.20): those that classify one string at a time, and nothing else
+    than strings."""
+    return {
+        detector.id: detector
+        for detector in BUILT_INS
+        if detector.scope == "value" and detector.accepts == frozenset({"string"})
+    }
+
+
 def default_registry() -> DetectorRegistry:
     """A fresh registry holding the built-in detectors."""
     return DetectorRegistry(BUILT_INS)

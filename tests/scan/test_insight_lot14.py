@@ -412,6 +412,13 @@ def test_G22_the_workers_give_the_result_of_one_process(tmp_path):
     rows, _ = _data(4_000)
     result = scan_csv(tmp_path, HEADER, rows, **READ)
     plan = forced_plan(result)
+    # A route with a set of the shared pool (the values left out of the patterns) stays
+    # in the process: this is about the routes of the extractions.
+    plan = plan.model_copy(
+        update={
+            "candidates": [c for c in plan.candidates if c.analyzer != "residual_values"]
+        }
+    )
     alone = run_second_pass(result, tmp_path / "data.csv", plan, workers=1)
     shared = run_second_pass(result, tmp_path / "data.csv", plan, workers=3)
 

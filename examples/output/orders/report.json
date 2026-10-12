@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T23:28:15.896144Z",
-    "duration_seconds": 0.020255,
+    "started_at": "2026-10-12T01:40:57.263676Z",
+    "duration_seconds": 0.019985,
     "timings": {
-      "reading": 0.003114,
-      "analysis": 0.003111,
-      "finalize": 0.011249,
-      "derived": 0.002329,
-      "other": 0.000451
+      "reading": 0.003045,
+      "analysis": 0.003225,
+      "finalize": 0.010826,
+      "derived": 0.002484,
+      "other": 0.000405
     },
     "workers": 1,
-    "peak_memory_bytes": 61165568
+    "peak_memory_bytes": 61935616
   },
   "source": {
     "format": "json",
@@ -16372,7 +16372,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -16413,15 +16413,27 @@
         "measures": {
           "max_groups": 20,
           "max_values": 100000
+        },
+        "residuals": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "max_value_length": 100,
+          "max_detectors": 3,
+          "records": false
+        },
+        "duplicates": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "records": false
         }
       },
-      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
+      "settings_sha256": "253da5d48de90acb6de7c4231723545e5a2216062e82b98d82d9ae8daeeb16fa",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 7,
-        "plan_id": "94cdded388407fbad5de0471486ad0683de5f695dc6326f2f2b7e72e4a58fc1e",
+        "cost_model_version": 8,
+        "plan_id": "3dce7442992e1beb2557a67bcffeae8f3b9aaf52ecfbd989391734584880a227",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -16450,16 +16462,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 84,
-          "selected": 15,
-          "already_satisfied": 37,
-          "rejected": 32,
+          "candidates": 92,
+          "selected": 19,
+          "already_satisfied": 39,
+          "rejected": 34,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 26271269,
-            "expected": 26723669,
-            "max": 27993119
+            "min": 26287653,
+            "expected": 26744984,
+            "max": 28069161
           },
           "beyond_automatic": []
         },
@@ -17051,7 +17063,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 3,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -17484,7 +17496,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -17561,7 +17573,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -17638,7 +17650,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 19,
               "satisfied_by": null
             },
             "execution": {
@@ -18837,7 +18849,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
@@ -18904,7 +18916,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -19043,7 +19055,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -19110,7 +19122,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -19177,7 +19189,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 4,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -19244,7 +19256,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -19311,7 +19323,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -19422,7 +19434,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -19497,11 +19509,460 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 16,
               "satisfied_by": null
             },
             "execution": {
               "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$.customers[]:f11",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f11",
+            "display": "tags[]",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5251,
+                "max": 6960
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$.customers[]/fields/f11",
+                  "memory": {
+                    "min": 0,
+                    "expected": 131,
+                    "max": 1050
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$.customers[]/fields/f11",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$.customers[]/fields/f11",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 4886
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 3,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$.customers[]:f14",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f14",
+            "display": "orders[].order_id",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 8199,
+                "max": 48198
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$.customers[]/fields/f14",
+                  "memory": {
+                    "min": 0,
+                    "expected": 3079,
+                    "max": 24633
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$.customers[]/fields/f14",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$.customers[]/fields/f14",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 22541
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 5,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:$.customers[]:f19",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f19",
+            "display": "orders[].items[].product",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5251,
+                "max": 6960
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/$.customers[]/fields/f19",
+                  "memory": {
+                    "min": 0,
+                    "expected": 131,
+                    "max": 1050
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/$.customers[]/fields/f19",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/$.customers[]/fields/f19",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 4886
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 4,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$.customers[]:f1",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f1",
+            "display": "id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "all_distinct",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f1/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$.customers[]:f2",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f2",
+            "display": "name",
+            "method": "digest_table",
+            "parameters": {
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "records": 0
+            },
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "repeated_identifier",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 1024,
+                "expected": 2614,
+                "max": 13924
+              },
+              "cpu": "moderate",
+              "cell_ns": 1100,
+              "states": [
+                {
+                  "key": "duplicates:datasets/$.customers[]/fields/f2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 1590,
+                    "max": 12900
+                  }
+                },
+                {
+                  "key": "result:duplicates_report:datasets/$.customers[]/fields/f2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 14,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$.customers[]:f3",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f3",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$.customers[]:f4",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f4",
+            "display": "phone",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:$.customers[]:f14",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f14",
+            "display": "orders[].order_id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "all_distinct",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "datasets/$.customers[]/fields/f14/values/cardinality"
+            },
+            "execution": {
+              "requires_source": false,
               "available": true,
               "deterministic": true,
               "reusable": true,
@@ -21134,21 +21595,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-12T00:29:52.131025Z",
-        "duration_seconds": 0.000145,
+        "started_at": "2026-10-12T01:40:57.323963Z",
+        "duration_seconds": 0.012699,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000145
+          "reading": 0.003041,
+          "analysis": 0.003716,
+          "other": 0.005942
         },
         "workers": 1,
-        "peak_memory_bytes": 66879488,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 15,
+        "peak_memory_bytes": 68288512,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 60,
+        "cells_read": 866,
+        "executed": 19,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -23385,6 +23846,223 @@
           }
         },
         {
+          "id": "residual_values:$.customers[]:f11",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$.customers[]",
+          "field": "f11",
+          "display": "tags[]",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "01b5b8e8187dfc1ba282e447bbf4653f4ef72ea8af3c82a6f11ff6d91d07b88c",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 70,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 15,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "b2b",
+                    "count": 15
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "x{3,10}",
+                "occurrences": 55,
+                "distinct": 4,
+                "distinct_accuracy": "exact",
+                "example": "returning"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:$.customers[]:f14",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$.customers[]",
+          "field": "f14",
+          "display": "orders[].order_id",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "ff7f627bed6d85c3d585b7a085ddd8f51a6ed35a58d954052a24d742ccb54ea5",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 119,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'O'9999-9",
+                "occurrences": 119,
+                "distinct": 119,
+                "distinct_accuracy": "exact",
+                "example": "O0002-1",
+                "first_record": 2
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:$.customers[]:f19",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "$.customers[]",
+          "field": "f19",
+          "display": "orders[].items[].product",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "404dfaf5ba2c64526b332c95c3c3d3da2f8c183b412f4b9eb92330c90b151b70",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 119,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 24,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "Desk lamp",
+                    "count": 24
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "Xx{2,9}",
+                "occurrences": 95,
+                "distinct": 4,
+                "distinct_accuracy": "exact",
+                "example": "Headphones"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "duplicates_report:$.customers[]:f2",
+          "analyzer": "duplicates_report",
+          "analyzer_version": 1,
+          "dataset": "$.customers[]",
+          "field": "f2",
+          "display": "name",
+          "method": "digest_table",
+          "parameters": {
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "records": 0
+          },
+          "domain": "analytical",
+          "key": "fc56afb27e11dcce89f0d8dbf44f0e9572e7db291e806782e20c30d8baecb58e",
+          "status": "complete",
+          "result": {
+            "kind": "duplicates",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 60,
+            "distinct": 56,
+            "redundant": 4,
+            "unique": false,
+            "repeated": {
+              "distinct": 4,
+              "occurrences": 8,
+              "tracked": 4,
+              "untracked": 0,
+              "complete": true,
+              "truncated": false,
+              "listed": [
+                {
+                  "value": "David Dubois",
+                  "count": 2
+                },
+                {
+                  "value": "Farid Dubois",
+                  "count": 2
+                },
+                {
+                  "value": "Inès Laurent",
+                  "count": 2
+                },
+                {
+                  "value": "Karim Laurent",
+                  "count": 2
+                }
+              ]
+            }
+          }
+        },
+        {
           "id": "category_crosstab:$.customers[]:f6>f7:prefix",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
@@ -23979,12 +24657,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T00:29:52.198667Z",
+    "generated_at": "2026-10-12T01:40:57.420181Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1078,
+    "processing_seconds": 0.1792,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

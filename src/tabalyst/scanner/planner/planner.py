@@ -196,6 +196,7 @@ def _cells(scan: ScanResult) -> int:
 def _matches(request: AnalysisRequest, facts: FieldFacts, analyzer: Analyzer) -> bool:
     return (
         request.analyzer == analyzer.id
+        and request.partner is None
         and request.dataset in (None, facts.dataset)
         and request.field in (None, facts.field, facts.display)
     )
@@ -336,7 +337,10 @@ def _decide(
     def automatic_choice(entry: _Entry) -> None:
         assert entry.costs is not None and entry.utility is not None
         analyzer = entry.analyzer
-        pair = analyzer if isinstance(analyzer, PairAnalyzer) else None
+        # The candidate of a field of an analyzer that also has pairs is no pair.
+        pair = (
+            analyzer if isinstance(analyzer, PairAnalyzer) and entry.partner is not None else None
+        )
         if entry.utility.score < AUTOMATIC_MIN_UTILITY:
             reject(entry, "low_utility")
         elif CPU_ORDER.index(entry.costs.cpu) > limit:
@@ -519,7 +523,8 @@ def plan_analyses(
                         matched[index] += 1
             entries.extend(pairs)
             explored.setdefault(analyzer.relations, []).extend(blocks)
-            continue
+            if not analyzer.per_field:
+                continue
         for facts in facts_list:
             if not analyzer.relevant(facts):
                 continue

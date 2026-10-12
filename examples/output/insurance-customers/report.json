@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-11T23:28:12.163872Z",
-    "duration_seconds": 0.269915,
+    "started_at": "2026-10-12T01:40:53.461887Z",
+    "duration_seconds": 0.293008,
     "timings": {
-      "reading": 0.008521,
-      "analysis": 0.022095,
-      "finalize": 0.229328,
-      "derived": 0.00944,
-      "other": 0.00053
+      "reading": 0.01036,
+      "analysis": 0.022518,
+      "finalize": 0.248737,
+      "derived": 0.010941,
+      "other": 0.00045
     },
     "workers": 1,
-    "peak_memory_bytes": 79925248
+    "peak_memory_bytes": 80117760
   },
   "source": {
     "format": "csv",
@@ -46119,7 +46119,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -46160,15 +46160,27 @@
         "measures": {
           "max_groups": 20,
           "max_values": 100000
+        },
+        "residuals": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "max_value_length": 100,
+          "max_detectors": 3,
+          "records": false
+        },
+        "duplicates": {
+          "max_listed": 20,
+          "max_tracked": 10000,
+          "records": false
         }
       },
-      "settings_sha256": "7e5c1d61dd409a34c4678308529344f9612d3e219d1d4f65fbf5a965352800c4",
+      "settings_sha256": "253da5d48de90acb6de7c4231723545e5a2216062e82b98d82d9ae8daeeb16fa",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 7,
-        "plan_id": "dbdd94c67c9b1a0a85dd9566566a027b738c9efbe7e1202a4daa6287d3aa0ac7",
+        "cost_model_version": 8,
+        "plan_id": "f0bf5147a60a96f73171196046168969db6cbc0c6ebb2bfdb489a5b886a87032",
         "base": {
           "format_revision": 3,
           "engine_version": "0.7.0",
@@ -46197,16 +46209,16 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 147,
-          "selected": 43,
+          "candidates": 169,
+          "selected": 63,
           "already_satisfied": 70,
-          "rejected": 34,
+          "rejected": 36,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 28891253,
-            "expected": 30908826,
-            "max": 36815547
+            "min": 32529577,
+            "expected": 37167428,
+            "max": 54253696
           },
           "beyond_automatic": []
         },
@@ -46434,7 +46446,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 17,
               "satisfied_by": null
             },
             "execution": {
@@ -46510,7 +46522,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 18,
               "satisfied_by": null
             },
             "execution": {
@@ -46765,7 +46777,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 19,
               "satisfied_by": null
             },
             "execution": {
@@ -46876,7 +46888,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 20,
               "satisfied_by": null
             },
             "execution": {
@@ -46952,7 +46964,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 21,
               "satisfied_by": null
             },
             "execution": {
@@ -47641,7 +47653,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 13,
+              "priority": 22,
               "satisfied_by": null
             },
             "execution": {
@@ -47717,7 +47729,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 23,
               "satisfied_by": null
             },
             "execution": {
@@ -47829,7 +47841,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 37,
+              "priority": 46,
               "satisfied_by": null
             },
             "execution": {
@@ -47906,7 +47918,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 36,
+              "priority": 45,
               "satisfied_by": null
             },
             "execution": {
@@ -47983,7 +47995,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 38,
+              "priority": 47,
               "satisfied_by": null
             },
             "execution": {
@@ -48060,7 +48072,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 39,
+              "priority": 48,
               "satisfied_by": null
             },
             "execution": {
@@ -50083,7 +50095,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 16,
+              "priority": 25,
               "satisfied_by": null
             },
             "execution": {
@@ -50150,7 +50162,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 26,
+              "priority": 35,
               "satisfied_by": null
             },
             "execution": {
@@ -50254,7 +50266,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 31,
+              "priority": 40,
               "satisfied_by": null
             },
             "execution": {
@@ -50322,7 +50334,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 32,
+              "priority": 41,
               "satisfied_by": null
             },
             "execution": {
@@ -50389,7 +50401,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 17,
+              "priority": 26,
               "satisfied_by": null
             },
             "execution": {
@@ -50456,7 +50468,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 18,
+              "priority": 27,
               "satisfied_by": null
             },
             "execution": {
@@ -50523,7 +50535,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 27,
+              "priority": 36,
               "satisfied_by": null
             },
             "execution": {
@@ -50591,7 +50603,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 33,
+              "priority": 42,
               "satisfied_by": null
             },
             "execution": {
@@ -50658,7 +50670,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 19,
+              "priority": 28,
               "satisfied_by": null
             },
             "execution": {
@@ -50726,7 +50738,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 34,
+              "priority": 43,
               "satisfied_by": null
             },
             "execution": {
@@ -50793,7 +50805,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 22,
+              "priority": 31,
               "satisfied_by": null
             },
             "execution": {
@@ -50860,7 +50872,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 28,
+              "priority": 37,
               "satisfied_by": null
             },
             "execution": {
@@ -50927,7 +50939,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 30,
+              "priority": 39,
               "satisfied_by": null
             },
             "execution": {
@@ -51102,7 +51114,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 24,
               "satisfied_by": null
             },
             "execution": {
@@ -51169,7 +51181,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 23,
+              "priority": 32,
               "satisfied_by": null
             },
             "execution": {
@@ -51236,7 +51248,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 24,
+              "priority": 33,
               "satisfied_by": null
             },
             "execution": {
@@ -51303,7 +51315,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 25,
+              "priority": 34,
               "satisfied_by": null
             },
             "execution": {
@@ -51370,7 +51382,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 29,
+              "priority": 38,
               "satisfied_by": null
             },
             "execution": {
@@ -51437,7 +51449,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 20,
+              "priority": 29,
               "satisfied_by": null
             },
             "execution": {
@@ -51504,7 +51516,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 21,
+              "priority": 30,
               "satisfied_by": null
             },
             "execution": {
@@ -51612,7 +51624,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 43,
+              "priority": 53,
               "satisfied_by": null
             },
             "execution": {
@@ -51687,7 +51699,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 40,
+              "priority": 49,
               "satisfied_by": null
             },
             "execution": {
@@ -51762,7 +51774,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 42,
+              "priority": 52,
               "satisfied_by": null
             },
             "execution": {
@@ -51837,7 +51849,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 41,
+              "priority": 50,
               "satisfied_by": null
             },
             "execution": {
@@ -51912,7 +51924,1724 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 35,
+              "priority": 44,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_2",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "id_client",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 84782,
+                "max": 1124128
+              },
+              "cpu": "moderate",
+              "cell_ns": 700,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 79662,
+                    "max": 637296
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 485808
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 54,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_4",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "prenom",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 11192,
+                "max": 90472
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_4",
+                  "memory": {
+                    "min": 0,
+                    "expected": 6072,
+                    "max": 48578
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_4",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_4",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 40870
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 12,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_5",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "nom",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 10737,
+                "max": 83872
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 0,
+                    "expected": 5617,
+                    "max": 44940
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 37908
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 13,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_6",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "date_naissance",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 723274,
+                "expected": 938946,
+                "max": 2192654
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 0,
+                    "expected": 151672,
+                    "max": 1213380
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 722250,
+                    "expected": 722250,
+                    "max": 722250
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 62,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_11",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_11",
+            "display": "nom_voie",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 10106,
+                "max": 75392
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_11",
+                  "memory": {
+                    "min": 0,
+                    "expected": 4986,
+                    "max": 39894
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_11",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_11",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 34474
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 14,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_14",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_14",
+            "display": "ville",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 8956,
+                "max": 59372
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 0,
+                    "expected": 3836,
+                    "max": 30688
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 27660
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 15,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_16",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_16",
+            "display": "province_nom",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5626,
+                "max": 12284
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 0,
+                    "expected": 506,
+                    "max": 4050
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_16",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 7210
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 8,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_17",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_17",
+            "display": "code_postal",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern,postal_code",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 746370,
+                "expected": 1040528,
+                "max": 3303210
+              },
+              "cpu": "moderate",
+              "cell_ns": 1110,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 0,
+                    "expected": 230158,
+                    "max": 1841265
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 741250,
+                    "expected": 741250,
+                    "max": 741250
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 463671
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 63,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_19",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_19",
+            "display": "courriel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_21",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_21",
+            "display": "id_contrat",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 85288,
+                "max": 1132694
+              },
+              "cpu": "moderate",
+              "cell_ns": 700,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 0,
+                    "expected": 80168,
+                    "max": 641345
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 490325
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 55,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_23",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_23",
+            "display": "date_debut",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 603274,
+                "expected": 793746,
+                "max": 1871054
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 126472,
+                    "max": 1011780
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 602250,
+                    "expected": 602250,
+                    "max": 602250
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 60,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_24",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_24",
+            "display": "date_fin",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 295274,
+                "expected": 421066,
+                "max": 1045614
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 0,
+                    "expected": 61792,
+                    "max": 494340
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 294250,
+                    "expected": 294250,
+                    "max": 294250
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 51,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_25",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_25",
+            "display": "statut_contrat",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5276,
+                "max": 7304
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_25",
+                  "memory": {
+                    "min": 0,
+                    "expected": 156,
+                    "max": 1248
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_25",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_25",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 5032
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 9,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_28",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_28",
+            "display": "mode_paiement",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5359,
+                "max": 8486
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_28",
+                  "memory": {
+                    "min": 0,
+                    "expected": 239,
+                    "max": 1917
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_28",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_28",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 5545
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 10,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_30",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_30",
+            "display": "date_creation",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 591274,
+                "expected": 779226,
+                "max": 1838894
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 0,
+                    "expected": 123952,
+                    "max": 991620
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 590250,
+                    "expected": 590250,
+                    "max": 590250
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 61,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_31",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_31",
+            "display": "date_modification",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 509774,
+                "expected": 680611,
+                "max": 1620474
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 106837,
+                    "max": 854700
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 508750,
+                    "expected": 508750,
+                    "max": 508750
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 59,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_32",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_32",
+            "display": "date_reclamation",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "date",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "values_left_out"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 102524,
+                "expected": 187839,
+                "max": 529044
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 0,
+                    "expected": 21315,
+                    "max": 170520
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "residual_memo:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 101500,
+                    "expected": 101500,
+                    "max": 101500
+                  }
+                },
+                {
+                  "key": "replay:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 0,
+                    "expected": 64000,
+                    "max": 256000
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 16,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "residual_values:rows:column_34",
+            "analyzer": "residual_values",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_34",
+            "display": "reclamation_status",
+            "method": "residual_table",
+            "parameters": {
+              "sources": "pattern",
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "max_value_length": 100,
+              "records": 0
+            },
+            "outputs": [
+              "residual_values",
+              "pattern_profile"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 60,
+              "reasons": [
+                "values_left_out",
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 5224,
+                "max": 6576
+              },
+              "cpu": "low",
+              "cell_ns": 300,
+              "states": [
+                {
+                  "key": "residuals:datasets/rows/fields/column_34",
+                  "memory": {
+                    "min": 0,
+                    "expected": 104,
+                    "max": 832
+                  }
+                },
+                {
+                  "key": "result:residual_values:datasets/rows/fields/column_34",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:residual:datasets/rows/fields/column_34",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 4096,
+                    "max": 4720
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 11,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_2",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "id_client",
+            "method": "digest_table",
+            "parameters": {
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "records": 0
+            },
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "repeated_identifier",
+                "identifier_name"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 503500,
+                "max": 1244120
+              },
+              "cpu": "moderate",
+              "cell_ns": 1100,
+              "states": [
+                {
+                  "key": "duplicates:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 0,
+                    "expected": 79500,
+                    "max": 639000
+                  }
+                },
+                {
+                  "key": "result:duplicates_report:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:duplicates:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 422976,
+                    "max": 604096
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 56,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_17",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_17",
+            "display": "code_postal",
+            "method": "digest_table",
+            "parameters": {
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "records": 0
+            },
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "repeated_identifier",
+                "identifier_name"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 497845,
+                "max": 1226120
+              },
+              "cpu": "moderate",
+              "cell_ns": 1100,
+              "states": [
+                {
+                  "key": "duplicates:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 0,
+                    "expected": 77625,
+                    "max": 621000
+                  }
+                },
+                {
+                  "key": "result:duplicates_report:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:duplicates:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 419196,
+                    "max": 604096
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 57,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_19",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_19",
+            "display": "courriel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "duplicates_report:rows:column_21",
+            "analyzer": "duplicates_report",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_21",
+            "display": "id_contrat",
+            "method": "digest_table",
+            "parameters": {
+              "max_listed": 20,
+              "max_tracked": 10000,
+              "records": 0
+            },
+            "outputs": [
+              "duplicates",
+              "uniqueness"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 55,
+              "reasons": [
+                "repeated_identifier",
+                "identifier_name"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 5120,
+                "expected": 502749,
+                "max": 1246385
+              },
+              "cpu": "moderate",
+              "cell_ns": 1100,
+              "states": [
+                {
+                  "key": "duplicates:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 0,
+                    "expected": 80009,
+                    "max": 643065
+                  }
+                },
+                {
+                  "key": "result:duplicates_report:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                },
+                {
+                  "key": "exact_set:duplicates:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 4096,
+                    "expected": 421716,
+                    "max": 602296
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 58,
               "satisfied_by": null
             },
             "execution": {
@@ -54738,21 +56467,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-12T00:29:45.499000Z",
-        "duration_seconds": 0.000397,
+        "started_at": "2026-10-12T01:40:54.042368Z",
+        "duration_seconds": 0.165479,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000397
+          "reading": 0.009223,
+          "analysis": 0.134517,
+          "other": 0.021739
         },
         "workers": 1,
-        "peak_memory_bytes": 87982080,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 43,
+        "peak_memory_bytes": 104554496,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 3000,
+        "cells_read": 87000,
+        "executed": 63,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -82968,6 +84697,1891 @@
           }
         },
         {
+          "id": "residual_values:rows:column_2",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_2",
+          "display": "id_client",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "4897f890f5ade1dc11d4754acc8ce5eb24b9de5ef030fb3376438d0805bd7312",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'ONT'9{6,7}",
+                "occurrences": 247,
+                "distinct": 246,
+                "distinct_accuracy": "exact",
+                "example": "ONT0000116",
+                "first_record": 1115
+              },
+              {
+                "id": "p2",
+                "render": "'CLI''-'{1,2}9{7,8}",
+                "occurrences": 2185,
+                "distinct": 2178,
+                "distinct_accuracy": "exact",
+                "example": "CLI-00000281",
+                "first_record": 1
+              },
+              {
+                "id": "p3",
+                "render": "'QC''-'{1,2}9999-9{3,4}",
+                "occurrences": 568,
+                "distinct": 568,
+                "distinct_accuracy": "exact",
+                "example": "QC-0000-0025",
+                "first_record": 1238
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_4",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_4",
+          "display": "prenom",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "96fccf66e62fe35217b755cc1acac2306092d2e7d2cef44891bcff4208f091cb",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2993,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 2,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "Mar  ie-Ève",
+                    "count": 1,
+                    "first_record": 233
+                  },
+                  {
+                    "value": "louis-philippe",
+                    "count": 1,
+                    "first_record": 1532
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "Xx{2,9}",
+                "occurrences": 2355,
+                "distinct": 169,
+                "distinct_accuracy": "exact",
+                "example": "Lucie",
+                "first_record": 1
+              },
+              {
+                "id": "p2",
+                "render": "@{3,9}",
+                "occurrences": 488,
+                "distinct": 29,
+                "distinct_accuracy": "exact",
+                "example": "Émile",
+                "first_record": 7
+              },
+              {
+                "id": "p3",
+                "render": "x{5,8}",
+                "occurrences": 9,
+                "distinct": 9,
+                "distinct_accuracy": "exact",
+                "example": "sofia",
+                "first_record": 11
+              },
+              {
+                "id": "p4",
+                "render": "Xx{3,5}-Xx{2,7}",
+                "occurrences": 85,
+                "distinct": 6,
+                "distinct_accuracy": "exact",
+                "example": "Jean-Philippe",
+                "first_record": 20
+              },
+              {
+                "id": "p5",
+                "render": "Xx{1,4}' '{1,2}x{1,4}",
+                "occurrences": 5,
+                "distinct": 5,
+                "distinct_accuracy": "exact",
+                "example": "Ni  cole",
+                "first_record": 1172
+              },
+              {
+                "id": "p6",
+                "render": "X{1,2}x{3,4}-@{3,8}",
+                "occurrences": 46,
+                "distinct": 4,
+                "distinct_accuracy": "exact",
+                "example": "Marie-Ève",
+                "first_record": 27
+              },
+              {
+                "id": "p7",
+                "render": "@{1,4}' '{2}@{1,7}",
+                "occurrences": 3,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "Z  oé",
+                "first_record": 2171
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_5",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_5",
+          "display": "nom",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "544865b06818e5485f2035d142970f7613c7e6407aceedecb02ffb41d807a846",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2996,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 2,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "'OBrien",
+                    "count": 1,
+                    "first_record": 1825
+                  },
+                  {
+                    "value": "De Luca",
+                    "count": 1,
+                    "first_record": 2494
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "X{1,2}x{1,9}",
+                "occurrences": 313,
+                "distinct": 23,
+                "distinct_accuracy": "exact",
+                "example": "Roy",
+                "first_record": 1
+              },
+              {
+                "id": "p2",
+                "render": "xXx{1,6}",
+                "occurrences": 2,
+                "distinct": 2,
+                "distinct_accuracy": "exact",
+                "example": "lAi",
+                "first_record": 1514
+              },
+              {
+                "id": "p3",
+                "render": "x{2,8}",
+                "occurrences": 1,
+                "distinct": 1,
+                "distinct_accuracy": "exact",
+                "example": "ho",
+                "first_record": 641
+              },
+              {
+                "id": "p4",
+                "render": "@{4,8}",
+                "occurrences": 2633,
+                "distinct": 171,
+                "distinct_accuracy": "exact",
+                "example": "Taylor",
+                "first_record": 2
+              },
+              {
+                "id": "p5",
+                "render": "X' '{1,2}x{2,8}",
+                "occurrences": 6,
+                "distinct": 6,
+                "distinct_accuracy": "exact",
+                "example": "P  arker",
+                "first_record": 377
+              },
+              {
+                "id": "p6",
+                "render": "Xx{2,4}' '{1,2}x{1,4}",
+                "occurrences": 3,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "Gag non",
+                "first_record": 207
+              },
+              {
+                "id": "p7",
+                "render": "X''''Xx{4,5}",
+                "occurrences": 11,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "D'Souza",
+                "first_record": 184
+              },
+              {
+                "id": "p8",
+                "render": "@@-@@@@@@",
+                "occurrences": 25,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "St-Pierre",
+                "first_record": 82
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_6",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_6",
+          "display": "date_naissance",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "fec806a36d1d5c797bf57631724861e2a3bb182405ee917055c7e28cb3b0b7fa",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2994,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 3,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 3,
+                    "first_record": 296
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 3
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 2994,
+                "matched": 2635,
+                "ambiguous": 356,
+                "invalid": 3,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_11",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_11",
+          "display": "nom_voie",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "356e0c3153be136cd3341eb598ebb00d9671bf499012f4e1df88d73e8e3e11a4",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 34,
+                "distinct": 8,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "de la Grande-Allée",
+                    "count": 13,
+                    "first_record": 167
+                  },
+                  {
+                    "value": "de la Côte-Verte",
+                    "count": 8,
+                    "first_record": 43
+                  },
+                  {
+                    "value": "des Deux-Rivières",
+                    "count": 8,
+                    "first_record": 110
+                  },
+                  {
+                    "value": "La keview",
+                    "count": 1,
+                    "first_record": 845
+                  },
+                  {
+                    "value": "du aLc",
+                    "count": 1,
+                    "first_record": 853
+                  },
+                  {
+                    "value": "forest",
+                    "count": 1,
+                    "first_record": 1152
+                  },
+                  {
+                    "value": "highland",
+                    "count": 1,
+                    "first_record": 1083
+                  },
+                  {
+                    "value": "oak",
+                    "count": 1,
+                    "first_record": 11
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "X{1,2}x{2,12}",
+                "occurrences": 895,
+                "distinct": 66,
+                "distinct_accuracy": "exact",
+                "example": "Riverside",
+                "first_record": 6
+              },
+              {
+                "id": "p2",
+                "render": "x{2,4}' '{1,2}Xx{2,10}",
+                "occurrences": 296,
+                "distinct": 9,
+                "distinct_accuracy": "exact",
+                "example": "du Lac",
+                "first_record": 7
+              },
+              {
+                "id": "p3",
+                "render": "x{2,4}' '{1,2}@{5,9}",
+                "occurrences": 1335,
+                "distinct": 60,
+                "distinct_accuracy": "exact",
+                "example": "des Tulipes",
+                "first_record": 1
+              },
+              {
+                "id": "p4",
+                "render": "x{1,2}' 'xx' '@{5,9}",
+                "occurrences": 144,
+                "distinct": 10,
+                "distinct_accuracy": "exact",
+                "example": "de la Vallée",
+                "first_record": 49
+              },
+              {
+                "id": "p5",
+                "render": "x{2,3}' '{1,2}Xx{4,5}-Xx{3,5}",
+                "occurrences": 88,
+                "distinct": 9,
+                "distinct_accuracy": "exact",
+                "example": "des Trois-Lacs",
+                "first_record": 2
+              },
+              {
+                "id": "p6",
+                "render": "'de'' '{1,2}'la'' 'Xx{3,8}",
+                "occurrences": 102,
+                "distinct": 8,
+                "distinct_accuracy": "exact",
+                "example": "de la Traverse",
+                "first_record": 13
+              },
+              {
+                "id": "p7",
+                "render": "##' '{1,2}#''''#{3,6}",
+                "occurrences": 99,
+                "distinct": 8,
+                "distinct_accuracy": "exact",
+                "example": "de l'Aube",
+                "first_record": 10
+              },
+              {
+                "id": "p8",
+                "render": "'des'' 'x{5,11}",
+                "occurrences": 7,
+                "distinct": 5,
+                "distinct_accuracy": "exact",
+                "example": "des champs",
+                "first_record": 32
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_14",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_14",
+          "display": "ville",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "8b9c5969b081e62006dd7673c47e5fc7b853e75f564cda4e053fd965ffbf7456",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 218,
+                "distinct": 11,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "Trois-Rivières",
+                    "count": 69,
+                    "first_record": 27
+                  },
+                  {
+                    "value": "Saint-Jean-sur-Richelieu",
+                    "count": 60,
+                    "first_record": 34
+                  },
+                  {
+                    "value": "Saint-Jérôme",
+                    "count": 48,
+                    "first_record": 160
+                  },
+                  {
+                    "value": "Sept-Îles",
+                    "count": 23,
+                    "first_record": 109
+                  },
+                  {
+                    "value": "St. John's",
+                    "count": 12,
+                    "first_record": 240
+                  },
+                  {
+                    "value": "Doll  ard-des-Ormeaux",
+                    "count": 1,
+                    "first_record": 1679
+                  },
+                  {
+                    "value": "G atineau",
+                    "count": 1,
+                    "first_record": 2437
+                  },
+                  {
+                    "value": "Sahnt-Jean-sur-Richelieu",
+                    "count": 1,
+                    "first_record": 1667
+                  },
+                  {
+                    "value": "aSint-Jean-sur-Richelieu",
+                    "count": 1,
+                    "first_record": 1141
+                  },
+                  {
+                    "value": "saint-jerome",
+                    "count": 1,
+                    "first_record": 1515
+                  },
+                  {
+                    "value": "trois-rivieres",
+                    "count": 1,
+                    "first_record": 641
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "X{1,2}x{3,12}",
+                "occurrences": 1828,
+                "distinct": 73,
+                "distinct_accuracy": "exact",
+                "example": "Granby",
+                "first_record": 3
+              },
+              {
+                "id": "p2",
+                "render": "@{5,11}",
+                "occurrences": 655,
+                "distinct": 13,
+                "distinct_accuracy": "exact",
+                "example": "Montréal",
+                "first_record": 1
+              },
+              {
+                "id": "p3",
+                "render": "x{4,13}",
+                "occurrences": 12,
+                "distinct": 10,
+                "distinct_accuracy": "exact",
+                "example": "chateauguay",
+                "first_record": 11
+              },
+              {
+                "id": "p4",
+                "render": "Xx{1,7}' '{1,2}x{1,6}",
+                "occurrences": 10,
+                "distinct": 10,
+                "distinct_accuracy": "exact",
+                "example": "Sherbroo ke",
+                "first_record": 430
+              },
+              {
+                "id": "p5",
+                "render": "Xx{1,5}' '{1,2}Xx{3,6}",
+                "occurrences": 69,
+                "distinct": 8,
+                "distinct_accuracy": "exact",
+                "example": "Red Deer",
+                "first_record": 129
+              },
+              {
+                "id": "p6",
+                "render": "Xx{3,8}-Xx{4,8}",
+                "occurrences": 126,
+                "distinct": 6,
+                "distinct_accuracy": "exact",
+                "example": "Rouyn-Noranda",
+                "first_record": 22
+              },
+              {
+                "id": "p7",
+                "render": "###-#''''##",
+                "occurrences": 21,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "Val-d'Or",
+                "first_record": 250
+              },
+              {
+                "id": "p8",
+                "render": "#{7,9}-#{2,3}-#{4,11}",
+                "occurrences": 61,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "Dollard-des-Ormeaux",
+                "first_record": 52
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_16",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_16",
+          "display": "province_nom",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "d7713045fedc40631f26f33e03326a246153a7afa9a65d538373f750cc634c82",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 2269,
+                "distinct": 6,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "Québec",
+                    "count": 2224
+                  },
+                  {
+                    "value": "Nouvelle-Écosse",
+                    "count": 23
+                  },
+                  {
+                    "value": "Terre-Neuve-et-Labrador",
+                    "count": 12
+                  },
+                  {
+                    "value": "Île-du-Prince-Édouard",
+                    "count": 7
+                  },
+                  {
+                    "value": "Territoires du Nord-Ouest",
+                    "count": 2
+                  },
+                  {
+                    "value": "colombie-britannique",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "Xx{4,11}",
+                "occurrences": 578,
+                "distinct": 7,
+                "distinct_accuracy": "exact",
+                "example": "Manitoba"
+              },
+              {
+                "id": "p2",
+                "render": "Xx{6,7}-Xx{5,10}",
+                "occurrences": 142,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "Nouveau-Brunswick"
+              },
+              {
+                "id": "p3",
+                "render": "x{6,7}",
+                "occurrences": 11,
+                "distinct": 2,
+                "distinct_accuracy": "exact",
+                "example": "quebec"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_17",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_17",
+          "display": "code_postal",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern,postal_code",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "57a73bedbd0c47b9341cd7c282f1e0e3d8a7579bec99b3be372b5432eeb33d16",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "postal_code",
+                "state": "not_matched",
+                "occurrences": 21,
+                "distinct": 21,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": true,
+                "listed": [
+                  {
+                    "value": "1K 1T8",
+                    "count": 1,
+                    "first_record": 1025
+                  },
+                  {
+                    "value": "2B 1E5",
+                    "count": 1,
+                    "first_record": 2221
+                  },
+                  {
+                    "value": "3R 3R3",
+                    "count": 1,
+                    "first_record": 905
+                  },
+                  {
+                    "value": "6K 0E0",
+                    "count": 1,
+                    "first_record": 687
+                  },
+                  {
+                    "value": "6X 9V4",
+                    "count": 1,
+                    "first_record": 1828
+                  },
+                  {
+                    "value": "7H 8B4",
+                    "count": 1,
+                    "first_record": 1883
+                  },
+                  {
+                    "value": "7N 1L5",
+                    "count": 1,
+                    "first_record": 995
+                  },
+                  {
+                    "value": "8X 4H4",
+                    "count": 1,
+                    "first_record": 1658
+                  },
+                  {
+                    "value": "9P 7L8",
+                    "count": 1,
+                    "first_record": 2424
+                  },
+                  {
+                    "value": "G1 8T0",
+                    "count": 1,
+                    "first_record": 2509
+                  },
+                  {
+                    "value": "G5 8N1",
+                    "count": 1,
+                    "first_record": 2553
+                  },
+                  {
+                    "value": "G9 5R1",
+                    "count": 1,
+                    "first_record": 641
+                  },
+                  {
+                    "value": "H3 6C7",
+                    "count": 1,
+                    "first_record": 1013
+                  },
+                  {
+                    "value": "H3 8H1",
+                    "count": 1,
+                    "first_record": 2366
+                  },
+                  {
+                    "value": "J1 5M4",
+                    "count": 1,
+                    "first_record": 417
+                  },
+                  {
+                    "value": "J6W 05",
+                    "count": 1,
+                    "first_record": 2249
+                  },
+                  {
+                    "value": "J7 4B4",
+                    "count": 1,
+                    "first_record": 776
+                  },
+                  {
+                    "value": "L6X 51",
+                    "count": 1,
+                    "first_record": 809
+                  },
+                  {
+                    "value": "T2P 85",
+                    "count": 1,
+                    "first_record": 2525
+                  },
+                  {
+                    "value": "T3A 95",
+                    "count": 1,
+                    "first_record": 251
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "X9X' '{1,2}9X9",
+                "occurrences": 2979,
+                "distinct": 2944,
+                "distinct_accuracy": "exact",
+                "example": "H4A 9M3",
+                "first_record": 1
+              },
+              {
+                "id": "p2",
+                "render": "9X' '9X9",
+                "occurrences": 9,
+                "distinct": 9,
+                "distinct_accuracy": "exact",
+                "example": "6K 0E0",
+                "first_record": 687
+              },
+              {
+                "id": "p3",
+                "render": "X9' '9X9",
+                "occurrences": 7,
+                "distinct": 7,
+                "distinct_accuracy": "exact",
+                "example": "J1 5M4",
+                "first_record": 417
+              },
+              {
+                "id": "p4",
+                "render": "X9X' '99",
+                "occurrences": 5,
+                "distinct": 5,
+                "distinct_accuracy": "exact",
+                "example": "T3A 95",
+                "first_record": 251
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": [
+              {
+                "detector": "postal_code",
+                "eligible": 3000,
+                "matched": 2979,
+                "ambiguous": 0,
+                "invalid": 0,
+                "not_matched": 21,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_21",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_21",
+          "display": "id_contrat",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "36bb474044d8d29efcae9c1f081b58b8e58f5be11f0c131c7178159290d0fd25",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2991,
+            "tables": [],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "'CTR''-'{1,2}9{9,10}",
+                "occurrences": 2991,
+                "distinct": 2983,
+                "distinct_accuracy": "exact",
+                "example": "CTR-1000000281",
+                "first_record": 1
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_23",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_23",
+          "display": "date_debut",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "a070b9ff05cfc52ae8b994a95894e0ec0d9f824e6bd7ca9751889348f8fd54e7",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 7,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 5,
+                    "first_record": 689
+                  },
+                  {
+                    "value": "13-40-2026",
+                    "count": 2,
+                    "first_record": 1162
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 7
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 3000,
+                "matched": 2658,
+                "ambiguous": 335,
+                "invalid": 7,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_24",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_24",
+          "display": "date_fin",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "d199a7076e5042b278f58470902507b59d538b97a2cded0de62140fa7c8acfa0",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2498,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 3,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 2,
+                    "first_record": 200
+                  },
+                  {
+                    "value": "40-13-2026",
+                    "count": 1,
+                    "first_record": 2925
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 3
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 2498,
+                "matched": 2221,
+                "ambiguous": 274,
+                "invalid": 3,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_25",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_25",
+          "display": "statut_contrat",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "679ec9afe982fffe9551a57af67034b578ec46f0ca95f9fe9f495042c0fb466a",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 5,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "actif_X",
+                    "count": 4
+                  },
+                  {
+                    "value": "expiré_X",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "x{5,8}",
+                "occurrences": 2469,
+                "distinct": 2,
+                "distinct_accuracy": "exact",
+                "example": "actif"
+              },
+              {
+                "id": "p2",
+                "render": "@{6,7}",
+                "occurrences": 526,
+                "distinct": 2,
+                "distinct_accuracy": "exact",
+                "example": "résilié"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_28",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_28",
+          "display": "mode_paiement",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "1f39ba157c56dc03f6b678f36074b34a06f38f3175a7eb31b953b58c3541e18f",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 3,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "prélèvement_X",
+                    "count": 3
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "x{5,11}",
+                "occurrences": 741,
+                "distinct": 1,
+                "distinct_accuracy": "exact",
+                "example": "carte"
+              },
+              {
+                "id": "p2",
+                "render": "x{5,8}_X",
+                "occurrences": 5,
+                "distinct": 2,
+                "distinct_accuracy": "exact",
+                "example": "carte_X"
+              },
+              {
+                "id": "p3",
+                "render": "@{6,11}",
+                "occurrences": 2251,
+                "distinct": 5,
+                "distinct_accuracy": "exact",
+                "example": "chèque"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "residual_values:rows:column_30",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_30",
+          "display": "date_creation",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "c00339c970c3d201430bb0a6d778abfdae6e65e275d6855514c8f41aae0da43e",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 6,
+                "distinct": 3,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 4,
+                    "first_record": 339
+                  },
+                  {
+                    "value": "13-40-2026",
+                    "count": 1,
+                    "first_record": 1222
+                  },
+                  {
+                    "value": "40-13-2026",
+                    "count": 1,
+                    "first_record": 1474
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 6
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 3000,
+                "matched": 2695,
+                "ambiguous": 299,
+                "invalid": 6,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_31",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_31",
+          "display": "date_modification",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "ca37baa3718dff6f0ea91e6a02447f48718c7aa5977c37d23a2fa00ff74d7d36",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 3,
+                "distinct": 2,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 2,
+                    "first_record": 268
+                  },
+                  {
+                    "value": "40-13-2026",
+                    "count": 1,
+                    "first_record": 1363
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 3
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 3000,
+                "matched": 2684,
+                "ambiguous": 313,
+                "invalid": 3,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_32",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_32",
+          "display": "date_reclamation",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "date",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "114039cfc1439ebcbb6e6729825dbd34840b390d652435772b94e650eeeefb53",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 420,
+            "tables": [
+              {
+                "source": "detector",
+                "detector": "date",
+                "state": "invalid",
+                "occurrences": 1,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "2026-13-40",
+                    "count": 1,
+                    "first_record": 1674
+                  }
+                ],
+                "reasons": [
+                  {
+                    "reason": "invalid_calendar_date",
+                    "count": 1
+                  }
+                ]
+              }
+            ],
+            "detectors": [
+              {
+                "detector": "date",
+                "eligible": 420,
+                "matched": 366,
+                "ambiguous": 53,
+                "invalid": 1,
+                "not_matched": 0,
+                "scan_not_tested": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "residual_values:rows:column_34",
+          "analyzer": "residual_values",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_34",
+          "display": "reclamation_status",
+          "method": "residual_table",
+          "parameters": {
+            "sources": "pattern",
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "max_value_length": 100,
+            "records": 0
+          },
+          "domain": "mixed",
+          "key": "cb5d63ddb4c0e5d852a1f0f08cc5f75059f691f8252fa2a3076715621439a9ef",
+          "status": "complete",
+          "result": {
+            "kind": "residual_values",
+            "accuracy": "exact",
+            "computed_from": "samples",
+            "records": false,
+            "values": 440,
+            "tables": [
+              {
+                "source": "pattern",
+                "state": "other",
+                "occurrences": 127,
+                "distinct": 1,
+                "complete": true,
+                "untracked": 0,
+                "too_long": 0,
+                "truncated": false,
+                "listed": [
+                  {
+                    "value": "en_cours",
+                    "count": 127
+                  }
+                ]
+              }
+            ],
+            "patterns": [
+              {
+                "id": "p1",
+                "render": "@{5,6}",
+                "occurrences": 313,
+                "distinct": 3,
+                "distinct_accuracy": "exact",
+                "example": "rejeté"
+              }
+            ],
+            "pattern_excluded": {
+              "non_string": 0,
+              "too_long": 0,
+              "too_complex": 0
+            },
+            "detectors": []
+          }
+        },
+        {
+          "id": "duplicates_report:rows:column_2",
+          "analyzer": "duplicates_report",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_2",
+          "display": "id_client",
+          "method": "digest_table",
+          "parameters": {
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "records": 0
+          },
+          "domain": "analytical",
+          "key": "b61e6ec16c42167ce50d735bc375d685f8c0ef1f16ab5898a2cccb1fa4a6af51",
+          "status": "complete",
+          "result": {
+            "kind": "duplicates",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "distinct": 2992,
+            "redundant": 8,
+            "unique": false,
+            "repeated": {
+              "distinct": 8,
+              "occurrences": 16,
+              "tracked": 8,
+              "untracked": 0,
+              "complete": true,
+              "truncated": false,
+              "listed": [
+                {
+                  "value": "CLI-00002347",
+                  "count": 2,
+                  "first_record": 15
+                },
+                {
+                  "value": "CLI-00055908",
+                  "count": 2,
+                  "first_record": 337
+                },
+                {
+                  "value": "CLI-00090070",
+                  "count": 2,
+                  "first_record": 525
+                },
+                {
+                  "value": "CLI-00103032",
+                  "count": 2,
+                  "first_record": 588
+                },
+                {
+                  "value": "CLI-00141576",
+                  "count": 2,
+                  "first_record": 807
+                },
+                {
+                  "value": "CLI-00190952",
+                  "count": 2,
+                  "first_record": 1070
+                },
+                {
+                  "value": "CLI-00194194",
+                  "count": 2,
+                  "first_record": 1091
+                },
+                {
+                  "value": "ONT0011035",
+                  "count": 2,
+                  "first_record": 1171
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "duplicates_report:rows:column_17",
+          "analyzer": "duplicates_report",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_17",
+          "display": "code_postal",
+          "method": "digest_table",
+          "parameters": {
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "records": 0
+          },
+          "domain": "analytical",
+          "key": "eaed9ebb9bf02b4f5eb6a3d10cb2a63d7f6c9e89945a1201abb7423a6e9fce08",
+          "status": "complete",
+          "result": {
+            "kind": "duplicates",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 3000,
+            "distinct": 2965,
+            "redundant": 35,
+            "unique": false,
+            "repeated": {
+              "distinct": 35,
+              "occurrences": 70,
+              "tracked": 35,
+              "untracked": 0,
+              "complete": true,
+              "truncated": true,
+              "listed": [
+                {
+                  "value": "E2L 6H3",
+                  "count": 2,
+                  "first_record": 337
+                },
+                {
+                  "value": "G1R 3T5",
+                  "count": 2,
+                  "first_record": 559
+                },
+                {
+                  "value": "G1R 7N8",
+                  "count": 2,
+                  "first_record": 2238
+                },
+                {
+                  "value": "G1R 8J9",
+                  "count": 2,
+                  "first_record": 469
+                },
+                {
+                  "value": "G1V 3E5",
+                  "count": 2,
+                  "first_record": 448
+                },
+                {
+                  "value": "G2B 9E0",
+                  "count": 2,
+                  "first_record": 919
+                },
+                {
+                  "value": "G2B 9H7",
+                  "count": 2,
+                  "first_record": 15
+                },
+                {
+                  "value": "G5R 0V8",
+                  "count": 2,
+                  "first_record": 525
+                },
+                {
+                  "value": "G6W 4V2",
+                  "count": 2,
+                  "first_record": 1575
+                },
+                {
+                  "value": "G8Z 1V5",
+                  "count": 2,
+                  "first_record": 679
+                },
+                {
+                  "value": "G8Z 7R7",
+                  "count": 2,
+                  "first_record": 1070
+                },
+                {
+                  "value": "H1A 4P0",
+                  "count": 2,
+                  "first_record": 221
+                },
+                {
+                  "value": "H2X 0M2",
+                  "count": 2,
+                  "first_record": 2237
+                },
+                {
+                  "value": "H2X 4X2",
+                  "count": 2,
+                  "first_record": 1631
+                },
+                {
+                  "value": "H2X 7K9",
+                  "count": 2,
+                  "first_record": 1599
+                },
+                {
+                  "value": "H2X 8E3",
+                  "count": 2,
+                  "first_record": 1333
+                },
+                {
+                  "value": "H3G 1S8",
+                  "count": 2,
+                  "first_record": 254
+                },
+                {
+                  "value": "H3G 1T6",
+                  "count": 2,
+                  "first_record": 172
+                },
+                {
+                  "value": "H3G 1Z5",
+                  "count": 2,
+                  "first_record": 124
+                },
+                {
+                  "value": "H4A 2W1",
+                  "count": 2,
+                  "first_record": 1823
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "duplicates_report:rows:column_21",
+          "analyzer": "duplicates_report",
+          "analyzer_version": 1,
+          "dataset": "rows",
+          "field": "column_21",
+          "display": "id_contrat",
+          "method": "digest_table",
+          "parameters": {
+            "max_listed": 20,
+            "max_tracked": 10000,
+            "records": 0
+          },
+          "domain": "analytical",
+          "key": "303e0bf3633d3c501ef05589184899e03001bace3691e28353b88c535ccd8eb5",
+          "status": "complete",
+          "result": {
+            "kind": "duplicates",
+            "accuracy": "exact",
+            "computed_from": "source",
+            "records": true,
+            "values": 2991,
+            "distinct": 2983,
+            "redundant": 8,
+            "unique": false,
+            "repeated": {
+              "distinct": 8,
+              "occurrences": 16,
+              "tracked": 8,
+              "untracked": 0,
+              "complete": true,
+              "truncated": false,
+              "listed": [
+                {
+                  "value": "CTR-1000002347",
+                  "count": 2,
+                  "first_record": 15
+                },
+                {
+                  "value": "CTR-1000055908",
+                  "count": 2,
+                  "first_record": 337
+                },
+                {
+                  "value": "CTR-1000090070",
+                  "count": 2,
+                  "first_record": 525
+                },
+                {
+                  "value": "CTR-1000103032",
+                  "count": 2,
+                  "first_record": 588
+                },
+                {
+                  "value": "CTR-1000141576",
+                  "count": 2,
+                  "first_record": 807
+                },
+                {
+                  "value": "CTR-1000190952",
+                  "count": 2,
+                  "first_record": 1070
+                },
+                {
+                  "value": "CTR-1000194194",
+                  "count": 2,
+                  "first_record": 1091
+                },
+                {
+                  "value": "CTR-2000011035",
+                  "count": 2,
+                  "first_record": 1171
+                }
+              ]
+            }
+          }
+        },
+        {
           "id": "category_crosstab:rows:column_1>column_2:pattern",
           "analyzer": "category_crosstab",
           "analyzer_version": 1,
@@ -85127,12 +88741,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-12T00:29:45.865738Z",
+    "generated_at": "2026-10-12T01:40:54.662876Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.7019,
+    "processing_seconds": 1.3971,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

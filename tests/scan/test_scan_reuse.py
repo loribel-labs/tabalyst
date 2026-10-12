@@ -90,8 +90,11 @@ def test_report_from_a_scan_equals_the_direct_report(tmp_path):
     assert _comparable(reused) == _comparable(expected)
     # A report of a scan document reads no source and says what it left out.
     assert expected["analyses"]["outcome"] == "ran"
-    assert reused["analyses"]["outcome"] == "unavailable"
+    # What the scan alone answers (the values patterns leave out, the repeated
+    # values of its samples) is computed; the rest is left out.
+    assert reused["analyses"]["outcome"] == "ran"
     assert reused["analyses"]["deep"]["run"]["source_read"] is False
+    assert reused["analyses"]["deep"]["run"]["skipped"] > 0
     assert reused["report"]["datasets"][0]["summary"]["duplicate_row_count"] == 1
     assert (tmp_path / "data.html").exists()
     history = json.loads((tmp_path / "executions.json").read_text(encoding="utf-8"))

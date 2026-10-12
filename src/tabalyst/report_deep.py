@@ -37,12 +37,15 @@ from tabalyst.scanner.secondpass.models import (
     DenseHistogram,
     DistinctCount,
     DistinctLimited,
+    DuplicateResult,
+    DuplicatesLimited,
     FrequencyTable,
     LengthDistribution,
     MeasureResult,
     PatternCounts,
     PearsonResult,
     PeriodCounts,
+    ResidualResult,
 )
 
 _NOT_COMPUTED = "not_computed"
@@ -171,6 +174,18 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         )
     if isinstance(result, MeasureResult):
         return _measures_summary(result), EXACT
+    if isinstance(result, ResidualResult):
+        return _residuals_summary(result), EXACT
+    if isinstance(result, DuplicateResult):
+        return _duplicates_summary(result), EXACT
+    if isinstance(result, DuplicatesLimited):
+        return (
+            (
+                f"at least {result.repeated:,} repeated values among "
+                f"{result.distinct:,} distinct; stopped after {result.values_read:,} values"
+            ),
+            _AT_LEAST,
+        )
     assert isinstance(result, PeriodCounts)
     return (
         f"{result.count:,} dates by {result.granularity}, {result.first} to {result.last}"
@@ -207,6 +222,34 @@ def _measures_summary(result: MeasureResult) -> str:
     if result.storage == "grid":
         text += "; quantiles estimated"
     return text
+
+
+def _residuals_summary(result: ResidualResult) -> str:
+    # A value can be left out by the pattern and by a detector: the sources are
+    # not added, and the states of one detector are disjoint.
+    sources: dict[str | None, int] = {}
+    for table in result.tables:
+        sources[table.detector] = sources.get(table.detector, 0) + table.occurrences
+    left = max(sources.values(), default=0)
+    text = f"at least {left:,} values left out"
+    if result.tables:
+        text += f" ({_plural(len(result.tables), 'table')})"
+    if result.patterns is not None:
+        text += f"; {_plural(len(result.patterns), 'pattern')} profiled"
+    if any(not table.complete for table in result.tables):
+        text += "; lists bounded"
+    return text
+
+
+def _duplicates_summary(result: DuplicateResult) -> str:
+    if result.unique:
+        return f"{result.values:,} values, all different"
+    repeated = result.repeated
+    return (
+        f"{_plural(repeated.distinct, 'value')} found more than once, "
+        f"{result.redundant:,} extra occurrences"
+        + ("" if repeated.complete else "; list bounded")
+    )
 
 
 def _row(item: AnalysisResult) -> SecondPassRow:

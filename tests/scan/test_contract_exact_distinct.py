@@ -35,9 +35,14 @@ def _field(result, display):
 
 def _plan_with_grant(plan, grant):
     """The plan with every exact set given ``grant`` bytes, as a plan made
-    for a smaller budget (or from a model that under-charged) would."""
+    for a smaller budget (or from a model that under-charged) would. The other
+    analyses that draw from the pool of the exact sets (the values left out and
+    the repeated ones) are not part of it: the pool is the one of the exact
+    count alone."""
     candidates = []
     for candidate in plan.candidates:
+        if candidate.analyzer in ("residual_values", "duplicates_report"):
+            continue
         if candidate.analyzer == "exact_distinct" and candidate.costs is not None:
             states = [
                 state.model_copy(
