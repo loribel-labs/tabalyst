@@ -288,7 +288,7 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 | `arrays` | For array fields: count, empty arrays, minimum, maximum and total length. |
 | `values` | Analyzable values: `count`, `cardinality`, `frequencies`, `samples`, `first` and `last`. |
 | `string_characteristics`, `string_lengths` | Case, non-ASCII characters, line breaks and whitespace; length statistics and histogram. |
-| `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. `numeric.coverage` gives the share of the analyzable values the statistics describe; a field that a code detector reads (`postal_code`, `phone`, `uuid`, `ip_address`) has no `numeric` block (`not_applicable`, reason `code_interpretation`). |
+| `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. Numbers that a column proves to use one decimal convention include its ambiguous ones (see [Detectors](#detectors)). `numeric.coverage` gives the share of the analyzable values the statistics describe; a field that a code detector reads (`postal_code`, `phone`, `uuid`, `ip_address`) has no `numeric` block (`not_applicable`, reason `code_interpretation`). |
 | `normalization` | For each normalization stage, how many values it changed and the distinct values left, plus groups of variants that normalize to the same value (see [Normalization stages](#normalization-stages)). |
 | `technical_type` | `integer`, `number`, `date`, `boolean`, `text`, `mixed` or `empty`, with `confidence`, `counts` and `outside_count`. |
 | `detectors` | One result per detector, described below. |
@@ -833,9 +833,35 @@ The built-in detectors are `number`, `date`, `boolean`, `enumeration`,
 `uuid` and `ip_address`. Patterns of the configuration appear as
 `pattern:<id>`. Detectors check syntax, never real-world existence.
 
-Tabalyst never resolves an ambiguity by guessing from other values of the
-field: the evidence is published, and only the configuration resolves it,
-for example with `detectors.date.ambiguous_order`.
+The evidence is published, and the configuration resolves an ambiguity,
+for example with `detectors.date.ambiguous_order`. Numbers are also read by
+the evidence of their own column, never by a guess:
+
+- When at least `detectors.number.min_evidence` (3) unambiguous numbers of a
+  field use one convention and none uses the other, the ambiguous numbers
+  (`1,234`) are read in that convention and counted in `numeric`. With a
+  decimal comma proven (`2,5`, `1.234,56`), a value such as `1.250` is read
+  as 1250, a thousands group, rather than as 1.25.
+- A column that uses both conventions, or too few of them, is read as before:
+  its ambiguous numbers stay out of `numeric`. Spaces between thousands
+  (`1 234`) prove nothing on their own.
+- The `number` detector names what was done in
+  `details.ambiguity.resolution`:
+
+  ```json
+  {"convention": "comma", "source": "evidence",
+   "evidence": {"comma": 490, "dot": 0}, "resolved": 110}
+  ```
+
+  `resolved` counts the numbers read by the evidence. Its `coverage` and
+  `formats` still describe how the values are written, so `1,234` stays
+  `ambiguous` there and `numeric.count` can exceed `coverage.matched`.
+- `detectors.number.infer_convention: false` turns the rule off, and
+  `detectors.number.ambiguous_convention` always wins over it.
+- JSON and Excel numbers are numbers already: they are kept as they are,
+  never read in a convention. Only text values are.
+
+The second pass reads the numbers of such a field as the scan counted them.
 
 ## Sensitive values
 

@@ -55,6 +55,10 @@ support is not yet required. Record format changes in the relevant changelogs.
 - `src/tabalyst/scanner/pearson.py`: the arithmetic of the Pearson correlation
   (stable co-moments, Chan merge, Fisher interval), shared by the exploration of
   the row sample and the second pass (`docs/dev/scan/design.md` 20.12).
+- `src/tabalyst/scanner/convention_rule.py`: the rule that reads ambiguous
+  numbers by the evidence of their column, decided once by the first pass and
+  read back by every later reading (`CellReader.for_field`); `order_of` of the
+  dates shares its purity rule (`docs/dev/scan/design.md` 20.27).
 - `src/tabalyst/scanner/planner/`: registry of analyzers and planner of the
   second pass (`docs/dev/scan/design.md` 20.5); `src/tabalyst/plan_service.py`
   is its boundary for the CLI and the API.

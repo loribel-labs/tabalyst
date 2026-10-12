@@ -22,7 +22,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING
 
 from tabalyst.config import PearsonSettings
-from tabalyst.scanner.models import DatasetResult, SampleRow
+from tabalyst.scanner.models import DatasetResult, FieldResult, SampleRow
 from tabalyst.scanner.pearson import (
     INSUFFICIENT_PAIRS,
     CoMoments,
@@ -77,14 +77,16 @@ def _rounded(value: float | None) -> float | None:
 
 
 def column_floats(
-    rows: Sequence[SampleRow], field_id: str, reader: CellReader, *, lenient: bool
+    rows: Sequence[SampleRow], field: FieldResult, reader: CellReader, *, lenient: bool
 ) -> tuple[list[float | None], int]:
     """The float64 of the number each row holds in a field, or ``None``, and
     how many numbers the cells hold (those beyond float64 included, as the Scan
-    counts them). A number is read like the first pass reads it; ``lenient``
-    (JSON, whose native numbers the sample writes as text) also accepts what a
-    decimal reads."""
-    texts = [cell_text(row, field_id) for row in rows]
+    counts them). A number is read like the first pass reads it, in the
+    convention the Scan read the field's ambiguous numbers in (design 20.27);
+    ``lenient`` (JSON, whose native numbers the sample writes as text) also
+    accepts what a decimal reads."""
+    reader = reader.for_sample(field)
+    texts = [cell_text(row, field.id) for row in rows]
     counts = Counter(text for text in texts if text is not None)
     distinct = list(counts)
     numbers: dict[str, float | None] = {}
@@ -209,6 +211,7 @@ def explore_dataset(
 
     columns: list[_Column] = []
     fields_in_sample = set(usable.sample.fields)
+    results = {field.id: field for field in dataset.fields}
     for item in numeric:
         reason = column_state(item)
         if reason is None and (
@@ -219,7 +222,9 @@ def explore_dataset(
             leave_out(reason)
             continue
         column = _Column(item)
-        column.floats, _ = column_floats(usable.rows, item.field, reader, lenient=lenient)
+        column.floats, _ = column_floats(
+            usable.rows, results[item.field], reader, lenient=lenient
+        )
         column.usable = sum(value is not None for value in column.floats)
         if column.usable < settings.explore_min_pairs:
             leave_out(TOO_FEW_VALUES)
@@ -304,9 +309,10 @@ def explicit_proposal(
     usable, _ = usable_rows(dataset, settings.explore_min_pairs)
     if usable is None or not usable.sample.covers([first.field, second.field]):
         return PairProposal(first, second, None)
+    results = {field.id: field for field in dataset.fields}
     exploration = explore_pair(
-        column_floats(usable.rows, first.field, reader, lenient=lenient)[0],
-        column_floats(usable.rows, second.field, reader, lenient=lenient)[0],
+        column_floats(usable.rows, results[first.field], reader, lenient=lenient)[0],
+        column_floats(usable.rows, results[second.field], reader, lenient=lenient)[0],
         settings,
         usable.scope,
     )

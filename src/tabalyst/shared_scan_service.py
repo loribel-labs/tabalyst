@@ -78,12 +78,15 @@ def current_scan(
                 # the model: out of date, so scanned again like any stale
                 # cache.
                 stored = None
+        if stored is not None and config_sha256(stored.config) != stored.config_sha256:
+            # A document written before a setting existed (its default now
+            # fills the configuration, so the fingerprint moves) or edited by
+            # hand: out of date, scanned again like any stale cache.
+            stored = None
         if stored is not None:
             result = stored
             if result.source.name != source.name:
                 raise InputError("Stored scan source binding differs from the requested file")
-            if config_sha256(result.config) != result.config_sha256:
-                raise InputError("Stored scan configuration fingerprint is invalid")
             fresh = compare_source(source, result.source, sha256=source_sha256)
             if scan_layer is not None:
                 recorded = result.config.model_dump(mode="json", by_alias=True)

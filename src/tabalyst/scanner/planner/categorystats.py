@@ -175,7 +175,7 @@ def explore_dataset(
             leave_out(NOT_IN_SAMPLE, excluded_numeric)
             continue
         number.floats, _ = column_floats(
-            usable.rows, number.facts.field, reader, lenient=lenient
+            usable.rows, results[number.facts.field], reader, lenient=lenient
         )
         number.usable = sum(value is not None for value in number.floats)
         if number.usable < settings.explore_min_rows:
@@ -301,7 +301,7 @@ def explicit_proposal(
         return PairProposal(category, number, None)
     exploration = explore_pair(
         code_rows(coder, usable.rows, category.field),
-        column_floats(usable.rows, number.field, reader, lenient=lenient)[0],
+        column_floats(usable.rows, results[number.field], reader, lenient=lenient)[0],
         len(coder.classes),
         settings,
         usable.scope,

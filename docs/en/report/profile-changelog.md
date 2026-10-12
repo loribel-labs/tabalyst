@@ -83,8 +83,10 @@ The profile becomes a superset of the Scan document: it has `format:
 
 The report follows the scan base at revision 3 (see the
 [Scan format changelog](../scan/format-changelog.md)): `numeric.coverage`, the
-refusal of `numeric` for codes and the `minority_length` observation. The
-report adds no member of its own. The second pass document inside `analyses`
+refusal of `numeric` for codes, the `minority_length` observation and the
+ambiguous numbers read in the convention their column proves, which the
+numeric statistics of the report now include. The report adds no member of its
+own. The second pass document inside `analyses`
 is at [revision 2](../scan/deep-format.md#changelog): it may hold the numbers of
 amounts, percentages and quantities with a unit (the result `measures`), which
 the Second pass section summarizes in one line, the values that patterns and

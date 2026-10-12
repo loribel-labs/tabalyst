@@ -50,12 +50,19 @@ typed; accepted digits are ASCII digits.
 - Validation: two readings with the same value (`1 234`) match; different
   values (`1,234`) are ambiguous. The strict rule decides `1.234` (1.234, not
   1234) so that lot 2a results are unchanged; it is not ambiguity evidence.
-  No value is `invalid`.
+  No value is `invalid`. The classification never changes with the column:
+  the reading by the evidence of design 20.27 applies to the `numeric` block
+  of the field (`1,234` read in the proved convention, and `1.234` read as
+  1234 under a `comma` proof), not to the detector's counts.
 - Details: the `ambiguity` block of design 12.6, with `evidence` for `comma`
   and `dot` when both are enabled. A decimal point or comma read by one
-  convention only is evidence for it.
+  convention only is evidence for it. `resolution` is
+  `{"convention", "source": "config"}` from `ambiguous_convention`, or
+  `{"convention", "source": "evidence", "evidence", "resolved"}` when the
+  column proved a convention and at least one number was read by it.
 - Settings: `conventions` (default `["dot", "comma"]`), `ambiguous_convention`
-  (`null`).
+  (`null`), `infer_convention` (`true`) and `min_evidence` (3, at least 1),
+  the fewest unambiguous numbers that must prove a convention (design 20.27).
 - Overlaps: `date` never matches a number; `enumeration` and catalogue codes
   (ZIP codes) may.
 - Sensitive: no.

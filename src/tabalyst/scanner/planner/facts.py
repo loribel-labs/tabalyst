@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from tabalyst.scanner.convention_rule import single_reading
 from tabalyst.scanner.detectors.registry import replayable
 from tabalyst.scanner.models import (
     CardinalityComplete,
@@ -66,12 +67,9 @@ def order_of(evidence: dict[str, int], minimum: int = 1) -> str | None:
     """``DMY`` when at least ``minimum`` dates read day-month only and none
     month-day, ``MDY`` for the opposite, else ``None``: with both orders the
     column is mixed, and with fewer than ``minimum`` the proof is too thin."""
-    day_first, month_first = evidence.get("DMY", 0), evidence.get("MDY", 0)
-    if day_first >= minimum and not month_first:
-        return "DMY"
-    if month_first >= minimum and not day_first:
-        return "MDY"
-    return None
+    return single_reading(
+        {"DMY": evidence.get("DMY", 0), "MDY": evidence.get("MDY", 0)}, minimum
+    )
 
 
 def date_evidence(field: FieldResult) -> dict[str, int]:

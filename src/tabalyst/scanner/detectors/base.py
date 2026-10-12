@@ -159,14 +159,15 @@ class AmbiguityAccumulator(DetectorAccumulator):
     (design 12.6).
 
     ``count`` and ``candidates`` cover every value that is ambiguous under the
-    enabled readings, resolved by configuration or not. ``evidence`` counts
-    unambiguous values per reading; it is exposed, never applied.
+    enabled readings, resolved or not. ``evidence`` counts unambiguous values per
+    reading; the Scan applies it only to numbers, at the finalization of a field
+    that proves one convention, and then sets ``resolution`` (design 20.27).
     """
 
     __slots__ = ("candidates", "count", "evidence", "resolution")
     ignores_unmatched = True
 
-    def __init__(self, readings: list[str], resolution: dict[str, str] | None) -> None:
+    def __init__(self, readings: list[str], resolution: dict[str, object] | None) -> None:
         self.count = 0
         self.candidates: dict[tuple[str, ...], int] = {}
         self.evidence = dict.fromkeys(sorted(readings), 0)

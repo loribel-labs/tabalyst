@@ -405,7 +405,9 @@ the same with `excel.dataset_path` in place of `json.collections`.
 
 The scan document embeds the effective configuration and its SHA-256
 (`config_sha256`). A stored scan is reused only when the source content, that
-configuration and the version of Tabalyst are all the same.
+configuration and the version of Tabalyst are all the same. A stored scan whose
+fingerprint no longer matches its configuration, such as one written before a
+setting existed, is out of date and scanned again.
 
 ### Sources and errors
 
@@ -584,7 +586,7 @@ detector ids are errors.
 
 | Detector | Settings and defaults |
 | --- | --- |
-| `number` | `conventions`: `["dot", "comma"]`, the decimal separators accepted; `ambiguous_convention`: `null`, or `dot` or `comma` to read values such as `1,234` one way. |
+| `number` | `conventions`: `["dot", "comma"]`, the decimal separators accepted; `ambiguous_convention`: `null`, or `dot` or `comma` to read values such as `1,234` one way; `infer_convention`: `true`, read them in the convention the other numbers of the column prove; `min_evidence`: 3, the fewest numbers that must prove it. |
 | `date` | `orders`: `["YMD", "MDY", "DMY"]`; `separators`: `["-", "/", "."]`; `ambiguous_order`: `null`, or `MDY` or `DMY` to read values such as `02/03/2025` one way; `month_languages`: `["en", "fr"]`. |
 | `boolean` | `pairs`: `[["true", "false"], ["yes", "no"], ["y", "n"], ["oui", "non"], ["vrai", "faux"]]`. |
 | `enumeration` | `minimum_values`: 500; `maximum_distinct`: 49; `case_sensitive`: `true`. |
@@ -592,14 +594,19 @@ detector ids are errors.
 | `url` | `schemes`: `["http", "https", "ftp"]`; `www`: `true`, accept addresses starting with `www.`; `max_tracked_hosts`: 10,000; `max_listed_hosts`: 20. |
 | `phone` | `regions`: `["nanp", "fr"]`; `nanp` covers Canada and the United States. |
 | `postal_code` | `regions`: `["ca", "us"]`, Canadian postal codes and ZIP codes. |
-| `currency` | `conventions` and `ambiguous_convention`, as for `number`. |
-| `percentage` | `conventions` and `ambiguous_convention`, as for `number`. |
-| `quantity` | `conventions` and `ambiguous_convention`, as for `number`; `max_tracked_units`: 10,000; `max_listed_units`: 20. |
+| `currency` | `conventions`, `ambiguous_convention`, `infer_convention` and `min_evidence`, as for `number`. |
+| `percentage` | `conventions`, `ambiguous_convention`, `infer_convention` and `min_evidence`, as for `number`. |
+| `quantity` | `conventions`, `ambiguous_convention`, `infer_convention` and `min_evidence`, as for `number`; `max_tracked_units`: 10,000; `max_listed_units`: 20. |
 | `uuid` | No other setting. |
 | `ip_address` | `versions`: `["ipv4", "ipv6"]`. |
 
-Ambiguous values are never resolved from other values of the field: only
-`ambiguous_convention` and `ambiguous_order` resolve them.
+`ambiguous_convention` and `ambiguous_order` resolve ambiguous values. Without
+them, the scan reads ambiguous numbers such as `1,234` in the convention that at
+least `min_evidence` other numbers of the same column prove, when none proves the
+other; a decimal comma proven that way also makes `1.250` read as 1250. The
+`currency`, `percentage` and `quantity` settings do not change the scan, which
+counts no number of an amount. Ambiguous dates are read by the evidence of their
+column in the second pass only (`deep.datetime.infer_order`).
 
 ### Patterns
 

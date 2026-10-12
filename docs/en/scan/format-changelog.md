@@ -123,3 +123,10 @@ Also in revision 2:
   `not_applicable` with the reason `code_interpretation`: the median of postal
   codes means nothing.
 - The observation rules are version 2 and gain `minority_length`.
+- Ambiguous numbers such as `1,234` are read in the convention that the other
+  numbers of their column prove (at least `detectors.number.min_evidence`, none
+  proving the other) and counted in `numeric`; with a decimal comma proven,
+  `1.250` counts as 1250. `details.ambiguity.resolution` of `number` names it
+  with `source` `evidence`, the `evidence` and the numbers `resolved`. New
+  settings `detectors.<id>.infer_convention` and `min_evidence` for `number`,
+  `currency`, `percentage` and `quantity`.

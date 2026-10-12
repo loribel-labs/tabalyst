@@ -13,12 +13,18 @@ and number detector, built from the configuration the Scan recorded.
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
 from decimal import Decimal
 from typing import NamedTuple
 from unicodedata import is_normalized
 
 from tabalyst.scanner.config import ScanConfig
+from tabalyst.scanner.convention_rule import (
+    dotted_thousands,
+    holds_native_numbers,
+    scan_convention,
+)
 from tabalyst.scanner.detectors.base import Classification, Detector
 from tabalyst.scanner.detectors.currency import CurrencyDetector
 from tabalyst.scanner.detectors.number import NumberDetector
@@ -29,6 +35,7 @@ from tabalyst.scanner.detectors.shape import shape
 from tabalyst.scanner.detectors.temporal import DateDetector
 from tabalyst.scanner.field import StringClassifier
 from tabalyst.scanner.measures import UNCONVERTIBLE, decimal_or_unconvertible
+from tabalyst.scanner.models import FieldResult
 from tabalyst.scanner.normalization import ANALYTICAL_STAGE, Normalizer, collapse
 
 Exact = int | Decimal
@@ -120,7 +127,10 @@ class CellReader:
     """Reads the cells of the strings of a field like the first pass.
 
     ``numbers`` is false when the number detector was turned off in the Scan:
-    no value is a number then.
+    no value is a number then. ``convention`` is the one the Scan read the
+    ambiguous numbers of the field in by the evidence of its column (design
+    20.27), ``None`` for the ordinary reading: a field's reader comes from
+    ``for_field``.
     """
 
     def __init__(self, config: ScanConfig) -> None:
@@ -144,6 +154,46 @@ class CellReader:
         self.config = config
         self.measure_detectors: dict[str, MeasureDetector | None] = {}
         self.replays: dict[str, Detector | None] = {}
+        self.convention: str | None = None
+        self.regroup = False
+        # The readers of the other conventions, shared by every view.
+        self.views: dict[tuple[str | None, bool], CellReader] = {(None, False): self}
+
+    def for_field(self, field: FieldResult) -> CellReader:
+        """The reader of a field of the Scan: it reads the numbers the Scan
+        counted in the field's ``numeric`` block, ambiguous ones included when
+        the column proved a convention."""
+        return self.reading(scan_convention(field))
+
+    def for_sample(self, field: FieldResult) -> CellReader:
+        """The reader of the cells the Scan wrote for a field in its row sample,
+        where a number of the source's own type (JSON, Excel) is text too: in a
+        field that holds such numbers, ``d.ddd`` keeps the value written, since
+        a native number is never read in a convention (design 20.27)."""
+        convention = scan_convention(field)
+        return self.reading(
+            convention, regroup=convention == "comma" and not holds_native_numbers(field)
+        )
+
+    def reading(self, convention: str | None, *, regroup: bool | None = None) -> CellReader:
+        """The reader that reads the ambiguous numbers in ``convention`` and,
+        when ``regroup`` (by default under ``comma``), the strict decimals
+        ``d.ddd`` as thousands (design 20.27); ``None`` is the ordinary reading.
+        The views share every cache but the number detector."""
+        regroup = convention == "comma" if regroup is None else regroup
+        view = self.views.get((convention, regroup))
+        if view is None:
+            view = copy.copy(self)
+            view.convention = convention
+            view.regroup = regroup
+            settings = self.config.detectors.number.model_dump()
+            view.detector = (
+                NumberDetector({**settings, "ambiguous_convention": convention})
+                if self.detector is not None
+                else None
+            )
+            self.views[(convention, regroup)] = view
+        return view
 
     def analytical(self, raw: str) -> str:
         """The analytical text of a content string: what ``string_lengths`` and
@@ -296,6 +346,7 @@ class CellReader:
         except Exception:  # noqa: BLE001 - detector code is isolated, as in the scan
             found = [self._one(detector, text) for text in texts]
         numbers: list[Exact | None] = []
+        regroup = self.regroup
         for text, classification in zip(texts, found, strict=True):
             if (
                 classification is None
@@ -304,6 +355,8 @@ class CellReader:
                 or not _is_number(classification.value)
             ):
                 numbers.append(None)
+            elif regroup and (thousands := dotted_thousands(classification)) is not None:  # type: ignore[arg-type]
+                numbers.append(thousands)
             else:
                 numbers.append(classification.value)
         return numbers
