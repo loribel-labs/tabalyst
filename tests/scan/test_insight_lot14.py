@@ -472,7 +472,13 @@ def test_G25_the_planner_proposes_the_extraction_for_the_fields_it_concerns(tmp_
     assert set(candidates) == {"money", "size", "rare"}
     assert candidates["rare"].applicability.reasons == ["low_coverage"]
     money = candidates["money"]
-    assert money.parameters == {"detector": "currency", "max_groups": 20, "max_values": 100_000, "bins": 100}
+    assert money.parameters == {
+        "detector": "currency",
+        "max_groups": 20,
+        "max_values": 100_000,
+        "bins": 100,
+        "number_convention": "",
+    }
     assert money.selection.state == "selected" and money.selection.reason == "automatic"
     assert plan.cost_model_version >= 7
 

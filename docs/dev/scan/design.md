@@ -76,6 +76,7 @@ lot, with the reason recorded in section 17.
 | O47 | Insight lot 13: gaps closed without reading the source | `numeric.coverage` (`of`, `share`) says which part of `values.count` the numeric block describes; a field that a code detector (`postal_code`, `phone`, `uuid`, `ip_address`) reads for at least half of its eligible values and for at least as many values as the numeric block holds gets `numeric` `not_applicable` with the reason `code_interpretation` (constants `CODE_DETECTORS`, `CODE_MIN_SHARE` in `values.py`). The observation `minority_length` (rules version 2) reads the exact length histogram. The report derives lengths quartiles, frequency tail, dominant unit or marker and decades from existing blocks at render time (`report_measures.py`), without a new member. Scan and Report move to format revision 3 (rule P3: one revision per release). | Accepted 2026-10-11 | 18.13, 18.14, 9.4 |
 | O49 | Insight lot 15: the values that patterns and detectors leave out | The analyzer `residual_values` keeps, per field, the values no candidate pattern reads and the values of up to three replayable detectors (`replayable()`: value scope, strings only) that are `invalid` or `not_matched`, with exact counts (a value is tracked from its first appearance, up to `deep.residuals.max_tracked`), the reasons of the invalid ones and, when the source is read, the record of the first occurrence. Each candidate pattern gets an example, its first record and its distinct values over every occurrence (an `ExactSet` of the run's pool). When the Scan holds every distinct value with its exact count the result follows from them, without records (D1); `deep.residuals.records` reads the source anyway. The detector counts are checked against the coverage of the Scan. The record number is handed to the routes (`strings(column, start)`, `string(value, record)`). Second-pass document revision 2 (same release). | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.20, 20.5, 20.7 |
 | O50 | Insight lot 15: the repeated values of identifiers and keys | The analyzer `duplicates_report` lists the values found more than once in a column of almost all different values (a proven unique column is `already_satisfied`), with exact counts and, when the source is read, the first record. Values are 128-bit BLAKE2b digests with the record of their first occurrence, charged to the pool of the exact sets; a search the pool stops is `duplicates_limited`. A combination of two columns is searched on request only (`AnalysisRequest(partner=)`): `DuplicatesReport` is also a `PairAnalyzer` with `per_field`. `deep.duplicates` holds `max_listed`, `max_tracked`, `records`. | Accepted 2026-10-11 (maintainer, lot 15: D1 to D4) | 20.21, 20.5 |
+| O57 | Insight lot 17d.2b: values with a unit read by the evidence of the column | The second pass reads the ambiguous numbers of the values with a unit (`1,250 Kg`, `$4,825`, `12,5 %`) in the convention that the unambiguous values of the same detector (`currency`, `percentage` or `quantity`) prove, by the rule of O56 (`min_evidence`, none proving the other, `ambiguous_convention` wins, `infer_convention`), and under `comma` reads `1.250 Kg` as 1250. The plan decides it from `details.ambiguity.evidence` of the detector in the Scan (`MeasureFacts.convention`) and writes the parameter `number_convention` (part of the key) and the reason `ambiguous_numbers_read_by_evidence`; the reader of the extraction applies it (`CellReader.cells(measure=, convention=)`), the check against the Scan becomes read plus resolved ambiguous equal the coverage, and the result names it (`resolved`, `resolution`). The Scan and the settings are those of 17d.2a; no analyzer other than `measure_extraction` changes. | Accepted 2026-10-12 (maintainer, plan of the session) | 20.28, 20.27, 20.19 |
 | O56 | Insight lot 17d.2a: ambiguous numbers read by the evidence of the column | The Scan reads the ambiguous numbers (`1,234`) in the convention that the unambiguous numbers of the column prove, at least `detectors.number.min_evidence` (3) of them and none proving the other, and counts them in `numeric`; under a `comma` proof the strict decimals `d.ddd` (`1.250`) are thousands. The proof comes from the values only: `ambiguous_convention` wins and regroups nothing; spaces prove nothing alone. Decided at the finalization of the field from integers N kept during the Scan (scenario B5 of 17d.1), named in `details.ambiguity.resolution` (`source: evidence`, `resolved`); `coverage` and `formats` still describe the writing. Every later reading (second pass, smart sample, explorations) reads the field in the convention the Scan wrote and never decides again. One rule module, `scanner/convention_rule.py`, shared with the dates. Numbers with a unit: lot 17d.2b. | Accepted 2026-10-12 (maintainer, gate N) | 20.27, 12.6, 9.4 |
 | O55 | Insight lot 17c: ambiguous dates read by the evidence of the column | In the second pass the ambiguous dates (`03/04/2020`) are read in the order that the unambiguous dates of the column prove when only one of `DMY` and `MDY` occurs, whatever the separators and the year-first dates, and counted with the others (`DateResolution`, plan parameter `date_order`, `deep.datetime.infer_order`, `deep.datetime.min_evidence`, 3 proofs at least); with both orders or none they stay ambiguous; `ambiguous_order` of the configuration wins. It reverses, for the second pass only, the rule of 12.6 that the evidence is exposed and never applied. | Accepted 2026-10-12 (maintainer) | 20.26, 12.6, 20.10 |
 | O54 | Insight lot 17b: the parts of the dates | The analyzer `datetime_parts` counts the dates by year-month (the years and the months of the year are sums of it), day of the week and hour (datetimes and times), counts those after an explicit `deep.datetime.as_of` (never the date of the day), reads the ambiguous dates again under each order (`DMY`, `MDY`: year-months and weekdays) and counts the invalid ones by reason. It reads the classification of the date detector that `temporal_distribution` reads, so the two share one reading. The empty periods and the longest gap are not stored: they follow from the periods or the years of the Scan at render time. `DatetimeSettings` (`as_of` only), `COST_MODEL_VERSION` 11. | Accepted 2026-10-11 (maintainer: "ok avec propositions", R2 to R5), then the bins of equal width replaced by the year-months on 2026-10-12 | 20.25, 20.10 |
@@ -1805,6 +1806,7 @@ makes by itself writes none.
 | 2026-10-11 | IN-18 | New decision O53, new section 20.24, a row in 20.5: `numeric_shape` (`planner/analyzers/shape.py`, `secondpass/shape.py`), `ShapeResult`, `deep.shape`, `FieldRoute.shape`, `binned_quantile_fractions`, `exact_quantile_fractions`, `distinct_band`, `COST_MODEL_VERSION` 11. | Insight lot 17a: lead B5 of 10.30 of the technical documentation. |
 | 2026-10-11 | IN-19 | New decision O54, new section 20.25, a row in 20.5: `datetime_parts` (`planner/analyzers/parts.py`, `secondpass/parts.py`), `PartsResult`, `deep.datetime`, `FieldRoute.parts`. | Insight lot 17b: lead B4 of 10.30 of the technical documentation, and the A4 lead for dates. |
 | 2026-10-12 | IN-20 | New decision O55, new section 20.26: `inferred_order`, `date_evidence`, `DateResolution`, `CellReader.cells(dates=<order>)`, `deep.datetime.infer_order`, the plan parameter `date_order`. | Insight lot 17c: the maintainer's rule for ambiguous dates. |
+| 2026-10-12 | IN-22 | New decision O57, new section 20.28: `MeasureFacts.convention` and `readable`, the plan parameter `number_convention`, the reason `ambiguous_numbers_read_by_evidence`, `CellReader.cells(convention=)` and `measure_detector(detector, convention)`, `Measure.resolved`, `MeasureAccumulator.convention` and `resolved`, `NumberResolution`, `MeasureResult.resolved` and `resolution`, `dotted_thousands` for a format with affixes. | Insight lot 17d.2b: values with a unit follow the rule of the numbers. |
 | 2026-10-12 | IN-21 | New decision O56, new section 20.27, notes in 9.4 and 12.6: `scanner/convention_rule.py` (`single_reading`, `NumberRule`, `scan_convention`), `ThousandsReadings` and `NumericAccumulator.absorb`, `DetectorSet.number_convention`, `CellReader.for_field`, `detectors.number.infer_convention` and `min_evidence`, `resolution` with `source: evidence`. | Insight lot 17d.2a: the maintainer's rule for ambiguous numbers (gate N). |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -4205,7 +4207,7 @@ detector's `eligible`. When the detector of the Scan tested every value (`not_te
 `invalid` are its `matched`, `ambiguous` and `invalid`, and the values of each marker are its `details.currencies` or the
 listed `details.units`. When adaptive detection left values untested, the second pass reads them all: it finds at least
 what the Scan found and at most `not_tested` more (`scan_not_tested` says how many were not tested). Any other difference
-is `scan_mismatch`.
+is `scan_mismatch`. With a convention proved by the column (20.28) the check counts the Scan's ambiguous values as read.
 
 **Cost.** Measured on the executor (`measure_costs.py` of the lot, a generated file of 1 million rows with five
 columns of amounts, percentages and units, one process, the reading of the cell included): 151 ns a cell for a column of
@@ -4576,7 +4578,7 @@ reads 1.25 and the comma convention 1250) are read as thousands. The proof comes
 U+00A0, U+202F) prove nothing alone (`1 234` reads the same under both conventions); their decimal separator decides (`1 234,56`
 proves `comma`). The threshold is absolute, with no share: the proof is pure or the column stays as it was. Settings:
 `detectors.number.infer_convention` (true) and `detectors.number.min_evidence` (3) in `NumberSettings`, which `currency`,
-`percentage` and `quantity` inherit; the Scan counts no number of an amount, and their reading by the second pass is lot 17d.2b.
+`percentage` and `quantity` inherit; the Scan counts no number of an amount, and their reading by the second pass is 20.28.
 
 **First pass.** The two readings of an ambiguous number are always N and N / 1000 (one to three digits, a comma, three digits), and
 so are those of `d.ddd`. `add_string_measures` keeps both kinds as the integer N in a `ThousandsReadings` (count, sum, sum of
@@ -4608,7 +4610,7 @@ and the switch are part of the configuration of the Scan, so changing them chang
 fields that hold such numbers. Measured against `76eb1c6` in benchmarks.md (Insight lot 17d.2a).
 
 **Limits.** Dates stay read by the evidence in the second pass only (20.26). No proof is borrowed from another column. A column of
-`d.ddd` alone (no proof) is read as decimals, as before. Numbers with a unit: lot 17d.2b.
+`d.ddd` alone (no proof) is read as decimals, as before. Numbers with a unit: 20.28.
 
 **Stored scans.** The two settings change the configuration of every Scan, so a shared Scan of revision 3 written before them
 loads with their defaults and its `config_sha256` no longer matches. `current_scan` treats a fingerprint that does not match
@@ -4621,6 +4623,46 @@ numbers (`native_types`), its reader (`CellReader.for_sample`) does not regroup 
 `1.500` in such a mixed field is then read 1.5 from the row sample while the Scan counted 1500; only the placement of bin edges
 and the scores of the explorations read the row sample there, since a pair of a source that is not CSV is always read from the
 source.
+
+### 20.28 Values with a unit read by the evidence of the column (Insight lot 17d.2b, O57)
+
+`1,250 Kg`, `1.250 Kg` and `1 250 Kg` are a number and a unit read by the grammar of the number detector (`AmountReader`), so they
+are as ambiguous as the numbers of 20.27: `1,250 Kg` is ambiguous, `1.250 Kg` a strict decimal and `1 250 Kg` 1250. Their numbers
+are extracted by the second pass only (20.19, Q7), so the rule is applied there, with the same module (`convention_rule`): no
+accumulation joins the first pass and the Scan is not changed.
+
+**Evidence.** Each of `currency`, `percentage` and `quantity` counts, in `details.ambiguity.evidence`, the unambiguous values that
+only one convention reads, exactly over the values it tested. The plan reads it (`scan_facts`): `MeasureFacts.convention` is
+`NumberRule.of(<settings of the detector in the Scan>).convention(evidence)`, so `infer_convention`, `min_evidence`, the enabled
+conventions and `ambiguous_convention` (which wins) are those of the Scan's configuration. A `dot` proof is kept only when there is
+something to read (the Scan counted an ambiguous value or left values untested); a `comma` proof is always kept, because it also
+reads `d.ddd` as thousands, and the Scan does not count those for the amounts (its evidence leaves them out).
+
+**Plan.** `measure_extraction` writes the parameter `number_convention` (`""`, `dot` or `comma`), which is part of the key, and
+the utility reason `ambiguous_numbers_read_by_evidence`. The values the convention resolves count for the applicability and the
+choice of the detector (`MeasureFacts.readable` = `matched` + `ambiguous` with a convention), so a column mostly written
+ambiguously is no longer `low_coverage`. Costs are unchanged: the tiers follow the distinct values, and the reading adds one
+comparison per matched value under `comma`.
+
+**Reading.** `CellReader.measure_detector(detector, convention)` builds the detector with `ambiguous_convention` set (one per
+convention, never shared), so the ambiguous values come back `matched` with their candidates; `measure_of(reading, convention)`
+marks them `resolved` and, under `comma`, reads a strict `d.ddd` as thousands (`dotted_thousands`, which accepts the affixes of a
+value with a unit). The convention is an attribute of `MeasureAccumulator`, so the route, a worker and `derive_from_samples` all
+read the same way; the reader of the route is the one of the number detector and is not involved. A number of the source's own
+type is never read here (the detector reads strings only).
+
+**Check.** With a convention, the Scan's `ambiguous` values are parsed here and none is left: `parsed + ambiguous + invalid`
+equals `matched + ambiguous(scan) + 0 + invalid`, and `resolved` is at least the Scan's `ambiguous`; the currencies and units
+counts (parsed plus ambiguous) are unchanged. Without it the check is the one of 20.19. Adaptive detection keeps its tolerance.
+
+**Result.** `resolved` counts the values read by the evidence (the ambiguous ones, and `d.ddd` under `comma`) and `resolution`
+(`convention`, `source: evidence`, `evidence` of the Scan's detector) exists only when `resolved` is at least 1, as in 20.27.
+`parsed` includes the resolved values; `ambiguous` is 0. The Report summary says how many were read and how many unambiguous
+values prove it. `percent_range` counts the resolved percentages too.
+
+**Limits.** The residual values (20.20) replay the Scan's own reading, so an ambiguous value stays ambiguous there. No proof is
+borrowed from another detector or column: a column of quantities is proved by the `quantity` detector alone. The second pass stays
+at revision 2 (same release).
 
 ## 21. Original value domain (O32)
 

@@ -129,4 +129,6 @@ Also in revision 2:
   `1.250` counts as 1250. `details.ambiguity.resolution` of `number` names it
   with `source` `evidence`, the `evidence` and the numbers `resolved`. New
   settings `detectors.<id>.infer_convention` and `min_evidence` for `number`,
-  `currency`, `percentage` and `quantity`.
+  `currency`, `percentage` and `quantity`. The Scan counts no number of an amount
+  and does not change for the last three: the second pass reads the values with a
+  unit by the evidence of their own detector.

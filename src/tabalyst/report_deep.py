@@ -46,6 +46,7 @@ from tabalyst.scanner.secondpass.models import (
     FrequencyTable,
     LengthDistribution,
     MeasureResult,
+    NumberResolution,
     PartsResult,
     PatternCounts,
     PearsonResult,
@@ -252,9 +253,25 @@ def _measures_summary(result: MeasureResult) -> str:
         text += f"; {result.percent_range.above:,} above 100"
     if result.ambiguous:
         text += f"; {result.ambiguous:,} ambiguous not placed"
+    text += _number_resolution_text(result.resolution, result.resolved)
     if result.storage == "grid":
         text += "; quantiles estimated"
     return text
+
+
+_CONVENTION_WORDS = {"dot": "decimal point", "comma": "decimal comma"}
+
+
+def _number_resolution_text(resolution: NumberResolution | None, resolved: int) -> str:
+    """The sentence that says the numbers written ambiguously were read by the
+    evidence of the column."""
+    if resolution is None:
+        return ""
+    proof = resolution.evidence.get(resolution.convention, 0)
+    return (
+        f"; {resolved:,} read with the {_CONVENTION_WORDS[resolution.convention]} "
+        f"convention (proved by {proof:,} unambiguous values)"
+    )
 
 
 def _shape_summary(result: ShapeResult) -> str:

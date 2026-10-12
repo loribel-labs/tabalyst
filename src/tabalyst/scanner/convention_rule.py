@@ -88,8 +88,10 @@ def ambiguous_thousands(text: str) -> int:
 def dotted_thousands(found: Classification) -> int | None:
     """The integer N of a strict decimal that the ``comma`` convention reads as a
     thousands group (``1.234``, ``-12.500``), ``None`` for any other number. The
-    number detector marks it as evidence of no convention."""
-    if found.format == "0.0" and found.convention is None:
+    number detector marks it as evidence of no convention. A value with a unit
+    or a marker (design 20.28) writes its format around the number's (``0.0 [unit]``,
+    ``$0.0``), and no convention other than ``None`` goes with a plain ``0.0``."""
+    if found.convention is None and found.format is not None and "0.0" in found.format:
         value = found.value
         if isinstance(value, Decimal):
             return int(value.scaleb(3))

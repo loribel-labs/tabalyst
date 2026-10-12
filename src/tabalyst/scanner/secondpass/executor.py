@@ -503,6 +503,7 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
             max_values=int(parameters["max_values"]),
             bins=int(parameters["bins"]),
             cell_ns=0 if candidate.costs is None else candidate.costs.cell_ns,
+            convention=str(parameters.get("number_convention", "")) or None,
         )
         job.accumulator = measures
         if not candidate.execution.requires_source:

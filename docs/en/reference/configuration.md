@@ -605,8 +605,10 @@ them, the scan reads ambiguous numbers such as `1,234` in the convention that at
 least `min_evidence` other numbers of the same column prove, when none proves the
 other; a decimal comma proven that way also makes `1.250` read as 1250. The
 `currency`, `percentage` and `quantity` settings do not change the scan, which
-counts no number of an amount. Ambiguous dates are read by the evidence of their
-column in the second pass only (`deep.datetime.infer_order`).
+counts no number of an amount: the second pass applies them to the numbers of the
+values with a unit, from the evidence of the same detector (`1,250 Kg`,
+`$1.250`). Ambiguous dates are read by the evidence of their column in the
+second pass only (`deep.datetime.infer_order`).
 
 ### Patterns
 

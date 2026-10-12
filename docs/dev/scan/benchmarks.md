@@ -1166,3 +1166,21 @@ detectors and `config_sha256`. The only memory step is the synthetic worst case,
 distinct values each and complete tables (+25%): the resolved numbers enter the exact median like any number; the same file
 written without commas costs the same (lot 17d.1 note). The sessions of 17d.1 and 17d.2a measured the base 3 to 4 points
 apart, so differences of that size are noise.
+
+## Values with a unit read by the evidence of the column (Insight lot 17d.2b)
+
+The second pass reads the ambiguous numbers of `measure_extraction` in the convention the plan decides from the Scan (design
+20.28); the first pass is not touched, so no interleaved Scan comparison applies. The cost of the extraction was measured with
+`measure_costs.py` of lot 14 on `measures-1m.csv` (1 M rows, five columns, one process), the base `ecad208` (a copy of the tree,
+`lot17d2b/base`) against the head, alternated twice in one session (`D:/GIT.test/tabalyst/artifacts/lot17d2b/`):
+
+| Subset | Base (ns per cell), two runs | Head (ns per cell), two runs | Change |
+| --- | --- | --- | --- |
+| all five columns | 1,458 and 1,376 | 1,434 and 1,450 | +1.8% |
+| price (about 1,100 distinct) | 1,112 and 1,115 | 1,170 and 1,204 | +6.6% |
+| amount (1 M distinct, grid) | 4,733 and 4,766 | 4,875 and 5,017 | +4.1% |
+| discount, size, weight | 147 and 145, 417 and 432, 437 and 434 | 149 and 151, 432 and 458, 448 and 467 | +2.7% to +5.3% |
+
+The traced peak is the same (23 MB for the five columns). The differences are of the size of the drift between runs of one
+session (3 to 4 points, above), so the tiers of `NS_PER_CELL` and `COST_MODEL_VERSION` (11) stay as they are: the reading adds one
+comparison per matched value under `comma`, and a column that resolves ambiguous values holds more numbers in its table.

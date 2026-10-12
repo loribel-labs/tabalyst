@@ -13,7 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from tabalyst.scanner.convention_rule import single_reading
+from tabalyst.scanner.config import DetectorSettings
+from tabalyst.scanner.convention_rule import NumberRule, single_reading
 from tabalyst.scanner.detectors.registry import replayable
 from tabalyst.scanner.models import (
     CardinalityComplete,
@@ -117,7 +118,9 @@ UNTRACKED_MARKERS = 10_000
 class MeasureFacts:
     """What one detector of values with a marker or a unit found in a field:
     its coverage and the number of distinct markers it counted (a currency
-    marker, ``%`` or a unit)."""
+    marker, ``%`` or a unit). ``convention`` is the one its unambiguous values
+    prove for the ambiguous ones (design 20.28), ``None`` when it proves none
+    or the configuration decided."""
 
     detector: str
     eligible: int
@@ -126,6 +129,13 @@ class MeasureFacts:
     invalid: int
     not_tested: int
     markers: int
+    convention: str | None = None
+
+    @property
+    def readable(self) -> int:
+        """The values the extraction reads as numbers: the ones the detector
+        matched and, with a convention, the ambiguous ones it now resolves."""
+        return self.matched + (self.ambiguous if self.convention else 0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,7 +245,38 @@ def _markers(result: DetectorComplete) -> int:
     return UNTRACKED_MARKERS
 
 
-def _measures(field: FieldResult) -> tuple[MeasureFacts, ...]:
+def _evidence(result: DetectorComplete) -> dict[str, int]:
+    """The unambiguous values of a detector by the convention that alone reads
+    them (``details.ambiguity.evidence``), empty when it has none to report."""
+    ambiguity = result.details.get("ambiguity")
+    evidence = ambiguity.get("evidence") if isinstance(ambiguity, dict) else None
+    if not isinstance(evidence, dict):
+        return {}
+    return {name: int(count) for name, count in evidence.items()}
+
+
+def _convention(rule: NumberRule, result: DetectorComplete) -> str | None:
+    """The convention that reads the values a detector of values with a marker
+    writes ambiguously. A ``dot`` proof changes nothing when the Scan counted no
+    ambiguous value and tested every one, while a ``comma`` proof also reads
+    ``d.ddd`` as thousands, which the Scan does not count for these detectors."""
+    convention = rule.convention(_evidence(result))
+    coverage = result.coverage
+    if convention == "dot" and not (coverage.ambiguous or coverage.not_tested):
+        return None
+    return convention
+
+
+def _measure_rules(detectors: DetectorSettings) -> dict[str, NumberRule]:
+    """The rule of the convention of each detector of values with a marker, from
+    the configuration the Scan recorded (read once for the whole Scan)."""
+    return {
+        name: NumberRule.of(getattr(detectors, name).model_dump())
+        for name in MEASURE_DETECTORS
+    }
+
+
+def _measures(field: FieldResult, rules: dict[str, NumberRule]) -> tuple[MeasureFacts, ...]:
     found = []
     for result in field.detectors:
         if result.id not in MEASURE_DETECTORS or not isinstance(result, DetectorComplete):
@@ -252,6 +293,7 @@ def _measures(field: FieldResult) -> tuple[MeasureFacts, ...]:
                 invalid=coverage.invalid,
                 not_tested=coverage.not_tested,
                 markers=_markers(result),
+                convention=_convention(rules[result.id], result),
             )
         )
     return tuple(found)
@@ -301,6 +343,7 @@ def _facts(
     dataset: DatasetResult,
     field: FieldResult,
     index: dict[tuple[str, str], FieldPatterns],
+    rules: dict[str, NumberRule],
 ) -> FieldFacts:
     cardinality = field.values.cardinality
     distinct: int | None = None
@@ -358,7 +401,7 @@ def _facts(
         temporal=temporal,
         temporal_status=temporal_status,
         patterns=_patterns(index, dataset.id, field.id),
-        measures=_measures(field),
+        measures=_measures(field, rules),
         detectors=_detectors(field),
     )
 
@@ -372,8 +415,9 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
             (entry.dataset, entry.field): entry for entry in scan.derived.patterns.fields
         }
     )
+    rules = _measure_rules(scan.config.detectors)
     return [
-        _facts(dataset, field, index)
+        _facts(dataset, field, index, rules)
         for dataset in scan.datasets
         for field in dataset.fields
     ]

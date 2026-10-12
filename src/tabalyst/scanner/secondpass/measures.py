@@ -52,6 +52,7 @@ from tabalyst.scanner.secondpass.models import (
     MeasureLevel,
     MeasureOther,
     MeasureResult,
+    NumberResolution,
     OutsideBins,
     PercentRange,
     Quantile,
@@ -168,6 +169,7 @@ class MeasureAccumulator:
         "below",
         "bins",
         "cell_ns",
+        "convention",
         "detector",
         "entries",
         "gridded",
@@ -176,6 +178,7 @@ class MeasureAccumulator:
         "max_groups",
         "max_values",
         "parsed",
+        "resolved",
         "spaced",
         "strings",
         "unconvertible",
@@ -192,8 +195,12 @@ class MeasureAccumulator:
         max_values: int,
         bins: int,
         cell_ns: int = 0,
+        convention: str | None = None,
     ) -> None:
         self.detector = detector
+        # The convention the ambiguous numbers are read in by the evidence of
+        # the column (design 20.28), decided by the plan.
+        self.convention = convention
         # What the plan expects a cell to cost: it weighs the route among the
         # workers and is no input of the result.
         self.cell_ns = cell_ns
@@ -208,6 +215,7 @@ class MeasureAccumulator:
         self.ambiguous = 0
         self.invalid = 0
         self.unconvertible = 0
+        self.resolved = 0
         self.before = self.after = self.spaced = self.unspaced = 0
         self.below = self.within = self.above = 0
         # Distinct pairs of a marker and a number held by the tables, and
@@ -246,6 +254,8 @@ class MeasureAccumulator:
             return
         self.parsed += count
         group.parsed += count
+        if measure.resolved:
+            self.resolved += count
         number = measure.number
         if number is UNCONVERTIBLE:
             self.unconvertible += count
@@ -341,6 +351,21 @@ class MeasureAccumulator:
                 if self.detector == "percentage"
                 else None
             ),
+            resolved=self.resolved,
+            resolution=self._resolution(field),
+        )
+
+    def _resolution(self, field: FieldResult) -> NumberResolution | None:
+        """The convention the numbers were read in, with the proof the Scan's
+        detector counted, when it read at least one value that way."""
+        convention = self.convention
+        if convention is None or not self.resolved:
+            return None
+        ambiguity = _detector(field, self.detector).details.get("ambiguity")
+        evidence = ambiguity.get("evidence") if isinstance(ambiguity, dict) else None
+        return NumberResolution(
+            convention=convention,  # type: ignore[arg-type]
+            evidence={name: int(count) for name, count in (evidence or {}).items()},
         )
 
     def _check(self, field: FieldResult) -> None:
@@ -356,6 +381,15 @@ class MeasureAccumulator:
             )
         found = (self.parsed, self.ambiguous, self.invalid)
         counted = (coverage.matched, coverage.ambiguous, coverage.invalid)
+        if self.convention is not None:
+            # Every ambiguous value is read in the convention: the Scan's
+            # ambiguous values are parsed here, and none is left.
+            counted = (coverage.matched + coverage.ambiguous, 0, coverage.invalid)
+            if coverage.not_tested == 0 and self.resolved < coverage.ambiguous:
+                raise ScanMismatch(
+                    f"resolved: the second pass read {self.resolved} numbers by the "
+                    f"evidence, the scan counts {coverage.ambiguous} ambiguous"
+                )
         if coverage.not_tested == 0:
             if found != counted:
                 raise ScanMismatch(
@@ -597,7 +631,10 @@ def derive_from_samples(
         raise ScanMismatch("the scan does not hold every distinct value with its exact count")
     strings = [entry for entry in samples.listed if entry.type == "string"]
     read = cells.cells(
-        [str(entry.value) for entry in strings], numbers=False, measure=accumulator.detector
+        [str(entry.value) for entry in strings],
+        numbers=False,
+        measure=accumulator.detector,
+        convention=accumulator.convention,
     )
     for entry, cell in zip(strings, read, strict=True):
         if cell.length >= 0:

@@ -554,6 +554,14 @@ quantities with a unit, read as the scan's `detector` (`currency`, `percentage` 
   `scan_not_tested` counts the values the scan's detector did not test, which the
   second pass read: it finds at least what the scan found, never more than those
   values add.
+- `resolved` and `resolution` appear when the unambiguous values of the column
+  prove a convention for the ambiguous ones: `resolution` has the `convention`
+  (`dot` or `comma`), the `source` (`evidence`) and the `evidence`, the unambiguous
+  values the scan's detector counted in each convention. `resolved` is the number
+  of values read that way (the ambiguous ones and, with `comma`, `1.250` read as
+  1250), `parsed` includes them and `ambiguous` is the ones left, 0. `resolved`
+  is 0 and `resolution` absent otherwise. See
+  [Values with a unit read by the evidence](deep.md#values-with-a-unit-read-by-the-evidence).
 - `overall`, each of `groups` and `other` are levels. A level has `count`,
   `numeric` (the members of the `numeric` block of the scan, `coverage` being the
   share of `values`), `histogram` (a `dense_counts` or `bins` result) and, with
@@ -746,7 +754,9 @@ The result `measures` of the analyzer `measure_extraction`: the numbers of the
 amounts, percentages and quantities with a unit, for the whole field and for each
 currency or unit, and the currencies or units as an enumeration. `bounds_source`
 of a `bins` result may be `grid`. The settings have the member `deep.measures`
-(`max_groups`, `max_values`). A document of revision 1 is made again.
+(`max_groups`, `max_values`). A document of revision 1 is made again. The result
+may hold `resolved` and a `resolution` (the ambiguous numbers read by the evidence
+of the column), and the plan parameter `number_convention`.
 
 ### Version 0.2.0, revision 1
 
