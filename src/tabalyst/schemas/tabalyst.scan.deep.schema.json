@@ -572,7 +572,7 @@
           "type": "integer"
         },
         "automatic_stats": {
-          "default": 8,
+          "default": 2,
           "title": "Automatic Stats",
           "type": "integer"
         }
@@ -6061,7 +6061,7 @@
           "type": "integer"
         },
         "automatic_stats": {
-          "default": 8,
+          "default": 2,
           "maximum": 1000,
           "minimum": 0,
           "title": "Automatic Stats",

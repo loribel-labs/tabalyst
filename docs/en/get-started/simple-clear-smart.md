@@ -48,7 +48,8 @@ to be read. Each figure carries its quality: **exact**, **estimated**, **sample*
 **at least** or **not computed**. The page opens with an overview, then one
 section per aspect of the data: types, missing values, frequencies, lengths,
 patterns, dates, observations, relationships and, when a second pass ran, its
-results. See [Read a report](../report/read-report.md).
+results as insights (units, shape of the numbers, parts of the dates, repeated
+values, numbers by category), each figure with its accuracy. See [Read a report](../report/read-report.md).
 
 `tabalyst report` decides by itself whether a second pass is worth its cost
 (see Smart, below). It says what it added and what it left out. Pass

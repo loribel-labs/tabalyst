@@ -622,7 +622,7 @@ def test_G113_the_cost_is_declared_and_the_columns_it_shares_are_charged_once(tm
     (pair,) = [c for c in plan.candidates if c.analyzer == "pearson_correlation" and c.selection.requested]
     shared = {s.key for s in pair.costs.states} & set(keys)
     assert any(k.startswith("pearson_feed:") for k in shared)
-    assert plan.budgets.automatic_stats == 8
+    assert plan.budgets.automatic_stats == 2
 
 
 def test_G114_extremes_that_are_not_the_scans_fail_the_analysis_alone(tmp_path):

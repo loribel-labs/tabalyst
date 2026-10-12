@@ -146,7 +146,8 @@ parts of the dates](../scan/deep.md#the-parts-of-the-dates)) are entries of `ana
 
 A report built with `--scan` reads no source: the analyses that need it are
 `skipped` with the reason `source_not_read`. A report written before the second
-pass existed has no `analyses`, and its HTML has no Second pass section.
+pass existed has no `analyses`, and its HTML has no Insights or Second pass section. The
+Insights cards are derived from `analyses` when the HTML is rendered; they are not stored.
 
 ## `report`
 
@@ -292,7 +293,9 @@ same `id`.
 
 The report shows ambiguous dates as the scan found them: the evidence per
 day-month order (`DMY`, `MDY`) is shown and never applied, and the order is
-resolved only by `scan.detectors.date.ambiguous_order`.
+resolved only by `scan.detectors.date.ambiguous_order`. The second pass reads them by the evidence of the
+column in its own results (`datetime_parts`, `temporal_distribution`), which the Insights section says; the counts of the
+scan do not change.
 
 ## `normalization`
 

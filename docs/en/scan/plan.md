@@ -186,7 +186,7 @@ and a number: the rows it used, the categories and numeric columns it kept, thos
 reason (as for the tables and the pairs), the pairs that were possible, scored and left undefined (by
 reason), the pairs listed and the `work` spent (pairs times rows). It is bounded by
 `deep.stats.max_columns` (50) and `deep.stats.max_work` (1,000,000). The planner lists 20 pairs at most
-and picks 8 at most by itself (`automatic_stats`; the others say `stats_budget`). Of two columns that
+and picks 2 at most by itself (`automatic_stats`; the others say `stats_budget`). Of two columns that
 could both be the category, only the one with fewer distinct values is the category in the exploration.
 
 ## Stratification advice

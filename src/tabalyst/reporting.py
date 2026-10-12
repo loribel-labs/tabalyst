@@ -7,10 +7,11 @@
 import re
 import unicodedata
 from collections import defaultdict
+from functools import cache
 from importlib.resources import files
 from pathlib import Path
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import DictLoader, Environment, StrictUndefined
 from markupsafe import Markup, escape
 
 from tabalyst._version import get_version
@@ -18,6 +19,13 @@ from tabalyst.errors import InputError
 from tabalyst.models import ReportProfile
 from tabalyst.report_config import ReportConfig
 from tabalyst.report_deep import column_analyses, second_pass_view
+from tabalyst.report_insights import (
+    FAMILY_ORDER,
+    dataset_insights,
+    family_title,
+    scan_insight,
+    shown_cards,
+)
 from tabalyst.report_labels import (
     ACCURACY_TITLES,
     ACCURACY_WORDS,
@@ -40,12 +48,13 @@ from tabalyst.report_views import (
     ColumnAnalyses,
     ColumnView,
     DatasetView,
+    InsightCard,
     LimitView,
     QualityItem,
 )
 from tabalyst.scan_document import load_report
 from tabalyst.scan_reuse import read_json_document
-from tabalyst.scanner.models import PatternCandidate
+from tabalyst.scanner.models import FieldResult, PatternCandidate
 from tabalyst.scanner.secondpass.models import DistinctCount
 
 
@@ -68,7 +77,7 @@ def cell_text(values: list[str | None]) -> str:
 
 # Most rows a section prints, whatever the report keeps: the document holds
 # them all, the page stays light (HTML-07). A paged table shows 25 at a time.
-DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300, "relations": 20}
+DISPLAY_LIMITS = {"findings": 500, "patterns": 400, "limits": 500, "rows": 300, "relations": 20, "insights": 25}
 
 
 def format_seconds(seconds: float) -> str:
@@ -133,6 +142,13 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
         bounded: dict[str, list[LimitView]] = {}
         for item in limits.items:
             bounded.setdefault(item.column_id or "", []).append(item)
+        exposure = {column.id: column.exposure for column in projection.columns}
+        insights = dataset_insights(profile.analyses, projection.id, exposure)
+        # Indexed once: a dataset can have thousands of fields and cards.
+        by_field: dict[str, list[InsightCard]] = {}
+        for card in insights:
+            for field_id in card.fields:
+                by_field.setdefault(field_id, []).append(card)
         columns = []
         for column in projection.columns:
             field = fields[column.id]
@@ -152,6 +168,14 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                     string_profile=derived.string_profile,
                     distinct=cardinality_view(field, exact),
                     deep=results,
+                    insights=_column_insights(
+                        by_field.get(column.id, []),
+                        column.id,
+                        column.name or column.path,
+                        field,
+                        results,
+                        column.exposure,
+                    ),
                     quality=findings.get(column.id, []),
                     limits=bounded.get(column.id, []),
                     patterns=pattern_view(
@@ -170,9 +194,24 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                 observation_column_count=sum(c.has_observations for c in columns),
                 second_pass=second_pass_view(profile.analyses, projection.id),
                 relations=relations_view(profile.analyses, projection.id),
+                insights=insights,
             )
         )
     return views
+
+
+def _column_insights(
+    cards: list[InsightCard],
+    column_id: str,
+    display: str,
+    field: FieldResult,
+    results: ColumnAnalyses,
+    exposure: str | None,
+) -> list[InsightCard]:
+    """The cards of a column: ``cards`` (its own analyses and those of a pair it
+    belongs to) and what the report derives from its Scan field."""
+    derived = scan_insight(field, display, column_id, results.periods, exposure in ("mask", "hide"))
+    return [*cards, derived] if derived is not None else list(cards)
 
 
 def column_pages(
@@ -195,8 +234,18 @@ def column_pages(
     return pages
 
 
+@cache
+def _insights_template() -> str:
+    """The macro of the insight cards, read once for every page of a run."""
+    return files("tabalyst").joinpath("templates/insights.html").read_text(encoding="utf-8")
+
+
 def _environment() -> Environment:
-    environment = Environment(autoescape=True, undefined=StrictUndefined)
+    environment = Environment(
+        autoescape=True,
+        undefined=StrictUndefined,
+        loader=DictLoader({"insights.html": _insights_template()}),
+    )
     environment.filters["count"] = lambda number: f"{number:,}"
     environment.filters["number"] = format_number
     environment.filters["seconds"] = format_seconds
@@ -216,6 +265,7 @@ def _labels() -> dict[str, object]:
         "mode_words": MODE_WORDS,
         "outcome_words": OUTCOME_WORDS,
         "deep_reasons": DEEP_REASONS,
+        "family_titles": {family: family_title(family) for family in FAMILY_ORDER},
     }
 
 
@@ -249,6 +299,7 @@ def _page_view(dataset: DatasetView, prefix: str, grammar: str) -> dict[str, obj
         sections.add("dates")
     return {
         "ds": dataset,
+        "insight_cards": shown_cards(dataset.insights, DISPLAY_LIMITS["insights"]),
         # Element ids are prefixed only when the report shows several
         # datasets, so single-dataset reports keep their anchors.
         "px": prefix,

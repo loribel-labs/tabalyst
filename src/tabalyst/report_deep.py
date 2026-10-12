@@ -88,7 +88,8 @@ def column_analyses(
     return views
 
 
-def _shown(value: float) -> str:
+def shown(value: float) -> str:
+    """A number as the report prints it: an integer with all its digits."""
     return f"{value:,}" if isinstance(value, int) else f"{value:,.4f}".rstrip("0").rstrip(".")
 
 
@@ -99,21 +100,21 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return (
             (
                 f"{_plural(result.distinct, 'distinct integer')} counted one by one; "
-                f"median {_shown(median.value)}"
+                f"median {shown(median.value)}"
             ),
             EXACT,
         )
     if isinstance(result, BinnedHistogram):
         median = result.median
         bounds = (
-            f" (between {_shown(median.lower)} and {_shown(median.upper)})"
+            f" (between {shown(median.lower)} and {shown(median.upper)})"
             if median.lower is not None and median.upper is not None
             else ""
         )
         return (
             (
                 f"{_plural(len(result.counts), 'bin')}, counts exact; median "
-                f"estimated at {_shown(median.value)}{bounds}"
+                f"estimated at {shown(median.value)}{bounds}"
             ),
             EXACT,
         )
@@ -121,7 +122,7 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return (
             (
                 f"lengths {result.min_length} to {result.max_length} characters, "
-                f"mean {_shown(round(result.mean_length, 2))}"
+                f"mean {shown(round(result.mean_length, 2))}"
             ),
             EXACT,
         )
@@ -178,10 +179,10 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
             why = TABLE_REASONS.get(found.reason or "", found.reason or "undefined")
             return f"{head}; no score: {why}", EXACT
         forward = result.purity.forward.value
-        shown = "" if forward is None else f"; purity {forward:.1%}"
+        purity_text = "" if forward is None else f"; purity {forward:.1%}"
         caution = "" if found.stable else " (low counts)"
         return (
-            f"{head}; Cramér's V {found.cramers_v:.2f}{caution}{shown}"
+            f"{head}; Cramér's V {found.cramers_v:.2f}{caution}{purity_text}"
             + (f"; {len(result.rules):,} candidate rules" if result.rules else ""),
             EXACT,
         )
@@ -248,7 +249,7 @@ def _measures_summary(result: MeasureResult) -> str:
         text += f"; {markers.modes[0]} {markers.dominant_share:.0%}"
     median = result.overall.numeric.median
     if result.homogeneous and median.status == "complete":
-        text += f"; median {_shown(median.value)}"
+        text += f"; median {shown(median.value)}"
     if result.percent_range is not None and result.percent_range.above:
         text += f"; {result.percent_range.above:,} above 100"
     if result.ambiguous:
@@ -259,7 +260,7 @@ def _measures_summary(result: MeasureResult) -> str:
     return text
 
 
-_CONVENTION_WORDS = {"dot": "decimal point", "comma": "decimal comma"}
+CONVENTION_WORDS = {"dot": "decimal point", "comma": "decimal comma"}
 
 
 def _number_resolution_text(resolution: NumberResolution | None, resolved: int) -> str:
@@ -269,7 +270,7 @@ def _number_resolution_text(resolution: NumberResolution | None, resolved: int) 
         return ""
     proof = resolution.evidence.get(resolution.convention, 0)
     return (
-        f"; {resolved:,} read with the {_CONVENTION_WORDS[resolution.convention]} "
+        f"; {resolved:,} read with the {CONVENTION_WORDS[resolution.convention]} "
         f"convention (proved by {proof:,} unambiguous values)"
     )
 
