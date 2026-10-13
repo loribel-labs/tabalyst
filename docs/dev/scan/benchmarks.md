@@ -1343,3 +1343,32 @@ The realistic file, the plan of a forced pass without the analyzers of lot 18, w
 | With, the counts on | 116 | 32.20 | 443 |
 
 No candidate of lot 18 is selected on this file but the two forms (it has no JSON and no text of more than 64 characters): the differences are the noise of the session (36.07 s for the same plan as 31.82 s). The memory is unchanged.
+
+## Pattern discovery: starting cost (patterns block B1)
+
+The hierarchical discovery does not exist yet. `benchmarks/pattern_discovery.py` measures what bounds it on the
+reference corpus RC-01 to RC-20 (`tests/patterns/pattern_corpus.py`): the current inference
+(`patterninfer.infer_patterns`, flat candidates and generalization ladder) and a counting floor, the one pass any
+implementation of E1 to E3 makes (tokenize, group by structure, count the shapes, the heads and tails of 1 to 3
+characters and the whole tokens, on distinct values and occurrences; a plain Python prototype). Each field is
+written as a one-column CSV, scanned once, then timed, median of five runs in one interpreter (commit `006edf4`,
+Python 3.12, results under `D:/GIT.test/tabalyst/artifacts/patterns-b1/bench/`):
+
+| Field | Distinct | Inference | ns per value | Counting floor | ns per value |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| RC-03 (10 prefixes) | 500 | 0.88 ms | 1,768 | 3.05 ms | 6,104 |
+| RC-07 (plates) | 850 | 1.63 ms | 1,917 | 5.93 ms | 6,973 |
+| RC-12 (ISBN) | 1,000 | 3.98 ms | 3,980 | 14.05 ms | 14,051 |
+| RC-16 (industrial identifiers) | 1,000 | 3.68 ms | 3,678 | 13.64 ms | 13,639 |
+| RC-09 (permits) | 10,000 | 15.12 ms | 1,512 | 50.60 ms | 5,060 |
+| RC-13 (dominant prefix) | 10,000 | 18.39 ms | 1,839 | 68.29 ms | 6,829 |
+| RC-18 (e-mails, masked) | 10,000 | not applicable | | 285.34 ms | 28,534 |
+| RC-20 (postal codes) | 9,933 | 57.23 ms | 5,762 | 117.80 ms | 11,860 |
+
+On RC-13-like identifiers the floor grows from 7.9 ms (1,000 values) to 252 ms (20,000), 7.9 to 12.6 µs a value:
+close to linear, as the algorithm expects (n x tokens x facets). The floor counts about 3 to 4 times what the
+current inference spends, so a discovery on 10,000 values should cost some 50 to 120 ms a field in Python, 0.3 s
+for long values such as e-mails: within the guard rail of AC-026 only if the eligibility (FR-001) keeps the text
+columns that matter, to be measured on the realistic file once B4 exists. The scans of this benchmark read one
+column, so the share of the inference in them says nothing of a realistic scan. RC-10 (30 %) and RC-11 are typed
+as integers by the Scan: the current inference skips them (`technical_type`).
