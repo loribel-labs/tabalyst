@@ -705,7 +705,10 @@ structure, not a rule that the data must follow.
   characters of the capitals, `tail:3` the last characters of the digits, `token:3`
   the whole token (at most 4 characters). A node has a `signature` and a `render`
   like a pattern (`'AK-'9999`; a tail is written after the class: `9{4}'00'`), its
-  counts `d` and `o`, its `level` (2 under a pattern) and a `gain`: `bits_d` and
+  `value` (the text it fixes at its facet, spelled from the left, such as `AK`; for
+  a node of `composition`, the structure it reads), `also` when a node merged into
+  it (what that node fixed: `facet` and `value` pairs), its counts `d` and `o`, its
+  `level` (2 under a pattern) and a `gain`: `bits_d` and
   `bits_o`, the bits it saves when the values are described by it rather than by
   the pattern (a description length, on the distinct values and on the
   occurrences; one is negative when the node is kept for the other measure only),

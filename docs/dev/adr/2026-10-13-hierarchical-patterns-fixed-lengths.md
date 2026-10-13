@@ -62,3 +62,30 @@ The content facets, the score and the tree (design 18.12) added choices that the
 - **A folded constant keeps at most three characters** of a token that varies; a node folds nothing its pattern did not.
 - **`max_depth` counts the pattern as the first level**, so the default of 3 allows the pattern, the nodes that read the
   first or last characters of a token, and the nodes that depend on them.
+
+## Refinements of the lot P6 (2026-10-13)
+
+The validation of the hierarchy (design 20.9) made the following choices; none reverses the above.
+
+- **A node is read by the text it fixes.** `PatternNode.value` is that text (the structure for a node of composition), found in the
+  dictionary of the children of its parent, so the work of a value does not grow with the nodes. A node whose only child
+  covers 95% of it is merged into that child, which then fixes two things: `PatternNode.also` publishes what the merged nodes
+  fixed, and the reader checks it. A reader that looked only at `facet` and `value` read the year of `2022-05` as the month
+  of the node `2026-0` (the demo `insurance-customers` caught it).
+- **The reader checks the entry against the samples.** It recognizes again the population the discovery read and refuses
+  (`scan_mismatch`) an entry whose families, patterns and nodes do not hold the distinct values it publishes. The Report and
+  the second pass never validate an entry that was not made from the samples they hold.
+- **A new variant of segment is a value the sample never showed, in a facet it showed closed.** It is not a value that is
+  merely no cell: a value in the `others` of a node of the discovery was seen, and is `known` (OPEN-012). A facet is closed
+  when every value of the sample was a cell (RC-14: eight prefixes, all cells); on an open facet (the digits of a date, the
+  tail of a code) a value that is no cell is not remarkable, and the first version of the rule called 22% of the birth dates
+  of the demo new when the sample held a hundred of 2,994. It is a new variant of the family, counted in the rest of its
+  pattern and in the table of its facet; the lengths a family never showed are a new variant of length, counted in the
+  family only.
+- **Every facet has a table in the result**, whether nodes or a table of the discovery read it, bounded in bytes
+  (`deep.patterns.table_bytes`, 128 bytes a cell); the distinct values of a field are a set bounded in bytes
+  (`deep.patterns.distinct_bytes`), and a bucket that did not hold a value says `at_least`.
+- **The cost is that of the facets.** A value is tokenized by the regular expression of its structure (ASCII) or by the token
+  loop and is read once whatever the nodes; each facet adds a lookup. The model has a cost for the family and one for each facet
+  (`NS_PER_CELL`), and the hierarchy costs 1.1 to 2.2 times the flat validation of the lot 7c on the realistic file
+  (`benchmarks.md`). Counting the tables by batch would reduce it and is left for later.

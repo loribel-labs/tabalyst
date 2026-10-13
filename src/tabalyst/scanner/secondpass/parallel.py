@@ -118,7 +118,7 @@ def route_weight(route: FieldRoute) -> int:
     if route.parts is not None:
         weight += route.parts.cell_ns
     if route.patterns is not None:
-        weight += NS_PER_CELL["matcher_base"]
+        weight += route.patterns.cell_ns
     if route.measures is not None:
         weight += route.measures.cell_ns
     if route.shape is not None:

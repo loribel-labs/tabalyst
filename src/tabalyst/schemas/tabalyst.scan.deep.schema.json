@@ -1825,6 +1825,9 @@
         "datetime": {
           "$ref": "#/$defs/DatetimeSettings"
         },
+        "patterns": {
+          "$ref": "#/$defs/PatternCountSettings"
+        },
         "residuals": {
           "$ref": "#/$defs/ResidualSettings"
         },
@@ -4462,9 +4465,50 @@
       "title": "PartsResult",
       "type": "object"
     },
+    "PatternCountCell": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "occurrences"
+      ],
+      "title": "PatternCountCell",
+      "type": "object"
+    },
+    "PatternCountSettings": {
+      "additionalProperties": false,
+      "description": "How the validation of the patterns is bounded in memory (design 20.9).\n\n``table_bytes`` is the capacity of the tables of one field that count the\nvalues of a facet (the cells the discovery listed and the values it never\nsaw); when a table is full the most frequent values are kept and the result\nsays it is limited. ``distinct_bytes`` is what the set of the distinct values\nof one field may hold; beyond it the distinct values of a pattern are a lower\nbound (``at_least``). Both are deterministic budgets and part of the key of a\nresult.",
+      "properties": {
+        "table_bytes": {
+          "default": 65536,
+          "maximum": 67108864,
+          "minimum": 1024,
+          "title": "Table Bytes",
+          "type": "integer"
+        },
+        "distinct_bytes": {
+          "default": 1048576,
+          "maximum": 536870912,
+          "minimum": 1024,
+          "title": "Distinct Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "PatternCountSettings",
+      "type": "object"
+    },
     "PatternCounts": {
       "additionalProperties": false,
-      "description": "The inferred patterns of a field counted over every occurrence (PAT-07 to\nPAT-09), in the original domain. ``values`` is the content values of the\nfield (empty cells and null markers are the Scan's ``missing``); they add up:\n``matched + other + excluded = values``, with ``matched`` the sum of the\ncandidates. A value that no candidate reads is an observation of structure,\nnever an error (PAT-10). ``computed_from`` says whether the source was read\n(``source``) or the exact counts of a Scan that holds every distinct value\nwere enough (``samples``); the result is the same.",
+      "description": "The hierarchy of patterns of a field counted over every occurrence (design\n20.9, PAT-21 to PAT-27), in the original domain. ``values`` is the content\nvalues of the field (empty cells and null markers are the Scan's\n``missing``); they add up: ``matched + unknown_structure + excluded =\nvalues``, with ``matched`` the sum of the families. A value that no family\nreads is an observation of structure, never an error (PAT-10). The counts\nare exact; ``computed_from`` says whether the source was read (``source``)\nor the exact counts of a Scan that holds every distinct value were enough\n(``samples``); the result is the same.",
       "properties": {
         "kind": {
           "const": "pattern_counts",
@@ -4490,6 +4534,10 @@
           "title": "Grammar Version",
           "type": "integer"
         },
+        "algorithm_version": {
+          "title": "Algorithm Version",
+          "type": "integer"
+        },
         "values": {
           "title": "Values",
           "type": "integer"
@@ -4498,39 +4546,56 @@
           "title": "Matched",
           "type": "integer"
         },
-        "candidates": {
+        "families": {
           "items": {
-            "$ref": "#/$defs/PatternTally"
+            "$ref": "#/$defs/PatternFamilyCount"
           },
-          "title": "Candidates",
+          "title": "Families",
           "type": "array"
         },
-        "other": {
-          "title": "Other",
+        "unknown_structure": {
+          "title": "Unknown Structure",
           "type": "integer"
         },
         "excluded": {
           "$ref": "#/$defs/PatternExclusions"
-        },
-        "overlaps": {
-          "items": {
-            "$ref": "#/$defs/PatternOverlapCount"
-          },
-          "title": "Overlaps",
-          "type": "array"
         }
       },
       "required": [
         "computed_from",
         "grammar_version",
+        "algorithm_version",
         "values",
         "matched",
-        "candidates",
-        "other",
-        "excluded",
-        "overlaps"
+        "families",
+        "unknown_structure",
+        "excluded"
       ],
       "title": "PatternCounts",
+      "type": "object"
+    },
+    "PatternDistinct": {
+      "additionalProperties": false,
+      "description": "Distinct values of a pattern or of a node: ``exact`` when the Scan holds\nthe whole distribution or the set of the distinct values fit its budget,\n``at_least`` otherwise. A bound is never presented as exact (FR-014).",
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "accuracy": {
+          "enum": [
+            "exact",
+            "at_least"
+          ],
+          "title": "Accuracy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "accuracy"
+      ],
+      "title": "PatternDistinct",
       "type": "object"
     },
     "PatternExclusions": {
@@ -4558,27 +4623,109 @@
       "title": "PatternExclusions",
       "type": "object"
     },
-    "PatternOverlapCount": {
+    "PatternFamilyCount": {
       "additionalProperties": false,
-      "description": "Occurrences that every pattern of ``patterns`` reads (they are counted\nfor one of them only, in ``candidates``).",
+      "description": "A family counted over every occurrence. ``occurrences`` are those of its\n``patterns``, of the combinations of lengths that its table of ``lengths``\nholds and its new variants of length.",
       "properties": {
-        "patterns": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Patterns",
-          "type": "array"
+        "id": {
+          "title": "Id",
+          "type": "string"
         },
         "occurrences": {
           "title": "Occurrences",
           "type": "integer"
+        },
+        "distinct": {
+          "$ref": "#/$defs/PatternDistinct"
+        },
+        "patterns": {
+          "items": {
+            "$ref": "#/$defs/PatternNodeCount"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/PatternTableCount"
+          },
+          "title": "Tables",
+          "type": "array"
+        },
+        "new_variants": {
+          "$ref": "#/$defs/PatternNewVariants"
         }
       },
       "required": [
+        "id",
+        "occurrences",
+        "distinct",
         "patterns",
-        "occurrences"
+        "tables",
+        "new_variants"
       ],
-      "title": "PatternOverlapCount",
+      "title": "PatternFamilyCount",
+      "type": "object"
+    },
+    "PatternNewVariants": {
+      "additionalProperties": false,
+      "description": "Occurrences of a known family that the discovery never saw: a set of\nlengths of its variable tokens (``length``), or a value of a segment that one\nof its facets reads (``segment``). Neither is an error or an unknown\nstructure (FR-015).",
+      "properties": {
+        "length": {
+          "title": "Length",
+          "type": "integer"
+        },
+        "segment": {
+          "title": "Segment",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "length",
+        "segment"
+      ],
+      "title": "PatternNewVariants",
+      "type": "object"
+    },
+    "PatternNodeCount": {
+      "additionalProperties": false,
+      "description": "A pattern or a node of the discovery counted over every occurrence.\n\n``occurrences`` include those of the nodes below; ``rest`` is what this node\nreads and none of its nodes does (all of ``occurrences`` for a leaf), so that\n``rest`` plus the occurrences of ``nodes`` is ``occurrences``. ``render`` is\nthat of the Scan.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "distinct": {
+          "$ref": "#/$defs/PatternDistinct"
+        },
+        "rest": {
+          "title": "Rest",
+          "type": "integer"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/PatternNodeCount"
+          },
+          "title": "Nodes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "render",
+        "occurrences",
+        "distinct",
+        "rest"
+      ],
+      "title": "PatternNodeCount",
       "type": "object"
     },
     "PatternProfile": {
@@ -4644,29 +4791,42 @@
       "title": "PatternProfile",
       "type": "object"
     },
-    "PatternTally": {
+    "PatternTableCount": {
       "additionalProperties": false,
-      "description": "Occurrences read by one candidate pattern of the Scan, exclusively: each\nvalue counts for the most specific candidate that reads it (PAT-08).",
+      "description": "The values of a facet of a family counted over every occurrence, the\ncells the discovery listed and the values it never saw. At most ``capacity``\ncells are kept, the most frequent; the others are summed in ``others`` and\n``saturated`` says that the table is limited (TR-003). For the table of\n``lengths`` the cells are combinations of lengths.",
       "properties": {
-        "id": {
-          "title": "Id",
+        "facet": {
+          "title": "Facet",
           "type": "string"
         },
-        "render": {
-          "title": "Render",
-          "type": "string"
-        },
-        "occurrences": {
-          "title": "Occurrences",
+        "capacity": {
+          "title": "Capacity",
           "type": "integer"
+        },
+        "cells": {
+          "items": {
+            "$ref": "#/$defs/PatternCountCell"
+          },
+          "title": "Cells",
+          "type": "array"
+        },
+        "others": {
+          "title": "Others",
+          "type": "integer"
+        },
+        "saturated": {
+          "title": "Saturated",
+          "type": "boolean"
         }
       },
       "required": [
-        "id",
-        "render",
-        "occurrences"
+        "facet",
+        "capacity",
+        "cells",
+        "others",
+        "saturated"
       ],
-      "title": "PatternTally",
+      "title": "PatternTableCount",
       "type": "object"
     },
     "PearsonExclusions": {
@@ -7971,7 +8131,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Document tabalyst.scan.deep, format 0.2.0 revision 2: analyses added to a Scan by reading its source again.",
+  "description": "Document tabalyst.scan.deep, format 0.2.0 revision 3: analyses added to a Scan by reading its source again.",
   "properties": {
     "format": {
       "const": "tabalyst.scan.deep",
@@ -7986,7 +8146,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 2
+      "const": 3
     },
     "status": {
       "enum": [

@@ -583,7 +583,15 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
         if entry is None:
             job.failure = ("scan_mismatch", "the scan has no inferred patterns for the field")
             return
-        accumulator = PatternAccumulator(entry, scan.config.pattern_inference.max_value_length)
+        parameters = candidate.parameters
+        accumulator = PatternAccumulator(
+            entry,
+            field,
+            scan.config.pattern_inference,
+            table_bytes=int(parameters["table_bytes"]),
+            distinct_bytes=int(parameters["distinct_bytes"]),
+            unique=not candidate.execution.requires_source,
+        )
         job.accumulator = accumulator
         if not candidate.execution.requires_source:
             derive_from_samples(accumulator, field)

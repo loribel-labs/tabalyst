@@ -1,4 +1,4 @@
-Plan for insurance-customers.csv (plan a2eaec0e9bde, planner 1).
+Plan for insurance-customers.csv (plan a7f113a17103, planner 1).
 243 candidates: 49 selected, 70 already answered by the scan, 124 left out.
 
 Selected:
@@ -20,22 +20,22 @@ Selected:
   16. exact_frequencies [hash_table]: rows / ville (up to 273.4 KiB, CPU low, automatic)
   17. exact_frequencies [hash_table]: rows / date_reclamation (up to 312.9 KiB, CPU low, automatic)
   18. exact_frequencies [hash_table]: rows / montant_reclamation (up to 303.1 KiB, CPU low, automatic)
-  19. pattern_validation [compiled_matcher]: rows / date_naissance (up to 11.0 KiB, CPU moderate, automatic)
-  20. pattern_validation [compiled_matcher]: rows / date_debut (up to 11.0 KiB, CPU moderate, automatic)
-  21. pattern_validation [compiled_matcher]: rows / date_fin (up to 11.0 KiB, CPU moderate, automatic)
-  22. pattern_validation [compiled_matcher]: rows / date_reclamation (up to 11.0 KiB, CPU moderate, automatic)
-  23. pattern_validation [compiled_matcher]: rows / agence_code (up to 11.0 KiB, CPU moderate, automatic)
-  24. pattern_validation [compiled_matcher]: rows / id_contrat (up to 16.0 KiB, CPU moderate, automatic)
-  25. pattern_validation [compiled_matcher]: rows / date_creation (up to 16.0 KiB, CPU moderate, automatic)
-  26. pattern_validation [compiled_matcher]: rows / date_modification (up to 16.0 KiB, CPU moderate, automatic)
-  27. pattern_validation [compiled_matcher]: rows / code_postal (up to 26.0 KiB, CPU moderate, automatic)
-  28. pattern_validation [compiled_matcher]: rows / id_client (up to 41.1 KiB, CPU moderate, automatic)
-  29. pattern_validation [compiled_matcher]: rows / province_nom (up to 81.1 KiB, CPU moderate, automatic)
-  30. temporal_distribution [period_counts]: rows / date_reclamation (up to 168.4 KiB, CPU moderate, automatic)
-  31. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
-  32. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.0 KiB, CPU moderate, automatic)
-  33. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
-  34. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
+  19. pattern_validation [family_recognizer]: rows / agence_code (up to 14.9 KiB, CPU moderate, automatic)
+  20. pattern_validation [family_recognizer]: rows / province_nom (up to 19.6 KiB, CPU moderate, automatic)
+  21. pattern_validation [family_recognizer]: rows / date_reclamation (up to 198.0 KiB, CPU moderate, automatic)
+  22. temporal_distribution [period_counts]: rows / date_reclamation (up to 168.4 KiB, CPU moderate, automatic)
+  23. numeric_histogram [dense_counts]: rows / appartement (up to 258.8 KiB, CPU moderate, automatic)
+  24. numeric_histogram [dense_counts]: rows / numero_voie (up to 329.0 KiB, CPU moderate, automatic)
+  25. pattern_validation [family_recognizer]: rows / date_fin (up to 327.4 KiB, CPU moderate, automatic)
+  26. numeric_histogram [bins]: rows / prime_annuelle (up to 279.4 KiB, CPU moderate, automatic)
+  27. numeric_histogram [bins]: rows / montant_reclamation (up to 279.4 KiB, CPU moderate, automatic)
+  28. pattern_validation [family_recognizer]: rows / code_postal (up to 357.1 KiB, CPU moderate, automatic)
+  29. pattern_validation [family_recognizer]: rows / id_contrat (up to 380.1 KiB, CPU moderate, automatic)
+  30. pattern_validation [family_recognizer]: rows / date_modification (up to 403.0 KiB, CPU moderate, automatic)
+  31. pattern_validation [family_recognizer]: rows / date_creation (up to 430.7 KiB, CPU moderate, automatic)
+  32. pattern_validation [family_recognizer]: rows / date_debut (up to 436.4 KiB, CPU moderate, automatic)
+  33. pattern_validation [family_recognizer]: rows / date_naissance (up to 488.4 KiB, CPU moderate, automatic)
+  34. pattern_validation [family_recognizer]: rows / id_client (up to 511.4 KiB, CPU moderate, automatic)
   35. temporal_distribution [period_counts]: rows / date_fin (up to 484.8 KiB, CPU moderate, automatic)
   36. temporal_distribution [period_counts]: rows / date_modification (up to 836.7 KiB, CPU moderate, automatic)
   37. temporal_distribution [period_counts]: rows / date_creation (up to 970.4 KiB, CPU moderate, automatic)
@@ -136,7 +136,7 @@ Not applicable:
   9 x the field misses no value and has too many distinct values to follow by position
   12 x exposure keeps the values of this field out of the document
 
-A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 31.7 MiB to 56.4 MiB, about 36.5 MiB.
+A second reading of the source is needed (102,000 cells, CPU very_low). Memory: 31.5 MiB to 59.6 MiB, about 36.8 MiB.
 Estimated time: under a second (a guide from the first pass, not a promise).
 Running it would not ask for a confirmation.
 

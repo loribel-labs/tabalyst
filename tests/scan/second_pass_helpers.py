@@ -14,13 +14,14 @@ from pathlib import Path
 from planner_helpers import scan_csv
 
 from tabalyst.config import DeepSettings
-from tabalyst.scanner.models import ScanResult
+from tabalyst.scanner.models import FieldPatternsComplete, ScanResult
 from tabalyst.scanner.planner import AnalysisPlan, default_registry, plan_analyses
 from tabalyst.scanner.secondpass import (
     AnalysisResult,
     SecondPassOutcome,
     run_second_pass,
 )
+from tabalyst.scanner.secondpass.patterns import PatternAccumulator
 
 
 def forced_plan(result: ScanResult, deep: DeepSettings | None = None) -> AnalysisPlan:
@@ -65,3 +66,20 @@ def true_quantile(values: Sequence[Fraction], level: Fraction) -> Fraction:
     lower = math.floor(position)
     upper = math.ceil(position)
     return ordered[lower] + (position - lower) * (ordered[upper] - ordered[lower])
+
+
+def pattern_accumulator(
+    result: ScanResult, patterns: FieldPatternsComplete, **options: object
+) -> PatternAccumulator:
+    """The accumulator of the validation of the first field of ``result`` as the
+    second pass builds it, with the default budgets (``options``: ``unique``,
+    ``table_cells``)."""
+    deep = DeepSettings().patterns
+    return PatternAccumulator(
+        patterns,
+        result.datasets[0].fields[0],
+        result.config.pattern_inference,
+        table_bytes=deep.table_bytes,
+        distinct_bytes=deep.distinct_bytes,
+        **options,  # type: ignore[arg-type]
+    )

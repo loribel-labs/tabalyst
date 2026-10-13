@@ -3981,6 +3981,26 @@
       "title": "PatternAlgorithm",
       "type": "object"
     },
+    "PatternCondition": {
+      "additionalProperties": false,
+      "description": "What a node fixes besides its own facet: the facet (``head:N``, ``tail:N``\nor ``token:N``) and the text of its head, tail or token.",
+      "properties": {
+        "facet": {
+          "title": "Facet",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "facet",
+        "value"
+      ],
+      "title": "PatternCondition",
+      "type": "object"
+    },
     "PatternEligibility": {
       "additionalProperties": false,
       "description": "Whether a field is a candidate for the discovery (design 18.12, PAT-12).\n\n``score`` runs from 0 to 1 (four decimals) and is 0 for a field that is\n``excluded`` or ``not_assessable``; only an ``eligible`` field is\ndiscovered. ``reasons`` are codes, never empty, so a reader can tell \"no\npattern\" from \"not looked at\".",
@@ -4239,7 +4259,7 @@
     },
     "PatternNode": {
       "additionalProperties": false,
-      "description": "A specialization of a pattern (design 18.12), with its counts in distinct\nvalues (``d``) and occurrences (``o``). ``facet`` is ``composition`` (one of the\nstructures a family merged: the nodes of a pattern add up to it) or a facet of\ncontent, ``head:N``, ``tail:N`` or ``token:N`` (the first or last characters of\nthe Nth token of the structure, or the whole token): its ``gain`` is what the\nprefix saves. The nodes of a content facet are a part of their parent, the\nrest being its ``others``. ``nodes`` are the nodes below: a longer prefix of the\nsame facet or a facet that depends on this node.",
+      "description": "A specialization of a pattern (design 18.12), with its counts in distinct\nvalues (``d``) and occurrences (``o``). ``facet`` is ``composition`` (one of the\nstructures a family merged: the nodes of a pattern add up to it) or a facet of\ncontent, ``head:N``, ``tail:N`` or ``token:N`` (the first or last characters of\nthe Nth token of the structure, or the whole token): its ``gain`` is what the\nprefix saves. The nodes of a content facet are a part of their parent, the\nrest being its ``others``. ``value`` is the text the node fixes at its facet (the\nhead or the tail, spelled from the left, or the whole token; the text of the\nstructure for a node of composition): what the validation reads a node by.\n``also`` lists what else the node fixes, because a node whose only child covers\n95% of it merged into it (the year, once the month is known). ``nodes`` are the\nnodes below: a longer prefix of the same facet or a facet that depends on this\nnode.",
       "properties": {
         "id": {
           "title": "Id",
@@ -4255,6 +4275,10 @@
         },
         "facet": {
           "title": "Facet",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
           "type": "string"
         },
         "signature": {
@@ -4295,6 +4319,14 @@
           ],
           "default": null
         },
+        "also": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PatternCondition"
+          },
+          "title": "Also",
+          "type": "array"
+        },
         "nodes": {
           "default": [],
           "items": {
@@ -4309,6 +4341,7 @@
         "parent",
         "level",
         "facet",
+        "value",
         "signature",
         "render",
         "d",

@@ -193,3 +193,7 @@ final until the release that ships it.
   cells and `others` of a table add up to the family. A pattern folds at most three
   characters of a token as a constant, unless every value repeats the token. The
   limit `max_depth` names the setting of the same name when the tree was cut.
+- A node has a `value`: the text it fixes at its facet (the head, the tail or the
+  whole token, or the structure of a node of `composition`), and `also` when a node
+  whose only child covers 95% of it merged into it (what that node fixed). The
+  [second pass](deep-format.md) reads a node by it when it counts every occurrence.

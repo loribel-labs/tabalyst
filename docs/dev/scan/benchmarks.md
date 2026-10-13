@@ -1429,3 +1429,43 @@ The post-pass grows by about 0.9 s, 2.5 times its cost, on 11 eligible fields (3
 distinct values each. A first version read the facets of the whole family again for every family of several patterns
 (2.0 s); only the positions no node reads are read again now. Under cProfile, before that change, `published_facets` took
 two thirds of the post-pass (2.05 s of 3.12 s).
+
+## Validation of the hierarchy (Patterns lot P6)
+
+The second pass counts every occurrence against the hierarchy (`scanner/secondpass/patternreader.py` and `patterns.py`,
+design 20.9): an ASCII string is read by the regular expression of its structure, its lengths give the pattern, a few
+dictionary lookups the node, and one lookup each facet the table of the facet. Cost per cell of the analysis alone (the
+time of the second pass that is not reading, `run.timings.analysis`, over the cells read), one process, 1 million rows,
+a Scan whose sample (20,000 values) is too small to hold the column, so that the source is read
+(`benchmarks/pattern_validation.py`, outputs under `D:/GIT.test/tabalyst/artifacts/patterns-p6/bench/`). The 100,000
+distinct codes `XX-9999` are spread over 10, 64 and 256 prefixes; `max_patterns` is 1,024:
+
+| Variants | Nodes published | Facets | ns per cell (AC-027) | Peak memory (MB) |
+| --- | ---: | ---: | ---: | ---: |
+| 10 | 11 | 1 | 1,987 | 142 |
+| 64 | 819 | 2 | 2,794 | 143 |
+| 256 | 904 | 2 | 2,678 | 144 |
+
+At the same facets (64 and 256) the cost is the same within the noise of the machine: it follows the facets that the family
+reads, not the nodes (TR-002). The nodes are capped by `max_patterns` and reach 819 and 904 here, since the first letter and
+the second letter make a chain of prefixes: 256 prefixes are not 256 more nodes than 64.
+
+On a realistic file, `synthetic-1m.csv`, the five fields whose patterns the Scan holds from a sample of 20,000 values
+(`id`, `postal_code`, `birth_date`, `score`, `code`; 4 to 128 nodes, 0 to 6 facets), the code of the lot P4 (flat list, a
+regular expression for each candidate) and the working tree alternated twice in one session, 3 runs each, 5 million cells:
+
+| | Base `a3dafa4` (ns per cell) | Head (ns per cell) |
+| --- | --- | --- |
+| Five fields together | 1,094, 1,098, 1,072, 1,170, 1,170, 1,170 | 1,914, 1,872, 1,956, 1,910, 1,865, 2,021 |
+| One field at a time: `id`, `code` (no facet) | 1,545, 1,134 | 1,977, 1,671 |
+| `score` (1 facet, 128 nodes) | 2,180 | 2,452 |
+| `birth_date` (3 facets, 66 nodes) | 1,290 | 2,513 |
+| `postal_code` (6 facets, 38 nodes) | 1,212 | 2,672 |
+
+The hierarchy costs 1.1 to 1.5 times as much as the flat list for a field without a facet and up to 2.2 times for six: the
+tables of the facets are the work, not the nodes. The model (`NS_PER_CELL["pattern_family"]` 1,300 and
+`["pattern_facet"]` 150, `COST_MODEL_VERSION` 14) keeps a field of six facets under the 2,400 ns of `moderate`. A first
+version tokenized every string (3.0 to 3.8 µs a distinct string); the regular expression of the structure, the lookups
+of the facets made once and the tuples instead of objects brought it to 1.2 to 1.8 µs. A batch that processes whole columns
+for a facet (`[text[:2] for text in texts]`) would save about a third on fields with many facets; it is left for later,
+with a measure.

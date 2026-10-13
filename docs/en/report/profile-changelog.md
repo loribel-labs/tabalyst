@@ -114,4 +114,6 @@ the reason of its eligibility, and lists the characters of the profile. The
 inferred patterns are the families and patterns of grammar 2 (see the Scan
 changelog); the page lists the patterns of a column. The patterns carry nodes of content (the
 first or last characters of a token, a whole token) with their gain, and tables of
-content, as the Scan changelog says. The report adds no member of its own.
+content, as the Scan changelog says. The `pattern_counts` result of the second pass that the report carries
+under `analyses` follows the hierarchy too (revision 3 of the [second pass format](../scan/deep-format.md)):
+families, patterns and nodes with their occurrences, distinct values and tables. The report adds no member of its own.

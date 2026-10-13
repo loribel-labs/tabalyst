@@ -5,21 +5,14 @@
 """The executor of the validation of patterns and of the period counts (design
 20.9 and 20.10)."""
 
-import random
-import string
-
 import pytest
 from planner_helpers import scan_csv
-from second_pass_helpers import deep_csv, entry, forced_plan
+from second_pass_helpers import deep_csv, entry, forced_plan, pattern_accumulator
 
-from tabalyst.scanner import pattern_eligibility
-from tabalyst.scanner.models import FieldPatternsComplete, PatternEligibility
-from tabalyst.scanner.patterninfer import compile_signature, matches
+from tabalyst.scanner.models import FieldPatternsComplete
 from tabalyst.scanner.secondpass import run_second_pass
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.patterns import (
-    PatternAccumulator,
-    ascii_regex,
     derive_from_samples,
 )
 from tabalyst.scanner.secondpass.periods import PeriodAccumulator
@@ -32,38 +25,10 @@ def _entry(tmp_path, rows, **settings):
     return result, patterns
 
 
-def test_the_compiled_expression_reads_an_ascii_value_like_the_token_matcher(
-    tmp_path, monkeypatch
-):
-    # Random strings take too many formats to be eligible for patterns (design
-    # 18.12): the field is forced so that its candidates exercise the matchers.
-    eligible = PatternEligibility(state="eligible", score=1.0, reasons=["regular_structure"])
-    monkeypatch.setattr(pattern_eligibility, "assess", lambda *args: eligible)
-    rng = random.Random(4)
-    alphabet = string.ascii_letters + string.digits + "-_ '"
-    rows = [
-        "".join(rng.choice(alphabet) for _ in range(rng.randrange(1, 9))) for _ in range(800)
-    ]
-    rows += [f"AB{n:04d}" for n in range(200)] + [f"x{n}-{n * 3}" for n in range(200)]
-    _, patterns = _entry(tmp_path, rows)
-    probes = rows + ["", "AB", "AB12345", "x1-", "9" * 30] + [
-        "".join(rng.choice(alphabet) for _ in range(rng.randrange(0, 14))) for _ in range(2_000)
-    ]
-
-    for candidate in patterns.candidates:
-        regex = ascii_regex(candidate.signature)
-        matcher = compile_signature(candidate.signature)
-        for probe in probes:
-            assert (regex.fullmatch(probe) is not None) == matches(matcher, probe), (
-                candidate.render,
-                probe,
-            )
-
-
 def test_a_value_with_a_non_ascii_letter_goes_through_the_token_matcher(tmp_path):
     rows = [f"é{n * 37 % 1000:03d}" for n in range(100)] + [f"E{n * 37 % 1000:03d}" for n in range(100)]
-    _, patterns = _entry(tmp_path, rows, limits={"max_samples": 30})
-    accumulator = PatternAccumulator(patterns, 64)
+    result, patterns = _entry(tmp_path, rows, limits={"max_samples": 30})
+    accumulator = pattern_accumulator(result, patterns)
 
     accumulator.add_strings(["é123", "É999", "e123"], [2, 1, 1])
     counts = accumulator.result(4, "source")
@@ -91,12 +56,12 @@ def test_a_sample_is_not_enough_to_derive_the_counts_without_reading(tmp_path):
     field = result.datasets[0].fields[0]
 
     with pytest.raises(ScanMismatch, match="every distinct value"):
-        derive_from_samples(PatternAccumulator(patterns, 64), field)
+        derive_from_samples(pattern_accumulator(result, patterns, unique=True), field)
 
 
 def test_the_counts_that_do_not_match_the_scan_are_a_failure_and_never_a_result(tmp_path):
-    _, patterns = _entry(tmp_path, [f"AB{n:04d}" for n in range(300)])
-    accumulator = PatternAccumulator(patterns, 64)
+    result, patterns = _entry(tmp_path, [f"AB{n:04d}" for n in range(300)])
+    accumulator = pattern_accumulator(result, patterns)
     accumulator.add_strings(["AB0001"], [1])
 
     with pytest.raises(ScanMismatch, match="values"):

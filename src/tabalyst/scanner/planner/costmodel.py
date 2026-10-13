@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 13
+COST_MODEL_VERSION = 14
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -52,6 +52,13 @@ EXACT_SET_STATE_PREFIX = "exact_set:"
 EXACT_SET_FIXED_BYTES = 4_096
 # A compiled matcher measured 2.2 to 4.4 KB.
 MATCHER_BYTES = 5_120
+# The validation of the hierarchy of patterns (lot P6, design 20.9): a pattern or a
+# node of the reader with its counters, and a cell of a table of counts (the entry
+# of a dictionary, a count and a short text). The set of the distinct values of a
+# field holds an entry of this size plus the text.
+READER_NODE_BYTES = 1_024
+PATTERN_CELL_BYTES = 128
+DISTINCT_ENTRY_BYTES = 90
 # The small result object of an analysis; under 0.001% of any budget.
 RESULT_BYTES = 1_024
 # A pair of numeric columns (lot 8a): the co-moments of a pair are six numbers
@@ -196,6 +203,18 @@ NS_PER_CELL = {
     "distinct_set": 400,
     "matcher_base": 800,
     "matcher": 100,
+    # The validation of the hierarchy of patterns (lot P6): a value is read once in
+    # its family, and a lookup in the table of each facet the family reads, whatever
+    # the number of patterns and nodes (`benchmarks/pattern_validation.py`: 1,990,
+    # 2,790 and 2,680 ns a cell for 10, 64 and 256 variants, the last two with the
+    # same facets, in an alternation with the flat validation of the lot 7c that
+    # costs 1,070 to 1,170 on the same machine and file, 1 million rows of five
+    # fields with 4 to 128 nodes and up to 6 facets: 1,870 to 2,020). Relative to
+    # the flat validation, a field costs 1.1 to 1.5 times as much without a facet
+    # and 2.2 times with six, which the model of the lot 7c (800 ns) turns into
+    # these figures, rounded up. A field of six facets is still `moderate`.
+    "pattern_family": 1_300,
+    "pattern_facet": 150,
     # A pair of numeric columns (lot 8a): the nanoseconds a cell of either
     # column adds, the reading of the cell included. Calibrated below. Lot 16
     # measured 2,340 ns on columns of one million distinct decimals (the number

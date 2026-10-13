@@ -2,38 +2,73 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Validation of the inferred patterns of a field over every occurrence (design
-20.9, PAT-07 to PAT-11).
+"""Validation of the hierarchy of patterns of a field over every occurrence (design
+20.9, PAT-21 to PAT-27).
 
-The patterns of the Scan were found in a sample of the distinct values; this
-counts the occurrences of the whole field. Each value is read by the candidates
-of the Scan with the same matcher the inference uses, one pass and no
-backtracking, and counts for the most specific candidate that reads it (PAT-08).
-The population is the one of the inference: a value longer than
-``max_value_length``, of more than ``MAX_TOKENS`` tokens, or that is not a
-string is excluded and counted as such.
+The families, patterns and nodes of the Scan were found in a sample of the distinct
+values; this counts the occurrences of the whole field. Each value is recognized once
+by the reader of the hierarchy (``patternreader``) and counts for the deepest pattern
+or node that reads it; the counts of the ancestors are the sums of their descendants,
+so the work per cell does not grow with the number of variants (AC-027). The tables
+that count the values of a facet and the set of the distinct values are bounded by
+deterministic budgets in bytes (TR-003), and the accumulator is a plain object that
+a worker process can hold and return (TR-005).
 """
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 
-from tabalyst.scanner.features import PatternClassifier, ascii_regex
+from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.models import (
     FieldPatterns,
     FieldPatternsComplete,
     FieldResult,
 )
-from tabalyst.scanner.patterninfer import GRAMMAR_VERSION, MAX_TOKENS, matches, tokenize
+from tabalyst.scanner.patterninfer import ALGORITHM_VERSION, GRAMMAR_VERSION
+from tabalyst.scanner.planner.costmodel import (
+    DISTINCT_ENTRY_BYTES,
+    NS_PER_CELL,
+    PATTERN_CELL_BYTES,
+)
 from tabalyst.scanner.secondpass.accumulators import ScanMismatch
 from tabalyst.scanner.secondpass.models import (
+    PatternCountCell,
     PatternCounts,
+    PatternDistinct,
     PatternExclusions,
-    PatternOverlapCount,
-    PatternTally,
+    PatternFamilyCount,
+    PatternNewVariants,
+    PatternNodeCount,
+    PatternTableCount,
+)
+from tabalyst.scanner.secondpass.patternreader import (
+    KNOWN,
+    NEW_LENGTH,
+    NEW_SEGMENT,
+    TOO_LONG,
+    UNKNOWN_STRUCTURE,
+    Family,
+    HierarchyReader,
+    Node,
 )
 
-__all__ = ["PatternAccumulator", "ascii_regex", "derive_from_samples", "pattern_entry"]
+__all__ = [
+    "PatternAccumulator",
+    "derive_from_samples",
+    "pattern_entry",
+]
+
+# A whole token is a cell only up to this many characters (patternfacets): a longer
+# one is an identifier and no complete number is published (exposure).
+MAX_TOKEN_CELL = 4
+
+_OUTCOME_NAMES = {
+    KNOWN: "known",
+    NEW_LENGTH: "new_variant",
+    NEW_SEGMENT: "new_variant",
+    UNKNOWN_STRUCTURE: "unknown_structure",
+}
 
 
 def pattern_entry(
@@ -47,114 +82,262 @@ def pattern_entry(
 
 
 class PatternAccumulator:
-    """A count per candidate pattern of a field, plus what no candidate reads
-    and what the population leaves out."""
+    """The counts of the hierarchy of a field: one counter per pattern and node (the
+    values it reads and none of its children), one table per facet that a node or a
+    table of the discovery reads, the combinations of lengths the discovery left in
+    the table of lengths, and the set of the distinct values.
+
+    ``unique`` says that every string fed is a distinct value of the field (the
+    exact counts of the Scan), which makes the distinct values exact without a set.
+    ``table_cells`` is the capacity of a table in cells, ``distinct_bytes`` the
+    bytes the set of distinct values may hold (design 20.9).
+    """
 
     __slots__ = (
-        "classifier",
-        "entry",
+        "budget",
+        "distinct",
+        "exact",
         "excluded",
+        "extra",
+        "lengths",
+        "new_segment",
         "occurrences",
-        "other",
-        "overlaps",
+        "reader",
+        "seen",
+        "table_cells",
+        "tables",
+        "unique",
+        "unknown",
+        "used",
         "values",
     )
 
-    def __init__(self, entry: FieldPatternsComplete, max_value_length: int) -> None:
-        self.entry = entry
-        # Candidates tried from the most specific: the first that reads a value
-        # is the one it counts for, the others only tell of an overlap.
-        self.classifier = PatternClassifier(entry, max_value_length)
-        self.occurrences = [0] * len(entry.candidates)
-        self.other = 0
+    def __init__(
+        self,
+        entry: FieldPatternsComplete,
+        field: FieldResult,
+        settings: PatternInferenceSettings,
+        table_bytes: int,
+        distinct_bytes: int,
+        unique: bool = False,
+        table_cells: int | None = None,
+    ) -> None:
+        self.reader = HierarchyReader.build(entry, field, settings)
+        slots = self.reader.slots
+        self.occurrences = [0] * slots
+        self.distinct = [0] * slots
+        self.exact = [True] * slots
+        self.unique = unique
+        self.seen: set[str] = set()
+        self.used = 0
+        self.budget = distinct_bytes
+        self.table_cells = max(1, table_bytes // PATTERN_CELL_BYTES) if table_cells is None else table_cells
+        families = self.reader.families
+        # Per family and facet: the counts of the cells of the discovery, the values it
+        # never saw (up to the capacity), and the occurrences that no cell holds.
+        self.tables = [[[0] * len(facet.texts) for facet in family.facets] for family in families]
+        self.extra: list[list[dict[str, int]]] = [[{} for _ in family.facets] for family in families]
+        self.lengths: list[dict[str, int]] = [
+            dict.fromkeys(family.lengths_cells, 0) for family in families
+        ]
+        self.new_segment = [0] * len(families)
+        self.unknown = 0
         self.values = 0
-        self.overlaps: dict[tuple[int, ...], int] = {}
         self.excluded = {"non_string": 0, "too_long": 0, "too_complex": 0}
 
+    @property
+    def cell_ns(self) -> int:
+        """Modeled nanoseconds a cell costs: the family and the facets it reads, the
+        most of any family (the cost model of 20.2)."""
+        facets = max((len(family.facets) for family in self.reader.families), default=0)
+        return NS_PER_CELL["pattern_family"] + facets * NS_PER_CELL["pattern_facet"]
+
+    def outcome(self, raw: str) -> str | None:
+        """The outcome of one string against the hierarchy, without counting it:
+        ``known``, ``new_variant`` or ``unknown_structure``; ``None`` when the
+        population leaves it out."""
+        return _OUTCOME_NAMES.get(self.reader.read(raw)[0])
+
     def add_strings(self, raws: Sequence[str], counts: Sequence[int]) -> None:
-        """Account for the distinct content strings of a batch with their
-        counts."""
-        # The loop of ``PatternClassifier.classify`` is repeated here, not called:
-        # a call and a tuple for each distinct value cost a third more than the
-        # regular expressions themselves on a column of identifiers (measured at
-        # lot 8b), and the cost model of the validation stands on this loop.
-        classifier = self.classifier
-        limit = classifier.max_length
-        matchers = classifier.matchers
-        regexes = classifier.regexes
-        order = classifier.order
-        excluded = self.excluded
+        """Account for the distinct content strings of a batch with their counts."""
+        read = self.reader.read
         occurrences = self.occurrences
-        overlaps = self.overlaps
+        distinct = self.distinct
+        exact = self.exact
+        unique = self.unique
+        held = self.seen
+        budget = self.budget
+        used = self.used
+        values = unknown = too_long = too_complex = 0
         for raw, count in zip(raws, counts, strict=True):
-            self.values += count
-            size = len(raw)
-            if size > limit:
-                excluded["too_long"] += count
+            values += count
+            outcome, family, slot, reads, vector = read(raw)
+            if family is None:
+                if outcome == UNKNOWN_STRUCTURE:
+                    unknown += count
+                elif outcome == TOO_LONG:
+                    too_long += count
+                else:
+                    too_complex += count
                 continue
-            # A token has at least one character: a short value cannot have too
-            # many, and the others are tokenized only when they are long enough.
-            if size > MAX_TOKENS and len(tokenize(raw)) > MAX_TOKENS:
-                excluded["too_complex"] += count
-                continue
-            first = -1
-            found: list[int] | None = None
-            ascii_value = raw.isascii()
-            for number in order:
-                if (
-                    regexes[number].fullmatch(raw) is not None
-                    if ascii_value
-                    else matches(matchers[number], raw)
-                ):
-                    if first < 0:
-                        first = number
-                    else:
-                        if found is None:
-                            found = [first]
-                        found.append(number)
-            if first < 0:
-                self.other += count
-                continue
-            occurrences[first] += count
+            occurrences[slot] += count
+            if unique:
+                distinct[slot] += 1
+            elif raw not in held:
+                cost = DISTINCT_ENTRY_BYTES + len(raw)
+                if used + cost > budget:
+                    # Not held, so not counted: the distinct values of every node
+                    # above are a lower bound from here on.
+                    exact[slot] = False
+                else:
+                    used += cost
+                    held.add(raw)
+                    distinct[slot] += 1
+            if outcome == NEW_SEGMENT:
+                self.new_segment[family.index] += count
+            if slot == family.off_slot:
+                table = self.lengths[family.index]
+                text = family.lengths_text(vector)
+                table[text] = table.get(text, 0) + count
+            if reads:
+                self._tables(family, reads, count)
+        self.used = used
+        self.values += values
+        self.unknown += unknown
+        self.excluded["too_long"] += too_long
+        self.excluded["too_complex"] += too_complex
+
+    def _tables(
+        self, family: Family, reads: Sequence[tuple[int | None, str]], count: int
+    ) -> None:
+        """Count a value in the table of each facet of its family: in the cell that
+        reads it, or, when the sample never showed it, in a new cell up to the
+        capacity."""
+        index = family.index
+        counts = self.tables[index]
+        for number, (found, text) in enumerate(reads):
             if found is not None:
-                key = tuple(sorted(found))
-                overlaps[key] = overlaps.get(key, 0) + count
+                counts[number][found] += count
+                continue
+            facet = family.facets[number]
+            if facet.seen:
+                # An open facet: a value that is no cell is counted in `others`.
+                continue
+            extra = self.extra[index][number]
+            if text in extra:
+                extra[text] += count
+            elif len(extra) < self.table_cells and not (
+                facet.edge == "token" and len(text) > MAX_TOKEN_CELL
+            ):
+                extra[text] = count
+            # Otherwise the table is full: the value is in `others`, which is the
+            # occurrences of the family that no kept cell holds.
 
     def add_native(self, count: int = 1) -> None:
         """JSON numbers that are not integers, or booleans: not tested."""
         self.values += count
         self.excluded["non_string"] += count
 
+    # Result ---------------------------------------------------------------------
+
     def result(self, expected_values: int, computed_from: str) -> PatternCounts:
-        """The counts, checked against the Scan: the values read are the values
-        the Scan counted, and they add up."""
+        """The counts, checked against the Scan: the values read are the values the
+        Scan counted, and the counts add up."""
         if self.values != expected_values:
             raise ScanMismatch(
                 f"values: the second pass found {self.values}, the scan {expected_values}"
             )
-        candidates = self.entry.candidates
-        matched = sum(self.occurrences)
+        families = [self._family(family) for family in self.reader.families]
+        matched = sum(family.occurrences for family in families)
         excluded = sum(self.excluded.values())
-        if matched + self.other + excluded != self.values:
+        if matched + self.unknown + excluded != self.values:
             raise ScanMismatch("the counts of the patterns do not add up to the values read")
         return PatternCounts(
             computed_from=computed_from,  # type: ignore[arg-type]
             grammar_version=GRAMMAR_VERSION,
+            algorithm_version=ALGORITHM_VERSION,
             values=self.values,
             matched=matched,
-            candidates=[
-                PatternTally(id=candidate.id, render=candidate.render, occurrences=count)
-                for candidate, count in zip(candidates, self.occurrences, strict=True)
-            ],
-            other=self.other,
+            families=families,
+            unknown_structure=self.unknown,
             excluded=PatternExclusions(**self.excluded),
-            overlaps=[
-                PatternOverlapCount(
-                    patterns=[candidates[number].id for number in key], occurrences=count
-                )
-                for key, count in sorted(self.overlaps.items())
-            ],
         )
+
+    def _node(self, node: Node) -> PatternNodeCount:
+        below = [self._node(child) for child in node.children]
+        own = self.occurrences[node.slot]
+        exact = self.exact[node.slot] and all(item.distinct.accuracy == "exact" for item in below)
+        return PatternNodeCount(
+            id=node.id,
+            render=node.render,
+            occurrences=own + sum(item.occurrences for item in below),
+            distinct=PatternDistinct(
+                count=self.distinct[node.slot] + sum(item.distinct.count for item in below),
+                accuracy="exact" if exact else "at_least",
+            ),
+            rest=own,
+            nodes=below,
+        )
+
+    def _family(self, family: Family) -> PatternFamilyCount:
+        patterns = [self._node(node) for node in family.patterns]
+        lengths = self.occurrences[family.off_slot]
+        new_length = self.occurrences[family.new_slot]
+        slots = (family.off_slot, family.new_slot)
+        exact = all(self.exact[slot] for slot in slots) and all(
+            item.distinct.accuracy == "exact" for item in patterns
+        )
+        total = sum(item.occurrences for item in patterns) + lengths + new_length
+        tables = []
+        if family.lengths_cells or lengths:
+            tables.append(self._lengths_table(family, lengths))
+        index = family.index
+        for facet in family.facets:
+            tables.append(self._table(family, facet.index, total))
+        return PatternFamilyCount(
+            id=family.id,
+            occurrences=total,
+            distinct=PatternDistinct(
+                count=sum(item.distinct.count for item in patterns)
+                + sum(self.distinct[slot] for slot in slots),
+                accuracy="exact" if exact else "at_least",
+            ),
+            patterns=patterns,
+            tables=tables,
+            new_variants=PatternNewVariants(length=new_length, segment=self.new_segment[index]),
+        )
+
+    def _lengths_table(self, family: Family, total: int) -> PatternTableCount:
+        cells = _top(list(self.lengths[family.index].items()), self.table_cells)
+        return PatternTableCount(
+            facet="lengths",
+            capacity=self.table_cells,
+            cells=cells,
+            others=total - sum(cell.occurrences for cell in cells),
+            saturated=total > sum(cell.occurrences for cell in cells),
+        )
+
+    def _table(self, family: Family, number: int, total: int) -> PatternTableCount:
+        facet = family.facets[number]
+        index = family.index
+        counts = self.tables[index][number]
+        items = [(text, counts[slot]) for slot, text in enumerate(facet.texts)]
+        items.extend(self.extra[index][number].items())
+        cells = _top(items, self.table_cells)
+        kept = sum(cell.occurrences for cell in cells)
+        return PatternTableCount(
+            facet=facet.label,
+            capacity=self.table_cells,
+            cells=cells,
+            others=total - kept,
+            saturated=total > kept,
+        )
+
+
+def _top(items: list[tuple[str, int]], capacity: int) -> list[PatternCountCell]:
+    """The most frequent ``capacity`` cells, the ties in the order of their text."""
+    items.sort(key=lambda item: (-item[1], item[0]))
+    return [PatternCountCell(value=text, occurrences=count) for text, count in items[:capacity]]
 
 
 def derive_from_samples(accumulator: PatternAccumulator, field: FieldResult) -> None:

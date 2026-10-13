@@ -15,6 +15,9 @@ from pattern_expected import DECLARED, EXPECTED, declared
 from pattern_tree import compare, lengths, structure, tree_to_lines
 
 INFORMATIVE = [item for item in corpus() if item.mode == "informative" and not item.toy]
+# The fields the discovery reads, hence the ones that have a hierarchy to validate:
+# the ISBN with hyphens is low_relevance (DEC-034) and has no entry to count.
+DISCOVERED = [item for item in INFORMATIVE if item.id in {found.field for found in EXPECTED}]
 
 # The families alone are the work of the lot P3 (plan: RC-01, RC-02, RC-04 for the
 # counts, RC-06, RC-07, RC-15); their nodes and tables need the content facets and
@@ -104,7 +107,7 @@ def test_new_prefixes_of_the_file_are_new_variants_of_their_family():
 
 
 @pytest.mark.pattern_lot("P6")
-@pytest.mark.parametrize("source", INFORMATIVE, ids=lambda item: item.id)
+@pytest.mark.parametrize("source", DISCOVERED, ids=lambda item: item.id)
 def test_variants_of_the_file_get_an_outcome_and_none_is_invalid(source):
     # Annex A: unexpected characters, wrong lengths, new combinations; AC-017.
     variants = with_variants(source)

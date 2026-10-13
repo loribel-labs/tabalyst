@@ -35,6 +35,7 @@ from pattern_tree import (
     token,
 )
 
+from tabalyst.config import DeepSettings
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.config import DetectorSettings
 from tabalyst.scanner.models import (
@@ -46,6 +47,16 @@ from tabalyst.scanner.models import (
     ScanResult,
 )
 from tabalyst.scanner.patterninfer import compile_signature, matches
+from tabalyst.scanner.planner import plan_analyses
+from tabalyst.scanner.planner.analyzers.patterns import PatternValidation
+from tabalyst.scanner.planner.registry import AnalyzerRegistry
+from tabalyst.scanner.secondpass import run_second_pass
+from tabalyst.scanner.secondpass.models import (
+    PatternCounts,
+    PatternNodeCount,
+    PatternTableCount,
+)
+from tabalyst.scanner.secondpass.patterns import PatternAccumulator, derive_from_samples
 
 # The outcomes of a value at validation (REC-006); ``invalid`` is reserved and
 # never given by the inference. A set of lengths never seen in a known structure
@@ -173,13 +184,47 @@ def declared_keys(field: Field) -> Declared:
 def validate(variants: Variants) -> Validation:
     """The outcome of every value of ``variants.file`` once the discovery has
     read ``variants.sample`` (FR-013, FR-015)."""
-    raise NotImplementedError("bind the hierarchical validation (lot P6)")
+    return _validated(variants.sample, variants.file)
 
 
 def validate_file(field: Field) -> Validation:
-    """The outcome of every value of ``field.file`` once the discovery has read
-    ``field.pairs`` (RC-14)."""
-    raise NotImplementedError("bind the hierarchical validation (lot P6)")
+    """The outcome of every value of ``field.file`` once the discovery has
+    read ``field.pairs`` (RC-14)."""
+    assert field.file is not None
+    return _validated(field, field.file)
+
+
+def _validated(sample: Field, file: Sequence[tuple[str, int]]) -> Validation:
+    accumulator = _accumulator(sample)
+    outcomes: dict[str, Outcome] = {}
+    for value, _ in file:
+        outcome = accumulator.outcome(value)
+        assert outcome is not None, value
+        outcomes[value] = outcome  # type: ignore[assignment]
+    return Validation(outcomes)
+
+
+def _accumulator(
+    sample: Field,
+    unique: bool = False,
+    table_cells: int | None = None,
+    distinct_bytes: int | None = None,
+) -> PatternAccumulator:
+    """The accumulator of the validation of ``sample`` as the second pass builds it
+    from the Scan of the sample."""
+    result = _scanned(sample)
+    entry = _scanned_entry(sample)
+    assert isinstance(entry, FieldPatternsComplete)
+    deep = DeepSettings().patterns
+    return PatternAccumulator(
+        entry,
+        result.datasets[0].fields[0],
+        result.config.pattern_inference,
+        table_bytes=deep.table_bytes,
+        distinct_bytes=deep.distinct_bytes if distinct_bytes is None else distinct_bytes,
+        unique=unique,
+        table_cells=table_cells,
+    )
 
 
 # Contract of the Patterns plan (design 18.12 and 20.9) ---------------------------------
@@ -312,15 +357,95 @@ def count(
     """Validate the whole file of ``variants`` against the discovery of its sample, or,
     for a ``Field``, its ``file`` when it has one (RC-14) and its ``pairs`` otherwise,
     against the discovery of ``pairs``; return the counts (lot P6). ``exact_budget``
-    limits the distinct values held exactly, ``table_capacity`` the cells of a
-    facet table."""
-    raise NotImplementedError("bind the hierarchical counts (lot P6)")
+    limits the bytes that hold the distinct values, ``table_capacity`` the cells of a
+    facet table. A field whose distribution is complete and that no budget bears on is
+    counted from the samples, without reading a source."""
+    sample = variants.sample if isinstance(variants, Variants) else variants
+    file = variants.file
+    from_samples = file is None and exact_budget is None
+    accumulator = _accumulator(
+        sample, unique=from_samples, table_cells=table_capacity, distinct_bytes=exact_budget
+    )
+    if from_samples:
+        derive_from_samples(accumulator, _scanned(sample).datasets[0].fields[0])
+    else:
+        pairs = file if file is not None else sample.pairs
+        accumulator.add_strings([value for value, _ in pairs], [number for _, number in pairs])
+    result = accumulator.result(
+        sum(number for _, number in (file if file is not None else sample.pairs)),
+        "samples" if from_samples else "source",
+    )
+    return _counted(result)
+
+
+def _counted(result: PatternCounts) -> Counted:
+    def node(item: PatternNodeCount) -> CountedNode:
+        return CountedNode(
+            item.render,
+            item.occurrences,
+            item.distinct.count,
+            item.distinct.accuracy,
+            tuple(node(child) for child in item.nodes),
+            item.rest,
+        )
+
+    def table(item: PatternTableCount) -> CountedTable:
+        cells = {cell.value: cell.occurrences for cell in item.cells}
+        return CountedTable(item.facet, cells, item.others, item.saturated)
+
+    families = tuple(
+        CountedFamily(
+            family.id,
+            family.occurrences,
+            tuple(node(pattern) for pattern in family.patterns),
+            tuple(table(item) for item in family.tables),
+            family.new_variants.length,
+            family.new_variants.segment,
+        )
+        for family in result.families
+    )
+    return Counted(
+        result.values,
+        result.matched,
+        result.unknown_structure,
+        sum(result.excluded.model_dump().values()),
+        families,
+        result.computed_from,
+        frozenset(_keys(result.model_dump(mode="json"))),
+    )
+
+
+def _keys(data: object) -> list[str]:
+    if isinstance(data, dict):
+        return [key for key, value in data.items()] + [
+            name for value in data.values() for name in _keys(value)
+        ]
+    if isinstance(data, list):
+        return [name for value in data for name in _keys(value)]
+    return []
 
 
 def source_reads(fields: Sequence[Field]) -> int:
     """How many times the second pass reads the source to validate ``fields``
     together (lot P6)."""
-    raise NotImplementedError("bind the second pass (lot P6)")
+    with tempfile.TemporaryDirectory(prefix="tabalyst-patterns-") as folder:
+        source = Path(folder) / "data.csv"
+        columns = [[value for value, number in item.pairs for _ in range(number)] for item in fields]
+        rows = max(len(column) for column in columns)
+        with source.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle)
+            writer.writerow([f"c{number}" for number in range(len(columns))])
+            for row in range(rows):
+                writer.writerow([column[row] if row < len(column) else "" for column in columns])
+        config = {
+            "detectors": {name: {"enabled": False} for name in _SEMANTIC},
+            "limits": {"max_samples": max(item.distinct for item in fields)},
+        }
+        result = scan(source, config=ScanConfig.model_validate(config))
+        registry = AnalyzerRegistry([PatternValidation])
+        plan = plan_analyses(result, forced=True, registry=registry)
+        outcome = run_second_pass(result, source, plan)
+        return int(outcome.document.run.source_read)
 
 
 Tamper = Literal["family_sum", "missing_parent", "entry_count", "unknown_signature"]

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Validation of the inferred patterns of a field against every value."""
+"""Validation of the hierarchy of patterns of a field against every value (design 20.9)."""
 
 from __future__ import annotations
 
@@ -17,8 +17,10 @@ from tabalyst.scanner.planner.analyzer import (
 from tabalyst.scanner.planner.analyzers.common import result_state
 from tabalyst.scanner.planner.costmodel import (
     COUNTER_BYTES,
-    MATCHER_BYTES,
+    DISTINCT_ENTRY_BYTES,
     NS_PER_CELL,
+    PATTERN_CELL_BYTES,
+    READER_NODE_BYTES,
 )
 from tabalyst.scanner.planner.facts import FieldFacts
 from tabalyst.scanner.planner.models import Costs, State, Utility
@@ -43,6 +45,9 @@ class PatternValidation(Analyzer):
     their shares count distinct values: this counts every occurrence (PAT-07)."""
 
     id: ClassVar[str] = "pattern_validation"
+    # 2: the hierarchy of families, patterns and nodes (Patterns lot P6); the flat
+    # candidates of the lot 7c were version 1.
+    version: ClassVar[int] = 2
     available: ClassVar[bool] = True
     outputs: ClassVar[tuple[str, ...]] = ("pattern_counts", "unmatched")
 
@@ -65,24 +70,48 @@ class PatternValidation(Analyzer):
             return Assessment("not_applicable", (reason,))
         if patterns.candidates == 0:
             return Assessment("not_applicable", ("no_candidates",))
+        settings = self.settings.patterns
         return Assessment(
             "applicable",
-            method="compiled_matcher",
-            parameters={"patterns": patterns.candidates},
+            method="family_recognizer",
+            parameters={
+                "patterns": patterns.candidates,
+                "nodes": patterns.nodes,
+                "facets": patterns.facets,
+                "table_bytes": settings.table_bytes,
+                "distinct_bytes": settings.distinct_bytes,
+            },
             # When the inference read every distinct value, each is in the
             # samples with its exact count: the occurrences follow from them.
             requires_source=patterns.basis != "all_distinct",
         )
 
     def estimate(self, facts: FieldFacts, assessment: Assessment) -> Costs:
-        count = int(assessment.parameters["patterns"])
-        # One counter and one matcher per candidate, and a counter for the rest.
-        size = count * (COUNTER_BYTES + MATCHER_BYTES) + COUNTER_BYTES
-        # A value is tried against every candidate (the overlaps are counted).
-        nanoseconds = NS_PER_CELL["matcher_base"] + count * NS_PER_CELL["matcher"]
+        parameters = assessment.parameters
+        nodes = int(parameters["nodes"])
+        facets = int(parameters["facets"])
+        # The reader and the counters of the patterns and nodes, a table for each
+        # facet, and, when the source is read, the set of the distinct values.
+        size = nodes * (READER_NODE_BYTES + 3 * COUNTER_BYTES) + COUNTER_BYTES
+        # A table cannot hold more cells than the field has distinct values.
+        upper = facts.distinct if facts.distinct is not None else facts.values
+        tables = facets * min(int(parameters["table_bytes"]), upper * PATTERN_CELL_BYTES)
+        distinct = 0
+        if assessment.requires_source:
+            entry = DISTINCT_ENTRY_BYTES + (facts.max_length or 0)
+            distinct = min(int(parameters["distinct_bytes"]), upper * entry)
+        # A value is read once, whatever the number of patterns and nodes: the
+        # work is its structure and one table lookup for each facet.
+        nanoseconds = NS_PER_CELL["pattern_family"] + facets * NS_PER_CELL["pattern_facet"]
         return costs(
             nanoseconds,
-            [State(key=f"patterns:{facts.where}", memory=memory(size)), result_state(self.id, facts)],
+            [
+                State(
+                    key=f"patterns:{facts.where}",
+                    memory=memory(size, size + tables // 8 + distinct // 8, size + tables + distinct),
+                ),
+                result_state(self.id, facts),
+            ],
         )
 
     def utility(self, facts: FieldFacts, assessment: Assessment) -> Utility:

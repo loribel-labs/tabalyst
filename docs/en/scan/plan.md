@@ -25,10 +25,10 @@ Plan for basic.csv (plan 84f918d7e204, planner 1).
 
 Selected:
   1. temporal_distribution [period_counts]: rows / joined (up to 1.7 KiB, CPU moderate, automatic)
-  2. pattern_validation [compiled_matcher]: rows / id (up to 6.0 KiB, CPU moderate, automatic)
-  3. pattern_validation [compiled_matcher]: rows / name (up to 6.0 KiB, CPU moderate, automatic)
-  4. pattern_validation [compiled_matcher]: rows / amount (up to 6.0 KiB, CPU moderate, automatic)
-  5. pattern_validation [compiled_matcher]: rows / notes (up to 6.0 KiB, CPU moderate, automatic)
+  2. pattern_validation [family_recognizer]: rows / id (up to 2.0 KiB, CPU moderate, automatic)
+  3. pattern_validation [family_recognizer]: rows / name (up to 2.0 KiB, CPU moderate, automatic)
+  4. pattern_validation [family_recognizer]: rows / amount (up to 2.0 KiB, CPU moderate, automatic)
+  5. pattern_validation [family_recognizer]: rows / notes (up to 2.0 KiB, CPU moderate, automatic)
 
 Not applicable:
   1 x the field mixes types, so a typed analysis would be unreliable
@@ -313,7 +313,8 @@ Each analysis and the reading also get a CPU class, `very_low`, `low`,
 measured on the second pass, with the reading of each cell included. A counter
 of integers or a bin costs about 1 microsecond a cell, as much as the first pass
 spends on a cell, which is why both are `moderate`; so are a pattern validation
-(about 0.9 microsecond, and a little more for each candidate pattern) and a count
+(about 1.3 microseconds, and a little more for each facet of the patterns it counts,
+none for the number of patterns) and a count
 of dates by period (about 1.6 microseconds). A pair of numeric columns costs
 about 1.5 microseconds for each cell of its two columns, also `moderate`; a column
 that several pairs share is read once. A table costs from 0.3 to 0.6 microsecond for each cell of its

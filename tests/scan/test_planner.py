@@ -306,7 +306,7 @@ def test_a_structured_string_gets_its_patterns_validated_on_the_whole_file(tmp_p
     candidate = _state(plan_analyses(result), "pattern_validation", "code")
 
     assert candidate.selection.state == "selected"
-    assert candidate.method == "compiled_matcher"
+    assert candidate.method == "family_recognizer"
     assert "candidates_unvalidated" in candidate.utility.reasons
     assert candidate.execution.requires_source is True
 

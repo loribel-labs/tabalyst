@@ -29,6 +29,7 @@ from tabalyst.scanner.models import (
     FieldPatternsNotApplicable,
     FieldResult,
     PatternAlgorithm,
+    PatternCondition,
     PatternEligibility,
     PatternExcluded,
     PatternFamily,
@@ -47,6 +48,7 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.patternfacets import DIGITS, LETTERS, MIN_DEVELOP, Alphabet, Facet
 from tabalyst.scanner.patterntree import (
+    Constraints,
     Developed,
     Position,
     TreeNode,
@@ -657,6 +659,13 @@ class _BuiltNode:
     template: Sequence[Token] = ()
     sizes: Sequence[int] = ()
     layout: _Layout = field(default_factory=lambda: _Layout(None, False))
+    # What the node fixes at its facet: the text of its head, tail or token, or the
+    # text of the structure of a node of composition (read again by the validation).
+    value: str = ""
+    # What the node fixes besides its own facet: the conditions of the nodes that
+    # merged into it (a node whose only child covers 95% of it, E5), as
+    # (facet, value) pairs.
+    also: list[tuple[str, str]] = field(default_factory=list)
 
     def size(self) -> int:
         return 1 + sum(child.size() for child in self.children)
@@ -728,6 +737,7 @@ def _patterns(
                         template=part_rows[0],
                         sizes=part_sizes,
                         layout=_Layout(block, key != base),
+                        value=_key_text(key),
                     )
                 )
             nodes.sort(key=lambda node: (-node.d, -node.o, _key_text(node.key)))
@@ -795,10 +805,14 @@ def _positions(
     ]
 
 
-def _content_node(tree: TreeNode, owner: _Built | _BuiltNode) -> _BuiltNode:
+def _content_node(
+    tree: TreeNode, owner: _Built | _BuiltNode, above: Constraints | None = None
+) -> _BuiltNode:
     """A node of content below ``owner`` (a pattern or a structure of its
     composition): its signature is that of the owner with what the node and its
-    ancestors fix."""
+    ancestors fix. ``above`` is what its parent fixes: whatever else the node
+    fixes, because nodes merged into it, is published with it."""
+    above = above or {}
     overrides = {
         owner.layout.row_index(position): fixed for position, fixed in tree.constraints.items()
     }
@@ -811,7 +825,13 @@ def _content_node(tree: TreeNode, owner: _Built | _BuiltNode) -> _BuiltNode:
         PatternGain(
             bits_d=round(tree.gain_d, 1), bits_o=round(tree.gain_o, 1), sigma=round(tree.sigma, 4)
         ),
-        [_content_node(child, owner) for child in tree.children],
+        [_content_node(child, owner, tree.constraints) for child in tree.children],
+        value=tree.constraints[tree.position][1],
+        also=[
+            (f"{fixed[0]}:{position + 1}", fixed[1])
+            for position, fixed in sorted(tree.constraints.items())
+            if position != tree.position and above.get(position) != fixed
+        ],
     )
 
 
@@ -986,6 +1006,23 @@ def infer_field(
     """The discovered patterns of one field, or its eligibility when it is not
     eligible (design 18.12)."""
     return _entry(dataset, field, settings, *_prepare(field, settings))
+
+
+def tokenized_population(
+    field: FieldResult, settings: PatternInferenceSettings
+) -> tuple[list[SampleEntry], list[list[Token]]]:
+    """The entries of the population of a field that the discovery reads and their
+    tokens, in the order it reads them: the validation (design 20.9) recognizes
+    the same values again to learn what the discovery saw."""
+    entries, _, _, _ = _population(field, settings)
+    rows = [tokenize(entry.value) for entry in entries]
+    kept = [index for index, row in enumerate(rows) if len(row) <= MAX_TOKENS]
+    return [entries[index] for index in kept], [rows[index] for index in kept]
+
+
+def key_text(tokens: Sequence[Token]) -> str:
+    """The text of the structure key of a value (``UP-D`` for ``AK-1234``)."""
+    return _key_text(_key(tokens))
 
 
 def _entry(
@@ -1203,6 +1240,8 @@ def _publish_nodes(nodes: Sequence[_BuiltNode], parent: str, level: int) -> list
                 parent=parent,
                 level=level,
                 facet=built.facet,
+                value=built.value,
+                also=[PatternCondition(facet=facet, value=text) for facet, text in built.also],
                 signature=built.signature,
                 render=render_signature(built.signature),
                 d=built.d,

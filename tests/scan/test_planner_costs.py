@@ -175,16 +175,22 @@ def test_the_common_reading_is_classed_by_its_cells():
     ]  # fmt: skip
 
 
-def test_the_cost_of_a_pattern_grows_with_its_candidates(tmp_path):
-    rows = [f"{prefix}-{n:04d}" for n in range(60) for prefix in ("AB", "7", "x y")]
-    result = scan_csv(tmp_path, "code", rows)
+def test_the_cost_of_a_pattern_validation_does_not_grow_with_its_patterns(tmp_path):
+    # TR-002: a value is read once in its family, so more patterns cost nothing more.
+    few = [f"INV-{n:04d}" for n in range(60)] + [f"INV-{n:05d}" for n in range(60)]
+    many = few + [f"INV-{n:0{size}d}" for size in (3, 6, 7) for n in range(60)]
+    costs = {}
+    for name, rows in (("few", few), ("many", many)):
+        folder = tmp_path / name
+        folder.mkdir()
+        result = scan_csv(folder, "code", rows)
+        candidate = by_analyzer(plan_analyses(result, automatic=False), "pattern_validation")["code"]
+        costs[name] = (candidate.parameters["patterns"], candidate.costs.cell_ns)
 
-    candidate = by_analyzer(plan_analyses(result, automatic=False), "pattern_validation")["code"]
-
-    count = candidate.parameters["patterns"]
-    expected = NS_PER_CELL["matcher_base"] + count * NS_PER_CELL["matcher"]
-    assert count > 1 and candidate.costs.cell_ns == expected
-    assert candidate.costs.cpu == cpu_class_for(expected)
+    assert costs["many"][0] > costs["few"][0] > 1
+    assert costs["many"][1] == costs["few"][1]
+    facets = NS_PER_CELL["pattern_facet"]
+    assert costs["few"][1] in (NS_PER_CELL["pattern_family"], NS_PER_CELL["pattern_family"] + facets)
 
 
 # Budgets -----------------------------------------------------------------------

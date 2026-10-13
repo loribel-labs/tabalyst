@@ -73,25 +73,38 @@ shows what a run would do.
 
 ## Patterns on every value
 
-The scan infers patterns such as `XX9999'A'` from a sample of the distinct values
-of a field, and its shares count distinct values, not occurrences. The second pass
-reads every value of the file with those patterns, as they are in the file (before
-any cleaning), and counts each value once, for the most specific pattern that reads
-it. The counts add up: the values read by a pattern, the values no pattern reads
-(`other`) and the values that were not tested (too long, too many tokens, or JSON
-numbers and booleans) make the values of the field.
+The scan infers a hierarchy of patterns from a sample of the distinct values of a
+field: families (one structure, such as `AA-9999`), their patterns of fixed length
+and the nodes that set a part of the values apart (`'AK-'9999`). Its shares count
+distinct values, not occurrences. The second pass reads every value of the file
+once, as it is in the file (before any cleaning), finds its family and counts it for
+the deepest pattern or node that reads it. The counts add up: the values read by a
+family, the values no family reads (`unknown_structure`) and the values that were
+not tested (too long, too many tokens, or JSON numbers and booleans) make the values
+of the field. The number of patterns and nodes does not change what a value costs.
 
 ```json
 {"kind": "pattern_counts", "accuracy": "exact", "computed_from": "source",
  "values": 3000, "matched": 2990,
- "candidates": [{"id": "f1.p1", "render": "AA9999'A'", "occurrences": 2100}],
- "other": 10, "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
- "overlaps": []}
+ "families": [{"id": "f1", "occurrences": 2990,
+   "distinct": {"count": 2410, "accuracy": "exact"},
+   "patterns": [{"id": "f1.p1", "render": "AA-9999", "occurrences": 2990,
+     "distinct": {"count": 2410, "accuracy": "exact"}, "rest": 2990}],
+   "tables": [], "new_variants": {"length": 0, "segment": 0}}],
+ "unknown_structure": 10,
+ "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0}}
 ```
 
-A value that no pattern reads is an observation about its structure, not an error:
-the dominant pattern is not a rule of your data. The second pass does not look for
-new patterns among them. When the scan holds every distinct value with its exact
+A value that the scan never saw but that a family reads is counted as a **new
+variant** of that family, not as an error: a prefix that was not in the sample
+(`segment`), or a set of lengths no pattern has (`length`). A value that no family
+reads is an observation about its structure, not an error: the dominant pattern is
+not a rule of your data. The second pass does not look for new structures among
+them. The values of each facet are counted in a table whose size is bounded
+(`deep.patterns.table_bytes`): when it is full the most frequent values are kept and
+the result says it is limited. The distinct values of each pattern and node are exact
+unless the set that holds them would pass `deep.patterns.distinct_bytes`, and the
+result then says `at_least`. When the scan holds every distinct value with its exact
 count, the occurrences follow from those counts and the source is not read
 (`computed_from` is `samples`, the result is the same).
 

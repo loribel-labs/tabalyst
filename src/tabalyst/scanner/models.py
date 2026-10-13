@@ -1253,6 +1253,14 @@ class PatternGain(ScanModel):
     sigma: float
 
 
+class PatternCondition(ScanModel):
+    """What a node fixes besides its own facet: the facet (``head:N``, ``tail:N``
+    or ``token:N``) and the text of its head, tail or token."""
+
+    facet: str
+    value: str
+
+
 class PatternNode(ScanModel):
     """A specialization of a pattern (design 18.12), with its counts in distinct
     values (``d``) and occurrences (``o``). ``facet`` is ``composition`` (one of the
@@ -1260,26 +1268,34 @@ class PatternNode(ScanModel):
     content, ``head:N``, ``tail:N`` or ``token:N`` (the first or last characters of
     the Nth token of the structure, or the whole token): its ``gain`` is what the
     prefix saves. The nodes of a content facet are a part of their parent, the
-    rest being its ``others``. ``nodes`` are the nodes below: a longer prefix of the
-    same facet or a facet that depends on this node."""
+    rest being its ``others``. ``value`` is the text the node fixes at its facet (the
+    head or the tail, spelled from the left, or the whole token; the text of the
+    structure for a node of composition): what the validation reads a node by.
+    ``also`` lists what else the node fixes, because a node whose only child covers
+    95% of it merged into it (the year, once the month is known). ``nodes`` are the
+    nodes below: a longer prefix of the same facet or a facet that depends on this
+    node."""
 
     id: str
     parent: str
     level: int
     facet: str
+    value: str
     signature: list[PatternToken]
     render: str
     d: int
     o: int
     role: Literal["principal", "secondary"]
     gain: PatternGain | None = None
+    also: list[PatternCondition] = []
     nodes: list[PatternNode] = []
 
     @model_serializer(mode="wrap")
     def _omit_empty(self, handler) -> dict[str, Any]:
         data = _omit_none(handler(self), ("gain",))
-        if not data.get("nodes"):
-            data.pop("nodes", None)
+        for name in ("also", "nodes"):
+            if not data.get(name):
+                data.pop(name, None)
         return data
 
 

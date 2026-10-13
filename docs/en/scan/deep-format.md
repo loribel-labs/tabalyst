@@ -5,7 +5,7 @@ description: Structure of the deep.json document written by tabalyst scan --deep
 
 `tabalyst scan --deep` and `tabalyst report` write a JSON document beside the scan: `deep.json` next
 to a stored `scan.json`, or `<stem>.deep.json` next to a `<stem>.scan.json`. This
-page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `2`. The
+page describes format `tabalyst.scan.deep`, version `0.2.0`, revision `3`. The
 format is **experimental**: it can change incompatibly between releases. Always
 check `format`, `format_version` and `format_revision` first. Tabalyst does not
 migrate a document of another revision; it makes it again. See [Add histograms and
@@ -17,10 +17,10 @@ exact medians](deep.md) for what the command does.
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "status": "complete",
   "base": {
-    "format_revision": 3,
+    "format_revision": 4,
     "engine_version": "0.7.0",
     "source_sha256": "6d4d860f...",
     "config_sha256": "67dbd515...",
@@ -219,8 +219,9 @@ three values.
 
 `modes` lists the values tied for the most frequent, ten at most.
 
-**`pattern_counts`**: the inferred patterns of a field counted on every value of
-the file, in the original domain.
+**`pattern_counts`**: the families, patterns and nodes that the scan inferred for a
+field (see [Inferred patterns](format.md#inferred-patterns)) counted on every value
+of the file, in the original domain.
 
 ```json
 {
@@ -228,21 +229,67 @@ the file, in the original domain.
   "accuracy": "exact",
   "computed_from": "source",
   "grammar_version": 2,
+  "algorithm_version": 1,
   "values": 3000,
   "matched": 2990,
-  "candidates": [{"id": "f1.p1", "render": "AA9999'A'", "occurrences": 2100}],
-  "other": 10,
-  "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
-  "overlaps": []
+  "families": [{
+    "id": "f1",
+    "occurrences": 2990,
+    "distinct": {"count": 2410, "accuracy": "exact"},
+    "patterns": [{
+      "id": "f1.p1",
+      "render": "AA-9999",
+      "occurrences": 2985,
+      "distinct": {"count": 2405, "accuracy": "exact"},
+      "rest": 85,
+      "nodes": [{
+        "id": "f1.p1.n1",
+        "render": "'AK-'9999",
+        "occurrences": 2900,
+        "distinct": {"count": 2300, "accuracy": "exact"},
+        "rest": 2900
+      }]
+    }],
+    "tables": [{
+      "facet": "head:1",
+      "capacity": 512,
+      "cells": [{"value": "AK", "occurrences": 2900},
+                {"value": "KL", "occurrences": 80}],
+      "others": 5,
+      "saturated": true
+    }],
+    "new_variants": {"length": 5, "segment": 80}
+  }],
+  "unknown_structure": 10,
+  "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0}
 }
 ```
 
-`matched` is the sum of the `occurrences` of the candidates, which are the
-patterns of the scan (`derived.patterns`, ids like `f1.p1`), the largest first. They add up: `matched + other +
-excluded = values`, with `excluded` the sum of its three members. An occurrence
-counts for one candidate, the most specific that reads it; `overlaps` says how many
-occurrences several candidates read. `computed_from` is `samples` when the exact
-counts of the scan were enough, `source` when the file was read.
+Every value counts once, for the deepest pattern or node that reads it: `rest` is
+what a pattern or a node reads and none of its `nodes` does, and `occurrences` is
+`rest` plus the `occurrences` of its `nodes`. A family adds up its `patterns`, the
+combinations of lengths that its `lengths` table holds and its new variants of
+length. The values add up: `matched + unknown_structure + excluded = values`, with
+`matched` the sum of the families and `excluded` the sum of its three members. A
+value that no family reads is an observation of structure, never an error.
+
+`new_variants` counts values of a known family that the scan never saw: a set of
+lengths (`length`, the family reads the structure but no pattern has these
+lengths) or the value of a segment that a facet reads (`segment`, such as a prefix
+that was not in the sample), for a facet whose every value in the sample was one of
+its cells. Neither is an unknown structure or an invalid value.
+
+Each `tables` entry counts the values of a facet of the family over every
+occurrence: the cells the scan listed and the values it never saw. At most
+`capacity` cells are kept, the most frequent; `others` counts the occurrences of
+the other values and `saturated` says that the table is limited. The table of
+`lengths` lists combinations of lengths.
+
+`distinct` is `exact` when the scan holds the whole distribution or when the set of
+the distinct values fit `deep.patterns.distinct_bytes`; otherwise it is `at_least`
+and the count is a lower bound. `computed_from` is `samples` when the exact counts
+of the scan were enough (nothing was read), `source` when the file was read. The
+result has the same members either way.
 
 **`periods`**: the dates of a field per calendar period.
 
@@ -940,6 +987,16 @@ The package contains the JSON Schema of the document,
 as the writer. It describes what a reader accepts.
 
 ## Changelog
+
+### Version 0.2.0, revision 3 (in preparation)
+
+The result `pattern_counts` follows the hierarchy of the scan: `families` (each with
+its `patterns` and their `nodes`, the `distinct` values of each with their accuracy,
+the `tables` of its facets and its `new_variants`), `unknown_structure` and
+`algorithm_version` replace `candidates`, `other` and `overlaps`. The settings have the
+member `deep.patterns` (`table_bytes`, `distinct_bytes`), and the plan parameters of
+`pattern_validation` the members `nodes`, `facets`, `table_bytes` and `distinct_bytes`. A
+document of revision 2 is made again.
 
 ### Version 0.2.0, revision 2
 

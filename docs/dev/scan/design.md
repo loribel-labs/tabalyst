@@ -1889,6 +1889,7 @@ makes by itself writes none.
 | 2026-10-13 | PT-C1 | New decision O66, section 9.2 rewritten, a note in 12.8: the character profile of `string_characteristics` (`scanner/characters.py`, `CharacterProfile`), `limits.max_special_characters` and `max_distinct_characters`, the column page of the Report, `tests/scan/test_character_profile.py`. Format revision 4 (in preparation). | Lot C1 of the Patterns plan: the first pass counts the classes and the characters of the strings. |
 | 2026-10-13 | PT-P3 | Section 18.12: the discovery of families and patterns of fixed length (`scanner/patterninfer.py` rewritten: families by structure key, merge of composition at the edge of a block, one pattern per combination of lengths, constants folded, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, table of lengths), grammar 2 and `ALGORITHM_VERSION` 1, the models of the hierarchy (`PatternFamily`, `FamilyPattern`, `PatternNode`, `PatternTable`, `PatternOtherStructures`), the flat view `FieldPatternsComplete.candidates` that the consumers read until P6 and P7, `check_scan` of the sums, `tests/patterns/pattern_adapter.py` (`discover`, `published_text`), lot P3 enabled. Format revision 4 (in preparation). | Lot P3 of the Patterns plan. |
 | 2026-10-13 | PT-P4 | Section 18.12: the content facets, the score and the tree (`scanner/patternfacets.py`: heads, tails and whole tokens read as prefixes, gain and sigma in bits, the G test and `beyond_chance`, `dependence`; `scanner/patterntree.py`: the primary facet, the nested dependent facets, the compressions, the depth cut; `patterninfer.py`: the signature of a node, the tables of content, the cap of three characters on folded constants, `max_patterns` removing the lowest gain first), the setting `max_depth` and its limit, the models (`PatternNode.nodes`, `facet`, `gain`; the tables of content of `PatternTable`), the checks of `check_scan` on nested nodes and tables, `FieldPatternsComplete.unmatched` counting the table of lengths only, lot P4 enabled in `tests/patterns`. Format revision 4 (in preparation). | Lot P4 of the Patterns plan. |
+| 2026-10-13 | PT-P6 | Section 20.9: the validation of the hierarchy (`secondpass/patternreader.py`, the reader compiled from the entry and from the population of the discovery, checked against the samples; `secondpass/patterns.py`, the accumulator: exclusive counts by pattern and node, tables of the facets bounded in bytes, new variants of length and of segment, distinct values with their accuracy, sums checked), the models `PatternCounts` (revision 3 of the second-pass document: `families`, `unknown_structure`, `algorithm_version`; `candidates` and `other` remain as views), the settings `deep.patterns` (`table_bytes`, `distinct_bytes`), `PatternNode.value` and `PatternNode.also` in the Scan (a node is read by the text it fixes and by what the nodes merged into it fix), the analyzer method `family_recognizer`, `NS_PER_CELL["pattern_family"]` and `["pattern_facet"]`, `COST_MODEL_VERSION` 14, `benchmarks/pattern_validation.py`, lot P6 enabled in `tests/patterns`. | Lot P6 of the Patterns plan: FR-004, FR-013 to FR-015, TR-002 to TR-005, TR-007, TR-009, AC-005, AC-013 to AC-017, AC-027. |
 | 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -2770,7 +2771,10 @@ datasets and fields, each with `dataset`, `field`, `status` (`complete`, `not_ap
   the family, a table of `lengths` completes the patterns to the family), and `examples` (up to three ids of entries of
   the samples, the smallest);
 - a node: `id` (`f1.p1.n1`, then `f1.p1.n1.n1` below it), `parent`, `level` (2 under a pattern), `facet`
-  (`composition`, `head:N`, `tail:N` or `token:N`), `signature`, `render`, `d`, `o`, `role` (`principal` for the first
+  (`composition`, `head:N`, `tail:N` or `token:N`), `value` (the text it fixes at its facet, spelled from the left; the
+  text of the structure for a node of composition), `also` (when a node whose only child covers 95% of it merged into
+  this one, what that node fixed: `{facet, value}` pairs, omitted when empty; the validation reads a node by `value` and
+  checks `also`), `signature`, `render`, `d`, `o`, `role` (`principal` for the first
   of its siblings, the largest, `secondary`), `gain` (`bits_d`, `bits_o`, `sigma`, for a node of content only) and
   `nodes` (omitted when empty). The nodes of composition add up to their pattern; those of content are a strict part
   of their parent;
@@ -3352,7 +3356,7 @@ the overlaps (`NS_PER_CELL["matcher_base"]` and `["matcher"]`: one candidate
 (670 measured: it pays the date detector once for each distinct string of the file,
 since it remembers up to 16,384 strings a column, `PERIOD_MEMO_ENTRIES`; with the
 memory of 1,024 strings of the other analyses it read the same dates again in every
-batch, 1,700 to 2,900 ns). `COST_MODEL_VERSION` was 4 then (7 since lot 14, whose extraction has three tiers, 20.19, and 8 since lot 15, whose residual tables and search for repeated values are measured by tier, 20.20 and 20.21). Both measures include the
+batch, 1,700 to 2,900 ns). Lot P6 replaces the validation of the lot 7c: a value is read once in its family, so the cost is `NS_PER_CELL["pattern_family"]` (1,300) and `["pattern_facet"]` (150) for each facet the family reads, whatever the number of patterns and nodes (AC-027, `benchmarks.md`); `COST_MODEL_VERSION` is 14. `COST_MODEL_VERSION` was 4 then (7 since lot 14, whose extraction has three tiers, 20.19, and 8 since lot 15, whose residual tables and search for repeated values are measured by tier, 20.20 and 20.21). Both measures include the
 reading of the cell. The proxies they replace (35 and 98 ns) did not and were
 far too low.
 
@@ -3505,7 +3509,7 @@ numeric, length, temporal and pattern facts, exposure. It never sees a value.
 | `numeric_histogram` | integer, number, and mixed with a numeric measure | constant (`constant_value`: no spread, no division by zero) | no values, exposure, measure not complete, mixed type (`unreliable_type`) | `dense_counts` (an integer field whose minimum and maximum are integers, at most 65,536 integers apart: exact median, mode, quantiles from one state) or `bins` (`deep.bins`, 100 by default, with the `strategy` of `deep.bin_strategy`) |
 | `length_distribution` | text, mixed | the length histogram is complete (`lengths_complete`, always today) | no values, exposure | `dense_counts` |
 | `exact_distinct` | any field | the cardinality is complete (`distinct_exact`) | no values, exposure (unless `deep.sensitive.enabled`, O61: then a masked or hidden field is counted, parameter `exposure`, utility 40), long texts only, values longer than 64 characters (`not_compactable`) | `compact_set`, key `integer` (digit strings, JSON integers) or `text`: the key the expected values take, the firm bound always charges a text (20.8) |
-| `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `compiled_matcher` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
+| `pattern_validation` | fields with an inferred pattern entry | never (the Scan counts distinct values, not occurrences) | failed or absent inference, exposure, no candidate | `family_recognizer` (20.9); reads no source when the inference read every distinct value (`all_distinct`): the occurrences follow from the exact counts of the samples |
 | `pearson_correlation` | pairs of numeric columns of one dataset (lot 8a, 20.12) | never | a column that is not numeric, hidden by exposure or repeated inside a record (explicit pairs only; the exploration counts the columns it leaves out) | `pairwise_complete`, parameter `min_pairs` |
 | `category_crosstab` | a category column and a column of text, mixed or integer values of one dataset, by feature (lot 8b, 20.13) | never | a category that is not one (no exact frequencies, one value, too many, near unique, an identifier, exposed, repeated), a column without the classes of the feature (no pattern, one length, no listed value), a column that is its own feature | `contingency_table`, parameters `feature`, `max_categories`, `examples`, `rule_purity`, `rule_support` (and `max_classes`, `prefix_length`) |
 | `category_stats` | a category column and a numeric column of one dataset (lot 16c, 20.23) | never | a category that is not one (as for `category_crosstab`), a number that is not numeric, hidden, repeated, constant, an identifier or without a complete measure, a column that is its own category | `group_moments`, parameters `max_categories`, `bins`, `strategy` |
@@ -3844,8 +3848,9 @@ MB for a firm bound of 443 MB. Run again, nothing is read: 0.9 s.
 
 `secondpass/patterns.py` counts the occurrences of the whole field against the families that the discovery of 18.12
 found in a sample of its distinct values. It works in the original domain (21): the raw string of a content cell,
-blanks and case kept. It is the lot P6 of the Patterns plan that implements this section; the code of the lot 7c (a
-flat list of compiled candidates) stays until then.
+blanks and case kept. The lot P6 of the Patterns plan implements this section (`secondpass/patternreader.py`, the reader
+of the hierarchy, and `secondpass/patterns.py`, the accumulator and its result); the flat list of compiled candidates
+of the lot 7c is gone.
 
 **Population.** The content values of the field, `values`, which the Scan counted (`values.count`; empty cells and null
 markers are its `missing`). A value longer than `scan.pattern_inference.max_value_length` is excluded as `too_long`,
@@ -3898,7 +3903,41 @@ of length are the family's, those of the children of a node and of its rest are 
 `values`, and every ancestor is the sum of its descendants; the executor checks it, and `check_scan` checks it in a
 stored result.
 
-**Result (PAT-09, PAT-10, FR-014, FR-020).** `pattern_counts`, revision 2 of the second-pass document:
+*How the lot P6 reads it.* The reader is compiled once for a field, from its entry in the Scan and from the
+population the discovery read (`patterninfer.tokenized_population`), which it recognizes again: that gives it, for each
+family, the combinations of lengths the sample showed (which pattern holds each, or the table of `lengths`) and, for each
+facet the nodes or the tables of the family read, the segments the sample showed that no cell holds (`seen`): a facet
+is *closed* when there are none, every value of the sample being a cell, and *open* otherwise. It checks the
+entry against the samples as it learns (the distinct values of every family, pattern and node must be the published ones,
+and the values of no family those of `other`) and raises `scan_mismatch` otherwise: a Scan whose entry was not made from its
+samples is never validated. A node is read by its `value` (the text it fixes at its facet; the structure for a node of
+composition), found in the dictionary of the children of its parent, so the work of a value is its tokenization, the key of
+its structure, the lengths of its tokens, a few lookups down the tree (the depth is at most 5) and one lookup for each facet.
+It does not grow with the number of patterns and nodes (AC-027). Every string, ASCII or not, goes through the same
+tokenization as the discovery, so the two cannot disagree; a test checks that a value a pattern signature reads is counted in
+that pattern. A value is found in its pattern by its lengths and not by its signature: the constants a pattern folds do not
+bind its members (DEC-026). Each facet has one **table** of the validation, whatever reads it in the discovery (nodes, a table,
+or both): its cells are the texts the discovery listed, read at the lengths they have (a head or a tail at each, the whole
+token), and a value that is no cell is counted in a new cell of the table when the sample never showed it (up to the capacity,
+`deep.patterns.table_bytes` divided by 128 bytes a cell) when the sample showed the facet closed, and in `others` otherwise. The table keeps the `capacity` most
+frequent cells, the ties in the order of their text, and `saturated` says that `others` is not empty. A whole token longer than
+four characters is never a cell. A value that the table of a closed facet counts as new is a **new variant of segment**, unless its
+lengths are new; an open facet (the digits of a date, the tail of a code, in a sample that showed many) flags nothing,
+since the sample already showed that it varies: a new value there is not a variant, and a rule that said otherwise
+would call a quarter of the dates of a file new when the sample holds a hundred of them. A value of a known structure whose lengths neither a pattern nor the sample's table of lengths holds is a
+**new variant of length**, counted in its family only. The occurrences of the family are those of its patterns, of its table of
+lengths and of its new variants of length. The distinct values are counted in one set of the field, whose bytes are
+`deep.patterns.distinct_bytes` (90 bytes and the text for each value): a value that does not fit is not held and not counted,
+so the `distinct` of the bucket that would have counted it, and of the nodes above, is `at_least`. When the Scan holds every
+distinct value (`computed_from` `samples`) each entry is a distinct value, no set is needed and the counts are exact. The
+accumulator is a plain object that a worker process receives and returns by pickle (a field is held by one worker), and the
+result is the same whatever the number of workers (TR-005). The result is `PatternCounts`: `families` (each with `patterns`
+and their `nodes` as `PatternNodeCount`, `occurrences`, `distinct`, `rest`; `tables`; `new_variants`), `unknown_structure`,
+`excluded`; the lists `candidates` and the count `other` are views of it for the readers of the flat list (until the lot P7).
+The cost per cell is `NS_PER_CELL["pattern_family"]` and `["pattern_facet"]` for each facet (AC-027,
+`benchmarks/pattern_validation.py`, `benchmarks.md`).
+
+**Result (PAT-09, PAT-10, FR-014, FR-020).** `pattern_counts`, revision 3 of the second-pass document:
 `computed_from` (`samples` or `source`), `grammar_version`, `algorithm_version`, `values`, `matched`, `families`
 (each family, its patterns and nodes with `occurrences` and `distinct`, its `tables` with their `cells` and `others`,
 `saturated`, its `new_variants` as `{length, segment}` counts), `unknown_structure`, `excluded`. The number of values is the Scan's, so a source that

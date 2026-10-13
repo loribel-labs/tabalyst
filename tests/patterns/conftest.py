@@ -19,7 +19,7 @@ The marker is not ``lot``: ``tests/scan`` uses it for the Scan lots.
 import pytest
 
 KNOWN_LOTS = frozenset({"P2", "P3", "P4", "P5", "P6", "P7"})
-ENABLED_LOTS: set[str] = {"P2", "P3", "P4"}
+ENABLED_LOTS: set[str] = {"P2", "P3", "P4", "P6"}
 
 
 def pytest_configure(config):

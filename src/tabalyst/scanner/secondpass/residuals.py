@@ -9,7 +9,9 @@ detector finds invalid or does not match, and keeps ten examples. This keeps the
 values themselves with exact counts: each is tracked from its first appearance,
 so what it counts is exact, up to ``max_tracked`` distinct values per source and
 state; the occurrences of values met after that are only counted. A pattern is
-read as the validation reads it (one matcher, the most specific candidate wins);
+read as the flat list of candidates of the Scan reads it (one matcher, the most
+specific candidate wins), which is not how the validation of the hierarchy reads it
+(design 20.9) until the Patterns lot P7 makes this analysis read the hierarchy;
 a detector is replayed as the first pass decides it.
 """
 

@@ -34,7 +34,7 @@ from tabalyst.scanner.planner.models import AnalysisPlan, PlanBase
 # values are JSON data, as in ``scanner/models.py``.
 FORMAT = "tabalyst.scan.deep"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 2
+FORMAT_REVISION = 3
 
 # Quantile levels of every histogram, as (numerator, denominator) of the rank
 # fraction: 5%, 25%, 50% (the median), 75% and 95%.
@@ -291,12 +291,86 @@ class FrequencyTable(ScanModel):
 
 
 class PatternTally(ScanModel):
-    """Occurrences read by one candidate pattern of the Scan, exclusively: each
-    value counts for the most specific candidate that reads it (PAT-08)."""
+    """Occurrences read by one pattern of the Scan, as the readers of the flat
+    list see them (``PatternCounts.candidates``): a view, never written."""
 
     id: str
     render: str
     occurrences: int
+
+
+class PatternDistinct(ScanModel):
+    """Distinct values of a pattern or of a node: ``exact`` when the Scan holds
+    the whole distribution or the set of the distinct values fit its budget,
+    ``at_least`` otherwise. A bound is never presented as exact (FR-014)."""
+
+    count: int
+    accuracy: Literal["exact", "at_least"]
+
+
+class PatternNodeCount(ScanModel):
+    """A pattern or a node of the discovery counted over every occurrence.
+
+    ``occurrences`` include those of the nodes below; ``rest`` is what this node
+    reads and none of its nodes does (all of ``occurrences`` for a leaf), so that
+    ``rest`` plus the occurrences of ``nodes`` is ``occurrences``. ``render`` is
+    that of the Scan."""
+
+    id: str
+    render: str
+    occurrences: int
+    distinct: PatternDistinct
+    rest: int
+    nodes: list[PatternNodeCount] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty(self, handler) -> dict[str, Any]:
+        data = handler(self)
+        if not data.get("nodes"):
+            data.pop("nodes", None)
+        return data
+
+
+class PatternCountCell(ScanModel):
+    value: str
+    occurrences: int
+
+
+class PatternTableCount(ScanModel):
+    """The values of a facet of a family counted over every occurrence, the
+    cells the discovery listed and the values it never saw. At most ``capacity``
+    cells are kept, the most frequent; the others are summed in ``others`` and
+    ``saturated`` says that the table is limited (TR-003). For the table of
+    ``lengths`` the cells are combinations of lengths."""
+
+    facet: str
+    capacity: int
+    cells: list[PatternCountCell]
+    others: int
+    saturated: bool
+
+
+class PatternNewVariants(ScanModel):
+    """Occurrences of a known family that the discovery never saw: a set of
+    lengths of its variable tokens (``length``), or a value of a segment that one
+    of its facets reads (``segment``). Neither is an error or an unknown
+    structure (FR-015)."""
+
+    length: int
+    segment: int
+
+
+class PatternFamilyCount(ScanModel):
+    """A family counted over every occurrence. ``occurrences`` are those of its
+    ``patterns``, of the combinations of lengths that its table of ``lengths``
+    holds and its new variants of length."""
+
+    id: str
+    occurrences: int
+    distinct: PatternDistinct
+    patterns: list[PatternNodeCount]
+    tables: list[PatternTableCount]
+    new_variants: PatternNewVariants
 
 
 class PatternExclusions(ScanModel):
@@ -310,34 +384,49 @@ class PatternExclusions(ScanModel):
     too_complex: int
 
 
-class PatternOverlapCount(ScanModel):
-    """Occurrences that every pattern of ``patterns`` reads (they are counted
-    for one of them only, in ``candidates``)."""
-
-    patterns: list[str]
-    occurrences: int
-
-
 class PatternCounts(ScanModel):
-    """The inferred patterns of a field counted over every occurrence (PAT-07 to
-    PAT-09), in the original domain. ``values`` is the content values of the
-    field (empty cells and null markers are the Scan's ``missing``); they add up:
-    ``matched + other + excluded = values``, with ``matched`` the sum of the
-    candidates. A value that no candidate reads is an observation of structure,
-    never an error (PAT-10). ``computed_from`` says whether the source was read
-    (``source``) or the exact counts of a Scan that holds every distinct value
-    were enough (``samples``); the result is the same."""
+    """The hierarchy of patterns of a field counted over every occurrence (design
+    20.9, PAT-21 to PAT-27), in the original domain. ``values`` is the content
+    values of the field (empty cells and null markers are the Scan's
+    ``missing``); they add up: ``matched + unknown_structure + excluded =
+    values``, with ``matched`` the sum of the families. A value that no family
+    reads is an observation of structure, never an error (PAT-10). The counts
+    are exact; ``computed_from`` says whether the source was read (``source``)
+    or the exact counts of a Scan that holds every distinct value were enough
+    (``samples``); the result is the same."""
 
     kind: Literal["pattern_counts"] = "pattern_counts"
     accuracy: Literal["exact"] = "exact"
     computed_from: Literal["source", "samples"]
     grammar_version: int
+    algorithm_version: int
     values: int
     matched: int
-    candidates: list[PatternTally]
-    other: int
+    families: list[PatternFamilyCount]
+    unknown_structure: int
     excluded: PatternExclusions
-    overlaps: list[PatternOverlapCount]
+
+    @property
+    def candidates(self) -> list[PatternTally]:
+        """The patterns as a flat list, for the readers written for the flat
+        list of the lot 7c (until they read the hierarchy): the occurrences of
+        each pattern, nodes included."""
+        return [
+            PatternTally(id=pattern.id, render=pattern.render, occurrences=pattern.occurrences)
+            for family in self.families
+            for pattern in family.patterns
+        ]
+
+    @property
+    def other(self) -> int:
+        """The occurrences that no pattern reads, for the same readers: those of no
+        family, and those of a family that none of its patterns holds (its table of
+        lengths and its new variants of length). With ``candidates`` and the
+        excluded values they add up to ``values``."""
+        in_patterns = sum(
+            pattern.occurrences for family in self.families for pattern in family.patterns
+        )
+        return self.values - sum(self.excluded.model_dump().values()) - in_patterns
 
 
 class DateResolution(ScanModel):

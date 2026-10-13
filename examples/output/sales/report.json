@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T14:22:50.055212Z",
-    "duration_seconds": 0.017698,
+    "started_at": "2026-10-13T17:02:55.945688Z",
+    "duration_seconds": 0.017101,
     "timings": {
-      "reading": 0.002596,
-      "analysis": 0.002147,
-      "finalize": 0.008925,
-      "derived": 0.003616,
-      "other": 0.000413
+      "reading": 0.002862,
+      "analysis": 0.002059,
+      "finalize": 0.008163,
+      "derived": 0.003589,
+      "other": 0.000428
     },
     "workers": 1,
-    "peak_memory_bytes": 67391488
+    "peak_memory_bytes": 68698112
   },
   "source": {
     "format": "excel",
@@ -8636,6 +8636,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "00",
                       "signature": [
                         {
                           "kind": "literal",
@@ -8676,6 +8677,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "01",
                       "signature": [
                         {
                           "kind": "literal",
@@ -8716,6 +8718,7 @@
                           "parent": "f1.p1.n2",
                           "level": 3,
                           "facet": "head:3",
+                          "value": "010",
                           "signature": [
                             {
                               "kind": "literal",
@@ -8756,6 +8759,7 @@
                           "parent": "f1.p1.n2",
                           "level": 3,
                           "facet": "head:3",
+                          "value": "011",
                           "signature": [
                             {
                               "kind": "literal",
@@ -8904,6 +8908,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "01",
                       "signature": [
                         {
                           "kind": "literal",
@@ -8950,6 +8955,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "03",
                       "signature": [
                         {
                           "kind": "literal",
@@ -8996,6 +9002,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "04",
                       "signature": [
                         {
                           "kind": "literal",
@@ -9042,6 +9049,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "05",
                       "signature": [
                         {
                           "kind": "literal",
@@ -9088,6 +9096,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "02",
                       "signature": [
                         {
                           "kind": "literal",
@@ -9330,11 +9339,11 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "status": "complete",
       "base": {
         "format_revision": 4,
@@ -9392,6 +9401,10 @@
           "infer_order": true,
           "min_evidence": 3
         },
+        "patterns": {
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
+        },
         "residuals": {
           "max_listed": 20,
           "max_tracked": 10000,
@@ -9431,13 +9444,13 @@
           "max_tracked": 10000
         }
       },
-      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
+      "settings_sha256": "3699905ac2675231e146461e4181eea25097cd46c9be94493cf96a3ba6b1b837",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 13,
-        "plan_id": "2b799860e2bdbbe3bbb96272b6c63b84ea082169d47aa8e4ad6d015a10d413d9",
+        "cost_model_version": 14,
+        "plan_id": "f37922fd5878432fc67444f55759d4c4c644b08dd0e5f3d25c7ae96b599de73a",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -9474,9 +9487,9 @@
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 25258294,
-            "expected": 25461274,
-            "max": 26105042
+            "min": 25259566,
+            "expected": 25468321,
+            "max": 26152514
           },
           "beyond_automatic": []
         },
@@ -10583,13 +10596,17 @@
           {
             "id": "pattern_validation:rows:column_1",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_1",
             "display": "order_id",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 5,
+              "facets": 1,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -10607,19 +10624,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 6272,
+                "expected": 9647,
+                "max": 33272
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1450,
               "states": [
                 {
                   "key": "patterns:datasets/rows/fields/column_1",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 5248,
+                    "expected": 8623,
+                    "max": 32248
                   }
                 },
                 {
@@ -10636,7 +10653,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 4,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -10650,13 +10667,17 @@
           {
             "id": "pattern_validation:rows:column_2",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_2",
             "display": "order_date",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 6,
+              "facets": 2,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -10674,19 +10695,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 7320,
+                "expected": 9720,
+                "max": 26520
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1600,
               "states": [
                 {
                   "key": "patterns:datasets/rows/fields/column_2",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 6296,
+                    "expected": 8696,
+                    "max": 25496
                   }
                 },
                 {
@@ -10703,7 +10724,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 4,
               "satisfied_by": null
             },
             "execution": {
@@ -10717,7 +10738,7 @@
           {
             "id": "pattern_validation:rows:column_3",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_3",
             "display": "customer",
@@ -10753,7 +10774,7 @@
           {
             "id": "pattern_validation:rows:column_4",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_4",
             "display": "email",
@@ -10789,7 +10810,7 @@
           {
             "id": "pattern_validation:rows:column_5",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_5",
             "display": "region",
@@ -10825,7 +10846,7 @@
           {
             "id": "pattern_validation:rows:column_6",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "rows",
             "field": "column_6",
             "display": "channel",
@@ -14219,21 +14240,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T14:26:42.181761Z",
-        "duration_seconds": 0.000128,
+        "started_at": "2026-10-13T17:08:46.842624Z",
+        "duration_seconds": 0.00676,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000128
+          "reading": 0.002859,
+          "analysis": 0.000597,
+          "other": 0.003303
         },
         "workers": 1,
-        "peak_memory_bytes": 68386816,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 8,
+        "peak_memory_bytes": 70057984,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 120,
+        "cells_read": 120,
+        "executed": 2,
+        "reused": 6,
         "skipped": 0
       },
       "analyses": [
@@ -15926,75 +15947,293 @@
         {
           "id": "pattern_validation:rows:column_1",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "rows",
           "field": "column_1",
           "display": "order_id",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 5,
+            "facets": 1,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "2fb6a455728ff64c6de72cae600ba2c57490da0e12aad2ce3a79c0827a82d2ed",
+          "key": "21bc45c3f60efab2229c7ed372b25961fac9f859daabda44e4388f2976a8256f",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "source",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 120,
             "matched": 120,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'SO-0'999",
-                "occurrences": 120
+                "id": "f1",
+                "occurrences": 120,
+                "distinct": {
+                  "count": 120,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'SO-0'999",
+                    "occurrences": 120,
+                    "distinct": {
+                      "count": 120,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'SO-00'99",
+                        "occurrences": 99,
+                        "distinct": {
+                          "count": 99,
+                          "accuracy": "exact"
+                        },
+                        "rest": 99
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'SO-01'99",
+                        "occurrences": 21,
+                        "distinct": {
+                          "count": 21,
+                          "accuracy": "exact"
+                        },
+                        "rest": 1,
+                        "nodes": [
+                          {
+                            "id": "f1.p1.n2.n1",
+                            "render": "'SO-010'9",
+                            "occurrences": 10,
+                            "distinct": {
+                              "count": 10,
+                              "accuracy": "exact"
+                            },
+                            "rest": 10
+                          },
+                          {
+                            "id": "f1.p1.n2.n2",
+                            "render": "'SO-011'9",
+                            "occurrences": 10,
+                            "distinct": {
+                              "count": 10,
+                              "accuracy": "exact"
+                            },
+                            "rest": 10
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:3",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "00",
+                        "occurrences": 99
+                      },
+                      {
+                        "value": "010",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "011",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "01",
+                        "occurrences": 1
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
           "id": "pattern_validation:rows:column_2",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "rows",
           "field": "column_2",
           "display": "order_date",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 6,
+            "facets": 2,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "b7b899e390fd015d9d844586e118f1a8611beb92b0bde854b87c11f5c2b69e72",
+          "key": "eb1cca06ada2f19a9dff912f4c752ef0f95673c14ddef10908dc8c48a2878910",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 120,
             "matched": 120,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'2026-0'9-99",
-                "occurrences": 120
+                "id": "f1",
+                "occurrences": 120,
+                "distinct": {
+                  "count": 75,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'2026-0'9-99",
+                    "occurrences": 120,
+                    "distinct": {
+                      "count": 75,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'2026-01-'99",
+                        "occurrences": 31,
+                        "distinct": {
+                          "count": 16,
+                          "accuracy": "exact"
+                        },
+                        "rest": 31
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'2026-03-'99",
+                        "occurrences": 30,
+                        "distinct": {
+                          "count": 15,
+                          "accuracy": "exact"
+                        },
+                        "rest": 30
+                      },
+                      {
+                        "id": "f1.p1.n3",
+                        "render": "'2026-04-'99",
+                        "occurrences": 16,
+                        "distinct": {
+                          "count": 15,
+                          "accuracy": "exact"
+                        },
+                        "rest": 16
+                      },
+                      {
+                        "id": "f1.p1.n4",
+                        "render": "'2026-05-'99",
+                        "occurrences": 15,
+                        "distinct": {
+                          "count": 15,
+                          "accuracy": "exact"
+                        },
+                        "rest": 15
+                      },
+                      {
+                        "id": "f1.p1.n5",
+                        "render": "'2026-02-'99",
+                        "occurrences": 28,
+                        "distinct": {
+                          "count": 14,
+                          "accuracy": "exact"
+                        },
+                        "rest": 28
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:3",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "01",
+                        "occurrences": 31
+                      },
+                      {
+                        "value": "03",
+                        "occurrences": 30
+                      },
+                      {
+                        "value": "02",
+                        "occurrences": 28
+                      },
+                      {
+                        "value": "04",
+                        "occurrences": 16
+                      },
+                      {
+                        "value": "05",
+                        "occurrences": 15
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  },
+                  {
+                    "facet": "head:5",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "1",
+                        "occurrences": 40
+                      },
+                      {
+                        "value": "2",
+                        "occurrences": 40
+                      },
+                      {
+                        "value": "0",
+                        "occurrences": 36
+                      }
+                    ],
+                    "others": 4,
+                    "saturated": true
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
@@ -16378,12 +16617,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T14:26:42.216211Z",
+    "generated_at": "2026-10-13T17:08:46.899005Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0718,
+    "processing_seconds": 0.0886,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

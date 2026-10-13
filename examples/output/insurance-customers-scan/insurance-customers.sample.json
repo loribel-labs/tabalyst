@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-13T14:26:46.696232Z",
-    "duration_seconds": 0.202764,
+    "started_at": "2026-10-13T17:08:51.503258Z",
+    "duration_seconds": 0.189669,
     "timings": {
-      "reading": 0.179954,
-      "selection": 0.002569,
-      "other": 0.020241
+      "reading": 0.169202,
+      "selection": 0.002655,
+      "other": 0.017812
     },
-    "peak_memory_bytes": 100438016,
+    "peak_memory_bytes": 100958208,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,7 +120,7 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "c6bd7c963664e07134f0f7350f84b3e6ee8ab1628d5d7fe540fde1e90a3da5d9",
+    "plan_id": "6f28fa32258ed6aa6f24da528fbe9467fa2be8990e365f638ae9cd33efab58b8",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
@@ -216,7 +216,7 @@
       "optional": 245,
       "not_evaluable": 14,
       "dropped": 0,
-      "total_weight": 2119.697456,
+      "total_weight": 2119.684408,
       "families": [
         {
           "family": "low_cardinality",
@@ -232,7 +232,7 @@
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 222.792697
+          "total_weight": 222.779649
         },
         {
           "family": "numeric",
@@ -12157,47 +12157,6 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_31",
-          "params": {
-            "pattern": "f1.p2"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 781,
-          "share": 0.260333333333,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.389647,
-          "base": 4.0,
-          "rarity": 0.097412,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
         "id": "numeric:rows:column_33:numeric_zero",
         "family": "numeric",
         "dataset": "rows",
@@ -12290,6 +12249,47 @@
           "version": 1,
           "source": "scan",
           "ref": "derived/patterns/rows/column_23",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 817,
+          "share": 0.272333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.376599,
+          "base": 4.0,
+          "rarity": 0.09415,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_31",
           "params": {
             "pattern": "f1.p2"
           }
@@ -16807,8 +16807,8 @@
     "observed": 376,
     "covered": 376,
     "weighted": {
-      "total": 1996.776008,
-      "covered": 1992.776008,
+      "total": 1996.76296,
+      "covered": 1992.76296,
       "share": 0.997997
     },
     "mandatory": {
@@ -16830,8 +16830,8 @@
         "defined": 44,
         "evaluable": 44,
         "covered": 44,
-        "weight": 222.792697,
-        "weight_covered": 222.792697
+        "weight": 222.779649,
+        "weight_covered": 222.779649
       },
       {
         "family": "numeric",
@@ -16878,8 +16878,10 @@
     "missing_total": 1,
     "verification": {
       "checked": 361,
-      "agreed": 361,
-      "disagreed": []
+      "agreed": 360,
+      "disagreed": [
+        "structured_string:rows:column_31:pattern_matches:f1.p2"
+      ]
     }
   },
   "statements": [
@@ -19061,14 +19063,6 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
-      "status": "covered",
-      "observed": 781,
-      "candidates": 2,
-      "expected": 781,
-      "agrees": true
-    },
-    {
       "id": "numeric:rows:column_33:numeric_zero",
       "status": "covered",
       "observed": 5,
@@ -19091,6 +19085,14 @@
       "candidates": 2,
       "expected": 817,
       "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 781,
+      "candidates": 2,
+      "expected": 817,
+      "agrees": false
     },
     {
       "id": "structured_string:rows:column_30:pattern_matches:f1.p2",

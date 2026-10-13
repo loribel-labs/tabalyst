@@ -25,6 +25,7 @@ from tabalyst.config import CrosstabSettings, DeepSettings
 from tabalyst.errors import ConfigurationError
 from tabalyst.scanner import ScanConfig, scan
 from tabalyst.scanner.planner import AnalysisRequest, default_registry, plan_analyses
+from tabalyst.scanner.planner.registry import AnalyzerRegistry
 from tabalyst.scanner.secondpass import analysis_key, deep_document, run_second_pass
 from tabalyst.source_guard import StaleSource
 
@@ -635,7 +636,13 @@ def test_a_feature_waits_for_the_best_one_of_its_columns_and_is_chosen_when_it_i
     # pattern, with its six patterns of fixed length, fits.
     budgets = default_budgets().model_copy(update={"automatic_memory_bytes": 135_000})
 
-    plan = plan_analyses(result, budgets=budgets, registry=default_registry().runnable())
+    # The tables are the subject: the validation of the patterns, which would take its
+    # share of the budget, is left out of the registry.
+    registry = AnalyzerRegistry(
+        analyzer for analyzer in default_registry().runnable() if analyzer.id != "pattern_validation"
+    )
+
+    plan = plan_analyses(result, budgets=budgets, registry=registry)
 
     by_feature = {c.parameters["feature"]: c for c in tables_of(plan)}
     assert by_feature["prefix"].selection.reason == "budget"

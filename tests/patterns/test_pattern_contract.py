@@ -299,7 +299,7 @@ def test_one_reading_of_the_source_serves_fifteen_columns() -> None:
     # AC-015.
     fields = [
         replace(item, name=f"{item.name}_{n}")
-        for n in range(4)
+        for n in range(5)
         for item in (field("RC-03/scaled"), field("RC-13/identifiers"), field("RC-16/lots"))
     ][:15]
     assert len(fields) == 15

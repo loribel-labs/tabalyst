@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T14:22:47.536244Z",
-    "duration_seconds": 0.028006,
+    "started_at": "2026-10-13T17:02:53.352248Z",
+    "duration_seconds": 0.025878,
     "timings": {
-      "reading": 0.003604,
-      "analysis": 0.003804,
-      "finalize": 0.013616,
-      "derived": 0.006459,
-      "other": 0.000523
+      "reading": 0.003461,
+      "analysis": 0.003687,
+      "finalize": 0.012257,
+      "derived": 0.005976,
+      "other": 0.000497
     },
     "workers": 1,
-    "peak_memory_bytes": 67493888
+    "peak_memory_bytes": 69246976
   },
   "source": {
     "format": "json",
@@ -16304,6 +16304,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "001",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16338,6 +16339,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "002",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16372,6 +16374,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "003",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16406,6 +16409,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "004",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16440,6 +16444,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "005",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16474,6 +16479,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "000",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16653,6 +16659,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "tail:1",
+                      "value": "000",
                       "signature": [
                         {
                           "kind": "digit_ascii",
@@ -16781,6 +16788,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "0",
                       "signature": [
                         {
                           "kind": "literal",
@@ -16832,6 +16840,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "1",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17080,6 +17089,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "005",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17125,6 +17135,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "002",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17170,6 +17181,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "003",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17215,6 +17227,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "001",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17260,6 +17273,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "000",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17305,6 +17319,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:2",
+                      "value": "004",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17487,6 +17502,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "07",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17533,6 +17549,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "06",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17579,6 +17596,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "02",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17625,6 +17643,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "05",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17671,6 +17690,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "01",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17717,6 +17737,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "08",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17763,6 +17784,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "03",
                       "signature": [
                         {
                           "kind": "literal",
@@ -17809,6 +17831,7 @@
                       "parent": "f1.p1",
                       "level": 2,
                       "facet": "head:3",
+                      "value": "04",
                       "signature": [
                         {
                           "kind": "literal",
@@ -18201,11 +18224,11 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
-      "format_revision": 2,
+      "format_revision": 3,
       "status": "complete",
       "base": {
         "format_revision": 4,
@@ -18263,6 +18286,10 @@
           "infer_order": true,
           "min_evidence": 3
         },
+        "patterns": {
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
+        },
         "residuals": {
           "max_listed": 20,
           "max_tracked": 10000,
@@ -18302,13 +18329,13 @@
           "max_tracked": 10000
         }
       },
-      "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
+      "settings_sha256": "3699905ac2675231e146461e4181eea25097cd46c9be94493cf96a3ba6b1b837",
       "plan": {
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 13,
-        "plan_id": "fc12a92d57eef4b36b4749c49fb71252d4908d3dc1734ead7ef41e1ed02eacea",
+        "cost_model_version": 14,
+        "plan_id": "6900fe1ede85a072cd45b2e7aa3e314fed37d91cfac05a5ccb669e8c14513b57",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
@@ -18345,9 +18372,9 @@
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 26259965,
-            "expected": 26717034,
-            "max": 28037793
+            "min": 26263669,
+            "expected": 26731828,
+            "max": 28130224
           },
           "beyond_automatic": []
         },
@@ -20672,13 +20699,17 @@
           {
             "id": "pattern_validation:$.customers[]:f1",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f1",
             "display": "id",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 7,
+              "facets": 1,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -20696,19 +20727,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 8368,
+                "expected": 9328,
+                "max": 16048
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1450,
               "states": [
                 {
                   "key": "patterns:datasets/$.customers[]/fields/f1",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 7344,
+                    "expected": 8304,
+                    "max": 15024
                   }
                 },
                 {
@@ -20725,7 +20756,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 7,
               "satisfied_by": null
             },
             "execution": {
@@ -20739,7 +20770,7 @@
           {
             "id": "pattern_validation:$.customers[]:f2",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f2",
             "display": "name",
@@ -20775,7 +20806,7 @@
           {
             "id": "pattern_validation:$.customers[]:f3",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f3",
             "display": "email",
@@ -20811,7 +20842,7 @@
           {
             "id": "pattern_validation:$.customers[]:f4",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f4",
             "display": "phone",
@@ -20847,7 +20878,7 @@
           {
             "id": "pattern_validation:$.customers[]:f6",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f6",
             "display": "address.city",
@@ -20883,13 +20914,17 @@
           {
             "id": "pattern_validation:$.customers[]:f7",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f7",
             "display": "address.postal_code",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 2,
+              "facets": 1,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -20907,19 +20942,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 3128,
+                "expected": 3208,
+                "max": 3768
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1450,
               "states": [
                 {
                   "key": "patterns:datasets/$.customers[]/fields/f7",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 2104,
+                    "expected": 2184,
+                    "max": 2744
                   }
                 },
                 {
@@ -20936,7 +20971,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -20950,13 +20985,17 @@
           {
             "id": "pattern_validation:$.customers[]:f8",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f8",
             "display": "signup_date",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 3,
+              "facets": 2,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -20974,19 +21013,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 4176,
+                "expected": 6032,
+                "max": 19024
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1600,
               "states": [
                 {
                   "key": "patterns:datasets/$.customers[]/fields/f8",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 3152,
+                    "expected": 5008,
+                    "max": 18000
                   }
                 },
                 {
@@ -21017,7 +21056,7 @@
           {
             "id": "pattern_validation:$.customers[]:f11",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f11",
             "display": "tags[]",
@@ -21053,13 +21092,17 @@
           {
             "id": "pattern_validation:$.customers[]:f14",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f14",
             "display": "orders[].order_id",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 7,
+              "facets": 2,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -21077,19 +21120,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 8368,
+                "expected": 13618,
+                "max": 50375
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1600,
               "states": [
                 {
                   "key": "patterns:datasets/$.customers[]/fields/f14",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 7344,
+                    "expected": 12594,
+                    "max": 49351
                   }
                 },
                 {
@@ -21106,7 +21149,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
@@ -21120,13 +21163,17 @@
           {
             "id": "pattern_validation:$.customers[]:f15",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f15",
             "display": "orders[].ordered_at",
-            "method": "compiled_matcher",
+            "method": "family_recognizer",
             "parameters": {
-              "patterns": 1
+              "patterns": 1,
+              "nodes": 9,
+              "facets": 2,
+              "table_bytes": 65536,
+              "distinct_bytes": 1048576
             },
             "outputs": [
               "pattern_counts",
@@ -21144,19 +21191,19 @@
             },
             "costs": {
               "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
+                "min": 10464,
+                "expected": 13408,
+                "max": 34016
               },
               "cpu": "moderate",
-              "cell_ns": 900,
+              "cell_ns": 1600,
               "states": [
                 {
                   "key": "patterns:datasets/$.customers[]/fields/f15",
                   "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
+                    "min": 9440,
+                    "expected": 12384,
+                    "max": 32992
                   }
                 },
                 {
@@ -21173,7 +21220,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -21187,7 +21234,7 @@
           {
             "id": "pattern_validation:$.customers[]:f16",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f16",
             "display": "orders[].status",
@@ -21223,7 +21270,7 @@
           {
             "id": "pattern_validation:$.customers[]:f19",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f19",
             "display": "orders[].items[].product",
@@ -21259,7 +21306,7 @@
           {
             "id": "pattern_validation:$.customers[]:f21",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f21",
             "display": "orders[].items[].unit_price",
@@ -21295,7 +21342,7 @@
           {
             "id": "pattern_validation:$.customers[]:f22",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f22",
             "display": "orders[].total",
@@ -21331,7 +21378,7 @@
           {
             "id": "pattern_validation:$.customers[]:f23",
             "analyzer": "pattern_validation",
-            "analyzer_version": 1,
+            "analyzer_version": 2,
             "dataset": "$.customers[]",
             "field": "f23",
             "display": "orders[].currency",
@@ -21429,7 +21476,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 9,
               "satisfied_by": null
             },
             "execution": {
@@ -21505,7 +21552,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 12,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -21688,7 +21735,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 10,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -25548,21 +25595,21 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T14:26:40.019334Z",
-        "duration_seconds": 0.000174,
+        "started_at": "2026-10-13T17:08:44.639491Z",
+        "duration_seconds": 0.009817,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000174
+          "reading": 0.002985,
+          "analysis": 0.000934,
+          "other": 0.005898
         },
         "workers": 1,
-        "peak_memory_bytes": 71356416,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 15,
+        "peak_memory_bytes": 73007104,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 60,
+        "cells_read": 119,
+        "executed": 5,
+        "reused": 10,
         "skipped": 0
       },
       "analyses": [
@@ -26867,186 +26914,743 @@
         {
           "id": "pattern_validation:$.customers[]:f1",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "$.customers[]",
           "field": "f1",
           "display": "id",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 7,
+            "facets": 1,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "d9d34158303be194ed79f1084eea66e69baf2da28d5d7bd6b7d9c296e3b38948",
+          "key": "2a9d2815f5ffbf60eac743f18033a4a62f33601d316579ceaae7ca1036410092",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 60,
             "matched": 60,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'C00'99",
-                "occurrences": 60
+                "id": "f1",
+                "occurrences": 60,
+                "distinct": {
+                  "count": 60,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'C00'99",
+                    "occurrences": 60,
+                    "distinct": {
+                      "count": 60,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'C001'9",
+                        "occurrences": 10,
+                        "distinct": {
+                          "count": 10,
+                          "accuracy": "exact"
+                        },
+                        "rest": 10
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'C002'9",
+                        "occurrences": 10,
+                        "distinct": {
+                          "count": 10,
+                          "accuracy": "exact"
+                        },
+                        "rest": 10
+                      },
+                      {
+                        "id": "f1.p1.n3",
+                        "render": "'C003'9",
+                        "occurrences": 10,
+                        "distinct": {
+                          "count": 10,
+                          "accuracy": "exact"
+                        },
+                        "rest": 10
+                      },
+                      {
+                        "id": "f1.p1.n4",
+                        "render": "'C004'9",
+                        "occurrences": 10,
+                        "distinct": {
+                          "count": 10,
+                          "accuracy": "exact"
+                        },
+                        "rest": 10
+                      },
+                      {
+                        "id": "f1.p1.n5",
+                        "render": "'C005'9",
+                        "occurrences": 10,
+                        "distinct": {
+                          "count": 10,
+                          "accuracy": "exact"
+                        },
+                        "rest": 10
+                      },
+                      {
+                        "id": "f1.p1.n6",
+                        "render": "'C000'9",
+                        "occurrences": 9,
+                        "distinct": {
+                          "count": 9,
+                          "accuracy": "exact"
+                        },
+                        "rest": 9
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:2",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "001",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "002",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "003",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "004",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "005",
+                        "occurrences": 10
+                      },
+                      {
+                        "value": "000",
+                        "occurrences": 9
+                      }
+                    ],
+                    "others": 1,
+                    "saturated": true
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
           "id": "pattern_validation:$.customers[]:f7",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "$.customers[]",
           "field": "f7",
           "display": "address.postal_code",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 2,
+            "facets": 1,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "0963581c1a976a27c0470cc21dd0d9b1fdf9389c727b677522b041fbee92886a",
+          "key": "3244985c32d2fa5f9d6ba493f6e7a982a0c5d19c860e7cc41933d190adc461bc",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 51,
             "matched": 51,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "99999",
-                "occurrences": 51
+                "id": "f1",
+                "occurrences": 51,
+                "distinct": {
+                  "count": 5,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "99999",
+                    "occurrences": 51,
+                    "distinct": {
+                      "count": 5,
+                      "accuracy": "exact"
+                    },
+                    "rest": 25,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "99'000'",
+                        "occurrences": 26,
+                        "distinct": {
+                          "count": 3,
+                          "accuracy": "exact"
+                        },
+                        "rest": 26
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "tail:1",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "000",
+                        "occurrences": 26
+                      }
+                    ],
+                    "others": 25,
+                    "saturated": true
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
           "id": "pattern_validation:$.customers[]:f8",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "$.customers[]",
           "field": "f8",
           "display": "signup_date",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 3,
+            "facets": 2,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "92c7360ad118baccd6a160678a7378daed27493408cc17d6e21182f704c64e72",
+          "key": "f73ce68ce7928813ce0b314b6898bc905d96664c1581132fe4f7a663b0b3256a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 60,
             "matched": 60,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'2025-'99-99",
-                "occurrences": 60
+                "id": "f1",
+                "occurrences": 60,
+                "distinct": {
+                  "count": 58,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'2025-'99-99",
+                    "occurrences": 60,
+                    "distinct": {
+                      "count": 58,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'2025-0'9-99",
+                        "occurrences": 47,
+                        "distinct": {
+                          "count": 46,
+                          "accuracy": "exact"
+                        },
+                        "rest": 47
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'2025-1'9-99",
+                        "occurrences": 13,
+                        "distinct": {
+                          "count": 12,
+                          "accuracy": "exact"
+                        },
+                        "rest": 13
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:3",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "0",
+                        "occurrences": 47
+                      },
+                      {
+                        "value": "1",
+                        "occurrences": 13
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  },
+                  {
+                    "facet": "head:5",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "1",
+                        "occurrences": 21
+                      },
+                      {
+                        "value": "0",
+                        "occurrences": 20
+                      },
+                      {
+                        "value": "2",
+                        "occurrences": 19
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
           "id": "pattern_validation:$.customers[]:f14",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "$.customers[]",
           "field": "f14",
           "display": "orders[].order_id",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 7,
+            "facets": 2,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "ba45ba376b0cb925eeb0800e32f8d9ce9b4035489ace6e1703acf4b48040e099",
+          "key": "33fb6f2f60fc5f886bf6bd7320ac0f271d9a30b83e71fdfc8d490b8702aa81ea",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "source",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 119,
             "matched": 119,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'O00'99-9",
-                "occurrences": 119
+                "id": "f1",
+                "occurrences": 119,
+                "distinct": {
+                  "count": 119,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'O00'99-9",
+                    "occurrences": 119,
+                    "distinct": {
+                      "count": 119,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'O005'9-9",
+                        "occurrences": 22,
+                        "distinct": {
+                          "count": 22,
+                          "accuracy": "exact"
+                        },
+                        "rest": 22
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'O002'9-9",
+                        "occurrences": 22,
+                        "distinct": {
+                          "count": 22,
+                          "accuracy": "exact"
+                        },
+                        "rest": 22
+                      },
+                      {
+                        "id": "f1.p1.n3",
+                        "render": "'O003'9-9",
+                        "occurrences": 21,
+                        "distinct": {
+                          "count": 21,
+                          "accuracy": "exact"
+                        },
+                        "rest": 21
+                      },
+                      {
+                        "id": "f1.p1.n4",
+                        "render": "'O001'9-9",
+                        "occurrences": 20,
+                        "distinct": {
+                          "count": 20,
+                          "accuracy": "exact"
+                        },
+                        "rest": 20
+                      },
+                      {
+                        "id": "f1.p1.n5",
+                        "render": "'O000'9-9",
+                        "occurrences": 15,
+                        "distinct": {
+                          "count": 15,
+                          "accuracy": "exact"
+                        },
+                        "rest": 15
+                      },
+                      {
+                        "id": "f1.p1.n6",
+                        "render": "'O004'9-9",
+                        "occurrences": 19,
+                        "distinct": {
+                          "count": 19,
+                          "accuracy": "exact"
+                        },
+                        "rest": 19
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:2",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "002",
+                        "occurrences": 22
+                      },
+                      {
+                        "value": "005",
+                        "occurrences": 22
+                      },
+                      {
+                        "value": "003",
+                        "occurrences": 21
+                      },
+                      {
+                        "value": "001",
+                        "occurrences": 20
+                      },
+                      {
+                        "value": "004",
+                        "occurrences": 19
+                      },
+                      {
+                        "value": "000",
+                        "occurrences": 15
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  },
+                  {
+                    "facet": "head:4",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "1",
+                        "occurrences": 49
+                      },
+                      {
+                        "value": "2",
+                        "occurrences": 36
+                      },
+                      {
+                        "value": "3",
+                        "occurrences": 23
+                      }
+                    ],
+                    "others": 11,
+                    "saturated": true
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
           "id": "pattern_validation:$.customers[]:f15",
           "analyzer": "pattern_validation",
-          "analyzer_version": 1,
+          "analyzer_version": 2,
           "dataset": "$.customers[]",
           "field": "f15",
           "display": "orders[].ordered_at",
-          "method": "compiled_matcher",
+          "method": "family_recognizer",
           "parameters": {
-            "patterns": 1
+            "patterns": 1,
+            "nodes": 9,
+            "facets": 2,
+            "table_bytes": 65536,
+            "distinct_bytes": 1048576
           },
           "domain": "original",
-          "key": "e6ea440730beac5cef26b907eea1fcc0e44c8ba51cd35549e0a0b0017ce8bfd0",
+          "key": "0a61a6e47ffd1bdb660eab081cac71e80a9df198772de4b2193529c19bc5d9b4",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 2,
+            "algorithm_version": 1,
             "values": 119,
             "matched": 119,
-            "candidates": [
+            "families": [
               {
-                "id": "f1.p1",
-                "render": "'2026-0'9-99",
-                "occurrences": 119
+                "id": "f1",
+                "occurrences": 119,
+                "distinct": {
+                  "count": 92,
+                  "accuracy": "exact"
+                },
+                "patterns": [
+                  {
+                    "id": "f1.p1",
+                    "render": "'2026-0'9-99",
+                    "occurrences": 119,
+                    "distinct": {
+                      "count": 92,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1",
+                        "render": "'2026-07-'99",
+                        "occurrences": 19,
+                        "distinct": {
+                          "count": 15,
+                          "accuracy": "exact"
+                        },
+                        "rest": 19
+                      },
+                      {
+                        "id": "f1.p1.n2",
+                        "render": "'2026-06-'99",
+                        "occurrences": 17,
+                        "distinct": {
+                          "count": 14,
+                          "accuracy": "exact"
+                        },
+                        "rest": 17
+                      },
+                      {
+                        "id": "f1.p1.n3",
+                        "render": "'2026-02-'99",
+                        "occurrences": 20,
+                        "distinct": {
+                          "count": 13,
+                          "accuracy": "exact"
+                        },
+                        "rest": 20
+                      },
+                      {
+                        "id": "f1.p1.n4",
+                        "render": "'2026-05-'99",
+                        "occurrences": 14,
+                        "distinct": {
+                          "count": 12,
+                          "accuracy": "exact"
+                        },
+                        "rest": 14
+                      },
+                      {
+                        "id": "f1.p1.n5",
+                        "render": "'2026-01-'99",
+                        "occurrences": 17,
+                        "distinct": {
+                          "count": 11,
+                          "accuracy": "exact"
+                        },
+                        "rest": 17
+                      },
+                      {
+                        "id": "f1.p1.n6",
+                        "render": "'2026-08-'99",
+                        "occurrences": 13,
+                        "distinct": {
+                          "count": 11,
+                          "accuracy": "exact"
+                        },
+                        "rest": 13
+                      },
+                      {
+                        "id": "f1.p1.n7",
+                        "render": "'2026-03-'99",
+                        "occurrences": 12,
+                        "distinct": {
+                          "count": 9,
+                          "accuracy": "exact"
+                        },
+                        "rest": 12
+                      },
+                      {
+                        "id": "f1.p1.n8",
+                        "render": "'2026-04-'99",
+                        "occurrences": 7,
+                        "distinct": {
+                          "count": 7,
+                          "accuracy": "exact"
+                        },
+                        "rest": 7
+                      }
+                    ]
+                  }
+                ],
+                "tables": [
+                  {
+                    "facet": "head:3",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "02",
+                        "occurrences": 20
+                      },
+                      {
+                        "value": "07",
+                        "occurrences": 19
+                      },
+                      {
+                        "value": "01",
+                        "occurrences": 17
+                      },
+                      {
+                        "value": "06",
+                        "occurrences": 17
+                      },
+                      {
+                        "value": "05",
+                        "occurrences": 14
+                      },
+                      {
+                        "value": "08",
+                        "occurrences": 13
+                      },
+                      {
+                        "value": "03",
+                        "occurrences": 12
+                      },
+                      {
+                        "value": "04",
+                        "occurrences": 7
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  },
+                  {
+                    "facet": "head:5",
+                    "capacity": 512,
+                    "cells": [
+                      {
+                        "value": "0",
+                        "occurrences": 44
+                      },
+                      {
+                        "value": "1",
+                        "occurrences": 40
+                      },
+                      {
+                        "value": "2",
+                        "occurrences": 35
+                      }
+                    ],
+                    "others": 0,
+                    "saturated": false
+                  }
+                ],
+                "new_variants": {
+                  "length": 0,
+                  "segment": 0
+                }
               }
             ],
-            "other": 0,
+            "unknown_structure": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
               "too_complex": 0
-            },
-            "overlaps": []
+            }
           }
         },
         {
@@ -28411,12 +29015,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T14:26:40.089830Z",
+    "generated_at": "2026-10-13T17:08:44.740146Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1234,
+    "processing_seconds": 0.1481,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,

@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.scan.deep",
   "format_version": "0.2.0",
-  "format_revision": 2,
+  "format_revision": 3,
   "status": "complete",
   "base": {
     "format_revision": 4,
@@ -59,6 +59,10 @@
       "infer_order": true,
       "min_evidence": 3
     },
+    "patterns": {
+      "table_bytes": 65536,
+      "distinct_bytes": 1048576
+    },
     "residuals": {
       "max_listed": 20,
       "max_tracked": 10000,
@@ -98,13 +102,13 @@
       "max_tracked": 10000
     }
   },
-  "settings_sha256": "5795cd17e0b5ddf43a09d343a9c253911a674d9f27ef65a391c10c8809319e49",
+  "settings_sha256": "3699905ac2675231e146461e4181eea25097cd46c9be94493cf96a3ba6b1b837",
   "plan": {
     "planner": "tabalyst.planner",
     "planner_version": 1,
     "utility_version": 1,
-    "cost_model_version": 13,
-    "plan_id": "0cce0ab3492e12b6ff786a0f2c666bb9def41de1fb75a8c0e54908c6c29c8b3e",
+    "cost_model_version": 14,
+    "plan_id": "17d34f248629ccc692cb4499b89cebf47f733e5357ae1bdded304c0b6a9a182e",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
@@ -141,9 +145,9 @@
       "second_pass_required": true,
       "executable": true,
       "memory": {
-        "min": 38976558,
-        "expected": 46398909,
-        "max": 72290547
+        "min": 38859318,
+        "expected": 46720732,
+        "max": 75685843
       },
       "beyond_automatic": []
     },
@@ -1792,7 +1796,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 101,
+          "priority": 93,
           "satisfied_by": null
         },
         "execution": {
@@ -1869,7 +1873,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 100,
+          "priority": 92,
           "satisfied_by": null
         },
         "execution": {
@@ -1946,7 +1950,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 102,
+          "priority": 95,
           "satisfied_by": null
         },
         "execution": {
@@ -2023,7 +2027,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 103,
+          "priority": 96,
           "satisfied_by": null
         },
         "execution": {
@@ -3993,7 +3997,7 @@
       {
         "id": "pattern_validation:rows:column_1",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_1",
         "display": "filiale",
@@ -4029,13 +4033,17 @@
       {
         "id": "pattern_validation:rows:column_2",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_2",
         "display": "id_client",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 8
+          "patterns": 8,
+          "nodes": 17,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4053,19 +4061,19 @@
         },
         "costs": {
           "memory": {
-            "min": 42056,
-            "expected": 42056,
-            "max": 42056
+            "min": 18848,
+            "expected": 81946,
+            "max": 523632
           },
           "cpu": "moderate",
-          "cell_ns": 1600,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_2",
               "memory": {
-                "min": 41032,
-                "expected": 41032,
-                "max": 41032
+                "min": 17824,
+                "expected": 80922,
+                "max": 522608
               }
             },
             {
@@ -4082,7 +4090,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 97,
+          "priority": 103,
           "satisfied_by": null
         },
         "execution": {
@@ -4096,7 +4104,7 @@
       {
         "id": "pattern_validation:rows:column_3",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_3",
         "display": "civilite",
@@ -4132,7 +4140,7 @@
       {
         "id": "pattern_validation:rows:column_4",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_4",
         "display": "prenom",
@@ -4168,7 +4176,7 @@
       {
         "id": "pattern_validation:rows:column_5",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_5",
         "display": "nom",
@@ -4204,13 +4212,17 @@
       {
         "id": "pattern_validation:rows:column_6",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_6",
         "display": "date_naissance",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 2
+          "patterns": 2,
+          "nodes": 13,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4228,19 +4240,19 @@
         },
         "costs": {
           "memory": {
-            "min": 11288,
-            "expected": 11288,
-            "max": 11288
+            "min": 14656,
+            "expected": 75344,
+            "max": 500164
           },
           "cpu": "moderate",
-          "cell_ns": 1000,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_6",
               "memory": {
-                "min": 10264,
-                "expected": 10264,
-                "max": 10264
+                "min": 13632,
+                "expected": 74320,
+                "max": 499140
               }
             },
             {
@@ -4257,7 +4269,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 88,
+          "priority": 102,
           "satisfied_by": null
         },
         "execution": {
@@ -4271,7 +4283,7 @@
       {
         "id": "pattern_validation:rows:column_7",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_7",
         "display": "sexe",
@@ -4307,7 +4319,7 @@
       {
         "id": "pattern_validation:rows:column_8",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_8",
         "display": "langue_preferee",
@@ -4343,7 +4355,7 @@
       {
         "id": "pattern_validation:rows:column_10",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_10",
         "display": "type_voie",
@@ -4379,7 +4391,7 @@
       {
         "id": "pattern_validation:rows:column_11",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_11",
         "display": "nom_voie",
@@ -4415,7 +4427,7 @@
       {
         "id": "pattern_validation:rows:column_12",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_12",
         "display": "orientation",
@@ -4451,7 +4463,7 @@
       {
         "id": "pattern_validation:rows:column_14",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_14",
         "display": "ville",
@@ -4487,7 +4499,7 @@
       {
         "id": "pattern_validation:rows:column_15",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_15",
         "display": "province_code",
@@ -4523,13 +4535,17 @@
       {
         "id": "pattern_validation:rows:column_16",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_16",
         "display": "province_nom",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 16
+          "patterns": 16,
+          "nodes": 16,
+          "facets": 1,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4547,19 +4563,19 @@
         },
         "costs": {
           "memory": {
-            "min": 83080,
-            "expected": 83080,
-            "max": 83080
+            "min": 17800,
+            "expected": 18088,
+            "max": 20104
           },
           "cpu": "moderate",
-          "cell_ns": 2400,
+          "cell_ns": 1450,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_16",
               "memory": {
-                "min": 82056,
-                "expected": 82056,
-                "max": 82056
+                "min": 16776,
+                "expected": 17064,
+                "max": 19080
               }
             },
             {
@@ -4576,7 +4592,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 98,
+          "priority": 89,
           "satisfied_by": null
         },
         "execution": {
@@ -4590,13 +4606,17 @@
       {
         "id": "pattern_validation:rows:column_17",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_17",
         "display": "code_postal",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 5
+          "patterns": 5,
+          "nodes": 11,
+          "facets": 1,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4614,19 +4634,19 @@
         },
         "costs": {
           "memory": {
-            "min": 26672,
-            "expected": 26672,
-            "max": 26672
+            "min": 12560,
+            "expected": 56702,
+            "max": 365701
           },
           "cpu": "moderate",
-          "cell_ns": 1300,
+          "cell_ns": 1450,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_17",
               "memory": {
-                "min": 25648,
-                "expected": 25648,
-                "max": 25648
+                "min": 11536,
+                "expected": 55678,
+                "max": 364677
               }
             },
             {
@@ -4643,7 +4663,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 96,
+          "priority": 97,
           "satisfied_by": null
         },
         "execution": {
@@ -4657,7 +4677,7 @@
       {
         "id": "pattern_validation:rows:column_18",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_18",
         "display": "pays_code",
@@ -4693,7 +4713,7 @@
       {
         "id": "pattern_validation:rows:column_19",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_19",
         "display": "courriel",
@@ -4729,7 +4749,7 @@
       {
         "id": "pattern_validation:rows:column_20",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_20",
         "display": "telephone",
@@ -4765,13 +4785,17 @@
       {
         "id": "pattern_validation:rows:column_21",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_21",
         "display": "id_contrat",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 3
+          "patterns": 3,
+          "nodes": 9,
+          "facets": 1,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4789,19 +4813,19 @@
         },
         "costs": {
           "memory": {
-            "min": 16416,
-            "expected": 16416,
-            "max": 16416
+            "min": 10464,
+            "expected": 57807,
+            "max": 389215
           },
           "cpu": "moderate",
-          "cell_ns": 1100,
+          "cell_ns": 1450,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_21",
               "memory": {
-                "min": 15392,
-                "expected": 15392,
-                "max": 15392
+                "min": 9440,
+                "expected": 56783,
+                "max": 388191
               }
             },
             {
@@ -4818,7 +4842,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 93,
+          "priority": 98,
           "satisfied_by": null
         },
         "execution": {
@@ -4832,7 +4856,7 @@
       {
         "id": "pattern_validation:rows:column_22",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_22",
         "display": "type_contrat",
@@ -4868,13 +4892,17 @@
       {
         "id": "pattern_validation:rows:column_23",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_23",
         "display": "date_debut",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 2
+          "patterns": 2,
+          "nodes": 8,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4892,19 +4920,19 @@
         },
         "costs": {
           "memory": {
-            "min": 11288,
-            "expected": 11288,
-            "max": 11288
+            "min": 9416,
+            "expected": 64104,
+            "max": 446924
           },
           "cpu": "moderate",
-          "cell_ns": 1000,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_23",
               "memory": {
-                "min": 10264,
-                "expected": 10264,
-                "max": 10264
+                "min": 8392,
+                "expected": 63080,
+                "max": 445900
               }
             },
             {
@@ -4921,7 +4949,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 89,
+          "priority": 101,
           "satisfied_by": null
         },
         "execution": {
@@ -4935,13 +4963,17 @@
       {
         "id": "pattern_validation:rows:column_24",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_24",
         "display": "date_fin",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 2
+          "patterns": 2,
+          "nodes": 19,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -4959,19 +4991,19 @@
         },
         "costs": {
           "memory": {
-            "min": 11288,
-            "expected": 11288,
-            "max": 11288
+            "min": 20944,
+            "expected": 60232,
+            "max": 335252
           },
           "cpu": "moderate",
-          "cell_ns": 1000,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_24",
               "memory": {
-                "min": 10264,
-                "expected": 10264,
-                "max": 10264
+                "min": 19920,
+                "expected": 59208,
+                "max": 334228
               }
             },
             {
@@ -4988,7 +5020,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 90,
+          "priority": 94,
           "satisfied_by": null
         },
         "execution": {
@@ -5002,7 +5034,7 @@
       {
         "id": "pattern_validation:rows:column_25",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_25",
         "display": "statut_contrat",
@@ -5038,7 +5070,7 @@
       {
         "id": "pattern_validation:rows:column_27",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_27",
         "display": "frequence_paiement",
@@ -5074,7 +5106,7 @@
       {
         "id": "pattern_validation:rows:column_28",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_28",
         "display": "mode_paiement",
@@ -5110,13 +5142,17 @@
       {
         "id": "pattern_validation:rows:column_29",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_29",
         "display": "agence_code",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 2
+          "patterns": 2,
+          "nodes": 7,
+          "facets": 2,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -5134,19 +5170,19 @@
         },
         "costs": {
           "memory": {
-            "min": 11288,
-            "expected": 11288,
-            "max": 11288
+            "min": 8368,
+            "expected": 9232,
+            "max": 15280
           },
           "cpu": "moderate",
-          "cell_ns": 1000,
+          "cell_ns": 1600,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_29",
               "memory": {
-                "min": 10264,
-                "expected": 10264,
-                "max": 10264
+                "min": 7344,
+                "expected": 8208,
+                "max": 14256
               }
             },
             {
@@ -5163,7 +5199,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 92,
+          "priority": 88,
           "satisfied_by": null
         },
         "execution": {
@@ -5177,13 +5213,17 @@
       {
         "id": "pattern_validation:rows:column_30",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_30",
         "display": "date_creation",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 3
+          "patterns": 3,
+          "nodes": 7,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -5201,19 +5241,19 @@
         },
         "costs": {
           "memory": {
-            "min": 16416,
-            "expected": 16416,
-            "max": 16416
+            "min": 8368,
+            "expected": 62456,
+            "max": 441076
           },
           "cpu": "moderate",
-          "cell_ns": 1100,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_30",
               "memory": {
-                "min": 15392,
-                "expected": 15392,
-                "max": 15392
+                "min": 7344,
+                "expected": 61432,
+                "max": 440052
               }
             },
             {
@@ -5230,7 +5270,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 94,
+          "priority": 100,
           "satisfied_by": null
         },
         "execution": {
@@ -5244,13 +5284,17 @@
       {
         "id": "pattern_validation:rows:column_31",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_31",
         "display": "date_modification",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 3
+          "patterns": 3,
+          "nodes": 11,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -5268,19 +5312,19 @@
         },
         "costs": {
           "memory": {
-            "min": 16416,
-            "expected": 16416,
-            "max": 16416
+            "min": 12560,
+            "expected": 62573,
+            "max": 412668
           },
           "cpu": "moderate",
-          "cell_ns": 1100,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_31",
               "memory": {
-                "min": 15392,
-                "expected": 15392,
-                "max": 15392
+                "min": 11536,
+                "expected": 61549,
+                "max": 411644
               }
             },
             {
@@ -5297,7 +5341,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 95,
+          "priority": 99,
           "satisfied_by": null
         },
         "execution": {
@@ -5311,13 +5355,17 @@
       {
         "id": "pattern_validation:rows:column_32",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_32",
         "display": "date_reclamation",
-        "method": "compiled_matcher",
+        "method": "family_recognizer",
         "parameters": {
-          "patterns": 2
+          "patterns": 2,
+          "nodes": 5,
+          "facets": 3,
+          "table_bytes": 65536,
+          "distinct_bytes": 1048576
         },
         "outputs": [
           "pattern_counts",
@@ -5335,19 +5383,19 @@
         },
         "costs": {
           "memory": {
-            "min": 11288,
-            "expected": 11288,
-            "max": 11288
+            "min": 6272,
+            "expected": 30835,
+            "max": 202776
           },
           "cpu": "moderate",
-          "cell_ns": 1000,
+          "cell_ns": 1750,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_32",
               "memory": {
-                "min": 10264,
-                "expected": 10264,
-                "max": 10264
+                "min": 5248,
+                "expected": 29811,
+                "max": 201752
               }
             },
             {
@@ -5364,7 +5412,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 91,
+          "priority": 90,
           "satisfied_by": null
         },
         "execution": {
@@ -5378,7 +5426,7 @@
       {
         "id": "pattern_validation:rows:column_34",
         "analyzer": "pattern_validation",
-        "analyzer_version": 1,
+        "analyzer_version": 2,
         "dataset": "rows",
         "field": "column_34",
         "display": "reclamation_status",
@@ -5813,7 +5861,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 99,
+          "priority": 91,
           "satisfied_by": null
         },
         "execution": {
@@ -16019,21 +16067,21 @@
     ]
   },
   "run": {
-    "started_at": "2026-10-13T14:22:56.348380Z",
-    "duration_seconds": 0.329495,
+    "started_at": "2026-10-13T17:08:48.955407Z",
+    "duration_seconds": 0.064347,
     "timings": {
-      "reading": 0.011147,
-      "analysis": 0.240554,
-      "other": 0.077793
+      "reading": 0.009593,
+      "analysis": 0.035568,
+      "other": 0.019186
     },
     "workers": 1,
-    "peak_memory_bytes": 114208768,
+    "peak_memory_bytes": 113623040,
     "source_read": true,
     "source_verified": true,
     "records_read": 3000,
-    "cells_read": 234000,
-    "executed": 125,
-    "reused": 0,
+    "cells_read": 27000,
+    "executed": 11,
+    "reused": 114,
     "skipped": 0
   },
   "analyses": [
@@ -40779,615 +40827,2652 @@
     {
       "id": "pattern_validation:rows:column_2",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_2",
       "display": "id_client",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 8
+        "patterns": 8,
+        "nodes": 17,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "d56b93c9b25745662927d470683dd99d316671733c7d2db713db9fe2387b66ec",
+      "key": "ca3fc3e0e094ec31edc0889d6fb7a89a9ed0c164bff3839fd26db9c2b4bcfaa5",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
         "matched": 3000,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'ONT00'99999",
-            "occurrences": 246
+            "id": "f1",
+            "occurrences": 247,
+            "distinct": {
+              "count": 246,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'ONT00'99999",
+                "occurrences": 246,
+                "distinct": {
+                  "count": 245,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'ONT001'9999",
+                    "occurrences": 95,
+                    "distinct": {
+                      "count": 94,
+                      "accuracy": "exact"
+                    },
+                    "rest": 95
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'ONT000'9999",
+                    "occurrences": 97,
+                    "distinct": {
+                      "count": 97,
+                      "accuracy": "exact"
+                    },
+                    "rest": 97
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'ONT002'9999",
+                    "occurrences": 54,
+                    "distinct": {
+                      "count": 54,
+                      "accuracy": "exact"
+                    },
+                    "rest": 54
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "AAA999999",
+                "occurrences": 1,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 1
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:2",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "000",
+                    "occurrences": 98
+                  },
+                  {
+                    "value": "001",
+                    "occurrences": 95
+                  },
+                  {
+                    "value": "002",
+                    "occurrences": 54
+                  }
+                ],
+                "others": 0,
+                "saturated": false
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p1",
-            "render": "'CLI-00'999999",
-            "occurrences": 2159
+            "id": "f2",
+            "occurrences": 2185,
+            "distinct": {
+              "count": 2178,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f2.p1",
+                "render": "'CLI-00'999999",
+                "occurrences": 2159,
+                "distinct": {
+                  "count": 2152,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f2.p1.n1",
+                    "render": "'CLI-000'99999",
+                    "occurrences": 1108,
+                    "distinct": {
+                      "count": 1105,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1108
+                  },
+                  {
+                    "id": "f2.p1.n2",
+                    "render": "'CLI-001'99999",
+                    "occurrences": 1051,
+                    "distinct": {
+                      "count": 1047,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1051
+                  }
+                ]
+              },
+              {
+                "id": "f2.p2",
+                "render": "'CLI-00'99999",
+                "occurrences": 14,
+                "distinct": {
+                  "count": 14,
+                  "accuracy": "exact"
+                },
+                "rest": 14
+              },
+              {
+                "id": "f2.p3",
+                "render": "'CLI--00'999999",
+                "occurrences": 12,
+                "distinct": {
+                  "count": 12,
+                  "accuracy": "exact"
+                },
+                "rest": 12
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "000",
+                    "occurrences": 1119
+                  },
+                  {
+                    "value": "001",
+                    "occurrences": 1066
+                  }
+                ],
+                "others": 0,
+                "saturated": false
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f3.p1",
-            "render": "'QC-000'9-9999",
-            "occurrences": 558
-          },
-          {
-            "id": "f2.p2",
-            "render": "'CLI-00'99999",
-            "occurrences": 14
-          },
-          {
-            "id": "f2.p3",
-            "render": "'CLI--00'999999",
-            "occurrences": 12
-          },
-          {
-            "id": "f3.p2",
-            "render": "'QC-000'9-999",
-            "occurrences": 5
-          },
-          {
-            "id": "f3.p3",
-            "render": "'QC--000'9-9999",
-            "occurrences": 5
-          },
-          {
-            "id": "f1.p2",
-            "render": "AAA999999",
-            "occurrences": 1
+            "id": "f3",
+            "occurrences": 568,
+            "distinct": {
+              "count": 568,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f3.p1",
+                "render": "'QC-000'9-9999",
+                "occurrences": 558,
+                "distinct": {
+                  "count": 558,
+                  "accuracy": "exact"
+                },
+                "rest": 116,
+                "nodes": [
+                  {
+                    "id": "f3.p1.n1",
+                    "render": "'QC-0004-'9999",
+                    "occurrences": 130,
+                    "distinct": {
+                      "count": 130,
+                      "accuracy": "exact"
+                    },
+                    "rest": 130
+                  },
+                  {
+                    "id": "f3.p1.n2",
+                    "render": "'QC-0002-'9999",
+                    "occurrences": 125,
+                    "distinct": {
+                      "count": 125,
+                      "accuracy": "exact"
+                    },
+                    "rest": 125
+                  },
+                  {
+                    "id": "f3.p1.n3",
+                    "render": "'QC-0000-'9999",
+                    "occurrences": 95,
+                    "distinct": {
+                      "count": 95,
+                      "accuracy": "exact"
+                    },
+                    "rest": 95
+                  },
+                  {
+                    "id": "f3.p1.n4",
+                    "render": "'QC-0003-'9999",
+                    "occurrences": 92,
+                    "distinct": {
+                      "count": 92,
+                      "accuracy": "exact"
+                    },
+                    "rest": 92
+                  }
+                ]
+              },
+              {
+                "id": "f3.p2",
+                "render": "'QC-000'9-999",
+                "occurrences": 5,
+                "distinct": {
+                  "count": 5,
+                  "accuracy": "exact"
+                },
+                "rest": 5
+              },
+              {
+                "id": "f3.p3",
+                "render": "'QC--000'9-9999",
+                "occurrences": 5,
+                "distinct": {
+                  "count": 5,
+                  "accuracy": "exact"
+                },
+                "rest": 5
+              }
+            ],
+            "tables": [
+              {
+                "facet": "token:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "0004",
+                    "occurrences": 133
+                  },
+                  {
+                    "value": "0002",
+                    "occurrences": 126
+                  },
+                  {
+                    "value": "0000",
+                    "occurrences": 96
+                  },
+                  {
+                    "value": "0003",
+                    "occurrences": 94
+                  }
+                ],
+                "others": 119,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_6",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_6",
       "display": "date_naissance",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 2
+        "patterns": 2,
+        "nodes": 13,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "8b699ad508d27aa2d655406ced41c8e93e5e32e7ff506567fda052094fa483cb",
+      "key": "2b1709dd1a7b776d1459b03fd13d92ddc1efb476e2fc49a2c37b9333594fcf60",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 2994,
         "matched": 2985,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "9999-99-99",
-            "occurrences": 2169
-          },
-          {
-            "id": "f1.p2",
-            "render": "99-99-9999",
-            "occurrences": 816
+            "id": "f1",
+            "occurrences": 2985,
+            "distinct": {
+              "count": 2880,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "9999-99-99",
+                "occurrences": 2169,
+                "distinct": {
+                  "count": 2075,
+                  "accuracy": "exact"
+                },
+                "rest": 3,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'196'9-99-99",
+                    "occurrences": 334,
+                    "distinct": {
+                      "count": 320,
+                      "accuracy": "exact"
+                    },
+                    "rest": 334
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'194'9-99-99",
+                    "occurrences": 299,
+                    "distinct": {
+                      "count": 286,
+                      "accuracy": "exact"
+                    },
+                    "rest": 67,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n2.n1",
+                        "render": "'194'9'-0'9-99",
+                        "occurrences": 232,
+                        "distinct": {
+                          "count": 221,
+                          "accuracy": "exact"
+                        },
+                        "rest": 232
+                      }
+                    ]
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'199'9-99-99",
+                    "occurrences": 291,
+                    "distinct": {
+                      "count": 278,
+                      "accuracy": "exact"
+                    },
+                    "rest": 291
+                  },
+                  {
+                    "id": "f1.p1.n4",
+                    "render": "'198'9-99-99",
+                    "occurrences": 315,
+                    "distinct": {
+                      "count": 298,
+                      "accuracy": "exact"
+                    },
+                    "rest": 315
+                  },
+                  {
+                    "id": "f1.p1.n5",
+                    "render": "'197'9-99-99",
+                    "occurrences": 301,
+                    "distinct": {
+                      "count": 292,
+                      "accuracy": "exact"
+                    },
+                    "rest": 301
+                  },
+                  {
+                    "id": "f1.p1.n6",
+                    "render": "'195'9-99-99",
+                    "occurrences": 292,
+                    "distinct": {
+                      "count": 283,
+                      "accuracy": "exact"
+                    },
+                    "rest": 292
+                  },
+                  {
+                    "id": "f1.p1.n7",
+                    "render": "'193'9-99-99",
+                    "occurrences": 81,
+                    "distinct": {
+                      "count": 76,
+                      "accuracy": "exact"
+                    },
+                    "rest": 81
+                  },
+                  {
+                    "id": "f1.p1.n8",
+                    "render": "'200'9-99-99",
+                    "occurrences": 253,
+                    "distinct": {
+                      "count": 241,
+                      "accuracy": "exact"
+                    },
+                    "rest": 253
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99-9999",
+                "occurrences": 816,
+                "distinct": {
+                  "count": 805,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-19'99",
+                    "occurrences": 719,
+                    "distinct": {
+                      "count": 710,
+                      "accuracy": "exact"
+                    },
+                    "rest": 719
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "99-99'-200'9",
+                    "occurrences": 97,
+                    "distinct": {
+                      "count": 95,
+                      "accuracy": "exact"
+                    },
+                    "rest": 97
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "196",
+                    "occurrences": 334
+                  },
+                  {
+                    "value": "198",
+                    "occurrences": 315
+                  },
+                  {
+                    "value": "197",
+                    "occurrences": 301
+                  },
+                  {
+                    "value": "194",
+                    "occurrences": 299
+                  },
+                  {
+                    "value": "195",
+                    "occurrences": 292
+                  },
+                  {
+                    "value": "199",
+                    "occurrences": 291
+                  },
+                  {
+                    "value": "200",
+                    "occurrences": 253
+                  },
+                  {
+                    "value": "193",
+                    "occurrences": 81
+                  }
+                ],
+                "others": 819,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "0",
+                    "occurrences": 2135
+                  }
+                ],
+                "others": 850,
+                "saturated": true
+              },
+              {
+                "facet": "head:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "19",
+                    "occurrences": 800
+                  },
+                  {
+                    "value": "200",
+                    "occurrences": 97
+                  }
+                ],
+                "others": 2088,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 9,
+        "unknown_structure": 9,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_16",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_16",
       "display": "province_nom",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 16
+        "patterns": 16,
+        "nodes": 16,
+        "facets": 1,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "b1ce6d2d472f833f5c016e2b3e85809c620ada2ce10be2506d41007033bd9444",
+      "key": "84460429f976c2a7bb07bf4273120f6dc7c0f995c1c7418fc210c681a635dabb",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "samples",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
         "matched": 3000,
-        "candidates": [
+        "families": [
           {
-            "id": "f2.p1",
-            "render": "Aaaaaaa",
-            "occurrences": 508
+            "id": "f1",
+            "occurrences": 2224,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "@@@@@@",
+                "occurrences": 2224,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 2224
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f1.p1",
-            "render": "@@@@@@",
-            "occurrences": 2244
+            "id": "f2",
+            "occurrences": 578,
+            "distinct": {
+              "count": 7,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f2.p1",
+                "render": "Aaaaaaa",
+                "occurrences": 508,
+                "distinct": {
+                  "count": 3,
+                  "accuracy": "exact"
+                },
+                "rest": 508
+              },
+              {
+                "id": "f2.p2",
+                "render": "Aaaaa",
+                "occurrences": 5,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 5
+              },
+              {
+                "id": "f2.p3",
+                "render": "Aaaaaa",
+                "occurrences": 10,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 10
+              },
+              {
+                "id": "f2.p4",
+                "render": "Aa{7}",
+                "occurrences": 32,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 32
+              },
+              {
+                "id": "f2.p5",
+                "render": "Aa{11}",
+                "occurrences": 23,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 23
+              }
+            ],
+            "tables": [
+              {
+                "facet": "tail:2",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "a",
+                    "occurrences": 127
+                  },
+                  {
+                    "value": "n",
+                    "occurrences": 28
+                  }
+                ],
+                "others": 423,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p2",
-            "render": "Aaaaa",
-            "occurrences": 5
+            "id": "f3",
+            "occurrences": 142,
+            "distinct": {
+              "count": 3,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f3.p1",
+                "render": "Aaaaaaa-Aa{8}",
+                "occurrences": 56,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 56
+              },
+              {
+                "id": "f3.p2",
+                "render": "Aa{7}-Aaaaaa",
+                "occurrences": 1,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 1
+              },
+              {
+                "id": "f3.p3",
+                "render": "Aa{7}-Aa{10}",
+                "occurrences": 85,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 85
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p3",
-            "render": "Aaaaaa",
-            "occurrences": 0
+            "id": "f4",
+            "occurrences": 11,
+            "distinct": {
+              "count": 2,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f4.p1",
+                "render": "aaaaaa",
+                "occurrences": 10,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 10
+              },
+              {
+                "id": "f4.p2",
+                "render": "a{7}",
+                "occurrences": 1,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 1
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p4",
-            "render": "Aa{7}",
-            "occurrences": 32
+            "id": "f5",
+            "occurrences": 1,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f5.p1",
+                "render": "a{8}-a{11}",
+                "occurrences": 1,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 1
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p5",
-            "render": "Aa{11}",
-            "occurrences": 23
+            "id": "f6",
+            "occurrences": 2,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f6.p1",
+                "render": "Aa{10} aa Aaaa-Aaaaa",
+                "occurrences": 2,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 2
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f3.p1",
-            "render": "Aaaaaaa-Aa{8}",
-            "occurrences": 56
+            "id": "f7",
+            "occurrences": 12,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f7.p1",
+                "render": "Aaaaa-Aaaaa-aa-Aa{7}",
+                "occurrences": 12,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 12
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f3.p2",
-            "render": "Aa{7}-Aaaaaa",
-            "occurrences": 1
+            "id": "f8",
+            "occurrences": 23,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f8.p1",
+                "render": "Aa{7}-@@@@@@",
+                "occurrences": 23,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 23
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f3.p3",
-            "render": "Aa{7}-Aa{10}",
-            "occurrences": 85
-          },
-          {
-            "id": "f4.p1",
-            "render": "aaaaaa",
-            "occurrences": 0
-          },
-          {
-            "id": "f4.p2",
-            "render": "a{7}",
-            "occurrences": 1
-          },
-          {
-            "id": "f5.p1",
-            "render": "a{8}-a{11}",
-            "occurrences": 1
-          },
-          {
-            "id": "f6.p1",
-            "render": "Aa{10} aa Aaaa-Aaaaa",
-            "occurrences": 2
-          },
-          {
-            "id": "f7.p1",
-            "render": "Aaaaa-Aaaaa-aa-Aa{7}",
-            "occurrences": 12
-          },
-          {
-            "id": "f8.p1",
-            "render": "Aa{7}-@@@@@@",
-            "occurrences": 23
-          },
-          {
-            "id": "f9.p1",
-            "render": "@@@-aa-Aaaaaa-@{7}",
-            "occurrences": 7
+            "id": "f9",
+            "occurrences": 7,
+            "distinct": {
+              "count": 1,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f9.p1",
+                "render": "@@@-aa-Aaaaaa-@{7}",
+                "occurrences": 7,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 7
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": [
-          {
-            "patterns": [
-              "f1.p1",
-              "f2.p3"
-            ],
-            "occurrences": 10
-          },
-          {
-            "patterns": [
-              "f1.p1",
-              "f4.p1"
-            ],
-            "occurrences": 10
-          },
-          {
-            "patterns": [
-              "f3.p2",
-              "f8.p1"
-            ],
-            "occurrences": 1
-          }
-        ]
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_17",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_17",
       "display": "code_postal",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 5
+        "patterns": 5,
+        "nodes": 11,
+        "facets": 1,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "06c3772c9561f823b76e71588172003ad3567f29420c0c00ada8c3407072ee03",
+      "key": "16f6e5a2dfe539243830e83dfa28f14abd172ceb9bafeb3e615bdc2e04492859",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
         "matched": 3000,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "A9A 9A9",
-            "occurrences": 2925
+            "id": "f1",
+            "occurrences": 2979,
+            "distinct": {
+              "count": 2944,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "A9A 9A9",
+                "occurrences": 2925,
+                "distinct": {
+                  "count": 2890,
+                  "accuracy": "exact"
+                },
+                "rest": 721,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'J'9A 9A9",
+                    "occurrences": 1059,
+                    "distinct": {
+                      "count": 1050,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1059
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'G'9A 9A9",
+                    "occurrences": 654,
+                    "distinct": {
+                      "count": 644,
+                      "accuracy": "exact"
+                    },
+                    "rest": 654
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'H'9A 9A9",
+                    "occurrences": 491,
+                    "distinct": {
+                      "count": 479,
+                      "accuracy": "exact"
+                    },
+                    "rest": 491
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "A9A'  '9A9",
+                "occurrences": 54,
+                "distinct": {
+                  "count": 54,
+                  "accuracy": "exact"
+                },
+                "rest": 11,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "'J'9A'  '9A9",
+                    "occurrences": 21,
+                    "distinct": {
+                      "count": 21,
+                      "accuracy": "exact"
+                    },
+                    "rest": 21
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "'G'9A'  '9A9",
+                    "occurrences": 16,
+                    "distinct": {
+                      "count": 16,
+                      "accuracy": "exact"
+                    },
+                    "rest": 16
+                  },
+                  {
+                    "id": "f1.p2.n3",
+                    "render": "'H'9A'  '9A9",
+                    "occurrences": 6,
+                    "distinct": {
+                      "count": 6,
+                      "accuracy": "exact"
+                    },
+                    "rest": 6
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "J",
+                    "occurrences": 1080
+                  },
+                  {
+                    "value": "G",
+                    "occurrences": 670
+                  },
+                  {
+                    "value": "H",
+                    "occurrences": 497
+                  }
+                ],
+                "others": 732,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f1.p2",
-            "render": "A9A'  '9A9",
-            "occurrences": 54
+            "id": "f2",
+            "occurrences": 9,
+            "distinct": {
+              "count": 9,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f2.p1",
+                "render": "9A 9A9",
+                "occurrences": 9,
+                "distinct": {
+                  "count": 9,
+                  "accuracy": "exact"
+                },
+                "rest": 9
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f2.p1",
-            "render": "9A 9A9",
-            "occurrences": 9
+            "id": "f3",
+            "occurrences": 7,
+            "distinct": {
+              "count": 7,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f3.p1",
+                "render": "A9 9A9",
+                "occurrences": 7,
+                "distinct": {
+                  "count": 7,
+                  "accuracy": "exact"
+                },
+                "rest": 7
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f3.p1",
-            "render": "A9 9A9",
-            "occurrences": 7
-          },
-          {
-            "id": "f4.p1",
-            "render": "A9A 99",
-            "occurrences": 5
+            "id": "f4",
+            "occurrences": 5,
+            "distinct": {
+              "count": 5,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f4.p1",
+                "render": "A9A 99",
+                "occurrences": 5,
+                "distinct": {
+                  "count": 5,
+                  "accuracy": "exact"
+                },
+                "rest": 5
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_21",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_21",
       "display": "id_contrat",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 3
+        "patterns": 3,
+        "nodes": 9,
+        "facets": 1,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "95a708897020484ef8ef1671fd1d2562b066a2d786819efadcf75ab8c95b4462",
+      "key": "befeb33031c81dfe4221871cc7cef5abac3d90f1fd572136b9467b3e3aa47e4f",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 2991,
         "matched": 2991,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'CTR-'9{10}",
-            "occurrences": 2955
-          },
-          {
-            "id": "f1.p2",
-            "render": "'CTR-'9{9}",
-            "occurrences": 22
-          },
-          {
-            "id": "f1.p3",
-            "render": "'CTR--'9{10}",
-            "occurrences": 14
+            "id": "f1",
+            "occurrences": 2991,
+            "distinct": {
+              "count": 2983,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'CTR-'9{10}",
+                "occurrences": 2955,
+                "distinct": {
+                  "count": 2947,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'CTR-100'9{7}",
+                    "occurrences": 2152,
+                    "distinct": {
+                      "count": 2145,
+                      "accuracy": "exact"
+                    },
+                    "rest": 2152
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'CTR-300'9{7}",
+                    "occurrences": 561,
+                    "distinct": {
+                      "count": 561,
+                      "accuracy": "exact"
+                    },
+                    "rest": 561
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'CTR-200'9{7}",
+                    "occurrences": 242,
+                    "distinct": {
+                      "count": 241,
+                      "accuracy": "exact"
+                    },
+                    "rest": 242
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "'CTR-'9{9}",
+                "occurrences": 22,
+                "distinct": {
+                  "count": 22,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "'CTR-100'999999",
+                    "occurrences": 17,
+                    "distinct": {
+                      "count": 17,
+                      "accuracy": "exact"
+                    },
+                    "rest": 17
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "'CTR-300'999999",
+                    "occurrences": 3,
+                    "distinct": {
+                      "count": 3,
+                      "accuracy": "exact"
+                    },
+                    "rest": 3
+                  },
+                  {
+                    "id": "f1.p2.n3",
+                    "render": "'CTR-200'999999",
+                    "occurrences": 2,
+                    "distinct": {
+                      "count": 2,
+                      "accuracy": "exact"
+                    },
+                    "rest": 2
+                  }
+                ]
+              },
+              {
+                "id": "f1.p3",
+                "render": "'CTR--'9{10}",
+                "occurrences": 14,
+                "distinct": {
+                  "count": 14,
+                  "accuracy": "exact"
+                },
+                "rest": 14
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "100",
+                    "occurrences": 2179
+                  },
+                  {
+                    "value": "300",
+                    "occurrences": 565
+                  },
+                  {
+                    "value": "200",
+                    "occurrences": 247
+                  }
+                ],
+                "others": 0,
+                "saturated": false
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_23",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_23",
       "display": "date_debut",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 2
+        "patterns": 2,
+        "nodes": 8,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "ae849cfd2feb7e5f547e42f3cbeea6bf7085163a636d502eca7f2d6d537a10dc",
+      "key": "b825b74c78023da14e9862dd9a0aff47ea7a91b35f11cc2738c68a0ed022c94c",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
         "matched": 2992,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'20'99-99-99",
-            "occurrences": 2175
-          },
-          {
-            "id": "f1.p2",
-            "render": "99-99'-20'99",
-            "occurrences": 817
+            "id": "f1",
+            "occurrences": 2992,
+            "distinct": {
+              "count": 2401,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'20'99-99-99",
+                "occurrences": 2175,
+                "distinct": {
+                  "count": 1660,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'202'9-99-99",
+                    "occurrences": 1549,
+                    "distinct": {
+                      "count": 1159,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1549
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'201'9-99-99",
+                    "occurrences": 626,
+                    "distinct": {
+                      "count": 501,
+                      "accuracy": "exact"
+                    },
+                    "rest": 0,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n2.n1",
+                        "render": "'201'9'-0'9-99",
+                        "occurrences": 421,
+                        "distinct": {
+                          "count": 344,
+                          "accuracy": "exact"
+                        },
+                        "rest": 421
+                      },
+                      {
+                        "id": "f1.p1.n2.n2",
+                        "render": "'201'9'-1'9-99",
+                        "occurrences": 205,
+                        "distinct": {
+                          "count": 157,
+                          "accuracy": "exact"
+                        },
+                        "rest": 205
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99'-20'99",
+                "occurrences": 817,
+                "distinct": {
+                  "count": 741,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-202'9",
+                    "occurrences": 600,
+                    "distinct": {
+                      "count": 547,
+                      "accuracy": "exact"
+                    },
+                    "rest": 600
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "99-99'-201'9",
+                    "occurrences": 217,
+                    "distinct": {
+                      "count": 194,
+                      "accuracy": "exact"
+                    },
+                    "rest": 217
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 1549
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 626
+                  }
+                ],
+                "others": 817,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "0",
+                    "occurrences": 2151
+                  },
+                  {
+                    "value": "1",
+                    "occurrences": 754
+                  }
+                ],
+                "others": 87,
+                "saturated": true
+              },
+              {
+                "facet": "head:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 600
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 217
+                  }
+                ],
+                "others": 2175,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 8,
+        "unknown_structure": 8,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_24",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_24",
       "display": "date_fin",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 2
+        "patterns": 2,
+        "nodes": 19,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "d77ab7a9ddc8dee159a7173849093cf81bdff5548315e5246b1c20a7ac0949f0",
+      "key": "f0daa3067195b3bce56294fd5575c5a2a851e627acdd778b21d67d679b564a02",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 2498,
         "matched": 2490,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'20'99-99-99",
-            "occurrences": 1805
-          },
-          {
-            "id": "f1.p2",
-            "render": "99-99'-20'99",
-            "occurrences": 685
+            "id": "f1",
+            "occurrences": 2490,
+            "distinct": {
+              "count": 1169,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'20'99-99-99",
+                "occurrences": 1805,
+                "distinct": {
+                  "count": 701,
+                  "accuracy": "exact"
+                },
+                "rest": 142,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'2027-'99-99",
+                    "occurrences": 1061,
+                    "distinct": {
+                      "count": 255,
+                      "accuracy": "exact"
+                    },
+                    "rest": 58,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n1.n1",
+                        "render": "'2027-04-'99",
+                        "occurrences": 109,
+                        "distinct": {
+                          "count": 30,
+                          "accuracy": "exact"
+                        },
+                        "rest": 109
+                      },
+                      {
+                        "id": "f1.p1.n1.n2",
+                        "render": "'2027-02-'99",
+                        "occurrences": 117,
+                        "distinct": {
+                          "count": 27,
+                          "accuracy": "exact"
+                        },
+                        "rest": 117
+                      },
+                      {
+                        "id": "f1.p1.n1.n3",
+                        "render": "'2027-05-'99",
+                        "occurrences": 140,
+                        "distinct": {
+                          "count": 31,
+                          "accuracy": "exact"
+                        },
+                        "rest": 140
+                      },
+                      {
+                        "id": "f1.p1.n1.n4",
+                        "render": "'2027-07-'99",
+                        "occurrences": 132,
+                        "distinct": {
+                          "count": 31,
+                          "accuracy": "exact"
+                        },
+                        "rest": 132
+                      },
+                      {
+                        "id": "f1.p1.n1.n5",
+                        "render": "'2027-03-'99",
+                        "occurrences": 126,
+                        "distinct": {
+                          "count": 29,
+                          "accuracy": "exact"
+                        },
+                        "rest": 126
+                      },
+                      {
+                        "id": "f1.p1.n1.n6",
+                        "render": "'2027-06-'99",
+                        "occurrences": 134,
+                        "distinct": {
+                          "count": 30,
+                          "accuracy": "exact"
+                        },
+                        "rest": 134
+                      },
+                      {
+                        "id": "f1.p1.n1.n7",
+                        "render": "'2027-08-'99",
+                        "occurrences": 116,
+                        "distinct": {
+                          "count": 30,
+                          "accuracy": "exact"
+                        },
+                        "rest": 116
+                      },
+                      {
+                        "id": "f1.p1.n1.n8",
+                        "render": "'2027-01-'99",
+                        "occurrences": 129,
+                        "distinct": {
+                          "count": 31,
+                          "accuracy": "exact"
+                        },
+                        "rest": 129
+                      }
+                    ]
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'2026-'99-99",
+                    "occurrences": 440,
+                    "distinct": {
+                      "count": 164,
+                      "accuracy": "exact"
+                    },
+                    "rest": 67,
+                    "nodes": [
+                      {
+                        "id": "f1.p1.n2.n1",
+                        "render": "'2026-0'9-99",
+                        "occurrences": 112,
+                        "distinct": {
+                          "count": 88,
+                          "accuracy": "exact"
+                        },
+                        "rest": 112
+                      },
+                      {
+                        "id": "f1.p1.n2.n2",
+                        "render": "'2026-12-'99",
+                        "occurrences": 125,
+                        "distinct": {
+                          "count": 30,
+                          "accuracy": "exact"
+                        },
+                        "rest": 125
+                      },
+                      {
+                        "id": "f1.p1.n2.n3",
+                        "render": "'2026-11-'99",
+                        "occurrences": 136,
+                        "distinct": {
+                          "count": 30,
+                          "accuracy": "exact"
+                        },
+                        "rest": 136
+                      }
+                    ]
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'2025-'99-99",
+                    "occurrences": 94,
+                    "distinct": {
+                      "count": 89,
+                      "accuracy": "exact"
+                    },
+                    "rest": 94
+                  },
+                  {
+                    "id": "f1.p1.n4",
+                    "render": "'2024-'99-99",
+                    "occurrences": 68,
+                    "distinct": {
+                      "count": 55,
+                      "accuracy": "exact"
+                    },
+                    "rest": 68
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99'-20'99",
+                "occurrences": 685,
+                "distinct": {
+                  "count": 468,
+                  "accuracy": "exact"
+                },
+                "rest": 95,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-2027'",
+                    "occurrences": 416,
+                    "distinct": {
+                      "count": 249,
+                      "accuracy": "exact"
+                    },
+                    "rest": 416
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "99-99'-2026'",
+                    "occurrences": 174,
+                    "distinct": {
+                      "count": 125,
+                      "accuracy": "exact"
+                    },
+                    "rest": 174
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "token:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "2027",
+                    "occurrences": 1061
+                  },
+                  {
+                    "value": "2026",
+                    "occurrences": 440
+                  },
+                  {
+                    "value": "2025",
+                    "occurrences": 94
+                  },
+                  {
+                    "value": "2024",
+                    "occurrences": 68
+                  }
+                ],
+                "others": 827,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "06",
+                    "occurrences": 224
+                  },
+                  {
+                    "value": "03",
+                    "occurrences": 216
+                  },
+                  {
+                    "value": "05",
+                    "occurrences": 215
+                  },
+                  {
+                    "value": "11",
+                    "occurrences": 214
+                  },
+                  {
+                    "value": "12",
+                    "occurrences": 211
+                  },
+                  {
+                    "value": "08",
+                    "occurrences": 208
+                  },
+                  {
+                    "value": "04",
+                    "occurrences": 207
+                  },
+                  {
+                    "value": "07",
+                    "occurrences": 205
+                  },
+                  {
+                    "value": "01",
+                    "occurrences": 203
+                  },
+                  {
+                    "value": "02",
+                    "occurrences": 197
+                  },
+                  {
+                    "value": "0",
+                    "occurrences": 133
+                  }
+                ],
+                "others": 257,
+                "saturated": true
+              },
+              {
+                "facet": "token:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "2027",
+                    "occurrences": 416
+                  },
+                  {
+                    "value": "2026",
+                    "occurrences": 174
+                  }
+                ],
+                "others": 1900,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 8,
+        "unknown_structure": 8,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_29",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_29",
       "display": "agence_code",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 2
+        "patterns": 2,
+        "nodes": 7,
+        "facets": 2,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "6cd55cf5f8039a73baf5865183d39afac6e943183e74a5f4f8651ff4ccc69e94",
+      "key": "7cd7ad048ac7b42aeaedea7ef809b9ad9526646a9c7738fab01e63a0e3003f29",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "samples",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
         "matched": 3000,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'AG-'AA'-00'9",
-            "occurrences": 2984
-          },
-          {
-            "id": "f1.p2",
-            "render": "'AG--'AA'-00'9",
-            "occurrences": 16
+            "id": "f1",
+            "occurrences": 3000,
+            "distinct": {
+              "count": 27,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'AG-'AA'-00'9",
+                "occurrences": 2984,
+                "distinct": {
+                  "count": 20,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'AG-PR-00'9",
+                    "occurrences": 2154,
+                    "distinct": {
+                      "count": 8,
+                      "accuracy": "exact"
+                    },
+                    "rest": 2154
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'AG-QC-00'9",
+                    "occurrences": 572,
+                    "distinct": {
+                      "count": 6,
+                      "accuracy": "exact"
+                    },
+                    "rest": 572
+                  },
+                  {
+                    "id": "f1.p1.n3",
+                    "render": "'AG-ON-00'9",
+                    "occurrences": 258,
+                    "distinct": {
+                      "count": 6,
+                      "accuracy": "exact"
+                    },
+                    "rest": 258
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "'AG--'AA'-00'9",
+                "occurrences": 16,
+                "distinct": {
+                  "count": 7,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "'AG--PR-00'9",
+                    "occurrences": 13,
+                    "distinct": {
+                      "count": 5,
+                      "accuracy": "exact"
+                    },
+                    "rest": 13
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "'AG--QC-00'9",
+                    "occurrences": 3,
+                    "distinct": {
+                      "count": 2,
+                      "accuracy": "exact"
+                    },
+                    "rest": 3
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "PR",
+                    "occurrences": 2167
+                  },
+                  {
+                    "value": "QC",
+                    "occurrences": 575
+                  },
+                  {
+                    "value": "ON",
+                    "occurrences": 258
+                  }
+                ],
+                "others": 0,
+                "saturated": false
+              },
+              {
+                "facet": "head:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "001",
+                    "occurrences": 915
+                  },
+                  {
+                    "value": "002",
+                    "occurrences": 553
+                  },
+                  {
+                    "value": "005",
+                    "occurrences": 345
+                  },
+                  {
+                    "value": "003",
+                    "occurrences": 330
+                  },
+                  {
+                    "value": "004",
+                    "occurrences": 330
+                  },
+                  {
+                    "value": "006",
+                    "occurrences": 232
+                  }
+                ],
+                "others": 295,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_30",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_30",
       "display": "date_creation",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 3
+        "patterns": 3,
+        "nodes": 7,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "43bd9f445374012eb0932d7d2572a450c7571274a73cb8d266ac48b131948d9d",
+      "key": "f7adcfa0d60149b6e837003b99660583a4c3ac67f4b3cfa966e31f04e00665f6",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
-        "matched": 2992,
-        "candidates": [
+        "matched": 3000,
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'20'99-99-99",
-            "occurrences": 2173
+            "id": "f1",
+            "occurrences": 2991,
+            "distinct": {
+              "count": 2352,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'20'99-99-99",
+                "occurrences": 2173,
+                "distinct": {
+                  "count": 1602,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'202'9-99-99",
+                    "occurrences": 1529,
+                    "distinct": {
+                      "count": 1103,
+                      "accuracy": "exact"
+                    },
+                    "rest": 1529
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'201'9-99-99",
+                    "occurrences": 644,
+                    "distinct": {
+                      "count": 499,
+                      "accuracy": "exact"
+                    },
+                    "rest": 644
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99'-20'99",
+                "occurrences": 818,
+                "distinct": {
+                  "count": 750,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-202'9",
+                    "occurrences": 596,
+                    "distinct": {
+                      "count": 540,
+                      "accuracy": "exact"
+                    },
+                    "rest": 596
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "99-99'-201'9",
+                    "occurrences": 222,
+                    "distinct": {
+                      "count": 210,
+                      "accuracy": "exact"
+                    },
+                    "rest": 222
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 1529
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 644
+                  }
+                ],
+                "others": 818,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "0",
+                    "occurrences": 2147
+                  },
+                  {
+                    "value": "1",
+                    "occurrences": 742
+                  }
+                ],
+                "others": 102,
+                "saturated": true
+              },
+              {
+                "facet": "head:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 596
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 222
+                  }
+                ],
+                "others": 2173,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f1.p2",
-            "render": "99-99'-20'99",
-            "occurrences": 818
-          },
-          {
-            "id": "f2.p1",
-            "render": "99/99/9999",
-            "occurrences": 1
+            "id": "f2",
+            "occurrences": 9,
+            "distinct": {
+              "count": 9,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f2.p1",
+                "render": "99/99/9999",
+                "occurrences": 1,
+                "distinct": {
+                  "count": 1,
+                  "accuracy": "exact"
+                },
+                "rest": 1
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 8,
+              "segment": 0
+            }
           }
         ],
-        "other": 8,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_31",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_31",
       "display": "date_modification",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 3
+        "patterns": 3,
+        "nodes": 11,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "9e7d53ee97de9f362123b7c47d56972db3f71678ee4399f92e40baf53f19e5e0",
+      "key": "8ce83fe148f9625e40e5275f57d3374c39ceaec938ff35e5e6fe30a51ebcbd1f",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 3000,
-        "matched": 2962,
-        "candidates": [
+        "matched": 3000,
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'20'99-99-99",
-            "occurrences": 2176
+            "id": "f1",
+            "occurrences": 2993,
+            "distinct": {
+              "count": 2028,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'20'99-99-99",
+                "occurrences": 2176,
+                "distinct": {
+                  "count": 1333,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'202'9-99-99",
+                    "occurrences": 2059,
+                    "distinct": {
+                      "count": 1226,
+                      "accuracy": "exact"
+                    },
+                    "rest": 2059
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'201'9-99-99",
+                    "occurrences": 117,
+                    "distinct": {
+                      "count": 107,
+                      "accuracy": "exact"
+                    },
+                    "rest": 117
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99'-202'9",
+                "occurrences": 817,
+                "distinct": {
+                  "count": 695,
+                  "accuracy": "exact"
+                },
+                "rest": 76,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-2026'",
+                    "occurrences": 233,
+                    "distinct": {
+                      "count": 173,
+                      "accuracy": "exact"
+                    },
+                    "rest": 233
+                  },
+                  {
+                    "id": "f1.p2.n2",
+                    "render": "99-99'-2024'",
+                    "occurrences": 118,
+                    "distinct": {
+                      "count": 99,
+                      "accuracy": "exact"
+                    },
+                    "rest": 118
+                  },
+                  {
+                    "id": "f1.p2.n3",
+                    "render": "99-99'-2021'",
+                    "occurrences": 50,
+                    "distinct": {
+                      "count": 49,
+                      "accuracy": "exact"
+                    },
+                    "rest": 50
+                  },
+                  {
+                    "id": "f1.p2.n4",
+                    "render": "99-99'-2025'",
+                    "occurrences": 167,
+                    "distinct": {
+                      "count": 142,
+                      "accuracy": "exact"
+                    },
+                    "rest": 167
+                  },
+                  {
+                    "id": "f1.p2.n5",
+                    "render": "99-99'-2022'",
+                    "occurrences": 76,
+                    "distinct": {
+                      "count": 70,
+                      "accuracy": "exact"
+                    },
+                    "rest": 76
+                  },
+                  {
+                    "id": "f1.p2.n6",
+                    "render": "99-99'-2023'",
+                    "occurrences": 97,
+                    "distinct": {
+                      "count": 89,
+                      "accuracy": "exact"
+                    },
+                    "rest": 97
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 2059
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 117
+                  }
+                ],
+                "others": 817,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "08",
+                    "occurrences": 308
+                  },
+                  {
+                    "value": "06",
+                    "occurrences": 287
+                  },
+                  {
+                    "value": "09",
+                    "occurrences": 279
+                  },
+                  {
+                    "value": "05",
+                    "occurrences": 248
+                  },
+                  {
+                    "value": "12",
+                    "occurrences": 234
+                  },
+                  {
+                    "value": "01",
+                    "occurrences": 222
+                  },
+                  {
+                    "value": "03",
+                    "occurrences": 215
+                  },
+                  {
+                    "value": "02",
+                    "occurrences": 196
+                  },
+                  {
+                    "value": "10",
+                    "occurrences": 185
+                  },
+                  {
+                    "value": "11",
+                    "occurrences": 177
+                  }
+                ],
+                "others": 642,
+                "saturated": true
+              },
+              {
+                "facet": "token:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "2026",
+                    "occurrences": 233
+                  },
+                  {
+                    "value": "2025",
+                    "occurrences": 167
+                  },
+                  {
+                    "value": "2024",
+                    "occurrences": 118
+                  },
+                  {
+                    "value": "2023",
+                    "occurrences": 97
+                  },
+                  {
+                    "value": "2022",
+                    "occurrences": 76
+                  },
+                  {
+                    "value": "2021",
+                    "occurrences": 50
+                  }
+                ],
+                "others": 2252,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           },
           {
-            "id": "f1.p2",
-            "render": "99-99'-202'9",
-            "occurrences": 781
-          },
-          {
-            "id": "f2.p1",
-            "render": "9999/99/99",
-            "occurrences": 5
+            "id": "f2",
+            "occurrences": 7,
+            "distinct": {
+              "count": 7,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f2.p1",
+                "render": "9999/99/99",
+                "occurrences": 5,
+                "distinct": {
+                  "count": 5,
+                  "accuracy": "exact"
+                },
+                "rest": 5
+              }
+            ],
+            "tables": [],
+            "new_variants": {
+              "length": 2,
+              "segment": 0
+            }
           }
         ],
-        "other": 38,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {
       "id": "pattern_validation:rows:column_32",
       "analyzer": "pattern_validation",
-      "analyzer_version": 1,
+      "analyzer_version": 2,
       "dataset": "rows",
       "field": "column_32",
       "display": "date_reclamation",
-      "method": "compiled_matcher",
+      "method": "family_recognizer",
       "parameters": {
-        "patterns": 2
+        "patterns": 2,
+        "nodes": 5,
+        "facets": 3,
+        "table_bytes": 65536,
+        "distinct_bytes": 1048576
       },
       "domain": "original",
-      "key": "435149d7b36c05dd1116efb006fdd1b2fea1ffa9b744894c87c053a816d64369",
+      "key": "b088cd11c90fa7a784ef8ffbe665011d92b6308ed4927fdafd066d86a6deaab4",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
         "grammar_version": 2,
+        "algorithm_version": 1,
         "values": 420,
         "matched": 420,
-        "candidates": [
+        "families": [
           {
-            "id": "f1.p1",
-            "render": "'20'99-99-99",
-            "occurrences": 297
-          },
-          {
-            "id": "f1.p2",
-            "render": "99-99'-20'99",
-            "occurrences": 123
+            "id": "f1",
+            "occurrences": 420,
+            "distinct": {
+              "count": 406,
+              "accuracy": "exact"
+            },
+            "patterns": [
+              {
+                "id": "f1.p1",
+                "render": "'20'99-99-99",
+                "occurrences": 297,
+                "distinct": {
+                  "count": 285,
+                  "accuracy": "exact"
+                },
+                "rest": 0,
+                "nodes": [
+                  {
+                    "id": "f1.p1.n1",
+                    "render": "'202'9-99-99",
+                    "occurrences": 275,
+                    "distinct": {
+                      "count": 264,
+                      "accuracy": "exact"
+                    },
+                    "rest": 275
+                  },
+                  {
+                    "id": "f1.p1.n2",
+                    "render": "'201'9-99-99",
+                    "occurrences": 22,
+                    "distinct": {
+                      "count": 21,
+                      "accuracy": "exact"
+                    },
+                    "rest": 22
+                  }
+                ]
+              },
+              {
+                "id": "f1.p2",
+                "render": "99-99'-20'99",
+                "occurrences": 123,
+                "distinct": {
+                  "count": 121,
+                  "accuracy": "exact"
+                },
+                "rest": 7,
+                "nodes": [
+                  {
+                    "id": "f1.p2.n1",
+                    "render": "99-99'-202'9",
+                    "occurrences": 116,
+                    "distinct": {
+                      "count": 114,
+                      "accuracy": "exact"
+                    },
+                    "rest": 116
+                  }
+                ]
+              }
+            ],
+            "tables": [
+              {
+                "facet": "head:1",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 275
+                  },
+                  {
+                    "value": "201",
+                    "occurrences": 22
+                  }
+                ],
+                "others": 123,
+                "saturated": true
+              },
+              {
+                "facet": "head:3",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "0",
+                    "occurrences": 298
+                  },
+                  {
+                    "value": "10",
+                    "occurrences": 34
+                  },
+                  {
+                    "value": "11",
+                    "occurrences": 32
+                  },
+                  {
+                    "value": "12",
+                    "occurrences": 31
+                  }
+                ],
+                "others": 25,
+                "saturated": true
+              },
+              {
+                "facet": "head:5",
+                "capacity": 512,
+                "cells": [
+                  {
+                    "value": "202",
+                    "occurrences": 116
+                  }
+                ],
+                "others": 304,
+                "saturated": true
+              }
+            ],
+            "new_variants": {
+              "length": 0,
+              "segment": 0
+            }
           }
         ],
-        "other": 0,
+        "unknown_structure": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
-        },
-        "overlaps": []
+        }
       }
     },
     {

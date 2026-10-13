@@ -366,6 +366,24 @@ class DuplicateSettings(BaseModel):
     records: bool = False
 
 
+class PatternCountSettings(BaseModel):
+    """How the validation of the patterns is bounded in memory (design 20.9).
+
+    ``table_bytes`` is the capacity of the tables of one field that count the
+    values of a facet (the cells the discovery listed and the values it never
+    saw); when a table is full the most frequent values are kept and the result
+    says it is limited. ``distinct_bytes`` is what the set of the distinct values
+    of one field may hold; beyond it the distinct values of a pattern are a lower
+    bound (``at_least``). Both are deterministic budgets and part of the key of a
+    result.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    table_bytes: int = Field(default=65_536, ge=1_024, le=64 * 1024 * 1024)
+    distinct_bytes: int = Field(default=1_048_576, ge=1_024, le=512 * 1024 * 1024)
+
+
 class DriftSettings(BaseModel):
     """How a column is followed by position in the file (design 20.30).
 
@@ -491,6 +509,7 @@ class DeepSettings(BaseModel):
     measures: MeasureSettings = Field(default_factory=MeasureSettings)
     shape: ShapeSettings = Field(default_factory=ShapeSettings)
     datetime: DatetimeSettings = Field(default_factory=DatetimeSettings)
+    patterns: PatternCountSettings = Field(default_factory=PatternCountSettings)
     residuals: ResidualSettings = Field(default_factory=ResidualSettings)
     duplicates: DuplicateSettings = Field(default_factory=DuplicateSettings)
     drift: DriftSettings = Field(default_factory=DriftSettings)

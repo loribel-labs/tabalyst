@@ -10,6 +10,7 @@ immutable view, so no analyzer walks the document or sees a sampled value.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -21,12 +22,14 @@ from tabalyst.scanner.models import (
     CardinalityLimited,
     DatasetResult,
     DetectorComplete,
+    FamilyPattern,
     FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
     FieldPatternsNotApplicable,
     FieldResult,
     ItemsSegment,
+    PatternNode,
     ScanResult,
 )
 
@@ -40,6 +43,10 @@ class PatternFacts:
     candidates: int
     basis: str | None
     other_distinct: int
+    # The facets that the validation counts in a table (a facet is counted once
+    # in a family) and the patterns and nodes it keeps a counter for.
+    facets: int = 0
+    nodes: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -408,10 +415,37 @@ def _patterns(
     if isinstance(entry, FieldPatternsComplete):
         basis = entry.candidates[0].coverage.basis if entry.candidates else None
         return PatternFacts(
-            "complete", None, len(entry.candidates), basis, entry.unmatched.distinct
+            "complete",
+            None,
+            len(entry.candidates),
+            basis,
+            entry.unmatched.distinct,
+            *_hierarchy_size(entry),
         )
     assert isinstance(entry, (FieldPatternsNotApplicable, FieldPatternsFailed))
     return PatternFacts(entry.status, entry.reason, 0, None, 0)
+
+
+def _hierarchy_size(entry: FieldPatternsComplete) -> tuple[int, int]:
+    """The facets counted in a table by the validation of a field and its patterns
+    and nodes: a facet read by the nodes of a family or listed in one of its tables
+    is one table."""
+
+    def nodes(items: Sequence[FamilyPattern | PatternNode], facets: set[str]) -> int:
+        total = len(items)
+        for item in items:
+            for child in item.nodes:
+                if child.facet != "composition":
+                    facets.add(child.facet)
+            total += nodes(item.nodes, facets)
+        return total
+
+    facets_total = nodes_total = 0
+    for family in entry.families:
+        facets = {table.facet for table in family.tables if table.facet != "lengths"}
+        nodes_total += nodes(family.patterns, facets)
+        facets_total += len(facets)
+    return facets_total, nodes_total
 
 
 def _arrays(field: FieldResult) -> ArrayFacts | None:

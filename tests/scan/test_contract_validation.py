@@ -14,62 +14,70 @@ from datetime import date, timedelta
 import pytest
 from planner_helpers import scan_csv
 from scan_helpers import write_text
-from second_pass_helpers import deep_csv, entry, forced_plan
+from second_pass_helpers import deep_csv, entry, forced_plan, pattern_accumulator
 
 from tabalyst.scanner import ScanConfig, pattern_eligibility, scan
 from tabalyst.scanner.models import PatternEligibility
-from tabalyst.scanner.patterninfer import MAX_TOKENS, candidate_order, tokenize
+from tabalyst.scanner.patterninfer import MAX_TOKENS, tokenize
 from tabalyst.scanner.secondpass import run_second_pass
-from tabalyst.scanner.secondpass.patterns import PatternAccumulator, derive_from_samples
-
-_CLASS = {
-    "digit_ascii": "[0-9]",
-    "upper_ascii": "[A-Z]",
-    "lower_ascii": "[a-z]",
-    "letter_unicode": "[^\\W\\d_]",
-    "upper_digit": "[0-9A-Z]",
-    "lower_digit": "[0-9a-z]",
-    "alphanumeric": "[0-9A-Za-z]",
-}
+from tabalyst.scanner.secondpass.patterns import derive_from_samples
 
 
-def _oracle_regex(signature):
-    """A backtracking regular expression of a signature, written apart from the
-    matcher of the grammar: the oracle the counts are compared with."""
+def _structure_regex(key):
+    """A regular expression of a structure key (``UP-D``: capitals, the literal
+    ``-``, digits), written apart from the reader of the hierarchy: the oracle the
+    counts of a family are compared with. A class of the key reads any number of its
+    characters (``X`` is a run with a letter that is not ASCII)."""
+    classes = {
+        "D": "[0-9]+",
+        "U": "[A-Z]+",
+        "L": "[a-z]+",
+        "X": r"(?=[^\W\d_]*[^\x00-\x7f])[^\W\d_]+",
+    }
     parts = []
-    for token in signature:
-        unit = (
-            f"(?:{re.escape(token.text)})" if token.kind == "literal" else _CLASS[token.kind]
-        )
-        parts.append(f"{unit}{{{token.min},{token.max}}}")
+    position = 0
+    while position < len(key):
+        code = key[position]
+        if code == "P":
+            parts.append(f"(?:{re.escape(key[position + 1])})+")
+            position += 2
+        else:
+            parts.append(classes[code])
+            position += 1
     return re.compile("".join(parts))
 
 
-def _oracle(candidates, max_length, values):
-    """Exclusive counts of ``values`` by brute force."""
-    order = sorted(
-        range(len(candidates)),
-        key=lambda n: candidate_order(candidates[n].signature, 0, n),
-    )
-    regexes = [_oracle_regex(c.signature) for c in candidates]
-    occurrences = [0] * len(candidates)
-    other = 0
+def _oracle(families, max_length, values):
+    """Occurrences of ``values`` by family, the values no family reads and the
+    values the population leaves out, by brute force."""
+    regexes = [
+        [_structure_regex(key) for key in family.composition or [family.key]]
+        for family in families
+    ]
+    occurrences = [0] * len(families)
+    unknown = 0
     excluded = Counter()
-    overlaps = Counter()
     for value in values:
         if len(value) > max_length:
             excluded["too_long"] += 1
         elif len(tokenize(value)) > MAX_TOKENS:
             excluded["too_complex"] += 1
         else:
-            reading = [n for n in order if regexes[n].fullmatch(value)]
+            reading = [
+                n for n, group in enumerate(regexes) if any(r.fullmatch(value) for r in group)
+            ]
             if not reading:
-                other += 1
+                unknown += 1
             else:
+                assert len(reading) == 1, value
                 occurrences[reading[0]] += 1
-                if len(reading) > 1:
-                    overlaps[tuple(sorted(reading))] += 1
-    return occurrences, other, excluded, overlaps
+    return occurrences, unknown, excluded
+
+
+def _adds_up(node):
+    """The occurrences of a pattern or node are those of its nodes and its rest."""
+    assert sum(_adds_up(child) for child in node.nodes) + node.rest == node.occurrences, node.id
+    return node.occurrences
 
 
 def _codes(count, seed=3):
@@ -116,37 +124,49 @@ def test_C11_every_occurrence_is_counted_once_and_the_counts_reconcile(
     result, _, outcome = deep_csv(tmp_path, "code", rows, limits={"max_samples": 60})
     counts = entry(outcome, "pattern_validation", "code").result
 
-    candidates = result.derived.patterns.fields[0].candidates
-    occurrences, other, excluded, overlaps = _oracle(
-        candidates, result.config.pattern_inference.max_value_length, rows
+    families = result.derived.patterns.fields[0].families
+    occurrences, unknown, excluded = _oracle(
+        families, result.config.pattern_inference.max_value_length, rows
     )
 
     assert counts.computed_from == "source" and outcome.read_source
-    assert [t.occurrences for t in counts.candidates] == occurrences
-    assert counts.other == other
+    assert [family.occurrences for family in counts.families] == occurrences
+    assert counts.unknown_structure == unknown
     assert counts.excluded.too_long == excluded["too_long"]
     assert counts.excluded.too_complex == excluded["too_complex"]
     assert counts.excluded.non_string == 0
-    assert {tuple(o.patterns): o.occurrences for o in counts.overlaps} == {
-        tuple(candidates[n].id for n in key): value for key, value in overlaps.items()
-    }
-    # The identity of the specification: tested + other + excluded is the population.
+    # The identity of the specification: tested + unknown + excluded is the population.
     assert counts.values == len(rows) == result.datasets[0].fields[0].values.count
-    assert counts.matched + counts.other + sum(counts.excluded.model_dump().values()) == counts.values
+    assert (
+        counts.matched + counts.unknown_structure + sum(counts.excluded.model_dump().values())
+        == counts.values
+    )
     assert counts.matched == sum(occurrences)
+    for family in counts.families:
+        inside = sum(_adds_up(pattern) for pattern in family.patterns)
+        lengths = [table for table in family.tables if table.facet == "lengths"]
+        held = sum(cell.occurrences for table in lengths for cell in table.cells) + sum(
+            table.others for table in lengths
+        )
+        assert inside + held + family.new_variants.length == family.occurrences
 
 
 @pytest.mark.scan_json_lot("7c")
-def test_C11_a_value_read_by_two_patterns_counts_for_the_most_specific_only(tmp_path):
+def test_C11_a_value_read_by_two_patterns_counts_for_the_deepest_one_only(tmp_path):
     # `AB` + digits is read by the literal-prefixed pattern and by the broad one.
-    rows = [f"AB{n:04d}" for n in range(300)] + [f"{chr(65 + n % 26)}{chr(66 + n % 20)}{n:04d}" for n in range(300)]
+    rows = [f"AB{n:04d}" for n in range(300)] + [
+        f"{chr(65 + n % 26)}{chr(66 + n % 20)}{n:04d}" for n in range(300)
+    ]
     _, _, outcome = deep_csv(tmp_path, "code", rows, limits={"max_samples": 40})
     counts = entry(outcome, "pattern_validation", "code").result
 
-    assert counts.matched == sum(t.occurrences for t in counts.candidates) == len(rows)
-    assert counts.overlaps == [] or all(len(o.patterns) > 1 for o in counts.overlaps)
-    # No occurrence is counted twice, overlaps or not.
-    assert counts.matched + counts.other + sum(counts.excluded.model_dump().values()) == counts.values
+    assert counts.matched == sum(family.occurrences for family in counts.families) == len(rows)
+    # No occurrence is counted twice, in a node or in its ancestors.
+    for family in counts.families:
+        for pattern in family.patterns:
+            _adds_up(pattern)
+    total = counts.matched + counts.unknown_structure + sum(counts.excluded.model_dump().values())
+    assert total == counts.values
 
 
 @pytest.mark.scan_json_lot("7c")
@@ -159,13 +179,13 @@ def test_C11_the_exact_counts_of_a_complete_scan_give_the_same_result_without_re
     result = scan_csv(tmp_path, "code", rows)
     field = result.datasets[0].fields[0]
     patterns = result.derived.patterns.fields[0]
-    assert patterns.candidates[0].coverage.basis == "all_distinct"
+    assert patterns.population.complete
     plan = forced_plan(result)
     candidate = next(c for c in plan.candidates if c.analyzer == "pattern_validation")
     assert candidate.execution.requires_source is False
 
     local = run_second_pass(result, tmp_path / "data.csv", plan)
-    read = PatternAccumulator(patterns, result.config.pattern_inference.max_value_length)
+    read = pattern_accumulator(result, patterns)
     counted = Counter(rows)
     read.add_strings(list(counted), list(counted.values()))
     from_source = read.result(field.values.count, "source")
@@ -176,12 +196,15 @@ def test_C11_the_exact_counts_of_a_complete_scan_give_the_same_result_without_re
     assert answer.result.model_dump(exclude={"computed_from"}) == from_source.model_dump(
         exclude={"computed_from"}
     )
-    # Counted once each, the distinct values give the shares of the discovery.
-    once = PatternAccumulator(patterns, result.config.pattern_inference.max_value_length)
+    # Counted once each, the distinct values give the counts of the discovery.
+    once = pattern_accumulator(result, patterns, unique=True)
     once.add_strings(list(counted), [1] * len(counted))
-    assert once.occurrences == [c.coverage.distinct for c in patterns.candidates]
-    assert once.other == patterns.other.d
-    derived = PatternAccumulator(patterns, result.config.pattern_inference.max_value_length)
+    once_counts = once.result(len(counted), "samples")
+    for family, published in zip(once_counts.families, patterns.families, strict=True):
+        assert [p.occurrences for p in family.patterns] == [p.d for p in published.patterns]
+        assert [p.distinct.count for p in family.patterns] == [p.d for p in published.patterns]
+    assert once_counts.unknown_structure == patterns.other.d
+    derived = pattern_accumulator(result, patterns, unique=True)
     derive_from_samples(derived, field)
     assert derived.occurrences == read.occurrences
 
