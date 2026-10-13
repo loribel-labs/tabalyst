@@ -230,14 +230,14 @@ def test_examples_missing_from_a_reduced_report_are_counted_not_invented(tmp_pat
     assert len(shown) <= 1
 
 
-def test_numbers_have_no_pattern_and_say_why(tmp_path):
+def test_small_numbers_have_no_pattern_and_say_why(tmp_path):
     source = _csv(tmp_path, "n", [str(n) for n in range(20)])
 
     view = dataset_views(analyze_csv(source))[0].columns[0].patterns
 
     assert view.status == "not_applicable"
-    assert view.reason == "technical_type"
-    assert "text" in view.reason_text
+    assert view.reason == "small_integers"
+    assert "counts or measures" in view.reason_text
 
 
 def test_patterns_are_missing_when_the_inference_is_off(tmp_path):

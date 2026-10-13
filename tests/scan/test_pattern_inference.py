@@ -151,11 +151,22 @@ def test_a_complete_population_is_reported_as_all_distinct_values(tmp_path):
     assert entry.limits == []
 
 
-def test_a_field_that_is_not_text_has_no_patterns(tmp_path):
+def test_small_integers_are_assessed_and_not_inferred(tmp_path):
     entry = _entries(_scan(tmp_path, "n", [str(i) for i in range(30)]))["column_1"]
 
     assert entry.status == "not_applicable"
-    assert entry.reason == "technical_type"
+    assert entry.eligibility.state == "low_relevance"
+    assert entry.reason == "small_integers"
+
+
+def test_a_column_of_long_integers_is_inferred_from_its_decimal_text(tmp_path):
+    rows = [str(100_000_000 + i * 7_919) for i in range(60)]
+    entry = _entries(_scan(tmp_path, "number", rows))["column_1"]
+
+    assert entry.status == "complete"
+    assert entry.eligibility.state == "eligible"
+    assert "integer_digits" in entry.eligibility.reasons
+    assert [candidate.render for candidate in entry.candidates] == ["9{9}"]
 
 
 def test_a_sensitive_field_is_never_inferred(tmp_path):
@@ -163,6 +174,7 @@ def test_a_sensitive_field_is_never_inferred(tmp_path):
     entry = _entries(_scan(tmp_path, "email", rows))["column_1"]
 
     assert entry.status == "not_applicable"
+    assert entry.eligibility.state == "excluded"
     assert entry.reason == "exposure"
 
 
@@ -170,6 +182,7 @@ def test_fewer_distinct_values_than_the_minimum_give_no_patterns(tmp_path):
     entry = _entries(_scan(tmp_path, "word", ["abc"] * 10))["column_1"]
 
     assert entry.status == "not_applicable"
+    assert entry.eligibility.state == "not_assessable"
     assert entry.reason == "too_few_distinct"
 
 
@@ -209,10 +222,12 @@ def test_a_value_with_too_many_tokens_is_excluded(tmp_path):
 
 
 def test_the_candidates_are_bounded_and_the_rest_is_generalized(tmp_path):
-    rows = [f"{'ab' * (i % 9 + 1)}{i}" for i in range(200)]
-    rows += [f"{'AB' * (i % 7 + 1)}-{i}" for i in range(200)]
-    rows += [f"{i}{'x' * (i % 3 + 1)}" for i in range(100)]
-    rows += [f"{'q' * (i % 5 + 1)}_{i}" for i in range(100)]
+    # Five structures of one fixed length each, so the field is eligible.
+    rows = [f"ab{i:04d}" for i in range(200)]
+    rows += [f"AB-{i:03d}" for i in range(200)]
+    rows += [f"{i:03d}x" for i in range(100)]
+    rows += [f"q_{i:03d}" for i in range(100)]
+    rows += [f"Zz{i:02d}" for i in range(100)]
     entry = _entries(
         _scan(tmp_path, "code", rows, pattern_inference={"max_patterns": 2})
     )["column_1"]
@@ -376,6 +391,8 @@ def test_a_field_on_which_the_inference_raises_fails_alone(tmp_path, monkeypatch
     failed = entries["column_1"]
     assert failed.status == "failed"
     assert failed.reason == "inference_error"
+    # The eligibility was known before the inference raised.
+    assert failed.eligibility.state == "eligible"
     diagnostic = result.diagnostics[failed.diagnostic]
     assert diagnostic.code == "pattern_inference_failed"
     assert diagnostic.level == "error"

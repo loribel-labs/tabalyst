@@ -397,7 +397,11 @@ class FieldRoute:
         if self.frequencies is not None:
             self.frequencies.add_native(native_type, value)
         if self.patterns is not None:
-            self.patterns.add_native()
+            # The discovery reads an integer as its decimal text (design 18.12).
+            if native_type == "integer":
+                self.patterns.add_strings([str(value)], [1])
+            else:
+                self.patterns.add_native()
         if self.measures is not None:
             self.measures.add_native()
         if self.residuals is not None:

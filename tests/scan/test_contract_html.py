@@ -36,7 +36,8 @@ def test_F01_the_html_is_the_same_from_the_json_alone(tmp_path):
     source = write_text(
         tmp_path,
         "data.csv",
-        "id,city\n" + "\n".join(f"{n},{'Laval' if n % 3 else 'laval'}" for n in range(60)),
+        "id,city\n"
+        + "\n".join(f"ID-{n:03d},{'Laval' if n % 3 else 'laval'}" for n in range(60)),
     )
     profile = analyze_csv(source)
     document = write_text(

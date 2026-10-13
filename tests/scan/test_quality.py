@@ -239,7 +239,9 @@ def test_the_listing_is_bounded_and_the_summaries_keep_counting():
     assert result.observations is not None and full.observations is not None
 
     assert len(result.observations.items) == 5
-    assert len(result.observations.limits) == 5
+    # Columns that are not eligible for patterns no longer reach their budget,
+    # so the file may list fewer limits than the bound.
+    assert len(result.observations.limits) == min(5, len(full.observations.limits))
     assert result.observations.truncated is True
     assert full.observations.truncated is False
     assert result.observations.summary == full.observations.summary

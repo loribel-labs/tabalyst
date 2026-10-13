@@ -1836,6 +1836,9 @@
           "title": "Status",
           "type": "string"
         },
+        "eligibility": {
+          "$ref": "#/$defs/PatternEligibility"
+        },
         "population": {
           "$ref": "#/$defs/PatternPopulation"
         },
@@ -1871,6 +1874,7 @@
       "required": [
         "dataset",
         "field",
+        "eligibility",
         "population",
         "candidates",
         "other",
@@ -1899,6 +1903,9 @@
           "title": "Status",
           "type": "string"
         },
+        "eligibility": {
+          "$ref": "#/$defs/PatternEligibility"
+        },
         "reason": {
           "const": "inference_error",
           "default": "inference_error",
@@ -1913,6 +1920,7 @@
       "required": [
         "dataset",
         "field",
+        "eligibility",
         "diagnostic",
         "status"
       ],
@@ -1921,6 +1929,7 @@
     },
     "FieldPatternsNotApplicable": {
       "additionalProperties": false,
+      "description": "A field the discovery does not read: its eligibility says why. ``reason``\nrepeats the deciding code of the eligibility until the entries of grammar 2\nreplace it (Patterns lot P3).",
       "properties": {
         "dataset": {
           "title": "Dataset",
@@ -1936,6 +1945,9 @@
           "title": "Status",
           "type": "string"
         },
+        "eligibility": {
+          "$ref": "#/$defs/PatternEligibility"
+        },
         "reason": {
           "title": "Reason",
           "type": "string"
@@ -1944,6 +1956,7 @@
       "required": [
         "dataset",
         "field",
+        "eligibility",
         "reason",
         "status"
       ],
@@ -3968,6 +3981,58 @@
         "basis"
       ],
       "title": "PatternCoverage",
+      "type": "object"
+    },
+    "PatternEligibility": {
+      "additionalProperties": false,
+      "description": "Whether a field is a candidate for the discovery (design 18.12, PAT-12).\n\n``score`` runs from 0 to 1 (four decimals) and is 0 for a field that is\n``excluded`` or ``not_assessable``; only an ``eligible`` field is\ndiscovered. ``reasons`` are codes, never empty, so a reader can tell \"no\npattern\" from \"not looked at\".",
+      "properties": {
+        "state": {
+          "enum": [
+            "eligible",
+            "low_relevance",
+            "excluded",
+            "not_assessable"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        },
+        "reasons": {
+          "items": {
+            "enum": [
+              "exposure",
+              "booleans_only",
+              "structures_only",
+              "long_texts_only",
+              "no_values",
+              "samples_withheld",
+              "too_few_distinct",
+              "inference_error",
+              "regular_structure",
+              "many_fixed_lengths",
+              "integer_digits",
+              "small_integers",
+              "decimal_numbers",
+              "no_structural_marks",
+              "few_distinct",
+              "semantic_detector"
+            ],
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "score",
+        "reasons"
+      ],
+      "title": "PatternEligibility",
       "type": "object"
     },
     "PatternExcluded": {
@@ -6171,7 +6236,7 @@
       "type": "string"
     },
     "format_revision": {
-      "const": 3
+      "const": 4
     },
     "engine": {
       "$ref": "#/$defs/EngineInfo"
@@ -6260,5 +6325,5 @@
   "title": "Tabalyst Scan",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Base document tabalyst.scan, format 0.2.0 revision 3."
+  "description": "Base document tabalyst.scan, format 0.2.0 revision 4."
 }

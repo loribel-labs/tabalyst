@@ -1,7 +1,7 @@
 {
   "format": "tabalyst.report",
   "format_version": "0.2.0",
-  "format_revision": 3,
+  "format_revision": 4,
   "engine": {
     "version": "0.7.0",
     "normalization_version": 1,
@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T01:41:25.550230Z",
-    "duration_seconds": 0.021897,
+    "started_at": "2026-10-13T06:54:21.062341Z",
+    "duration_seconds": 0.024082,
     "timings": {
-      "reading": 0.002996,
-      "analysis": 0.003194,
-      "finalize": 0.011284,
-      "derived": 0.002353,
-      "other": 0.00207
+      "reading": 0.00348,
+      "analysis": 0.003748,
+      "finalize": 0.012835,
+      "derived": 0.003553,
+      "other": 0.000466
     },
     "workers": 1,
-    "peak_memory_bytes": 66129920
+    "peak_memory_bytes": 64770048
   },
   "source": {
     "format": "json",
@@ -15566,6 +15566,13 @@
           "dataset": "$.customers[]",
           "field": "f1",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.9922,
+            "reasons": [
+              "regular_structure"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "all",
@@ -15631,251 +15638,85 @@
         {
           "dataset": "$.customers[]",
           "field": "f2",
-          "status": "complete",
-          "population": {
-            "source": "samples",
-            "selection": "all",
-            "complete": true,
-            "available": 56,
-            "distinct": 56,
-            "excluded": {
-              "long_text_occurrences": 0,
-              "non_string_values": 0,
-              "empty_values": 0,
-              "too_long_values": 0,
-              "too_complex_values": 0
-            }
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.0847,
+            "reasons": [
+              "many_fixed_lengths",
+              "no_structural_marks"
+            ]
           },
-          "candidates": [
-            {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 2,
-                  "max": 6
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 4,
-                  "max": 6
-                }
-              ],
-              "render": "Xx{2,6}' 'Xx{4,6}",
-              "lengths": {
-                "min": 10,
-                "max": 11
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 4,
-                "share": 0.0714,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.0571
-              },
-              "examples": [
-                7,
-                25,
-                35
-              ]
-            },
-            {
-              "id": "p2",
-              "role": "secondary",
-              "signature": [
-                {
-                  "kind": "letter_unicode",
-                  "min": 4,
-                  "max": 7
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 4,
-                  "max": 6
-                }
-              ],
-              "render": "@{4,7}' 'Xx{4,6}",
-              "lengths": {
-                "min": 10,
-                "max": 15
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 52,
-                "share": 0.9286,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9111
-              },
-              "examples": [
-                0,
-                1,
-                2
-              ]
-            }
-          ],
-          "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
-          },
-          "overlaps": [
-            {
-              "patterns": [
-                "p1",
-                "p2"
-              ],
-              "values": 45
-            }
-          ],
-          "limits": []
+          "reason": "many_fixed_lengths"
         },
         {
           "dataset": "$.customers[]",
           "field": "f3",
           "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "exposure"
+            ]
+          },
           "reason": "exposure"
         },
         {
           "dataset": "$.customers[]",
           "field": "f4",
           "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "exposure"
+            ]
+          },
           "reason": "exposure"
         },
         {
           "dataset": "$.customers[]",
           "field": "f5",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
         },
         {
           "dataset": "$.customers[]",
           "field": "f6",
-          "status": "complete",
-          "population": {
-            "source": "samples",
-            "selection": "all",
-            "complete": true,
-            "available": 6,
-            "distinct": 6,
-            "excluded": {
-              "long_text_occurrences": 0,
-              "non_string_values": 0,
-              "empty_values": 0,
-              "too_long_values": 0,
-              "too_complex_values": 0
-            }
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.2154,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
           },
-          "candidates": [
-            {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 3,
-                  "max": 7
-                }
-              ],
-              "render": "Xx{3,7}",
-              "lengths": {
-                "min": 4,
-                "max": 8
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 6,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8571
-              },
-              "examples": [
-                0,
-                1,
-                2
-              ]
-            }
-          ],
-          "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
-          },
-          "overlaps": [],
-          "limits": []
+          "reason": "no_structural_marks"
         },
         {
           "dataset": "$.customers[]",
           "field": "f7",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "$.customers[]",
-          "field": "f8",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "$.customers[]",
-          "field": "f9",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "$.customers[]",
-          "field": "f10",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "$.customers[]",
-          "field": "f11",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.5201,
+            "reasons": [
+              "regular_structure",
+              "integer_digits",
+              "few_distinct",
+              "semantic_detector"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "all",
@@ -15896,26 +15737,26 @@
               "role": "principal",
               "signature": [
                 {
-                  "kind": "lower_ascii",
-                  "min": 3,
-                  "max": 10
+                  "kind": "digit_ascii",
+                  "min": 5,
+                  "max": 5
                 }
               ],
-              "render": "x{3,10}",
+              "render": "99999",
               "lengths": {
-                "min": 3,
-                "max": 10
+                "min": 5,
+                "max": 5
               },
               "generalization": 0,
               "merged_structures": 1,
               "coverage": {
-                "distinct": 4,
-                "share": 0.8,
+                "distinct": 5,
+                "share": 1.0,
                 "basis": "all_distinct"
               },
               "confidence": {
                 "method": "laplace_share",
-                "value": 0.64
+                "value": 0.8333
               },
               "examples": [
                 0,
@@ -15925,29 +15766,182 @@
             }
           ],
           "other": {
-            "distinct": 1,
-            "share": 0.2,
-            "structures": 1
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
           },
           "overlaps": [],
           "limits": []
         },
         {
           "dataset": "$.customers[]",
+          "field": "f8",
+          "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.7411,
+            "reasons": [
+              "regular_structure",
+              "semantic_detector"
+            ]
+          },
+          "population": {
+            "source": "samples",
+            "selection": "all",
+            "complete": true,
+            "available": 58,
+            "distinct": 58,
+            "excluded": {
+              "long_text_occurrences": 0,
+              "non_string_values": 0,
+              "empty_values": 0,
+              "too_long_values": 0,
+              "too_complex_values": 0
+            }
+          },
+          "candidates": [
+            {
+              "id": "p1",
+              "role": "principal",
+              "signature": [
+                {
+                  "kind": "literal",
+                  "text": "2025",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                }
+              ],
+              "render": "'2025'-99-99",
+              "lengths": {
+                "min": 10,
+                "max": 10
+              },
+              "generalization": 0,
+              "merged_structures": 1,
+              "coverage": {
+                "distinct": 58,
+                "share": 1.0,
+                "basis": "all_distinct"
+              },
+              "confidence": {
+                "method": "laplace_share",
+                "value": 0.9831
+              },
+              "examples": [
+                0,
+                1,
+                2
+              ]
+            }
+          ],
+          "other": {
+            "distinct": 0,
+            "share": 0.0,
+            "structures": 0
+          },
+          "overlaps": [],
+          "limits": []
+        },
+        {
+          "dataset": "$.customers[]",
+          "field": "f9",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "booleans_only"
+            ]
+          },
+          "reason": "booleans_only"
+        },
+        {
+          "dataset": "$.customers[]",
+          "field": "f10",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
+        },
+        {
+          "dataset": "$.customers[]",
+          "field": "f11",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.3006,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
+          },
+          "reason": "no_structural_marks"
+        },
+        {
+          "dataset": "$.customers[]",
           "field": "f12",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
         },
         {
           "dataset": "$.customers[]",
           "field": "f13",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
         },
         {
           "dataset": "$.customers[]",
           "field": "f14",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 1.0,
+            "reasons": [
+              "regular_structure"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "bottom_k",
@@ -16024,19 +16018,21 @@
         {
           "dataset": "$.customers[]",
           "field": "f15",
-          "status": "not_applicable",
-          "reason": "technical_type"
-        },
-        {
-          "dataset": "$.customers[]",
-          "field": "f16",
           "status": "complete",
+          "eligibility": {
+            "state": "eligible",
+            "score": 0.75,
+            "reasons": [
+              "regular_structure",
+              "semantic_detector"
+            ]
+          },
           "population": {
             "source": "samples",
             "selection": "all",
             "complete": true,
-            "available": 3,
-            "distinct": 3,
+            "available": 92,
+            "distinct": 92,
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -16051,26 +16047,49 @@
               "role": "principal",
               "signature": [
                 {
-                  "kind": "lower_ascii",
-                  "min": 7,
-                  "max": 9
+                  "kind": "literal",
+                  "text": "2026",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
+                },
+                {
+                  "kind": "literal",
+                  "text": "-",
+                  "min": 1,
+                  "max": 1
+                },
+                {
+                  "kind": "digit_ascii",
+                  "min": 2,
+                  "max": 2
                 }
               ],
-              "render": "x{7,9}",
+              "render": "'2026'-99-99",
               "lengths": {
-                "min": 7,
-                "max": 9
+                "min": 10,
+                "max": 10
               },
               "generalization": 0,
               "merged_structures": 1,
               "coverage": {
-                "distinct": 3,
+                "distinct": 92,
                 "share": 1.0,
                 "basis": "all_distinct"
               },
               "confidence": {
                 "method": "laplace_share",
-                "value": 0.75
+                "value": 0.9892
               },
               "examples": [
                 0,
@@ -16089,103 +16108,112 @@
         },
         {
           "dataset": "$.customers[]",
+          "field": "f16",
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1321,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
+          },
+          "reason": "no_structural_marks"
+        },
+        {
+          "dataset": "$.customers[]",
           "field": "f17",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
         },
         {
           "dataset": "$.customers[]",
           "field": "f18",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "structures_only"
+            ]
+          },
+          "reason": "structures_only"
         },
         {
           "dataset": "$.customers[]",
           "field": "f19",
-          "status": "complete",
-          "population": {
-            "source": "samples",
-            "selection": "all",
-            "complete": true,
-            "available": 5,
-            "distinct": 5,
-            "excluded": {
-              "long_text_occurrences": 0,
-              "non_string_values": 0,
-              "empty_values": 0,
-              "too_long_values": 0,
-              "too_complex_values": 0
-            }
+          "status": "not_applicable",
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.1935,
+            "reasons": [
+              "regular_structure",
+              "no_structural_marks",
+              "few_distinct"
+            ]
           },
-          "candidates": [
-            {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 2,
-                  "max": 9
-                }
-              ],
-              "render": "Xx{2,9}",
-              "lengths": {
-                "min": 3,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 4,
-                "share": 0.8,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.64
-              },
-              "examples": [
-                1,
-                2,
-                3
-              ]
-            }
-          ],
-          "other": {
-            "distinct": 1,
-            "share": 0.2,
-            "structures": 1
-          },
-          "overlaps": [],
-          "limits": []
+          "reason": "no_structural_marks"
         },
         {
           "dataset": "$.customers[]",
           "field": "f20",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "low_relevance",
+            "score": 0.158,
+            "reasons": [
+              "regular_structure",
+              "small_integers",
+              "few_distinct"
+            ]
+          },
+          "reason": "small_integers"
         },
         {
           "dataset": "$.customers[]",
           "field": "f21",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "no_values"
+            ]
+          },
+          "reason": "no_values"
         },
         {
           "dataset": "$.customers[]",
           "field": "f22",
           "status": "not_applicable",
-          "reason": "technical_type"
+          "eligibility": {
+            "state": "excluded",
+            "score": 0.0,
+            "reasons": [
+              "no_values"
+            ]
+          },
+          "reason": "no_values"
         },
         {
           "dataset": "$.customers[]",
           "field": "f23",
           "status": "not_applicable",
+          "eligibility": {
+            "state": "not_assessable",
+            "score": 0.0,
+            "reasons": [
+              "too_few_distinct"
+            ]
+          },
           "reason": "too_few_distinct"
         }
       ]
@@ -16387,11 +16415,11 @@
       "format_revision": 2,
       "status": "complete",
       "base": {
-        "format_revision": 3,
+        "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
         "config_sha256": "5d8cfd935d7b10dc437911811c83d4397b7ed1445c890b152951a4e8cf4cc164",
-        "facts_sha256": "61d7f08054f3c0c5815af70b382439896e5e2187f32afcf44d43aa4cc4c3c726"
+        "facts_sha256": "a37af6e9a2716cc0ac61436cf9e1e630df972bb676f7c0af853d487a37a5cef6"
       },
       "settings": {
         "bins": 100,
@@ -16487,13 +16515,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "bd7c22311427efced01a02802c5d56700b8d6a4381cab2e0b96f89092db233f2",
+        "plan_id": "86a453fbfadfb4480903b811c673db88add8b6fddfad524f74554623b115d14d",
         "base": {
-          "format_revision": 3,
+          "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
           "config_sha256": "5d8cfd935d7b10dc437911811c83d4397b7ed1445c890b152951a4e8cf4cc164",
-          "facts_sha256": "61d7f08054f3c0c5815af70b382439896e5e2187f32afcf44d43aa4cc4c3c726"
+          "facts_sha256": "a37af6e9a2716cc0ac61436cf9e1e630df972bb676f7c0af853d487a37a5cef6"
         },
         "objective": {
           "automatic": true,
@@ -16518,15 +16546,15 @@
         },
         "summary": {
           "candidates": 135,
-          "selected": 19,
+          "selected": 15,
           "already_satisfied": 40,
-          "rejected": 76,
+          "rejected": 80,
           "second_pass_required": true,
           "executable": true,
           "memory": {
-            "min": 26287653,
-            "expected": 26744984,
-            "max": 28069161
+            "min": 26259965,
+            "expected": 26717034,
+            "max": 28037793
           },
           "beyond_automatic": []
         },
@@ -16567,20 +16595,20 @@
               "excluded_features": {
                 "few_lengths": 2,
                 "few_prefixes": 1,
-                "no_pattern": 1,
+                "no_pattern": 2,
                 "no_values": 6,
                 "not_text": 2,
                 "repeated_path": 9,
                 "sensitive_exposure": 2
               },
-              "possible": 29,
-              "evaluated": 29,
+              "possible": 26,
+              "evaluated": 26,
               "undefined": 5,
               "undefined_reasons": {
                 "single_class": 5
               },
-              "listed": 17,
-              "work": 1740,
+              "listed": 14,
+              "work": 1560,
               "cells": 84
             }
           ]
@@ -17118,7 +17146,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 6,
+              "priority": 4,
               "satisfied_by": null
             },
             "execution": {
@@ -17551,7 +17579,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 17,
+              "priority": 13,
               "satisfied_by": null
             },
             "execution": {
@@ -17628,7 +17656,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 18,
+              "priority": 14,
               "satisfied_by": null
             },
             "execution": {
@@ -17705,7 +17733,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 19,
+              "priority": 15,
               "satisfied_by": null
             },
             "execution": {
@@ -18904,7 +18932,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 8,
+              "priority": 6,
               "satisfied_by": null
             },
             "execution": {
@@ -18922,56 +18950,25 @@
             "dataset": "$.customers[]",
             "field": "f2",
             "display": "name",
-            "method": "compiled_matcher",
-            "parameters": {
-              "patterns": 2
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "pattern_counts",
               "unmatched"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 50,
+              "state": "not_applicable",
               "reasons": [
-                "derivable_from_samples"
+                "not_eligible"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 11288,
-                "expected": 11288,
-                "max": 11288
-              },
-              "cpu": "moderate",
-              "cell_ns": 1000,
-              "states": [
-                {
-                  "key": "patterns:datasets/$.customers[]/fields/f2",
-                  "memory": {
-                    "min": 10264,
-                    "expected": 10264,
-                    "max": 10264
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f2",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 13,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -19061,6 +19058,42 @@
             "dataset": "$.customers[]",
             "field": "f6",
             "display": "address.city",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "not_eligible"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$.customers[]:f7",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f7",
+            "display": "address.postal_code",
             "method": "compiled_matcher",
             "parameters": {
               "patterns": 1
@@ -19089,7 +19122,7 @@
               "cell_ns": 900,
               "states": [
                 {
-                  "key": "patterns:datasets/$.customers[]/fields/f6",
+                  "key": "patterns:datasets/$.customers[]/fields/f7",
                   "memory": {
                     "min": 5136,
                     "expected": 5136,
@@ -19097,7 +19130,7 @@
                   }
                 },
                 {
-                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f6",
+                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f7",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -19110,7 +19143,74 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 9,
+              "priority": 7,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$.customers[]:f8",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f8",
+            "display": "signup_date",
+            "method": "compiled_matcher",
+            "parameters": {
+              "patterns": 1
+            },
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 50,
+              "reasons": [
+                "derivable_from_samples"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 6160,
+                "expected": 6160,
+                "max": 6160
+              },
+              "cpu": "moderate",
+              "cell_ns": 900,
+              "states": [
+                {
+                  "key": "patterns:datasets/$.customers[]/fields/f8",
+                  "memory": {
+                    "min": 5136,
+                    "expected": 5136,
+                    "max": 5136
+                  }
+                },
+                {
+                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f8",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "selected",
+              "reason": "automatic",
+              "requested": false,
+              "priority": 8,
               "satisfied_by": null
             },
             "execution": {
@@ -19128,56 +19228,25 @@
             "dataset": "$.customers[]",
             "field": "f11",
             "display": "tags[]",
-            "method": "compiled_matcher",
-            "parameters": {
-              "patterns": 1
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "pattern_counts",
               "unmatched"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 50,
+              "state": "not_applicable",
               "reasons": [
-                "derivable_from_samples"
+                "not_eligible"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
-              },
-              "cpu": "moderate",
-              "cell_ns": 900,
-              "states": [
-                {
-                  "key": "patterns:datasets/$.customers[]/fields/f11",
-                  "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f11",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 10,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -19244,7 +19313,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 7,
+              "priority": 5,
               "satisfied_by": null
             },
             "execution": {
@@ -19256,12 +19325,12 @@
             }
           },
           {
-            "id": "pattern_validation:$.customers[]:f16",
+            "id": "pattern_validation:$.customers[]:f15",
             "analyzer": "pattern_validation",
             "analyzer_version": 1,
             "dataset": "$.customers[]",
-            "field": "f16",
-            "display": "orders[].status",
+            "field": "f15",
+            "display": "orders[].ordered_at",
             "method": "compiled_matcher",
             "parameters": {
               "patterns": 1
@@ -19290,7 +19359,7 @@
               "cell_ns": 900,
               "states": [
                 {
-                  "key": "patterns:datasets/$.customers[]/fields/f16",
+                  "key": "patterns:datasets/$.customers[]/fields/f15",
                   "memory": {
                     "min": 5136,
                     "expected": 5136,
@@ -19298,7 +19367,7 @@
                   }
                 },
                 {
-                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f16",
+                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f15",
                   "memory": {
                     "min": 1024,
                     "expected": 1024,
@@ -19311,7 +19380,43 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 11,
+              "priority": 9,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$.customers[]:f16",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f16",
+            "display": "orders[].status",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "not_eligible"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -19329,56 +19434,97 @@
             "dataset": "$.customers[]",
             "field": "f19",
             "display": "orders[].items[].product",
-            "method": "compiled_matcher",
-            "parameters": {
-              "patterns": 1
-            },
+            "method": null,
+            "parameters": {},
             "outputs": [
               "pattern_counts",
               "unmatched"
             ],
             "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 50,
+              "state": "not_applicable",
               "reasons": [
-                "derivable_from_samples"
+                "not_eligible"
               ]
             },
-            "costs": {
-              "memory": {
-                "min": 6160,
-                "expected": 6160,
-                "max": 6160
-              },
-              "cpu": "moderate",
-              "cell_ns": 900,
-              "states": [
-                {
-                  "key": "patterns:datasets/$.customers[]/fields/f19",
-                  "memory": {
-                    "min": 5136,
-                    "expected": 5136,
-                    "max": 5136
-                  }
-                },
-                {
-                  "key": "result:pattern_validation:datasets/$.customers[]/fields/f19",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                }
-              ]
-            },
+            "utility": null,
+            "costs": null,
             "selection": {
-              "state": "selected",
-              "reason": "automatic",
+              "state": "rejected",
+              "reason": "not_applicable",
               "requested": false,
-              "priority": 12,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$.customers[]:f21",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f21",
+            "display": "orders[].items[].unit_price",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "pattern_validation:$.customers[]:f22",
+            "analyzer": "pattern_validation",
+            "analyzer_version": 1,
+            "dataset": "$.customers[]",
+            "field": "f22",
+            "display": "orders[].total",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "pattern_counts",
+              "unmatched"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "no_values"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
               "satisfied_by": null
             },
             "execution": {
@@ -19490,7 +19636,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 15,
+              "priority": 11,
               "satisfied_by": null
             },
             "execution": {
@@ -19566,91 +19712,11 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 16,
+              "priority": 12,
               "satisfied_by": null
             },
             "execution": {
               "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            }
-          },
-          {
-            "id": "residual_values:$.customers[]:f11",
-            "analyzer": "residual_values",
-            "analyzer_version": 1,
-            "dataset": "$.customers[]",
-            "field": "f11",
-            "display": "tags[]",
-            "method": "residual_table",
-            "parameters": {
-              "sources": "pattern",
-              "max_listed": 20,
-              "max_tracked": 10000,
-              "max_value_length": 100,
-              "records": 0
-            },
-            "outputs": [
-              "residual_values",
-              "pattern_profile"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 60,
-              "reasons": [
-                "values_left_out",
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 5120,
-                "expected": 5251,
-                "max": 6960
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "residuals:datasets/$.customers[]/fields/f11",
-                  "memory": {
-                    "min": 0,
-                    "expected": 131,
-                    "max": 1050
-                  }
-                },
-                {
-                  "key": "result:residual_values:datasets/$.customers[]/fields/f11",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "exact_set:residual:datasets/$.customers[]/fields/f11",
-                  "memory": {
-                    "min": 4096,
-                    "expected": 4096,
-                    "max": 4886
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 3,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
               "available": true,
               "deterministic": true,
               "reusable": true,
@@ -19725,91 +19791,11 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 5,
+              "priority": 3,
               "satisfied_by": null
             },
             "execution": {
               "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            }
-          },
-          {
-            "id": "residual_values:$.customers[]:f19",
-            "analyzer": "residual_values",
-            "analyzer_version": 1,
-            "dataset": "$.customers[]",
-            "field": "f19",
-            "display": "orders[].items[].product",
-            "method": "residual_table",
-            "parameters": {
-              "sources": "pattern",
-              "max_listed": 20,
-              "max_tracked": 10000,
-              "max_value_length": 100,
-              "records": 0
-            },
-            "outputs": [
-              "residual_values",
-              "pattern_profile"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 60,
-              "reasons": [
-                "values_left_out",
-                "derivable_from_samples"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 5120,
-                "expected": 5251,
-                "max": 6960
-              },
-              "cpu": "low",
-              "cell_ns": 300,
-              "states": [
-                {
-                  "key": "residuals:datasets/$.customers[]/fields/f19",
-                  "memory": {
-                    "min": 0,
-                    "expected": 131,
-                    "max": 1050
-                  }
-                },
-                {
-                  "key": "result:residual_values:datasets/$.customers[]/fields/f19",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "exact_set:residual:datasets/$.customers[]/fields/f19",
-                  "memory": {
-                    "min": 4096,
-                    "expected": 4096,
-                    "max": 4886
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "selected",
-              "reason": "automatic",
-              "requested": false,
-              "priority": 4,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": false,
               "available": true,
               "deterministic": true,
               "reusable": true,
@@ -19909,7 +19895,7 @@
               "state": "selected",
               "reason": "automatic",
               "requested": false,
-              "priority": 14,
+              "priority": 10,
               "satisfied_by": null
             },
             "execution": {
@@ -20846,141 +20832,6 @@
             }
           },
           {
-            "id": "category_crosstab:$.customers[]:f7>f2:pattern",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "$.customers[]",
-            "field": "f7",
-            "display": "address.postal_code and name (pattern)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "pattern",
-              "max_categories": 30,
-              "examples": 3,
-              "max_exception_cells": 20,
-              "rule_purity": 90,
-              "rule_support": 30
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 26,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 478185,
-                "expected": 612260,
-                "max": 1004360
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "crosstab:datasets/$.customers[]/fields/f7>f2:pattern",
-                  "memory": {
-                    "min": 2025,
-                    "expected": 8100,
-                    "max": 16200
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/$.customers[]/fields/f7>f2:pattern",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f7:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f7:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f7",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "f2",
-            "exploration": {
-              "scope": "all_rows",
-              "rows": 51,
-              "categories": 5,
-              "classes": 2,
-              "purity": 0.941176,
-              "cramers_v": 0.383119,
-              "score": 0.261042,
-              "stable": false
-            }
-          },
-          {
             "id": "category_crosstab:$.customers[]:f9>f6:prefix",
             "analyzer": "category_crosstab",
             "analyzer_version": 1,
@@ -21250,141 +21101,6 @@
               "purity": 0.357143,
               "cramers_v": 0.392802,
               "score": 0.254083,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:$.customers[]:f6>f2:pattern",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "$.customers[]",
-            "field": "f6",
-            "display": "address.city and name (pattern)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "pattern",
-              "max_categories": 30,
-              "examples": 3,
-              "max_exception_cells": 20,
-              "rule_purity": 90,
-              "rule_support": 30
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 23,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 478522,
-                "expected": 613610,
-                "max": 1007060
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "crosstab:datasets/$.customers[]/fields/f6>f2:pattern",
-                  "memory": {
-                    "min": 2362,
-                    "expected": 9450,
-                    "max": 18900
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/$.customers[]/fields/f6>f2:pattern",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f6:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f6:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f6",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "f2",
-            "exploration": {
-              "scope": "all_rows",
-              "rows": 60,
-              "categories": 6,
-              "classes": 2,
-              "purity": 0.933333,
-              "cramers_v": 0.372868,
-              "score": 0.234991,
               "stable": false
             }
           },
@@ -22067,141 +21783,6 @@
               "purity": 0.764706,
               "cramers_v": 0.43106,
               "score": 0.079487,
-              "stable": false
-            }
-          },
-          {
-            "id": "category_crosstab:$.customers[]:f9>f2:pattern",
-            "analyzer": "category_crosstab",
-            "analyzer_version": 1,
-            "dataset": "$.customers[]",
-            "field": "f9",
-            "display": "newsletter and name (pattern)",
-            "method": "contingency_table",
-            "parameters": {
-              "feature": "pattern",
-              "max_categories": 30,
-              "examples": 3,
-              "max_exception_cells": 20,
-              "rule_purity": 90,
-              "rule_support": 30
-            },
-            "outputs": [
-              "contingency_table",
-              "conditional_coverage",
-              "purity",
-              "association",
-              "exceptions",
-              "candidate_rules"
-            ],
-            "applicability": {
-              "state": "applicable",
-              "reasons": []
-            },
-            "utility": {
-              "score": 6,
-              "reasons": [
-                "exploratory_association"
-              ]
-            },
-            "costs": {
-              "memory": {
-                "min": 477172,
-                "expected": 608210,
-                "max": 996260
-              },
-              "cpu": "low",
-              "cell_ns": 600,
-              "states": [
-                {
-                  "key": "crosstab:datasets/$.customers[]/fields/f9>f2:pattern",
-                  "memory": {
-                    "min": 1012,
-                    "expected": 4050,
-                    "max": 8100
-                  }
-                },
-                {
-                  "key": "result:category_crosstab:datasets/$.customers[]/fields/f9>f2:pattern",
-                  "memory": {
-                    "min": 1024,
-                    "expected": 1024,
-                    "max": 1024
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f9:category",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f9:category",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f9",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                },
-                {
-                  "key": "code_feed:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 229376,
-                    "expected": 229376,
-                    "max": 229376
-                  }
-                },
-                {
-                  "key": "coder:datasets/$.customers[]/fields/f2:pattern",
-                  "memory": {
-                    "min": 8192,
-                    "expected": 8192,
-                    "max": 8192
-                  }
-                },
-                {
-                  "key": "replay:datasets/$.customers[]/fields/f2",
-                  "memory": {
-                    "min": 0,
-                    "expected": 64000,
-                    "max": 256000
-                  }
-                }
-              ]
-            },
-            "selection": {
-              "state": "rejected",
-              "reason": "low_utility",
-              "requested": false,
-              "priority": null,
-              "satisfied_by": null
-            },
-            "execution": {
-              "requires_source": true,
-              "available": true,
-              "deterministic": true,
-              "reusable": true,
-              "on_limit": "limited"
-            },
-            "partner": "f2",
-            "exploration": {
-              "scope": "all_rows",
-              "rows": 56,
-              "categories": 2,
-              "classes": 2,
-              "purity": 0.928571,
-              "cramers_v": 0.148675,
-              "score": 0.063207,
               "stable": false
             }
           },
@@ -24174,20 +23755,20 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T01:41:25.612493Z",
-        "duration_seconds": 0.013316,
+        "started_at": "2026-10-13T06:54:21.130710Z",
+        "duration_seconds": 0.013511,
         "timings": {
-          "reading": 0.003264,
-          "analysis": 0.004083,
-          "other": 0.00597
+          "reading": 0.003238,
+          "analysis": 0.004088,
+          "other": 0.006186
         },
         "workers": 1,
-        "peak_memory_bytes": 71323648,
+        "peak_memory_bytes": 70610944,
         "source_read": true,
         "source_verified": true,
         "records_read": 60,
         "cells_read": 866,
-        "executed": 19,
+        "executed": 15,
         "reused": 0,
         "skipped": 0
       },
@@ -24204,7 +23785,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "2d8ab9bfe11a38f14e3f5fabadb600cdc68573233876ad428e738a156baf8252",
+          "key": "1d422e16013868d081175614f1a04a7931be1e7abb73a79d1ae475557af33d93",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -24874,7 +24455,7 @@
             "domain": 3
           },
           "domain": "analytical",
-          "key": "dae27c27935ace81288d1ea781112c39fd62ec551f4b7db63b68937aaa5d7c93",
+          "key": "e1acc6f2819b9675959b94efe6814ac5e6282d64e863e9eab4334f4fedc5b28c",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -24947,7 +24528,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "840eb1fdc3cb1210053acde0d1b2b908813648d27707e6c20757b5151fdcd977",
+          "key": "1a6711d0d9becbefe095229d883adb9b0ff11cf5cf4719965cd1cbd5ded12db4",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25225,7 +24806,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "98d9fce919040b548ed7512e82c0c805b2bdbcc4aa8e443f4ac338fce6b31bfe",
+          "key": "f28cb494e39258f919dcd644ad4822b149b6de9a001d82c38fbc270ebf8f3050",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -25502,7 +25083,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "3c38e6dac200e01ebee4ad6c67b17f52290c150573dcc92c290c53410e1417c5",
+          "key": "1bda059111be78bf9bf19a5809e385a71e8fabe8dba8301fee7083b196a9e5f8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -25528,81 +25109,31 @@
           }
         },
         {
-          "id": "pattern_validation:$.customers[]:f2",
+          "id": "pattern_validation:$.customers[]:f7",
           "analyzer": "pattern_validation",
           "analyzer_version": 1,
           "dataset": "$.customers[]",
-          "field": "f2",
-          "display": "name",
-          "method": "compiled_matcher",
-          "parameters": {
-            "patterns": 2
-          },
-          "domain": "original",
-          "key": "44b3bd06bc1474038e7aaef8a97564cd9ffc1d25903d431281e44066adc6fba9",
-          "status": "complete",
-          "result": {
-            "kind": "pattern_counts",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "grammar_version": 1,
-            "values": 60,
-            "matched": 60,
-            "candidates": [
-              {
-                "id": "p1",
-                "render": "Xx{2,6}' 'Xx{4,6}",
-                "occurrences": 4
-              },
-              {
-                "id": "p2",
-                "render": "@{4,7}' 'Xx{4,6}",
-                "occurrences": 56
-              }
-            ],
-            "other": 0,
-            "excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "overlaps": [
-              {
-                "patterns": [
-                  "p1",
-                  "p2"
-                ],
-                "occurrences": 48
-              }
-            ]
-          }
-        },
-        {
-          "id": "pattern_validation:$.customers[]:f6",
-          "analyzer": "pattern_validation",
-          "analyzer_version": 1,
-          "dataset": "$.customers[]",
-          "field": "f6",
-          "display": "address.city",
+          "field": "f7",
+          "display": "address.postal_code",
           "method": "compiled_matcher",
           "parameters": {
             "patterns": 1
           },
           "domain": "original",
-          "key": "f3b953e6b9bc08e043c7dac2e0c5676548fa55b705713f7665099211a9509e9a",
+          "key": "ead49f5189131bd75461ea9e97ae080dd781c3c45f84106921f2a67dda1fcf7a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 1,
-            "values": 60,
-            "matched": 60,
+            "values": 51,
+            "matched": 51,
             "candidates": [
               {
                 "id": "p1",
-                "render": "Xx{3,7}",
-                "occurrences": 60
+                "render": "99999",
+                "occurrences": 51
               }
             ],
             "other": 0,
@@ -25615,34 +25146,34 @@
           }
         },
         {
-          "id": "pattern_validation:$.customers[]:f11",
+          "id": "pattern_validation:$.customers[]:f8",
           "analyzer": "pattern_validation",
           "analyzer_version": 1,
           "dataset": "$.customers[]",
-          "field": "f11",
-          "display": "tags[]",
+          "field": "f8",
+          "display": "signup_date",
           "method": "compiled_matcher",
           "parameters": {
             "patterns": 1
           },
           "domain": "original",
-          "key": "e7e123df9d9bcfeee338a2bbc0a617168564cbb7acd67ee75f074cf77f593ff5",
+          "key": "311f6a5df537d5b6350a37c07c64291eeceef9419680d5fba2d0c314a350aba8",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
             "accuracy": "exact",
             "computed_from": "samples",
             "grammar_version": 1,
-            "values": 70,
-            "matched": 55,
+            "values": 60,
+            "matched": 60,
             "candidates": [
               {
                 "id": "p1",
-                "render": "x{3,10}",
-                "occurrences": 55
+                "render": "'2025'-99-99",
+                "occurrences": 60
               }
             ],
-            "other": 15,
+            "other": 0,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
@@ -25663,7 +25194,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "1d941e59b6926ecabb359dec4285ddbbaadf1a6951bae309e6c4e25fea377fcb",
+          "key": "39ce9539b88e66f4749f65661dee83160b8163f7ffc9a16c81752258fbf9c9ca",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -25689,18 +25220,18 @@
           }
         },
         {
-          "id": "pattern_validation:$.customers[]:f16",
+          "id": "pattern_validation:$.customers[]:f15",
           "analyzer": "pattern_validation",
           "analyzer_version": 1,
           "dataset": "$.customers[]",
-          "field": "f16",
-          "display": "orders[].status",
+          "field": "f15",
+          "display": "orders[].ordered_at",
           "method": "compiled_matcher",
           "parameters": {
             "patterns": 1
           },
           "domain": "original",
-          "key": "8b5cb3c74074a94baf0585511d3a2d08645dc606a0280bf32318b5609ccc4979",
+          "key": "2d51a788b1480e017fc326c3c6096845af815d5f9b22d1b6f804e2427cc23788",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -25712,48 +25243,11 @@
             "candidates": [
               {
                 "id": "p1",
-                "render": "x{7,9}",
+                "render": "'2026'-99-99",
                 "occurrences": 119
               }
             ],
             "other": 0,
-            "excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "overlaps": []
-          }
-        },
-        {
-          "id": "pattern_validation:$.customers[]:f19",
-          "analyzer": "pattern_validation",
-          "analyzer_version": 1,
-          "dataset": "$.customers[]",
-          "field": "f19",
-          "display": "orders[].items[].product",
-          "method": "compiled_matcher",
-          "parameters": {
-            "patterns": 1
-          },
-          "domain": "original",
-          "key": "cd94dfa517c97299a4354edfb121d7a0fdf0ebc3b635e6a088851746d821e466",
-          "status": "complete",
-          "result": {
-            "kind": "pattern_counts",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "grammar_version": 1,
-            "values": 119,
-            "matched": 95,
-            "candidates": [
-              {
-                "id": "p1",
-                "render": "Xx{2,9}",
-                "occurrences": 95
-              }
-            ],
-            "other": 24,
             "excluded": {
               "non_string": 0,
               "too_long": 0,
@@ -25776,7 +25270,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "6a97bbf1368f4a6b6bb401a5427e0ce8a2f02be235d921d06c4b8b46687c14ea",
+          "key": "d53dae7cafc060eaaaad76987473885c2d7c6f8a1ca1f49aa1a9259587a470b7",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -26041,7 +25535,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "6f6fd584a159482d061857edbd50f9dc7c8ddd6aba5385ea7e88a908bb762744",
+          "key": "d53ec3bff32312074be0e467cd9b021c0c7226746ab27c4954f4494203cf3e89",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -26429,66 +25923,6 @@
           }
         },
         {
-          "id": "residual_values:$.customers[]:f11",
-          "analyzer": "residual_values",
-          "analyzer_version": 1,
-          "dataset": "$.customers[]",
-          "field": "f11",
-          "display": "tags[]",
-          "method": "residual_table",
-          "parameters": {
-            "sources": "pattern",
-            "max_listed": 20,
-            "max_tracked": 10000,
-            "max_value_length": 100,
-            "records": 0
-          },
-          "domain": "mixed",
-          "key": "db2e5d751e039df5e15c6360482aa5784c7d804663750b0cf5424df3c583b538",
-          "status": "complete",
-          "result": {
-            "kind": "residual_values",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "records": false,
-            "values": 70,
-            "tables": [
-              {
-                "source": "pattern",
-                "state": "other",
-                "occurrences": 15,
-                "distinct": 1,
-                "complete": true,
-                "untracked": 0,
-                "too_long": 0,
-                "truncated": false,
-                "listed": [
-                  {
-                    "value": "b2b",
-                    "count": 15
-                  }
-                ]
-              }
-            ],
-            "patterns": [
-              {
-                "id": "p1",
-                "render": "x{3,10}",
-                "occurrences": 55,
-                "distinct": 4,
-                "distinct_accuracy": "exact",
-                "example": "returning"
-              }
-            ],
-            "pattern_excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "detectors": []
-          }
-        },
-        {
           "id": "residual_values:$.customers[]:f14",
           "analyzer": "residual_values",
           "analyzer_version": 1,
@@ -26504,7 +25938,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "367aa7c1396931e1e996e9535bb424de5ffdd380a70ccc18230b6f289a66afd2",
+          "key": "25e2a0422156e61df219458467979d26b6c4a82e239d8e560c2b097852ada1b4",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -26533,66 +25967,6 @@
           }
         },
         {
-          "id": "residual_values:$.customers[]:f19",
-          "analyzer": "residual_values",
-          "analyzer_version": 1,
-          "dataset": "$.customers[]",
-          "field": "f19",
-          "display": "orders[].items[].product",
-          "method": "residual_table",
-          "parameters": {
-            "sources": "pattern",
-            "max_listed": 20,
-            "max_tracked": 10000,
-            "max_value_length": 100,
-            "records": 0
-          },
-          "domain": "mixed",
-          "key": "1a308190cceea5b81d4591356f695f8ea09b4379e35e71f87640837373585b3c",
-          "status": "complete",
-          "result": {
-            "kind": "residual_values",
-            "accuracy": "exact",
-            "computed_from": "samples",
-            "records": false,
-            "values": 119,
-            "tables": [
-              {
-                "source": "pattern",
-                "state": "other",
-                "occurrences": 24,
-                "distinct": 1,
-                "complete": true,
-                "untracked": 0,
-                "too_long": 0,
-                "truncated": false,
-                "listed": [
-                  {
-                    "value": "Desk lamp",
-                    "count": 24
-                  }
-                ]
-              }
-            ],
-            "patterns": [
-              {
-                "id": "p1",
-                "render": "Xx{2,9}",
-                "occurrences": 95,
-                "distinct": 4,
-                "distinct_accuracy": "exact",
-                "example": "Headphones"
-              }
-            ],
-            "pattern_excluded": {
-              "non_string": 0,
-              "too_long": 0,
-              "too_complex": 0
-            },
-            "detectors": []
-          }
-        },
-        {
           "id": "duplicates_report:$.customers[]:f2",
           "analyzer": "duplicates_report",
           "analyzer_version": 1,
@@ -26606,7 +25980,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "f4cf4578996b0c433a26dd1a2e4c8617c15b846ea0d90852303b14e79c82a400",
+          "key": "920665b3d8ebc12e56a01fb031cf3f44ac471bdd5ec1672b5e3db91fca18e939",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -26665,7 +26039,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "fe07defccb4c89d5a60ce6d49904d4c611c0074195504dd64b0dc0eed8e67f0e",
+          "key": "77cc5c0445744468c7a1ae9cd920fcd7f0a7510a889b628082cf2159711dc512",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -26968,7 +26342,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "a2673b1d1d240cab9286e86249f1aaccf795005a37f9865345fe048d7e3363e8",
+          "key": "1431f5dfc6a453dae61989c8e960f0fc4f317209466aaea17151cef358b1a9ba",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -27244,12 +26618,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T01:41:25.708256Z",
+    "generated_at": "2026-10-13T06:54:21.233767Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1826,
+    "processing_seconds": 0.1996,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -27279,11 +26653,11 @@
     "base_scan": {
       "format": "tabalyst.scan",
       "format_version": "0.2.0",
-      "format_revision": 3,
+      "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "ece53017421aa38fc11f6f7f07a7ad0168ffe606b098618c8fb1e69c59df1a59",
       "config_sha256": "5d8cfd935d7b10dc437911811c83d4397b7ed1445c890b152951a4e8cf4cc164",
-      "facts_sha256": "61d7f08054f3c0c5815af70b382439896e5e2187f32afcf44d43aa4cc4c3c726"
+      "facts_sha256": "a37af6e9a2716cc0ac61436cf9e1e630df972bb676f7c0af853d487a37a5cef6"
     },
     "datasets": [
       {

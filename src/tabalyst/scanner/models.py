@@ -22,7 +22,7 @@ T = TypeVar("T")
 
 FORMAT = "tabalyst.scan"
 FORMAT_VERSION = "0.2.0"
-FORMAT_REVISION = 3
+FORMAT_REVISION = 4
 
 
 class ScanModel(BaseModel):
@@ -1172,10 +1172,48 @@ class PatternPopulation(ScanModel):
     excluded: PatternExcluded
 
 
+EligibilityState = Literal["eligible", "low_relevance", "excluded", "not_assessable"]
+EligibilityReason = Literal[
+    # excluded
+    "exposure",
+    "booleans_only",
+    "structures_only",
+    "long_texts_only",
+    "no_values",
+    # not_assessable
+    "samples_withheld",
+    "too_few_distinct",
+    "inference_error",
+    # assessed: eligible or low_relevance
+    "regular_structure",
+    "many_fixed_lengths",
+    "integer_digits",
+    "small_integers",
+    "decimal_numbers",
+    "no_structural_marks",
+    "few_distinct",
+    "semantic_detector",
+]
+
+
+class PatternEligibility(ScanModel):
+    """Whether a field is a candidate for the discovery (design 18.12, PAT-12).
+
+    ``score`` runs from 0 to 1 (four decimals) and is 0 for a field that is
+    ``excluded`` or ``not_assessable``; only an ``eligible`` field is
+    discovered. ``reasons`` are codes, never empty, so a reader can tell "no
+    pattern" from "not looked at"."""
+
+    state: EligibilityState
+    score: float
+    reasons: list[EligibilityReason]
+
+
 class FieldPatternsComplete(ScanModel):
     dataset: str
     field: str
     status: Literal["complete"] = "complete"
+    eligibility: PatternEligibility
     population: PatternPopulation
     candidates: list[PatternCandidate]
     other: PatternOther
@@ -1184,9 +1222,14 @@ class FieldPatternsComplete(ScanModel):
 
 
 class FieldPatternsNotApplicable(ScanModel):
+    """A field the discovery does not read: its eligibility says why. ``reason``
+    repeats the deciding code of the eligibility until the entries of grammar 2
+    replace it (Patterns lot P3)."""
+
     dataset: str
     field: str
     status: Literal["not_applicable"] = "not_applicable"
+    eligibility: PatternEligibility
     reason: str
 
 
@@ -1198,6 +1241,7 @@ class FieldPatternsFailed(ScanModel):
     dataset: str
     field: str
     status: Literal["failed"] = "failed"
+    eligibility: PatternEligibility
     reason: Literal["inference_error"] = "inference_error"
     diagnostic: int
 

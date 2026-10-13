@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """Structural pattern inference from the samples of a scan (design 18.12): the
-grammar, the linear matcher and the candidates of a field. It never reads the
-source.
+grammar, the linear matcher and the candidates of an eligible field. It never
+reads the source.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import re
 from collections.abc import Sequence
 from itertools import groupby
 
+from tabalyst.scanner import pattern_eligibility
 from tabalyst.scanner.config import PatternInferenceSettings
 from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.models import (
@@ -26,6 +27,7 @@ from tabalyst.scanner.models import (
     PatternCandidate,
     PatternConfidence,
     PatternCoverage,
+    PatternEligibility,
     PatternExcluded,
     PatternGrammar,
     PatternLengths,
@@ -402,7 +404,10 @@ def _population(
     field: FieldResult, settings: PatternInferenceSettings
 ) -> tuple[list[SampleEntry], PatternExcluded, bool, int]:
     """The usable entries of the samples of a field, the exclusions, whether the
-    population was cut at ``MAX_VALUES`` and the usable count before the cut."""
+    population was cut at ``MAX_VALUES`` and the usable count before the cut.
+
+    An integer is read as its decimal text, so a column of digits typed as
+    integers takes part (design 18.12); other non-string values are excluded."""
     samples = field.values.samples
     entries = list(samples.listed)
     if samples.by_length is not None:
@@ -414,7 +419,7 @@ def _population(
     non_string = empty = too_long = 0
     usable = []
     for entry in entries:
-        if entry.type != "string":
+        if entry.type not in ("string", "integer"):
             non_string += 1
         elif not entry.value:
             empty += 1
@@ -433,27 +438,35 @@ def _population(
     return usable[:MAX_VALUES], excluded, len(usable) > MAX_VALUES, len(usable)
 
 
-def _not_applicable(dataset: str, field: str, reason: str) -> FieldPatterns:
-    return FieldPatternsNotApplicable(dataset=dataset, field=field, reason=reason)
-
-
-def infer_field(
-    dataset: str, field: FieldResult, settings: PatternInferenceSettings
+def _not_applicable(
+    dataset: str, field: str, eligibility: PatternEligibility
 ) -> FieldPatterns:
-    """The inferred patterns of one field, or why there are none."""
-    if field.technical_type.type not in ("text", "mixed"):
-        return _not_applicable(dataset, field.id, "technical_type")
-    samples = field.values.samples
-    if field.exposure in ("mask", "hide"):
-        return _not_applicable(dataset, field.id, "exposure")
-    if samples.kept < samples.of:
-        return _not_applicable(dataset, field.id, "samples_withheld")
+    return FieldPatternsNotApplicable(
+        dataset=dataset,
+        field=field,
+        eligibility=eligibility,
+        reason=pattern_eligibility.deciding_reason(eligibility),
+    )
+
+
+# What ``_infer`` reads: the entries, their tokens, the exclusions, whether the
+# population was cut and the available count.
+_Prepared = tuple[list[SampleEntry], list[list[Token]], PatternExcluded, bool, int]
+# A failure before the eligibility was known.
+_UNKNOWN = PatternEligibility(state="not_assessable", score=0.0, reasons=["inference_error"])
+
+
+def _prepare(
+    field: FieldResult, settings: PatternInferenceSettings
+) -> tuple[PatternEligibility, _Prepared | None]:
+    """The eligibility of a field and, for an eligible one, what ``_infer``
+    reads. The population is tokenized once, for both."""
+    early = pattern_eligibility.preselect(field)
+    if early is not None:
+        return early, None
     entries, excluded, cut, available = _population(field, settings)
     if not entries:
-        only_long = excluded.long_text_occurrences > 0 and samples.of == 0
-        return _not_applicable(
-            dataset, field.id, "long_texts_only" if only_long else "no_values"
-        )
+        return pattern_eligibility.without_values(field, excluded), None
     tokens = [tokenize(entry.value) for entry in entries]
     complex_ = [index for index, row in enumerate(tokens) if len(row) > MAX_TOKENS]
     if complex_:
@@ -461,15 +474,39 @@ def infer_field(
         entries = [entry for index, entry in enumerate(entries) if index not in drop]
         tokens = [row for index, row in enumerate(tokens) if index not in drop]
         excluded = excluded.model_copy(update={"too_complex_values": len(complex_)})
-    if len(entries) < settings.min_distinct:
-        return _not_applicable(dataset, field.id, "too_few_distinct")
-    return _infer(dataset, field, settings, entries, tokens, excluded, cut, available)
+    eligibility = pattern_eligibility.assess(field, entries, tokens, settings)
+    if eligibility.state != "eligible":
+        return eligibility, None
+    return eligibility, (entries, tokens, excluded, cut, available)
+
+
+def infer_field(
+    dataset: str, field: FieldResult, settings: PatternInferenceSettings
+) -> FieldPatterns:
+    """The inferred patterns of one field, or its eligibility when it is not
+    eligible (design 18.12)."""
+    return _entry(dataset, field, settings, *_prepare(field, settings))
+
+
+def _entry(
+    dataset: str,
+    field: FieldResult,
+    settings: PatternInferenceSettings,
+    eligibility: PatternEligibility,
+    prepared: _Prepared | None,
+) -> FieldPatterns:
+    """The entry of a field once its eligibility is known: inferred when it is
+    eligible, ``not_applicable`` otherwise."""
+    if prepared is None:
+        return _not_applicable(dataset, field.id, eligibility)
+    return _infer(dataset, field, settings, eligibility, *prepared)
 
 
 def _infer(
     dataset: str,
     field: FieldResult,
     settings: PatternInferenceSettings,
+    eligibility: PatternEligibility,
     entries: list[SampleEntry],
     tokens: list[list[Token]],
     excluded: PatternExcluded,
@@ -553,6 +590,7 @@ def _infer(
     return FieldPatternsComplete(
         dataset=dataset,
         field=field.id,
+        eligibility=eligibility,
         population=PatternPopulation(
             source="samples",
             selection=samples.selection,
@@ -589,8 +627,10 @@ def _infer_isolated(
     """``infer_field``, with an exception turned into a ``failed`` entry and a
     ``pattern_inference_failed`` error: a bug in this post-pass must not lose a
     scan that already read the whole source (as for a detector, CA19)."""
+    eligibility = _UNKNOWN
     try:
-        return infer_field(dataset, field, settings)
+        eligibility, prepared = _prepare(field, settings)
+        return _entry(dataset, field, settings, eligibility, prepared)
     except Exception as exc:  # noqa: BLE001 - the inference is isolated per field
         # Only the exception type: its message could quote a value.
         index = diagnostics.add(
@@ -602,7 +642,9 @@ def _infer_isolated(
             dataset=dataset,
             field=field.id,
         )
-        return FieldPatternsFailed(dataset=dataset, field=field.id, diagnostic=index)
+        return FieldPatternsFailed(
+            dataset=dataset, field=field.id, eligibility=eligibility, diagnostic=index
+        )
 
 
 def infer_patterns(

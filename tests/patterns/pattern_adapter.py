@@ -15,12 +15,20 @@ skipped by the gate of ``conftest.py`` meanwhile.
 
 from __future__ import annotations
 
+import csv
+import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
 from typing import Literal
 
 from pattern_corpus import Field, Variants
 from pattern_tree import Declared, SeenField
+
+from tabalyst.scanner import ScanConfig, scan
+from tabalyst.scanner.config import DetectorSettings
+from tabalyst.scanner.models import FieldPatterns
 
 # The outcomes of a value at validation (REC-006); ``invalid`` is reserved and
 # never given by the inference. A set of lengths never seen in a known structure
@@ -90,7 +98,42 @@ def eligibility(field: Field) -> Eligibility:
     digits only is typed as an integer by the Scan (RC-10, RC-11); ``field.detector``
     names the semantic detector that recognizes the column (``date``), ``masked``
     its exposure."""
-    raise NotImplementedError("bind the eligibility of the columns (lot P2)")
+    entry = _scanned_entry(field)
+    return Eligibility(
+        state=entry.eligibility.state,
+        score=entry.eligibility.score,
+        reasons=tuple(entry.eligibility.reasons),
+    )
+
+
+# Every detector but ``number`` reads a meaning: a field of the corpus without a
+# detector is scanned without them, so that its values alone decide.
+_SEMANTIC = tuple(name for name in DetectorSettings.model_fields if name != "number")
+
+
+@cache
+def _scanned_entry(field: Field) -> FieldPatterns:
+    """The ``derived.patterns`` entry of a Scan of ``field``: a CSV file of one
+    column holding each value as many times as it occurs, outside the checkout."""
+    settings: dict[str, object] = {}
+    if field.detector is None:
+        settings["detectors"] = {name: {"enabled": False} for name in _SEMANTIC}
+    with tempfile.TemporaryDirectory(prefix="tabalyst-patterns-") as folder:
+        source = Path(folder) / "field.csv"
+        with source.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["value"])
+            for value, count in field.pairs:
+                writer.writerows([value] for _ in range(count))
+        result = scan(source, config=ScanConfig.model_validate(settings))
+    scanned = result.datasets[0].fields[0]
+    if field.detector is not None:
+        interpreted = {item.detector for item in scanned.interpretations.candidates}
+        assert field.detector in interpreted, f"{field.id}: {field.detector} not read"
+    assert (scanned.exposure in ("mask", "hide")) == field.masked, field.id
+    assert result.derived is not None and result.derived.patterns is not None
+    [entry] = result.derived.patterns.fields
+    return entry
 
 
 @dataclass(frozen=True)

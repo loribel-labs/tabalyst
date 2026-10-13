@@ -276,13 +276,16 @@ def test_G40_the_workers_give_the_result_of_one_process_and_the_same_records(tmp
         return f"{year}-02-30"
 
     rows = [f"{day()},{day()},{n}" for n in range(4_000)]
-    result = scan_csv(tmp_path, "first,second,n", rows, **READ)
+    # Without patterns (dates are eligible for them, AC-002), no exact set.
+    result = scan_csv(
+        tmp_path, "first,second,n", rows, pattern_inference={"enabled": False}, **READ
+    )
     plan = forced_plan(result)
     alone = run_second_pass(result, tmp_path / "data.csv", plan, workers=1)
     shared = run_second_pass(result, tmp_path / "data.csv", plan, workers=3)
 
     # No pattern, so no exact set: the two routes of dates go to workers.
-    assert {p.status for p in result.derived.patterns.fields[:2]} == {"not_applicable"}
+    assert result.derived is None
     assert shared.document.run.workers == 3
     found = _residuals(shared, "first")
     assert found.records and found.tables[0].listed[0].first_record is not None
@@ -769,7 +772,11 @@ def test_G61_the_cost_follows_the_distinct_values_and_a_wide_replay_is_never_aut
     ]
     wide = scan_csv(tmp_path / "wide", "day", days, **READ)
     auto = by_analyzer(plan_analyses(wide), "residual_values")["day"]
-    assert auto.costs.cell_ns == NS_PER_CELL["residual_wide"]
+    # Dates are eligible for patterns (AC-002): the replay of the detector and
+    # the pattern share the reading of a cell.
+    assert auto.costs.cell_ns == NS_PER_CELL["residual_wide"] + round(
+        0.3 * NS_PER_CELL["residual_pattern_wide"]
+    )
     assert auto.costs.cpu == "high"
     assert (auto.selection.state, auto.selection.reason) == ("rejected", "cpu_class")
     forced = by_analyzer(plan_analyses(wide, forced=True), "residual_values")["day"]
