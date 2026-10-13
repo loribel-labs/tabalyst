@@ -26,6 +26,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.characters import CharacterAccumulator
 from tabalyst.scanner.secondpass.drift import DriftAccumulator
 from tabalyst.scanner.secondpass.duplicates import DuplicateAccumulator
 from tabalyst.scanner.secondpass.forms import FormsAccumulator
@@ -62,6 +63,7 @@ PARTS = (
     "drift",
     "texts",
     "forms",
+    "characters",
 )
 # The module and function a worker of the second pass runs.
 ENTRY = ("tabalyst.scanner.secondpass.parallel", "serve")
@@ -99,6 +101,8 @@ def part_name(accumulator: object) -> str:
         return "texts"
     if isinstance(accumulator, FormsAccumulator):
         return "forms"
+    if isinstance(accumulator, CharacterAccumulator):
+        return "characters"
     assert isinstance(accumulator, DenseAccumulator | BinAccumulator)
     return "numeric"
 
@@ -131,6 +135,8 @@ def route_weight(route: FieldRoute) -> int:
         weight += route.texts.cell_ns
     if route.forms is not None:
         weight += route.forms.cell_ns
+    if route.characters is not None:
+        weight += route.characters.cell_ns
     return weight
 
 
@@ -295,6 +301,7 @@ def serve() -> None:
                 route.drift = parts.get("drift")
                 route.texts = parts.get("texts")
                 route.forms = parts.get("forms")
+                route.characters = parts.get("characters")
                 route.memo_entries = memo_entries
                 routes[rid] = route
             elif kind == "batch":

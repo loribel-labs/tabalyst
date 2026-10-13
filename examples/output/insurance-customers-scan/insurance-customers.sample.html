@@ -622,6 +622,41 @@ td.ex .tip.show{display:block}
 .ins td code{white-space:pre-wrap;overflow-wrap:anywhere}
 .ins-fam{margin:26px 0 0}
 @media (max-width:650px){.ins{padding:2px 12px 12px}.ins-facts>div{flex-direction:column;gap:2px}.ins-facts dt{max-width:none}.ins-facts dd{text-align:left;flex:none}.ins-bar{grid-template-columns:minmax(56px,34%) 1fr auto}}
+.pfams{display:grid;gap:var(--joint);margin-top:var(--joint)}
+.pfam>summary{cursor:pointer;margin-bottom:10px}
+.sl{display:inline-flex;flex-wrap:wrap;gap:2px 16px;justify-content:space-between;align-items:baseline;width:calc(100% - 22px);vertical-align:top}
+.pfam-c,.pn-f,.pn-v,.pn-b{font-size:12px;color:var(--text-3);font-weight:400}
+.ppat{border-top:1px solid var(--line);padding:12px 0 4px}
+.ppat-h{margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.ppat-ex{margin:8px 0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.ptree{list-style:none;margin:8px 0 0;padding:0 0 0 18px;border-left:1px solid var(--line)}
+.ptree .ptree{margin-top:2px}
+.ptree li{margin:2px 0}
+.pnode>summary{cursor:pointer}
+.pleaf{display:flex;flex-wrap:wrap;gap:2px 16px;justify-content:space-between;align-items:baseline;padding:3px 0}
+.pn-c{font-size:13px}
+.pn-c small{display:inline;margin-left:6px}
+.ptable{margin-top:12px}
+.ptable .num{text-align:right}
+.pothers td{color:var(--text-3)}
+@media (max-width:640px){.pn-c small{display:block;margin-left:0}.ptree{padding-left:10px}}
+.cmap{margin-top:var(--joint)}
+.cm-title{margin:0 0 6px;font-size:16px}
+.cm-grid{list-style:none;margin:8px 0 var(--joint);padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.cm-tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--line);border-radius:8px;text-align:center;overflow:hidden}
+.cm-g{font-size:22px;line-height:1.2;font-family:var(--mono,monospace);max-width:100%;overflow-wrap:anywhere}
+.cm-tile small{font-size:11px;color:var(--text-3)}
+.cm-tile b{font-size:13px}
+.cm-b{display:block;width:100%;height:4px;border-radius:2px;background:var(--line)}
+.cm-b i{display:block;height:100%;border-radius:2px;background:var(--d1,currentColor)}
+.cm-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cm-list li{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(40px,1fr) auto;align-items:center;gap:8px}
+.cm-n{overflow-wrap:anywhere}
+.cm-n small{color:var(--text-3);font-size:11px}
+.cm-c{font-size:13px;white-space:nowrap}
+.cm-c b{margin-right:12px}
+.cm-tile b{margin-top:2px}
+@media (max-width:640px){.cm-list li{grid-template-columns:minmax(0,1fr) auto}.cm-list .cm-b{display:none}}
 
 .sp{padding:32px 0 56px}
 .sp .panel{margin-top:20px}
@@ -652,17 +687,17 @@ td.ex .tip.show{display:block}
 </section>
 
 <section class="panel" id="coverage" aria-labelledby="coverage-h">
-<div class="phead"><div><p class="eyebrow">2 / Coverage</p><h2 id="coverage-h">What the sample covers of its targets</h2><p>Scope: the 391 targets of the plan, of which 377 could be tested on a row. A target is covered when the sample holds at least one row that shows it.</p></div></div>
+<div class="phead"><div><p class="eyebrow">2 / Coverage</p><h2 id="coverage-h">What the sample covers of its targets</h2><p>Scope: the 469 targets of the plan, of which 455 could be tested on a row. A target is covered when the sample holds at least one row that shows it.</p></div></div>
 <div class="pbody">
 <dl class="metrics">
-<div class="metric"><dt>Targets covered</dt><dd><span class="v">376</span><span class="s">of 377 testable</span></dd></div>
+<div class="metric"><dt>Targets covered</dt><dd><span class="v">454</span><span class="s">of 455 testable</span></dd></div>
 <div class="metric"><dt>Weighted coverage</dt><dd><span class="v">99.8<small>%</small></span><span class="s">Rarer and more serious targets weigh more</span></dd></div>
 <div class="metric"><dt>Mandatory targets</dt><dd><span class="v">146<small> / 146</small></span><span class="s">Values of an exhaustive catalog and confirmed problems</span></dd></div>
-<div class="metric"><dt>Rows</dt><dd><span class="v">150</span><span class="s">102 by cover, 48 ordinary</span></dd></div>
+<div class="metric"><dt>Rows</dt><dd><span class="v">150</span><span class="s">104 by cover, 46 ordinary</span></dd></div>
 </dl>
 <h3 class="subh">By family<span class="n">(6)</span></h3>
 <div class="tscroll" tabindex="0" role="region" aria-label="Coverage by family"><table class="dtable"><thead><tr><th scope="col">Family</th><th scope="col" class="num">Defined</th><th scope="col" class="num">Testable</th><th scope="col" class="num">Covered</th><th scope="col" class="num">Weighted</th><th scope="col">Share</th></tr></thead><tbody>
-<tr><th scope="row">Few values</th><td class="num">146</td><td class="num">146</td><td class="num">146</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Structured text</th><td class="num">44</td><td class="num">44</td><td class="num">44</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Numbers</th><td class="num">53</td><td class="num">53</td><td class="num">52</td><td class="num">97.7%</td><td><div class="bar" aria-hidden="true"><span style="width:97.7%"></span></div></td></tr><tr><th scope="row">Dates</th><td class="num">67</td><td class="num">67</td><td class="num">67</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Quality</th><td class="num">26</td><td class="num">12</td><td class="num">12</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Relations</th><td class="num">55</td><td class="num">55</td><td class="num">55</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr>
+<tr><th scope="row">Few values</th><td class="num">146</td><td class="num">146</td><td class="num">146</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Structured text</th><td class="num">44</td><td class="num">44</td><td class="num">44</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Numbers</th><td class="num">53</td><td class="num">53</td><td class="num">52</td><td class="num">97.7%</td><td><div class="bar" aria-hidden="true"><span style="width:97.7%"></span></div></td></tr><tr><th scope="row">Dates</th><td class="num">67</td><td class="num">67</td><td class="num">67</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Quality</th><td class="num">26</td><td class="num">12</td><td class="num">12</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr><tr><th scope="row">Relations</th><td class="num">133</td><td class="num">133</td><td class="num">133</td><td class="num">100.0%</td><td><div class="bar" aria-hidden="true"><span style="width:100.0%"></span></div></td></tr>
 </tbody></table></div>
 </div>
 </section>
@@ -682,16 +717,16 @@ td.ex .tip.show{display:block}
 <div class="phead"><div><p class="eyebrow">4 / Verification</p><h2 id="verification-h">Counts the plan knew, checked while reading</h2><p>For the targets whose rows the plan counted exactly (from the Scan), the reading counted them again.</p></div></div>
 <div class="pbody">
 <dl class="metrics">
-<div class="metric"><dt>Agreed</dt><dd><span class="v">361<small> / 361</small></span><span class="s">No difference</span></dd></div>
-<div class="metric"><dt>Candidate pool</dt><dd><span class="v">82.0 KB</span><span class="s">308 rows held, 0 refused by the budget</span></dd></div>
+<div class="metric"><dt>Agreed</dt><dd><span class="v">439<small> / 439</small></span><span class="s">No difference</span></dd></div>
+<div class="metric"><dt>Candidate pool</dt><dd><span class="v">83.9 KB</span><span class="s">315 rows held, 0 refused by the budget</span></dd></div>
 <div class="metric"><dt>Readings of the source</dt><dd><span class="v">1</span><span class="s">Selection only; the stored Scan was current</span></dd></div>
-<div class="metric"><dt>Duration</dt><dd><span class="v">0.21</span><span class="s">3,000 records read</span></dd></div>
+<div class="metric"><dt>Duration</dt><dd><span class="v">0.22</span><span class="s">3,000 records read</span></dd></div>
 </dl>
 
 </div>
 </section>
 
-<p class="types-note" style="margin-top:20px">Sample report tabalyst.sample 0.2.0 revision 1, seed 42, Tabalyst 0.7.0. Plan: 391 targets in 6 families. The sample CSV keeps the rows in the order of the source.</p>
+<p class="types-note" style="margin-top:20px">Sample report tabalyst.sample 0.2.0 revision 1, seed 42, Tabalyst 0.7.0. Plan: 469 targets in 6 families. The sample CSV keeps the rows in the order of the source.</p>
 </div></main>
 </body>
 </html>

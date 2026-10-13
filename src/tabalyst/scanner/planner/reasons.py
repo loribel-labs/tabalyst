@@ -61,6 +61,7 @@ NOT_APPLICABLE = {
 SATISFIED = {
     "counts_complete": "every distinct value is already counted in the scan",
     "counts_in_samples": "the scan lists every distinct value with its exact count",
+    "map_in_samples": "the scan lists every distinct value with its exact count, so its character map is already exact",
     "constant_value": "the field has a single value, already in the scan statistics",
     "lengths_complete": "the exact length histogram is already in the scan",
     "distinct_exact": "the distinct values are already counted exactly",
@@ -114,6 +115,7 @@ UTILITY = {
     "array_lengths": "shows how long the arrays of the field are",
     "key_sets": "shows which keys the objects have together",
     "text_shape": "shows the words, lines and digits of the texts",
+    "character_map": "shows the most frequent characters, their Unicode families, the case of the ends and the emoji of every value",
     "long_values_distinct": "counts the distinct values that are too long for an exact set, and the texts found more than once",
     "forms_without_values": "counts the masks and classes of the values without listing one",
     "exposure_counts": "counts the distinct values of a sensitive column, which exposure keeps out of the document, as two numbers",

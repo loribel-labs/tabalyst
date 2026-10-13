@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from tabalyst.scanner.planner.models import CPU_ORDER, CpuClass
 
-COST_MODEL_VERSION = 15
+COST_MODEL_VERSION = 16
 
 # Sizes in bytes -------------------------------------------------------------
 
@@ -348,6 +348,11 @@ NS_PER_CELL = {
     # at most, so the estimate is low for a phone number.
     "forms": 1_000,
     "forms_class": 2_800,
+    # The character map (lot C2): the tables of characters and emoji and the case of the
+    # ends of a distinct string, 300,000 rows (benchmarks.md): 380 ns for codes of 8 characters,
+    # 870 for names of 22 and 3,300 for texts of about 100, so 350 plus 25 a character, declared
+    # at the top of ``moderate`` at most.
+    "characters": 350,
 }
 # The counters of the lengths of the arrays of a field: a dictionary entry per
 # length (a key, a count and the slot).
@@ -362,6 +367,11 @@ STRUCTURE_VARIANT_BYTES = 180
 # profile and for the fingerprint.
 TEXT_NS_PER_CHAR = 7.0
 FINGERPRINT_NS_PER_CHAR = 1.7
+# What a character adds to the cost of the character map (nanoseconds).
+CHARACTER_NS_PER_CHAR = 25.0
+# The tables of the characters and emoji of a field: the minimum and the firm bound
+# (65,536 characters and 10,000 emoji sequences, an entry of about 100 bytes).
+CHARACTER_BYTES = (16 * 1024, 8 * 1024 * 1024)
 # The counters of the words, lines and digits of the texts of a field.
 TEXT_BYTES = 4 * 1024
 # A distinct value held as a fingerprint by the table of the texts (lot 18): a

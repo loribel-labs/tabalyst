@@ -298,7 +298,7 @@ def test_G40_the_workers_give_the_result_of_one_process_and_the_same_records(tmp
     shared = run_second_pass(result, tmp_path / "data.csv", plan, workers=3)
 
     # No pattern, so no exact set: the two routes of dates go to workers.
-    assert result.derived is None
+    assert result.derived.patterns is None
     assert shared.document.run.workers == 3
     found = _residuals(shared, "first")
     assert found.records and found.tables[0].listed[0].first_record is not None

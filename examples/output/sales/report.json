@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T17:02:55.945688Z",
-    "duration_seconds": 0.017101,
+    "started_at": "2026-10-13T21:43:13.131600Z",
+    "duration_seconds": 0.015989,
     "timings": {
-      "reading": 0.002862,
-      "analysis": 0.002059,
-      "finalize": 0.008163,
-      "derived": 0.003589,
-      "other": 0.000428
+      "reading": 0.002738,
+      "analysis": 0.001961,
+      "finalize": 0.007603,
+      "derived": 0.003307,
+      "other": 0.000379
     },
     "workers": 1,
-    "peak_memory_bytes": 68698112
+    "peak_memory_bytes": 68521984
   },
   "source": {
     "format": "excel",
@@ -137,6 +137,7 @@
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
+      "max_top_characters": 20,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -314,7 +315,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "3f48786fc9e0b3913af1cb1e400f160389ea49375235080027f730027b6051f4",
+  "config_sha256": "5be6e052638acce2f77211422ac4819031e0995dc1bbcc7067726061be3c4a2f",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -9287,6 +9288,565 @@
           "reason": "booleans_only"
         }
       ]
+    },
+    "characters": {
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 100,
+              "characters": 700,
+              "distinct": 13,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 208
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 100
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 100
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 100
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 45
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 21
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 20
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 19
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 18
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 18
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 17
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 17
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 17
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 200
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 400
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 200
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 100
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 120,
+              "characters": 1200,
+              "distinct": 11,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 320
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 286
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 240
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 132
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 85
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 46
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 28
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 27
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 12
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 12
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 12
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 960
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 240
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 120,
+              "characters": 1421,
+              "distinct": 29,
+              "top": [
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 148
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 130
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 120
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 116
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 104
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 91
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 90
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 90
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 52
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 48
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 48
+                },
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 46
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 45
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "D",
+                  "codepoint": 68,
+                  "occurrence_count": 30
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 26
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "E",
+                  "codepoint": 69,
+                  "occurrence_count": 19
+                },
+                {
+                  "char": "H",
+                  "codepoint": 72,
+                  "occurrence_count": 17
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 17
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 1301
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 1061
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 240
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 120
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 120,
+              "title_case": 120,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "characters": {
+            "status": "disabled"
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 120,
+              "characters": 572,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 120
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 76
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 52
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 46
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 44
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 44
+                },
+                {
+                  "char": "W",
+                  "codepoint": 87,
+                  "occurrence_count": 28
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "E",
+                  "codepoint": 69,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 22
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 22
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 22
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 572
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 452
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 120
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 120,
+              "title_case": 120,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 120,
+              "characters": 510,
+              "distinct": 10,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 120
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 75
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 45
+                },
+                {
+                  "char": "w",
+                  "codepoint": 119,
+                  "occurrence_count": 45
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 34
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 34
+                },
+                {
+                  "char": "p",
+                  "codepoint": 112,
+                  "occurrence_count": 34
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 510
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 510
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 120,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_7",
+          "characters": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_8",
+          "characters": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_9",
+          "characters": {
+            "status": "not_applicable",
+            "reason": "no_values"
+          }
+        }
+      ]
     }
   },
   "observations": {
@@ -9339,7 +9899,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -9349,8 +9909,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-        "config_sha256": "3f48786fc9e0b3913af1cb1e400f160389ea49375235080027f730027b6051f4",
-        "facts_sha256": "7437dfd89ad1f9f389f1968949ad50eb4245a656dcd7ac03c5f7632056694b0f"
+        "config_sha256": "5be6e052638acce2f77211422ac4819031e0995dc1bbcc7067726061be3c4a2f",
+        "facts_sha256": "759e043409ea89034f526ce938fe08bfc5b5c359b61618c3166e153b05e00574"
       },
       "settings": {
         "bins": 100,
@@ -9449,14 +10009,14 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 15,
-        "plan_id": "147fc72c3d1bc5d91095de18ba682256a2b41cca274e8fb5cddcdd7f9d797b37",
+        "cost_model_version": 16,
+        "plan_id": "b36af9a30bde74899fb3ff25f5cbd5c589976b7c5772effb652718b7550ab8d7",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-          "config_sha256": "3f48786fc9e0b3913af1cb1e400f160389ea49375235080027f730027b6051f4",
-          "facts_sha256": "7437dfd89ad1f9f389f1968949ad50eb4245a656dcd7ac03c5f7632056694b0f"
+          "config_sha256": "5be6e052638acce2f77211422ac4819031e0995dc1bbcc7067726061be3c4a2f",
+          "facts_sha256": "759e043409ea89034f526ce938fe08bfc5b5c359b61618c3166e153b05e00574"
         },
         "objective": {
           "automatic": true,
@@ -9480,10 +10040,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 64,
+          "candidates": 70,
           "selected": 8,
-          "already_satisfied": 19,
-          "rejected": 37,
+          "already_satisfied": 23,
+          "rejected": 39,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -14242,25 +14802,258 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "character_profile:rows:column_1",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "order_id",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 525,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_1",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_2",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "order_date",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_2"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_3",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "customer",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_3"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_4",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "email",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_5",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "region",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_5"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_6",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "channel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_6"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-13T19:45:43.778665Z",
-        "duration_seconds": 0.000122,
+        "started_at": "2026-10-13T21:43:13.182384Z",
+        "duration_seconds": 0.009519,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000122
+          "reading": 0.002257,
+          "analysis": 0.002743,
+          "other": 0.004519
         },
         "workers": 1,
-        "peak_memory_bytes": 70250496,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 8,
+        "peak_memory_bytes": 72183808,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 120,
+        "cells_read": 480,
+        "executed": 8,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -14276,7 +15069,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "f753216573cf4dcbd122a6e396d4022dec75324f4129063ba2c1d1be3dbe2f7b",
+          "key": "0cb43ccfad08dc157203262b2ff1b0bb6580b088ded98f4b88ca952909382b48",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14951,7 +15744,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "7bd0425c0d44aba961a585662949d591185f6a3d37d9cbe1d63420ed183ef762",
+          "key": "07fffea1852434afa77e4566b43fbccc976cf6c044d7760d7dfff061d3ac6c8a",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -15576,7 +16369,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "b8896b1187df1ed0852263b896c418a9bc3daee0fa985c32042b9374ddd72dbd",
+          "key": "22fb99af7874e9f9ea2d62a4eb4add3afdbdc8ca4ab20f4ed94b7f602dbac626",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -15685,7 +16478,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "fbfc677ca93d9262ad9f93e5ae42e8cb10eda02750bf4cc7dca66b214e935442",
+          "key": "dae364f96eda06350b8ccfe47042f950629e07fd55038ace71c946d1040fdd65",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -15969,7 +16762,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "357beef24b902300e6cac45f927a5d78e532bf98965a6e524a6409de0d105668",
+          "key": "9bc88bb00a520478259975d14656c5e829a55eacdfc2b3f594d126f8bcba730a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -16102,7 +16895,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "391ebb5ec52b42305a54d8e11cbf897d7ba677cb65e4c186c4c5af06ddf5b2f9",
+          "key": "94311795a0955f5b572b5b2b63f9a9d23367a4417826df2263aa50d8af309a36",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -16262,7 +17055,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "b0fb065f3390cb3a5d4cbf08c91bb4143ead944eb1fe4b79fc68f5d5bf425ce4",
+          "key": "d8f8a1b31bf8a3c09f229b817436e633983d3b20d467a9888efc64f35adae59e",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -16597,7 +17390,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "a84a25ce724aa2acd8046b64bc40a36fe07e46532739668c17bba93d7061506e",
+          "key": "37d78d5aebd94811804dd67a8476bdf2e575d7d0845c10fda2d90ad50b69e8c2",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -16629,12 +17422,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T19:45:43.815234Z",
+    "generated_at": "2026-10-13T21:43:13.237485Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0699,
+    "processing_seconds": 0.1236,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -16667,8 +17460,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "3f48786fc9e0b3913af1cb1e400f160389ea49375235080027f730027b6051f4",
-      "facts_sha256": "7437dfd89ad1f9f389f1968949ad50eb4245a656dcd7ac03c5f7632056694b0f"
+      "config_sha256": "5be6e052638acce2f77211422ac4819031e0995dc1bbcc7067726061be3c4a2f",
+      "facts_sha256": "759e043409ea89034f526ce938fe08bfc5b5c359b61618c3166e153b05e00574"
     },
     "datasets": [
       {

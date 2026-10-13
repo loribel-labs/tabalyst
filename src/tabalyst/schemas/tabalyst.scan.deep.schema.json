@@ -274,6 +274,7 @@
                   "array_profile": "#/$defs/ArrayProfileResult",
                   "bins": "#/$defs/BinnedHistogram",
                   "category_stats": "#/$defs/StatsResult",
+                  "character_profile": "#/$defs/CharacterProfileResult",
                   "crosstab": "#/$defs/CrosstabResult",
                   "datetime_parts": "#/$defs/PartsResult",
                   "dense_counts": "#/$defs/DenseHistogram",
@@ -370,6 +371,9 @@
                 },
                 {
                   "$ref": "#/$defs/FormsResult"
+                },
+                {
+                  "$ref": "#/$defs/CharacterProfileResult"
                 }
               ]
             },
@@ -964,6 +968,145 @@
         "exceptions"
       ],
       "title": "CategorySummary",
+      "type": "object"
+    },
+    "CharacterCount": {
+      "additionalProperties": false,
+      "description": "One character of the most frequent ones, with the occurrences of it in the\nvalues read (design 9.2b).",
+      "properties": {
+        "char": {
+          "title": "Char",
+          "type": "string"
+        },
+        "codepoint": {
+          "title": "Codepoint",
+          "type": "integer"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "char",
+        "codepoint",
+        "occurrence_count"
+      ],
+      "title": "CharacterCount",
+      "type": "object"
+    },
+    "CharacterFamily": {
+      "additionalProperties": false,
+      "description": "Characters of one Unicode family: the script of a letter (the first word of\nits Unicode name, such as ``LATIN`` or ``CYRILLIC``) or a general category\n(``Lu``, ``Nd``, ``Po``...).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "occurrence_count"
+      ],
+      "title": "CharacterFamily",
+      "type": "object"
+    },
+    "CharacterProfileResult": {
+      "additionalProperties": false,
+      "description": "The character map of a field counted on every string, exactly (design\n20.37): the members of ``CharacterMap`` with ``basis`` ``exact``. It replaces the\nmap of the Scan, which counts the stored samples.",
+      "properties": {
+        "basis": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Basis",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "characters": {
+          "title": "Characters",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "top": {
+          "items": {
+            "$ref": "#/$defs/CharacterCount"
+          },
+          "title": "Top",
+          "type": "array"
+        },
+        "scripts": {
+          "items": {
+            "$ref": "#/$defs/CharacterFamily"
+          },
+          "title": "Scripts",
+          "type": "array"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/CharacterFamily"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "ends_uppercase": {
+          "title": "Ends Uppercase",
+          "type": "integer"
+        },
+        "ends_lowercase": {
+          "title": "Ends Lowercase",
+          "type": "integer"
+        },
+        "title_case": {
+          "title": "Title Case",
+          "type": "integer"
+        },
+        "with_emoji": {
+          "title": "With Emoji",
+          "type": "integer"
+        },
+        "emoji_sequences": {
+          "title": "Emoji Sequences",
+          "type": "integer"
+        },
+        "emoji": {
+          "items": {
+            "$ref": "#/$defs/EmojiCount"
+          },
+          "title": "Emoji",
+          "type": "array"
+        },
+        "kind": {
+          "const": "character_profile",
+          "default": "character_profile",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "values",
+        "characters",
+        "distinct",
+        "top",
+        "scripts",
+        "categories",
+        "ends_uppercase",
+        "ends_lowercase",
+        "title_case",
+        "with_emoji",
+        "emoji_sequences",
+        "emoji"
+      ],
+      "title": "CharacterProfileResult",
       "type": "object"
     },
     "ColumnAdvice": {
@@ -2377,6 +2520,26 @@
         "repeated"
       ],
       "title": "DuplicatesLimited",
+      "type": "object"
+    },
+    "EmojiCount": {
+      "additionalProperties": false,
+      "description": "An emoji sequence (one emoji, its modifiers and joiners, a flag or a\nkeycap), with its occurrences.",
+      "properties": {
+        "sequence": {
+          "title": "Sequence",
+          "type": "string"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sequence",
+        "occurrence_count"
+      ],
+      "title": "EmojiCount",
       "type": "object"
     },
     "ExceptionCell": {

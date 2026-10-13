@@ -16,6 +16,7 @@ from pydantic import Field, FiniteFloat
 
 from tabalyst.models import ColumnProfile, DatasetProfile, ResultModel
 from tabalyst.scanner.models import (
+    CharacterMap,
     FieldPatternsComplete,
     FieldResult,
     Observation,
@@ -25,6 +26,7 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.secondpass.models import (
     BinnedHistogram,
+    CharacterProfileResult,
     DenseHistogram,
     DistinctCount,
     DistinctLimited,
@@ -353,6 +355,46 @@ class PatternFamilyView(ResultModel):
     new_variant_segment: int = 0
 
 
+class CharacterTile(ResultModel):
+    """One character of the map: how it is drawn, its code point and its share
+    of the characters read."""
+
+    symbol: str
+    codepoint: str
+    name: str
+    count: int
+    share: float
+
+
+class CharacterShare(ResultModel):
+    """A family of characters, an emoji sequence or a case counter with its count
+    and its share of the characters (or of the values) read."""
+
+    label: str
+    name: str | None = None
+    count: int
+    share: float
+
+
+class CharacterMapView(ResultModel):
+    """The character map of one column (design 9.2b). ``missing`` means the
+    document has none for the column, ``unavailable`` that it cannot have one
+    (``reason_text``), ``limited`` that a table passed its bound. ``source`` is the
+    Scan (its stored samples, or every value when it kept them all) or the second
+    pass (every value)."""
+
+    status: Literal["complete", "limited", "unavailable", "missing"]
+    reason_text: str | None = None
+    source: Literal["scan", "second_pass"] | None = None
+    basis: Literal["exact", "sample"] | None = None
+    summary: CharacterMap | None = None
+    tiles: list[CharacterTile] = Field(default_factory=list)
+    scripts: list[CharacterShare] = Field(default_factory=list)
+    categories: list[CharacterShare] = Field(default_factory=list)
+    case: list[CharacterShare] = Field(default_factory=list)
+    emoji: list[CharacterShare] = Field(default_factory=list)
+
+
 class PatternView(ResultModel):
     """The inferred patterns of one column (design 18.12) with the examples
     they point to. ``missing`` means the document has no ``derived`` block."""
@@ -409,6 +451,7 @@ class ColumnAnalyses(ResultModel):
     histogram: DenseHistogram | BinnedHistogram | None = None
     lengths: LengthDistribution | None = None
     frequencies: FrequencyTable | None = None
+    characters: CharacterProfileResult | None = None
 
 
 InsightKind = Literal["exact", "estimated", "sample", "at_least", "fingerprint"]
@@ -659,6 +702,7 @@ class ColumnView(ColumnProfile):
     quality: list[QualityItem] = Field(default_factory=list)
     limits: list[LimitView] = Field(default_factory=list)
     patterns: PatternView
+    characters: CharacterMapView
     deep: ColumnAnalyses = Field(default_factory=ColumnAnalyses)
     insights: list[InsightCard] = Field(default_factory=list)
 

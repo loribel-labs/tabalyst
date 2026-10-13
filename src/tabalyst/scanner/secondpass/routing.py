@@ -37,6 +37,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     DenseAccumulator,
     LengthAccumulator,
 )
+from tabalyst.scanner.secondpass.characters import CharacterAccumulator
 from tabalyst.scanner.secondpass.crosstab import CodeFeed, CrosstabAccumulator
 from tabalyst.scanner.secondpass.drift import DriftAccumulator
 from tabalyst.scanner.secondpass.duplicates import (
@@ -114,6 +115,7 @@ class FieldRoute:
 
     __slots__ = (
         "arrays",
+        "characters",
         "distinct",
         "drift",
         "duplicates",
@@ -174,6 +176,7 @@ class FieldRoute:
         self.fingerprints: FingerprintAccumulator | None = None
         # The masks of the analytical values of a sensitive field, without a value.
         self.forms: FormsAccumulator | None = None
+        self.characters: CharacterAccumulator | None = None
         self.memo: dict[str, Cell] = {}
         # Raw strings remembered per field across batches. A column of few distinct
         # values (the case where remembering pays) fits; one of identifiers does
@@ -226,6 +229,7 @@ class FieldRoute:
         texts = self.texts
         fingerprints = self.fingerprints
         forms = self.forms
+        characters = self.characters
         text_wanted = (residuals is not None and residuals.needs_text) or (
             drift is not None and drift.needs_text
         )
@@ -254,6 +258,7 @@ class FieldRoute:
                 or texts is not None
                 or fingerprints is not None
                 or forms is not None
+                or characters is not None
             ):
                 raws = list(counts)
                 wanted = [raw for raw, ok in zip(raws, self.reader.content(raws), strict=True) if ok]
@@ -274,6 +279,8 @@ class FieldRoute:
                     fingerprints.add_strings(wanted, weights)
                 if forms is not None:
                     forms.add_strings(self.reader, wanted, weights)
+                if characters is not None:
+                    characters.add_strings(wanted, weights)
             return
         memo = self.memo
         cells: dict[str, Cell] = {}
@@ -338,6 +345,7 @@ class FieldRoute:
             or texts is not None
             or fingerprints is not None
             or forms is not None
+            or characters is not None
         ):
             wanted = [raw for raw in counts if cells[raw].length >= 0]
             weights = [counts[raw] for raw in wanted]
@@ -367,6 +375,8 @@ class FieldRoute:
                 fingerprints.add_strings(wanted, weights)
             if forms is not None:
                 forms.add_strings(self.reader, wanted, weights)
+            if characters is not None:
+                characters.add_strings(wanted, weights)
 
     def native(self, native_type: str, value: object, record: int = 1) -> None:
         """A JSON integer, number or boolean: a numeric value (but for a

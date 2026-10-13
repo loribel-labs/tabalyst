@@ -19,6 +19,7 @@ from tabalyst.progress import (
     byte_progress,
     emit_progress,
 )
+from tabalyst.scanner.charactermap import derive_characters
 from tabalyst.scanner.config import ScanConfig, config_sha256, resolve_config_defaults
 from tabalyst.scanner.detectors.registry import (
     DetectorRegistry,
@@ -239,6 +240,9 @@ def scan(
         patterns = infer_patterns(
             datasets, config.pattern_inference, engine.diagnostics
         )
+        characters = derive_characters(
+            datasets, config.limits.max_top_characters, engine.diagnostics
+        )
         derived = perf_counter() - derived_started
     finally:
         if engine.values.pool is not None:
@@ -345,7 +349,11 @@ def scan(
         scope=scope,
         datasets=datasets,
         diagnostics=engine.diagnostics.finalize(),
-        derived=None if patterns is None else Derived(patterns=patterns),
+        derived=(
+            None
+            if patterns is None and characters is None
+            else Derived(patterns=patterns, characters=characters)
+        ),
         observations=observations,
     )
     emit_progress(on_progress, path, ProgressPhase.COMPLETE)

@@ -641,9 +641,27 @@ td.ex .tip.show{display:block}
 .ptable .num{text-align:right}
 .pothers td{color:var(--text-3)}
 @media (max-width:640px){.pn-c small{display:block;margin-left:0}.ptree{padding-left:10px}}
+.cmap{margin-top:var(--joint)}
+.cm-title{margin:0 0 6px;font-size:16px}
+.cm-grid{list-style:none;margin:8px 0 var(--joint);padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.cm-tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--line);border-radius:8px;text-align:center;overflow:hidden}
+.cm-g{font-size:22px;line-height:1.2;font-family:var(--mono,monospace);max-width:100%;overflow-wrap:anywhere}
+.cm-tile small{font-size:11px;color:var(--text-3)}
+.cm-tile b{font-size:13px}
+.cm-b{display:block;width:100%;height:4px;border-radius:2px;background:var(--line)}
+.cm-b i{display:block;height:100%;border-radius:2px;background:var(--d1,currentColor)}
+.cm-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cm-list li{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(40px,1fr) auto;align-items:center;gap:8px}
+.cm-n{overflow-wrap:anywhere}
+.cm-n small{color:var(--text-3);font-size:11px}
+.cm-c{font-size:13px;white-space:nowrap}
+.cm-c b{margin-right:12px}
+.cm-tile b{margin-top:2px}
+@media (max-width:640px){.cm-list li{grid-template-columns:minmax(0,1fr) auto}.cm-list .cm-b{display:none}}
 </style>
 </head>
 <body>
+
 
 
 
@@ -693,7 +711,18 @@ td.ex .tip.show{display:block}
 }</pre></div></div></section>
 
 
-<section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis</h2><p>Lengths and representative values.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">2</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">3</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">2.49</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">2</span><span class="s">very short</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Length distribution · 2</p><div class="column-line"><span>2 characters<small class="sub-n">M.</small></span><b>1,517 · 50.57%</b></div><div class="column-line"><span>3 characters<small class="sub-n">Mme</small></span><b>1,483 · 49.43%</b></div></div><div class="rcard"><p class="rcard-title">Representative values</p><div class="column-line"><code>M.</code></div><div class="column-line"><code>Mme</code></div></div></div></div></section>
+<section class="panel" id="strings" aria-labelledby="strings-h"><div class="phead"><div><p class="eyebrow">06 / Text</p><h2 id="strings-h">String analysis</h2><p>Lengths and representative values.</p></div></div><div class="pbody"><dl class="metrics"><div class="metric"><dt>Shortest</dt><dd><span class="v">2</span></dd></div><div class="metric"><dt>Longest</dt><dd><span class="v">3</span></dd></div><div class="metric"><dt>Mean length</dt><dd><span class="v">2.49</span></dd></div><div class="metric"><dt>Median length</dt><dd><span class="v">2</span><span class="s">very short</span></dd></div></dl><div class="column-grid"><div class="rcard"><p class="rcard-title">Length distribution · 2</p><div class="column-line"><span>2 characters<small class="sub-n">M.</small></span><b>1,517 · 50.57%</b></div><div class="column-line"><span>3 characters<small class="sub-n">Mme</small></span><b>1,483 · 49.43%</b></div></div><div class="rcard"><p class="rcard-title">Representative values</p><div class="column-line"><code>M.</code></div><div class="column-line"><code>Mme</code></div></div></div><section class="cmap" id="character-map" aria-labelledby="character-map-h"><h3 id="character-map-h" class="cm-title">Character map</h3>
+
+<p class="muted">Counted on every distinct value the scan stored, each weighted by its occurrences. 7,483 characters in 3,000 values, 4 different.</p>
+<p class="rcard-title">Most frequent characters</p><p class="muted">Share of all the characters.</p>
+<ul class="cm-grid"><li class="cm-tile" title="U+004D LATIN CAPITAL LETTER M: 3,000"><span class="cm-g">M</span><small>U+004D</small><b>40.1%</b><span class="cm-b" aria-hidden="true"><i style="width:40.1%"></i></span></li><li class="cm-tile" title="U+002E FULL STOP: 1,517"><span class="cm-g">.</span><small>U+002E</small><b>20.3%</b><span class="cm-b" aria-hidden="true"><i style="width:20.3%"></i></span></li><li class="cm-tile" title="U+0065 LATIN SMALL LETTER E: 1,483"><span class="cm-g">e</span><small>U+0065</small><b>19.8%</b><span class="cm-b" aria-hidden="true"><i style="width:19.8%"></i></span></li><li class="cm-tile" title="U+006D LATIN SMALL LETTER M: 1,483"><span class="cm-g">m</span><small>U+006D</small><b>19.8%</b><span class="cm-b" aria-hidden="true"><i style="width:19.8%"></i></span></li></ul>
+<div class="column-grid">
+<div class="rcard"><p class="rcard-title">Scripts of the letters</p><p class="muted">Share of all the characters.</p><ul class="cm-list"><li><span class="cm-n">Latin</span><span class="cm-b" aria-hidden="true"><i style="width:79.7%"></i></span><span class="cm-c"><b>5,966</b> 79.7%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Kinds of characters</p><p class="muted">Share of all the characters.</p><ul class="cm-list"><li><span class="cm-n">Uppercase letters <small>Lu</small></span><span class="cm-b" aria-hidden="true"><i style="width:40.1%"></i></span><span class="cm-c"><b>3,000</b> 40.1%</span></li><li><span class="cm-n">Lowercase letters <small>Ll</small></span><span class="cm-b" aria-hidden="true"><i style="width:39.6%"></i></span><span class="cm-c"><b>2,966</b> 39.6%</span></li><li><span class="cm-n">Other punctuation <small>Po</small></span><span class="cm-b" aria-hidden="true"><i style="width:20.3%"></i></span><span class="cm-c"><b>1,517</b> 20.3%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Case of the values</p><p class="muted">Share of the values.</p><ul class="cm-list"><li><span class="cm-n">Ends with a capital</span><span class="cm-b" aria-hidden="true"><i style="width:0.0%"></i></span><span class="cm-c"><b>0</b> 0.0%</span></li><li><span class="cm-n">Ends with a lowercase letter</span><span class="cm-b" aria-hidden="true"><i style="width:49.4%"></i></span><span class="cm-c"><b>1,483</b> 49.4%</span></li><li><span class="cm-n">Title case</span><span class="cm-b" aria-hidden="true"><i style="width:100.0%"></i></span><span class="cm-c"><b>3,000</b> 100.0%</span></li></ul></div>
+<div class="rcard"><p class="rcard-title">Emoji</p><p class="muted">No emoji.</p></div>
+</div>
+</section></div></section>
 <section class="panel" id="patterns" aria-labelledby="patterns-h"><div class="phead"><div><p class="eyebrow">07 / Shapes</p><h2 id="patterns-h">Patterns</h2><p>Structural patterns inferred from the distinct values the scan sampled: <code>9</code> a digit, <code>A</code> a capital, <code>a</code> a lowercase letter, <code>@</code> any letter, <code>X</code> a capital or a digit, <code>x</code> a lowercase letter or a digit, <code>#</code> a letter or a digit. Quoted text is a constant. Each family gathers the values of one structure as patterns of fixed length; indented lines fix more of the start or the end of a token. Shares count distinct values and sampled occurrences unless marked as on every value.</p></div></div><div class="pbody"><p class="muted"><span class="acc acc-not_computed" title="Not computed by this scan">not computed</span> Too few distinct values for patterns to say more than the values.</p></div></section>
 <section class="panel" id="transformations" aria-labelledby="transformations-h"><div class="phead"><div><p class="eyebrow">08 / Cleaning</p><h2 id="transformations-h">Transformations</h2><p>Normalization preserves the raw values in the data sample.</p></div></div><div class="pbody"><div class="column-grid"><div class="rcard"><p class="rcard-title">Stages</p><div class="column-line"><span>raw<small class="sub-n">– changed · –</small></span><b>2</b></div><div class="column-line"><span>nfc<small class="sub-n">0 changed · 0.0%</small></span><b>2</b></div><div class="column-line"><span>trim<small class="sub-n">0 changed · 0.0%</small></span><b>2</b></div><div class="column-line"><span>collapse whitespace<small class="sub-n">0 changed · 0.0%</small></span><b>2</b></div><div class="column-line"><span>casefold<small class="sub-n">3,000 changed · 100.0%</small></span><b>2</b></div><div class="column-line"><span>strip accents<small class="sub-n">0 changed · 0.0%</small></span><b>2</b></div></div><div class="rcard"><p class="rcard-title">Variant groups · 0</p><p class="muted">No stored variant groups.</p></div></div></div></section>
 <section class="panel" id="scan-evidence" aria-labelledby="scan-evidence-h"><div class="phead"><div><p class="eyebrow">09 / Scan</p><h2 id="scan-evidence-h">Scan evidence</h2><p>Field facts retained from the Scan document.</p></div></div><div class="pbody column-grid">

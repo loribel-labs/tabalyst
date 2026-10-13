@@ -1502,3 +1502,26 @@ session (`benchmarks/interleave.py`, outputs under `D:/GIT.test/tabalyst/artifac
 | worst-width-1m.csv (1 M x 30, 5 unique identifiers) | 16.31, 16.25, 16.41 | 17.25, 17.13, 17.27 | **+5.4%** | 35% | 930 / 982 (+5.6%) | 10% |
 
 Both guards hold. The Report of the lot P8 adds no work to the Scan or the second pass: it reads the document at render time.
+
+## Character map (Patterns lot C2)
+
+The map adds nothing to the first pass (the Scan code of the lot C1 is untouched), so the guards of the first pass do not move.
+Its two costs are measured with `benchmarks/character_map.py` (300,000 rows a column, a Scan of 1,000 samples, one process,
+median of 3, outputs under `D:/GIT.test/tabalyst/artifacts/c2/bench`).
+
+**Post-pass of the Scan** (`derive_characters`): 11 ms for a column of codes and for one of names and 25 ms for texts of about 100
+characters, whatever the number of rows, since it reads the stored samples only. On `insurance-customers.csv` (34 fields,
+10,000 samples a field) the map of the whole document takes 13 ms, against 290 ms for the patterns of the same Scan (0.62 s).
+
+**Second pass** (analyzer `character_profile` alone, nanoseconds a cell, analysis time of the pass):
+
+| Column | Characters a cell | First version | With the emoji pre-test |
+| --- | ---: | ---: | ---: |
+| Codes `XX-00000` | 8 | 431 | 378 |
+| Names `Montreal Quebec-123` | about 22 | 1,455 | 868 |
+| Texts of 14 words | about 100 | 5,767 | 3,256 |
+
+The first version ran the emoji expression on every value that was not ASCII; a test for the characters an emoji can contain
+(`_MAYBE_EMOJI`) before it brought names and texts down by 40%. The cost model is 350 plus 25 a character, declared at the top
+of `moderate` at most (`NS_PER_CELL["characters"]`, `CHARACTER_NS_PER_CHAR`), `COST_MODEL_VERSION` 16. The estimate is low
+for texts of more than 90 characters, like those of the texts and fingerprints.

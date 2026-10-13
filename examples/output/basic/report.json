@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T14:22:41.580375Z",
-    "duration_seconds": 0.006033,
+    "started_at": "2026-10-13T21:43:05.945413Z",
+    "duration_seconds": 0.005256,
     "timings": {
-      "reading": 0.000507,
-      "analysis": 0.00015,
-      "finalize": 0.003187,
-      "derived": 0.001803,
-      "other": 0.000386
+      "reading": 0.000481,
+      "analysis": 0.000153,
+      "finalize": 0.002682,
+      "derived": 0.001532,
+      "other": 0.000408
     },
     "workers": 1,
-    "peak_memory_bytes": 65323008
+    "peak_memory_bytes": 65970176
   },
   "source": {
     "format": "csv",
@@ -133,6 +133,7 @@
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
+      "max_top_characters": 20,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -310,7 +311,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
+  "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
   "scope": {
     "collections": null,
     "records_read": 5,
@@ -5551,6 +5552,560 @@
           "limits": []
         }
       ]
+    },
+    "characters": {
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 15,
+              "distinct": 5,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 15
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 26,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "D",
+                  "codepoint": 68,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 26
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 21
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 5
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 5,
+              "title_case": 5,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 4,
+              "characters": 28,
+              "distinct": 15,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": ".",
+                  "codepoint": 46,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 12
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 12
+                },
+                {
+                  "name": "Nd",
+                  "occurrence_count": 12
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 3
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 1
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 1,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 50,
+              "distinct": 7,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 15
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 11
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 6
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 40
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 10
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 5,
+              "characters": 21,
+              "distinct": 8,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "f",
+                  "codepoint": 102,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 21
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 21
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 5,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 4,
+              "characters": 65,
+              "distinct": 17,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 10
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 8
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 8
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 7
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "w",
+                  "codepoint": 119,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": ",",
+                  "codepoint": 44,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "T",
+                  "codepoint": 84,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 2
+                },
+                {
+                  "char": "F",
+                  "codepoint": 70,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 1
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 55
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 51
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 8
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 4
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 2
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 4,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        }
+      ]
     }
   },
   "observations": {
@@ -5633,7 +6188,7 @@
   },
   "analyses": {
     "mode": "auto",
-    "outcome": "reused",
+    "outcome": "ran",
     "deep": {
       "format": "tabalyst.scan.deep",
       "format_version": "0.2.0",
@@ -5643,8 +6198,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-        "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-        "facts_sha256": "81fa5866777f83d7180dc097915615475f767016270dbe6e4a9656676e2ee278"
+        "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+        "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
       },
       "settings": {
         "bins": 100,
@@ -5743,14 +6298,14 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 15,
-        "plan_id": "8a67c16206d7cd397c3f4e487211fdac9ad2b18a3f5a5839599fdb94e456d828",
+        "cost_model_version": 16,
+        "plan_id": "f4c704ee045e630294c8ff477e9a3e32bfb29954a7d67d6ce7e5f16077f07532",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-          "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-          "facts_sha256": "81fa5866777f83d7180dc097915615475f767016270dbe6e4a9656676e2ee278"
+          "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+          "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
         },
         "objective": {
           "automatic": true,
@@ -5774,9 +6329,9 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 35,
+          "candidates": 41,
           "selected": 7,
-          "already_satisfied": 16,
+          "already_satisfied": 22,
           "rejected": 12,
           "second_pass_required": true,
           "executable": true,
@@ -7422,25 +7977,223 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "character_profile:rows:column_1",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "id",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_1"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_2",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "name",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_2"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_3",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "amount",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_3"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_4",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "joined",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_4"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_5",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "active",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_5"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_6",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "notes",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_6"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-13T19:45:36.707104Z",
-        "duration_seconds": 0.000101,
+        "started_at": "2026-10-13T21:43:05.968320Z",
+        "duration_seconds": 0.00317,
         "timings": {
-          "reading": 0.0,
-          "analysis": 0.0,
-          "other": 0.000101
+          "reading": 0.000377,
+          "analysis": 6e-05,
+          "other": 0.002733
         },
         "workers": 1,
-        "peak_memory_bytes": 66797568,
-        "source_read": false,
-        "source_verified": false,
-        "records_read": 0,
-        "cells_read": 0,
-        "executed": 0,
-        "reused": 7,
+        "peak_memory_bytes": 67903488,
+        "source_read": true,
+        "source_verified": true,
+        "records_read": 5,
+        "cells_read": 5,
+        "executed": 7,
+        "reused": 0,
         "skipped": 0
       },
       "analyses": [
@@ -7463,7 +8216,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "61e787b0de1cdc37eefb22d7e1e665f1ebad5f7949be4fd30ca1fde069268e2a",
+          "key": "6899e624f17e1e4e6180fb1cde12c6dc6510f76f19e7ae6a610a48538fa7cda7",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7527,7 +8280,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "26b49ddbf79baca698c153bc4b90c43b1e7780be2f31f8ed3f332622864fa56b",
+          "key": "4006b0679307f26823e0de2a4fb80c673f980d904c206271cb8bfa60ca8be577",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7616,7 +8369,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "750022768bf3e4735cbfefd790e27213fb6bad51ced6921b1de0038f8508c116",
+          "key": "d2674b8384609cf671da5b00d3c427adfeec00423120fc243529a25b3047eb92",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7680,7 +8433,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "f2727a4feeb1bc8a38cc3916e65cd611760ab423ccc5d6b2d224b4b741cbbf6f",
+          "key": "573829d0905f5637eb893578ef202d564f9cd52e2ffb02abaa50fb7301055309",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -7774,7 +8527,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "474bc8f13b725d514f611ae9207b4012743937389194bcf1bcea20c393fd24a7",
+          "key": "324c4404dd40804fd40f9227b12aff56a15d20fe64f6d2497a086e3a7ecf8368",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -7825,7 +8578,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "44aa84b4a57818b336f0c82efc02851745b6a8cf8c4445627f4472c64a965039",
+          "key": "343d72c78c3b684af6b473fec4b61f31984fc83ff9547ba267ee4261949db01e",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -7879,7 +8632,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "cc7a153d1ab197bf8189893b9f622ef0fdbfe1752b4ca7c6e1a33fae474aab66",
+          "key": "44ff11cd1ff77ac15e633e72a9be69bcf8fb66ec167cbb45bd4ee31cd92d8024",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -7910,12 +8663,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T19:45:36.708111Z",
+    "generated_at": "2026-10-13T21:43:05.979074Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.0194,
+    "processing_seconds": 0.0436,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -7948,8 +8701,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "b61877840ba274ab79141efb362c0be213d9d9deea579d190452c30c64c8011a",
-      "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-      "facts_sha256": "81fa5866777f83d7180dc097915615475f767016270dbe6e4a9656676e2ee278"
+      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+      "facts_sha256": "cfac0b37663d7545893c54a35203f9546fd856f2993e41c2612aa2f70c5c964c"
     },
     "datasets": [
       {

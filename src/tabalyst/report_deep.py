@@ -38,6 +38,7 @@ from tabalyst.scanner.secondpass.models import (
     AnalysisResult,
     ArrayProfileResult,
     BinnedHistogram,
+    CharacterProfileResult,
     CrosstabResult,
     DateResolution,
     DenseHistogram,
@@ -92,6 +93,7 @@ def column_analyses(
             histogram=results.get("numeric_histogram"),  # type: ignore[arg-type]
             lengths=results.get("length_distribution"),  # type: ignore[arg-type]
             frequencies=results.get("exact_frequencies"),  # type: ignore[arg-type]
+            characters=results.get("character_profile"),  # type: ignore[arg-type]
         )
     return views
 
@@ -213,6 +215,8 @@ def result_summary(result: AnalysisOutput) -> tuple[str, str]:
         return _structure_summary(result), _exact_unless_partial(result.complete)
     if isinstance(result, TextProfileResult):
         return _texts_summary(result), EXACT
+    if isinstance(result, CharacterProfileResult):
+        return _characters_summary(result), EXACT
     if isinstance(result, FingerprintResult):
         return _fingerprint_summary(result), FINGERPRINT
     if isinstance(result, FormsResult):
@@ -396,6 +400,15 @@ def _texts_summary(result: TextProfileResult) -> str:
     )
     if result.multi_line:
         text += f"; {result.multi_line:,} on several lines"
+    return text
+
+
+def _characters_summary(result: CharacterProfileResult) -> str:
+    text = f"{result.characters:,} characters, {result.distinct:,} of them different"
+    if result.top:
+        text += f"; the most frequent is U+{result.top[0].codepoint:04X}"
+    if result.with_emoji:
+        text += f"; {result.with_emoji:,} values with an emoji"
     return text
 
 

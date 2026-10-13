@@ -21,6 +21,7 @@ from pydantic import Field, model_serializer
 from tabalyst.config import DeepSettings
 from tabalyst.scanner.config import ScalarType
 from tabalyst.scanner.models import (
+    CharacterMap,
     LengthCount,
     Number,
     NumericStats,
@@ -1598,6 +1599,15 @@ class FormsResult(ScanModel):
         return _omit_none(handler(self), ("classes",))
 
 
+class CharacterProfileResult(CharacterMap):
+    """The character map of a field counted on every string, exactly (design
+    20.37): the members of ``CharacterMap`` with ``basis`` ``exact``. It replaces the
+    map of the Scan, which counts the stored samples."""
+
+    kind: Literal["character_profile"] = "character_profile"
+    basis: Literal["exact"] = "exact"  # type: ignore[assignment]  # narrows the Scan's
+
+
 AnalysisOutput = Annotated[
     DenseHistogram
     | BinnedHistogram
@@ -1622,7 +1632,8 @@ AnalysisOutput = Annotated[
     | StructureResult
     | TextProfileResult
     | FingerprintResult
-    | FormsResult,
+    | FormsResult
+    | CharacterProfileResult,
     Field(discriminator="kind"),
 ]
 

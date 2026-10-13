@@ -1,0 +1,20 @@
+{% macro pct(share) -%}{% if share > 0 and share < 0.001 %}&lt;0.1%{% else %}{{ '%.1f' | format(share * 100) }}%{% endif %}{%- endmacro %}
+{% macro share_list(items, limit) -%}
+<ul class="cm-list">{% for item in items[:limit] %}<li><span class="cm-n">{{ item.label }}{% if item.name %} <small>{{ item.name }}</small>{% endif %}</span><span class="cm-b" aria-hidden="true"><i style="width:{{ '%.1f' | format(item.share * 100) }}%"></i></span><span class="cm-c"><b>{{ item.count | count }}</b> {{ pct(item.share) }}</span></li>{% endfor %}</ul>{% if items | length > limit %}<p class="muted">{{ items | length - limit }} more in the document.</p>{% endif %}
+{%- endmacro %}
+{% macro character_map(cv) -%}
+<section class="cmap" id="character-map" aria-labelledby="character-map-h"><h3 id="character-map-h" class="cm-title">Character map</h3>
+{% if cv.status == 'missing' %}<p class="muted">The document has no character map for this column.</p>
+{% elif cv.status != 'complete' %}<p class="muted">{{ cv.reason_text }}</p>
+{% else %}{% set m = cv.summary %}
+<p class="muted">{% if cv.source == 'second_pass' %}Counted on every value of the column by the second pass.{% elif cv.basis == 'exact' %}Counted on every distinct value the scan stored, each weighted by its occurrences.{% else %}Counted on the sample of distinct values the scan stored, each weighted by its occurrences: a figure of the sample, not of the whole column. A deep pass counts them all.{% endif %} {{ m.characters | count }} character{{ '' if m.characters == 1 else 's' }} in {{ m.values | count }} value{{ '' if m.values == 1 else 's' }}, {{ m.distinct | count }} different.</p>
+<p class="rcard-title">Most frequent characters</p><p class="muted">Share of all the characters.</p>
+<ul class="cm-grid">{% for t in cv.tiles %}<li class="cm-tile" title="{{ t.codepoint }}{% if t.name %} {{ t.name }}{% endif %}: {{ t.count | count }}"><span class="cm-g">{{ t.symbol }}</span><small>{{ t.codepoint }}</small><b>{{ pct(t.share) }}</b><span class="cm-b" aria-hidden="true"><i style="width:{{ '%.1f' | format(t.share * 100) }}%"></i></span></li>{% endfor %}</ul>
+<div class="column-grid">
+<div class="rcard"><p class="rcard-title">Scripts of the letters</p><p class="muted">Share of all the characters.</p>{% if cv.scripts %}{{ share_list(cv.scripts, 10) }}{% else %}<p class="muted">No letter.</p>{% endif %}</div>
+<div class="rcard"><p class="rcard-title">Kinds of characters</p><p class="muted">Share of all the characters.</p>{{ share_list(cv.categories, 12) }}</div>
+<div class="rcard"><p class="rcard-title">Case of the values</p><p class="muted">Share of the values.</p>{{ share_list(cv.case, 3) }}</div>
+<div class="rcard"><p class="rcard-title">Emoji</p>{% if m.with_emoji %}<p class="muted">{{ m.with_emoji | count }} value{{ '' if m.with_emoji == 1 else 's' }} with an emoji, {{ m.emoji_sequences | count }} sequence{{ '' if m.emoji_sequences == 1 else 's' }}.</p><p class="muted">Share of the emoji sequences.</p>{{ share_list(cv.emoji, 10) }}{% else %}<p class="muted">No emoji.</p>{% endif %}</div>
+</div>
+{% endif %}</section>
+{%- endmacro %}

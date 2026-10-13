@@ -234,6 +234,7 @@ ANALYSIS_LABELS = {
     "array_profile": "Lengths of the arrays",
     "structure_variants": "Sets of keys of the objects",
     "text_profile": "Words, lines and digits of the texts",
+    "character_profile": "Characters of the values",
     "fingerprint_distinct": "Distinct long texts by fingerprint",
     "sensitive_forms": "Masks and classes of a sensitive column",
 }
@@ -295,4 +296,46 @@ DEEP_REASONS = {
     "analysis_error": "the analysis failed",
     "unrepresentable": "a value could not be represented",
     "not_available": "no executor in this version",
+}
+
+
+# The general categories of Unicode, as the character map names them.
+CHARACTER_CATEGORIES = {
+    "Lu": "Uppercase letters",
+    "Ll": "Lowercase letters",
+    "Lt": "Titlecase letters",
+    "Lm": "Modifier letters",
+    "Lo": "Other letters",
+    "Mn": "Nonspacing marks",
+    "Mc": "Spacing marks",
+    "Me": "Enclosing marks",
+    "Nd": "Decimal digits",
+    "Nl": "Letter numbers",
+    "No": "Other numbers",
+    "Pc": "Connector punctuation",
+    "Pd": "Dashes",
+    "Ps": "Opening brackets",
+    "Pe": "Closing brackets",
+    "Pi": "Opening quotes",
+    "Pf": "Closing quotes",
+    "Po": "Other punctuation",
+    "Sm": "Math symbols",
+    "Sc": "Currency symbols",
+    "Sk": "Modifier symbols",
+    "So": "Other symbols",
+    "Zs": "Spaces",
+    "Zl": "Line separators",
+    "Zp": "Paragraph separators",
+    "Cc": "Control characters",
+    "Cf": "Format characters",
+    "Cs": "Surrogates",
+    "Co": "Private use",
+    "Cn": "Unassigned",
+}
+# Why a column has no character map.
+CHARACTER_REASONS = {
+    "disabled": "Its values are masked or hidden, so their characters are not listed.",
+    "samples_withheld": "The scan withheld some of its values, so it cannot map their characters.",
+    "no_values": "The column has no text value.",
+    "failed": "The scan could not map its characters.",
 }

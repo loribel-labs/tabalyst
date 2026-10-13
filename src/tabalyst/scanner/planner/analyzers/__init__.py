@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from tabalyst.scanner.planner.analyzer import Analyzer
+from tabalyst.scanner.planner.analyzers.characters import CharacterProfile
 from tabalyst.scanner.planner.analyzers.crosstab import CategoryCrosstab
 from tabalyst.scanner.planner.analyzers.distinct import ExactDistinct
 from tabalyst.scanner.planner.analyzers.drift import PositionDrift
@@ -49,4 +50,5 @@ BUILT_INS: tuple[type[Analyzer], ...] = (
     TextProfile,
     FingerprintDistinct,
     SensitiveForms,
+    CharacterProfile,
 )

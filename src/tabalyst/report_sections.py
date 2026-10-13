@@ -11,8 +11,13 @@ Everything here is computed when a page is rendered, from the document alone
 have is reported as not computed and never rebuilt (design 18.14).
 """
 
+import unicodedata
+from typing import Literal
+
 from tabalyst.report_labels import (
     AT_LEAST,
+    CHARACTER_CATEGORIES,
+    CHARACTER_REASONS,
     EXACT,
     MEASURE_LABELS,
     MEASURE_REASON_SETTINGS,
@@ -29,6 +34,9 @@ from tabalyst.report_labels import (
 )
 from tabalyst.report_views import (
     CardinalityView,
+    CharacterMapView,
+    CharacterShare,
+    CharacterTile,
     DiagnosticLocation,
     DiagnosticProfile,
     LimitsView,
@@ -47,10 +55,12 @@ from tabalyst.report_views import (
 )
 from tabalyst.scanner.models import (
     CardinalityLimited,
+    CharacterMap,
     Complete,
     DatasetResult,
     Derived,
     Diagnostic,
+    FieldCharacters,
     FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
@@ -65,6 +75,7 @@ from tabalyst.scanner.models import (
 )
 from tabalyst.scanner.quality import ANALYTICAL_STAGES
 from tabalyst.scanner.secondpass.models import (
+    CharacterProfileResult,
     PatternCounts,
     PatternNodeCount,
     PatternTableCount,
@@ -487,6 +498,119 @@ def pattern_entries(derived: Derived | None) -> dict[tuple[str, str], FieldPatte
     if derived is None or derived.patterns is None:
         return {}
     return {(entry.dataset, entry.field): entry for entry in derived.patterns.fields}
+
+
+# Characters --------------------------------------------------------------------
+
+
+def character_entries(derived: Derived | None) -> dict[tuple[str, str], FieldCharacters]:
+    """The character map of each field, by dataset and field id."""
+    if derived is None or derived.characters is None:
+        return {}
+    return {(entry.dataset, entry.field): entry for entry in derived.characters.fields}
+
+
+# How a character that cannot be drawn as itself is shown.
+_VISIBLE = {" ": "\u2420", "\t": "\u21e5", "\n": "\u21b5", "\r": "\u240d", "\u00a0": "NBSP"}
+
+
+def _symbol(char: str) -> str:
+    """The character as the map draws it: itself when it can be seen, a mark or
+    its code point otherwise."""
+    if char in _VISIBLE:
+        return _VISIBLE[char]
+    if char.isprintable() and not unicodedata.category(char).startswith("M"):
+        return char
+    return f"U+{ord(char):04X}"
+
+
+def _ratio(count: int, total: int) -> float:
+    return count / total if total else 0.0
+
+
+def character_view(
+    entry: FieldCharacters | None, exact: CharacterProfileResult | None
+) -> CharacterMapView:
+    """The character map of a column: the exact one of the second pass when there is
+    one, otherwise the Scan's (design 9.2b)."""
+    if exact is not None:
+        return _character_map(exact, "second_pass")
+    if entry is None:
+        return CharacterMapView(status="missing")
+    found = entry.characters
+    if isinstance(found, Complete):
+        return _character_map(found.value, "scan")
+    if isinstance(found, Limited):
+        return CharacterMapView(
+            status="limited",
+            source="scan",
+            reason_text=(
+                f"More distinct characters or emoji than the {found.limit:,} the map keeps: "
+                "it lists none."
+            ),
+        )
+    reason = getattr(found, "reason", found.status)
+    return CharacterMapView(
+        status="unavailable", reason_text=CHARACTER_REASONS.get(reason, CHARACTER_REASONS["failed"])
+    )
+
+
+def _character_map(
+    found: CharacterMap, source: Literal["scan", "second_pass"]
+) -> CharacterMapView:
+    characters = found.characters
+    values = found.values
+    return CharacterMapView(
+        status="complete",
+        source=source,
+        basis=found.basis,
+        summary=found,
+        tiles=[
+            CharacterTile(
+                symbol=_symbol(item.char),
+                codepoint=f"U+{item.codepoint:04X}",
+                name=unicodedata.name(item.char, "") or CHARACTER_CATEGORIES.get(
+                    unicodedata.category(item.char), ""
+                ),
+                count=item.occurrence_count,
+                share=_ratio(item.occurrence_count, characters),
+            )
+            for item in found.top
+        ],
+        scripts=[
+            CharacterShare(
+                label=item.name.title(),
+                count=item.occurrence_count,
+                share=_ratio(item.occurrence_count, characters),
+            )
+            for item in found.scripts
+        ],
+        categories=[
+            CharacterShare(
+                label=CHARACTER_CATEGORIES.get(item.name, item.name),
+                name=item.name,
+                count=item.occurrence_count,
+                share=_ratio(item.occurrence_count, characters),
+            )
+            for item in found.categories
+        ],
+        case=[
+            CharacterShare(label=label, count=count, share=_ratio(count, values))
+            for label, count in (
+                ("Ends with a capital", found.ends_uppercase),
+                ("Ends with a lowercase letter", found.ends_lowercase),
+                ("Title case", found.title_case),
+            )
+        ],
+        emoji=[
+            CharacterShare(
+                label=item.sequence,
+                count=item.occurrence_count,
+                share=_ratio(item.occurrence_count, found.emoji_sequences),
+            )
+            for item in found.emoji
+        ],
+    )
 
 
 # Rows --------------------------------------------------------------------------

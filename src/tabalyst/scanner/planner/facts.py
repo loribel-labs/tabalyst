@@ -279,6 +279,11 @@ class FieldFacts:
     # Content strings of the field, and the sensitive detectors that read some.
     strings_content: int = 0
     classified: tuple[str, ...] = ()
+    # Characters the Scan's character map lists (``limits.max_top_characters``): the
+    # second pass lists as many.
+    top_characters: int = 20
+    # Status of the Scan's character map of the field (``complete`` when it has none to say).
+    character_map: str = "complete"
 
     @property
     def withheld(self) -> bool:
@@ -508,6 +513,8 @@ def _facts(
     children: dict[str, list[FieldResult]],
     source_format: str,
     provenance: tuple[int, int, str],
+    top_characters: int,
+    character_map: str,
 ) -> FieldFacts:
     cardinality = field.values.cardinality
     distinct: int | None = None
@@ -582,6 +589,8 @@ def _facts(
         dataset_fields=len(dataset.fields),
         strings_content=field.strings.content,
         classified=_classified(field),
+        top_characters=top_characters,
+        character_map=character_map,
     )
 
 
@@ -656,6 +665,14 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
         }
     )
     rules = _measure_rules(scan.config.detectors)
+    maps = (
+        {}
+        if scan.derived is None or scan.derived.characters is None
+        else {
+            (entry.dataset, entry.field): entry.characters.status
+            for entry in scan.derived.characters.fields
+        }
+    )
     grammar, algorithm = (
         (scan.derived.patterns.grammar.version, scan.derived.patterns.algorithm.version)
         if scan.derived is not None and scan.derived.patterns is not None
@@ -680,6 +697,8 @@ def scan_facts(scan: ScanResult) -> list[FieldFacts]:
                 children,
                 scan.source.format,
                 provenance,
+                scan.config.limits.max_top_characters,
+                maps.get((dataset.id, field.id), "complete"),
             )
             for field in dataset.fields
         )

@@ -7,8 +7,8 @@
     "format_revision": 4,
     "engine_version": "0.7.0",
     "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-    "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-    "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+    "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+    "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
   },
   "settings": {
     "bins": 100,
@@ -107,14 +107,14 @@
     "planner": "tabalyst.planner",
     "planner_version": 1,
     "utility_version": 1,
-    "cost_model_version": 14,
-    "plan_id": "5c7e173d21241e3899607029d898735b4ce7d80b42df2a09f9270cd711307d72",
+    "cost_model_version": 16,
+    "plan_id": "ce1b4420657d67c948518598e3de1378a98fbc0094904016d0ebeb9e0bba6513",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-      "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+      "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
     },
     "objective": {
       "automatic": true,
@@ -138,18 +138,20 @@
       "cpu": "very_low"
     },
     "summary": {
-      "candidates": 243,
-      "selected": 125,
-      "already_satisfied": 70,
-      "rejected": 48,
+      "candidates": 277,
+      "selected": 142,
+      "already_satisfied": 85,
+      "rejected": 50,
       "second_pass_required": true,
       "executable": true,
       "memory": {
-        "min": 38859318,
-        "expected": 46720732,
-        "max": 75685843
+        "min": 39155254,
+        "expected": 47295196,
+        "max": 218309587
       },
-      "beyond_automatic": []
+      "beyond_automatic": [
+        "memory_over_automatic"
+      ]
     },
     "relations": {
       "datasets": [
@@ -1796,7 +1798,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 93,
+          "priority": 108,
           "satisfied_by": null
         },
         "execution": {
@@ -1873,7 +1875,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 92,
+          "priority": 107,
           "satisfied_by": null
         },
         "execution": {
@@ -1950,7 +1952,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 95,
+          "priority": 110,
           "satisfied_by": null
         },
         "execution": {
@@ -2027,7 +2029,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 96,
+          "priority": 111,
           "satisfied_by": null
         },
         "execution": {
@@ -4093,7 +4095,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 103,
+          "priority": 118,
           "satisfied_by": null
         },
         "execution": {
@@ -4275,7 +4277,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 102,
+          "priority": 117,
           "satisfied_by": null
         },
         "execution": {
@@ -4601,7 +4603,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 89,
+          "priority": 104,
           "satisfied_by": null
         },
         "execution": {
@@ -4675,7 +4677,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 97,
+          "priority": 112,
           "satisfied_by": null
         },
         "execution": {
@@ -4857,7 +4859,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 98,
+          "priority": 113,
           "satisfied_by": null
         },
         "execution": {
@@ -4967,7 +4969,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 101,
+          "priority": 116,
           "satisfied_by": null
         },
         "execution": {
@@ -5041,7 +5043,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 94,
+          "priority": 109,
           "satisfied_by": null
         },
         "execution": {
@@ -5223,7 +5225,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 88,
+          "priority": 103,
           "satisfied_by": null
         },
         "execution": {
@@ -5297,7 +5299,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 100,
+          "priority": 115,
           "satisfied_by": null
         },
         "execution": {
@@ -5371,7 +5373,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 99,
+          "priority": 114,
           "satisfied_by": null
         },
         "execution": {
@@ -5445,7 +5447,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 90,
+          "priority": 105,
           "satisfied_by": null
         },
         "execution": {
@@ -5590,7 +5592,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 108,
+          "priority": 123,
           "satisfied_by": null
         },
         "execution": {
@@ -5666,7 +5668,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 104,
+          "priority": 119,
           "satisfied_by": null
         },
         "execution": {
@@ -5742,7 +5744,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 107,
+          "priority": 122,
           "satisfied_by": null
         },
         "execution": {
@@ -5818,7 +5820,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 106,
+          "priority": 121,
           "satisfied_by": null
         },
         "execution": {
@@ -5894,7 +5896,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 91,
+          "priority": 106,
           "satisfied_by": null
         },
         "execution": {
@@ -5941,7 +5943,7 @@
             "max": 1124128
           },
           "cpu": "moderate",
-          "cell_ns": 700,
+          "cell_ns": 1100,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_2",
@@ -5973,7 +5975,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 109,
+          "priority": 124,
           "satisfied_by": null
         },
         "execution": {
@@ -6020,7 +6022,7 @@
             "max": 3259902
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_6",
@@ -6068,7 +6070,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 124,
+          "priority": 139,
           "satisfied_by": null
         },
         "execution": {
@@ -6115,7 +6117,7 @@
             "max": 3303210
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_17",
@@ -6163,7 +6165,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 125,
+          "priority": 140,
           "satisfied_by": null
         },
         "execution": {
@@ -6246,7 +6248,7 @@
             "max": 1132694
           },
           "cpu": "moderate",
-          "cell_ns": 700,
+          "cell_ns": 1100,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_21",
@@ -6278,7 +6280,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 110,
+          "priority": 125,
           "satisfied_by": null
         },
         "execution": {
@@ -6325,7 +6327,7 @@
             "max": 2761662
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_23",
@@ -6373,7 +6375,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 123,
+          "priority": 138,
           "satisfied_by": null
         },
         "execution": {
@@ -6420,7 +6422,7 @@
             "max": 1482846
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_24",
@@ -6468,7 +6470,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 116,
+          "priority": 131,
           "satisfied_by": null
         },
         "execution": {
@@ -6515,7 +6517,7 @@
             "max": 2711838
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_30",
@@ -6563,7 +6565,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 122,
+          "priority": 137,
           "satisfied_by": null
         },
         "execution": {
@@ -6610,7 +6612,7 @@
             "max": 2373450
           },
           "cpu": "moderate",
-          "cell_ns": 1110,
+          "cell_ns": 1370,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_31",
@@ -6658,7 +6660,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 120,
+          "priority": 135,
           "satisfied_by": null
         },
         "execution": {
@@ -6705,7 +6707,7 @@
             "max": 682548
           },
           "cpu": "low",
-          "cell_ns": 390,
+          "cell_ns": 540,
           "states": [
             {
               "key": "residuals:datasets/rows/fields/column_32",
@@ -6831,7 +6833,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 111,
+          "priority": 126,
           "satisfied_by": null
         },
         "execution": {
@@ -6909,7 +6911,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 112,
+          "priority": 127,
           "satisfied_by": null
         },
         "execution": {
@@ -7023,7 +7025,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 113,
+          "priority": 128,
           "satisfied_by": null
         },
         "execution": {
@@ -7134,7 +7136,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 80,
+          "priority": 95,
           "satisfied_by": null
         },
         "execution": {
@@ -9181,7 +9183,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 63,
+          "priority": 78,
           "satisfied_by": null
         },
         "execution": {
@@ -9318,7 +9320,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 64,
+          "priority": 79,
           "satisfied_by": null
         },
         "execution": {
@@ -9454,7 +9456,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 65,
+          "priority": 80,
           "satisfied_by": null
         },
         "execution": {
@@ -9591,7 +9593,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 66,
+          "priority": 81,
           "satisfied_by": null
         },
         "execution": {
@@ -9727,7 +9729,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 67,
+          "priority": 82,
           "satisfied_by": null
         },
         "execution": {
@@ -9864,7 +9866,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 68,
+          "priority": 83,
           "satisfied_by": null
         },
         "execution": {
@@ -10232,7 +10234,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 69,
+          "priority": 84,
           "satisfied_by": null
         },
         "execution": {
@@ -10354,7 +10356,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 70,
+          "priority": 85,
           "satisfied_by": null
         },
         "execution": {
@@ -10476,7 +10478,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 71,
+          "priority": 86,
           "satisfied_by": null
         },
         "execution": {
@@ -10598,7 +10600,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 72,
+          "priority": 87,
           "satisfied_by": null
         },
         "execution": {
@@ -10720,7 +10722,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 73,
+          "priority": 88,
           "satisfied_by": null
         },
         "execution": {
@@ -10842,7 +10844,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 74,
+          "priority": 89,
           "satisfied_by": null
         },
         "execution": {
@@ -10964,7 +10966,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 75,
+          "priority": 90,
           "satisfied_by": null
         },
         "execution": {
@@ -11086,7 +11088,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 76,
+          "priority": 91,
           "satisfied_by": null
         },
         "execution": {
@@ -11208,7 +11210,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 77,
+          "priority": 92,
           "satisfied_by": null
         },
         "execution": {
@@ -11330,7 +11332,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 78,
+          "priority": 93,
           "satisfied_by": null
         },
         "execution": {
@@ -11452,7 +11454,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 79,
+          "priority": 94,
           "satisfied_by": null
         },
         "execution": {
@@ -11574,7 +11576,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 81,
+          "priority": 96,
           "satisfied_by": null
         },
         "execution": {
@@ -11696,7 +11698,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 82,
+          "priority": 97,
           "satisfied_by": null
         },
         "execution": {
@@ -11818,7 +11820,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 83,
+          "priority": 98,
           "satisfied_by": null
         },
         "execution": {
@@ -11940,7 +11942,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 84,
+          "priority": 99,
           "satisfied_by": null
         },
         "execution": {
@@ -12062,7 +12064,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 85,
+          "priority": 100,
           "satisfied_by": null
         },
         "execution": {
@@ -12184,7 +12186,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 86,
+          "priority": 101,
           "satisfied_by": null
         },
         "execution": {
@@ -12306,7 +12308,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 87,
+          "priority": 102,
           "satisfied_by": null
         },
         "execution": {
@@ -12409,7 +12411,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 119,
+          "priority": 134,
           "satisfied_by": null
         },
         "execution": {
@@ -12597,7 +12599,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 121,
+          "priority": 136,
           "satisfied_by": null
         },
         "execution": {
@@ -12768,7 +12770,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 118,
+          "priority": 133,
           "satisfied_by": null
         },
         "execution": {
@@ -12845,7 +12847,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 117,
+          "priority": 132,
           "satisfied_by": null
         },
         "execution": {
@@ -12922,7 +12924,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 105,
+          "priority": 120,
           "satisfied_by": null
         },
         "execution": {
@@ -12999,7 +13001,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 115,
+          "priority": 130,
           "satisfied_by": null
         },
         "execution": {
@@ -13076,7 +13078,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 114,
+          "priority": 129,
           "satisfied_by": null
         },
         "execution": {
@@ -16096,25 +16098,1712 @@
           "reusable": true,
           "on_limit": "limited"
         }
+      },
+      {
+        "id": "character_profile:rows:column_1",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_1",
+        "display": "filiale",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_1"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_2",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_2",
+        "display": "id_client",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "moderate",
+          "cell_ns": 646,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_2",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_2",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 141,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_3",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_3",
+        "display": "civilite",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_3"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_4",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_4",
+        "display": "prenom",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 507,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_4",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_4",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 63,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_5",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_5",
+        "display": "nom",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 505,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_5",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_5",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 64,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_6",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_6",
+        "display": "date_naissance",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_6",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_6",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 65,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_7",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_7",
+        "display": "sexe",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_7"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_8",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_8",
+        "display": "langue_preferee",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_8"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_9",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_9",
+        "display": "numero_voie",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 447,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_9",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_9",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 66,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_10",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_10",
+        "display": "type_voie",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_10"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_11",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_11",
+        "display": "nom_voie",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 596,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_11",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_11",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 67,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_12",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_12",
+        "display": "orientation",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_12"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_13",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_13",
+        "display": "appartement",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 423,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_13",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_13",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 68,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_14",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_14",
+        "display": "ville",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 575,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_14",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_14",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 69,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_15",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_15",
+        "display": "province_code",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_15"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_16",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_16",
+        "display": "province_nom",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_16"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_17",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_17",
+        "display": "code_postal",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 525,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_17",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_17",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 70,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_18",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_18",
+        "display": "pays_code",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_18"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_19",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_19",
+        "display": "courriel",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "not_applicable",
+          "reasons": [
+            "sensitive_exposure"
+          ]
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "rejected",
+          "reason": "not_applicable",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_20",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_20",
+        "display": "telephone",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "not_applicable",
+          "reasons": [
+            "sensitive_exposure"
+          ]
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "rejected",
+          "reason": "not_applicable",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_21",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_21",
+        "display": "id_contrat",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "moderate",
+          "cell_ns": 700,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_21",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_21",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 142,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_22",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_22",
+        "display": "type_contrat",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_22"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_23",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_23",
+        "display": "date_debut",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_23",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_23",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 71,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_24",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_24",
+        "display": "date_fin",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_24",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_24",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 72,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_25",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_25",
+        "display": "statut_contrat",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_25"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_26",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_26",
+        "display": "prime_annuelle",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 514,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_26",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_26",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 73,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_27",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_27",
+        "display": "frequence_paiement",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_27"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_28",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_28",
+        "display": "mode_paiement",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_28"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_29",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_29",
+        "display": "agence_code",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_29"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_30",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_30",
+        "display": "date_creation",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_30",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_30",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 74,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_31",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_31",
+        "display": "date_modification",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_31",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_31",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 75,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_32",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_32",
+        "display": "date_reclamation",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_32",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_32",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 76,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_33",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_33",
+        "display": "montant_reclamation",
+        "method": "character_census",
+        "parameters": {
+          "top": 20
+        },
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 40,
+          "reasons": [
+            "character_map"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 17408,
+            "expected": 33792,
+            "max": 8389632
+          },
+          "cpu": "low",
+          "cell_ns": 545,
+          "states": [
+            {
+              "key": "characters:datasets/rows/fields/column_33",
+              "memory": {
+                "min": 16384,
+                "expected": 32768,
+                "max": 8388608
+              }
+            },
+            {
+              "key": "result:character_profile:datasets/rows/fields/column_33",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 77,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
+      },
+      {
+        "id": "character_profile:rows:column_34",
+        "analyzer": "character_profile",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_34",
+        "display": "reclamation_status",
+        "method": null,
+        "parameters": {},
+        "outputs": [
+          "character_map"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": null,
+        "costs": null,
+        "selection": {
+          "state": "already_satisfied",
+          "reason": "map_in_samples",
+          "requested": false,
+          "priority": null,
+          "satisfied_by": "derived/characters/rows/column_34"
+        },
+        "execution": {
+          "requires_source": false,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        }
       }
     ]
   },
   "run": {
-    "started_at": "2026-10-13T18:47:50.957186Z",
-    "duration_seconds": 0.067168,
+    "started_at": "2026-10-13T21:43:15.325440Z",
+    "duration_seconds": 0.386545,
     "timings": {
-      "reading": 0.009412,
-      "analysis": 0.037912,
-      "other": 0.019844
+      "reading": 0.009071,
+      "analysis": 0.209982,
+      "other": 0.167492
     },
     "workers": 1,
-    "peak_memory_bytes": 113979392,
+    "peak_memory_bytes": 117723136,
     "source_read": true,
     "source_verified": true,
     "records_read": 3000,
-    "cells_read": 27000,
-    "executed": 11,
-    "reused": 114,
+    "cells_read": 234000,
+    "executed": 142,
+    "reused": 0,
     "skipped": 0
   },
   "analyses": [
@@ -16130,7 +17819,7 @@
         "distinct": 227
       },
       "domain": "analytical",
-      "key": "537d3639431cc7fff9e3addc469e1fcec0b6d1277c3b7398fe6c41e1e89467e7",
+      "key": "705c5d8bd619b366bdc14247603840fa060aaa719ce85d23cb11593acf4b6f6b",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -17295,7 +18984,7 @@
         "distinct": 214
       },
       "domain": "analytical",
-      "key": "3cf8694dd12eefbb58866d809a4d8565887ab3bd284a58fa0687c5aa2ec6678d",
+      "key": "6871fc636ff99090621d45591c96cab8fb964cedcd5dbe3fed866366f5fe23c7",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -18395,7 +20084,7 @@
         "distinct": 175
       },
       "domain": "analytical",
-      "key": "20735c4112ec4789e8e6ec62d307063ad33227b77bcdfa0f2fe919e9a28d291b",
+      "key": "d51be3bc787002cfb41d93de78734b8587346409df209bb847748dcdf814e220",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -19300,7 +20989,7 @@
         "distinct": 665
       },
       "domain": "analytical",
-      "key": "7cf18aa45aa392881aa4da2c491ee250f78fe61650cbbdace3acbe5807a17636",
+      "key": "e3cb26f614d1b1be85da466f1167c7d9e22591a727aca6f1b5d1d019623fb768",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -22665,7 +24354,7 @@
         "distinct": 135
       },
       "domain": "analytical",
-      "key": "a5810b8bdf800d84f160a058fdf92f4e365843bb7432dc5b9f86e1bdc7727f7b",
+      "key": "977d800dff175ccd9adbdf61607bb73d97f995032dd6a9d49002e381d8b3a195",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -23370,7 +25059,7 @@
         "distinct": 406
       },
       "domain": "analytical",
-      "key": "079b876ae4207f4c1bc9d4446bf29abe85589f2d76a77b2e4defd2f1e0ed9e4a",
+      "key": "30906287b67dfacedbb97a198271c4fe5fde9e9a09ad80660c4afd5976562d39",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -25475,7 +27164,7 @@
         "distinct": 344
       },
       "domain": "analytical",
-      "key": "76496e0ed0212d4cf70e6a06245d7946b1c3d2268e25ef74383cdfa68e37de39",
+      "key": "2725aefada961fb778a30ad495071b458b261084e764376831eeb1250c93bde6",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -27225,7 +28914,7 @@
         "domain": 9989
       },
       "domain": "analytical",
-      "key": "e7cda86a9b4595aaeab81102e3f27c0c6ecc0bcd0384218cf20ac50ac4d4c7bb",
+      "key": "9dfc6a1752fab5e0ba38cadf9532229a39325e3331bcaf3e0bd9eb2f84b72e1c",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -37591,7 +39280,7 @@
         "domain": 998
       },
       "domain": "analytical",
-      "key": "5d81f248e437ecfa8e352cf4378766c5ce3714ff724a554018463b9d8fbdf2a2",
+      "key": "7353e55bcabe171cc33fdae3c2198e54f5c10deaeef3d4c14ef90d7fc773d76e",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -40314,7 +42003,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "f894391bec955cfc86d06beddd6bd7d2f828634e075264e7ed8b94b1b0d5dbc6",
+      "key": "618afc594ef6fe99bf7ff46038319f556a4f2a80c45f85c0dc1b13afa74d0270",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -40592,7 +42281,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "76f63d70f8c36db05578b5e0745907e78ed2237adfd6aaba3224a2fa4c058b73",
+      "key": "5223d95cd8c9d5e05ecd5e37dabac168b8b0e0d7d2cd0ed5b6be4e26f0d1919c",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -40876,7 +42565,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "ff54ce365d6d1b43bf1012a44aa980bacb7f52dc45119940cce28ef7b48b58d7",
+      "key": "8c8e38698cd82abdf6889e2b377cc6a88dc952682476c04532a17f26855ee731",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -41199,7 +42888,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "aee6ce6f189fc31e867d45da5c03bd00635b1e9e727aadc6d6e3067fef7f037e",
+      "key": "e4ba3c2437158237422d87e9b7d6b5c254513ae9ebf1d77b4c74ff59009a911b",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -41458,7 +43147,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "08679be771661fb21d74e1af9730fb526f3866aa0669575b4dc190198fed3036",
+      "key": "8a3c4997700a3a829e9080956ad801eeb2bb3f5f46b2d3ae6ba6e2cca7040395",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -41809,7 +43498,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "04ea003e496eae93c23cd838965ba1757886b6bce8e7de2a22fb205345e7405a",
+      "key": "9cd2e11f5b4d1948894b596b66145c2bce7491fbb12a7243f35d73cd22b80e59",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -42043,7 +43732,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "bb6ba6349ccd06dea495c67781aa5a1c833094f40116d0feff457f67bb5410df",
+      "key": "8c2fae31dd080601b0c90b133bf28fa9a40dca5ca7684d82af2b3836630ad288",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -42212,7 +43901,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "3fd9a49f56aa8716316bce3528364cd2b557d115235728024238be0c3c470d15",
+      "key": "a33517bbb41061bb267c33e57c469309deb5a220d5b7619ffff3d14ddc1593c4",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -42401,7 +44090,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "07ae1e777d14aa4361de0dbdf65ade18fee9e9613ffb7cb5adabdf32c84b530f",
+      "key": "377c1704af88096a3d46ae1af55b5bb27b1334d532d52b8d7fcd479480133f8a",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -42746,7 +44435,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "5ddcfdacfc69ab007a1a20eb1b2192983689c077bfe9bec38da6c9fe85c399e5",
+      "key": "b0e7a448a86ce9a1e4f79dc432bbfb7e14e39d2ee4356ad55d365b6d353730fc",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -42927,7 +44616,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "091d4d61cb9aac0a33fd176763b73c0598ff0c85452311141bf90fd753e08b01",
+      "key": "f605c8cd1999ede0f0073a73337f48574d62eef2db770f6c3dad2ed6501580fc",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -43119,7 +44808,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "74dccfbc024a1cfaab94d03f82481827087d530582a8f6eed3a93c7cdb489cd3",
+      "key": "8aecd17ec6f6521504ab0df1892e22936566e20c3294aab11f8638f98efb5040",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -43399,7 +45088,7 @@
         "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
       },
       "domain": "original",
-      "key": "81a41cdcf0286ed7c99259737f11e9ffcf6a1789dcac77394e27583c89443e1d",
+      "key": "1d78bf44cbcb66e63e59cd6f8649d41800281ab7d6491a96c4126b694ad8e051",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
@@ -43555,7 +45244,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "8e94ac9a48e659d1b7790571638fb43f5855935848c0c90a25671f32e29edcde",
+      "key": "1bba24ca74c0f80d2269bd2906a91fc0fee093c58ced328678accc6cd0c9ce02",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -44096,7 +45785,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "022e9c844f4812475415153e35e50ce776c211865293757766b346791a370678",
+      "key": "1263d61e836d04793f512dd5b1de5a843d8832df177bf2529a397d6cc8882847",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -44573,7 +46262,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "1469d45e57039bb9883c94655de5e9b53ef72f85748547c1404eb336671ad3e0",
+      "key": "535a60d6fd855bcce5c60baa2ba3db868dee6b7aea300610fbd0aa120609fe26",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -45094,7 +46783,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "ccd19e13abfee3b3afd6528636d50d01c3e54b92aec8813fec0266afe7a8a2ee",
+      "key": "77ace91b92cd016e916f9ef02924c0a8faafdda9a02dec1de9c123391dcda044",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -45587,7 +47276,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "b4d8048630029b4a271c0f22c77defdb3de75f3430fc7cc384b058d47187fe09",
+      "key": "8bc8ae4a5f30a4d9b3b694451d9269497f49477441b5611b7153feb576ace857",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -45978,7 +47667,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "0e5c2240cf9676530886610c53e3537c80076ac4a78653ab4bef12cfc2137f6d",
+      "key": "efbe94d7b95b1fc6cc9ee0f6a35d926196442d8d2b7eaaced4bbd3ddfc9d1225",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -45998,6 +47687,15 @@
             "first_record": 1115
           },
           {
+            "id": "f1.p2",
+            "render": "AAA999999",
+            "occurrences": 1,
+            "distinct": 1,
+            "distinct_accuracy": "exact",
+            "example": "ONT000933",
+            "first_record": 1163
+          },
+          {
             "id": "f2.p1",
             "render": "'CLI-00'999999",
             "occurrences": 2159,
@@ -46005,15 +47703,6 @@
             "distinct_accuracy": "exact",
             "example": "CLI-00000281",
             "first_record": 1
-          },
-          {
-            "id": "f3.p1",
-            "render": "'QC-000'9-9999",
-            "occurrences": 558,
-            "distinct": 558,
-            "distinct_accuracy": "exact",
-            "example": "QC-0000-0025",
-            "first_record": 1238
           },
           {
             "id": "f2.p2",
@@ -46034,6 +47723,15 @@
             "first_record": 10
           },
           {
+            "id": "f3.p1",
+            "render": "'QC-000'9-9999",
+            "occurrences": 558,
+            "distinct": 558,
+            "distinct_accuracy": "exact",
+            "example": "QC-0000-0025",
+            "first_record": 1238
+          },
+          {
             "id": "f3.p2",
             "render": "'QC-000'9-999",
             "occurrences": 5,
@@ -46050,15 +47748,6 @@
             "distinct_accuracy": "exact",
             "example": "QC--0001-8419",
             "first_record": 2802
-          },
-          {
-            "id": "f1.p2",
-            "render": "AAA999999",
-            "occurrences": 1,
-            "distinct": 1,
-            "distinct_accuracy": "exact",
-            "example": "ONT000933",
-            "first_record": 1163
           }
         ],
         "pattern_excluded": {
@@ -46085,7 +47774,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "4769584bd26a1fa5e3c9a027eb63aead5c226676339fcd0473babe05a7929798",
+      "key": "ca0577ee593ca901d756e033da67ba2dc8f89043d9ec89dfcb8790c981c163a6",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46230,7 +47919,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "4fa6f033a92178a15fdf6c04afe6d593f322fe9e0c76a5d498b625a45d8c414e",
+      "key": "95e000972c7b7e81b872e69aecdc6112fe4d68d6778f240198660932df42e30f",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46434,7 +48123,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "d845af258dd9861b9034ddc9c82dca8ba0f006ec996842578089fc03f877ceda",
+      "key": "cf08a23ad0c691f23a20894014484c3d988c040bca98cda5f0070cfb826f2879",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46496,7 +48185,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "e846061a442ddf77c012f4e646abacbc393a33c301d7fe5808324814b9a58c8c",
+      "key": "cb4baef5af08df55df7c47a287af730a3de9d8f8556dfda31b619b634e742062",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46641,7 +48330,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "6bc477ff12cedbe0710cb058a7f24aaf7bb3dc2e43adcfdd7f82be802dee501c",
+      "key": "3d2da44a9b265147676c9b1e3c706598c64c9cbaac5846cacc5a240bdabdd1f1",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46786,7 +48475,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "4a9a1bab2543f75497b3946e6885bb7902e7c735397afdbdebc625b714d76fad",
+      "key": "f183611fde5a960232e350fb4868f8d5d878e39b22dab7c52270ccf45a19b24b",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46945,7 +48634,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "283685826fea99cd883d0ec348413073f2f5875d9b64a354245ef0ffe7a0c075",
+      "key": "30faaf290eabe5c0a6d9f273c718eccc79f569611c5a54a60964b305879a1992",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -46957,112 +48646,22 @@
           {
             "source": "pattern",
             "state": "other",
-            "occurrences": 38,
-            "distinct": 37,
+            "occurrences": 2,
+            "distinct": 2,
             "complete": true,
             "untracked": 0,
             "too_long": 0,
-            "truncated": true,
+            "truncated": false,
             "listed": [
               {
-                "value": "11-10-2019",
-                "count": 2,
-                "first_record": 2629
+                "value": "11/06/2026",
+                "count": 1,
+                "first_record": 2872
               },
               {
-                "value": "01-02-2019",
+                "value": "19/03/2026",
                 "count": 1,
-                "first_record": 1405
-              },
-              {
-                "value": "02-01-2019",
-                "count": 1,
-                "first_record": 1134
-              },
-              {
-                "value": "02-04-2018",
-                "count": 1,
-                "first_record": 1195
-              },
-              {
-                "value": "03-08-2019",
-                "count": 1,
-                "first_record": 1403
-              },
-              {
-                "value": "03-16-2018",
-                "count": 1,
-                "first_record": 1162
-              },
-              {
-                "value": "04-11-2018",
-                "count": 1,
-                "first_record": 2760
-              },
-              {
-                "value": "05-11-2019",
-                "count": 1,
-                "first_record": 1358
-              },
-              {
-                "value": "06-03-2019",
-                "count": 1,
-                "first_record": 1161
-              },
-              {
-                "value": "07-14-2017",
-                "count": 1,
-                "first_record": 2674
-              },
-              {
-                "value": "07-18-2018",
-                "count": 1,
-                "first_record": 2613
-              },
-              {
-                "value": "08-08-2018",
-                "count": 1,
-                "first_record": 1203
-              },
-              {
-                "value": "08-10-2017",
-                "count": 1,
-                "first_record": 1452
-              },
-              {
-                "value": "08-12-2017",
-                "count": 1,
-                "first_record": 1271
-              },
-              {
-                "value": "08-12-2019",
-                "count": 1,
-                "first_record": 1380
-              },
-              {
-                "value": "09-02-2018",
-                "count": 1,
-                "first_record": 2754
-              },
-              {
-                "value": "10-27-2017",
-                "count": 1,
-                "first_record": 1220
-              },
-              {
-                "value": "11-08-2019",
-                "count": 1,
-                "first_record": 2859
-              },
-              {
-                "value": "11-12-2018",
-                "count": 1,
-                "first_record": 2965
-              },
-              {
-                "value": "11-23-2019",
-                "count": 1,
-                "first_record": 1200
+                "first_record": 2920
               }
             ]
           },
@@ -47109,8 +48708,8 @@
           {
             "id": "f1.p2",
             "render": "99-99'-202'9",
-            "occurrences": 781,
-            "distinct": 660,
+            "occurrences": 817,
+            "distinct": 695,
             "distinct_accuracy": "exact",
             "example": "05-03-2026",
             "first_record": 337
@@ -47159,7 +48758,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "e81c7c7be8625d155900c2c3ecaef3210ab34f41cd2f297aba8ede6138a98094",
+      "key": "44e4bb238e2e35972a740b2d38a2dce743d824863fc5f0cecb5ba04bdcc1a5d2",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -47245,7 +48844,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "9730e2e4942d86247f16a0d108be3ff12ad0d809471c7361a511720898d61443",
+      "key": "58c1d1abe2ef6019eb8d86224877607a0e540e76029a2da048dc4143eade5553",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -47322,7 +48921,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "144231731b7b9cb04713863c73c3c0e1c109ad785d1efba1a2e2a72fc44f9fc7",
+      "key": "67ad5db302b7c0448ca3a005b50702264136144416eaac408277d3accac972c0",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -47459,7 +49058,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "ac7dba7d350639999185ac9fd6c5d01404553a14692edc8b76ad7e17b067ee88",
+      "key": "54099b7e93741e6b60c9c12b19bfa4a313e2bf63a09c75fefa2d7dca316cb3fe",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -47536,7 +49135,7 @@
         "rank_bins": 64
       },
       "domain": "analytical",
-      "key": "21324db80f99bf31acc9978fee0a30e30d511b6ad911876150dd6192b396ece0",
+      "key": "ebf5513544bad9806358a444bb3706e2e170cc408a770aeae5770619fdbb940e",
       "status": "complete",
       "result": {
         "kind": "pearson",
@@ -47597,7 +49196,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "92da034433a95d80920dd2d4f2ecc164a7dd24fa6c46f2a691e8dc5abea3ee15",
+      "key": "e4fd9de89082573f3375c260bebe3be0d505be432ea1b1dfaa0b3bb5dc37f454",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -47835,7 +49434,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "deb09c16f2002c64fe0700bd07f85ca3f1d871c40d0effb4e24fc43f6182e7f5",
+      "key": "85fd03a5899176f860fdbc8b546f0373fad4d5b2e694e5bf054bfbd2ac7e5af1",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48031,7 +49630,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "b3e8e687c28c96a8a2489d07bec3eebc0b1af3d060460e4f5e1044da83c69cfb",
+      "key": "41202bd3aaaa38b154c6eba15eed0655dd853b6737d5248f7e07de65bca960ce",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48226,7 +49825,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "3b5b0a0d7d5723a3dc957829e5e9c3afe3cea823824c81159e98b2ad63e35eab",
+      "key": "6b59a0733da8b56266df69091c0c6a2d16e795f91e6894e063fc5a396554daa3",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48422,7 +50021,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "5a57795a8a0670db13388797e81fc6e661fc30a4d0b378681d59acc70dc3bcb1",
+      "key": "148f938bbbee3c4746a5f29afcc0b05186dca29080980f285ea95ca175adb38f",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48617,7 +50216,7 @@
         "rule_support": 30
       },
       "domain": "mixed",
-      "key": "29ad4f352580780c86e4d984671948b5f40e878a523b234e2bf6eba5ae622dd4",
+      "key": "11465393a39c362ddc583bc0440884081b4a63b3e4da0f633732dfc85630484c",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48666,13 +50265,13 @@
               "kind": "value"
             },
             {
-              "id": "f2.p1",
-              "label": "'CLI-00'999999",
+              "id": "f1.p2",
+              "label": "AAA999999",
               "kind": "value"
             },
             {
-              "id": "f3.p1",
-              "label": "'QC-000'9-9999",
+              "id": "f2.p1",
+              "label": "'CLI-00'999999",
               "kind": "value"
             },
             {
@@ -48686,6 +50285,11 @@
               "kind": "value"
             },
             {
+              "id": "f3.p1",
+              "label": "'QC-000'9-9999",
+              "kind": "value"
+            },
+            {
               "id": "f3.p2",
               "label": "'QC-000'9-999",
               "kind": "value"
@@ -48693,11 +50297,6 @@
             {
               "id": "f3.p3",
               "label": "'QC--000'9-9999",
-              "kind": "value"
-            },
-            {
-              "id": "f1.p2",
-              "label": "AAA999999",
               "kind": "value"
             },
             {
@@ -48718,8 +50317,8 @@
         "counts": [
           [
             0,
-            2159,
             0,
+            2159,
             14,
             12,
             0,
@@ -48730,23 +50329,23 @@
           [
             0,
             0,
+            0,
+            0,
+            0,
             558,
-            0,
-            0,
             5,
             5,
-            0,
             0
           ],
           [
             246,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           [
@@ -48769,13 +50368,13 @@
         ],
         "column_totals": [
           246,
+          1,
           2159,
-          558,
           14,
           12,
+          558,
           5,
           5,
-          1,
           0
         ],
         "by_category": [
@@ -48785,7 +50384,7 @@
             "feature_missing": 0,
             "unclassified": 0,
             "coverage": 1.0,
-            "dominant": 1,
+            "dominant": 2,
             "dominant_count": 2159,
             "purity": 0.9881006864988559,
             "exceptions": 26
@@ -48796,7 +50395,7 @@
             "feature_missing": 0,
             "unclassified": 0,
             "coverage": 1.0,
-            "dominant": 2,
+            "dominant": 5,
             "dominant_count": 558,
             "purity": 0.9823943661971831,
             "exceptions": 10
@@ -48892,7 +50491,7 @@
             },
             {
               "category": 1,
-              "column": 5,
+              "column": 6,
               "count": 5,
               "examples": [
                 {
@@ -48911,7 +50510,7 @@
             },
             {
               "category": 1,
-              "column": 6,
+              "column": 7,
               "count": 5,
               "examples": [
                 {
@@ -48930,7 +50529,7 @@
             },
             {
               "category": 2,
-              "column": 7,
+              "column": 1,
               "count": 1,
               "examples": [
                 {
@@ -48946,7 +50545,7 @@
             "status": "candidate",
             "provenance": "learned",
             "category": 0,
-            "column": 1,
+            "column": 2,
             "support": 2185,
             "confidence": 0.9881006864988559,
             "exceptions": 26
@@ -48955,7 +50554,7 @@
             "status": "candidate",
             "provenance": "learned",
             "category": 1,
-            "column": 2,
+            "column": 5,
             "support": 568,
             "confidence": 0.9823943661971831,
             "exceptions": 10
@@ -48991,7 +50590,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "8f56292d5d48477ed1c0c2db1e9a5b8f6b4a6fed34d942559ab5dcecb72b1d58",
+      "key": "050d82077887fd373b55e4e4a55e869574b9dc606c9c181e28ad7b2066a8465a",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -49337,7 +50936,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "79da6ff164755ba90ec0e2a58336d6cac7f6d9e3df95cdd4cc8b968eaf528790",
+      "key": "4d38e31e588aad6120abf4e1f44042b9c5262fcbb8a3d245ffa2bc559a421349",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -49720,7 +51319,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "13a2d9098263767ab14f1ea987f9fe3e51762fa4da8461efb260ca14da94577b",
+      "key": "d62a37c3659eb4395ec1415448c85e75213876caeb6019fa5bf77555d918c946",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -50188,7 +51787,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "01ff3b7483675ef4fe736a1a1f6f01c0e3eebaafb55935d5d4db4f9e9a4e4232",
+      "key": "01c59e9a3c6411a2fd46d902ea9e0b9ece515b620910a031ffe69c3a19f5722e",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -50655,7 +52254,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "91386d872fab53b0dcdf95621ab4a47284eaa06739a80d07e3b3108038d1f291",
+      "key": "9adfc7c7910ecf31488cd5e9f25c55c19cc48cc28d5b833e07f02a7dd4295180",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -51261,7 +52860,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "16395db647d9445b308e6e8e3bd719388ce7ca467f3043dbe0dd9a014b3dd7b7",
+      "key": "7ba6efcef8f7682817bd47a1a7bfeb3a5199a1e803c80451296f6c31bc339afc",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -51873,7 +53472,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "e479036545c6c307e705ab62bd6a4ec0cecfa081c7061fb58007d44e5d3e4a9f",
+      "key": "f11c566e4572753c297086fe9dd1e785922ad1e53dc5bf7799a1dad6c515c7fe",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -52512,7 +54111,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "f0668f89074967ea6b927090efbf70693a1a23a5faaf9248ae506678e325fef7",
+      "key": "fb6b062e74491f3010237b944dd0763dbaf7cf1c4c9db107be5b6a9b348b0055",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -52755,7 +54354,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "1f0895cf01872d8c29f3057bde79063c67fd1e1373c3f939d5522c25f6d6c2e1",
+      "key": "91150a6e46c40efee6290d7cf68dbc91a159b8d4a4ca564605485b59f5a34923",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -53394,7 +54993,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "8dcec2daac87eb67f433bfd1d173ea3a85d18646ff95cb5a3e568b244aecdce9",
+      "key": "128469fb902e914bd29b0318d7f1d3e63ef36fdc29e625f842cd0c68b81c2040",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -53651,7 +55250,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "3906b8ede21745a6d04378785a521c00ee23175f193a27686659a6e257bbcf7c",
+      "key": "b38f496c26e3f381101c02429363d8495ac2431fef04b4a82ff4aec6a8c3b302",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -53914,7 +55513,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "fc352416628581f3a422706c8f226ef75703040ff87a8a6755c7ed347e3499d4",
+      "key": "612a516744f49b7a945b9ddaad17e785a07daa072e8e56e04618a4a4cf5a204c",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -54177,7 +55776,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "ee2b4a1f67dfe5d229ee2f14553d0ed84db2baf35d625220c649e4e84efaef7a",
+      "key": "94d6e541b8266f34705f57f4a44fa451cbad35f4374c0711d0404e14d1137d84",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -54440,7 +56039,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "d5e19241d25dba495a389b0c2043d053b515aa7abf3c0a84cacb767b1213c2b3",
+      "key": "9c738723d9b28790d9eaa9d67c1ef1e955cbe3fc405d6369b86217de6db34914",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -54699,7 +56298,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "253e3ca45ee6f7ad578ee8771568f63cd40995830e6525af71ac9a3aa46ab3d0",
+      "key": "1f6d7660712ef67c12b29ab0bc11d55ad54abe8e50c24a5c378b2c7de2e266ec",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -55563,7 +57162,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "7fda0a2dc5b9e7d7d5ee052581243fe1cb79f983672126d619add09707dbe5ec",
+      "key": "477db494f010c8a152a25b66c9682d84d1659df352f810cb20fef72d6954bb51",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -56525,7 +58124,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "fc92bac1d2023a06bb69a5e8dfcfe5ff868f72a55ad4f4aeb43331af57d2c3c9",
+      "key": "89496e63e49a19d502847a376ae354e74e8df7f160b1474c6a422d4afe0ba50a",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -57031,7 +58630,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "16fa332127928e87b68bab528f9456484d2e08c6eee52f2c8f2b5657148fa3cf",
+      "key": "000e01fa858f07c485798834f25cbebd18f05a8d5afb8cfadcb8f2e9090b34f0",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -57537,7 +59136,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "30f5598ef544277dde94a0b85698b3d3d51150907c8e305e7eb6a3c9d0ece203",
+      "key": "d8efda6eddbdc11f0b755db8c07c417bc0d9032510b5769a88a62548211e7da9",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -58401,7 +60000,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "c71a9501d5a55c4b0e58b5d598ffbe94f3cedb1371aea6b0afd187bf70038583",
+      "key": "b43607a20a2cd623c25f17b77b80355ba82fb0d9dce2cd412a88bdbdc65b2258",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -59135,7 +60734,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "91586cebf2ba0ad2c2c42ed6ddf856a1696eef7f8731e54098b81e709fd1c009",
+      "key": "d77174435c68f3e41d52b2fe60f4cf8d02822da0d68208fd41026b80d1091bd5",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -60325,7 +61924,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "a1949f73a26b4df9cb9aa9a6884d46e8935e7edb2ddd4b7c1555981e09a4698f",
+      "key": "2cfbeee424a841662dfe77902ed59a2a77435005d18c11ebc648af01edde22ca",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -61189,7 +62788,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "50495ba4275b910618604a64a48788e2faa7000423df3718e84aeae763dc8ef8",
+      "key": "9bdd72a881286a5273df8d86b4f2cfeb044beee5a1fb7889157d037f50de735e",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -61809,7 +63408,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "f6efa64336498b1b15b564ee22a04bbc585e60a64b2c05021a73814704a0f1a2",
+      "key": "592b9b6fabaee86b13086771ced92e0275c2d92429c7a508ac32d31b56db3798",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -64139,7 +65738,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "39ece913949d22a8de409677507f3699f2d75012f4a8e7b34de1dad71bca6f23",
+      "key": "cd0184d35960ff926137559b71059da65b4ddb7ba63927fa1f8e22059fdff36c",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -65329,7 +66928,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "96d946e4213bd800489e64b8fea1258925cd9da811cc00c84799c28c310bd46f",
+      "key": "b180767ed746d40cb0e506287eeb8e8b1fc9d4638e522f147373f9d2372b79e9",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -66633,7 +68232,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "fc611ba7b90fc6044b77f7a2630451b82a9f361f787b9b33cbb0d44db74f901f",
+      "key": "4cd89b7bc853ddc15196846b727436b3a056277704346a762f7a756b0a5b4def",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -67595,7 +69194,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "ef137efc5f3163ef8086afd0f6a83532edbbfa109d797f7078719093e8a99bfc",
+      "key": "b37321c730d4875e543d1798ccf478e18f4d8d51e5fd5e8f2f20838f7692e82c",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -69729,7 +71328,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "45916c581dd3226d0a3c4a8a29a98cdf5a8ebc5a3c4ea2b8fcd641ae49206282",
+      "key": "5a5c4a8a7af4fabaa5061bad4459c6f443bc048caaf0af70217376dbe20af3e5",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -70349,7 +71948,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "95d69c685a958c1df951642cc83c10f40b78a9a8e82b41f1ee401dd7793a6300",
+      "key": "f91575590119cee41088c248ed1cbf7ada449ff6f16e5a89acd8d3277f078d2b",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -73705,7 +75304,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "bbf50d2a8d478309387a25b3c258f1bf293861ac359d9173117f82408db557da",
+      "key": "5d238dc4f24b9b920049c165f8123b3dac612b82cd4fcec86ca93d904a1ba264",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -74667,7 +76266,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "af5b9db76497da41bbbf93a8d44a153bca473a077ae400c2cff5218a07971aef",
+      "key": "9bc5bfe2e9fb85817304366b2875c62d30cb9f244183dd73762d06ed5ec96f83",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -75173,7 +76772,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "dc6b68005e6e3984eab41b3e6d4a5ec4066bf36886d3a4adb43c515b5cfd37e6",
+      "key": "2af304f90a32ac93aae7ac4482250f196882f899d1ba8d433ce75c824ffc61bb",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -75679,7 +77278,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "81270c32df75cd2111f735d37eac87e3d6b3b398ede737278549fc9f431fec5d",
+      "key": "59aa30e715fec90cd7134c19c683b47ad4c88114b21b37732324aee7e46c909d",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -76183,7 +77782,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "549385c8f6c9abc093368ae90ca29709b29fac49d95ef029d7a4475870609d15",
+      "key": "b8f8a62d60e1028ada3608bd6d0d5a40f512f8860edfcdf848cae9d528990003",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -76788,7 +78387,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "81a0ca6a1a3f5c6f41442e3c5911b33728266d4e288e6e4ff86e042ab83432b6",
+      "key": "294aa5438d597326d91f7aea83677973b73bcbfe7b4137d80bc56b03e4e6f6e1",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -77393,7 +78992,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "fba7f12482b77401168e6c19767b19ad725aba5f781b312c9b9c6da3c164cae6",
+      "key": "a84f454b5d1c9ff8051f39ecf5120587487a943d1e120b13fb630ca01a1b77f7",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -77737,7 +79336,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "c3b04d45e2b56221b3c7dad813a1f66101b34509e64d8121e59fe3a7cf143bec",
+      "key": "9694fbf65e726245bc0068b283d45585e06707ef330dda114ae19d2a42edf4fa",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -78082,7 +79681,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "7405f09e2ec4ce1aed45b78c07ccfaf864265ca960c334bda465901e2637eb00",
+      "key": "b8eed8795ca4e03e4a28e61340f6fac8402add2b91c884be866ee41467b8f4e8",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -83878,7 +85477,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "70d00813d6bfbd31e8cb08d470f60a6e261e7c204da48ebcc6effbcdc367378f",
+      "key": "8a7210d8ea8e5395ac22ba017196be1e496e3b966001381b2597db11922164c8",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -85478,7 +87077,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "6716d54df12542ebc36b3e1ea6764cb4633cb42281ba40551d1d6779eb48060f",
+      "key": "3868d4357b48e68307aea04714fe730447c1b779915e4c68f1de443931f9a8ab",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -86494,7 +88093,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "12c03cd74b3692705bcf1d760a61e0f3db7c84ed3ab3d7c9c0ff961711c1bb66",
+      "key": "d746780405a2c7bff4b1a7df7517ed5a3e5dad413e9c4b806e618b8c8603900c",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -88030,7 +89629,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "58feff85e3d7cc5bc16e1c492d5a324e6bbf389e4ef1fff8191fab5f40bf421a",
+      "key": "505d998d53332b58b48b1b71577d7265e75bef9b0b248ea474051f61dfdfbfbf",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -89338,7 +90937,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "80add58811f76051f923210053a9deee0d82707c91da6a957ad25a6c536da96a",
+      "key": "f9d98cba0617db64d9acffdb347b01ec4d5d5a9d951bf9888e4a6e89453895ee",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -90175,7 +91774,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "5aee939969d9093febb2ee2e1ea9aad9c5618e9321f2613fb0644db4644368d0",
+      "key": "dfedee62d819a6d9cad3dcfd3f84a04e947755af599a0d1dfbb009ccf8eca685",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90363,7 +91962,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "f3eb27eb408d9dec236dabe508629cb5d253457607fb1dda9193a635860c6eb7",
+      "key": "e8bf9fd46ab50b115e8400718ba5d14ec51812ee5e9c38ab9035995c7ab8fcc5",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90532,7 +92131,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "956399c737564360057fb9e4dd5c9516a415db7a55e5ad66c28f01cce2872075",
+      "key": "c312f93e68320bd4ef441946ecab2116968f8fdce725c21a3cf197f9c2d9d3a1",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90630,7 +92229,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "35bba0d46b43d5491f04690e0d979f1eaa9742b9163f85493901b3f160fa21f6",
+      "key": "54c6078144c79beb65e88cdfb9f1603621f5ec833fb721c82d9b45daa0e8678a",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90728,7 +92327,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "716b1bbabb6bfe26d675eb247ff46c936954ce4bc3ffc4dd6dedf27feb491714",
+      "key": "5ec74bd77a38bc4cb3e301fc0a60cc596afe3e6df7c2ba522d7ce43579c11252",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90827,7 +92426,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "9e3e957f469a08c93eeb6461c5ba2ee0d749208ecfefb37f80e58e3b6f574f98",
+      "key": "a0b4673f745d22809963cd9c56081c483843b8c714cd27e4adbc4b8bef1cf268",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90997,7 +92596,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "8354767e93b86d830e12a12f3fde52d0405d334e8d232ecd0505b5b7e1cbb644",
+      "key": "1c02b38ddd10aea351104157aed4f4d1c9c68fb95282139cbb5171f9b162a6be",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91167,7 +92766,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "43a35cebb80ba7f88c02a65efa485406e26e1b7a22ed530224177d72f0d8439b",
+      "key": "a47584a8cf0fd4285f6896b509ff1a62f8dee8d052ea79ac51b5fdfbeadee61c",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91517,7 +93116,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "999e5f22028471c248b8058d4b0ee2da7900572c379c95676ef9898749a45d8b",
+      "key": "f287ec18274754db116838bcb15e532385c5329bbc31e518caedb4ed663cdd80",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91799,7 +93398,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "a42b322ee2f3680aae16512f40f5d6d92737e33836dcf89b32c7bafb3dfb8a25",
+      "key": "cee93d955b173de4d0228cc18d4ea5a7994a2b5f7e26f6efcc79bbb0ecf346c3",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91898,7 +93497,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "21f4695deba047062b34850744dba5bf8934b754a7d096988c285dbf7b8c190b",
+      "key": "9ec492ccc23da0ff61a25508cc6cdc8242879e996b5c94978d664cfcac1b004b",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92253,7 +93852,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "5abf08b6792f17c356ba84c6651c77291e0a71b9d5f86fb15816bb10158076bb",
+      "key": "286c691fc7810fbccd88d2374c02c6ca12e3d6403d75576c5b3508db40792ce5",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92603,7 +94202,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "1c37b6ab51c9bf34064ef383817ce74d45353f819e499f42cf7ad1d15a9045fa",
+      "key": "3e46594eae99083b01e5046feddd20fd47ff4a56605e72a844cc067858c6f067",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92772,7 +94371,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "e07d84c3ffca787dd9854513c74de046456e651928ae54d077f976d8d441b44e",
+      "key": "1a202d4762e3ce463b4f7a1d4459f0e59b5e67533a9bf34d9e7dbf511cb5ec25",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92871,7 +94470,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "1cbf7899dbaac307180c0b250c8f1280e46c4f058f9c810e5937737b6e67cd9d",
+      "key": "128fc1e89a146b58aa1d4494c3a6cc23c0e82093e8d2e0dd1a0e17d1a073b621",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -93117,7 +94716,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "3053d503c3284c128b2e9eef6ab20470625fd9d159b1ba4dd66cc19aa6048a2c",
+      "key": "e850e58658526f031612f276aeda5e40e2a9f18ccae878bd4ebabe25ee2e2b1b",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -93216,7 +94815,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "18c6ca853d55cf7e8cda9bee0cd5215cd4096c06331c5edef61f046af5b2f69d",
+      "key": "248c9719d0bcb0f5eba10a870162ea869e8f1c96526c7b42cfdc12117421d267",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -93458,7 +95057,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "832d5ff766ad576078c2d147f1c679933f580d2e72fbe4681d7b549c59e8fb08",
+      "key": "b12d14d0178d0fb42c113be692870c9f91c3552c4d1ebc36053a7910fd845b32",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -93700,7 +95299,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "b46830581c13341ca5b8682e748c7adc09743df8f59690a4175bce3805f459b9",
+      "key": "1e2ec78b4344ca2d6248ada9316d45968d642c890fe3755093d4709378a6e12d",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -93996,7 +95595,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "052ce209ba5d8287fb1318f7b73a66a6fb75368a861ccde4ab61a5cde17848fd",
+      "key": "10b897123b7fc4ebdce549939dd2dd48e8203f85515264cafac30bbc353a2d0f",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -94345,7 +95944,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "4e5a96d06a56020b48326b5a8cfa409f9f5ef7b57f0f3995f8aeedac0e57b2d3",
+      "key": "b1ffda3a6a2d48eaeb611e62a2504ca75388193e7793d7bb6511bcf1e4fa0358",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -94443,7 +96042,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "8638f23cd7e18d591f015e48117be7aef274051b0071bad77a88237813565e02",
+      "key": "a26e67860039cb7e6e74acbbc751019a1d186d78b2de28f16688ceca9ffd6193",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -94542,7 +96141,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "dbf9a60295fec81c361c260e67babc0f0f4d1590fdcbefa88e64a19566f02cc9",
+      "key": "7fce8a41aa886d5d3236f085cec45b0fa1e6345deb35290eca39e40a44b9838d",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -94752,7 +96351,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "42eacd39d22802b89faaf2a1a96b03a0112c2bcca217a2d8655b173966d3daa4",
+      "key": "a381994306790099debb5c575d47b1a9f08210897be593402c53ab1c0435c9f7",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -94821,7 +96420,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "546b56823bd56a267fbb9f860198a8c8c988fd8be1ea1fb50b2a5a3fecff1ead",
+      "key": "c4632be25912abb6d1bb3dd5381f035af9a380a017763d4d015c0afe18ce91c6",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -94878,7 +96477,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "45ca56c2074d031be3535e2bb4f33984177ae490b4bda38a10020a8e772164de",
+      "key": "74d4dd6f98822ad1eb44bc2f60a473917406a66166deb3e029272f797355816e",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -94941,7 +96540,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "9640512137e03f49d4d686899b064bfd53bf661804302efeac3a4069cf834356",
+      "key": "dfb1aecb33e0e69c1b39a2207d7fc78350c9a65830dec298b858387861e51a92",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95028,7 +96627,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "fd8d5a131efc106b65716129a750595067fc969970e9f7d8dfed59cb38074485",
+      "key": "4fccb31166e0a0194a703b8d2294b27e29bfc41207b51af21a70be43f3a50682",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95115,7 +96714,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "deed974abde3d7bd764983e505f0bb1b2a6cd0042a5fb7ecc268f9aa07f64bc0",
+      "key": "93706e66a6c2b8d39709e3e1f24ac4ad10cdba7d8c43780f5cb16bd7d10f1e06",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95172,7 +96771,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "a94e9e1f31e11ba77f076d37995f08ea9e1408543be2bd8e46b08681a8c53a15",
+      "key": "5ab43daca69b56ed00cf57b5acadf75314aa460bc23c60adb3d73c3a364c4fcf",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95235,7 +96834,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "b7f10f9e445ea6b25e7b293f0a82c264ba1a68cb6b41940243000483446bb590",
+      "key": "3dca5cfc7e57d1c188eb3e0fc933e374768ce000b389b1caf55c6601f04e69cd",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95292,7 +96891,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "09191f026157314ebcffdca58f5298aece77ae2e06a3dca0f5e642a4d16fa96c",
+      "key": "069435fdedc1398ce1946d6bbd4b8f4118ef3e2db3064cf90be223fa4452906a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95361,7 +96960,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "13645efc14ab79a7bfb9c8a917f9222fcbd95807257c325bebb5ffa004061645",
+      "key": "15e47213a86150fe8a00f5871ec55879c4ead16111768ffabf0c0f727a839ea4",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95448,7 +97047,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "922b7c96833e9ea05d30615da790252815a173b6119648846b1d6f9edbb9a23d",
+      "key": "9267f7b8c9341025919dce06f6b0aada4a29a848cdf7abbf4b63a8bc097a2f8a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95535,7 +97134,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "42f899db3226dfb8c19138144c63d60ac31b23cc2426d7992777130fb56ecbd1",
+      "key": "f14662d1523493399b6a34c0c2976959d3707a98c5f0e22cce68901d321fd043",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -95607,6 +97206,2049 @@
             "both": 3
           }
         ]
+      }
+    },
+    {
+      "id": "character_profile:rows:column_2",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_2",
+      "display": "id_client",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "d68cbd014eaaa1f52532d7aa35f555536b433d85f6a3e7b207c969bed506d922",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 35503,
+        "distinct": 18,
+        "top": [
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 9356
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 3338
+          },
+          {
+            "char": "C",
+            "codepoint": 67,
+            "occurrence_count": 2753
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 2746
+          },
+          {
+            "char": "I",
+            "codepoint": 73,
+            "occurrence_count": 2185
+          },
+          {
+            "char": "L",
+            "codepoint": 76,
+            "occurrence_count": 2185
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1615
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1552
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 1513
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 1457
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 1404
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1377
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1362
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1351
+          },
+          {
+            "char": "Q",
+            "codepoint": 81,
+            "occurrence_count": 568
+          },
+          {
+            "char": "N",
+            "codepoint": 78,
+            "occurrence_count": 247
+          },
+          {
+            "char": "O",
+            "codepoint": 79,
+            "occurrence_count": 247
+          },
+          {
+            "char": "T",
+            "codepoint": 84,
+            "occurrence_count": 247
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 8432
+          }
+        ],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 23733
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 8432
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 3338
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_4",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_4",
+      "display": "prenom",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "a523c8dff80699f8e86f56d8f854fa059abc29211f044f86bc0cecc43c0b5c37",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 2993,
+        "characters": 18831,
+        "distinct": 55,
+        "top": [
+          {
+            "char": "e",
+            "codepoint": 101,
+            "occurrence_count": 2439
+          },
+          {
+            "char": "a",
+            "codepoint": 97,
+            "occurrence_count": 2015
+          },
+          {
+            "char": "i",
+            "codepoint": 105,
+            "occurrence_count": 1931
+          },
+          {
+            "char": "l",
+            "codepoint": 108,
+            "occurrence_count": 1414
+          },
+          {
+            "char": "n",
+            "codepoint": 110,
+            "occurrence_count": 1145
+          },
+          {
+            "char": "r",
+            "codepoint": 114,
+            "occurrence_count": 1029
+          },
+          {
+            "char": "o",
+            "codepoint": 111,
+            "occurrence_count": 772
+          },
+          {
+            "char": "t",
+            "codepoint": 116,
+            "occurrence_count": 564
+          },
+          {
+            "char": "h",
+            "codepoint": 104,
+            "occurrence_count": 541
+          },
+          {
+            "char": "u",
+            "codepoint": 117,
+            "occurrence_count": 515
+          },
+          {
+            "char": "s",
+            "codepoint": 115,
+            "occurrence_count": 507
+          },
+          {
+            "char": "c",
+            "codepoint": 99,
+            "occurrence_count": 453
+          },
+          {
+            "char": "M",
+            "codepoint": 77,
+            "occurrence_count": 412
+          },
+          {
+            "char": "é",
+            "codepoint": 233,
+            "occurrence_count": 362
+          },
+          {
+            "char": "m",
+            "codepoint": 109,
+            "occurrence_count": 336
+          },
+          {
+            "char": "S",
+            "codepoint": 83,
+            "occurrence_count": 329
+          },
+          {
+            "char": "A",
+            "codepoint": 65,
+            "occurrence_count": 316
+          },
+          {
+            "char": "L",
+            "codepoint": 76,
+            "occurrence_count": 276
+          },
+          {
+            "char": "v",
+            "codepoint": 118,
+            "occurrence_count": 265
+          },
+          {
+            "char": "C",
+            "codepoint": 67,
+            "occurrence_count": 251
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 18683
+          }
+        ],
+        "categories": [
+          {
+            "name": "Ll",
+            "occurrence_count": 15567
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 3116
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 133
+          },
+          {
+            "name": "Zs",
+            "occurrence_count": 15
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 2993,
+        "title_case": 2971,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_5",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_5",
+      "display": "nom",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "9332fd12fc862dcbe7e4fac0a6a2c1a255fff24f689a3574e64f168c715b277f",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 2996,
+        "characters": 18639,
+        "distinct": 53,
+        "top": [
+          {
+            "char": "e",
+            "codepoint": 101,
+            "occurrence_count": 2070
+          },
+          {
+            "char": "r",
+            "codepoint": 114,
+            "occurrence_count": 1707
+          },
+          {
+            "char": "a",
+            "codepoint": 97,
+            "occurrence_count": 1424
+          },
+          {
+            "char": "n",
+            "codepoint": 110,
+            "occurrence_count": 1291
+          },
+          {
+            "char": "o",
+            "codepoint": 111,
+            "occurrence_count": 1290
+          },
+          {
+            "char": "i",
+            "codepoint": 105,
+            "occurrence_count": 1141
+          },
+          {
+            "char": "l",
+            "codepoint": 108,
+            "occurrence_count": 992
+          },
+          {
+            "char": "t",
+            "codepoint": 116,
+            "occurrence_count": 889
+          },
+          {
+            "char": "u",
+            "codepoint": 117,
+            "occurrence_count": 712
+          },
+          {
+            "char": "h",
+            "codepoint": 104,
+            "occurrence_count": 596
+          },
+          {
+            "char": "s",
+            "codepoint": 115,
+            "occurrence_count": 404
+          },
+          {
+            "char": "L",
+            "codepoint": 76,
+            "occurrence_count": 401
+          },
+          {
+            "char": "c",
+            "codepoint": 99,
+            "occurrence_count": 375
+          },
+          {
+            "char": "g",
+            "codepoint": 103,
+            "occurrence_count": 374
+          },
+          {
+            "char": "d",
+            "codepoint": 100,
+            "occurrence_count": 369
+          },
+          {
+            "char": "m",
+            "codepoint": 109,
+            "occurrence_count": 337
+          },
+          {
+            "char": "B",
+            "codepoint": 66,
+            "occurrence_count": 314
+          },
+          {
+            "char": "C",
+            "codepoint": 67,
+            "occurrence_count": 297
+          },
+          {
+            "char": "G",
+            "codepoint": 71,
+            "occurrence_count": 289
+          },
+          {
+            "char": "P",
+            "codepoint": 80,
+            "occurrence_count": 283
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 18587
+          }
+        ],
+        "categories": [
+          {
+            "name": "Ll",
+            "occurrence_count": 15565
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 3022
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 25
+          },
+          {
+            "name": "Zs",
+            "occurrence_count": 15
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 12
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 2996,
+        "title_case": 2945,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_6",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_6",
+      "display": "date_naissance",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "11e7f6186936248daaaac4d8bc9285dc6a4edcdc2d425725dcea5596e2df4748",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 2994,
+        "characters": 29940,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 5970
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 5609
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 4592
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 3837
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 2370
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1340
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 1299
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1298
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1277
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 1266
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1064
+          },
+          {
+            "char": "/",
+            "codepoint": 47,
+            "occurrence_count": 18
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 23952
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 5970
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 18
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_9",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_9",
+      "display": "numero_voie",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "6d71877d57c225c31be0dab901b8e46727d871cdad4e976b1c85550fd9c82766",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 11673,
+        "distinct": 10,
+        "top": [
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1231
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1223
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1220
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 1215
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1202
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 1200
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1194
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 1172
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 1141
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 875
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 11673
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_11",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_11",
+      "display": "nom_voie",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "e2ddc1207844786686247579e9e319902d4b1cd35e9f17e191e5ad5985ef4710",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 29480,
+        "distinct": 53,
+        "top": [
+          {
+            "char": "e",
+            "codepoint": 101,
+            "occurrence_count": 4172
+          },
+          {
+            "char": "s",
+            "codepoint": 115,
+            "occurrence_count": 2842
+          },
+          {
+            "char": "d",
+            "codepoint": 100,
+            "occurrence_count": 2751
+          },
+          {
+            "char": " ",
+            "codepoint": 32,
+            "occurrence_count": 2378
+          },
+          {
+            "char": "i",
+            "codepoint": 105,
+            "occurrence_count": 1919
+          },
+          {
+            "char": "a",
+            "codepoint": 97,
+            "occurrence_count": 1782
+          },
+          {
+            "char": "l",
+            "codepoint": 108,
+            "occurrence_count": 1725
+          },
+          {
+            "char": "r",
+            "codepoint": 114,
+            "occurrence_count": 1560
+          },
+          {
+            "char": "u",
+            "codepoint": 117,
+            "occurrence_count": 1417
+          },
+          {
+            "char": "o",
+            "codepoint": 111,
+            "occurrence_count": 956
+          },
+          {
+            "char": "n",
+            "codepoint": 110,
+            "occurrence_count": 930
+          },
+          {
+            "char": "t",
+            "codepoint": 116,
+            "occurrence_count": 558
+          },
+          {
+            "char": "P",
+            "codepoint": 80,
+            "occurrence_count": 373
+          },
+          {
+            "char": "h",
+            "codepoint": 104,
+            "occurrence_count": 345
+          },
+          {
+            "char": "c",
+            "codepoint": 99,
+            "occurrence_count": 343
+          },
+          {
+            "char": "v",
+            "codepoint": 118,
+            "occurrence_count": 342
+          },
+          {
+            "char": "C",
+            "codepoint": 67,
+            "occurrence_count": 341
+          },
+          {
+            "char": "B",
+            "codepoint": 66,
+            "occurrence_count": 334
+          },
+          {
+            "char": "è",
+            "codepoint": 232,
+            "occurrence_count": 328
+          },
+          {
+            "char": "M",
+            "codepoint": 77,
+            "occurrence_count": 322
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 26886
+          }
+        ],
+        "categories": [
+          {
+            "name": "Ll",
+            "occurrence_count": 23780
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 3106
+          },
+          {
+            "name": "Zs",
+            "occurrence_count": 2378
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 117
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 99
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 3000,
+        "title_case": 894,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_13",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_13",
+      "display": "appartement",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "f819d2d99ead32847d3d3c39e34f0f34b89ac42e3fba2adcb218e12bebd2a290",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 1072,
+        "characters": 3113,
+        "distinct": 10,
+        "top": [
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 352
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 349
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 337
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 335
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 319
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 314
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 310
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 302
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 295
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 200
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 3113
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_14",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_14",
+      "display": "ville",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "8bf85991e55bfdf905130f0b18d6c6994878084a79782944459c56246c0f2a01",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 26994,
+        "distinct": 57,
+        "top": [
+          {
+            "char": "a",
+            "codepoint": 97,
+            "occurrence_count": 2637
+          },
+          {
+            "char": "e",
+            "codepoint": 101,
+            "occurrence_count": 2265
+          },
+          {
+            "char": "n",
+            "codepoint": 110,
+            "occurrence_count": 2109
+          },
+          {
+            "char": "o",
+            "codepoint": 111,
+            "occurrence_count": 2016
+          },
+          {
+            "char": "r",
+            "codepoint": 114,
+            "occurrence_count": 1896
+          },
+          {
+            "char": "i",
+            "codepoint": 105,
+            "occurrence_count": 1862
+          },
+          {
+            "char": "l",
+            "codepoint": 108,
+            "occurrence_count": 1446
+          },
+          {
+            "char": "t",
+            "codepoint": 116,
+            "occurrence_count": 1379
+          },
+          {
+            "char": "u",
+            "codepoint": 117,
+            "occurrence_count": 1243
+          },
+          {
+            "char": "s",
+            "codepoint": 115,
+            "occurrence_count": 788
+          },
+          {
+            "char": "é",
+            "codepoint": 233,
+            "occurrence_count": 673
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 599
+          },
+          {
+            "char": "S",
+            "codepoint": 83,
+            "occurrence_count": 523
+          },
+          {
+            "char": "v",
+            "codepoint": 118,
+            "occurrence_count": 520
+          },
+          {
+            "char": "c",
+            "codepoint": 99,
+            "occurrence_count": 507
+          },
+          {
+            "char": "g",
+            "codepoint": 103,
+            "occurrence_count": 506
+          },
+          {
+            "char": "b",
+            "codepoint": 98,
+            "occurrence_count": 485
+          },
+          {
+            "char": "M",
+            "codepoint": 77,
+            "occurrence_count": 482
+          },
+          {
+            "char": "d",
+            "codepoint": 100,
+            "occurrence_count": 461
+          },
+          {
+            "char": "L",
+            "codepoint": 76,
+            "occurrence_count": 434
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 26250
+          }
+        ],
+        "categories": [
+          {
+            "name": "Ll",
+            "occurrence_count": 22707
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 3543
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 599
+          },
+          {
+            "name": "Zs",
+            "occurrence_count": 100
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 45
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 3000,
+        "title_case": 2813,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_17",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_17",
+      "display": "code_postal",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "1e9163521ce9e13639b1ed1cb4396d8b5991eb24e10341ee7cc0f37606271ea9",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 21033,
+        "distinct": 31,
+        "top": [
+          {
+            "char": " ",
+            "codepoint": 32,
+            "occurrence_count": 3054
+          },
+          {
+            "char": "J",
+            "codepoint": 74,
+            "occurrence_count": 1358
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1104
+          },
+          {
+            "char": "G",
+            "codepoint": 71,
+            "occurrence_count": 1030
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 1016
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1004
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 998
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 925
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 923
+          },
+          {
+            "char": "H",
+            "codepoint": 72,
+            "occurrence_count": 838
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 809
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 806
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 787
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 628
+          },
+          {
+            "char": "A",
+            "codepoint": 65,
+            "occurrence_count": 543
+          },
+          {
+            "char": "W",
+            "codepoint": 87,
+            "occurrence_count": 394
+          },
+          {
+            "char": "K",
+            "codepoint": 75,
+            "occurrence_count": 390
+          },
+          {
+            "char": "V",
+            "codepoint": 86,
+            "occurrence_count": 390
+          },
+          {
+            "char": "X",
+            "codepoint": 88,
+            "occurrence_count": 388
+          },
+          {
+            "char": "B",
+            "codepoint": 66,
+            "occurrence_count": 384
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 8979
+          }
+        ],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 9000
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 8979
+          },
+          {
+            "name": "Zs",
+            "occurrence_count": 3054
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 3000,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_21",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_21",
+      "display": "id_contrat",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "43e71644027251e4b5b052ca37d222f767cdf3a1e0dfedab8a31380c623f2ff6",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 2991,
+        "characters": 41866,
+        "distinct": 14,
+        "top": [
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 12521
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 4935
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 3005
+          },
+          {
+            "char": "C",
+            "codepoint": 67,
+            "occurrence_count": 2991
+          },
+          {
+            "char": "R",
+            "codepoint": 82,
+            "occurrence_count": 2991
+          },
+          {
+            "char": "T",
+            "codepoint": 84,
+            "occurrence_count": 2991
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 2118
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1865
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 1510
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 1455
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 1401
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1375
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1358
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1350
+          }
+        ],
+        "scripts": [
+          {
+            "name": "LATIN",
+            "occurrence_count": 8973
+          }
+        ],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 29888
+          },
+          {
+            "name": "Lu",
+            "occurrence_count": 8973
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 3005
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_23",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_23",
+      "display": "date_debut",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "82233a91eed006eb10574dbe6f0caf719386f9f3c0106c4d0b29a1c92361d51b",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 30000,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 7182
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 7017
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 5984
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 3646
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 985
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 936
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 905
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 873
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 832
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 821
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 803
+          },
+          {
+            "char": "/",
+            "codepoint": 47,
+            "occurrence_count": 16
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 24000
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 5984
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 16
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_24",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_24",
+      "display": "date_fin",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "28b78d826e38af0af991d5e6dfd23f08d25473429ebe49c01bdc42ca838700fa",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 2498,
+        "characters": 24980,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 6485
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 5576
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 4980
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 2199
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1947
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1102
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 643
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 570
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 570
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 489
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 403
+          },
+          {
+            "char": "/",
+            "codepoint": 47,
+            "occurrence_count": 16
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 19984
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 4980
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 16
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_26",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_26",
+      "display": "prime_annuelle",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "e1d3de503da08b76e876db3fd7fc5e646e5b4a0168b900116c2c9c2703542a81",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 19676,
+        "distinct": 12,
+        "top": [
+          {
+            "char": ".",
+            "codepoint": 46,
+            "occurrence_count": 3000
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 2726
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1975
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1564
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1549
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 1535
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1525
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 1486
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 1456
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 1422
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 1413
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 25
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 16651
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 3000
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 25
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_30",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_30",
+      "display": "date_creation",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "fda3d53aaf2990ca243f14b53609fdc8852b9799cc9903a65b3bf59ee7bcce6a",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 30000,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 7196
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 6950
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 5982
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 3651
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1035
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 924
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 894
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 868
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 854
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 820
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 808
+          },
+          {
+            "char": "/",
+            "codepoint": 47,
+            "occurrence_count": 18
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 24000
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 5982
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 18
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_31",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_31",
+      "display": "date_modification",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "c8910af3d40603e174cf31944a0504a95aad9a916f6a18a69a133f1df02fed5a",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 3000,
+        "characters": 30000,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 7817
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 6845
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 5986
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 2789
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 1425
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 1197
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 1000
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 975
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 672
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 669
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 611
+          },
+          {
+            "char": "/",
+            "codepoint": 47,
+            "occurrence_count": 14
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 24000
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 5986
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 14
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_32",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_32",
+      "display": "date_reclamation",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "ddf5cce7b9ad977f771b1ce6150f12d687921262370b3b9cbde28b28056f3fda",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 420,
+        "characters": 4200,
+        "distinct": 11,
+        "top": [
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 1091
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 968
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 840
+          },
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 396
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 200
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 169
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 141
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 134
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 92
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 85
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 84
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 3360
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 840
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
+      }
+    },
+    {
+      "id": "character_profile:rows:column_33",
+      "analyzer": "character_profile",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_33",
+      "display": "montant_reclamation",
+      "method": "character_census",
+      "parameters": {
+        "top": 20
+      },
+      "domain": "analytical",
+      "key": "e0d59f0e7e3fc1337fb38a9111fef0cb9c9b3d6e79868ee3206568543373ebe5",
+      "status": "complete",
+      "result": {
+        "basis": "exact",
+        "values": 349,
+        "characters": 2729,
+        "distinct": 12,
+        "top": [
+          {
+            "char": "1",
+            "codepoint": 49,
+            "occurrence_count": 357
+          },
+          {
+            "char": ".",
+            "codepoint": 46,
+            "occurrence_count": 349
+          },
+          {
+            "char": "2",
+            "codepoint": 50,
+            "occurrence_count": 258
+          },
+          {
+            "char": "0",
+            "codepoint": 48,
+            "occurrence_count": 238
+          },
+          {
+            "char": "3",
+            "codepoint": 51,
+            "occurrence_count": 236
+          },
+          {
+            "char": "4",
+            "codepoint": 52,
+            "occurrence_count": 232
+          },
+          {
+            "char": "9",
+            "codepoint": 57,
+            "occurrence_count": 230
+          },
+          {
+            "char": "5",
+            "codepoint": 53,
+            "occurrence_count": 213
+          },
+          {
+            "char": "6",
+            "codepoint": 54,
+            "occurrence_count": 211
+          },
+          {
+            "char": "8",
+            "codepoint": 56,
+            "occurrence_count": 207
+          },
+          {
+            "char": "7",
+            "codepoint": 55,
+            "occurrence_count": 197
+          },
+          {
+            "char": "-",
+            "codepoint": 45,
+            "occurrence_count": 1
+          }
+        ],
+        "scripts": [],
+        "categories": [
+          {
+            "name": "Nd",
+            "occurrence_count": 2379
+          },
+          {
+            "name": "Po",
+            "occurrence_count": 349
+          },
+          {
+            "name": "Pd",
+            "occurrence_count": 1
+          }
+        ],
+        "ends_uppercase": 0,
+        "ends_lowercase": 0,
+        "title_case": 0,
+        "with_emoji": 0,
+        "emoji_sequences": 0,
+        "emoji": [],
+        "kind": "character_profile"
       }
     }
   ]

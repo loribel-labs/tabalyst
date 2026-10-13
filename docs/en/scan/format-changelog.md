@@ -159,6 +159,11 @@ final until the release that ships it.
   envelopes. New settings `scan.limits.max_special_characters` (256, 0 turns the
   inventory off) and `max_distinct_characters` (1,024).
 
+- `derived.characters` adds a [character map](format.md#character-map) of each field:
+  the most frequent characters, the scripts and categories of the characters, the case
+  of the ends of the values, title case and the emoji, counted from the samples. New
+  setting `scan.limits.max_top_characters` (20, 0 turns the map off).
+
 - The inferred patterns become a hierarchy of **families** (grammar 2).
   `derived.patterns` has an `algorithm.version` next to its `grammar`, and a
   `complete` entry has `population`, `families`, `other` and `limits` in place of

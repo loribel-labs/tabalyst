@@ -630,3 +630,20 @@ td.ex .tip.show{display:block}
 .ptable .num{text-align:right}
 .pothers td{color:var(--text-3)}
 @media (max-width:640px){.pn-c small{display:block;margin-left:0}.ptree{padding-left:10px}}
+.cmap{margin-top:var(--joint)}
+.cm-title{margin:0 0 6px;font-size:16px}
+.cm-grid{list-style:none;margin:8px 0 var(--joint);padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.cm-tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--line);border-radius:8px;text-align:center;overflow:hidden}
+.cm-g{font-size:22px;line-height:1.2;font-family:var(--mono,monospace);max-width:100%;overflow-wrap:anywhere}
+.cm-tile small{font-size:11px;color:var(--text-3)}
+.cm-tile b{font-size:13px}
+.cm-b{display:block;width:100%;height:4px;border-radius:2px;background:var(--line)}
+.cm-b i{display:block;height:100%;border-radius:2px;background:var(--d1,currentColor)}
+.cm-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.cm-list li{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(40px,1fr) auto;align-items:center;gap:8px}
+.cm-n{overflow-wrap:anywhere}
+.cm-n small{color:var(--text-3);font-size:11px}
+.cm-c{font-size:13px;white-space:nowrap}
+.cm-c b{margin-right:12px}
+.cm-tile b{margin-top:2px}
+@media (max-width:640px){.cm-list li{grid-template-columns:minmax(0,1fr) auto}.cm-list .cm-b{display:none}}

@@ -77,6 +77,7 @@ Keep these exactly as written in every language:
 | format | format | The exact form of one value, a symbol per character (`AA-9999`) |
 | pattern | pattern | The values of one structure and one set of lengths, with their constants (`'AK-'9999`); a discovered pattern never has a range |
 | family | famille | The patterns of one structure that differ only by lengths or constants; shown as the list of its patterns with their counts |
+| character map | carte des caractères | The most frequent characters of a field, their scripts and Unicode categories, the case of the ends of the values and the emoji; counted on the scan's samples, and on every value by the second pass |
 | facet | facette | A dimension along which a family is specialized: composition, lengths, or the content of a token (head, tail, whole) |
 | node | nœud | A pattern plus a constraint on a facet, with its counts in distinct values and occurrences |
 | `deep.mode` | mode du second passage | The setting that tells `tabalyst report` whether to plan a second pass by itself (`auto`), never (`off`) or always, as `--deep` does (`force`) |

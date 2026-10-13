@@ -16,6 +16,7 @@ from tabalyst.scanner.models import (
     CardinalityComplete,
     CardinalityEstimate,
     CardinalityLimited,
+    CharacterMap,
     Complete,
     DatasetResult,
     DetectorComplete,
@@ -71,6 +72,7 @@ def check_scan(result: ScanResult) -> list[str]:
     for dataset in result.datasets:
         _check_dataset(dataset, result, problems)
     _check_patterns(result, problems)
+    _check_character_maps(result, problems)
     _check_observations(result, problems)
     return problems
 
@@ -675,6 +677,55 @@ def _check_patterns(result: ScanResult, problems: list[str]) -> None:
             _check_field_patterns(
                 entry, fields[(entry.dataset, entry.field)], result, problems
             )
+
+
+def _check_character_maps(result: ScanResult, problems: list[str]) -> None:
+    """The character maps: one entry per field, in the order of the fields, and
+    counts that reconcile (design 9.2b)."""
+    if result.derived is None or result.derived.characters is None:
+        return
+    entries = result.derived.characters.fields
+    fields = {
+        (dataset.id, field.id): field
+        for dataset in result.datasets
+        for field in dataset.fields
+    }
+    if [(entry.dataset, entry.field) for entry in entries] != list(fields):
+        problems.append(
+            "derived.characters.fields: one entry per field, in the order of the fields"
+        )
+        return
+    for entry in entries:
+        found = entry.characters
+        where = f"derived.characters[{entry.dataset}.{entry.field}]"
+        if fields[(entry.dataset, entry.field)].exposure in ("mask", "hide"):
+            if found.status != "disabled":
+                problems.append(f"{where}: a masked or hidden field has no character map")
+        elif isinstance(found, Complete):
+            problems.extend(character_map_problems(found.value, where))
+
+
+def character_map_problems(found: CharacterMap, where: str) -> list[str]:
+    """Violated invariants of one character map."""
+    problems = []
+    listed = [item.occurrence_count for item in found.top]
+    if listed != sorted(listed, reverse=True) or sum(listed) > found.characters:
+        problems.append(f"{where}.top: must descend and not pass the characters")
+    if len(found.top) > found.distinct:
+        problems.append(f"{where}.top: lists more characters than there are")
+    if any(ord(item.char) != item.codepoint for item in found.top):
+        problems.append(f"{where}.top: a code point is not its character's")
+    if sum(item.occurrence_count for item in found.categories) != found.characters:
+        problems.append(f"{where}.categories: must add up to the characters")
+    if sum(item.occurrence_count for item in found.scripts) > found.characters:
+        problems.append(f"{where}.scripts: more letters than characters")
+    if max(found.ends_uppercase + found.ends_lowercase, found.title_case) > found.values:
+        problems.append(f"{where}: a case counter passes the values")
+    if found.with_emoji > found.values or found.with_emoji > found.emoji_sequences:
+        problems.append(f"{where}.with_emoji: inconsistent with the sequences")
+    if sum(item.occurrence_count for item in found.emoji) > found.emoji_sequences:
+        problems.append(f"{where}.emoji: more occurrences than sequences")
+    return problems
 
 
 def _check_eligibility(entry: FieldPatterns, problems: list[str]) -> None:

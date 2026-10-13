@@ -194,6 +194,22 @@ do not contribute to lengths.
 | Lengths | Frequency of each length, when the maximum fits the configured distribution limit. | The tooltip includes bounded examples per length. |
 | Distinct, Examples | Value count and retained examples. | These concern values, not the number of distinct lengths. |
 
+### Character map
+
+The text panel of a column page ends with the character map. It says whether the figures count every
+value of the column (the second pass, or a scan that kept every distinct value) or the sample of
+distinct values the scan stored.
+
+| Block | What it shows |
+| --- | --- |
+| Most frequent characters | The 20 most frequent characters, letters and digits included, with their code point and their share of all the characters. A space, a tab or an invisible character is drawn as a mark or its code point. |
+| Scripts of the letters | The share of the characters of each script (Latin, Cyrillic, CJK...). |
+| Kinds of characters | The share of each Unicode category: lowercase and uppercase letters, digits, punctuation, spaces... |
+| Case of the values | The share of the values that end with a capital, end with a lowercase letter or are in title case. These shares are of the values, not of the characters. |
+| Emoji | The values with an emoji and the most frequent emoji sequences. |
+
+A masked or hidden column has no character map. A map that passed its bounds says so and lists nothing.
+
 ## Detectors and formats
 
 **Purpose:** inspect the evidence behind a possible semantic type. Each row

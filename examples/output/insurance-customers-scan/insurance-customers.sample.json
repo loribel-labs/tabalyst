@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-13T19:13:08.417962Z",
-    "duration_seconds": 0.209704,
+    "started_at": "2026-10-13T21:43:25.264870Z",
+    "duration_seconds": 0.223898,
     "timings": {
-      "reading": 0.184947,
-      "selection": 0.003005,
-      "other": 0.021752
+      "reading": 0.198751,
+      "selection": 0.002833,
+      "other": 0.022314
     },
-    "peak_memory_bytes": 101785600,
+    "peak_memory_bytes": 107503616,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,13 +120,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "6f28fa32258ed6aa6f24da528fbe9467fa2be8990e365f638ae9cd33efab58b8",
+    "plan_id": "50941483414dd304bd4747286b7cd2250bc4eb5f662e627e9324992ee107c592",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-      "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+      "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
     },
     "settings": {
       "max_enum_values": 100,
@@ -157,7 +157,7 @@
     "size": {
       "requested": 150,
       "mandatory_bound": 146,
-      "useful_maximum": 472,
+      "useful_maximum": 569,
       "records": 3000
     },
     "reserve": {
@@ -169,9 +169,9 @@
     "candidates": {
       "per_target": 2,
       "per_target_effective": 2,
-      "rows": 758,
+      "rows": 914,
       "row_bytes": 275,
-      "bytes_expected": 208450,
+      "bytes_expected": 251350,
       "budget_bytes": 67108864,
       "fits": true
     },
@@ -183,7 +183,7 @@
     },
     "enrichment": {
       "deep": "current",
-      "used": 49,
+      "used": 157,
       "requested": false,
       "awaiting": []
     },
@@ -211,12 +211,12 @@
       ]
     },
     "summary": {
-      "targets": 391,
+      "targets": 469,
       "mandatory": 146,
-      "optional": 245,
+      "optional": 323,
       "not_evaluable": 14,
       "dropped": 0,
-      "total_weight": 2119.684408,
+      "total_weight": 2610.894098,
       "families": [
         {
           "family": "low_cardinality",
@@ -260,11 +260,11 @@
         },
         {
           "family": "relations",
-          "targets": 55,
+          "targets": 133,
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 353.484229
+          "total_weight": 844.693919
         }
       ]
     },
@@ -7631,6 +7631,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_2"
+        ],
+        "displays": [
+          "filiale",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_2:pattern",
+          "params": {
+            "category": 2,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 0.000333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.897601,
+          "base": 5.0,
+          "rarity": 0.57952,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_2:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:18",
         "family": "relations",
         "dataset": "rows",
@@ -7766,6 +7811,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_2"
+        ],
+        "displays": [
+          "filiale",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_2:pattern",
+          "params": {
+            "category": 1,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.001666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.315126,
+          "base": 5.0,
+          "rarity": 0.463025,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_2:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_2"
+        ],
+        "displays": [
+          "filiale",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_2:pattern",
+          "params": {
+            "category": 1,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.001666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.315126,
+          "base": 5.0,
+          "rarity": 0.463025,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_2:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:11",
         "family": "relations",
         "dataset": "rows",
@@ -7811,6 +7946,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:19",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 9,
+          "share": 0.003,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 7.102399,
+          "base": 5.0,
+          "rarity": 0.42048,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "quality:rows:column_30:observation:o22",
         "family": "quality",
         "dataset": "rows",
@@ -7849,6 +8029,51 @@
         "origin": "o22",
         "needs": [
           "scan"
+        ]
+      },
+      {
+        "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_2"
+        ],
+        "displays": [
+          "filiale",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_2:pattern",
+          "params": {
+            "category": 0,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 12,
+          "share": 0.004,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.998283,
+          "base": 5.0,
+          "rarity": 0.399657,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_2:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
         ]
       },
       {
@@ -7975,6 +8200,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_2"
+        ],
+        "displays": [
+          "filiale",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_2:pattern",
+          "params": {
+            "category": 0,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 14,
+          "share": 0.004666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.942494,
+          "base": 5.0,
+          "rarity": 0.388499,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_2:pattern",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "quality:rows:column_6:observation:o5",
         "family": "quality",
         "dataset": "rows",
@@ -8055,6 +8325,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_11:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:19",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 15,
+          "share": 0.005,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.917525,
+          "base": 5.0,
+          "rarity": 0.383505,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -8147,6 +8462,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:17",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 21,
+          "share": 0.007,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.795752,
+          "base": 5.0,
+          "rarity": 0.35915,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:18",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 21,
+          "share": 0.007,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.795752,
+          "base": 5.0,
+          "rarity": 0.35915,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:10",
         "family": "relations",
         "dataset": "rows",
@@ -8186,6 +8591,276 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_1>column_29:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:16",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 27,
+          "share": 0.009,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.704798,
+          "base": 5.0,
+          "rarity": 0.34096,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:18",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 29,
+          "share": 0.009666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.678936,
+          "base": 5.0,
+          "rarity": 0.335787,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:17",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 36,
+          "share": 0.012,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.600682,
+          "base": 5.0,
+          "rarity": 0.320136,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:15",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 36,
+          "share": 0.012,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.600682,
+          "base": 5.0,
+          "rarity": 0.320136,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:13",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 37,
+          "share": 0.012333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.590766,
+          "base": 5.0,
+          "rarity": 0.318153,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:14",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 37,
+          "share": 0.012333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.590766,
+          "base": 5.0,
+          "rarity": 0.318153,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -8327,6 +9002,321 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:16",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 43,
+          "share": 0.014333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.536377,
+          "base": 5.0,
+          "rarity": 0.307275,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:12",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 46,
+          "share": 0.015333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.51197,
+          "base": 5.0,
+          "rarity": 0.302394,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_8"
+        ],
+        "displays": [
+          "filiale",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_8:prefix",
+          "params": {
+            "category": 2,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 47,
+          "share": 0.015666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.504186,
+          "base": 5.0,
+          "rarity": 0.300837,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_8:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:length",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 47,
+          "share": 0.015666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.504186,
+          "base": 5.0,
+          "rarity": 0.300837,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:prefix",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 47,
+          "share": 0.015666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.504186,
+          "base": 5.0,
+          "rarity": 0.300837,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:value",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 47,
+          "share": 0.015666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.504186,
+          "base": 5.0,
+          "rarity": 0.300837,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_2"
+        ],
+        "displays": [
+          "langue_preferee",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_2:prefix",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 47,
+          "share": 0.015666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.504186,
+          "base": 5.0,
+          "rarity": 0.300837,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_2:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:13",
         "family": "relations",
         "dataset": "rows",
@@ -8417,6 +9407,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:11",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 48,
+          "share": 0.016,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.496567,
+          "base": 5.0,
+          "rarity": 0.299313,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:10",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 50,
+          "share": 0.016666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.481793,
+          "base": 5.0,
+          "rarity": 0.296359,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:value:3",
         "family": "relations",
         "dataset": "rows",
@@ -8456,6 +9536,231 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_12:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:15",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 57,
+          "share": 0.019,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.434372,
+          "base": 5.0,
+          "rarity": 0.286874,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:9",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 57,
+          "share": 0.019,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.434372,
+          "base": 5.0,
+          "rarity": 0.286874,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:14",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 58,
+          "share": 0.019333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.428078,
+          "base": 5.0,
+          "rarity": 0.285616,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:8",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 63,
+          "share": 0.021,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.398151,
+          "base": 5.0,
+          "rarity": 0.27963,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:13",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 65,
+          "share": 0.021666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.38684,
+          "base": 5.0,
+          "rarity": 0.277368,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
         "needs": [
           "scan",
           "second_pass"
@@ -8546,6 +9851,186 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_11:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:12",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 68,
+          "share": 0.022666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.37051,
+          "base": 5.0,
+          "rarity": 0.274102,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:11",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 69,
+          "share": 0.023,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.365227,
+          "base": 5.0,
+          "rarity": 0.273045,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:10",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 74,
+          "share": 0.024666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.339908,
+          "base": 5.0,
+          "rarity": 0.267982,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:9",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 77,
+          "share": 0.025666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.325525,
+          "base": 5.0,
+          "rarity": 0.265105,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
         "needs": [
           "scan",
           "second_pass"
@@ -8826,6 +10311,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:8",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 82,
+          "share": 0.027333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.302756,
+          "base": 5.0,
+          "rarity": 0.260551,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:9",
         "family": "relations",
         "dataset": "rows",
@@ -8916,6 +10446,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:10",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 10
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 84,
+          "share": 0.028,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.294035,
+          "base": 5.0,
+          "rarity": 0.258807,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 84,
+          "share": 0.028,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.294035,
+          "base": 5.0,
+          "rarity": 0.258807,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:10",
         "family": "relations",
         "dataset": "rows",
@@ -8955,6 +10575,141 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_11:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 87,
+          "share": 0.029,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.281335,
+          "base": 5.0,
+          "rarity": 0.256267,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 1,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 89,
+          "share": 0.029666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.273109,
+          "base": 5.0,
+          "rarity": 0.254622,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 93,
+          "share": 0.031,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.257199,
+          "base": 5.0,
+          "rarity": 0.25144,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -9051,6 +10806,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:9",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 1,
+            "column": 9
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 98,
+          "share": 0.032666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.238246,
+          "base": 5.0,
+          "rarity": 0.247649,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:8",
         "family": "relations",
         "dataset": "rows",
@@ -9090,6 +10890,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:8",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 1,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 99,
+          "share": 0.033,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.234572,
+          "base": 5.0,
+          "rarity": 0.246914,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_12"
+        ],
+        "displays": [
+          "langue_preferee",
+          "orientation"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_12:length",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 100,
+          "share": 0.033333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.230934,
+          "base": 5.0,
+          "rarity": 0.246187,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_12:length",
         "needs": [
           "scan",
           "second_pass"
@@ -9141,6 +11031,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 8
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 120,
+          "share": 0.04,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.16495,
+          "base": 5.0,
+          "rarity": 0.23299,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:7",
         "family": "relations",
         "dataset": "rows",
@@ -9180,6 +11115,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:7",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 1,
+            "column": 7
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 121,
+          "share": 0.040333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.161947,
+          "base": 5.0,
+          "rarity": 0.232389,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
         "needs": [
           "scan",
           "second_pass"
@@ -9270,6 +11250,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:6",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 6
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 124,
+          "share": 0.041333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.153083,
+          "base": 5.0,
+          "rarity": 0.230617,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
         "needs": [
           "scan",
           "second_pass"
@@ -9456,6 +11481,321 @@
         ]
       },
       {
+        "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_8"
+        ],
+        "displays": [
+          "filiale",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_8:prefix",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 133,
+          "share": 0.044333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.127725,
+          "base": 5.0,
+          "rarity": 0.225545,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_8:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:length",
+          "params": {
+            "category": 1,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 133,
+          "share": 0.044333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.127725,
+          "base": 5.0,
+          "rarity": 0.225545,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:prefix",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 133,
+          "share": 0.044333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.127725,
+          "base": 5.0,
+          "rarity": 0.225545,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:value",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 133,
+          "share": 0.044333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.127725,
+          "base": 5.0,
+          "rarity": 0.225545,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_2"
+        ],
+        "displays": [
+          "langue_preferee",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_2:prefix",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 133,
+          "share": 0.044333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.127725,
+          "base": 5.0,
+          "rarity": 0.225545,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_2:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 134,
+          "share": 0.044666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.125014,
+          "base": 5.0,
+          "rarity": 0.225003,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_12"
+        ],
+        "displays": [
+          "langue_preferee",
+          "orientation"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_12:length",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 139,
+          "share": 0.046333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.111755,
+          "base": 5.0,
+          "rarity": 0.222351,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_12:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:value:0",
         "family": "relations",
         "dataset": "rows",
@@ -9495,6 +11835,186 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_12:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_12"
+        ],
+        "displays": [
+          "langue_preferee",
+          "orientation"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_12:length",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 141,
+          "share": 0.047,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.106585,
+          "base": 5.0,
+          "rarity": 0.221317,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_12:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 145,
+          "share": 0.048333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.096461,
+          "base": 5.0,
+          "rarity": 0.219292,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 147,
+          "share": 0.049,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.091503,
+          "base": 5.0,
+          "rarity": 0.218301,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 149,
+          "share": 0.049666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.086612,
+          "base": 5.0,
+          "rarity": 0.217322,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
         "needs": [
           "scan",
           "second_pass"
@@ -9546,6 +12066,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:5",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 152,
+          "share": 0.050666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.079398,
+          "base": 5.0,
+          "rarity": 0.21588,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:6",
         "family": "relations",
         "dataset": "rows",
@@ -9585,6 +12150,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_11:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 163,
+          "share": 0.054333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.054111,
+          "base": 5.0,
+          "rarity": 0.210822,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -9726,6 +12336,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 175,
+          "share": 0.058333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.028403,
+          "base": 5.0,
+          "rarity": 0.205681,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:4",
         "family": "relations",
         "dataset": "rows",
@@ -9810,6 +12465,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:4",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 4
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 189,
+          "share": 0.063,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.00055,
+          "base": 5.0,
+          "rarity": 0.20011,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
         "needs": [
           "scan",
           "second_pass"
@@ -10441,6 +13141,186 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:length",
+          "params": {
+            "category": 1,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 200,
+          "share": 0.066666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.980076,
+          "base": 5.0,
+          "rarity": 0.196015,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:prefix",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 200,
+          "share": 0.066666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.980076,
+          "base": 5.0,
+          "rarity": 0.196015,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:value",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 200,
+          "share": 0.066666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.980076,
+          "base": 5.0,
+          "rarity": 0.196015,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_2"
+        ],
+        "displays": [
+          "langue_preferee",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_2:prefix",
+          "params": {
+            "category": 1,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 200,
+          "share": 0.066666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.980076,
+          "base": 5.0,
+          "rarity": 0.196015,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_2:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:3",
         "family": "relations",
         "dataset": "rows",
@@ -10480,6 +13360,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:3",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 1,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 202,
+          "share": 0.067333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.976475,
+          "base": 5.0,
+          "rarity": 0.195295,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 3
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 222,
+          "share": 0.074,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.942307,
+          "base": 5.0,
+          "rarity": 0.188461,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -10576,6 +13546,51 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 231,
+          "share": 0.077,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.927924,
+          "base": 5.0,
+          "rarity": 0.185585,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:3",
         "family": "relations",
         "dataset": "rows",
@@ -10660,6 +13675,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_1>column_29:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 252,
+          "share": 0.084,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.896434,
+          "base": 5.0,
+          "rarity": 0.179287,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
         "needs": [
           "scan",
           "second_pass"
@@ -10875,6 +13935,96 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:prefix",
+          "params": {
+            "category": 0,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 301,
+          "share": 0.100333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.832129,
+          "base": 5.0,
+          "rarity": 0.166426,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_14"
+        ],
+        "displays": [
+          "langue_preferee",
+          "ville"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_14:length",
+          "params": {
+            "category": 0,
+            "column": 5
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 307,
+          "share": 0.102333333333,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.824986,
+          "base": 5.0,
+          "rarity": 0.164997,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_14:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:2",
         "family": "relations",
         "dataset": "rows",
@@ -10914,6 +14064,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:2",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 2
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 311,
+          "share": 0.103666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.820301,
+          "base": 5.0,
+          "rarity": 0.16406,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
         "needs": [
           "scan",
           "second_pass"
@@ -11004,6 +14199,51 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:1",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 324,
+          "share": 0.108,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.80548,
+          "base": 5.0,
+          "rarity": 0.161096,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
         "needs": [
           "scan",
           "second_pass"
@@ -11141,6 +14381,186 @@
         ]
       },
       {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:length",
+          "params": {
+            "category": 0,
+            "column": 0
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 435,
+          "share": 0.145,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.69886,
+          "base": 5.0,
+          "rarity": 0.139772,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:length",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 435,
+          "share": 0.145,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.69886,
+          "base": 5.0,
+          "rarity": 0.139772,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_1"
+        ],
+        "displays": [
+          "langue_preferee",
+          "filiale"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_1:value",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 435,
+          "share": 0.145,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.69886,
+          "base": 5.0,
+          "rarity": 0.139772,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_1:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_2"
+        ],
+        "displays": [
+          "langue_preferee",
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_2:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 435,
+          "share": 0.145,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.69886,
+          "base": 5.0,
+          "rarity": 0.139772,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_2:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_17:pattern_matches:f2.p1",
         "family": "structured_string",
         "dataset": "rows",
@@ -11221,6 +14641,96 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_8",
+          "column_10"
+        ],
+        "displays": [
+          "langue_preferee",
+          "type_voie"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_8>column_10:value",
+          "params": {
+            "category": 0,
+            "column": 11
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 456,
+          "share": 0.152,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.681797,
+          "base": 5.0,
+          "rarity": 0.136359,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_8>column_10:value",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:0",
+        "family": "relations",
+        "dataset": "rows",
+        "fields": [
+          "column_1",
+          "column_8"
+        ],
+        "displays": [
+          "filiale",
+          "langue_preferee"
+        ],
+        "predicate": {
+          "kind": "relation_exception",
+          "version": 1,
+          "source": "second_pass",
+          "ref": "analyses/category_crosstab:rows:column_1>column_8:prefix",
+          "params": {
+            "category": 0,
+            "column": 1
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 566,
+          "share": 0.188666666667,
+          "method": "crosstab_exceptions"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.603587,
+          "base": 5.0,
+          "rarity": 0.120717,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "origin": "category_crosstab:rows:column_1>column_8:prefix",
         "needs": [
           "scan",
           "second_pass"
@@ -16784,32 +20294,32 @@
   },
   "selection": {
     "rows": 150,
-    "by_cover": 102,
-    "by_reserve": 48,
+    "by_cover": 104,
+    "by_reserve": 46,
     "shortfall": 0,
     "reserve": {
       "planned": 4,
-      "taken": 48,
+      "taken": 46,
       "adjusted": true
     },
     "pool": {
       "per_target": 2,
-      "candidate_rows": 308,
-      "peak_bytes": 83959,
+      "candidate_rows": 315,
+      "peak_bytes": 85866,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 391,
-    "evaluable": 377,
-    "observed": 376,
-    "covered": 376,
+    "defined": 469,
+    "evaluable": 455,
+    "observed": 454,
+    "covered": 454,
     "weighted": {
-      "total": 1996.76296,
-      "covered": 1992.76296,
-      "share": 0.997997
+      "total": 2487.97265,
+      "covered": 2483.97265,
+      "share": 0.998392
     },
     "mandatory": {
       "defined": 146,
@@ -16859,11 +20369,11 @@
       },
       {
         "family": "relations",
-        "defined": 55,
-        "evaluable": 55,
-        "covered": 55,
-        "weight": 353.484229,
-        "weight_covered": 353.484229
+        "defined": 133,
+        "evaluable": 133,
+        "covered": 133,
+        "weight": 844.693919,
+        "weight_covered": 844.693919
       }
     ],
     "missing": [
@@ -16877,8 +20387,8 @@
     ],
     "missing_total": 1,
     "verification": {
-      "checked": 361,
-      "agreed": 361,
+      "checked": 439,
+      "agreed": 439,
       "disagreed": []
     }
   },
@@ -18229,6 +21739,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:4",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:18",
       "status": "covered",
       "observed": 1,
@@ -18253,6 +21771,22 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:2",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:3",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:11",
       "status": "covered",
       "observed": 7,
@@ -18261,11 +21795,27 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:19",
+      "status": "covered",
+      "observed": 9,
+      "candidates": 2,
+      "expected": 9,
+      "agrees": true
+    },
+    {
       "id": "quality:rows:column_30:observation:o22",
       "status": "covered",
       "observed": 299,
       "candidates": 2,
       "expected": 299,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:1",
+      "status": "covered",
+      "observed": 12,
+      "candidates": 2,
+      "expected": 12,
       "agrees": true
     },
     {
@@ -18293,6 +21843,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_1+column_2:relation_exception:category_crosstab:rows:column_1>column_2:pattern:0",
+      "status": "covered",
+      "observed": 14,
+      "candidates": 2,
+      "expected": 14,
+      "agrees": true
+    },
+    {
       "id": "quality:rows:column_6:observation:o5",
       "status": "covered",
       "observed": 356,
@@ -18302,6 +21860,14 @@
     },
     {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:17",
+      "status": "covered",
+      "observed": 15,
+      "candidates": 2,
+      "expected": 15,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:19",
       "status": "covered",
       "observed": 15,
       "candidates": 2,
@@ -18325,11 +21891,75 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:17",
+      "status": "covered",
+      "observed": 21,
+      "candidates": 2,
+      "expected": 21,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:18",
+      "status": "covered",
+      "observed": 21,
+      "candidates": 2,
+      "expected": 21,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:10",
       "status": "covered",
       "observed": 23,
       "candidates": 2,
       "expected": 23,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:16",
+      "status": "covered",
+      "observed": 27,
+      "candidates": 2,
+      "expected": 27,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:18",
+      "status": "covered",
+      "observed": 29,
+      "candidates": 2,
+      "expected": 29,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:17",
+      "status": "covered",
+      "observed": 36,
+      "candidates": 2,
+      "expected": 36,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:15",
+      "status": "covered",
+      "observed": 36,
+      "candidates": 2,
+      "expected": 36,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:13",
+      "status": "covered",
+      "observed": 37,
+      "candidates": 2,
+      "expected": 37,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:14",
+      "status": "covered",
+      "observed": 37,
+      "candidates": 2,
+      "expected": 37,
       "agrees": true
     },
     {
@@ -18357,6 +21987,62 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:16",
+      "status": "covered",
+      "observed": 43,
+      "candidates": 2,
+      "expected": 43,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:12",
+      "status": "covered",
+      "observed": 46,
+      "candidates": 2,
+      "expected": 46,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:2",
+      "status": "covered",
+      "observed": 47,
+      "candidates": 2,
+      "expected": 47,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:3",
+      "status": "covered",
+      "observed": 47,
+      "candidates": 2,
+      "expected": 47,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:3",
+      "status": "covered",
+      "observed": 47,
+      "candidates": 2,
+      "expected": 47,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:3",
+      "status": "covered",
+      "observed": 47,
+      "candidates": 2,
+      "expected": 47,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:3",
+      "status": "covered",
+      "observed": 47,
+      "candidates": 2,
+      "expected": 47,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:13",
       "status": "covered",
       "observed": 48,
@@ -18373,11 +22059,67 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:11",
+      "status": "covered",
+      "observed": 48,
+      "candidates": 2,
+      "expected": 48,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:10",
+      "status": "covered",
+      "observed": 50,
+      "candidates": 2,
+      "expected": 50,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:value:3",
       "status": "covered",
       "observed": 54,
       "candidates": 2,
       "expected": 54,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:15",
+      "status": "covered",
+      "observed": 57,
+      "candidates": 2,
+      "expected": 57,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:9",
+      "status": "covered",
+      "observed": 57,
+      "candidates": 2,
+      "expected": 57,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:14",
+      "status": "covered",
+      "observed": 58,
+      "candidates": 2,
+      "expected": 58,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:8",
+      "status": "covered",
+      "observed": 63,
+      "candidates": 2,
+      "expected": 63,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:13",
+      "status": "covered",
+      "observed": 65,
+      "candidates": 2,
+      "expected": 65,
       "agrees": true
     },
     {
@@ -18394,6 +22136,38 @@
       "observed": 67,
       "candidates": 2,
       "expected": 67,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:12",
+      "status": "covered",
+      "observed": 68,
+      "candidates": 2,
+      "expected": 68,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:11",
+      "status": "covered",
+      "observed": 69,
+      "candidates": 2,
+      "expected": 69,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:10",
+      "status": "covered",
+      "observed": 74,
+      "candidates": 2,
+      "expected": 74,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:9",
+      "status": "covered",
+      "observed": 77,
+      "candidates": 2,
+      "expected": 77,
       "agrees": true
     },
     {
@@ -18453,6 +22227,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:8",
+      "status": "covered",
+      "observed": 82,
+      "candidates": 2,
+      "expected": 82,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_1+column_29:relation_exception:category_crosstab:rows:column_1>column_29:value:9",
       "status": "covered",
       "observed": 83,
@@ -18469,11 +22251,51 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:10",
+      "status": "covered",
+      "observed": 84,
+      "candidates": 2,
+      "expected": 84,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:7",
+      "status": "covered",
+      "observed": 84,
+      "candidates": 2,
+      "expected": 84,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:10",
       "status": "covered",
       "observed": 86,
       "candidates": 2,
       "expected": 86,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:7",
+      "status": "covered",
+      "observed": 87,
+      "candidates": 2,
+      "expected": 87,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:6",
+      "status": "covered",
+      "observed": 89,
+      "candidates": 2,
+      "expected": 89,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:5",
+      "status": "covered",
+      "observed": 93,
+      "candidates": 2,
+      "expected": 93,
       "agrees": true
     },
     {
@@ -18493,11 +22315,35 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:9",
+      "status": "covered",
+      "observed": 98,
+      "candidates": 2,
+      "expected": 98,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:8",
       "status": "covered",
       "observed": 99,
       "candidates": 2,
       "expected": 99,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:8",
+      "status": "covered",
+      "observed": 99,
+      "candidates": 2,
+      "expected": 99,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:2",
+      "status": "covered",
+      "observed": 100,
+      "candidates": 2,
+      "expected": 100,
       "agrees": true
     },
     {
@@ -18509,7 +22355,23 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:6",
+      "status": "covered",
+      "observed": 120,
+      "candidates": 2,
+      "expected": 120,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:7",
+      "status": "covered",
+      "observed": 121,
+      "candidates": 2,
+      "expected": 121,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:7",
       "status": "covered",
       "observed": 121,
       "candidates": 2,
@@ -18526,6 +22388,14 @@
     },
     {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:6",
+      "status": "covered",
+      "observed": 124,
+      "candidates": 2,
+      "expected": 124,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:6",
       "status": "covered",
       "observed": 124,
       "candidates": 2,
@@ -18565,6 +22435,62 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:1",
+      "status": "covered",
+      "observed": 133,
+      "candidates": 2,
+      "expected": 133,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:2",
+      "status": "covered",
+      "observed": 133,
+      "candidates": 2,
+      "expected": 133,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:2",
+      "status": "covered",
+      "observed": 133,
+      "candidates": 2,
+      "expected": 133,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:2",
+      "status": "covered",
+      "observed": 133,
+      "candidates": 2,
+      "expected": 133,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:2",
+      "status": "covered",
+      "observed": 133,
+      "candidates": 2,
+      "expected": 133,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:4",
+      "status": "covered",
+      "observed": 134,
+      "candidates": 2,
+      "expected": 134,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:1",
+      "status": "covered",
+      "observed": 139,
+      "candidates": 2,
+      "expected": 139,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:value:0",
       "status": "covered",
       "observed": 139,
@@ -18573,7 +22499,47 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_12:relation_exception:category_crosstab:rows:column_8>column_12:length:0",
+      "status": "covered",
+      "observed": 141,
+      "candidates": 2,
+      "expected": 141,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:5",
+      "status": "covered",
+      "observed": 145,
+      "candidates": 2,
+      "expected": 145,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:3",
+      "status": "covered",
+      "observed": 147,
+      "candidates": 2,
+      "expected": 147,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:4",
+      "status": "covered",
+      "observed": 149,
+      "candidates": 2,
+      "expected": 149,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:5",
+      "status": "covered",
+      "observed": 152,
+      "candidates": 2,
+      "expected": 152,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:5",
       "status": "covered",
       "observed": 152,
       "candidates": 2,
@@ -18586,6 +22552,14 @@
       "observed": 162,
       "candidates": 2,
       "expected": 162,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:2",
+      "status": "covered",
+      "observed": 163,
+      "candidates": 2,
+      "expected": 163,
       "agrees": true
     },
     {
@@ -18613,6 +22587,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:3",
+      "status": "covered",
+      "observed": 175,
+      "candidates": 2,
+      "expected": 175,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:4",
       "status": "covered",
       "observed": 183,
@@ -18622,6 +22604,14 @@
     },
     {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:4",
+      "status": "covered",
+      "observed": 189,
+      "candidates": 2,
+      "expected": 189,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:4",
       "status": "covered",
       "observed": 189,
       "candidates": 2,
@@ -18733,11 +22723,59 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:1",
+      "status": "covered",
+      "observed": 200,
+      "candidates": 2,
+      "expected": 200,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:1",
+      "status": "covered",
+      "observed": 200,
+      "candidates": 2,
+      "expected": 200,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:1",
+      "status": "covered",
+      "observed": 200,
+      "candidates": 2,
+      "expected": 200,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:1",
+      "status": "covered",
+      "observed": 200,
+      "candidates": 2,
+      "expected": 200,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:3",
       "status": "covered",
       "observed": 202,
       "candidates": 2,
       "expected": 202,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:3",
+      "status": "covered",
+      "observed": 202,
+      "candidates": 2,
+      "expected": 202,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:1",
+      "status": "covered",
+      "observed": 222,
+      "candidates": 2,
+      "expected": 222,
       "agrees": true
     },
     {
@@ -18757,6 +22795,14 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:2",
+      "status": "covered",
+      "observed": 231,
+      "candidates": 2,
+      "expected": 231,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_11:relation_exception:category_crosstab:rows:column_8>column_11:length:3",
       "status": "covered",
       "observed": 241,
@@ -18770,6 +22816,14 @@
       "observed": 246,
       "candidates": 2,
       "expected": 246,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:1",
+      "status": "covered",
+      "observed": 252,
+      "candidates": 2,
+      "expected": 252,
       "agrees": true
     },
     {
@@ -18813,7 +22867,31 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:prefix:0",
+      "status": "covered",
+      "observed": 301,
+      "candidates": 2,
+      "expected": 301,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_14:relation_exception:category_crosstab:rows:column_8>column_14:length:0",
+      "status": "covered",
+      "observed": 307,
+      "candidates": 2,
+      "expected": 307,
+      "agrees": true
+    },
+    {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:2",
+      "status": "covered",
+      "observed": 311,
+      "candidates": 2,
+      "expected": 311,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:2",
       "status": "covered",
       "observed": 311,
       "candidates": 2,
@@ -18830,6 +22908,14 @@
     },
     {
       "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:prefix:1",
+      "status": "covered",
+      "observed": 324,
+      "candidates": 2,
+      "expected": 324,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:1",
       "status": "covered",
       "observed": 324,
       "candidates": 2,
@@ -18861,6 +22947,38 @@
       "agrees": true
     },
     {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:length:0",
+      "status": "covered",
+      "observed": 435,
+      "candidates": 2,
+      "expected": 435,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:prefix:0",
+      "status": "covered",
+      "observed": 435,
+      "candidates": 2,
+      "expected": 435,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_1:relation_exception:category_crosstab:rows:column_8>column_1:value:0",
+      "status": "covered",
+      "observed": 435,
+      "candidates": 2,
+      "expected": 435,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_2:relation_exception:category_crosstab:rows:column_8>column_2:prefix:0",
+      "status": "covered",
+      "observed": 435,
+      "candidates": 2,
+      "expected": 435,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_17:pattern_matches:f2.p1",
       "status": "covered",
       "observed": 9,
@@ -18874,6 +22992,22 @@
       "observed": 456,
       "candidates": 2,
       "expected": 456,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_8+column_10:relation_exception:category_crosstab:rows:column_8>column_10:value:0",
+      "status": "covered",
+      "observed": 456,
+      "candidates": 2,
+      "expected": 456,
+      "agrees": true
+    },
+    {
+      "id": "relations:rows:column_1+column_8:relation_exception:category_crosstab:rows:column_1>column_8:prefix:0",
+      "status": "covered",
+      "observed": 566,
+      "candidates": 2,
+      "expected": 566,
       "agrees": true
     },
     {

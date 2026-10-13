@@ -60,6 +60,7 @@ stored.
 | `array_profile` | JSON fields that hold arrays of different lengths | The number of arrays of every length, the quantiles of the lengths, the empty arrays and the items |
 | `structure_variants` | JSON objects whose keys are not all in every object, and the records themselves (`$`) | The sets of keys the objects have, each with its exact count and the keys it lacks |
 | `text_profile` | Fields of long texts (80 characters or more) | The words, lines and digits of the texts, by powers of two and by tenth of the characters |
+| `character_profile` | Fields with text | The most frequent characters, their scripts and categories, the case of the ends of the values, title case and the emoji, counted on every value. Asked for, or run with `--deep`; not needed when the scan lists every distinct value |
 | `fingerprint_distinct` | Fields whose values are too long for the exact set | The distinct values told apart by a 128-bit fingerprint, and the texts found more than once, by digest |
 | `sensitive_forms` | Masked sensitive fields | The masks of the values and, for addresses and phone numbers, their classes, without a value or a count below a floor |
 | `measure_extraction` | Fields of amounts with a currency, percentages or quantities with a unit | The numbers of the values, with the metrics of a numeric field for the whole field and for each currency or unit, and the units counted as values |

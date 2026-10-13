@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T17:02:48.665199Z",
-    "duration_seconds": 0.320884,
+    "started_at": "2026-10-13T21:09:32.269982Z",
+    "duration_seconds": 0.350644,
     "timings": {
-      "reading": 0.008868,
-      "analysis": 0.023596,
-      "finalize": 0.260525,
-      "derived": 0.02735,
-      "other": 0.000545
+      "reading": 0.008528,
+      "analysis": 0.023395,
+      "finalize": 0.261434,
+      "derived": 0.056788,
+      "other": 0.000498
     },
     "workers": 1,
-    "peak_memory_bytes": 86614016
+    "peak_memory_bytes": 87588864
   },
   "source": {
     "format": "csv",
@@ -161,6 +161,7 @@
       "max_sample_memory": 536870912,
       "max_special_characters": 256,
       "max_distinct_characters": 1024,
+      "max_top_characters": 20,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -338,7 +339,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
+  "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
   "scope": {
     "collections": null,
     "records_read": 3000,
@@ -50425,6 +50426,3432 @@
           "reason": "no_structural_marks"
         }
       ]
+    },
+    "characters": {
+      "fields": [
+        {
+          "dataset": "rows",
+          "field": "column_1",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 24802,
+              "distinct": 13,
+              "top": [
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 4617
+                },
+                {
+                  "char": "p",
+                  "codepoint": 112,
+                  "occurrence_count": 4370
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 2753
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 2432
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 2432
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 2432
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 2185
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 1136
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 568
+                },
+                {
+                  "char": "q",
+                  "codepoint": 113,
+                  "occurrence_count": 568
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 568
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 494
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 247
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 24802
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 24802
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_2",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 237,
+              "characters": 2639,
+              "distinct": 18,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 706
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 202
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 188
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 136
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 120
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 107
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 106
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 103
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 102
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "I",
+                  "codepoint": 73,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "T",
+                  "codepoint": 84,
+                  "occurrence_count": 101
+                },
+                {
+                  "char": "Q",
+                  "codepoint": 81,
+                  "occurrence_count": 35
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 676
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1775
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 676
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 188
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_3",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 7483,
+              "distinct": 4,
+              "top": [
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 3000
+                },
+                {
+                  "char": ".",
+                  "codepoint": 46,
+                  "occurrence_count": 1517
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 1483
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 1483
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 5966
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3000
+                },
+                {
+                  "name": "Ll",
+                  "occurrence_count": 2966
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 1517
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 1483,
+              "title_case": 3000,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_4",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 2993,
+              "characters": 18831,
+              "distinct": 55,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 2439
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 2015
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1931
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1414
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1145
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 1029
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 772
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 564
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 541
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 515
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 507
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 453
+                },
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 412
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 362
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 336
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 329
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 316
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 276
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 265
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 251
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 18683
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 15567
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3116
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 133
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 15
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 2993,
+              "title_case": 2971,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_5",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 2996,
+              "characters": 18639,
+              "distinct": 53,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 2070
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 1707
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 1424
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1291
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 1290
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1141
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 992
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 889
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 712
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 596
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 404
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 401
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 375
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 374
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 369
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 337
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 314
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 297
+                },
+                {
+                  "char": "G",
+                  "codepoint": 71,
+                  "occurrence_count": 289
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 283
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 18587
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 15565
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3022
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 25
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 15
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 12
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 2996,
+              "title_case": 2945,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_6",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 105,
+              "characters": 1050,
+              "distinct": 11,
+              "top": [
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 210
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 210
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 152
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 142
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 76
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 63
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 49
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 44
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 37
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 35
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 32
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 840
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 210
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_7",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 3000,
+              "distinct": 2,
+              "top": [
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 1517
+                },
+                {
+                  "char": "F",
+                  "codepoint": 70,
+                  "occurrence_count": 1483
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 3000
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3000
+                }
+              ],
+              "ends_uppercase": 3000,
+              "ends_lowercase": 0,
+              "title_case": 3000,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_8",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 6000,
+              "distinct": 4,
+              "top": [
+                {
+                  "char": "f",
+                  "codepoint": 102,
+                  "occurrence_count": 2101
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 2101
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 899
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 899
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 6000
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 6000
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_9",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 250,
+              "characters": 838,
+              "distinct": 10,
+              "top": [
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 95
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 94
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 92
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 87
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 85
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 82
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 81
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 81
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 72
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 69
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 838
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_10",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 17424,
+              "distinct": 34,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 3345
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 1955
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 1604
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 1579
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 1040
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 968
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 956
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 929
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 660
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 552
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 508
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 465
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 421
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 368
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 311
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 216
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 202
+                },
+                {
+                  "char": "p",
+                  "codepoint": 112,
+                  "occurrence_count": 181
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 153
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 151
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 17424
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 16525
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 899
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 899,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_11",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 3000,
+              "characters": 29480,
+              "distinct": 53,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 4172
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 2842
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 2751
+                },
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 2378
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1919
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 1782
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1725
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 1560
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 1417
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 956
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 930
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 558
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 373
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 345
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 343
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 342
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 341
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 334
+                },
+                {
+                  "char": "è",
+                  "codepoint": 232,
+                  "occurrence_count": 328
+                },
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 322
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 26886
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 23780
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3106
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 2378
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 117
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 99
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 894,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_12",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 720,
+              "characters": 2885,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 451
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 349
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 319
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 269
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 241
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 202
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 193
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 193
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 178
+                },
+                {
+                  "char": "E",
+                  "codepoint": 69,
+                  "occurrence_count": 147
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 141
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 102
+                },
+                {
+                  "char": "W",
+                  "codepoint": 87,
+                  "occurrence_count": 61
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 39
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 2885
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 2165
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 720
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 720,
+              "title_case": 720,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_13",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 266,
+              "characters": 695,
+              "distinct": 10,
+              "top": [
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 83
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 82
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 81
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 77
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 71
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 70
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 68
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 65
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 57
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 41
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 695
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_14",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 3000,
+              "characters": 26994,
+              "distinct": 57,
+              "top": [
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 2637
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 2265
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 2109
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 2016
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 1896
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 1862
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1446
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 1379
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 1243
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 788
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 673
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 599
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 523
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 520
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 507
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 506
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 485
+                },
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 482
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 461
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 434
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 26250
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 22707
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3543
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 599
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 100
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 45
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 2813,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_15",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 2997,
+              "characters": 5994,
+              "distinct": 21,
+              "top": [
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 2310
+                },
+                {
+                  "char": "Q",
+                  "codepoint": 81,
+                  "occurrence_count": 2224
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 505
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 407
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 266
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 92
+                },
+                {
+                  "char": "S",
+                  "codepoint": 83,
+                  "occurrence_count": 47
+                },
+                {
+                  "char": "M",
+                  "codepoint": 77,
+                  "occurrence_count": 32
+                },
+                {
+                  "char": "K",
+                  "codepoint": 75,
+                  "occurrence_count": 23
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 18
+                },
+                {
+                  "char": "q",
+                  "codepoint": 113,
+                  "occurrence_count": 18
+                },
+                {
+                  "char": "L",
+                  "codepoint": 76,
+                  "occurrence_count": 12
+                },
+                {
+                  "char": "E",
+                  "codepoint": 69,
+                  "occurrence_count": 7
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 7
+                },
+                {
+                  "char": "T",
+                  "codepoint": 84,
+                  "occurrence_count": 7
+                },
+                {
+                  "char": "Y",
+                  "codepoint": 89,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "U",
+                  "codepoint": 85,
+                  "occurrence_count": 4
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 2
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 5994
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Lu",
+                  "occurrence_count": 5948
+                },
+                {
+                  "name": "Ll",
+                  "occurrence_count": 46
+                }
+              ],
+              "ends_uppercase": 2974,
+              "ends_lowercase": 23,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_16",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 21089,
+              "distinct": 37,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 2762
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 2565
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 2470
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 2355
+                },
+                {
+                  "char": "Q",
+                  "codepoint": 81,
+                  "occurrence_count": 2234
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 2224
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 815
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 767
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 747
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 717
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 709
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 666
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 411
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 236
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 225
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 141
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 131
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 98
+                },
+                {
+                  "char": "q",
+                  "codepoint": 113,
+                  "occurrence_count": 96
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 96
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 20860
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 17665
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3195
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 225
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 4
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 3000,
+              "title_case": 2967,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_17",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 177,
+              "characters": 1272,
+              "distinct": 31,
+              "top": [
+                {
+                  "char": " ",
+                  "codepoint": 32,
+                  "occurrence_count": 231
+                },
+                {
+                  "char": "J",
+                  "codepoint": 74,
+                  "occurrence_count": 77
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 69
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 62
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 62
+                },
+                {
+                  "char": "G",
+                  "codepoint": 71,
+                  "occurrence_count": 61
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 58
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 53
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 51
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 50
+                },
+                {
+                  "char": "H",
+                  "codepoint": 72,
+                  "occurrence_count": 47
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 45
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 44
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 37
+                },
+                {
+                  "char": "R",
+                  "codepoint": 82,
+                  "occurrence_count": 27
+                },
+                {
+                  "char": "W",
+                  "codepoint": 87,
+                  "occurrence_count": 27
+                },
+                {
+                  "char": "X",
+                  "codepoint": 88,
+                  "occurrence_count": 24
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 23
+                },
+                {
+                  "char": "B",
+                  "codepoint": 66,
+                  "occurrence_count": 22
+                },
+                {
+                  "char": "K",
+                  "codepoint": 75,
+                  "occurrence_count": 21
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 510
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 531
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 510
+                },
+                {
+                  "name": "Zs",
+                  "occurrence_count": 231
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 177,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_18",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 6000,
+              "distinct": 4,
+              "top": [
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 2978
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 2978
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 22
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 22
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 6000
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Lu",
+                  "occurrence_count": 5956
+                },
+                {
+                  "name": "Ll",
+                  "occurrence_count": 44
+                }
+              ],
+              "ends_uppercase": 2978,
+              "ends_lowercase": 22,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_19",
+          "characters": {
+            "status": "disabled"
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_20",
+          "characters": {
+            "status": "disabled"
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_21",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 136,
+              "characters": 1896,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 566
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 219
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 150
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 136
+                },
+                {
+                  "char": "R",
+                  "codepoint": 82,
+                  "occurrence_count": 136
+                },
+                {
+                  "char": "T",
+                  "codepoint": 84,
+                  "occurrence_count": 136
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 95
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 94
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 74
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 67
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 62
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 56
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 53
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 52
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 408
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1338
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 408
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 150
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_22",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 2998,
+              "characters": 18157,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 3564
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 3058
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 2649
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 2179
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 1228
+                },
+                {
+                  "char": "b",
+                  "codepoint": 98,
+                  "occurrence_count": 915
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 915
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 915
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 855
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 855
+                },
+                {
+                  "char": "g",
+                  "codepoint": 103,
+                  "occurrence_count": 506
+                },
+                {
+                  "char": "y",
+                  "codepoint": 121,
+                  "occurrence_count": 506
+                },
+                {
+                  "char": "X",
+                  "codepoint": 88,
+                  "occurrence_count": 6
+                },
+                {
+                  "char": "_",
+                  "codepoint": 95,
+                  "occurrence_count": 6
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 18151
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 18145
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 6
+                },
+                {
+                  "name": "Pc",
+                  "occurrence_count": 6
+                }
+              ],
+              "ends_uppercase": 6,
+              "ends_lowercase": 2992,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_23",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 119,
+              "characters": 1190,
+              "distinct": 11,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 297
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 280
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 238
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 129
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 42
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 40
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 35
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 33
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 28
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 27
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 952
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 238
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_24",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 222,
+              "characters": 2220,
+              "distinct": 11,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 619
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 468
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 444
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 186
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 182
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 99
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 57
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 52
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 48
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 36
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 29
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1776
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 444
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_25",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 16260,
+              "distinct": 17,
+              "top": [
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 2963
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 2283
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 2283
+                },
+                {
+                  "char": "f",
+                  "codepoint": 102,
+                  "occurrence_count": 2283
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 2283
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 680
+                },
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 564
+                },
+                {
+                  "char": "p",
+                  "codepoint": 112,
+                  "occurrence_count": 564
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 533
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 527
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 380
+                },
+                {
+                  "char": "x",
+                  "codepoint": 120,
+                  "occurrence_count": 374
+                },
+                {
+                  "char": "d",
+                  "codepoint": 100,
+                  "occurrence_count": 190
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 190
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 153
+                },
+                {
+                  "char": "X",
+                  "codepoint": 88,
+                  "occurrence_count": 5
+                },
+                {
+                  "char": "_",
+                  "codepoint": 95,
+                  "occurrence_count": 5
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 16255
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 16250
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 5
+                },
+                {
+                  "name": "Pc",
+                  "occurrence_count": 5
+                }
+              ],
+              "ends_uppercase": 5,
+              "ends_lowercase": 2995,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_26",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 231,
+              "characters": 1493,
+              "distinct": 12,
+              "top": [
+                {
+                  "char": ".",
+                  "codepoint": 46,
+                  "occurrence_count": 231
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 193
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 131
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 129
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 121
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 118
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 116
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 111
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 109
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 95
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 12
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1250
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 231
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 12
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_27",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 27976,
+              "distinct": 12,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 8524
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 6000
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 3182
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 2571
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 2524
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 2389
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 723
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 723
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 723
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 611
+                },
+                {
+                  "char": "X",
+                  "codepoint": 88,
+                  "occurrence_count": 3
+                },
+                {
+                  "char": "_",
+                  "codepoint": 95,
+                  "occurrence_count": 3
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 27973
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 27970
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 3
+                },
+                {
+                  "name": "Pc",
+                  "occurrence_count": 3
+                }
+              ],
+              "ends_uppercase": 3,
+              "ends_lowercase": 2997,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_28",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 26426,
+              "distinct": 18,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 5132
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 2843
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 2843
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 2099
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 2099
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 2099
+                },
+                {
+                  "char": "è",
+                  "codepoint": 232,
+                  "occurrence_count": 1792
+                },
+                {
+                  "char": "l",
+                  "codepoint": 108,
+                  "occurrence_count": 1652
+                },
+                {
+                  "char": "p",
+                  "codepoint": 112,
+                  "occurrence_count": 1652
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 1636
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 901
+                },
+                {
+                  "char": "a",
+                  "codepoint": 97,
+                  "occurrence_count": 744
+                },
+                {
+                  "char": "i",
+                  "codepoint": 105,
+                  "occurrence_count": 447
+                },
+                {
+                  "char": "h",
+                  "codepoint": 104,
+                  "occurrence_count": 157
+                },
+                {
+                  "char": "q",
+                  "codepoint": 113,
+                  "occurrence_count": 157
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 157
+                },
+                {
+                  "char": "X",
+                  "codepoint": 88,
+                  "occurrence_count": 8
+                },
+                {
+                  "char": "_",
+                  "codepoint": 95,
+                  "occurrence_count": 8
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 26418
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 26410
+                },
+                {
+                  "name": "Lu",
+                  "occurrence_count": 8
+                },
+                {
+                  "name": "Pc",
+                  "occurrence_count": 8
+                }
+              ],
+              "ends_uppercase": 8,
+              "ends_lowercase": 2992,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_29",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 3000,
+              "characters": 27016,
+              "distinct": 18,
+              "top": [
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 6016
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 6000
+                },
+                {
+                  "char": "A",
+                  "codepoint": 65,
+                  "occurrence_count": 3000
+                },
+                {
+                  "char": "G",
+                  "codepoint": 71,
+                  "occurrence_count": 3000
+                },
+                {
+                  "char": "P",
+                  "codepoint": 80,
+                  "occurrence_count": 2167
+                },
+                {
+                  "char": "R",
+                  "codepoint": 82,
+                  "occurrence_count": 2167
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 915
+                },
+                {
+                  "char": "C",
+                  "codepoint": 67,
+                  "occurrence_count": 575
+                },
+                {
+                  "char": "Q",
+                  "codepoint": 81,
+                  "occurrence_count": 575
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 553
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 345
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 330
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 330
+                },
+                {
+                  "char": "N",
+                  "codepoint": 78,
+                  "occurrence_count": 258
+                },
+                {
+                  "char": "O",
+                  "codepoint": 79,
+                  "occurrence_count": 258
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 232
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 171
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 124
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 12000
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Lu",
+                  "occurrence_count": 12000
+                },
+                {
+                  "name": "Nd",
+                  "occurrence_count": 9000
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 6016
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_30",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 122,
+              "characters": 1220,
+              "distinct": 12,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 289
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 286
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 242
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 133
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 51
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 51
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 44
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 41
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 28
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 27
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 26
+                },
+                {
+                  "char": "/",
+                  "codepoint": 47,
+                  "occurrence_count": 2
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 976
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 242
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 2
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_31",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 152,
+              "characters": 1520,
+              "distinct": 12,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 393
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 355
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 302
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 122
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 83
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 73
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 53
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 46
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 38
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 32
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 21
+                },
+                {
+                  "char": "/",
+                  "codepoint": 47,
+                  "occurrence_count": 2
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1216
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 302
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 2
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_32",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 105,
+              "characters": 1050,
+              "distinct": 11,
+              "top": [
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 269
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 250
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 210
+                },
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 88
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 50
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 42
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 39
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 33
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 32
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 20
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 17
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 840
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 210
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_33",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "sample",
+              "values": 183,
+              "characters": 1401,
+              "distinct": 12,
+              "top": [
+                {
+                  "char": "1",
+                  "codepoint": 49,
+                  "occurrence_count": 184
+                },
+                {
+                  "char": ".",
+                  "codepoint": 46,
+                  "occurrence_count": 183
+                },
+                {
+                  "char": "0",
+                  "codepoint": 48,
+                  "occurrence_count": 131
+                },
+                {
+                  "char": "6",
+                  "codepoint": 54,
+                  "occurrence_count": 125
+                },
+                {
+                  "char": "9",
+                  "codepoint": 57,
+                  "occurrence_count": 120
+                },
+                {
+                  "char": "2",
+                  "codepoint": 50,
+                  "occurrence_count": 118
+                },
+                {
+                  "char": "4",
+                  "codepoint": 52,
+                  "occurrence_count": 111
+                },
+                {
+                  "char": "3",
+                  "codepoint": 51,
+                  "occurrence_count": 110
+                },
+                {
+                  "char": "8",
+                  "codepoint": 56,
+                  "occurrence_count": 109
+                },
+                {
+                  "char": "5",
+                  "codepoint": 53,
+                  "occurrence_count": 105
+                },
+                {
+                  "char": "7",
+                  "codepoint": 55,
+                  "occurrence_count": 104
+                },
+                {
+                  "char": "-",
+                  "codepoint": 45,
+                  "occurrence_count": 1
+                }
+              ],
+              "scripts": [],
+              "categories": [
+                {
+                  "name": "Nd",
+                  "occurrence_count": 1217
+                },
+                {
+                  "name": "Po",
+                  "occurrence_count": 183
+                },
+                {
+                  "name": "Pd",
+                  "occurrence_count": 1
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 0,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        },
+        {
+          "dataset": "rows",
+          "field": "column_34",
+          "characters": {
+            "status": "complete",
+            "value": {
+              "basis": "exact",
+              "values": 440,
+              "characters": 2676,
+              "distinct": 14,
+              "top": [
+                {
+                  "char": "e",
+                  "codepoint": 101,
+                  "occurrence_count": 469
+                },
+                {
+                  "char": "r",
+                  "codepoint": 114,
+                  "occurrence_count": 440
+                },
+                {
+                  "char": "é",
+                  "codepoint": 233,
+                  "occurrence_count": 247
+                },
+                {
+                  "char": "f",
+                  "codepoint": 102,
+                  "occurrence_count": 218
+                },
+                {
+                  "char": "m",
+                  "codepoint": 109,
+                  "occurrence_count": 218
+                },
+                {
+                  "char": "o",
+                  "codepoint": 111,
+                  "occurrence_count": 193
+                },
+                {
+                  "char": "u",
+                  "codepoint": 117,
+                  "occurrence_count": 193
+                },
+                {
+                  "char": "_",
+                  "codepoint": 95,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "c",
+                  "codepoint": 99,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "n",
+                  "codepoint": 110,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "s",
+                  "codepoint": 115,
+                  "occurrence_count": 127
+                },
+                {
+                  "char": "t",
+                  "codepoint": 116,
+                  "occurrence_count": 95
+                },
+                {
+                  "char": "v",
+                  "codepoint": 118,
+                  "occurrence_count": 66
+                },
+                {
+                  "char": "j",
+                  "codepoint": 106,
+                  "occurrence_count": 29
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "LATIN",
+                  "occurrence_count": 2549
+                }
+              ],
+              "categories": [
+                {
+                  "name": "Ll",
+                  "occurrence_count": 2549
+                },
+                {
+                  "name": "Pc",
+                  "occurrence_count": 127
+                }
+              ],
+              "ends_uppercase": 0,
+              "ends_lowercase": 440,
+              "title_case": 0,
+              "with_emoji": 0,
+              "emoji_sequences": 0,
+              "emoji": []
+            }
+          }
+        }
+      ]
     }
   },
   "observations": {
@@ -51029,8 +54456,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-        "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-        "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+        "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+        "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
       },
       "settings": {
         "bins": 100,
@@ -51129,14 +54556,14 @@
         "planner": "tabalyst.planner",
         "planner_version": 1,
         "utility_version": 1,
-        "cost_model_version": 15,
-        "plan_id": "ecf320e0c789b07c4d787484707ec3f360abc357d3f5488375c1656a07b51762",
+        "cost_model_version": 16,
+        "plan_id": "38fcc68f85059e68bb46b106b6122195b90574af953053be07dbb694af7de468",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-          "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-          "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+          "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+          "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
         },
         "objective": {
           "automatic": true,
@@ -51160,10 +54587,10 @@
           "cpu": "very_low"
         },
         "summary": {
-          "candidates": 243,
+          "candidates": 277,
           "selected": 49,
-          "already_satisfied": 70,
-          "rejected": 124,
+          "already_satisfied": 85,
+          "rejected": 143,
           "second_pass_required": true,
           "executable": true,
           "memory": {
@@ -67118,19 +70545,1706 @@
               "reusable": true,
               "on_limit": "limited"
             }
+          },
+          {
+            "id": "character_profile:rows:column_1",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_1",
+            "display": "filiale",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_1"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_2",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_2",
+            "display": "id_client",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "moderate",
+              "cell_ns": 646,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_2",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_3",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_3",
+            "display": "civilite",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_3"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_4",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_4",
+            "display": "prenom",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 507,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_4",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_4",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_5",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_5",
+            "display": "nom",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 505,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_5",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_6",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_6",
+            "display": "date_naissance",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_6",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_7",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_7",
+            "display": "sexe",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_7"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_8",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_8",
+            "display": "langue_preferee",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_8"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_9",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_9",
+            "display": "numero_voie",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 447,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_9",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_10",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_10",
+            "display": "type_voie",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_10"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_11",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_11",
+            "display": "nom_voie",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 596,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_11",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_11",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_12",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_12",
+            "display": "orientation",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_12"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_13",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_13",
+            "display": "appartement",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 423,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_13",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_14",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_14",
+            "display": "ville",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 575,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_14",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_15",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_15",
+            "display": "province_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_15"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_16",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_16",
+            "display": "province_nom",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_16"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_17",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_17",
+            "display": "code_postal",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 525,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_17",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_18",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_18",
+            "display": "pays_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_18"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_19",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_19",
+            "display": "courriel",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_20",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_20",
+            "display": "telephone",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "not_applicable",
+              "reasons": [
+                "sensitive_exposure"
+              ]
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "rejected",
+              "reason": "not_applicable",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_21",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_21",
+            "display": "id_contrat",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "moderate",
+              "cell_ns": 700,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_21",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_22",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_22",
+            "display": "type_contrat",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_22"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_23",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_23",
+            "display": "date_debut",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_23",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_24",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_24",
+            "display": "date_fin",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_24",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_25",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_25",
+            "display": "statut_contrat",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_25"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_26",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_26",
+            "display": "prime_annuelle",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 514,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_26",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_27",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_27",
+            "display": "frequence_paiement",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_27"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_28",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_28",
+            "display": "mode_paiement",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_28"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_29",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_29",
+            "display": "agence_code",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_29"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_30",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_30",
+            "display": "date_creation",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_30",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_31",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_31",
+            "display": "date_modification",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_31",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_32",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_32",
+            "display": "date_reclamation",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 600,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_32",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_33",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_33",
+            "display": "montant_reclamation",
+            "method": "character_census",
+            "parameters": {
+              "top": 20
+            },
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": {
+              "score": 40,
+              "reasons": [
+                "character_map"
+              ]
+            },
+            "costs": {
+              "memory": {
+                "min": 17408,
+                "expected": 33792,
+                "max": 8389632
+              },
+              "cpu": "low",
+              "cell_ns": 545,
+              "states": [
+                {
+                  "key": "characters:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 16384,
+                    "expected": 32768,
+                    "max": 8388608
+                  }
+                },
+                {
+                  "key": "result:character_profile:datasets/rows/fields/column_33",
+                  "memory": {
+                    "min": 1024,
+                    "expected": 1024,
+                    "max": 1024
+                  }
+                }
+              ]
+            },
+            "selection": {
+              "state": "rejected",
+              "reason": "low_utility",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": null
+            },
+            "execution": {
+              "requires_source": true,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
+          },
+          {
+            "id": "character_profile:rows:column_34",
+            "analyzer": "character_profile",
+            "analyzer_version": 1,
+            "dataset": "rows",
+            "field": "column_34",
+            "display": "reclamation_status",
+            "method": null,
+            "parameters": {},
+            "outputs": [
+              "character_map"
+            ],
+            "applicability": {
+              "state": "applicable",
+              "reasons": []
+            },
+            "utility": null,
+            "costs": null,
+            "selection": {
+              "state": "already_satisfied",
+              "reason": "map_in_samples",
+              "requested": false,
+              "priority": null,
+              "satisfied_by": "derived/characters/rows/column_34"
+            },
+            "execution": {
+              "requires_source": false,
+              "available": true,
+              "deterministic": true,
+              "reusable": true,
+              "on_limit": "limited"
+            }
           }
         ]
       },
       "run": {
-        "started_at": "2026-10-13T20:03:55.891665Z",
-        "duration_seconds": 0.000429,
+        "started_at": "2026-10-13T21:43:07.008360Z",
+        "duration_seconds": 0.000477,
         "timings": {
           "reading": 0.0,
           "analysis": 0.0,
-          "other": 0.000429
+          "other": 0.000477
         },
         "workers": 1,
-        "peak_memory_bytes": 96010240,
+        "peak_memory_bytes": 100950016,
         "source_read": false,
         "source_verified": false,
         "records_read": 0,
@@ -67152,7 +72266,7 @@
             "distinct": 227
           },
           "domain": "analytical",
-          "key": "537d3639431cc7fff9e3addc469e1fcec0b6d1277c3b7398fe6c41e1e89467e7",
+          "key": "705c5d8bd619b366bdc14247603840fa060aaa719ce85d23cb11593acf4b6f6b",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -68317,7 +73431,7 @@
             "distinct": 214
           },
           "domain": "analytical",
-          "key": "3cf8694dd12eefbb58866d809a4d8565887ab3bd284a58fa0687c5aa2ec6678d",
+          "key": "6871fc636ff99090621d45591c96cab8fb964cedcd5dbe3fed866366f5fe23c7",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -69417,7 +74531,7 @@
             "distinct": 175
           },
           "domain": "analytical",
-          "key": "20735c4112ec4789e8e6ec62d307063ad33227b77bcdfa0f2fe919e9a28d291b",
+          "key": "d51be3bc787002cfb41d93de78734b8587346409df209bb847748dcdf814e220",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -70322,7 +75436,7 @@
             "distinct": 665
           },
           "domain": "analytical",
-          "key": "7cf18aa45aa392881aa4da2c491ee250f78fe61650cbbdace3acbe5807a17636",
+          "key": "e3cb26f614d1b1be85da466f1167c7d9e22591a727aca6f1b5d1d019623fb768",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -73687,7 +78801,7 @@
             "distinct": 135
           },
           "domain": "analytical",
-          "key": "a5810b8bdf800d84f160a058fdf92f4e365843bb7432dc5b9f86e1bdc7727f7b",
+          "key": "977d800dff175ccd9adbdf61607bb73d97f995032dd6a9d49002e381d8b3a195",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -74392,7 +79506,7 @@
             "distinct": 406
           },
           "domain": "analytical",
-          "key": "079b876ae4207f4c1bc9d4446bf29abe85589f2d76a77b2e4defd2f1e0ed9e4a",
+          "key": "30906287b67dfacedbb97a198271c4fe5fde9e9a09ad80660c4afd5976562d39",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -76497,7 +81611,7 @@
             "distinct": 344
           },
           "domain": "analytical",
-          "key": "76496e0ed0212d4cf70e6a06245d7946b1c3d2268e25ef74383cdfa68e37de39",
+          "key": "2725aefada961fb778a30ad495071b458b261084e764376831eeb1250c93bde6",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -78247,7 +83361,7 @@
             "domain": 9989
           },
           "domain": "analytical",
-          "key": "e7cda86a9b4595aaeab81102e3f27c0c6ecc0bcd0384218cf20ac50ac4d4c7bb",
+          "key": "9dfc6a1752fab5e0ba38cadf9532229a39325e3331bcaf3e0bd9eb2f84b72e1c",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -88613,7 +93727,7 @@
             "domain": 998
           },
           "domain": "analytical",
-          "key": "5d81f248e437ecfa8e352cf4378766c5ce3714ff724a554018463b9d8fbdf2a2",
+          "key": "7353e55bcabe171cc33fdae3c2198e54f5c10deaeef3d4c14ef90d7fc773d76e",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -91336,7 +96450,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "f894391bec955cfc86d06beddd6bd7d2f828634e075264e7ed8b94b1b0d5dbc6",
+          "key": "618afc594ef6fe99bf7ff46038319f556a4f2a80c45f85c0dc1b13afa74d0270",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -91614,7 +96728,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "76f63d70f8c36db05578b5e0745907e78ed2237adfd6aaba3224a2fa4c058b73",
+          "key": "5223d95cd8c9d5e05ecd5e37dabac168b8b0e0d7d2cd0ed5b6be4e26f0d1919c",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -91898,7 +97012,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "ff54ce365d6d1b43bf1012a44aa980bacb7f52dc45119940cce28ef7b48b58d7",
+          "key": "8c8e38698cd82abdf6889e2b377cc6a88dc952682476c04532a17f26855ee731",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92221,7 +97335,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "aee6ce6f189fc31e867d45da5c03bd00635b1e9e727aadc6d6e3067fef7f037e",
+          "key": "e4ba3c2437158237422d87e9b7d6b5c254513ae9ebf1d77b4c74ff59009a911b",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92480,7 +97594,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "08679be771661fb21d74e1af9730fb526f3866aa0669575b4dc190198fed3036",
+          "key": "8a3c4997700a3a829e9080956ad801eeb2bb3f5f46b2d3ae6ba6e2cca7040395",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -92831,7 +97945,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "04ea003e496eae93c23cd838965ba1757886b6bce8e7de2a22fb205345e7405a",
+          "key": "9cd2e11f5b4d1948894b596b66145c2bce7491fbb12a7243f35d73cd22b80e59",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93065,7 +98179,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "bb6ba6349ccd06dea495c67781aa5a1c833094f40116d0feff457f67bb5410df",
+          "key": "8c2fae31dd080601b0c90b133bf28fa9a40dca5ca7684d82af2b3836630ad288",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93234,7 +98348,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "3fd9a49f56aa8716316bce3528364cd2b557d115235728024238be0c3c470d15",
+          "key": "a33517bbb41061bb267c33e57c469309deb5a220d5b7619ffff3d14ddc1593c4",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93423,7 +98537,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "07ae1e777d14aa4361de0dbdf65ade18fee9e9613ffb7cb5adabdf32c84b530f",
+          "key": "377c1704af88096a3d46ae1af55b5bb27b1334d532d52b8d7fcd479480133f8a",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93768,7 +98882,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "5ddcfdacfc69ab007a1a20eb1b2192983689c077bfe9bec38da6c9fe85c399e5",
+          "key": "b0e7a448a86ce9a1e4f79dc432bbfb7e14e39d2ee4356ad55d365b6d353730fc",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -93949,7 +99063,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "091d4d61cb9aac0a33fd176763b73c0598ff0c85452311141bf90fd753e08b01",
+          "key": "f605c8cd1999ede0f0073a73337f48574d62eef2db770f6c3dad2ed6501580fc",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -94141,7 +99255,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "74dccfbc024a1cfaab94d03f82481827087d530582a8f6eed3a93c7cdb489cd3",
+          "key": "8aecd17ec6f6521504ab0df1892e22936566e20c3294aab11f8638f98efb5040",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -94421,7 +99535,7 @@
             "discovery_sha256": "aa00d12b8d965c42f6df97c24ed916a358e1649bc974df62ac6d207c8e51dacd"
           },
           "domain": "original",
-          "key": "81a41cdcf0286ed7c99259737f11e9ffcf6a1789dcac77394e27583c89443e1d",
+          "key": "1d78bf44cbcb66e63e59cd6f8649d41800281ab7d6491a96c4126b694ad8e051",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -94577,7 +99691,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "8e94ac9a48e659d1b7790571638fb43f5855935848c0c90a25671f32e29edcde",
+          "key": "1bba24ca74c0f80d2269bd2906a91fc0fee093c58ced328678accc6cd0c9ce02",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -95118,7 +100232,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "022e9c844f4812475415153e35e50ce776c211865293757766b346791a370678",
+          "key": "1263d61e836d04793f512dd5b1de5a843d8832df177bf2529a397d6cc8882847",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -95595,7 +100709,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "1469d45e57039bb9883c94655de5e9b53ef72f85748547c1404eb336671ad3e0",
+          "key": "535a60d6fd855bcce5c60baa2ba3db868dee6b7aea300610fbd0aa120609fe26",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -96116,7 +101230,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "ccd19e13abfee3b3afd6528636d50d01c3e54b92aec8813fec0266afe7a8a2ee",
+          "key": "77ace91b92cd016e916f9ef02924c0a8faafdda9a02dec1de9c123391dcda044",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -96609,7 +101723,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "b4d8048630029b4a271c0f22c77defdb3de75f3430fc7cc384b058d47187fe09",
+          "key": "8bc8ae4a5f30a4d9b3b694451d9269497f49477441b5611b7153feb576ace857",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -97000,7 +102114,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "0e5c2240cf9676530886610c53e3537c80076ac4a78653ab4bef12cfc2137f6d",
+          "key": "efbe94d7b95b1fc6cc9ee0f6a35d926196442d8d2b7eaaced4bbd3ddfc9d1225",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97020,6 +102134,15 @@
                 "first_record": 1115
               },
               {
+                "id": "f1.p2",
+                "render": "AAA999999",
+                "occurrences": 1,
+                "distinct": 1,
+                "distinct_accuracy": "exact",
+                "example": "ONT000933",
+                "first_record": 1163
+              },
+              {
                 "id": "f2.p1",
                 "render": "'CLI-00'999999",
                 "occurrences": 2159,
@@ -97027,15 +102150,6 @@
                 "distinct_accuracy": "exact",
                 "example": "CLI-00000281",
                 "first_record": 1
-              },
-              {
-                "id": "f3.p1",
-                "render": "'QC-000'9-9999",
-                "occurrences": 558,
-                "distinct": 558,
-                "distinct_accuracy": "exact",
-                "example": "QC-0000-0025",
-                "first_record": 1238
               },
               {
                 "id": "f2.p2",
@@ -97056,6 +102170,15 @@
                 "first_record": 10
               },
               {
+                "id": "f3.p1",
+                "render": "'QC-000'9-9999",
+                "occurrences": 558,
+                "distinct": 558,
+                "distinct_accuracy": "exact",
+                "example": "QC-0000-0025",
+                "first_record": 1238
+              },
+              {
                 "id": "f3.p2",
                 "render": "'QC-000'9-999",
                 "occurrences": 5,
@@ -97072,15 +102195,6 @@
                 "distinct_accuracy": "exact",
                 "example": "QC--0001-8419",
                 "first_record": 2802
-              },
-              {
-                "id": "f1.p2",
-                "render": "AAA999999",
-                "occurrences": 1,
-                "distinct": 1,
-                "distinct_accuracy": "exact",
-                "example": "ONT000933",
-                "first_record": 1163
               }
             ],
             "pattern_excluded": {
@@ -97107,7 +102221,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "4769584bd26a1fa5e3c9a027eb63aead5c226676339fcd0473babe05a7929798",
+          "key": "ca0577ee593ca901d756e033da67ba2dc8f89043d9ec89dfcb8790c981c163a6",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97252,7 +102366,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "4fa6f033a92178a15fdf6c04afe6d593f322fe9e0c76a5d498b625a45d8c414e",
+          "key": "95e000972c7b7e81b872e69aecdc6112fe4d68d6778f240198660932df42e30f",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97456,7 +102570,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "d845af258dd9861b9034ddc9c82dca8ba0f006ec996842578089fc03f877ceda",
+          "key": "cf08a23ad0c691f23a20894014484c3d988c040bca98cda5f0070cfb826f2879",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97518,7 +102632,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "e846061a442ddf77c012f4e646abacbc393a33c301d7fe5808324814b9a58c8c",
+          "key": "cb4baef5af08df55df7c47a287af730a3de9d8f8556dfda31b619b634e742062",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97663,7 +102777,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "6bc477ff12cedbe0710cb058a7f24aaf7bb3dc2e43adcfdd7f82be802dee501c",
+          "key": "3d2da44a9b265147676c9b1e3c706598c64c9cbaac5846cacc5a240bdabdd1f1",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97808,7 +102922,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "4a9a1bab2543f75497b3946e6885bb7902e7c735397afdbdebc625b714d76fad",
+          "key": "f183611fde5a960232e350fb4868f8d5d878e39b22dab7c52270ccf45a19b24b",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97967,7 +103081,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "283685826fea99cd883d0ec348413073f2f5875d9b64a354245ef0ffe7a0c075",
+          "key": "30faaf290eabe5c0a6d9f273c718eccc79f569611c5a54a60964b305879a1992",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -97979,112 +103093,22 @@
               {
                 "source": "pattern",
                 "state": "other",
-                "occurrences": 38,
-                "distinct": 37,
+                "occurrences": 2,
+                "distinct": 2,
                 "complete": true,
                 "untracked": 0,
                 "too_long": 0,
-                "truncated": true,
+                "truncated": false,
                 "listed": [
                   {
-                    "value": "11-10-2019",
-                    "count": 2,
-                    "first_record": 2629
+                    "value": "11/06/2026",
+                    "count": 1,
+                    "first_record": 2872
                   },
                   {
-                    "value": "01-02-2019",
+                    "value": "19/03/2026",
                     "count": 1,
-                    "first_record": 1405
-                  },
-                  {
-                    "value": "02-01-2019",
-                    "count": 1,
-                    "first_record": 1134
-                  },
-                  {
-                    "value": "02-04-2018",
-                    "count": 1,
-                    "first_record": 1195
-                  },
-                  {
-                    "value": "03-08-2019",
-                    "count": 1,
-                    "first_record": 1403
-                  },
-                  {
-                    "value": "03-16-2018",
-                    "count": 1,
-                    "first_record": 1162
-                  },
-                  {
-                    "value": "04-11-2018",
-                    "count": 1,
-                    "first_record": 2760
-                  },
-                  {
-                    "value": "05-11-2019",
-                    "count": 1,
-                    "first_record": 1358
-                  },
-                  {
-                    "value": "06-03-2019",
-                    "count": 1,
-                    "first_record": 1161
-                  },
-                  {
-                    "value": "07-14-2017",
-                    "count": 1,
-                    "first_record": 2674
-                  },
-                  {
-                    "value": "07-18-2018",
-                    "count": 1,
-                    "first_record": 2613
-                  },
-                  {
-                    "value": "08-08-2018",
-                    "count": 1,
-                    "first_record": 1203
-                  },
-                  {
-                    "value": "08-10-2017",
-                    "count": 1,
-                    "first_record": 1452
-                  },
-                  {
-                    "value": "08-12-2017",
-                    "count": 1,
-                    "first_record": 1271
-                  },
-                  {
-                    "value": "08-12-2019",
-                    "count": 1,
-                    "first_record": 1380
-                  },
-                  {
-                    "value": "09-02-2018",
-                    "count": 1,
-                    "first_record": 2754
-                  },
-                  {
-                    "value": "10-27-2017",
-                    "count": 1,
-                    "first_record": 1220
-                  },
-                  {
-                    "value": "11-08-2019",
-                    "count": 1,
-                    "first_record": 2859
-                  },
-                  {
-                    "value": "11-12-2018",
-                    "count": 1,
-                    "first_record": 2965
-                  },
-                  {
-                    "value": "11-23-2019",
-                    "count": 1,
-                    "first_record": 1200
+                    "first_record": 2920
                   }
                 ]
               },
@@ -98131,8 +103155,8 @@
               {
                 "id": "f1.p2",
                 "render": "99-99'-202'9",
-                "occurrences": 781,
-                "distinct": 660,
+                "occurrences": 817,
+                "distinct": 695,
                 "distinct_accuracy": "exact",
                 "example": "05-03-2026",
                 "first_record": 337
@@ -98181,7 +103205,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "e81c7c7be8625d155900c2c3ecaef3210ab34f41cd2f297aba8ede6138a98094",
+          "key": "44e4bb238e2e35972a740b2d38a2dce743d824863fc5f0cecb5ba04bdcc1a5d2",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -98267,7 +103291,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "9730e2e4942d86247f16a0d108be3ff12ad0d809471c7361a511720898d61443",
+          "key": "58c1d1abe2ef6019eb8d86224877607a0e540e76029a2da048dc4143eade5553",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -98344,7 +103368,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "144231731b7b9cb04713863c73c3c0e1c109ad785d1efba1a2e2a72fc44f9fc7",
+          "key": "67ad5db302b7c0448ca3a005b50702264136144416eaac408277d3accac972c0",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -98481,7 +103505,7 @@
             "records": 0
           },
           "domain": "analytical",
-          "key": "ac7dba7d350639999185ac9fd6c5d01404553a14692edc8b76ad7e17b067ee88",
+          "key": "54099b7e93741e6b60c9c12b19bfa4a313e2bf63a09c75fefa2d7dca316cb3fe",
           "status": "complete",
           "result": {
             "kind": "duplicates",
@@ -98564,7 +103588,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "92da034433a95d80920dd2d4f2ecc164a7dd24fa6c46f2a691e8dc5abea3ee15",
+          "key": "e4fd9de89082573f3375c260bebe3be0d505be432ea1b1dfaa0b3bb5dc37f454",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -98802,7 +103826,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "deb09c16f2002c64fe0700bd07f85ca3f1d871c40d0effb4e24fc43f6182e7f5",
+          "key": "85fd03a5899176f860fdbc8b546f0373fad4d5b2e694e5bf054bfbd2ac7e5af1",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -98998,7 +104022,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "3b5b0a0d7d5723a3dc957829e5e9c3afe3cea823824c81159e98b2ad63e35eab",
+          "key": "6b59a0733da8b56266df69091c0c6a2d16e795f91e6894e063fc5a396554daa3",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -99193,7 +104217,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "8f56292d5d48477ed1c0c2db1e9a5b8f6b4a6fed34d942559ab5dcecb72b1d58",
+          "key": "050d82077887fd373b55e4e4a55e869574b9dc606c9c181e28ad7b2066a8465a",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -99539,7 +104563,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "79da6ff164755ba90ec0e2a58336d6cac7f6d9e3df95cdd4cc8b968eaf528790",
+          "key": "4d38e31e588aad6120abf4e1f44042b9c5262fcbb8a3d245ffa2bc559a421349",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -99922,7 +104946,7 @@
             "prefix_length": 2
           },
           "domain": "mixed",
-          "key": "13a2d9098263767ab14f1ea987f9fe3e51762fa4da8461efb260ca14da94577b",
+          "key": "d62a37c3659eb4395ec1415448c85e75213876caeb6019fa5bf77555d918c946",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -100390,7 +105414,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "91386d872fab53b0dcdf95621ab4a47284eaa06739a80d07e3b3108038d1f291",
+          "key": "9adfc7c7910ecf31488cd5e9f25c55c19cc48cc28d5b833e07f02a7dd4295180",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -100996,7 +106020,7 @@
             "max_classes": 12
           },
           "domain": "mixed",
-          "key": "16395db647d9445b308e6e8e3bd719388ce7ca467f3043dbe0dd9a014b3dd7b7",
+          "key": "7ba6efcef8f7682817bd47a1a7bfeb3a5199a1e803c80451296f6c31bc339afc",
           "status": "complete",
           "result": {
             "kind": "crosstab",
@@ -101603,7 +106627,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "253e3ca45ee6f7ad578ee8771568f63cd40995830e6525af71ac9a3aa46ab3d0",
+          "key": "1f6d7660712ef67c12b29ab0bc11d55ad54abe8e50c24a5c378b2c7de2e266ec",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -102467,7 +107491,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "7fda0a2dc5b9e7d7d5ee052581243fe1cb79f983672126d619add09707dbe5ec",
+          "key": "477db494f010c8a152a25b66c9682d84d1659df352f810cb20fef72d6954bb51",
           "status": "complete",
           "result": {
             "kind": "category_stats",
@@ -103418,12 +108442,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T20:03:56.321468Z",
+    "generated_at": "2026-10-13T21:43:07.393805Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.8243,
+    "processing_seconds": 0.8385,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -103456,8 +108480,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "b7c78819be5e30af7e00a28e957fb90303a9f85592f406cdd62410e5b5eda224",
-      "facts_sha256": "8f465f9e1dc702cfb39e9b900348062387a4aa7c12729ef38134103ac965fd3e"
+      "config_sha256": "be2d88249a3b1b4a8c51d3e02c6bdebb2a3e7df86760f9cd19ff07cf5149e505",
+      "facts_sha256": "4e39eceda4ebfafb0ee0a3438bdd009b58a36f72390917ab45b2e31ab3f76e2b"
     },
     "datasets": [
       {

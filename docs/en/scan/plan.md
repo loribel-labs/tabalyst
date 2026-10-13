@@ -57,6 +57,7 @@ the analyses that concern it:
 | `missing_matrix` | For a column that lacks a value, the records where it lacks one together with each other column. One candidate per column, one counting for the dataset. Asked for, or run with `--deep`, never by itself |
 | `array_profile` | The number of arrays of every length for a JSON field that holds arrays. Asked for, or run with `--deep`, never by itself |
 | `structure_variants` | The sets of keys the objects of a JSON field have, and the records themselves under the field `$`. Asked for, or run with `--deep`, never by itself |
+| `character_profile` | The exact character map of a field with text. Asked for, or run with `--deep`, never by itself |
 | `text_profile` | The words, lines and digits of the texts of a field whose values reach 80 characters. Asked for, or run with `--deep`, never by itself |
 | `fingerprint_distinct` | The distinct values of a field whose values are too long for the exact set, told apart by a 128-bit fingerprint, and the texts found more than once. Asked for, or run with `--deep`, never by itself |
 | `sensitive_forms` | The masks of the values of a masked field and their classes, without a value or a count below a floor. Asked for, or run with `--deep`, never by itself. `exact_distinct` also applies to a masked or hidden field, as two numbers. Both are off until `deep.sensitive.enabled` is set |

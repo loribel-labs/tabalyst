@@ -58,6 +58,7 @@ from tabalyst.scanner.secondpass.accumulators import (
     ScanMismatch,
 )
 from tabalyst.scanner.secondpass.boundaries import place_edges
+from tabalyst.scanner.secondpass.characters import CharacterAccumulator
 from tabalyst.scanner.secondpass.crosstab import (
     MAX_EXCEPTION_CELLS,
     CodeFeed,
@@ -152,6 +153,7 @@ Accumulator = (
     | TextAccumulator
     | FingerprintAccumulator
     | FormsAccumulator
+    | CharacterAccumulator
 )
 
 
@@ -172,7 +174,7 @@ class _Finished:
     """The end of an analysis that ran: its result, or a limit it met."""
 
     status: AnalysisStatus
-    output: AnalysisOutput
+    output: AnalysisOutput | None
     reason: str | None = None
     detail: str | None = None
 
@@ -550,6 +552,12 @@ def _setup(job: _Job, cells: CellReader, pool: ExactPool, scan: ScanResult) -> N
             0 if candidate.costs is None else candidate.costs.cell_ns
         )
         return
+    if candidate.analyzer == "character_profile":
+        job.accumulator = CharacterAccumulator(
+            int(candidate.parameters["top"]),
+            0 if candidate.costs is None else candidate.costs.cell_ns,
+        )
+        return
     if candidate.analyzer == "fingerprint_distinct":
         job.accumulator = FingerprintAccumulator(pool, int(candidate.parameters["max_listed"]))
         return
@@ -804,6 +812,16 @@ def _finish(job: _Job) -> _Finished:
         return _Finished("complete", accumulator.result(field))
     if isinstance(accumulator, TextAccumulator):
         return _Finished("complete", accumulator.result(field.strings.content))
+    if isinstance(accumulator, CharacterAccumulator):
+        characters = accumulator.result(field.strings.content)
+        if characters is None:
+            return _Finished(
+                "limited",
+                None,
+                reason="character_limit",
+                detail="more distinct characters or emoji than the tables hold",
+            )
+        return _Finished("complete", characters)
     if isinstance(accumulator, FormsAccumulator):
         return _Finished("complete", accumulator.result(field))
     if isinstance(accumulator, FingerprintAccumulator):
@@ -1199,6 +1217,8 @@ def run_second_pass(
                 route.fingerprints = accumulator
             elif isinstance(accumulator, FormsAccumulator):
                 route.forms = accumulator
+            elif isinstance(accumulator, CharacterAccumulator):
+                route.characters = accumulator
             else:
                 route.numeric = accumulator
             job.route = route

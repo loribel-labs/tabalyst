@@ -392,8 +392,8 @@ def test_the_inference_can_be_turned_off(tmp_path):
         pattern_inference={"enabled": False},
     )
 
-    assert result.derived is None
-    assert "derived" not in result.model_dump(mode="json")
+    assert result.derived.patterns is None
+    assert "patterns" not in result.model_dump(mode="json")["derived"]
     assert result.run.timings.derived < 0.5
 
 

@@ -38,6 +38,8 @@ from tabalyst.report_profile import build_views
 from tabalyst.report_relations import relations_view
 from tabalyst.report_sections import (
     cardinality_view,
+    character_entries,
+    character_view,
     limits_view,
     pattern_entries,
     pattern_view,
@@ -119,6 +121,7 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
     config = ReportConfig.from_presentation(profile.report.config, profile.config)
     datasets = {dataset.id: dataset for dataset in profile.datasets}
     entries = pattern_entries(profile.derived)
+    maps = character_entries(profile.derived)
     deep = column_analyses(profile.analyses)
     views = []
     for projection in profile.report.datasets:
@@ -181,6 +184,9 @@ def dataset_views(profile: ReportProfile) -> list[DatasetView]:
                     ),
                     quality=findings.get(column.id, []),
                     limits=bounded.get(column.id, []),
+                    characters=character_view(
+                        maps.get((projection.id, column.id)), results.characters
+                    ),
                     patterns=pattern_view(
                         field,
                         entries.get((projection.id, column.id)),
@@ -250,7 +256,7 @@ def _environment() -> Environment:
     environment = Environment(
         autoescape=True,
         undefined=StrictUndefined,
-        loader=DictLoader({name: _macro_template(name) for name in ("insights.html", "patterns.html")}),
+        loader=DictLoader({name: _macro_template(name) for name in ("insights.html", "patterns.html", "characters.html")}),
     )
     environment.filters["count"] = lambda number: f"{number:,}"
     environment.filters["number"] = format_number

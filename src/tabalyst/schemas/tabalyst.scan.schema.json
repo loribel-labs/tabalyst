@@ -462,6 +462,142 @@
       "title": "CardinalityLimited",
       "type": "object"
     },
+    "CharacterCount": {
+      "additionalProperties": false,
+      "description": "One character of the most frequent ones, with the occurrences of it in the\nvalues read (design 9.2b).",
+      "properties": {
+        "char": {
+          "title": "Char",
+          "type": "string"
+        },
+        "codepoint": {
+          "title": "Codepoint",
+          "type": "integer"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "char",
+        "codepoint",
+        "occurrence_count"
+      ],
+      "title": "CharacterCount",
+      "type": "object"
+    },
+    "CharacterFamily": {
+      "additionalProperties": false,
+      "description": "Characters of one Unicode family: the script of a letter (the first word of\nits Unicode name, such as ``LATIN`` or ``CYRILLIC``) or a general category\n(``Lu``, ``Nd``, ``Po``...).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "occurrence_count"
+      ],
+      "title": "CharacterFamily",
+      "type": "object"
+    },
+    "CharacterMap": {
+      "additionalProperties": false,
+      "description": "What the characters of the strings of a field are (design 9.2b).\n\n``basis`` is ``exact`` when every string of the field was read and ``sample``\nwhen the values read are the stored samples. ``values`` counts the strings\nread, ``characters`` their characters. ``top`` lists the most frequent\ncharacters, letters and digits included, by descending occurrences then code\npoint; ``scripts`` and ``categories`` list every family met. The case\ncounters count occurrences of values: ``ends_uppercase`` and\n``ends_lowercase`` look at the last character, ``title_case`` is\n``str.istitle()``. ``with_emoji`` counts the values with an emoji,\n``emoji_sequences`` the sequences themselves. Shares are not stored.",
+      "properties": {
+        "basis": {
+          "enum": [
+            "exact",
+            "sample"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "values": {
+          "title": "Values",
+          "type": "integer"
+        },
+        "characters": {
+          "title": "Characters",
+          "type": "integer"
+        },
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "top": {
+          "items": {
+            "$ref": "#/$defs/CharacterCount"
+          },
+          "title": "Top",
+          "type": "array"
+        },
+        "scripts": {
+          "items": {
+            "$ref": "#/$defs/CharacterFamily"
+          },
+          "title": "Scripts",
+          "type": "array"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/CharacterFamily"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "ends_uppercase": {
+          "title": "Ends Uppercase",
+          "type": "integer"
+        },
+        "ends_lowercase": {
+          "title": "Ends Lowercase",
+          "type": "integer"
+        },
+        "title_case": {
+          "title": "Title Case",
+          "type": "integer"
+        },
+        "with_emoji": {
+          "title": "With Emoji",
+          "type": "integer"
+        },
+        "emoji_sequences": {
+          "title": "Emoji Sequences",
+          "type": "integer"
+        },
+        "emoji": {
+          "items": {
+            "$ref": "#/$defs/EmojiCount"
+          },
+          "title": "Emoji",
+          "type": "array"
+        }
+      },
+      "required": [
+        "basis",
+        "values",
+        "characters",
+        "distinct",
+        "top",
+        "scripts",
+        "categories",
+        "ends_uppercase",
+        "ends_lowercase",
+        "title_case",
+        "with_emoji",
+        "emoji_sequences",
+        "emoji"
+      ],
+      "title": "CharacterMap",
+      "type": "object"
+    },
     "CollectionScope": {
       "additionalProperties": false,
       "properties": {
@@ -527,6 +663,26 @@
         "status"
       ],
       "title": "Complete[BooleanCounts]",
+      "type": "object"
+    },
+    "Complete_CharacterMap_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/CharacterMap"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[CharacterMap]",
       "type": "object"
     },
     "Complete_Frequencies_": {
@@ -1040,9 +1196,38 @@
             }
           ],
           "default": null
+        },
+        "characters": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DerivedCharacters"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Derived",
+      "type": "object"
+    },
+    "DerivedCharacters": {
+      "additionalProperties": false,
+      "description": "Character maps computed from the samples, one entry per field (design\n9.2b). The second pass replaces them with exact ones.",
+      "properties": {
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/FieldCharacters"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "title": "DerivedCharacters",
       "type": "object"
     },
     "DerivedPatterns": {
@@ -1526,6 +1711,26 @@
       "title": "EmailSettings",
       "type": "object"
     },
+    "EmojiCount": {
+      "additionalProperties": false,
+      "description": "An emoji sequence (one emoji, its modifiers and joiners, a flag or a\nkeycap), with its occurrences.",
+      "properties": {
+        "sequence": {
+          "title": "Sequence",
+          "type": "string"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sequence",
+        "occurrence_count"
+      ],
+      "title": "EmojiCount",
+      "type": "object"
+    },
     "EngineInfo": {
       "additionalProperties": false,
       "properties": {
@@ -1908,6 +2113,57 @@
         "nodes"
       ],
       "title": "FamilyPattern",
+      "type": "object"
+    },
+    "FieldCharacters": {
+      "additionalProperties": false,
+      "description": "The character map of one field.",
+      "properties": {
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "characters": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_CharacterMap_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_CharacterMap_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Characters"
+        }
+      },
+      "required": [
+        "dataset",
+        "field",
+        "characters"
+      ],
+      "title": "FieldCharacters",
       "type": "object"
     },
     "FieldPatternsComplete": {
@@ -3009,6 +3265,13 @@
           "maximum": 1114112,
           "minimum": 1,
           "title": "Max Distinct Characters",
+          "type": "integer"
+        },
+        "max_top_characters": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Max Top Characters",
           "type": "integer"
         },
         "max_variant_groups": {

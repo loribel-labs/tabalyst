@@ -775,6 +775,49 @@ lists none, so a partial list is never taken for the whole. On a sensitive field
 exposed with `mask` or `hide` the counters stay and both distributions are
 `disabled`.
 
+## Character map
+
+`derived.characters.fields` has one entry per field, in the order of the datasets and
+fields, each a [measure envelope](#measure-envelopes) of the character map of its strings
+(`status` `complete`, `limited`, `not_applicable`, `disabled` or `failed`). It is computed
+after the scan from the samples, never from the source.
+
+```json
+{
+  "dataset": "rows", "field": "name",
+  "characters": {
+    "status": "complete",
+    "value": {
+      "basis": "exact",
+      "values": 4, "characters": 20, "distinct": 11,
+      "top": [{"char": "a", "codepoint": 97, "occurrence_count": 3}],
+      "scripts": [{"name": "LATIN", "occurrence_count": 20}],
+      "categories": [{"name": "Ll", "occurrence_count": 17}],
+      "ends_uppercase": 0, "ends_lowercase": 4, "title_case": 3,
+      "with_emoji": 0, "emoji_sequences": 0, "emoji": []
+    }
+  }
+}
+```
+
+- `basis` is `exact` when the scan listed every distinct value, and `sample` when the map
+  counts the stored samples only. A [second pass](deep-format.md) makes it exact.
+- `top` lists the `limits.max_top_characters` most frequent characters (20 by default),
+  letters and digits included, from the most to the least frequent, then by code point.
+  `A` and `a` are two characters.
+- `scripts` gives the characters of the letters by script (the first word of the Unicode name:
+  `LATIN`, `CYRILLIC`, `CJK`...). `categories` gives all the characters by Unicode general
+  category (`Lu`, `Nd`, `Po`...) and adds up to `characters`.
+- `ends_uppercase` and `ends_lowercase` count the values whose last character is a capital
+  or a lowercase letter, and `title_case` the values written in title case (`Jean-Pierre`,
+  not `McDonald`). All three count occurrences of values.
+- `emoji` lists the most frequent emoji sequences (an emoji with its skin tone and joiners, a
+  flag or a keycap is one sequence). The emoji are recognized by a table of ranges, an
+  approximation of the Unicode emoji.
+- Above 65,536 distinct characters or 10,000 distinct emoji the entry is `limited` with the
+  reason `character_limit` and lists nothing. A field exposed with `mask` or `hide` is
+  `disabled`. `limits.max_top_characters` 0 removes the block.
+
 ## Normalization stages
 
 `normalization.stages` lists `raw` and then each stage in order (`nfc`, `trim`,

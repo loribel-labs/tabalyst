@@ -48,6 +48,7 @@ from tabalyst.scanner.secondpass.models import (
     AnalysisOutput,
     ArrayProfileResult,
     BinnedHistogram,
+    CharacterProfileResult,
     DenseHistogram,
     DuplicateResult,
     DuplicatesLimited,
@@ -1414,6 +1415,9 @@ def _card_of(
         return _structure_card(item_id, display, fields, result, root)
     if isinstance(result, TextProfileResult):
         return _texts_card(item_id, display, fields, result)
+    if isinstance(result, CharacterProfileResult):
+        # The character map of the column page shows it.
+        return None
     if isinstance(result, FingerprintResult):
         return _fingerprint_card(item_id, display, fields, result, hidden)
     if isinstance(result, FormsResult):

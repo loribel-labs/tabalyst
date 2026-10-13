@@ -56,6 +56,7 @@ HARD_CAPS: dict[str, int] = {
     "max_sample_memory": 1 << 40,
     "max_special_characters": 100_000,
     "max_distinct_characters": 1_114_112,
+    "max_top_characters": 1_000,
     "max_variant_groups": 100_000,
     "max_variants_per_group": 10_000,
     "max_evidence_examples": 1_000,
@@ -316,6 +317,9 @@ class LimitSettings(_Settings):
     # distinct characters counted exactly per field.
     max_special_characters: int = _limit(256, "max_special_characters", 0)
     max_distinct_characters: int = _limit(1_024, "max_distinct_characters")
+    # The most frequent characters and emoji the character map lists (design
+    # 9.2b); 0 turns the map off.
+    max_top_characters: int = _limit(20, "max_top_characters", 0)
     max_variant_groups: int = _limit(100, "max_variant_groups", 0)
     max_variants_per_group: int = _limit(20, "max_variants_per_group", 0)
     max_evidence_examples: int = _limit(10, "max_evidence_examples", 0)

@@ -1429,14 +1429,90 @@ class DerivedPatterns(ScanModel):
     fields: list[FieldPatterns]
 
 
+class CharacterCount(ScanModel):
+    """One character of the most frequent ones, with the occurrences of it in the
+    values read (design 9.2b)."""
+
+    char: str
+    codepoint: int
+    occurrence_count: int
+
+
+class CharacterFamily(ScanModel):
+    """Characters of one Unicode family: the script of a letter (the first word of
+    its Unicode name, such as ``LATIN`` or ``CYRILLIC``) or a general category
+    (``Lu``, ``Nd``, ``Po``...)."""
+
+    name: str
+    occurrence_count: int
+
+
+class EmojiCount(ScanModel):
+    """An emoji sequence (one emoji, its modifiers and joiners, a flag or a
+    keycap), with its occurrences."""
+
+    sequence: str
+    occurrence_count: int
+
+
+class CharacterMap(ScanModel):
+    """What the characters of the strings of a field are (design 9.2b).
+
+    ``basis`` is ``exact`` when every string of the field was read and ``sample``
+    when the values read are the stored samples. ``values`` counts the strings
+    read, ``characters`` their characters. ``top`` lists the most frequent
+    characters, letters and digits included, by descending occurrences then code
+    point; ``scripts`` and ``categories`` list every family met. The case
+    counters count occurrences of values: ``ends_uppercase`` and
+    ``ends_lowercase`` look at the last character, ``title_case`` is
+    ``str.istitle()``. ``with_emoji`` counts the values with an emoji,
+    ``emoji_sequences`` the sequences themselves. Shares are not stored."""
+
+    basis: Literal["exact", "sample"]
+    values: int
+    characters: int
+    distinct: int
+    top: list[CharacterCount]
+    scripts: list[CharacterFamily]
+    categories: list[CharacterFamily]
+    ends_uppercase: int
+    ends_lowercase: int
+    title_case: int
+    with_emoji: int
+    emoji_sequences: int
+    emoji: list[EmojiCount]
+
+
+FieldCharacterMap = Annotated[
+    Complete[CharacterMap] | Limited | NotApplicable | Disabled | Failed,
+    Field(discriminator="status"),
+]
+
+
+class FieldCharacters(ScanModel):
+    """The character map of one field."""
+
+    dataset: str
+    field: str
+    characters: FieldCharacterMap
+
+
+class DerivedCharacters(ScanModel):
+    """Character maps computed from the samples, one entry per field (design
+    9.2b). The second pass replaces them with exact ones."""
+
+    fields: list[FieldCharacters]
+
+
 class Derived(ScanModel):
     """Analyses computed after the scan from its samples (specification 5.2)."""
 
     patterns: DerivedPatterns | None = None
+    characters: DerivedCharacters | None = None
 
     @model_serializer(mode="wrap")
     def _omit_absent(self, handler) -> dict[str, Any]:
-        return _omit_none(handler(self), ("patterns",))
+        return _omit_none(handler(self), ("patterns", "characters"))
 
 
 # Observations, quality issues and limits -------------------------------------

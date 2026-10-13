@@ -335,7 +335,9 @@ def test_a_source_too_large_for_an_automatic_reading_is_left_for_force(tmp_path)
     forced = plan_analyses(huge, budgets=budgets, forced=True)
 
     reading = [c for c in automatic.candidates if c.execution.requires_source and c.applicability.state == "applicable"]
-    assert reading and {c.selection.reason for c in reading} == {"cpu_class"}
+    # The character map is below the automatic threshold whatever the size.
+    reasons = {c.selection.reason for c in reading if c.selection.reason != "low_utility"}
+    assert reading and reasons == {"cpu_class"}
     assert automatic.summary.beyond_automatic == []
     assert forced.summary.beyond_automatic == ["cpu_over_automatic"]
 

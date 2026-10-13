@@ -905,6 +905,27 @@ column that looks like an identifier, or in a combination of two columns.
   a text to the last. `digit_buckets` has 11 counts: the texts without a digit, then those
   whose digits are up to a tenth of their characters, up to two tenths, and so on up to all.
 
+**`character_profile`**: the exact character map of a field.
+
+```json
+{
+  "kind": "character_profile",
+  "basis": "exact",
+  "values": 3000, "characters": 21089, "distinct": 37,
+  "top": [{"char": "e", "codepoint": 101, "occurrence_count": 2760}],
+  "scripts": [{"name": "LATIN", "occurrence_count": 20860}],
+  "categories": [{"name": "Ll", "occurrence_count": 17665}],
+  "ends_uppercase": 0, "ends_lowercase": 3000, "title_case": 2967,
+  "with_emoji": 0, "emoji_sequences": 0, "emoji": []
+}
+```
+
+- The members are those of the [character map](format.md#character-map) of the scan, counted
+  on every original string instead of the samples. `values` is the content strings of the
+  field and is checked against the scan. A field with more distinct characters or emoji than the
+  tables hold is `limited` (reason `character_limit`) and has no result. The scan answers alone when it
+  lists every distinct value, so the analysis is not run then.
+
 **`fingerprint_distinct`**: the distinct values of a field told apart by a fingerprint.
 
 ```json
@@ -990,6 +1011,7 @@ as the writer. It describes what a reader accepts.
 
 ### Version 0.2.0, revision 3 (in preparation)
 
+The result `character_profile` of the analyzer `character_profile` (the exact character map of a field).
 The result `pattern_counts` follows the hierarchy of the scan: `families` (each with
 its `patterns` and their `nodes`, the `distinct` values of each with their accuracy,
 the `tables` of its facets and its `new_variants`), `unknown_structure` and

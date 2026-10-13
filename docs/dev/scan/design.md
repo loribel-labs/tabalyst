@@ -640,6 +640,43 @@ composition counter follows by a cached table; a second translation, only for a
 value with a special character, extracts them. The distinct characters are
 collected per batch.
 
+### 9.2b Character map (lot C2)
+
+`derived.characters` holds, for each field, the character map of its strings: the
+characters of the stored samples, counted after the scan from its samples alone
+(`charactermap.py`), like the patterns of 18.12. Each entry is a measure envelope
+(`complete`, `limited`, `not_applicable`, `disabled`, `failed`) of a `CharacterMap`:
+
+| Member | Rule |
+| --- | --- |
+| `basis` | `exact` when the samples list every distinct value with its count (`selection` `all`, no long text), `sample` otherwise. |
+| `values`, `characters`, `distinct` | The strings read (empty ones included), their characters, the distinct characters. |
+| `top` | The `limits.max_top_characters` (20) most frequent characters, letters and digits included, by descending occurrences then code point: `char`, `codepoint`, `occurrence_count`. Case counts apart (`A`, `a`). |
+| `scripts` | The script of each letter (category `L*`): the first word of its Unicode name, after `FULLWIDTH` or `HALFWIDTH` (`LATIN`, `CYRILLIC`, `CJK`, `HANGUL`...), `UNKNOWN` without a name. Every script met. |
+| `categories` | The Unicode general category (`Lu`, `Nd`, `Po`...) of every character; adds up to `characters`. |
+| `ends_uppercase`, `ends_lowercase` | Occurrences of values whose last character is `isupper()`, `islower()`. |
+| `title_case` | Occurrences of values with `str.istitle()` (a capital after each uncased character, lowercase elsewhere; at least one cased letter). |
+| `with_emoji`, `emoji_sequences`, `emoji` | Occurrences of values with an emoji, the sequences in them, and the `limits.max_top_characters` most frequent sequences. |
+
+An emoji sequence is a flag (two regional indicators), a keycap, a tag sequence, or an
+emoji with its skin tone, variation selector and zero-width-joiner chain. The emoji are
+recognized by a table of ranges in the code, with no dependency on a Unicode data file:
+the pictographs from U+1F300 and a few symbols below are emoji by default, the other
+symbols (arrows, card suits, the heart) only with U+FE0F. The table is an approximation of
+`Extended_Pictographic`, and a standard that adds emoji needs the table updated.
+
+The tables are all or nothing, as in 9.2: above 65,536 distinct characters or 10,000
+distinct emoji sequences the entry is `limited` (reason `character_limit`) and lists
+nothing. A masked or hidden field is `disabled`, a field whose samples exposure
+withheld is `not_applicable` (`samples_withheld`), a field with no string
+`not_applicable` (`no_values`). `limits.max_top_characters` 0 turns the block off. The
+first pass is not touched. Cost: one `Counter` of the joined strings and three C-level
+`map`s over the distinct stored values, a fraction of a millisecond a field.
+
+`check_scan` checks one entry per field in the order of the fields, the descending
+order of `top`, the code points, that `categories` adds up to `characters`, that no
+case counter passes `values` and that `with_emoji` agrees with the sequences.
+
 ### 9.3 String lengths (lot 2a)
 
 Envelope over analytical `content` strings, in code points: `count`,
@@ -5348,6 +5385,25 @@ at most, so the estimate is low for texts above 300 characters. An entry of the 
 the cards of an array or object field are printed in the dataset panel, since the columns of the report are the leaves.
 
 **Exposure again, at render time.** A document can be edited, so `_forms_card` prints a mask only when masking it changes nothing (`mask(form) == form`: a value does not pass), a class only when it belongs to `IP_CLASSES` or `PHONE_CLASSES`, and nothing for a field whose exposure is `hide`; `_fingerprint_card` lists no digest for a hidden field. `test_a_document_edited_to_hold_a_value_is_not_printed` edits the JSON of a Report and checks it. No format changes.
+
+### 20.37 The exact character map (lot C2)
+
+The analyzer `character_profile` (version 1, `available`) gives the exact map of 9.2b.
+It concerns every field with content strings (`facts.strings_content`) unless the Scan
+lists no character (`limits.max_top_characters` 0), and `blocked` stops a field
+that exposure withholds. It is already answered (`satisfied`, `map_in_samples`,
+`satisfied_by` `derived/characters/<dataset>/<field>`) when the samples list every
+distinct value, since the map of the Scan is then `exact`. Otherwise it reads the
+original strings once, in the route of the field (`CharacterAccumulator`, the same
+`CharacterCensus` as the Scan), and its result `character_profile` (`CharacterProfileResult`) has the members of `CharacterMap` with `basis` `exact`. `values` is
+checked against the content strings of the Scan (`scan_mismatch` otherwise); a field
+that passes the bounds of the tables is `limited` (`character_limit`) without a result.
+
+Cost model (version 16): `NS_PER_CELL["characters"]` 350 and `CHARACTER_NS_PER_CHAR` 25 a
+character, at most the top of `moderate`; memory from 16 KiB to 8 MiB. Utility 40: below
+the automatic threshold, so the map is exact only when asked for or with `--deep`. The
+plan parameter is `top`, the size of the lists, which the Scan's setting gives. The Report
+shows the exact map in place of the Scan's when the second pass has one (`report_sections.character_view`).
 
 ## 21. Original value domain (O32)
 

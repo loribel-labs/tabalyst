@@ -524,6 +524,7 @@ rejected before the scan starts.
 | `max_samples_per_length` | 100 | 10,000 | Distinct values kept per tracked length by the [samples by length](../scan/format.md#samples-by-length); 0 turns them off. |
 | `max_length_strata` | 64 | 10,000 | Lengths tracked per field by the samples by length; the others are summed in `other`; 0 turns them off. |
 | `max_sample_memory` | 536,870,912 (512 MiB) | 1,099,511,627,776 | Bytes, by a cost model, that the samples of the whole scan may take; a sample is cut to fit and says so (`requested_k`, `reason`). |
+| `max_top_characters` | 20 | 1,000 | Characters and emoji sequences the [character map](../scan/format.md#character-map) lists per field; 0 turns the map off. |
 | `max_special_characters` | 256 | 100,000 | Distinct special characters the [character profile](../scan/format.md#character-profile) lists per field; above it the inventory is `limited` and lists none; 0 turns it off. |
 | `max_distinct_characters` | 1,024 | 1,114,112 | Distinct characters the character profile counts exactly per field; above it the count is `limited`. |
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
