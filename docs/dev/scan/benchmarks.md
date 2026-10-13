@@ -1387,3 +1387,22 @@ default workers (`benchmarks/interleave.py`, outputs under `D:/GIT.test/tabalyst
 `derived` grows by 0.42 s: the dates and the long integers, skipped before by their technical type, are now assessed
 and, when eligible, inferred, and every other field pays its tokenization; the free texts that are no longer
 inferred save less than that. The Scan stays within the guard of the post-pass (+20%) and the memory is unchanged.
+
+## Character profile (Patterns lot C1)
+
+The character profile (`scanner/characters.py`, design 9.2) is counted in the first pass, once for every distinct value of
+every text field. Scan of the realistic file and of the worst-width file, the base `f519b94` (worktree) and the working tree
+alternated three times in one session, task `scan`, default workers (`benchmarks/interleave.py`, outputs under
+`D:/GIT.test/tabalyst/artifacts/patterns-c1/il/`; the machine was about 40% slower than in the previous sessions, only
+the paired ratios count):
+
+| File | Base (s) | Head (s) | Paired ratio | Guard | Peak base / head (MB) | Guard |
+| --- | --- | --- | ---: | ---: | --- | ---: |
+| insurance-combined.csv (1 M x 34, realistic) | 18.95, 18.75, 18.24 | 18.91, 18.44, 18.02 | **-1.2%** | 20% | 783 / 782 | 10% |
+| worst-width-1m.csv (1 M x 30, 5 unique identifiers) | 20.97, 21.08, 20.24 | 21.41, 21.05, 20.89 | **+2.1%** | 35% | 911 / 980 (+7.6%) | 10% |
+
+First version of the profile (a Python loop of about 800 ns per distinct value, measured on the 200,000 first rows by
+column) was replaced by the calculation on shapes: about 270 to 300 ns per distinct value of a high-cardinality column
+(identifiers, e-mail addresses, amounts), 110 to 150 ns for postal codes and street numbers. The memory of the worst
+width grows by 69 MB (the tables of the shapes and of the distinct characters of the identifier columns); it stays
+within the guard of 10%.

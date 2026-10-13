@@ -365,6 +365,7 @@ object of each configuration file. The complete object with its defaults is:
       "max_samples": 10000, "max_long_samples": 100,
       "long_preview_chars": 200, "max_samples_per_length": 100,
       "max_length_strata": 64, "max_sample_memory": 536870912,
+      "max_special_characters": 256, "max_distinct_characters": 1024,
       "max_variant_groups": 100,
       "max_variants_per_group": 20, "max_evidence_examples": 10,
       "max_tracked_records": 2000000, "max_listed_records": 10
@@ -517,6 +518,8 @@ rejected before the scan starts.
 | `max_samples_per_length` | 100 | 10,000 | Distinct values kept per tracked length by the [samples by length](../scan/format.md#samples-by-length); 0 turns them off. |
 | `max_length_strata` | 64 | 10,000 | Lengths tracked per field by the samples by length; the others are summed in `other`; 0 turns them off. |
 | `max_sample_memory` | 536,870,912 (512 MiB) | 1,099,511,627,776 | Bytes, by a cost model, that the samples of the whole scan may take; a sample is cut to fit and says so (`requested_k`, `reason`). |
+| `max_special_characters` | 256 | 100,000 | Distinct special characters the [character profile](../scan/format.md#character-profile) lists per field; above it the inventory is `limited` and lists none; 0 turns it off. |
+| `max_distinct_characters` | 1,024 | 1,114,112 | Distinct characters the character profile counts exactly per field; above it the count is `limited`. |
 | `max_variant_groups` | 100 | 100,000 | Normalization variant groups listed per field. |
 | `max_variants_per_group` | 20 | 10,000 | Variants listed per group. |
 | `max_evidence_examples` | 10 | 1,000 | Example values per detector state. |

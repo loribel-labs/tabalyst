@@ -31,6 +31,7 @@ from decimal import (
 from fractions import Fraction
 from unicodedata import is_normalized
 
+from tabalyst.scanner.characters import CharacterProfile
 from tabalyst.scanner.models import (
     Complete,
     LengthCount,
@@ -69,6 +70,10 @@ _EXACT = Context(
 )
 # Integral results below this magnitude are output as JSON integers.
 _MAX_INTEGRAL_OUTPUT = 10**PRECISION
+
+# Bounds of the tables of characters (``scan.limits``, design 9.2).
+DEFAULT_MAX_SPECIAL_CHARACTERS = 256
+DEFAULT_MAX_DISTINCT_CHARACTERS = 1_024
 
 CHARACTERISTICS = (
     "non_ascii",
@@ -478,6 +483,7 @@ class ValueMeasures:
     __slots__ = (
         "ambiguous_numbers",
         "changes",
+        "characters",
         "dotted_numbers",
         "families",
         "flags",
@@ -486,10 +492,18 @@ class ValueMeasures:
         "tallies",
     )
 
-    def __init__(self, tallies: list | tuple = ()) -> None:
+    def __init__(
+        self,
+        tallies: list | tuple = (),
+        max_special_characters: int = DEFAULT_MAX_SPECIAL_CHARACTERS,
+        max_distinct_characters: int = DEFAULT_MAX_DISTINCT_CHARACTERS,
+    ) -> None:
         # Occurrences per combination of characteristic flags (design 9.2).
         self.flags: dict[int, int] = {}
         self.lengths: dict[int, int] = {}
+        self.characters = CharacterProfile(
+            max_special_characters, max_distinct_characters
+        )
         # Occurrences per combination of normalization stages that changed
         # them (design section 10).
         self.changes: dict[int, int] = {}
@@ -545,6 +559,7 @@ class ValueMeasures:
         histogram = self.lengths
         flag_counts = self.flags
         change_counts = self.changes
+        self.characters.add(raws, counts)
         run = normalizer.run
         fast = normalizer.fast
         nfc = normalizer.nfc
@@ -622,9 +637,16 @@ class ValueMeasures:
                 change_counts[changes] = change_counts.get(changes, 0) + count
         return texts, lengths
 
-    def string_characteristics(self) -> StringCharacteristics:
+    def string_characteristics(self, withheld: bool = False) -> StringCharacteristics:
+        """``withheld`` (a masked or hidden field) keeps the counters and drops
+        the distributions of characters (design 12.8)."""
+        profile = self.characters
         return StringCharacteristics(
-            **dict(zip(CHARACTERISTICS, _expand(self.flags, len(CHARACTERISTICS))))
+            **dict(zip(CHARACTERISTICS, _expand(self.flags, len(CHARACTERISTICS)))),
+            **profile.counters(),
+            characters=profile.characters,
+            distinct_characters=profile.distinct_characters(withheld),
+            special_characters=profile.special_characters(withheld),
         )
 
     def string_lengths(self):

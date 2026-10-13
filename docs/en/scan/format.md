@@ -287,7 +287,7 @@ a CSV column, a JSON key, or the elements `[]` of an array.
 | `missing` | The missing count, the categories included in it and each component. |
 | `arrays` | For array fields: count, empty arrays, minimum, maximum and total length. |
 | `values` | Analyzable values: `count`, `cardinality`, `frequencies`, `samples`, `first` and `last`. |
-| `string_characteristics`, `string_lengths` | Case, non-ASCII characters, line breaks and whitespace; length statistics and histogram. |
+| `string_characteristics`, `string_lengths` | The [character profile](#character-profile): case, character classes, composition, whitespace, invisible characters, special characters and distinct characters; length statistics and histogram. |
 | `numeric`, `booleans`, `temporal` | Exact numeric statistics, boolean counts, date range and formats. Numbers that a column proves to use one decimal convention include its ambiguous ones (see [Detectors](#detectors)). `numeric.coverage` gives the share of the analyzable values the statistics describe; a field that a code detector reads (`postal_code`, `phone`, `uuid`, `ip_address`) has no `numeric` block (`not_applicable`, reason `code_interpretation`). |
 | `normalization` | For each normalization stage, how many values it changed and the distinct values left, plus groups of variants that normalize to the same value (see [Normalization stages](#normalization-stages)). |
 | `technical_type` | `integer`, `number`, `date`, `boolean`, `text`, `mixed` or `empty`, with `confidence`, `counts` and `outside_count`. |
@@ -695,6 +695,36 @@ structure, not a rule that the data must follow.
   or left in `other`) and `max_values` when the population was cut.
 - `scan.pattern_inference.enabled` set to `false` leaves `derived` out of the
   document. A [report](../report/json-profile.md) carries the block as it is.
+
+## Character profile
+
+`string_characteristics` counts the strings of a field by what their characters
+are. It works on the raw values, before normalization, and counts occurrences of
+values (a value found three times counts three times). Shares are not stored.
+
+| Group | Members |
+| --- | --- |
+| Case | `uppercase`, `lowercase`, `mixed_case`, `no_letters`, `starts_uppercase`, `starts_lowercase` |
+| Classes | `with_ascii_lowercase`, `with_ascii_uppercase`, `with_other_latin_letters`, `with_non_latin_letters`, `with_ascii_digits`, `with_other_digits` |
+| Composition | `ascii_only`, `non_ascii`, `letters_only`, `digits_only`, `alphanumeric_only`, `letters_and_digits` |
+| Whitespace | `with_surrounding_whitespace`, `with_repeated_whitespace`, `with_line_breaks`, `with_tabs`, `with_non_breaking_spaces` |
+| Problem characters | `with_control_characters`, `with_invisible_characters` (U+200B to U+200D, U+FEFF, U+2060), `with_replacement_character` (U+FFFD) |
+| Totals | `characters` (the characters of all the values), `distinct_characters` |
+| Special characters | `special_characters`: the inventory of the punctuation and symbols |
+
+`distinct_characters` is the exact number of distinct characters of the field. It
+is `limited` (reason `character_limit`) above `limits.max_distinct_characters`.
+`special_characters` lists, for each character that is neither a letter, a digit,
+whitespace nor a control or format character, its `char`, its `codepoint`, its
+`value_count` (distinct values that contain it) and its `occurrence_count`
+(occurrences of values that contain it), most frequent first. The measure says
+`value_count_accuracy`: `exact`, or `upper_bound` for a field whose table of
+distinct values was released, since a value that comes back in a later batch is
+counted again (`occurrence_count` stays exact). Above
+`limits.max_special_characters` distinct characters the measure is `limited` and
+lists none, so a partial list is never taken for the whole. On a sensitive field
+exposed with `mask` or `hide` the counters stay and both distributions are
+`disabled`.
 
 ## Normalization stages
 

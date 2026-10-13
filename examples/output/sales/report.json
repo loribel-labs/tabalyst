@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T06:54:23.395676Z",
-    "duration_seconds": 0.014525,
+    "started_at": "2026-10-13T11:56:23.860450Z",
+    "duration_seconds": 0.014914,
     "timings": {
-      "reading": 0.002202,
-      "analysis": 0.002141,
-      "finalize": 0.007914,
-      "derived": 0.001825,
-      "other": 0.000442
+      "reading": 0.002532,
+      "analysis": 0.002084,
+      "finalize": 0.008031,
+      "derived": 0.001864,
+      "other": 0.000404
     },
     "workers": 1,
-    "peak_memory_bytes": 64368640
+    "peak_memory_bytes": 66977792
   },
   "source": {
     "format": "excel",
@@ -135,6 +135,8 @@
       "max_samples_per_length": 100,
       "max_length_strata": 64,
       "max_sample_memory": 536870912,
+      "max_special_characters": 256,
+      "max_distinct_characters": 1024,
       "max_variant_groups": 100,
       "max_variants_per_group": 20,
       "max_evidence_examples": 10,
@@ -308,7 +310,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
+  "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
   "scope": {
     "collections": null,
     "records_read": 120,
@@ -1155,7 +1157,44 @@
             "uppercase": 120,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 120,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 120,
+            "with_other_digits": 0,
+            "starts_uppercase": 120,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 840,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 13
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 120,
+                    "occurrence_count": 120
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -2387,7 +2426,44 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 120
+            "no_letters": 120,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 120,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 1200,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 11
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 1,
+                "value_count_accuracy": "exact",
+                "listed": [
+                  {
+                    "char": "-",
+                    "codepoint": 45,
+                    "value_count": 75,
+                    "occurrence_count": 120
+                  }
+                ]
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -3486,7 +3562,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 120,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 120,
+            "with_ascii_uppercase": 120,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 120,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 1421,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 29
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -4506,7 +4612,31 @@
             "uppercase": 0,
             "lowercase": 120,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 120,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 120,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 120,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 3233,
+            "distinct_characters": {
+              "status": "disabled"
+            },
+            "special_characters": {
+              "status": "disabled"
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -5309,7 +5439,37 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 120,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 120,
+            "with_ascii_uppercase": 120,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 120,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 120,
+            "digits_only": 0,
+            "alphanumeric_only": 120,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 572,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 14
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -6050,7 +6210,37 @@
             "uppercase": 0,
             "lowercase": 120,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 120,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 120,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 120,
+            "letters_only": 120,
+            "digits_only": 0,
+            "alphanumeric_only": 120,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 510,
+            "distinct_characters": {
+              "status": "complete",
+              "value": 10
+            },
+            "special_characters": {
+              "status": "complete",
+              "value": {
+                "distinct": 0,
+                "value_count_accuracy": "exact",
+                "listed": []
+              }
+            }
           },
           "string_lengths": {
             "status": "complete",
@@ -6816,7 +7006,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -7776,7 +7992,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -8085,7 +8327,33 @@
             "uppercase": 0,
             "lowercase": 0,
             "mixed_case": 0,
-            "no_letters": 0
+            "no_letters": 0,
+            "with_ascii_lowercase": 0,
+            "with_ascii_uppercase": 0,
+            "with_other_latin_letters": 0,
+            "with_non_latin_letters": 0,
+            "with_ascii_digits": 0,
+            "with_other_digits": 0,
+            "starts_uppercase": 0,
+            "starts_lowercase": 0,
+            "with_tabs": 0,
+            "with_non_breaking_spaces": 0,
+            "ascii_only": 0,
+            "letters_only": 0,
+            "digits_only": 0,
+            "alphanumeric_only": 0,
+            "letters_and_digits": 0,
+            "with_invisible_characters": 0,
+            "with_replacement_character": 0,
+            "characters": 0,
+            "distinct_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            },
+            "special_characters": {
+              "status": "not_applicable",
+              "reason": "no_values"
+            }
           },
           "string_lengths": {
             "status": "not_applicable",
@@ -8613,8 +8881,8 @@
         "format_revision": 4,
         "engine_version": "0.7.0",
         "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-        "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-        "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
+        "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
+        "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
       },
       "settings": {
         "bins": 100,
@@ -8710,13 +8978,13 @@
         "planner_version": 1,
         "utility_version": 1,
         "cost_model_version": 13,
-        "plan_id": "a72a23acfbc7bed5e38bfab9083185ac87a02aceccc7d5d46b193eab16245427",
+        "plan_id": "a23fcc2b4e20b730c4359d64c127a839348ebcb6ce8daf983690bc5df2f3e941",
         "base": {
           "format_revision": 4,
           "engine_version": "0.7.0",
           "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-          "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-          "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
+          "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
+          "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
         },
         "objective": {
           "automatic": true,
@@ -13492,15 +13760,15 @@
         ]
       },
       "run": {
-        "started_at": "2026-10-13T06:54:23.438364Z",
-        "duration_seconds": 0.00843,
+        "started_at": "2026-10-13T11:56:23.910978Z",
+        "duration_seconds": 0.00834,
         "timings": {
-          "reading": 0.002342,
-          "analysis": 0.002408,
-          "other": 0.003681
+          "reading": 0.002236,
+          "analysis": 0.002475,
+          "other": 0.003629
         },
         "workers": 1,
-        "peak_memory_bytes": 67416064,
+        "peak_memory_bytes": 70504448,
         "source_read": true,
         "source_verified": true,
         "records_read": 120,
@@ -13522,7 +13790,7 @@
             "distinct": 120
           },
           "domain": "analytical",
-          "key": "2e022b7dcf532e80ba03aef077997bb760565fd09baf87d9849ffb9019b742c9",
+          "key": "d5a5d5607bc73263a3d18bc0271600c7882e13dfc2572405e891302296b5bea2",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14197,7 +14465,7 @@
             "distinct": 119
           },
           "domain": "analytical",
-          "key": "8ecf8e30d53fed1e0c77d04eaf86ef16a05e74cc189d0984c0acb3797c74d6f2",
+          "key": "03353cfa800106bdbee2174bda49be92e173f70b05377b884d749c6d36127b6e",
           "status": "complete",
           "result": {
             "kind": "frequencies",
@@ -14822,7 +15090,7 @@
             "domain": 12
           },
           "domain": "analytical",
-          "key": "bc4aa9b04770dcdd713d0062bda39945a4d40b0c97c50e62f002aa11bf194a7b",
+          "key": "1967fa4d5494453221c08c7c925396007e69f5f58f9e0f9e44499dbf2c38e8e3",
           "status": "complete",
           "result": {
             "kind": "dense_counts",
@@ -14931,7 +15199,7 @@
             "strategy": "linear"
           },
           "domain": "analytical",
-          "key": "e1de517794e1fd928866c336084c481d60234cf69767f52a43c531143aee6e89",
+          "key": "3166e0200bd00879315f5edec4258d950c2d513db92836d0d5e08f0f74c30d1d",
           "status": "complete",
           "result": {
             "kind": "bins",
@@ -15208,7 +15476,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "a890f5d600562e441cdc46a0ed46c22082cec612ce385420e9ffdf7ee90bc0e2",
+          "key": "c853fe0c6297cfd5e427dad718b097f4fcf863eed49f63a1957e4f4a59954d14",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15245,7 +15513,7 @@
             "patterns": 1
           },
           "domain": "original",
-          "key": "19715ff400cb5284fa0b315d8623a13beff36075d7c7f1c6e4de593348057a1b",
+          "key": "44e4439fbefe3d9ce0edbf113db73bc9f4356719445f411bd7df9ead35c65a0c",
           "status": "complete",
           "result": {
             "kind": "pattern_counts",
@@ -15284,7 +15552,7 @@
             "date_order": ""
           },
           "domain": "analytical",
-          "key": "6f13e32062b74ea60facdc1bbb822ebd276a98ebe5f069a6d807e477fba9b581",
+          "key": "d71017b476cee989e1df3c996947f619b271f5651a771397ef9ab0b97a8cb397",
           "status": "complete",
           "result": {
             "kind": "periods",
@@ -15619,7 +15887,7 @@
             "records": 0
           },
           "domain": "mixed",
-          "key": "2cfe82289417cf6d41a5e494baeb049bc5e298fc72b753ebedc3b94b1663d118",
+          "key": "b7542b41012eaa490048bb389d4b519cb626484f5e70634cccaf74d59e24da2e",
           "status": "complete",
           "result": {
             "kind": "residual_values",
@@ -15651,12 +15919,12 @@
     }
   },
   "report": {
-    "generated_at": "2026-10-13T06:54:23.494448Z",
+    "generated_at": "2026-10-13T11:56:23.970240Z",
     "generator": {
       "name": "tabalyst",
       "version": "0.7.0"
     },
-    "processing_seconds": 0.1158,
+    "processing_seconds": 0.1235,
     "config": {
       "string_analysis": {
         "very_short_max_length": 5,
@@ -15689,8 +15957,8 @@
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "5241c490e48405f13486fea429fe6ca22c5aabd07187fb9225357df94483a671",
-      "config_sha256": "1f14b5914b97bc31ac8114900e12abb9451db9acccd828b4529c677f22787fa5",
-      "facts_sha256": "588f2c5b87f1177dab19717ae5ed2c5ca22ee5802632c8566fee36b1a90d31ab"
+      "config_sha256": "63fe5c182acf36bba4c0edbc695fda7939bccacd0810ad72db9b346fe53292a4",
+      "facts_sha256": "eb9203c32f92130b4f0d335525f9c0b22ac696ff0ada48dcc127e481a94b9739"
     },
     "datasets": [
       {

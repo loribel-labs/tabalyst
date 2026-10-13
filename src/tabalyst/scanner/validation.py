@@ -571,6 +571,27 @@ def _check_long_texts(field: FieldResult, where: str, problems: list[str]) -> No
         problems.append(f"{where}: all counts must add up to occurrences")
 
 
+def _check_characters(field: FieldResult, where: str, problems: list[str]) -> None:
+    profile = field.string_characteristics
+    content = field.strings.content
+    where = f"{where}.string_characteristics"
+    counters = profile.model_dump(exclude={"distinct_characters", "special_characters"})
+    if any(count > content for name, count in counters.items() if name != "characters"):
+        problems.append(f"{where}: a counter exceeds the content strings")
+    inventory = profile.special_characters
+    if isinstance(inventory, Complete):
+        listed = inventory.value.listed
+        if inventory.value.distinct != len(listed):
+            problems.append(f"{where}: distinct must equal the characters listed")
+        if any(
+            not 1 <= item.value_count <= item.occurrence_count <= content
+            for item in listed
+        ):
+            problems.append(f"{where}: a special character has a count out of range")
+        if any(ord(item.char) != item.codepoint for item in listed):
+            problems.append(f"{where}: a codepoint does not match its character")
+
+
 def _check_statistics(field: FieldResult, where: str, problems: list[str]) -> None:
     lengths = field.string_lengths
     if isinstance(lengths, Complete):
@@ -583,6 +604,7 @@ def _check_statistics(field: FieldResult, where: str, problems: list[str]) -> No
             )
         if not value.min_length <= value.max_length:
             problems.append(f"{where}.string_lengths: min_length exceeds max_length")
+    _check_characters(field, where, problems)
     numeric = field.numeric
     if isinstance(numeric, Complete):
         value = numeric.value

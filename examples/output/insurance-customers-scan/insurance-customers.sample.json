@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-13T06:54:27.945642Z",
-    "duration_seconds": 0.204159,
+    "started_at": "2026-10-13T11:56:28.135954Z",
+    "duration_seconds": 0.192861,
     "timings": {
-      "reading": 0.185213,
-      "selection": 0.002466,
-      "other": 0.01648
+      "reading": 0.172696,
+      "selection": 0.002916,
+      "other": 0.017249
     },
-    "peak_memory_bytes": 97247232,
+    "peak_memory_bytes": 99074048,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,13 +120,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "a0dca4ed66c5166f23192848e7889d0076fd26726c7fcd6f4a34b5f29574b38f",
+    "plan_id": "76a54240a5bd177a83e060b8ac1661f1b1b70a511a4279d2425f34d39e7f4651",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "0eddf0b717be66d82ec3ccfda9761f3ad915edc095efd4f09464923ab5d8b631",
-      "facts_sha256": "df3f736cf8a20e2a62126367291f4bd730cd02da935552bc45f8ac84510769b9"
+      "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
+      "facts_sha256": "4675c4b1533e1676c840e01d7d88f589ec9c5edb8972aa853e7c7e2ce41dd09c"
     },
     "settings": {
       "max_enum_values": 100,

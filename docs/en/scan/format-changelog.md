@@ -147,3 +147,14 @@ final until the release that ships it.
   now read as text and can have patterns. Shorter whole numbers, decimal
   numbers, free text and a handful of words are `low_relevance`; booleans and
   objects or arrays only are `excluded`.
+- `string_characteristics` becomes a [character profile](format.md#character-profile)
+  and keeps its nine counters. It adds counters by class of character (ASCII
+  lower and upper case letters, other Latin letters, other letters, ASCII and
+  other digits), by start (`starts_uppercase`, `starts_lowercase`), by whitespace
+  (`with_tabs`, `with_non_breaking_spaces`), by composition (`ascii_only`,
+  `letters_only`, `digits_only`, `alphanumeric_only`, `letters_and_digits`) and
+  for problem characters (`with_invisible_characters`,
+  `with_replacement_character`), the total `characters`, the exact count
+  `distinct_characters` and the inventory `special_characters`, both measure
+  envelopes. New settings `scan.limits.max_special_characters` (256, 0 turns the
+  inventory off) and `max_distinct_characters` (1,024).

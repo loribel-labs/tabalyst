@@ -447,7 +447,30 @@ class FieldValues(ScanModel):
     last: ValueAt | None
 
 
+class SpecialCharacter(ScanModel):
+    """A special character of the field: in ``value_count`` distinct values and
+    ``occurrence_count`` occurrences of values (design 9.2)."""
+
+    char: str
+    codepoint: int
+    value_count: int
+    occurrence_count: int
+
+
+class SpecialCharacters(ScanModel):
+    """``value_count`` is exact while the table of distinct values is complete;
+    a streamed field counts a value again in each batch that holds it, so the
+    counts are then ``upper_bound``s (``occurrence_count`` stays exact)."""
+
+    distinct: int
+    value_count_accuracy: Literal["exact", "upper_bound"]
+    listed: list[SpecialCharacter]
+
+
 class StringCharacteristics(ScanModel):
+    """Occurrences of the strings of a field with each characteristic, and the
+    characters of the field (design 9.2). Counts only: shares are computed."""
+
     non_ascii: int
     with_line_breaks: int
     with_control_characters: int
@@ -457,6 +480,26 @@ class StringCharacteristics(ScanModel):
     lowercase: int
     mixed_case: int
     no_letters: int
+    with_ascii_lowercase: int
+    with_ascii_uppercase: int
+    with_other_latin_letters: int
+    with_non_latin_letters: int
+    with_ascii_digits: int
+    with_other_digits: int
+    starts_uppercase: int
+    starts_lowercase: int
+    with_tabs: int
+    with_non_breaking_spaces: int
+    ascii_only: int
+    letters_only: int
+    digits_only: int
+    alphanumeric_only: int
+    letters_and_digits: int
+    with_invisible_characters: int
+    with_replacement_character: int
+    characters: int
+    distinct_characters: measure(int)
+    special_characters: measure(SpecialCharacters)
 
 
 class LengthCount(ScanModel):

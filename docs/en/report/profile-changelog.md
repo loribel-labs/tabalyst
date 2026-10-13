@@ -108,5 +108,7 @@ fingerprints (`text_profile`, `fingerprint_distinct`) and the masks and classes 
 
 The report follows the scan base at revision 4 (see the
 [Scan format changelog](../scan/format-changelog.md)): the eligibility of each
-field for the inferred patterns. A column page says why a column has no pattern
-with the reason of its eligibility. The report adds no member of its own.
+field for the inferred patterns and the character profile of its strings
+(`string_characteristics`). A column page says why a column has no pattern with
+the reason of its eligibility, and lists the characters of the profile. The
+report adds no member of its own.

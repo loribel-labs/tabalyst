@@ -569,6 +569,26 @@
       "title": "Complete[NumericStats]",
       "type": "object"
     },
+    "Complete_SpecialCharacters_": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "complete",
+          "default": "complete",
+          "title": "Status",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/SpecialCharacters"
+        }
+      },
+      "required": [
+        "value",
+        "status"
+      ],
+      "title": "Complete[SpecialCharacters]",
+      "type": "object"
+    },
     "Complete_StringLengths_": {
       "additionalProperties": false,
       "properties": {
@@ -2909,6 +2929,20 @@
           "maximum": 1099511627776,
           "minimum": 1,
           "title": "Max Sample Memory",
+          "type": "integer"
+        },
+        "max_special_characters": {
+          "default": 256,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Max Special Characters",
+          "type": "integer"
+        },
+        "max_distinct_characters": {
+          "default": 1024,
+          "maximum": 1114112,
+          "minimum": 1,
+          "title": "Max Distinct Characters",
           "type": "integer"
         },
         "max_variant_groups": {
@@ -5589,6 +5623,68 @@
       "title": "SourceShape",
       "type": "object"
     },
+    "SpecialCharacter": {
+      "additionalProperties": false,
+      "description": "A special character of the field: in ``value_count`` distinct values and\n``occurrence_count`` occurrences of values (design 9.2).",
+      "properties": {
+        "char": {
+          "title": "Char",
+          "type": "string"
+        },
+        "codepoint": {
+          "title": "Codepoint",
+          "type": "integer"
+        },
+        "value_count": {
+          "title": "Value Count",
+          "type": "integer"
+        },
+        "occurrence_count": {
+          "title": "Occurrence Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "char",
+        "codepoint",
+        "value_count",
+        "occurrence_count"
+      ],
+      "title": "SpecialCharacter",
+      "type": "object"
+    },
+    "SpecialCharacters": {
+      "additionalProperties": false,
+      "description": "``value_count`` is exact while the table of distinct values is complete;\na streamed field counts a value again in each batch that holds it, so the\ncounts are then ``upper_bound``s (``occurrence_count`` stays exact).",
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "value_count_accuracy": {
+          "enum": [
+            "exact",
+            "upper_bound"
+          ],
+          "title": "Value Count Accuracy",
+          "type": "string"
+        },
+        "listed": {
+          "items": {
+            "$ref": "#/$defs/SpecialCharacter"
+          },
+          "title": "Listed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "distinct",
+        "value_count_accuracy",
+        "listed"
+      ],
+      "title": "SpecialCharacters",
+      "type": "object"
+    },
     "StringCategories": {
       "additionalProperties": false,
       "properties": {
@@ -5625,6 +5721,7 @@
     },
     "StringCharacteristics": {
       "additionalProperties": false,
+      "description": "Occurrences of the strings of a field with each characteristic, and the\ncharacters of the field (design 9.2). Counts only: shares are computed.",
       "properties": {
         "non_ascii": {
           "title": "Non Ascii",
@@ -5661,6 +5758,138 @@
         "no_letters": {
           "title": "No Letters",
           "type": "integer"
+        },
+        "with_ascii_lowercase": {
+          "title": "With Ascii Lowercase",
+          "type": "integer"
+        },
+        "with_ascii_uppercase": {
+          "title": "With Ascii Uppercase",
+          "type": "integer"
+        },
+        "with_other_latin_letters": {
+          "title": "With Other Latin Letters",
+          "type": "integer"
+        },
+        "with_non_latin_letters": {
+          "title": "With Non Latin Letters",
+          "type": "integer"
+        },
+        "with_ascii_digits": {
+          "title": "With Ascii Digits",
+          "type": "integer"
+        },
+        "with_other_digits": {
+          "title": "With Other Digits",
+          "type": "integer"
+        },
+        "starts_uppercase": {
+          "title": "Starts Uppercase",
+          "type": "integer"
+        },
+        "starts_lowercase": {
+          "title": "Starts Lowercase",
+          "type": "integer"
+        },
+        "with_tabs": {
+          "title": "With Tabs",
+          "type": "integer"
+        },
+        "with_non_breaking_spaces": {
+          "title": "With Non Breaking Spaces",
+          "type": "integer"
+        },
+        "ascii_only": {
+          "title": "Ascii Only",
+          "type": "integer"
+        },
+        "letters_only": {
+          "title": "Letters Only",
+          "type": "integer"
+        },
+        "digits_only": {
+          "title": "Digits Only",
+          "type": "integer"
+        },
+        "alphanumeric_only": {
+          "title": "Alphanumeric Only",
+          "type": "integer"
+        },
+        "letters_and_digits": {
+          "title": "Letters And Digits",
+          "type": "integer"
+        },
+        "with_invisible_characters": {
+          "title": "With Invisible Characters",
+          "type": "integer"
+        },
+        "with_replacement_character": {
+          "title": "With Replacement Character",
+          "type": "integer"
+        },
+        "characters": {
+          "title": "Characters",
+          "type": "integer"
+        },
+        "distinct_characters": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_int_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_int_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Distinct Characters"
+        },
+        "special_characters": {
+          "discriminator": {
+            "mapping": {
+              "complete": "#/$defs/Complete_SpecialCharacters_",
+              "disabled": "#/$defs/Disabled",
+              "failed": "#/$defs/Failed",
+              "limited": "#/$defs/Limited",
+              "not_applicable": "#/$defs/NotApplicable"
+            },
+            "propertyName": "status"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Complete_SpecialCharacters_"
+            },
+            {
+              "$ref": "#/$defs/Limited"
+            },
+            {
+              "$ref": "#/$defs/NotApplicable"
+            },
+            {
+              "$ref": "#/$defs/Disabled"
+            },
+            {
+              "$ref": "#/$defs/Failed"
+            }
+          ],
+          "title": "Special Characters"
         }
       },
       "required": [
@@ -5672,7 +5901,27 @@
         "uppercase",
         "lowercase",
         "mixed_case",
-        "no_letters"
+        "no_letters",
+        "with_ascii_lowercase",
+        "with_ascii_uppercase",
+        "with_other_latin_letters",
+        "with_non_latin_letters",
+        "with_ascii_digits",
+        "with_other_digits",
+        "starts_uppercase",
+        "starts_lowercase",
+        "with_tabs",
+        "with_non_breaking_spaces",
+        "ascii_only",
+        "letters_only",
+        "digits_only",
+        "alphanumeric_only",
+        "letters_and_digits",
+        "with_invisible_characters",
+        "with_replacement_character",
+        "characters",
+        "distinct_characters",
+        "special_characters"
       ],
       "title": "StringCharacteristics",
       "type": "object"
