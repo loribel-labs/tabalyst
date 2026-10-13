@@ -61,7 +61,7 @@ def test_the_compiled_expression_reads_an_ascii_value_like_the_token_matcher(
 
 
 def test_a_value_with_a_non_ascii_letter_goes_through_the_token_matcher(tmp_path):
-    rows = [f"é{n:03d}" for n in range(100)] + [f"E{n:03d}" for n in range(100)]
+    rows = [f"é{n * 37 % 1000:03d}" for n in range(100)] + [f"E{n * 37 % 1000:03d}" for n in range(100)]
     _, patterns = _entry(tmp_path, rows, limits={"max_samples": 30})
     accumulator = PatternAccumulator(patterns, 64)
 

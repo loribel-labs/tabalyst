@@ -111,4 +111,6 @@ The report follows the scan base at revision 4 (see the
 field for the inferred patterns and the character profile of its strings
 (`string_characteristics`). A column page says why a column has no pattern with
 the reason of its eligibility, and lists the characters of the profile. The
-report adds no member of its own.
+inferred patterns are the families and patterns of grammar 2 (see the Scan
+changelog); the page lists the patterns of a column. The report adds no member
+of its own.

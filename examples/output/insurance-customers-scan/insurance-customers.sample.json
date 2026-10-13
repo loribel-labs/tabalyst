@@ -99,14 +99,14 @@
     "order": "source"
   },
   "run": {
-    "started_at": "2026-10-13T11:56:28.135954Z",
-    "duration_seconds": 0.192861,
+    "started_at": "2026-10-13T13:31:45.529666Z",
+    "duration_seconds": 0.18696,
     "timings": {
-      "reading": 0.172696,
-      "selection": 0.002916,
-      "other": 0.017249
+      "reading": 0.16657,
+      "selection": 0.002685,
+      "other": 0.017705
     },
-    "peak_memory_bytes": 99074048,
+    "peak_memory_bytes": 98410496,
     "records_read": 3000,
     "cells_read": 96000,
     "source_verified": true,
@@ -120,13 +120,13 @@
     "planner": "tabalyst.smart",
     "planner_version": 1,
     "weights_version": 1,
-    "plan_id": "76a54240a5bd177a83e060b8ac1661f1b1b70a511a4279d2425f34d39e7f4651",
+    "plan_id": "d6e456e3ab25afd9427653066a6554a6310b5b35652dc6789cba0266d73330ff",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-      "facts_sha256": "4675c4b1533e1676c840e01d7d88f589ec9c5edb8972aa853e7c7e2ce41dd09c"
+      "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+      "facts_sha256": "c9d2aa5a3d092afee3b04c0b8a88eaedcd6a0652ac9b5d11067d3ab19122257b"
     },
     "settings": {
       "max_enum_values": 100,
@@ -157,7 +157,7 @@
     "size": {
       "requested": 150,
       "mandatory_bound": 146,
-      "useful_maximum": 455,
+      "useful_maximum": 472,
       "records": 3000
     },
     "reserve": {
@@ -169,9 +169,9 @@
     "candidates": {
       "per_target": 2,
       "per_target_effective": 2,
-      "rows": 732,
+      "rows": 758,
       "row_bytes": 275,
-      "bytes_expected": 201300,
+      "bytes_expected": 208450,
       "budget_bytes": 67108864,
       "fits": true
     },
@@ -183,7 +183,7 @@
     },
     "enrichment": {
       "deep": "current",
-      "used": 50,
+      "used": 49,
       "requested": false,
       "awaiting": []
     },
@@ -211,12 +211,12 @@
       ]
     },
     "summary": {
-      "targets": 378,
+      "targets": 391,
       "mandatory": 146,
-      "optional": 232,
+      "optional": 245,
       "not_evaluable": 14,
       "dropped": 0,
-      "total_weight": 2053.359016,
+      "total_weight": 2119.697456,
       "families": [
         {
           "family": "low_cardinality",
@@ -228,11 +228,11 @@
         },
         {
           "family": "structured_string",
-          "targets": 30,
+          "targets": 44,
           "mandatory": 0,
           "not_evaluable": 0,
           "dropped": 0,
-          "total_weight": 149.2904
+          "total_weight": 222.792697
         },
         {
           "family": "numeric",
@@ -252,11 +252,11 @@
         },
         {
           "family": "quality",
-          "targets": 27,
+          "targets": 26,
           "mandatory": 0,
           "not_evaluable": 14,
           "dropped": 0,
-          "total_weight": 224.673558
+          "total_weight": 217.509701
         },
         {
           "family": "relations",
@@ -654,7 +654,7 @@
         "display": "id_client",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 3,
+        "targets": 8,
         "reasons": [
           "sample_basis"
         ]
@@ -666,7 +666,7 @@
         "display": "date_naissance",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 1,
+        "targets": 2,
         "reasons": [
           "sample_basis"
         ]
@@ -678,7 +678,7 @@
         "display": "code_postal",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 4,
+        "targets": 5,
         "reasons": [
           "sample_basis"
         ]
@@ -690,7 +690,7 @@
         "display": "id_contrat",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 1,
+        "targets": 3,
         "reasons": [
           "sample_basis"
         ]
@@ -702,7 +702,7 @@
         "display": "date_debut",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 1,
+        "targets": 2,
         "reasons": [
           "sample_basis"
         ]
@@ -714,7 +714,7 @@
         "display": "date_fin",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 1,
+        "targets": 2,
         "reasons": [
           "sample_basis"
         ]
@@ -726,7 +726,7 @@
         "display": "date_creation",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 2,
+        "targets": 3,
         "reasons": [
           "sample_basis"
         ]
@@ -738,7 +738,7 @@
         "display": "date_modification",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 2,
+        "targets": 3,
         "reasons": [
           "sample_basis"
         ]
@@ -750,7 +750,7 @@
         "display": "date_reclamation",
         "complete": false,
         "guarantee": "known_values_only",
-        "targets": 1,
+        "targets": 2,
         "reasons": [
           "sample_basis"
         ]
@@ -6832,7 +6832,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_18:observation:o14",
+        "id": "quality:rows:column_18:observation:o13",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6845,7 +6845,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o14",
+          "ref": "observations/items/o13",
           "params": {
             "rule": "variant_groups"
           }
@@ -6867,13 +6867,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_variant_keys",
         "evidence": "exact",
-        "origin": "o14",
+        "origin": "o13",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_28:observation:o20",
+        "id": "quality:rows:column_28:observation:o19",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6886,7 +6886,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o20",
+          "ref": "observations/items/o19",
           "params": {
             "rule": "variant_groups"
           }
@@ -6908,13 +6908,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_variant_keys",
         "evidence": "exact",
-        "origin": "o20",
+        "origin": "o19",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_31:observation:o24",
+        "id": "quality:rows:column_31:observation:o23",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -6927,7 +6927,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o24",
+          "ref": "observations/items/o23",
           "params": {
             "rule": "type_outliers"
           }
@@ -6949,7 +6949,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o24",
+        "origin": "o23",
         "needs": [
           "scan"
         ]
@@ -7078,7 +7078,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_24:observation:o18",
+        "id": "quality:rows:column_24:observation:o17",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7091,7 +7091,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o18",
+          "ref": "observations/items/o17",
           "params": {
             "rule": "type_outliers"
           }
@@ -7113,13 +7113,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o18",
+        "origin": "o17",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_30:observation:o22",
+        "id": "quality:rows:column_30:observation:o21",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7132,7 +7132,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o22",
+          "ref": "observations/items/o21",
           "params": {
             "rule": "type_outliers"
           }
@@ -7154,13 +7154,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o22",
+        "origin": "o21",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_23:observation:o16",
+        "id": "quality:rows:column_23:observation:o15",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7173,7 +7173,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o16",
+          "ref": "observations/items/o15",
           "params": {
             "rule": "type_outliers"
           }
@@ -7195,13 +7195,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o16",
+        "origin": "o15",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_32:observation:o26",
+        "id": "quality:rows:column_32:observation:o25",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7214,7 +7214,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o26",
+          "ref": "observations/items/o25",
           "params": {
             "rule": "type_outliers"
           }
@@ -7236,7 +7236,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o26",
+        "origin": "o25",
         "needs": [
           "scan"
         ]
@@ -7280,7 +7280,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_29:observation:o21",
+        "id": "quality:rows:column_29:observation:o20",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7293,7 +7293,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o21",
+          "ref": "observations/items/o20",
           "params": {
             "rule": "minority_length"
           }
@@ -7316,13 +7316,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_length_test",
         "evidence": "exact",
-        "origin": "o21",
+        "origin": "o20",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_17:observation:o13",
+        "id": "quality:rows:column_17:observation:o12",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7335,7 +7335,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o13",
+          "ref": "observations/items/o12",
           "params": {
             "rule": "minority_length"
           }
@@ -7358,13 +7358,13 @@
         "feasibility": "not_evaluable",
         "reason": "needs_length_test",
         "evidence": "exact",
-        "origin": "o13",
+        "origin": "o12",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_21:observation:o15",
+        "id": "quality:rows:column_21:observation:o14",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7377,7 +7377,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o15",
+          "ref": "observations/items/o14",
           "params": {
             "rule": "minority_length"
           }
@@ -7400,7 +7400,7 @@
         "feasibility": "not_evaluable",
         "reason": "needs_length_test",
         "evidence": "exact",
-        "origin": "o15",
+        "origin": "o14",
         "needs": [
           "scan"
         ]
@@ -7811,48 +7811,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_17:observation:o12",
-        "family": "quality",
-        "dataset": "rows",
-        "fields": [
-          "column_17"
-        ],
-        "displays": [
-          "code_postal"
-        ],
-        "predicate": {
-          "kind": "observation",
-          "version": 1,
-          "source": "scan",
-          "ref": "observations/items/o12",
-          "params": {
-            "rule": "minority_pattern"
-          }
-        },
-        "frequency": {
-          "accuracy": "indicator",
-          "count": 12,
-          "share": 0.068571428571,
-          "method": "minority_pattern"
-        },
-        "weight": {
-          "version": 1,
-          "value": 7.163857,
-          "base": 6.0,
-          "rarity": 0.193976,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "sample",
-        "origin": "o12",
-        "needs": [
-          "scan"
-        ]
-      },
-      {
-        "id": "quality:rows:column_30:observation:o23",
+        "id": "quality:rows:column_30:observation:o22",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7865,7 +7824,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o23",
+          "ref": "observations/items/o22",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7887,13 +7846,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o23",
+        "origin": "o22",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_31:observation:o25",
+        "id": "quality:rows:column_31:observation:o24",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7906,7 +7865,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o25",
+          "ref": "observations/items/o24",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7928,13 +7887,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o25",
+        "origin": "o24",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_24:observation:o19",
+        "id": "quality:rows:column_24:observation:o18",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7947,7 +7906,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o19",
+          "ref": "observations/items/o18",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -7969,13 +7928,13 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o19",
+        "origin": "o18",
         "needs": [
           "scan"
         ]
       },
       {
-        "id": "quality:rows:column_23:observation:o17",
+        "id": "quality:rows:column_23:observation:o16",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -7988,7 +7947,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o17",
+          "ref": "observations/items/o16",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -8010,7 +7969,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o17",
+        "origin": "o16",
         "needs": [
           "scan"
         ]
@@ -8102,7 +8061,7 @@
         ]
       },
       {
-        "id": "quality:rows:column_32:observation:o27",
+        "id": "quality:rows:column_32:observation:o26",
         "family": "quality",
         "dataset": "rows",
         "fields": [
@@ -8115,7 +8074,7 @@
           "kind": "observation",
           "version": 1,
           "source": "scan",
-          "ref": "observations/items/o27",
+          "ref": "observations/items/o26",
           "params": {
             "rule": "ambiguous_dates"
           }
@@ -8137,7 +8096,7 @@
         "minimum": 1,
         "feasibility": "ready",
         "evidence": "exact",
-        "origin": "o27",
+        "origin": "o26",
         "needs": [
           "scan"
         ]
@@ -8782,6 +8741,88 @@
         "evidence": "exact",
         "needs": [
           "scan"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 0.000333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.318081,
+          "base": 4.0,
+          "rarity": 0.57952,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_30:pattern_matches:f2.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_creation"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_30",
+          "params": {
+            "pattern": "f2.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 1,
+          "share": 0.000333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 6.318081,
+          "base": 4.0,
+          "rarity": 0.57952,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
         ]
       },
       {
@@ -10625,7 +10666,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_17:pattern_matches:p4",
+        "id": "structured_string:rows:column_17:pattern_matches:f4.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -10640,7 +10681,130 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_17",
           "params": {
-            "pattern": "p4"
+            "pattern": "f4.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.001666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.852101,
+          "base": 4.0,
+          "rarity": 0.463025,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f3.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f3.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.001666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.852101,
+          "base": 4.0,
+          "rarity": 0.463025,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f3.p3",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f3.p3"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 5,
+          "share": 0.001666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.852101,
+          "base": 4.0,
+          "rarity": 0.463025,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_31:pattern_matches:f2.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_31",
+          "params": {
+            "pattern": "f2.p1"
           }
         },
         "frequency": {
@@ -10891,7 +11055,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_17:pattern_matches:p3",
+        "id": "structured_string:rows:column_17:pattern_matches:f3.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -10906,46 +11070,8 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_17",
           "params": {
-            "pattern": "p3"
+            "pattern": "f3.p1"
           }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 7,
-          "share": 0.002333333333,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 5.754682,
-          "base": 4.0,
-          "rarity": 0.438671,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_31:pattern_other",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "pattern_other",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_31"
         },
         "frequency": {
           "accuracy": "exact",
@@ -11015,7 +11141,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_17:pattern_matches:p2",
+        "id": "structured_string:rows:column_17:pattern_matches:f2.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -11030,46 +11156,8 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_17",
           "params": {
-            "pattern": "p2"
+            "pattern": "f2.p1"
           }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 9,
-          "share": 0.003,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 5.681919,
-          "base": 4.0,
-          "rarity": 0.42048,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_30:pattern_other",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_creation"
-        ],
-        "predicate": {
-          "kind": "pattern_other",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_30"
         },
         "frequency": {
           "accuracy": "exact",
@@ -11133,6 +11221,47 @@
         "feasibility": "ready",
         "evidence": "second_pass",
         "origin": "category_crosstab:rows:column_8>column_10:prefix",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f2.p3",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f2.p3"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 12,
+          "share": 0.004,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.598627,
+          "base": 4.0,
+          "rarity": 0.399657,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
         "needs": [
           "scan",
           "second_pass"
@@ -11216,6 +11345,88 @@
         "evidence": "exact",
         "needs": [
           "scan"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_21:pattern_matches:f1.p3",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_21"
+        ],
+        "displays": [
+          "id_contrat"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_21",
+          "params": {
+            "pattern": "f1.p3"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 14,
+          "share": 0.004666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.553995,
+          "base": 4.0,
+          "rarity": 0.388499,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f2.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f2.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 14,
+          "share": 0.004666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.553995,
+          "base": 4.0,
+          "rarity": 0.388499,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
         ]
       },
       {
@@ -11379,6 +11590,47 @@
         ]
       },
       {
+        "id": "structured_string:rows:column_21:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_21"
+        ],
+        "displays": [
+          "id_contrat"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_21",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 22,
+          "share": 0.007333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.423132,
+          "base": 4.0,
+          "rarity": 0.355783,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_5:length_max",
         "family": "structured_string",
         "dataset": "rows",
@@ -11539,6 +11791,47 @@
         ]
       },
       {
+        "id": "structured_string:rows:column_17:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_17"
+        ],
+        "displays": [
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_17",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 54,
+          "share": 0.018,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 5.163152,
+          "base": 4.0,
+          "rarity": 0.290788,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_14:length_max",
         "family": "structured_string",
         "dataset": "rows",
@@ -11619,6 +11912,47 @@
         ]
       },
       {
+        "id": "structured_string:rows:column_32:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_32"
+        ],
+        "displays": [
+          "date_reclamation"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_32",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 123,
+          "share": 0.041,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.924811,
+          "base": 4.0,
+          "rarity": 0.231203,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "numeric:rows:column_33:numeric_sign:negative",
         "family": "numeric",
         "dataset": "rows",
@@ -11659,7 +11993,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_2:pattern_matches:p1",
+        "id": "structured_string:rows:column_2:pattern_matches:f1.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -11674,20 +12008,20 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_2",
           "params": {
-            "pattern": "p1"
+            "pattern": "f1.p1"
           }
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 247,
-          "share": 0.082333333333,
+          "count": 246,
+          "share": 0.082,
           "method": "pattern_validation"
         },
         "weight": {
           "version": 1,
-          "value": 4.72295,
+          "value": 4.724124,
           "base": 4.0,
-          "rarity": 0.180737,
+          "rarity": 0.181031,
           "capped": false
         },
         "obligation": "optional",
@@ -11700,7 +12034,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_32:pattern_matches:p1",
+        "id": "structured_string:rows:column_32:pattern_matches:f1.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -11715,20 +12049,20 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_32",
           "params": {
-            "pattern": "p1"
+            "pattern": "f1.p1"
           }
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 420,
-          "share": 0.14,
+          "count": 297,
+          "share": 0.099,
           "method": "pattern_validation"
         },
         "weight": {
           "version": 1,
-          "value": 4.569248,
+          "value": 4.669577,
           "base": 4.0,
-          "rarity": 0.142312,
+          "rarity": 0.167394,
           "capped": false
         },
         "obligation": "optional",
@@ -11741,7 +12075,7 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_2:pattern_matches:p3",
+        "id": "structured_string:rows:column_2:pattern_matches:f3.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -11756,20 +12090,102 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_2",
           "params": {
-            "pattern": "p3"
+            "pattern": "f3.p1"
           }
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 568,
-          "share": 0.189333333333,
+          "count": 558,
+          "share": 0.186,
           "method": "pattern_validation"
         },
         "weight": {
           "version": 1,
-          "value": 4.481849,
+          "value": 4.486991,
           "base": 4.0,
-          "rarity": 0.120462,
+          "rarity": 0.121748,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_24:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_24"
+        ],
+        "displays": [
+          "date_fin"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_24",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 685,
+          "share": 0.228333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.42762,
+          "base": 4.0,
+          "rarity": 0.106905,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_31",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 781,
+          "share": 0.260333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.389647,
+          "base": 4.0,
+          "rarity": 0.097412,
           "capped": false
         },
         "obligation": "optional",
@@ -11819,35 +12235,35 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_2:pattern_matches:p2",
+        "id": "structured_string:rows:column_6:pattern_matches:f1.p2",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
-          "column_2"
+          "column_6"
         ],
         "displays": [
-          "id_client"
+          "date_naissance"
         ],
         "predicate": {
           "kind": "pattern_matches",
           "version": 1,
           "source": "scan",
-          "ref": "derived/patterns/rows/column_2",
+          "ref": "derived/patterns/rows/column_6",
           "params": {
-            "pattern": "p2"
+            "pattern": "f1.p2"
           }
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 2185,
-          "share": 0.728333333333,
+          "count": 816,
+          "share": 0.272,
           "method": "pattern_validation"
         },
         "weight": {
           "version": 1,
-          "value": 4.09178,
+          "value": 4.376954,
           "base": 4.0,
-          "rarity": 0.022945,
+          "rarity": 0.094239,
           "capped": false
         },
         "obligation": "optional",
@@ -11860,7 +12276,89 @@
         ]
       },
       {
-        "id": "structured_string:rows:column_24:pattern_matches:p1",
+        "id": "structured_string:rows:column_23:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_debut"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_23",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 817,
+          "share": 0.272333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.376599,
+          "base": 4.0,
+          "rarity": 0.09415,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_30:pattern_matches:f1.p2",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_creation"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_30",
+          "params": {
+            "pattern": "f1.p2"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 818,
+          "share": 0.272666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.376245,
+          "base": 4.0,
+          "rarity": 0.094061,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_24:pattern_matches:f1.p1",
         "family": "structured_string",
         "dataset": "rows",
         "fields": [
@@ -11875,20 +12373,225 @@
           "source": "scan",
           "ref": "derived/patterns/rows/column_24",
           "params": {
-            "pattern": "p1"
+            "pattern": "f1.p1"
           }
         },
         "frequency": {
           "accuracy": "exact",
-          "count": 2490,
-          "share": 0.83,
+          "count": 1805,
+          "share": 0.601666666667,
           "method": "pattern_validation"
         },
         "weight": {
           "version": 1,
-          "value": 4.053948,
+          "value": 4.147096,
           "base": 4.0,
-          "rarity": 0.013487,
+          "rarity": 0.036774,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_2:pattern_matches:f2.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_2"
+        ],
+        "displays": [
+          "id_client"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_2",
+          "params": {
+            "pattern": "f2.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2159,
+          "share": 0.719666666667,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.095246,
+          "base": 4.0,
+          "rarity": 0.023811,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_6:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_6"
+        ],
+        "displays": [
+          "date_naissance"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_6",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2169,
+          "share": 0.723,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.093908,
+          "base": 4.0,
+          "rarity": 0.023477,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_30:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_30"
+        ],
+        "displays": [
+          "date_creation"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_30",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2173,
+          "share": 0.724333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.093374,
+          "base": 4.0,
+          "rarity": 0.023344,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_23:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_23"
+        ],
+        "displays": [
+          "date_debut"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_23",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2175,
+          "share": 0.725,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.093108,
+          "base": 4.0,
+          "rarity": 0.023277,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_31:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_31"
+        ],
+        "displays": [
+          "date_modification"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_31",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2176,
+          "share": 0.725333333333,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.092975,
+          "base": 4.0,
+          "rarity": 0.023244,
           "capped": false
         },
         "obligation": "optional",
@@ -11941,6 +12644,88 @@
         ]
       },
       {
+        "id": "structured_string:rows:column_17:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_17"
+        ],
+        "displays": [
+          "code_postal"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_17",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2925,
+          "share": 0.975,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.00733,
+          "base": 4.0,
+          "rarity": 0.001833,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
+        "id": "structured_string:rows:column_21:pattern_matches:f1.p1",
+        "family": "structured_string",
+        "dataset": "rows",
+        "fields": [
+          "column_21"
+        ],
+        "displays": [
+          "id_contrat"
+        ],
+        "predicate": {
+          "kind": "pattern_matches",
+          "version": 1,
+          "source": "scan",
+          "ref": "derived/patterns/rows/column_21",
+          "params": {
+            "pattern": "f1.p1"
+          }
+        },
+        "frequency": {
+          "accuracy": "exact",
+          "count": 2955,
+          "share": 0.985,
+          "method": "pattern_validation"
+        },
+        "weight": {
+          "version": 1,
+          "value": 4.004376,
+          "base": 4.0,
+          "rarity": 0.001094,
+          "capped": false
+        },
+        "obligation": "optional",
+        "minimum": 1,
+        "feasibility": "ready",
+        "evidence": "second_pass",
+        "needs": [
+          "scan",
+          "second_pass"
+        ]
+      },
+      {
         "id": "structured_string:rows:column_17:length_max",
         "family": "structured_string",
         "dataset": "rows",
@@ -11978,252 +12763,6 @@
         "evidence": "exact",
         "needs": [
           "scan"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_17:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_17"
-        ],
-        "displays": [
-          "code_postal"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_17",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2979,
-          "share": 0.993,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.002034,
-          "base": 4.0,
-          "rarity": 0.000508,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_6:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_6"
-        ],
-        "displays": [
-          "date_naissance"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_6",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2985,
-          "share": 0.995,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.001451,
-          "base": 4.0,
-          "rarity": 0.000363,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_21:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_21"
-        ],
-        "displays": [
-          "id_contrat"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_21",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2991,
-          "share": 0.997,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.00087,
-          "base": 4.0,
-          "rarity": 0.000217,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_30:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_30"
-        ],
-        "displays": [
-          "date_creation"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_30",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2991,
-          "share": 0.997,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.00087,
-          "base": 4.0,
-          "rarity": 0.000217,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_23:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_23"
-        ],
-        "displays": [
-          "date_debut"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_23",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2992,
-          "share": 0.997333333333,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.000773,
-          "base": 4.0,
-          "rarity": 0.000193,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
-        ]
-      },
-      {
-        "id": "structured_string:rows:column_31:pattern_matches:p1",
-        "family": "structured_string",
-        "dataset": "rows",
-        "fields": [
-          "column_31"
-        ],
-        "displays": [
-          "date_modification"
-        ],
-        "predicate": {
-          "kind": "pattern_matches",
-          "version": 1,
-          "source": "scan",
-          "ref": "derived/patterns/rows/column_31",
-          "params": {
-            "pattern": "p1"
-          }
-        },
-        "frequency": {
-          "accuracy": "exact",
-          "count": 2993,
-          "share": 0.997666666667,
-          "method": "pattern_validation"
-        },
-        "weight": {
-          "version": 1,
-          "value": 4.000676,
-          "base": 4.0,
-          "rarity": 0.000169,
-          "capped": false
-        },
-        "obligation": "optional",
-        "minimum": 1,
-        "feasibility": "ready",
-        "evidence": "second_pass",
-        "needs": [
-          "scan",
-          "second_pass"
         ]
       },
       {
@@ -16245,32 +16784,32 @@
   },
   "selection": {
     "rows": 150,
-    "by_cover": 101,
-    "by_reserve": 49,
+    "by_cover": 102,
+    "by_reserve": 48,
     "shortfall": 0,
     "reserve": {
       "planned": 4,
-      "taken": 49,
+      "taken": 48,
       "adjusted": true
     },
     "pool": {
       "per_target": 2,
-      "candidate_rows": 303,
-      "peak_bytes": 82612,
+      "candidate_rows": 308,
+      "peak_bytes": 83959,
       "budget_bytes": 67108864,
       "refused_rows": 0
     }
   },
   "coverage": {
     "scope": "target_catalog",
-    "defined": 378,
-    "evaluable": 364,
-    "observed": 363,
-    "covered": 363,
+    "defined": 391,
+    "evaluable": 377,
+    "observed": 376,
+    "covered": 376,
     "weighted": {
-      "total": 1930.437568,
-      "covered": 1926.437568,
-      "share": 0.997928
+      "total": 1996.776008,
+      "covered": 1992.776008,
+      "share": 0.997997
     },
     "mandatory": {
       "defined": 146,
@@ -16288,11 +16827,11 @@
       },
       {
         "family": "structured_string",
-        "defined": 30,
-        "evaluable": 30,
-        "covered": 30,
-        "weight": 149.2904,
-        "weight_covered": 149.2904
+        "defined": 44,
+        "evaluable": 44,
+        "covered": 44,
+        "weight": 222.792697,
+        "weight_covered": 222.792697
       },
       {
         "family": "numeric",
@@ -16312,11 +16851,11 @@
       },
       {
         "family": "quality",
-        "defined": 27,
-        "evaluable": 13,
-        "covered": 13,
-        "weight": 101.75211,
-        "weight_covered": 101.75211
+        "defined": 26,
+        "evaluable": 12,
+        "covered": 12,
+        "weight": 94.588253,
+        "weight_covered": 94.588253
       },
       {
         "family": "relations",
@@ -16338,8 +16877,8 @@
     ],
     "missing_total": 1,
     "verification": {
-      "checked": 347,
-      "agreed": 347,
+      "checked": 361,
+      "agreed": 361,
       "disagreed": []
     }
   },
@@ -17554,19 +18093,19 @@
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_18:observation:o14",
+      "id": "quality:rows:column_18:observation:o13",
       "status": "not_evaluable",
       "reason": "needs_variant_keys",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_28:observation:o20",
+      "id": "quality:rows:column_28:observation:o19",
       "status": "not_evaluable",
       "reason": "needs_variant_keys",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_31:observation:o24",
+      "id": "quality:rows:column_31:observation:o23",
       "status": "covered",
       "observed": 3,
       "candidates": 2,
@@ -17594,7 +18133,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_24:observation:o18",
+      "id": "quality:rows:column_24:observation:o17",
       "status": "covered",
       "observed": 3,
       "candidates": 2,
@@ -17602,7 +18141,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_30:observation:o22",
+      "id": "quality:rows:column_30:observation:o21",
       "status": "covered",
       "observed": 6,
       "candidates": 2,
@@ -17610,7 +18149,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_23:observation:o16",
+      "id": "quality:rows:column_23:observation:o15",
       "status": "covered",
       "observed": 7,
       "candidates": 2,
@@ -17618,7 +18157,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_32:observation:o26",
+      "id": "quality:rows:column_32:observation:o25",
       "status": "covered",
       "observed": 1,
       "candidates": 1,
@@ -17632,19 +18171,19 @@
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_29:observation:o21",
+      "id": "quality:rows:column_29:observation:o20",
       "status": "not_evaluable",
       "reason": "needs_length_test",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_17:observation:o13",
+      "id": "quality:rows:column_17:observation:o12",
       "status": "not_evaluable",
       "reason": "needs_length_test",
       "candidates": 0
     },
     {
-      "id": "quality:rows:column_21:observation:o15",
+      "id": "quality:rows:column_21:observation:o14",
       "status": "not_evaluable",
       "reason": "needs_length_test",
       "candidates": 0
@@ -17722,13 +18261,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_17:observation:o12",
-      "status": "covered",
-      "observed": 12,
-      "candidates": 2
-    },
-    {
-      "id": "quality:rows:column_30:observation:o23",
+      "id": "quality:rows:column_30:observation:o22",
       "status": "covered",
       "observed": 299,
       "candidates": 2,
@@ -17736,7 +18269,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_31:observation:o25",
+      "id": "quality:rows:column_31:observation:o24",
       "status": "covered",
       "observed": 313,
       "candidates": 2,
@@ -17744,7 +18277,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_24:observation:o19",
+      "id": "quality:rows:column_24:observation:o18",
       "status": "covered",
       "observed": 274,
       "candidates": 2,
@@ -17752,7 +18285,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_23:observation:o17",
+      "id": "quality:rows:column_23:observation:o16",
       "status": "covered",
       "observed": 335,
       "candidates": 2,
@@ -17776,7 +18309,7 @@
       "agrees": true
     },
     {
-      "id": "quality:rows:column_32:observation:o27",
+      "id": "quality:rows:column_32:observation:o26",
       "status": "covered",
       "observed": 53,
       "candidates": 2,
@@ -17897,6 +18430,22 @@
     },
     {
       "id": "structured_string:rows:column_2:length_min",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_2:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 1,
+      "candidates": 1,
+      "expected": 1,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_30:pattern_matches:f2.p1",
       "status": "covered",
       "observed": 1,
       "candidates": 1,
@@ -18224,7 +18773,31 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_17:pattern_matches:p4",
+      "id": "structured_string:rows:column_17:pattern_matches:f4.p1",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_2:pattern_matches:f3.p2",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_2:pattern_matches:f3.p3",
+      "status": "covered",
+      "observed": 5,
+      "candidates": 2,
+      "expected": 5,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_31:pattern_matches:f2.p1",
       "status": "covered",
       "observed": 5,
       "candidates": 2,
@@ -18272,15 +18845,7 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_17:pattern_matches:p3",
-      "status": "covered",
-      "observed": 7,
-      "candidates": 2,
-      "expected": 7,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_31:pattern_other",
+      "id": "structured_string:rows:column_17:pattern_matches:f3.p1",
       "status": "covered",
       "observed": 7,
       "candidates": 2,
@@ -18296,15 +18861,7 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_17:pattern_matches:p2",
-      "status": "covered",
-      "observed": 9,
-      "candidates": 2,
-      "expected": 9,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_30:pattern_other",
+      "id": "structured_string:rows:column_17:pattern_matches:f2.p1",
       "status": "covered",
       "observed": 9,
       "candidates": 2,
@@ -18320,6 +18877,14 @@
       "agrees": true
     },
     {
+      "id": "structured_string:rows:column_2:pattern_matches:f2.p3",
+      "status": "covered",
+      "observed": 12,
+      "candidates": 2,
+      "expected": 12,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_11:length_max",
       "status": "covered",
       "observed": 13,
@@ -18329,6 +18894,22 @@
     },
     {
       "id": "structured_string:rows:column_21:length_max",
+      "status": "covered",
+      "observed": 14,
+      "candidates": 2,
+      "expected": 14,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_21:pattern_matches:f1.p3",
+      "status": "covered",
+      "observed": 14,
+      "candidates": 2,
+      "expected": 14,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_2:pattern_matches:f2.p2",
       "status": "covered",
       "observed": 14,
       "candidates": 2,
@@ -18368,6 +18949,14 @@
       "agrees": true
     },
     {
+      "id": "structured_string:rows:column_21:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 22,
+      "candidates": 2,
+      "expected": 22,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_5:length_max",
       "status": "covered",
       "observed": 22,
@@ -18400,6 +18989,14 @@
       "agrees": true
     },
     {
+      "id": "structured_string:rows:column_17:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 54,
+      "candidates": 2,
+      "expected": 54,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_14:length_max",
       "status": "covered",
       "observed": 78,
@@ -18416,6 +19013,14 @@
       "agrees": true
     },
     {
+      "id": "structured_string:rows:column_32:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 123,
+      "candidates": 2,
+      "expected": 123,
+      "agrees": true
+    },
+    {
       "id": "numeric:rows:column_33:numeric_sign:negative",
       "status": "covered",
       "observed": 1,
@@ -18424,27 +19029,43 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_2:pattern_matches:p1",
+      "id": "structured_string:rows:column_2:pattern_matches:f1.p1",
       "status": "covered",
-      "observed": 247,
+      "observed": 246,
       "candidates": 2,
-      "expected": 247,
+      "expected": 246,
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_32:pattern_matches:p1",
+      "id": "structured_string:rows:column_32:pattern_matches:f1.p1",
       "status": "covered",
-      "observed": 420,
+      "observed": 297,
       "candidates": 2,
-      "expected": 420,
+      "expected": 297,
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_2:pattern_matches:p3",
+      "id": "structured_string:rows:column_2:pattern_matches:f3.p1",
       "status": "covered",
-      "observed": 568,
+      "observed": 558,
       "candidates": 2,
-      "expected": 568,
+      "expected": 558,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_24:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 685,
+      "candidates": 2,
+      "expected": 685,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_31:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 781,
+      "candidates": 2,
+      "expected": 781,
       "agrees": true
     },
     {
@@ -18456,19 +19077,75 @@
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_2:pattern_matches:p2",
+      "id": "structured_string:rows:column_6:pattern_matches:f1.p2",
       "status": "covered",
-      "observed": 2185,
+      "observed": 816,
       "candidates": 2,
-      "expected": 2185,
+      "expected": 816,
       "agrees": true
     },
     {
-      "id": "structured_string:rows:column_24:pattern_matches:p1",
+      "id": "structured_string:rows:column_23:pattern_matches:f1.p2",
       "status": "covered",
-      "observed": 2490,
+      "observed": 817,
       "candidates": 2,
-      "expected": 2490,
+      "expected": 817,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_30:pattern_matches:f1.p2",
+      "status": "covered",
+      "observed": 818,
+      "candidates": 2,
+      "expected": 818,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_24:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 1805,
+      "candidates": 2,
+      "expected": 1805,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_2:pattern_matches:f2.p1",
+      "status": "covered",
+      "observed": 2159,
+      "candidates": 2,
+      "expected": 2159,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_6:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2169,
+      "candidates": 2,
+      "expected": 2169,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_30:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2173,
+      "candidates": 2,
+      "expected": 2173,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_23:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2175,
+      "candidates": 2,
+      "expected": 2175,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_31:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2176,
+      "candidates": 2,
+      "expected": 2176,
       "agrees": true
     },
     {
@@ -18480,59 +19157,27 @@
       "agrees": true
     },
     {
+      "id": "structured_string:rows:column_17:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2925,
+      "candidates": 2,
+      "expected": 2925,
+      "agrees": true
+    },
+    {
+      "id": "structured_string:rows:column_21:pattern_matches:f1.p1",
+      "status": "covered",
+      "observed": 2955,
+      "candidates": 2,
+      "expected": 2955,
+      "agrees": true
+    },
+    {
       "id": "structured_string:rows:column_17:length_max",
       "status": "covered",
       "observed": 2979,
       "candidates": 2,
       "expected": 2979,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_17:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2979,
-      "candidates": 2,
-      "expected": 2979,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_6:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2985,
-      "candidates": 2,
-      "expected": 2985,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_21:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2991,
-      "candidates": 2,
-      "expected": 2991,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_30:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2991,
-      "candidates": 2,
-      "expected": 2991,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_23:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2992,
-      "candidates": 2,
-      "expected": 2992,
-      "agrees": true
-    },
-    {
-      "id": "structured_string:rows:column_31:pattern_matches:p1",
-      "status": "covered",
-      "observed": 2993,
-      "candidates": 2,
-      "expected": 2993,
       "agrees": true
     },
     {

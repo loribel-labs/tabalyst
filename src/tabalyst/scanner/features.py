@@ -62,12 +62,14 @@ TOO_COMPLEX = -3
 TYPE_ORDER = {"string": 0, "integer": 1, "number": 2, "boolean": 3}
 
 # The ASCII reading of each class of the grammar. For an ASCII value the
-# letters of `letter_unicode` and `alphanumeric` are the ASCII ones.
+# letters of `letter_unicode` are the ASCII ones.
 _ASCII_CLASS = {
     "digit_ascii": "[0-9]",
     "upper_ascii": "[A-Z]",
     "lower_ascii": "[a-z]",
     "letter_unicode": "[A-Za-z]",
+    "upper_digit": "[0-9A-Z]",
+    "lower_digit": "[0-9a-z]",
     "alphanumeric": "[0-9A-Za-z]",
 }
 
@@ -104,9 +106,7 @@ class PatternClassifier:
         self.max_length = max_value_length
         self.order = sorted(
             range(len(candidates)),
-            key=lambda number: candidate_order(
-                candidates[number].signature, candidates[number].generalization, number
-            ),
+            key=lambda number: candidate_order(candidates[number].signature, 0, number),
         )
         self.matchers: list[Matcher] = [
             compile_signature(candidate.signature) for candidate in candidates

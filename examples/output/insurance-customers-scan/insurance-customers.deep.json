@@ -7,8 +7,8 @@
     "format_revision": 4,
     "engine_version": "0.7.0",
     "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-    "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-    "facts_sha256": "4675c4b1533e1676c840e01d7d88f589ec9c5edb8972aa853e7c7e2ce41dd09c"
+    "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+    "facts_sha256": "c9d2aa5a3d092afee3b04c0b8a88eaedcd6a0652ac9b5d11067d3ab19122257b"
   },
   "settings": {
     "bins": 100,
@@ -104,13 +104,13 @@
     "planner_version": 1,
     "utility_version": 1,
     "cost_model_version": 13,
-    "plan_id": "1d1459600e60c14b3de4830b5855e26f823129e51f959bee9598a8b1cdc3f312",
+    "plan_id": "ac4800d7db66017bee7600ddb7e76cb222727bea5d68ffa71ad55c2c3437af73",
     "base": {
       "format_revision": 4,
       "engine_version": "0.7.0",
       "source_sha256": "19a6bbb20f91125c6d212c74bfe7d9b8710f114e36042a3179dfec6f18b62389",
-      "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
-      "facts_sha256": "4675c4b1533e1676c840e01d7d88f589ec9c5edb8972aa853e7c7e2ce41dd09c"
+      "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
+      "facts_sha256": "c9d2aa5a3d092afee3b04c0b8a88eaedcd6a0652ac9b5d11067d3ab19122257b"
     },
     "objective": {
       "automatic": true,
@@ -134,16 +134,16 @@
       "cpu": "very_low"
     },
     "summary": {
-      "candidates": 244,
-      "selected": 126,
+      "candidates": 243,
+      "selected": 125,
       "already_satisfied": 70,
       "rejected": 48,
       "second_pass_required": true,
       "executable": true,
       "memory": {
-        "min": 38820638,
-        "expected": 46221895,
-        "max": 72091391
+        "min": 38976558,
+        "expected": 46398909,
+        "max": 72290547
       },
       "beyond_automatic": []
     },
@@ -187,15 +187,15 @@
           },
           "possible": 783,
           "evaluated": 783,
-          "undefined": 41,
+          "undefined": 13,
           "undefined_reasons": {
             "single_category": 3,
-            "single_class": 33,
+            "single_class": 5,
             "too_few_rows": 5
           },
           "listed": 20,
           "work": 704700,
-          "cells": 372
+          "cells": 527
         }
       ],
       "stats": [
@@ -397,7 +397,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 18,
+          "priority": 16,
           "satisfied_by": null
         },
         "execution": {
@@ -473,7 +473,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 19,
+          "priority": 17,
           "satisfied_by": null
         },
         "execution": {
@@ -728,7 +728,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 20,
+          "priority": 18,
           "satisfied_by": null
         },
         "execution": {
@@ -839,7 +839,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 21,
+          "priority": 19,
           "satisfied_by": null
         },
         "execution": {
@@ -915,7 +915,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 22,
+          "priority": 20,
           "satisfied_by": null
         },
         "execution": {
@@ -1604,7 +1604,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 23,
+          "priority": 21,
           "satisfied_by": null
         },
         "execution": {
@@ -1680,7 +1680,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 24,
+          "priority": 22,
           "satisfied_by": null
         },
         "execution": {
@@ -1792,7 +1792,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 102,
+          "priority": 101,
           "satisfied_by": null
         },
         "execution": {
@@ -1869,7 +1869,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 101,
+          "priority": 100,
           "satisfied_by": null
         },
         "execution": {
@@ -1946,7 +1946,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 103,
+          "priority": 102,
           "satisfied_by": null
         },
         "execution": {
@@ -2023,7 +2023,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 104,
+          "priority": 103,
           "satisfied_by": null
         },
         "execution": {
@@ -4035,7 +4035,7 @@
         "display": "id_client",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 3
+          "patterns": 8
         },
         "outputs": [
           "pattern_counts",
@@ -4053,19 +4053,19 @@
         },
         "costs": {
           "memory": {
-            "min": 16416,
-            "expected": 16416,
-            "max": 16416
+            "min": 42056,
+            "expected": 42056,
+            "max": 42056
           },
           "cpu": "moderate",
-          "cell_ns": 1100,
+          "cell_ns": 1600,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_2",
               "memory": {
-                "min": 15392,
-                "expected": 15392,
-                "max": 15392
+                "min": 41032,
+                "expected": 41032,
+                "max": 41032
               }
             },
             {
@@ -4210,7 +4210,7 @@
         "display": "date_naissance",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 2
         },
         "outputs": [
           "pattern_counts",
@@ -4228,19 +4228,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 11288,
+            "expected": 11288,
+            "max": 11288
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1000,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_6",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 10264,
+                "expected": 10264,
+                "max": 10264
               }
             },
             {
@@ -4257,7 +4257,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 91,
+          "priority": 88,
           "satisfied_by": null
         },
         "execution": {
@@ -4529,7 +4529,7 @@
         "display": "province_nom",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 3
+          "patterns": 16
         },
         "outputs": [
           "pattern_counts",
@@ -4547,19 +4547,19 @@
         },
         "costs": {
           "memory": {
-            "min": 16416,
-            "expected": 16416,
-            "max": 16416
+            "min": 83080,
+            "expected": 83080,
+            "max": 83080
           },
           "cpu": "moderate",
-          "cell_ns": 1100,
+          "cell_ns": 2400,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_16",
               "memory": {
-                "min": 15392,
-                "expected": 15392,
-                "max": 15392
+                "min": 82056,
+                "expected": 82056,
+                "max": 82056
               }
             },
             {
@@ -4596,7 +4596,7 @@
         "display": "code_postal",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 4
+          "patterns": 5
         },
         "outputs": [
           "pattern_counts",
@@ -4614,19 +4614,19 @@
         },
         "costs": {
           "memory": {
-            "min": 21544,
-            "expected": 21544,
-            "max": 21544
+            "min": 26672,
+            "expected": 26672,
+            "max": 26672
           },
           "cpu": "moderate",
-          "cell_ns": 1200,
+          "cell_ns": 1300,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_17",
               "memory": {
-                "min": 20520,
-                "expected": 20520,
-                "max": 20520
+                "min": 25648,
+                "expected": 25648,
+                "max": 25648
               }
             },
             {
@@ -4643,7 +4643,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 99,
+          "priority": 96,
           "satisfied_by": null
         },
         "execution": {
@@ -4771,7 +4771,7 @@
         "display": "id_contrat",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 3
         },
         "outputs": [
           "pattern_counts",
@@ -4789,19 +4789,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 16416,
+            "expected": 16416,
+            "max": 16416
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1100,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_21",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 15392,
+                "expected": 15392,
+                "max": 15392
               }
             },
             {
@@ -4818,7 +4818,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 92,
+          "priority": 93,
           "satisfied_by": null
         },
         "execution": {
@@ -4874,7 +4874,7 @@
         "display": "date_debut",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 2
         },
         "outputs": [
           "pattern_counts",
@@ -4892,19 +4892,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 11288,
+            "expected": 11288,
+            "max": 11288
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1000,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_23",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 10264,
+                "expected": 10264,
+                "max": 10264
               }
             },
             {
@@ -4921,7 +4921,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 93,
+          "priority": 89,
           "satisfied_by": null
         },
         "execution": {
@@ -4941,7 +4941,7 @@
         "display": "date_fin",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 2
         },
         "outputs": [
           "pattern_counts",
@@ -4959,19 +4959,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 11288,
+            "expected": 11288,
+            "max": 11288
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1000,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_24",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 10264,
+                "expected": 10264,
+                "max": 10264
               }
             },
             {
@@ -4988,7 +4988,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 94,
+          "priority": 90,
           "satisfied_by": null
         },
         "execution": {
@@ -5116,7 +5116,7 @@
         "display": "agence_code",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 2
         },
         "outputs": [
           "pattern_counts",
@@ -5134,19 +5134,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 11288,
+            "expected": 11288,
+            "max": 11288
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1000,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_29",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 10264,
+                "expected": 10264,
+                "max": 10264
               }
             },
             {
@@ -5163,7 +5163,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 96,
+          "priority": 92,
           "satisfied_by": null
         },
         "execution": {
@@ -5183,7 +5183,7 @@
         "display": "date_creation",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 3
         },
         "outputs": [
           "pattern_counts",
@@ -5194,27 +5194,26 @@
           "reasons": []
         },
         "utility": {
-          "score": 70,
+          "score": 60,
           "reasons": [
-            "candidates_unvalidated",
-            "values_outside_candidates"
+            "candidates_unvalidated"
           ]
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 16416,
+            "expected": 16416,
+            "max": 16416
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1100,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_30",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 15392,
+                "expected": 15392,
+                "max": 15392
               }
             },
             {
@@ -5231,7 +5230,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 89,
+          "priority": 94,
           "satisfied_by": null
         },
         "execution": {
@@ -5251,7 +5250,7 @@
         "display": "date_modification",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 3
         },
         "outputs": [
           "pattern_counts",
@@ -5262,27 +5261,26 @@
           "reasons": []
         },
         "utility": {
-          "score": 70,
+          "score": 60,
           "reasons": [
-            "candidates_unvalidated",
-            "values_outside_candidates"
+            "candidates_unvalidated"
           ]
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 16416,
+            "expected": 16416,
+            "max": 16416
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1100,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_31",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 15392,
+                "expected": 15392,
+                "max": 15392
               }
             },
             {
@@ -5299,7 +5297,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 90,
+          "priority": 95,
           "satisfied_by": null
         },
         "execution": {
@@ -5319,7 +5317,7 @@
         "display": "date_reclamation",
         "method": "compiled_matcher",
         "parameters": {
-          "patterns": 1
+          "patterns": 2
         },
         "outputs": [
           "pattern_counts",
@@ -5337,19 +5335,19 @@
         },
         "costs": {
           "memory": {
-            "min": 6160,
-            "expected": 6160,
-            "max": 6160
+            "min": 11288,
+            "expected": 11288,
+            "max": 11288
           },
           "cpu": "moderate",
-          "cell_ns": 900,
+          "cell_ns": 1000,
           "states": [
             {
               "key": "patterns:datasets/rows/fields/column_32",
               "memory": {
-                "min": 5136,
-                "expected": 5136,
-                "max": 5136
+                "min": 10264,
+                "expected": 10264,
+                "max": 10264
               }
             },
             {
@@ -5366,7 +5364,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 95,
+          "priority": 91,
           "satisfied_by": null
         },
         "execution": {
@@ -5511,7 +5509,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 109,
+          "priority": 108,
           "satisfied_by": null
         },
         "execution": {
@@ -5587,7 +5585,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 105,
+          "priority": 104,
           "satisfied_by": null
         },
         "execution": {
@@ -5663,7 +5661,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 108,
+          "priority": 107,
           "satisfied_by": null
         },
         "execution": {
@@ -5739,7 +5737,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 107,
+          "priority": 106,
           "satisfied_by": null
         },
         "execution": {
@@ -5815,7 +5813,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 100,
+          "priority": 99,
           "satisfied_by": null
         },
         "execution": {
@@ -5894,7 +5892,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 110,
+          "priority": 109,
           "satisfied_by": null
         },
         "execution": {
@@ -5989,91 +5987,11 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 125,
+          "priority": 124,
           "satisfied_by": null
         },
         "execution": {
           "requires_source": true,
-          "available": true,
-          "deterministic": true,
-          "reusable": true,
-          "on_limit": "limited"
-        }
-      },
-      {
-        "id": "residual_values:rows:column_16",
-        "analyzer": "residual_values",
-        "analyzer_version": 1,
-        "dataset": "rows",
-        "field": "column_16",
-        "display": "province_nom",
-        "method": "residual_table",
-        "parameters": {
-          "sources": "pattern",
-          "max_listed": 20,
-          "max_tracked": 10000,
-          "max_value_length": 100,
-          "records": 0
-        },
-        "outputs": [
-          "residual_values",
-          "pattern_profile"
-        ],
-        "applicability": {
-          "state": "applicable",
-          "reasons": []
-        },
-        "utility": {
-          "score": 60,
-          "reasons": [
-            "values_left_out",
-            "derivable_from_samples"
-          ]
-        },
-        "costs": {
-          "memory": {
-            "min": 5120,
-            "expected": 5626,
-            "max": 12284
-          },
-          "cpu": "low",
-          "cell_ns": 300,
-          "states": [
-            {
-              "key": "residuals:datasets/rows/fields/column_16",
-              "memory": {
-                "min": 0,
-                "expected": 506,
-                "max": 4050
-              }
-            },
-            {
-              "key": "result:residual_values:datasets/rows/fields/column_16",
-              "memory": {
-                "min": 1024,
-                "expected": 1024,
-                "max": 1024
-              }
-            },
-            {
-              "key": "exact_set:residual:datasets/rows/fields/column_16",
-              "memory": {
-                "min": 4096,
-                "expected": 4096,
-                "max": 7210
-              }
-            }
-          ]
-        },
-        "selection": {
-          "state": "selected",
-          "reason": "forced",
-          "requested": false,
-          "priority": 15,
-          "satisfied_by": null
-        },
-        "execution": {
-          "requires_source": false,
           "available": true,
           "deterministic": true,
           "reusable": true,
@@ -6164,7 +6082,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 126,
+          "priority": 125,
           "satisfied_by": null
         },
         "execution": {
@@ -6279,7 +6197,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 111,
+          "priority": 110,
           "satisfied_by": null
         },
         "execution": {
@@ -6374,7 +6292,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 124,
+          "priority": 123,
           "satisfied_by": null
         },
         "execution": {
@@ -6469,7 +6387,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 117,
+          "priority": 116,
           "satisfied_by": null
         },
         "execution": {
@@ -6564,7 +6482,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 123,
+          "priority": 122,
           "satisfied_by": null
         },
         "execution": {
@@ -6659,7 +6577,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 121,
+          "priority": 120,
           "satisfied_by": null
         },
         "execution": {
@@ -6754,7 +6672,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 17,
+          "priority": 15,
           "satisfied_by": null
         },
         "execution": {
@@ -6832,7 +6750,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 112,
+          "priority": 111,
           "satisfied_by": null
         },
         "execution": {
@@ -6910,7 +6828,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 113,
+          "priority": 112,
           "satisfied_by": null
         },
         "execution": {
@@ -7024,7 +6942,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 114,
+          "priority": 113,
           "satisfied_by": null
         },
         "execution": {
@@ -7135,7 +7053,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 81,
+          "priority": 80,
           "satisfied_by": null
         },
         "execution": {
@@ -7157,141 +7075,6 @@
           "rank_lower": 0.081288,
           "rank_upper": 0.476266,
           "rank_score": 0.081288
-        }
-      },
-      {
-        "id": "category_crosstab:rows:column_1>column_2:pattern",
-        "analyzer": "category_crosstab",
-        "analyzer_version": 1,
-        "dataset": "rows",
-        "field": "column_1",
-        "display": "filiale and id_client (pattern)",
-        "method": "contingency_table",
-        "parameters": {
-          "feature": "pattern",
-          "max_categories": 30,
-          "examples": 3,
-          "max_exception_cells": 20,
-          "rule_purity": 90,
-          "rule_support": 30
-        },
-        "outputs": [
-          "contingency_table",
-          "conditional_coverage",
-          "purity",
-          "association",
-          "exceptions",
-          "candidate_rules"
-        ],
-        "applicability": {
-          "state": "applicable",
-          "reasons": []
-        },
-        "utility": {
-          "score": 100,
-          "reasons": [
-            "exploratory_association"
-          ]
-        },
-        "costs": {
-          "memory": {
-            "min": 477960,
-            "expected": 611360,
-            "max": 1002560
-          },
-          "cpu": "low",
-          "cell_ns": 600,
-          "states": [
-            {
-              "key": "crosstab:datasets/rows/fields/column_1>column_2:pattern",
-              "memory": {
-                "min": 1800,
-                "expected": 7200,
-                "max": 14400
-              }
-            },
-            {
-              "key": "result:category_crosstab:datasets/rows/fields/column_1>column_2:pattern",
-              "memory": {
-                "min": 1024,
-                "expected": 1024,
-                "max": 1024
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_1:category",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_1:category",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_1",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_2:pattern",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_2:pattern",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_2",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            }
-          ]
-        },
-        "selection": {
-          "state": "selected",
-          "reason": "forced",
-          "requested": false,
-          "priority": 1,
-          "satisfied_by": null
-        },
-        "execution": {
-          "requires_source": true,
-          "available": true,
-          "deterministic": true,
-          "reusable": true,
-          "on_limit": "limited"
-        },
-        "partner": "column_2",
-        "exploration": {
-          "scope": "interior_rows",
-          "rows": 900,
-          "categories": 3,
-          "classes": 3,
-          "purity": 1.0,
-          "cramers_v": 1.0,
-          "score": 1.0,
-          "stable": true
         }
       },
       {
@@ -7409,7 +7192,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 2,
+          "priority": 1,
           "satisfied_by": null
         },
         "execution": {
@@ -7546,7 +7329,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 3,
+          "priority": 2,
           "satisfied_by": null
         },
         "execution": {
@@ -7682,7 +7465,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 4,
+          "priority": 3,
           "satisfied_by": null
         },
         "execution": {
@@ -7818,7 +7601,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 5,
+          "priority": 4,
           "satisfied_by": null
         },
         "execution": {
@@ -7955,7 +7738,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 6,
+          "priority": 5,
           "satisfied_by": null
         },
         "execution": {
@@ -7974,6 +7757,141 @@
           "purity": 1.0,
           "cramers_v": 1.0,
           "score": 1.0,
+          "stable": true
+        }
+      },
+      {
+        "id": "category_crosstab:rows:column_1>column_2:pattern",
+        "analyzer": "category_crosstab",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_1",
+        "display": "filiale and id_client (pattern)",
+        "method": "contingency_table",
+        "parameters": {
+          "feature": "pattern",
+          "max_categories": 30,
+          "examples": 3,
+          "max_exception_cells": 20,
+          "rule_purity": 90,
+          "rule_support": 30
+        },
+        "outputs": [
+          "contingency_table",
+          "conditional_coverage",
+          "purity",
+          "association",
+          "exceptions",
+          "candidate_rules"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 100,
+          "reasons": [
+            "exploratory_association"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 480210,
+            "expected": 620360,
+            "max": 1020560
+          },
+          "cpu": "low",
+          "cell_ns": 600,
+          "states": [
+            {
+              "key": "crosstab:datasets/rows/fields/column_1>column_2:pattern",
+              "memory": {
+                "min": 4050,
+                "expected": 16200,
+                "max": 32400
+              }
+            },
+            {
+              "key": "result:category_crosstab:datasets/rows/fields/column_1>column_2:pattern",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_1:category",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_1:category",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_1",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_2:pattern",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_2:pattern",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_2",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 6,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        },
+        "partner": "column_2",
+        "exploration": {
+          "scope": "interior_rows",
+          "rows": 900,
+          "categories": 3,
+          "classes": 6,
+          "purity": 0.993333,
+          "cramers_v": 1.0,
+          "score": 0.998326,
           "stable": true
         }
       },
@@ -8796,141 +8714,6 @@
         }
       },
       {
-        "id": "category_crosstab:rows:column_8>column_16:pattern",
-        "analyzer": "category_crosstab",
-        "analyzer_version": 1,
-        "dataset": "rows",
-        "field": "column_8",
-        "display": "langue_preferee and province_nom (pattern)",
-        "method": "contingency_table",
-        "parameters": {
-          "feature": "pattern",
-          "max_categories": 30,
-          "examples": 3,
-          "max_exception_cells": 20,
-          "rule_purity": 90,
-          "rule_support": 30
-        },
-        "outputs": [
-          "contingency_table",
-          "conditional_coverage",
-          "purity",
-          "association",
-          "exceptions",
-          "candidate_rules"
-        ],
-        "applicability": {
-          "state": "applicable",
-          "reasons": []
-        },
-        "utility": {
-          "score": 61,
-          "reasons": [
-            "exploratory_association"
-          ]
-        },
-        "costs": {
-          "memory": {
-            "min": 477510,
-            "expected": 609560,
-            "max": 998960
-          },
-          "cpu": "low",
-          "cell_ns": 600,
-          "states": [
-            {
-              "key": "crosstab:datasets/rows/fields/column_8>column_16:pattern",
-              "memory": {
-                "min": 1350,
-                "expected": 5400,
-                "max": 10800
-              }
-            },
-            {
-              "key": "result:category_crosstab:datasets/rows/fields/column_8>column_16:pattern",
-              "memory": {
-                "min": 1024,
-                "expected": 1024,
-                "max": 1024
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_8:category",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_8:category",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_8",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_16:pattern",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_16:pattern",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_16",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            }
-          ]
-        },
-        "selection": {
-          "state": "selected",
-          "reason": "forced",
-          "requested": false,
-          "priority": 14,
-          "satisfied_by": null
-        },
-        "execution": {
-          "requires_source": true,
-          "available": true,
-          "deterministic": true,
-          "reusable": true,
-          "on_limit": "limited"
-        },
-        "partner": "column_16",
-        "exploration": {
-          "scope": "interior_rows",
-          "rows": 900,
-          "categories": 2,
-          "classes": 4,
-          "purity": 0.807778,
-          "cramers_v": 0.613978,
-          "score": 0.611595,
-          "stable": true
-        }
-      },
-      {
         "id": "category_crosstab:rows:column_8>column_14:prefix",
         "analyzer": "category_crosstab",
         "analyzer_version": 1,
@@ -9045,7 +8828,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 25,
+          "priority": 23,
           "satisfied_by": null
         },
         "execution": {
@@ -9181,7 +8964,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 26,
+          "priority": 24,
           "satisfied_by": null
         },
         "execution": {
@@ -9200,141 +8983,6 @@
           "purity": 0.451883,
           "cramers_v": 0.410173,
           "score": 0.40064,
-          "stable": true
-        }
-      },
-      {
-        "id": "category_crosstab:rows:column_1>column_16:pattern",
-        "analyzer": "category_crosstab",
-        "analyzer_version": 1,
-        "dataset": "rows",
-        "field": "column_1",
-        "display": "filiale and province_nom (pattern)",
-        "method": "contingency_table",
-        "parameters": {
-          "feature": "pattern",
-          "max_categories": 30,
-          "examples": 3,
-          "max_exception_cells": 20,
-          "rule_purity": 90,
-          "rule_support": 30
-        },
-        "outputs": [
-          "contingency_table",
-          "conditional_coverage",
-          "purity",
-          "association",
-          "exceptions",
-          "candidate_rules"
-        ],
-        "applicability": {
-          "state": "applicable",
-          "reasons": []
-        },
-        "utility": {
-          "score": 37,
-          "reasons": [
-            "exploratory_association"
-          ]
-        },
-        "costs": {
-          "memory": {
-            "min": 477960,
-            "expected": 611360,
-            "max": 1002560
-          },
-          "cpu": "low",
-          "cell_ns": 600,
-          "states": [
-            {
-              "key": "crosstab:datasets/rows/fields/column_1>column_16:pattern",
-              "memory": {
-                "min": 1800,
-                "expected": 7200,
-                "max": 14400
-              }
-            },
-            {
-              "key": "result:category_crosstab:datasets/rows/fields/column_1>column_16:pattern",
-              "memory": {
-                "min": 1024,
-                "expected": 1024,
-                "max": 1024
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_1:category",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_1:category",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_1",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            },
-            {
-              "key": "code_feed:datasets/rows/fields/column_16:pattern",
-              "memory": {
-                "min": 229376,
-                "expected": 229376,
-                "max": 229376
-              }
-            },
-            {
-              "key": "coder:datasets/rows/fields/column_16:pattern",
-              "memory": {
-                "min": 8192,
-                "expected": 8192,
-                "max": 8192
-              }
-            },
-            {
-              "key": "replay:datasets/rows/fields/column_16",
-              "memory": {
-                "min": 0,
-                "expected": 64000,
-                "max": 256000
-              }
-            }
-          ]
-        },
-        "selection": {
-          "state": "selected",
-          "reason": "forced",
-          "requested": false,
-          "priority": 65,
-          "satisfied_by": null
-        },
-        "execution": {
-          "requires_source": true,
-          "available": true,
-          "deterministic": true,
-          "reusable": true,
-          "on_limit": "limited"
-        },
-        "partner": "column_16",
-        "exploration": {
-          "scope": "interior_rows",
-          "rows": 900,
-          "categories": 3,
-          "classes": 4,
-          "purity": 0.826667,
-          "cramers_v": 0.370501,
-          "score": 0.366378,
           "stable": true
         }
       },
@@ -9452,7 +9100,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 66,
+          "priority": 63,
           "satisfied_by": null
         },
         "execution": {
@@ -9589,7 +9237,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 67,
+          "priority": 64,
           "satisfied_by": null
         },
         "execution": {
@@ -9725,7 +9373,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 68,
+          "priority": 65,
           "satisfied_by": null
         },
         "execution": {
@@ -9862,7 +9510,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 69,
+          "priority": 66,
           "satisfied_by": null
         },
         "execution": {
@@ -9873,6 +9521,279 @@
           "on_limit": "limited"
         },
         "partner": "column_1",
+        "exploration": {
+          "scope": "interior_rows",
+          "rows": 900,
+          "categories": 2,
+          "classes": 3,
+          "purity": 0.721111,
+          "cramers_v": 0.350649,
+          "score": 0.347655,
+          "stable": true
+        }
+      },
+      {
+        "id": "category_crosstab:rows:column_8>column_1:value",
+        "analyzer": "category_crosstab",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_8",
+        "display": "langue_preferee and filiale (value)",
+        "method": "contingency_table",
+        "parameters": {
+          "feature": "value",
+          "max_categories": 30,
+          "examples": 3,
+          "max_exception_cells": 20,
+          "rule_purity": 90,
+          "rule_support": 30,
+          "max_classes": 12
+        },
+        "outputs": [
+          "contingency_table",
+          "conditional_coverage",
+          "purity",
+          "association",
+          "exceptions",
+          "candidate_rules"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 35,
+          "reasons": [
+            "exploratory_association"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 480210,
+            "expected": 620360,
+            "max": 1020560
+          },
+          "cpu": "low",
+          "cell_ns": 500,
+          "states": [
+            {
+              "key": "crosstab:datasets/rows/fields/column_8>column_1:value",
+              "memory": {
+                "min": 4050,
+                "expected": 16200,
+                "max": 32400
+              }
+            },
+            {
+              "key": "result:category_crosstab:datasets/rows/fields/column_8>column_1:value",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_8:category",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_8:category",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_8",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_1:value",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_1:value",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_1",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 67,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        },
+        "partner": "column_1",
+        "exploration": {
+          "scope": "interior_rows",
+          "rows": 900,
+          "categories": 2,
+          "classes": 3,
+          "purity": 0.721111,
+          "cramers_v": 0.350649,
+          "score": 0.347655,
+          "stable": true
+        }
+      },
+      {
+        "id": "category_crosstab:rows:column_8>column_2:prefix",
+        "analyzer": "category_crosstab",
+        "analyzer_version": 1,
+        "dataset": "rows",
+        "field": "column_8",
+        "display": "langue_preferee and id_client (prefix)",
+        "method": "contingency_table",
+        "parameters": {
+          "feature": "prefix",
+          "max_categories": 30,
+          "examples": 3,
+          "max_exception_cells": 20,
+          "rule_purity": 90,
+          "rule_support": 30,
+          "max_classes": 12,
+          "prefix_length": 2
+        },
+        "outputs": [
+          "contingency_table",
+          "conditional_coverage",
+          "purity",
+          "association",
+          "exceptions",
+          "candidate_rules"
+        ],
+        "applicability": {
+          "state": "applicable",
+          "reasons": []
+        },
+        "utility": {
+          "score": 35,
+          "reasons": [
+            "exploratory_association"
+          ]
+        },
+        "costs": {
+          "memory": {
+            "min": 480210,
+            "expected": 620360,
+            "max": 1020560
+          },
+          "cpu": "low",
+          "cell_ns": 300,
+          "states": [
+            {
+              "key": "crosstab:datasets/rows/fields/column_8>column_2:prefix",
+              "memory": {
+                "min": 4050,
+                "expected": 16200,
+                "max": 32400
+              }
+            },
+            {
+              "key": "result:category_crosstab:datasets/rows/fields/column_8>column_2:prefix",
+              "memory": {
+                "min": 1024,
+                "expected": 1024,
+                "max": 1024
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_8:category",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_8:category",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_8",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            },
+            {
+              "key": "code_feed:datasets/rows/fields/column_2:prefix",
+              "memory": {
+                "min": 229376,
+                "expected": 229376,
+                "max": 229376
+              }
+            },
+            {
+              "key": "coder:datasets/rows/fields/column_2:prefix",
+              "memory": {
+                "min": 8192,
+                "expected": 8192,
+                "max": 8192
+              }
+            },
+            {
+              "key": "replay:datasets/rows/fields/column_2",
+              "memory": {
+                "min": 0,
+                "expected": 64000,
+                "max": 256000
+              }
+            }
+          ]
+        },
+        "selection": {
+          "state": "selected",
+          "reason": "forced",
+          "requested": false,
+          "priority": 68,
+          "satisfied_by": null
+        },
+        "execution": {
+          "requires_source": true,
+          "available": true,
+          "deterministic": true,
+          "reusable": true,
+          "on_limit": "limited"
+        },
+        "partner": "column_2",
         "exploration": {
           "scope": "interior_rows",
           "rows": 900,
@@ -10108,7 +10029,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 16,
+          "priority": 14,
           "satisfied_by": null
         },
         "execution": {
@@ -10230,7 +10151,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 70,
+          "priority": 69,
           "satisfied_by": null
         },
         "execution": {
@@ -10352,7 +10273,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 71,
+          "priority": 70,
           "satisfied_by": null
         },
         "execution": {
@@ -10474,7 +10395,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 72,
+          "priority": 71,
           "satisfied_by": null
         },
         "execution": {
@@ -10596,7 +10517,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 73,
+          "priority": 72,
           "satisfied_by": null
         },
         "execution": {
@@ -10718,7 +10639,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 74,
+          "priority": 73,
           "satisfied_by": null
         },
         "execution": {
@@ -10840,7 +10761,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 75,
+          "priority": 74,
           "satisfied_by": null
         },
         "execution": {
@@ -10962,7 +10883,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 76,
+          "priority": 75,
           "satisfied_by": null
         },
         "execution": {
@@ -11084,7 +11005,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 77,
+          "priority": 76,
           "satisfied_by": null
         },
         "execution": {
@@ -11206,7 +11127,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 78,
+          "priority": 77,
           "satisfied_by": null
         },
         "execution": {
@@ -11328,7 +11249,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 79,
+          "priority": 78,
           "satisfied_by": null
         },
         "execution": {
@@ -11450,7 +11371,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 80,
+          "priority": 79,
           "satisfied_by": null
         },
         "execution": {
@@ -11572,7 +11493,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 82,
+          "priority": 81,
           "satisfied_by": null
         },
         "execution": {
@@ -11694,7 +11615,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 83,
+          "priority": 82,
           "satisfied_by": null
         },
         "execution": {
@@ -11816,7 +11737,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 84,
+          "priority": 83,
           "satisfied_by": null
         },
         "execution": {
@@ -11938,7 +11859,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 85,
+          "priority": 84,
           "satisfied_by": null
         },
         "execution": {
@@ -12060,7 +11981,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 86,
+          "priority": 85,
           "satisfied_by": null
         },
         "execution": {
@@ -12182,7 +12103,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 87,
+          "priority": 86,
           "satisfied_by": null
         },
         "execution": {
@@ -12304,7 +12225,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 88,
+          "priority": 87,
           "satisfied_by": null
         },
         "execution": {
@@ -12407,7 +12328,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 120,
+          "priority": 119,
           "satisfied_by": null
         },
         "execution": {
@@ -12501,7 +12422,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 27,
+          "priority": 25,
           "satisfied_by": null
         },
         "execution": {
@@ -12595,7 +12516,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 122,
+          "priority": 121,
           "satisfied_by": null
         },
         "execution": {
@@ -12689,7 +12610,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 28,
+          "priority": 26,
           "satisfied_by": null
         },
         "execution": {
@@ -12766,7 +12687,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 119,
+          "priority": 118,
           "satisfied_by": null
         },
         "execution": {
@@ -12843,7 +12764,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 118,
+          "priority": 117,
           "satisfied_by": null
         },
         "execution": {
@@ -12920,7 +12841,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 106,
+          "priority": 105,
           "satisfied_by": null
         },
         "execution": {
@@ -12997,7 +12918,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 116,
+          "priority": 115,
           "satisfied_by": null
         },
         "execution": {
@@ -13074,7 +12995,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 115,
+          "priority": 114,
           "satisfied_by": null
         },
         "execution": {
@@ -13151,7 +13072,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 29,
+          "priority": 27,
           "satisfied_by": null
         },
         "execution": {
@@ -13229,7 +13150,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 30,
+          "priority": 28,
           "satisfied_by": null
         },
         "execution": {
@@ -13344,7 +13265,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 31,
+          "priority": 29,
           "satisfied_by": null
         },
         "execution": {
@@ -13413,7 +13334,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 32,
+          "priority": 30,
           "satisfied_by": null
         },
         "execution": {
@@ -13482,7 +13403,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 33,
+          "priority": 31,
           "satisfied_by": null
         },
         "execution": {
@@ -13551,7 +13472,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 34,
+          "priority": 32,
           "satisfied_by": null
         },
         "execution": {
@@ -13629,7 +13550,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 35,
+          "priority": 33,
           "satisfied_by": null
         },
         "execution": {
@@ -13707,7 +13628,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 36,
+          "priority": 34,
           "satisfied_by": null
         },
         "execution": {
@@ -13822,7 +13743,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 37,
+          "priority": 35,
           "satisfied_by": null
         },
         "execution": {
@@ -13937,7 +13858,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 38,
+          "priority": 36,
           "satisfied_by": null
         },
         "execution": {
@@ -14006,7 +13927,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 39,
+          "priority": 37,
           "satisfied_by": null
         },
         "execution": {
@@ -14121,7 +14042,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 40,
+          "priority": 38,
           "satisfied_by": null
         },
         "execution": {
@@ -14199,7 +14120,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 41,
+          "priority": 39,
           "satisfied_by": null
         },
         "execution": {
@@ -14314,7 +14235,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 42,
+          "priority": 40,
           "satisfied_by": null
         },
         "execution": {
@@ -14457,7 +14378,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 43,
+          "priority": 41,
           "satisfied_by": null
         },
         "execution": {
@@ -14535,7 +14456,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 44,
+          "priority": 42,
           "satisfied_by": null
         },
         "execution": {
@@ -14641,7 +14562,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 45,
+          "priority": 43,
           "satisfied_by": null
         },
         "execution": {
@@ -14719,7 +14640,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 46,
+          "priority": 44,
           "satisfied_by": null
         },
         "execution": {
@@ -14834,7 +14755,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 47,
+          "priority": 45,
           "satisfied_by": null
         },
         "execution": {
@@ -14912,7 +14833,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 48,
+          "priority": 46,
           "satisfied_by": null
         },
         "execution": {
@@ -14990,7 +14911,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 49,
+          "priority": 47,
           "satisfied_by": null
         },
         "execution": {
@@ -15133,7 +15054,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 50,
+          "priority": 48,
           "satisfied_by": null
         },
         "execution": {
@@ -15202,7 +15123,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 51,
+          "priority": 49,
           "satisfied_by": null
         },
         "execution": {
@@ -15280,7 +15201,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 52,
+          "priority": 50,
           "satisfied_by": null
         },
         "execution": {
@@ -15347,7 +15268,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 53,
+          "priority": 51,
           "satisfied_by": null
         },
         "execution": {
@@ -15414,7 +15335,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 54,
+          "priority": 52,
           "satisfied_by": null
         },
         "execution": {
@@ -15481,7 +15402,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 55,
+          "priority": 53,
           "satisfied_by": null
         },
         "execution": {
@@ -15548,7 +15469,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 56,
+          "priority": 54,
           "satisfied_by": null
         },
         "execution": {
@@ -15615,7 +15536,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 57,
+          "priority": 55,
           "satisfied_by": null
         },
         "execution": {
@@ -15682,7 +15603,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 58,
+          "priority": 56,
           "satisfied_by": null
         },
         "execution": {
@@ -15749,7 +15670,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 59,
+          "priority": 57,
           "satisfied_by": null
         },
         "execution": {
@@ -15816,7 +15737,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 60,
+          "priority": 58,
           "satisfied_by": null
         },
         "execution": {
@@ -15883,7 +15804,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 61,
+          "priority": 59,
           "satisfied_by": null
         },
         "execution": {
@@ -15950,7 +15871,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 62,
+          "priority": 60,
           "satisfied_by": null
         },
         "execution": {
@@ -16017,7 +15938,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 63,
+          "priority": 61,
           "satisfied_by": null
         },
         "execution": {
@@ -16084,7 +16005,7 @@
           "state": "selected",
           "reason": "forced",
           "requested": false,
-          "priority": 64,
+          "priority": 62,
           "satisfied_by": null
         },
         "execution": {
@@ -16098,20 +16019,20 @@
     ]
   },
   "run": {
-    "started_at": "2026-10-13T11:56:26.115139Z",
-    "duration_seconds": 0.293426,
+    "started_at": "2026-10-13T12:44:38.735984Z",
+    "duration_seconds": 0.30072,
     "timings": {
-      "reading": 0.009289,
-      "analysis": 0.214066,
-      "other": 0.070071
+      "reading": 0.00888,
+      "analysis": 0.220952,
+      "other": 0.070888
     },
     "workers": 1,
-    "peak_memory_bytes": 113381376,
+    "peak_memory_bytes": 112848896,
     "source_read": true,
     "source_verified": true,
     "records_read": 3000,
     "cells_read": 234000,
-    "executed": 126,
+    "executed": 125,
     "reused": 0,
     "skipped": 0
   },
@@ -16128,7 +16049,7 @@
         "distinct": 227
       },
       "domain": "analytical",
-      "key": "8b1c4661c16c4c6984ad24c4bcc83b0f807f9c6a4249380051775d62a6c7adb3",
+      "key": "0d7f84b99f0d7ba2f9ff5d2315287b33c2c1d5b057b225fa13727a6679b8df48",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -17293,7 +17214,7 @@
         "distinct": 214
       },
       "domain": "analytical",
-      "key": "5828f8869548881d7c88dbf3b4f9344015969b01e6173e1c30095200d8953739",
+      "key": "77faaa7c888130663218f53ceddc641fc7cb8ecadb7e1c053ce9d6ef3b4f96be",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -18393,7 +18314,7 @@
         "distinct": 175
       },
       "domain": "analytical",
-      "key": "29aaf274b3b03ad978e93d6c3234e3912f5a4af01e3a16b03d0a4ada84119c2e",
+      "key": "1f930174511be263b58e9db092981cb635315634c219ec4beefa900d68417ff9",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -19298,7 +19219,7 @@
         "distinct": 665
       },
       "domain": "analytical",
-      "key": "9f17b4a4684e84878365d8eff4f87e87982fc898a7db32bcd32e49900257184f",
+      "key": "83766438481e50e3ea59ea4f9b8dd247cf4a88c3dbe3cd764850710480c84cd8",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -22663,7 +22584,7 @@
         "distinct": 135
       },
       "domain": "analytical",
-      "key": "9dc6e0a2707c670d66d7ed2777c22ff7b2c55b958a76e8a40d4248b9c690b2ef",
+      "key": "4554c3edc29dce382c6cd6887b503a498ffffb4f2794972d1510cd3c44117375",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -23368,7 +23289,7 @@
         "distinct": 406
       },
       "domain": "analytical",
-      "key": "594f914b217ab6e973a56682ee87000bd867330143d9772c8c2a4bbdfc87cf41",
+      "key": "4587891a8466266508b8c0d69f0327f90f0b6bd503efc6bd50898be44d19d3fc",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -25473,7 +25394,7 @@
         "distinct": 344
       },
       "domain": "analytical",
-      "key": "3308f025eed851017699f4a7e8281997ff0abd60f78dd115cec321d3d7cc97a1",
+      "key": "b4dd4d7c42896d9322d5baae639e4a085887b8e052962588f16a5a598feb19aa",
       "status": "complete",
       "result": {
         "kind": "frequencies",
@@ -27223,7 +27144,7 @@
         "domain": 9989
       },
       "domain": "analytical",
-      "key": "ab1efaf266a7617204f2d2b2b800ce82b202a76626022f9afe0bb9bcf0523f15",
+      "key": "a8056f7f74e0b009d5ae47cfef12e1cf5d81e0dac5f5e5a9825801bf4c63f8ec",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -37589,7 +37510,7 @@
         "domain": 998
       },
       "domain": "analytical",
-      "key": "30e2a73f0adbb7b231b9ecfba0c981eabd6f6fd4f8347ce0a7cb70d5877d59c9",
+      "key": "5983a6ca11240109acf54d386d2c1083002a2c213b346186ab309147a5817cb9",
       "status": "complete",
       "result": {
         "kind": "dense_counts",
@@ -40312,7 +40233,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "389823e8d340cb2f76551a63dc10f4a28bc58dbb83116f088e36d38b298bad01",
+      "key": "029be96b489b61b8d6ecd1020f2c0086637866b29861edb80b852f079b3113e8",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -40590,7 +40511,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "789a807cf5647bae4e110306245f6ae8bdade7926b6b2f2ed835b8d75020603b",
+      "key": "cb04ab6421dd5841db39debbe0fc00a04876e30fad4a5d879a19d0cb08070b98",
       "status": "complete",
       "result": {
         "kind": "bins",
@@ -40864,33 +40785,58 @@
       "display": "id_client",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 3
+        "patterns": 8
       },
       "domain": "original",
-      "key": "6b5984b21d8aa72caea44a15b6cf6771dbcd1abdbec0d5d1016689619c10c807",
+      "key": "ad53b8106d6ec2854e30dd52e38e6169b64f13dbd6e040e1688378e654acd277",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
         "matched": 3000,
         "candidates": [
           {
-            "id": "p1",
-            "render": "'ONT'9{6,7}",
-            "occurrences": 247
+            "id": "f1.p1",
+            "render": "'ONT00'99999",
+            "occurrences": 246
           },
           {
-            "id": "p2",
-            "render": "'CLI''-'{1,2}9{7,8}",
-            "occurrences": 2185
+            "id": "f2.p1",
+            "render": "'CLI'-'00'999999",
+            "occurrences": 2159
           },
           {
-            "id": "p3",
-            "render": "'QC''-'{1,2}9999-9{3,4}",
-            "occurrences": 568
+            "id": "f3.p1",
+            "render": "'QC'-'000'9-9999",
+            "occurrences": 558
+          },
+          {
+            "id": "f2.p2",
+            "render": "'CLI'-'00'99999",
+            "occurrences": 14
+          },
+          {
+            "id": "f2.p3",
+            "render": "'CLI'--'00'999999",
+            "occurrences": 12
+          },
+          {
+            "id": "f3.p2",
+            "render": "'QC'-'000'9-999",
+            "occurrences": 5
+          },
+          {
+            "id": "f3.p3",
+            "render": "'QC'--'000'9-9999",
+            "occurrences": 5
+          },
+          {
+            "id": "f1.p2",
+            "render": "AAA999999",
+            "occurrences": 1
           }
         ],
         "other": 0,
@@ -40911,23 +40857,28 @@
       "display": "date_naissance",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 2
       },
       "domain": "original",
-      "key": "994201a06e2d710dba4ae3f34d412dc672f409b89bc0599b0066526485457897",
+      "key": "5bd09d9496832a1903d25c314de33d22db6b41f7de62a46d35be55e4a934160b",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 2994,
         "matched": 2985,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2985
+            "id": "f1.p1",
+            "render": "9999-99-99",
+            "occurrences": 2169
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-9999",
+            "occurrences": 816
           }
         ],
         "other": 9,
@@ -40948,42 +40899,129 @@
       "display": "province_nom",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 3
+        "patterns": 16
       },
       "domain": "original",
-      "key": "898741e586aea0025283745e6ff9b505a510839afaf8183190b79b6bdd6984c9",
+      "key": "e672bf9c6fcd038c3d30dd168ceb28a3c2ed55f1307a2f14dab7e4b4d5984bba",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "samples",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
-        "matched": 731,
+        "matched": 3000,
         "candidates": [
           {
-            "id": "p1",
-            "render": "Xx{4,11}",
-            "occurrences": 578
+            "id": "f2.p1",
+            "render": "Aaaaaaa",
+            "occurrences": 508
           },
           {
-            "id": "p2",
-            "render": "Xx{6,7}-Xx{5,10}",
-            "occurrences": 142
+            "id": "f1.p1",
+            "render": "@@@@@@",
+            "occurrences": 2244
           },
           {
-            "id": "p3",
-            "render": "x{6,7}",
-            "occurrences": 11
+            "id": "f2.p2",
+            "render": "Aaaaa",
+            "occurrences": 5
+          },
+          {
+            "id": "f2.p3",
+            "render": "Aaaaaa",
+            "occurrences": 0
+          },
+          {
+            "id": "f2.p4",
+            "render": "Aa{7}",
+            "occurrences": 32
+          },
+          {
+            "id": "f2.p5",
+            "render": "Aa{11}",
+            "occurrences": 23
+          },
+          {
+            "id": "f3.p1",
+            "render": "Aaaaaaa-Aa{8}",
+            "occurrences": 56
+          },
+          {
+            "id": "f3.p2",
+            "render": "Aa{7}-Aaaaaa",
+            "occurrences": 1
+          },
+          {
+            "id": "f3.p3",
+            "render": "Aa{7}-Aa{10}",
+            "occurrences": 85
+          },
+          {
+            "id": "f4.p1",
+            "render": "aaaaaa",
+            "occurrences": 0
+          },
+          {
+            "id": "f4.p2",
+            "render": "a{7}",
+            "occurrences": 1
+          },
+          {
+            "id": "f5.p1",
+            "render": "a{8}-a{11}",
+            "occurrences": 1
+          },
+          {
+            "id": "f6.p1",
+            "render": "Aa{10}' 'aa' 'Aaaa-Aaaaa",
+            "occurrences": 2
+          },
+          {
+            "id": "f7.p1",
+            "render": "Aaaaa-Aaaaa-aa-Aa{7}",
+            "occurrences": 12
+          },
+          {
+            "id": "f8.p1",
+            "render": "Aa{7}-@@@@@@",
+            "occurrences": 23
+          },
+          {
+            "id": "f9.p1",
+            "render": "@@@-aa-Aaaaaa-@{7}",
+            "occurrences": 7
           }
         ],
-        "other": 2269,
+        "other": 0,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
           "too_complex": 0
         },
-        "overlaps": []
+        "overlaps": [
+          {
+            "patterns": [
+              "f1.p1",
+              "f2.p3"
+            ],
+            "occurrences": 10
+          },
+          {
+            "patterns": [
+              "f1.p1",
+              "f4.p1"
+            ],
+            "occurrences": 10
+          },
+          {
+            "patterns": [
+              "f3.p2",
+              "f8.p1"
+            ],
+            "occurrences": 1
+          }
+        ]
       }
     },
     {
@@ -40995,37 +41033,42 @@
       "display": "code_postal",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 4
+        "patterns": 5
       },
       "domain": "original",
-      "key": "752b06763e40da2c7ba3ab31b39b669733c2ba81e8c131eeb0af5707d4ebde40",
+      "key": "0aac68ee04a06af161b76956ce2650e07d7855029dab482dd1adc8889b31507a",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
         "matched": 3000,
         "candidates": [
           {
-            "id": "p1",
-            "render": "X9X' '{1,2}9X9",
-            "occurrences": 2979
+            "id": "f1.p1",
+            "render": "A9A' '9A9",
+            "occurrences": 2925
           },
           {
-            "id": "p2",
-            "render": "9X' '9X9",
+            "id": "f1.p2",
+            "render": "A9A' '{2}9A9",
+            "occurrences": 54
+          },
+          {
+            "id": "f2.p1",
+            "render": "9A' '9A9",
             "occurrences": 9
           },
           {
-            "id": "p3",
-            "render": "X9' '9X9",
+            "id": "f3.p1",
+            "render": "A9' '9A9",
             "occurrences": 7
           },
           {
-            "id": "p4",
-            "render": "X9X' '99",
+            "id": "f4.p1",
+            "render": "A9A' '99",
             "occurrences": 5
           }
         ],
@@ -41047,23 +41090,33 @@
       "display": "id_contrat",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 3
       },
       "domain": "original",
-      "key": "860ac99d4dca89aa6c28bdb532e4b3400dd303d20e319f394a3745de37b2ec6d",
+      "key": "64346a2e86e06b18d5736d4988c2f9fc5622423b0ba102a3ecd345b76b40cff1",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 2991,
         "matched": 2991,
         "candidates": [
           {
-            "id": "p1",
-            "render": "'CTR''-'{1,2}9{9,10}",
-            "occurrences": 2991
+            "id": "f1.p1",
+            "render": "'CTR'-9{10}",
+            "occurrences": 2955
+          },
+          {
+            "id": "f1.p2",
+            "render": "'CTR'-9{9}",
+            "occurrences": 22
+          },
+          {
+            "id": "f1.p3",
+            "render": "'CTR'--9{10}",
+            "occurrences": 14
           }
         ],
         "other": 0,
@@ -41084,23 +41137,28 @@
       "display": "date_debut",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 2
       },
       "domain": "original",
-      "key": "a7824a52486b90f88466f0a01eee837f440b7c6772317ceedcfe8ead72db3bb6",
+      "key": "4a98c5636fd7487bf4463ee606a22ebe8e12bd30d3c3f06a9924f31cd326cffc",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
         "matched": 2992,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2992
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2175
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 817
           }
         ],
         "other": 8,
@@ -41121,23 +41179,28 @@
       "display": "date_fin",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 2
       },
       "domain": "original",
-      "key": "85342a5590d84ecf3c828c1a46f33210e87a750e93b2e9d5a105dc5f9a8f429d",
+      "key": "98bec37303bdb0e73cf6a60bd234940426e3401ef93768d43d77375c0b449010",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 2498,
         "matched": 2490,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2490
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 1805
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 685
           }
         ],
         "other": 8,
@@ -41158,23 +41221,28 @@
       "display": "agence_code",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 2
       },
       "domain": "original",
-      "key": "f9c3b727cf992de643a753690f4c0087d1462cd386572c5adf484c3cd6ce3e27",
+      "key": "7b10f859f8b02ad0f47cde24b71e6985077c7101abcbc211f07e1fd4ce7a287a",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "samples",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
         "matched": 3000,
         "candidates": [
           {
-            "id": "p1",
-            "render": "'AG''-'{1,2}XX-999",
-            "occurrences": 3000
+            "id": "f1.p1",
+            "render": "'AG'-AA-'00'9",
+            "occurrences": 2984
+          },
+          {
+            "id": "f1.p2",
+            "render": "'AG'--AA-'00'9",
+            "occurrences": 16
           }
         ],
         "other": 0,
@@ -41195,26 +41263,36 @@
       "display": "date_creation",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 3
       },
       "domain": "original",
-      "key": "ba7b906a0e1dda116f11b145fe1ddc2a5a45c4715eb5c24dbd0cce97b1a180c4",
+      "key": "a9df9bb738551afb9241d4d974a54e60f068ae82c8265528b0671a62ee1deea5",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
-        "matched": 2991,
+        "matched": 2992,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2991
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2173
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 818
+          },
+          {
+            "id": "f2.p1",
+            "render": "99/99/9999",
+            "occurrences": 1
           }
         ],
-        "other": 9,
+        "other": 8,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
@@ -41232,26 +41310,36 @@
       "display": "date_modification",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 3
       },
       "domain": "original",
-      "key": "51bc820a74adc334f10b7df9e42c219a829ebc429ed2eb9e6030c62e7c3325bf",
+      "key": "746c868d14925821f046c2c8cc2b4b38160133d430a2da214de7da2e4d198be0",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 3000,
-        "matched": 2993,
+        "matched": 2962,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2993
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2176
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'202'9",
+            "occurrences": 781
+          },
+          {
+            "id": "f2.p1",
+            "render": "9999/99/99",
+            "occurrences": 5
           }
         ],
-        "other": 7,
+        "other": 38,
         "excluded": {
           "non_string": 0,
           "too_long": 0,
@@ -41269,23 +41357,28 @@
       "display": "date_reclamation",
       "method": "compiled_matcher",
       "parameters": {
-        "patterns": 1
+        "patterns": 2
       },
       "domain": "original",
-      "key": "8fc4f6458cf357a2b27cd520fd028ad1a4e46a1260a2dbfa332ba38d1ca65af1",
+      "key": "be9ea8f0fb09a0bd0a81415b7a23784d4a58732a340d77b4a24a6176a4ce7b4c",
       "status": "complete",
       "result": {
         "kind": "pattern_counts",
         "accuracy": "exact",
         "computed_from": "source",
-        "grammar_version": 1,
+        "grammar_version": 2,
         "values": 420,
         "matched": 420,
         "candidates": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 420
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 297
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 123
           }
         ],
         "other": 0,
@@ -41311,7 +41404,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "2b26b18c192fb77b476b18b31700b5feb50520cf17d22f539e52f18ba0aca24e",
+      "key": "ea03c1f94a60aab379bd48d60f10bc1a2cd9254afda408273f5566dfbbc5f507",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -41852,7 +41945,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "96c5ae4cba62b1b40ae53d6d72538d55e28d477528d5200b744289f7a9bfdee7",
+      "key": "e1629f0c41d997a56e6a028f0063010a62eb0a79c3e41aed5da4d73ac70fae06",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -42329,7 +42422,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "754c13982cb2be014dc6a2abff1ae869bac4df56d87423416a4ad53c42212463",
+      "key": "28f41c56acf1a4560e40ac41c1a7f006230ea19af7043e494d8ebf631c654297",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -42850,7 +42943,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "7e5ff6a435f6397e0eb9bef18f08777386f0e53107882726fbbae495c6709e63",
+      "key": "fe12813d8f94e76019b4ae92389ae715e8ce9fff78251ecd5c48e3aa99d65204",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -43343,7 +43436,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "94155457f2a60c4fe43cb526ef902dea2bb9473b24ef82f73fd7d1da1fb15c98",
+      "key": "babf210723e6f71a90f8cbe66005f1482514702a7a33055ba20908573f1c24f9",
       "status": "complete",
       "result": {
         "kind": "periods",
@@ -43734,7 +43827,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "7f658ee62439538fb37b3440a7723c41fc376b4071de89a4e3e7efb447b2c6e0",
+      "key": "c54f9f29bdcc38802344976ffb32119fb64ee8a08b23b0f99719448c34c6b7cd",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -43745,31 +43838,76 @@
         "tables": [],
         "patterns": [
           {
-            "id": "p1",
-            "render": "'ONT'9{6,7}",
-            "occurrences": 247,
-            "distinct": 246,
+            "id": "f1.p1",
+            "render": "'ONT00'99999",
+            "occurrences": 246,
+            "distinct": 245,
             "distinct_accuracy": "exact",
             "example": "ONT0000116",
             "first_record": 1115
           },
           {
-            "id": "p2",
-            "render": "'CLI''-'{1,2}9{7,8}",
-            "occurrences": 2185,
-            "distinct": 2178,
+            "id": "f2.p1",
+            "render": "'CLI'-'00'999999",
+            "occurrences": 2159,
+            "distinct": 2152,
             "distinct_accuracy": "exact",
             "example": "CLI-00000281",
             "first_record": 1
           },
           {
-            "id": "p3",
-            "render": "'QC''-'{1,2}9999-9{3,4}",
-            "occurrences": 568,
-            "distinct": 568,
+            "id": "f3.p1",
+            "render": "'QC'-'000'9-9999",
+            "occurrences": 558,
+            "distinct": 558,
             "distinct_accuracy": "exact",
             "example": "QC-0000-0025",
             "first_record": 1238
+          },
+          {
+            "id": "f2.p2",
+            "render": "'CLI'-'00'99999",
+            "occurrences": 14,
+            "distinct": 14,
+            "distinct_accuracy": "exact",
+            "example": "CLI-0000072",
+            "first_record": 4
+          },
+          {
+            "id": "f2.p3",
+            "render": "'CLI'--'00'999999",
+            "occurrences": 12,
+            "distinct": 12,
+            "distinct_accuracy": "exact",
+            "example": "CLI--00001642",
+            "first_record": 10
+          },
+          {
+            "id": "f3.p2",
+            "render": "'QC'-'000'9-999",
+            "occurrences": 5,
+            "distinct": 5,
+            "distinct_accuracy": "exact",
+            "example": "QC-0004-721",
+            "first_record": 1483
+          },
+          {
+            "id": "f3.p3",
+            "render": "'QC'--'000'9-9999",
+            "occurrences": 5,
+            "distinct": 5,
+            "distinct_accuracy": "exact",
+            "example": "QC--0001-8419",
+            "first_record": 2802
+          },
+          {
+            "id": "f1.p2",
+            "render": "AAA999999",
+            "occurrences": 1,
+            "distinct": 1,
+            "distinct_accuracy": "exact",
+            "example": "ONT000933",
+            "first_record": 1163
           }
         ],
         "pattern_excluded": {
@@ -43796,7 +43934,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "46fecdbfc93f05202066831d69354afb24856a7da110e798e36148a9f3534823",
+      "key": "e2825548d1cbfc3f6cb7ba2c04142513635e80b6a97cee55a202181938203abf",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -43889,13 +44027,22 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2985,
-            "distinct": 2880,
+            "id": "f1.p1",
+            "render": "9999-99-99",
+            "occurrences": 2169,
+            "distinct": 2075,
             "distinct_accuracy": "exact",
             "example": "1961-03-31",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-9999",
+            "occurrences": 816,
+            "distinct": 805,
+            "distinct_accuracy": "exact",
+            "example": "14-07-2007",
+            "first_record": 337
           }
         ],
         "pattern_excluded": {
@@ -43917,102 +44064,6 @@
       }
     },
     {
-      "id": "residual_values:rows:column_16",
-      "analyzer": "residual_values",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_16",
-      "display": "province_nom",
-      "method": "residual_table",
-      "parameters": {
-        "sources": "pattern",
-        "max_listed": 20,
-        "max_tracked": 10000,
-        "max_value_length": 100,
-        "records": 0
-      },
-      "domain": "mixed",
-      "key": "461312b8479c0431b2ba9bae817fb54d2d424a48097e43b63ced26cc0e6d2012",
-      "status": "complete",
-      "result": {
-        "kind": "residual_values",
-        "accuracy": "exact",
-        "computed_from": "samples",
-        "records": false,
-        "values": 3000,
-        "tables": [
-          {
-            "source": "pattern",
-            "state": "other",
-            "occurrences": 2269,
-            "distinct": 6,
-            "complete": true,
-            "untracked": 0,
-            "too_long": 0,
-            "truncated": false,
-            "listed": [
-              {
-                "value": "Québec",
-                "count": 2224
-              },
-              {
-                "value": "Nouvelle-Écosse",
-                "count": 23
-              },
-              {
-                "value": "Terre-Neuve-et-Labrador",
-                "count": 12
-              },
-              {
-                "value": "Île-du-Prince-Édouard",
-                "count": 7
-              },
-              {
-                "value": "Territoires du Nord-Ouest",
-                "count": 2
-              },
-              {
-                "value": "colombie-britannique",
-                "count": 1
-              }
-            ]
-          }
-        ],
-        "patterns": [
-          {
-            "id": "p1",
-            "render": "Xx{4,11}",
-            "occurrences": 578,
-            "distinct": 7,
-            "distinct_accuracy": "exact",
-            "example": "Manitoba"
-          },
-          {
-            "id": "p2",
-            "render": "Xx{6,7}-Xx{5,10}",
-            "occurrences": 142,
-            "distinct": 3,
-            "distinct_accuracy": "exact",
-            "example": "Nouveau-Brunswick"
-          },
-          {
-            "id": "p3",
-            "render": "x{6,7}",
-            "occurrences": 11,
-            "distinct": 2,
-            "distinct_accuracy": "exact",
-            "example": "quebec"
-          }
-        ],
-        "pattern_excluded": {
-          "non_string": 0,
-          "too_long": 0,
-          "too_complex": 0
-        },
-        "detectors": []
-      }
-    },
-    {
       "id": "residual_values:rows:column_17",
       "analyzer": "residual_values",
       "analyzer_version": 1,
@@ -44028,7 +44079,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "3694d8d101735d006802a3c7f1ef131265b12b19dd0f71146b3b294d6797cfb3",
+      "key": "fc0c6e98874b328e6f2f8908590f5374bdfb78cdba5b4cecefb294b1844a8456",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44153,17 +44204,26 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "X9X' '{1,2}9X9",
-            "occurrences": 2979,
-            "distinct": 2944,
+            "id": "f1.p1",
+            "render": "A9A' '9A9",
+            "occurrences": 2925,
+            "distinct": 2890,
             "distinct_accuracy": "exact",
             "example": "H4A 9M3",
             "first_record": 1
           },
           {
-            "id": "p2",
-            "render": "9X' '9X9",
+            "id": "f1.p2",
+            "render": "A9A' '{2}9A9",
+            "occurrences": 54,
+            "distinct": 54,
+            "distinct_accuracy": "exact",
+            "example": "G7J  0N0",
+            "first_record": 103
+          },
+          {
+            "id": "f2.p1",
+            "render": "9A' '9A9",
             "occurrences": 9,
             "distinct": 9,
             "distinct_accuracy": "exact",
@@ -44171,8 +44231,8 @@
             "first_record": 687
           },
           {
-            "id": "p3",
-            "render": "X9' '9X9",
+            "id": "f3.p1",
+            "render": "A9' '9A9",
             "occurrences": 7,
             "distinct": 7,
             "distinct_accuracy": "exact",
@@ -44180,8 +44240,8 @@
             "first_record": 417
           },
           {
-            "id": "p4",
-            "render": "X9X' '99",
+            "id": "f4.p1",
+            "render": "A9A' '99",
             "occurrences": 5,
             "distinct": 5,
             "distinct_accuracy": "exact",
@@ -44223,7 +44283,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "a1c033e077ec2505dfc4ea2e8ea844ea7cf5a69beeb1b48c5d667774e633e8d1",
+      "key": "f031c106a02100571c9d18ec50e555bc9982faccd54e96b5c5c94f23520e50e9",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44234,13 +44294,31 @@
         "tables": [],
         "patterns": [
           {
-            "id": "p1",
-            "render": "'CTR''-'{1,2}9{9,10}",
-            "occurrences": 2991,
-            "distinct": 2983,
+            "id": "f1.p1",
+            "render": "'CTR'-9{10}",
+            "occurrences": 2955,
+            "distinct": 2947,
             "distinct_accuracy": "exact",
             "example": "CTR-1000000281",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "'CTR'-9{9}",
+            "occurrences": 22,
+            "distinct": 22,
+            "distinct_accuracy": "exact",
+            "example": "CTR-100000950",
+            "first_record": 53
+          },
+          {
+            "id": "f1.p3",
+            "render": "'CTR'--9{10}",
+            "occurrences": 14,
+            "distinct": 14,
+            "distinct_accuracy": "exact",
+            "example": "CTR--1000010341",
+            "first_record": 56
           }
         ],
         "pattern_excluded": {
@@ -44267,7 +44345,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "761a205e7f33f0595b4b46cc9a602d726748f27996cd9cda0cd34f6c8f17c2e3",
+      "key": "6812a012616a7205e012bcb15c041baefdc57ba03682de927cde6381986f68de",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44360,13 +44438,22 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2992,
-            "distinct": 2401,
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2175,
+            "distinct": 1660,
             "distinct_accuracy": "exact",
             "example": "2020-07-16",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 817,
+            "distinct": 741,
+            "distinct_accuracy": "exact",
+            "example": "04-12-2025",
+            "first_record": 337
           }
         ],
         "pattern_excluded": {
@@ -44403,7 +44490,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "10af86d53bbbe715f3d1eaff317e6ba00cde817221848905a63319652044b92e",
+      "key": "590267fc085901ed4e6da6c31c516d8b860e06f58b9c757564d138a64fbe0573",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44496,13 +44583,22 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2490,
-            "distinct": 1169,
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 1805,
+            "distinct": 701,
             "distinct_accuracy": "exact",
             "example": "2026-12-28",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 685,
+            "distinct": 468,
+            "distinct_accuracy": "exact",
+            "example": "12-05-2026",
+            "first_record": 521
           }
         ],
         "pattern_excluded": {
@@ -44539,7 +44635,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "aab4d5eae94f773c43c3690172f4d7d8cc0ed0e8b7901d97023342f9b73c39c5",
+      "key": "3acd066eee0c9b09198df09685ae58606686340f53b93a9365995664e6907954",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44551,18 +44647,13 @@
           {
             "source": "pattern",
             "state": "other",
-            "occurrences": 9,
-            "distinct": 9,
+            "occurrences": 8,
+            "distinct": 8,
             "complete": true,
             "untracked": 0,
             "too_long": 0,
             "truncated": false,
             "listed": [
-              {
-                "value": "01/08/2018",
-                "count": 1,
-                "first_record": 2863
-              },
               {
                 "value": "2017/02/23",
                 "count": 1,
@@ -44642,13 +44733,31 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2991,
-            "distinct": 2352,
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2173,
+            "distinct": 1602,
             "distinct_accuracy": "exact",
             "example": "2020-07-08",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 818,
+            "distinct": 750,
+            "distinct_accuracy": "exact",
+            "example": "17-11-2025",
+            "first_record": 337
+          },
+          {
+            "id": "f2.p1",
+            "render": "99/99/9999",
+            "occurrences": 1,
+            "distinct": 1,
+            "distinct_accuracy": "exact",
+            "example": "01/08/2018",
+            "first_record": 2863
           }
         ],
         "pattern_excluded": {
@@ -44685,7 +44794,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "3980a9c31f15520134fbef8113119444cb4e1d568ba09b4d3a3c02e5434cafbc",
+      "key": "5c6fb64049c0ccf4d47ad27a21410212ac79e4cf265438edcce85336f4cc5b17",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44697,47 +44806,112 @@
           {
             "source": "pattern",
             "state": "other",
-            "occurrences": 7,
-            "distinct": 7,
+            "occurrences": 38,
+            "distinct": 37,
             "complete": true,
             "untracked": 0,
             "too_long": 0,
-            "truncated": false,
+            "truncated": true,
             "listed": [
               {
-                "value": "11/06/2026",
-                "count": 1,
-                "first_record": 2872
+                "value": "11-10-2019",
+                "count": 2,
+                "first_record": 2629
               },
               {
-                "value": "19/03/2026",
+                "value": "01-02-2019",
                 "count": 1,
-                "first_record": 2920
+                "first_record": 1405
               },
               {
-                "value": "2023/01/30",
+                "value": "02-01-2019",
                 "count": 1,
-                "first_record": 325
+                "first_record": 1134
               },
               {
-                "value": "2025/04/15",
+                "value": "02-04-2018",
                 "count": 1,
-                "first_record": 1030
+                "first_record": 1195
               },
               {
-                "value": "2025/05/14",
+                "value": "03-08-2019",
                 "count": 1,
-                "first_record": 2539
+                "first_record": 1403
               },
               {
-                "value": "2025/11/20",
+                "value": "03-16-2018",
                 "count": 1,
-                "first_record": 1736
+                "first_record": 1162
               },
               {
-                "value": "2026/09/16",
+                "value": "04-11-2018",
                 "count": 1,
-                "first_record": 1054
+                "first_record": 2760
+              },
+              {
+                "value": "05-11-2019",
+                "count": 1,
+                "first_record": 1358
+              },
+              {
+                "value": "06-03-2019",
+                "count": 1,
+                "first_record": 1161
+              },
+              {
+                "value": "07-14-2017",
+                "count": 1,
+                "first_record": 2674
+              },
+              {
+                "value": "07-18-2018",
+                "count": 1,
+                "first_record": 2613
+              },
+              {
+                "value": "08-08-2018",
+                "count": 1,
+                "first_record": 1203
+              },
+              {
+                "value": "08-10-2017",
+                "count": 1,
+                "first_record": 1452
+              },
+              {
+                "value": "08-12-2017",
+                "count": 1,
+                "first_record": 1271
+              },
+              {
+                "value": "08-12-2019",
+                "count": 1,
+                "first_record": 1380
+              },
+              {
+                "value": "09-02-2018",
+                "count": 1,
+                "first_record": 2754
+              },
+              {
+                "value": "10-27-2017",
+                "count": 1,
+                "first_record": 1220
+              },
+              {
+                "value": "11-08-2019",
+                "count": 1,
+                "first_record": 2859
+              },
+              {
+                "value": "11-12-2018",
+                "count": 1,
+                "first_record": 2965
+              },
+              {
+                "value": "11-23-2019",
+                "count": 1,
+                "first_record": 1200
               }
             ]
           },
@@ -44773,13 +44947,31 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 2993,
-            "distinct": 2028,
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 2176,
+            "distinct": 1333,
             "distinct_accuracy": "exact",
             "example": "2024-10-24",
             "first_record": 1
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'202'9",
+            "occurrences": 781,
+            "distinct": 660,
+            "distinct_accuracy": "exact",
+            "example": "05-03-2026",
+            "first_record": 337
+          },
+          {
+            "id": "f2.p1",
+            "render": "9999/99/99",
+            "occurrences": 5,
+            "distinct": 5,
+            "distinct_accuracy": "exact",
+            "example": "2023/01/30",
+            "first_record": 325
           }
         ],
         "pattern_excluded": {
@@ -44816,7 +45008,7 @@
         "records": 0
       },
       "domain": "mixed",
-      "key": "38979a365b22ad10c368d442a818eeda65b30f28af97ebdceb37304f342367cc",
+      "key": "b800a7dd07c0764af8d31fdd704c3547101a7a3002420818bdd8fac3bddcb07b",
       "status": "complete",
       "result": {
         "kind": "residual_values",
@@ -44852,13 +45044,22 @@
         ],
         "patterns": [
           {
-            "id": "p1",
-            "render": "9{2,4}-99-9{2,4}",
-            "occurrences": 420,
-            "distinct": 406,
+            "id": "f1.p1",
+            "render": "'20'99-99-99",
+            "occurrences": 297,
+            "distinct": 285,
             "distinct_accuracy": "exact",
             "example": "2026-05-13",
             "first_record": 6
+          },
+          {
+            "id": "f1.p2",
+            "render": "99-99-'20'99",
+            "occurrences": 123,
+            "distinct": 121,
+            "distinct_accuracy": "exact",
+            "example": "12-06-2026",
+            "first_record": 337
           }
         ],
         "pattern_excluded": {
@@ -44893,7 +45094,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "cc121a811d0b9046eab3a18406910217104f074b63a3a4afe88d7fe314f736e7",
+      "key": "954a073322f28e250bac31ae185666a72164d2907ead511f67e9429ac8183b2b",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -44970,7 +45171,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "33de38420a6ca056ac9da88e314c68a6ffd037bd68e9e395e0dd0c0efc324d37",
+      "key": "6768ac86fa3b7b1f47e4aa0500dca37dbf2e207de3589365ddc962b4e86b5d79",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -45107,7 +45308,7 @@
         "records": 0
       },
       "domain": "analytical",
-      "key": "ed5bd640eb82c4873fe80d4246eb1e35e84fbb71a728cc80e6917ba413b43090",
+      "key": "93c52e29ff45b0e01d7a6e61d79b13c316797e30d4767aa9f0017a41a61d0b1a",
       "status": "complete",
       "result": {
         "kind": "duplicates",
@@ -45184,7 +45385,7 @@
         "rank_bins": 64
       },
       "domain": "analytical",
-      "key": "55bbd83fdadf8e8416bc0e5bea8233e502bd31de7718c43f8a5af78ff24d929c",
+      "key": "cded927a57115ed6200c5b665af40aedd70111a0d9433ad1c505c0f9ad21c56e",
       "status": "complete",
       "result": {
         "kind": "pearson",
@@ -45226,241 +45427,6 @@
       }
     },
     {
-      "id": "category_crosstab:rows:column_1>column_2:pattern",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_1",
-      "partner": "column_2",
-      "display": "filiale and id_client (pattern)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "pattern",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30
-      },
-      "domain": "mixed",
-      "key": "a02558993ddf6736ba4663d1f50809ed8514f61ce703591ac4887eb3283eb9f3",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "pattern",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_1",
-          "display": "filiale",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "principal",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "quebec",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "ontario",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_2",
-          "display": "id_client",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "p1",
-              "label": "'ONT'9{6,7}",
-              "kind": "value"
-            },
-            {
-              "id": "p2",
-              "label": "'CLI''-'{1,2}9{7,8}",
-              "kind": "value"
-            },
-            {
-              "id": "p3",
-              "label": "'QC''-'{1,2}9999-9{3,4}",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 3000,
-        "counted": 3000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            0,
-            2185,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            568,
-            0
-          ],
-          [
-            247,
-            0,
-            0,
-            0
-          ],
-          [
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          2185,
-          568,
-          247,
-          0
-        ],
-        "column_totals": [
-          247,
-          2185,
-          568,
-          0
-        ],
-        "by_category": [
-          {
-            "rows": 2185,
-            "classified": 2185,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 1,
-            "dominant_count": 2185,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 568,
-            "classified": 568,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 2,
-            "dominant_count": 568,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 247,
-            "classified": 247,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 247,
-            "purity": 1.0,
-            "exceptions": 0
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 3000,
-            "total": 3000,
-            "value": 1.0
-          },
-          "reverse": {
-            "dominant": 3000,
-            "total": 3000,
-            "value": 1.0
-          },
-          "baseline": 0.7283333333333334
-        },
-        "association": {
-          "defined": true,
-          "n": 3000,
-          "effective_categories": 3,
-          "effective_classes": 3,
-          "chi_square": 6000.000000000001,
-          "degrees": 4,
-          "cramers_v": 1.0,
-          "corrected": 1.0,
-          "low_share": 0.0,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 0,
-          "cells": 0,
-          "complete": true,
-          "listed": []
-        },
-        "rules": [
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 0,
-            "column": 1,
-            "support": 2185,
-            "confidence": 1.0,
-            "exceptions": 0
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 1,
-            "column": 2,
-            "support": 568,
-            "confidence": 1.0,
-            "exceptions": 0
-          },
-          {
-            "status": "candidate",
-            "provenance": "learned",
-            "category": 2,
-            "column": 0,
-            "support": 247,
-            "confidence": 1.0,
-            "exceptions": 0
-          }
-        ]
-      }
-    },
-    {
       "id": "category_crosstab:rows:column_1>column_2:prefix",
       "analyzer": "category_crosstab",
       "analyzer_version": 1,
@@ -45480,7 +45446,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "d641371e324bce1395b4c4e7917b3cc6d8f9e36cbffcfa39d6c63f65364d18a1",
+      "key": "33ef597b207f2c6d33d592dce6a5ae71bc1d26b128bacaeb0dd8d1bbd25bfe46",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -45718,7 +45684,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "12c57dd660294065c910931545476e49d8c021a4b622b6f988a90ba6d52326e9",
+      "key": "861dc94a38392148d163617355e81948a92a0b6571a284a6eb594253de7b4ef5",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -45914,7 +45880,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "57134000735899c7432e0d04f776648a64dc3b9024a5d99a13f4b092bdda4276",
+      "key": "2bfa7e60a29f80d3c39134ba19197614e3f8a08344ffc0c9c13b133537c5fe2e",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -46109,7 +46075,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "ea38f938fbcb3f91c979a895231cca6e5185754ca39f84b183e04c67ea2b9c5a",
+      "key": "2cacc29a1d5bea8b7e4cf0a6d653ae658fc9cd624c92eb7a633ea81dc90b8bcf",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -46305,7 +46271,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "3187d3091d75c0d70f5066492013351566939e56f547461ec660b7d3e6e892b8",
+      "key": "0061547371169a5b1cc1318920c56601f1e068ae2ac88c1e29435dd2791e18a7",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -46483,6 +46449,379 @@
       }
     },
     {
+      "id": "category_crosstab:rows:column_1>column_2:pattern",
+      "analyzer": "category_crosstab",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_1",
+      "partner": "column_2",
+      "display": "filiale and id_client (pattern)",
+      "method": "contingency_table",
+      "parameters": {
+        "feature": "pattern",
+        "max_categories": 30,
+        "examples": 3,
+        "max_exception_cells": 20,
+        "rule_purity": 90,
+        "rule_support": 30
+      },
+      "domain": "mixed",
+      "key": "de17d6aa0f76dc82dae090cced22b2e43f786ad7b5ec6073eabfe2c2708f4c78",
+      "status": "complete",
+      "result": {
+        "kind": "crosstab",
+        "accuracy": "exact_counts",
+        "precision": "float64",
+        "source": "source",
+        "feature": {
+          "kind": "pattern",
+          "version": 1
+        },
+        "categories": {
+          "field": "column_1",
+          "display": "filiale",
+          "domain": "analytical",
+          "classes": [
+            {
+              "id": "c1",
+              "label": "principal",
+              "kind": "value"
+            },
+            {
+              "id": "c2",
+              "label": "quebec",
+              "kind": "value"
+            },
+            {
+              "id": "c3",
+              "label": "ontario",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "classes": {
+          "field": "column_2",
+          "display": "id_client",
+          "domain": "original",
+          "classes": [
+            {
+              "id": "f1.p1",
+              "label": "'ONT00'99999",
+              "kind": "value"
+            },
+            {
+              "id": "f2.p1",
+              "label": "'CLI'-'00'999999",
+              "kind": "value"
+            },
+            {
+              "id": "f3.p1",
+              "label": "'QC'-'000'9-9999",
+              "kind": "value"
+            },
+            {
+              "id": "f2.p2",
+              "label": "'CLI'-'00'99999",
+              "kind": "value"
+            },
+            {
+              "id": "f2.p3",
+              "label": "'CLI'--'00'999999",
+              "kind": "value"
+            },
+            {
+              "id": "f3.p2",
+              "label": "'QC'-'000'9-999",
+              "kind": "value"
+            },
+            {
+              "id": "f3.p3",
+              "label": "'QC'--'000'9-9999",
+              "kind": "value"
+            },
+            {
+              "id": "f1.p2",
+              "label": "AAA999999",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "rows": 3000,
+        "counted": 3000,
+        "excluded": {
+          "category_missing": 0,
+          "feature_missing": 0,
+          "both_missing": 0,
+          "unclassified": 0
+        },
+        "counts": [
+          [
+            0,
+            2159,
+            0,
+            14,
+            12,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            558,
+            0,
+            0,
+            5,
+            5,
+            0,
+            0
+          ],
+          [
+            246,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "row_totals": [
+          2185,
+          568,
+          247,
+          0
+        ],
+        "column_totals": [
+          246,
+          2159,
+          558,
+          14,
+          12,
+          5,
+          5,
+          1,
+          0
+        ],
+        "by_category": [
+          {
+            "rows": 2185,
+            "classified": 2185,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 1,
+            "dominant_count": 2159,
+            "purity": 0.9881006864988559,
+            "exceptions": 26
+          },
+          {
+            "rows": 568,
+            "classified": 568,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 2,
+            "dominant_count": 558,
+            "purity": 0.9823943661971831,
+            "exceptions": 10
+          },
+          {
+            "rows": 247,
+            "classified": 247,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 0,
+            "dominant_count": 246,
+            "purity": 0.9959514170040485,
+            "exceptions": 1
+          },
+          {
+            "rows": 0,
+            "classified": 0,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "dominant_count": 0,
+            "exceptions": 0
+          }
+        ],
+        "purity": {
+          "forward": {
+            "dominant": 2963,
+            "total": 3000,
+            "value": 0.9876666666666667
+          },
+          "reverse": {
+            "dominant": 3000,
+            "total": 3000,
+            "value": 1.0
+          },
+          "baseline": 0.7196666666666667
+        },
+        "association": {
+          "defined": true,
+          "n": 3000,
+          "effective_categories": 3,
+          "effective_classes": 8,
+          "chi_square": 6000.0,
+          "degrees": 14,
+          "cramers_v": 1.0,
+          "corrected": 0.9991654842909315,
+          "low_share": 0.47619047619047616,
+          "stable": false,
+          "sparse": 1
+        },
+        "exceptions": {
+          "count": 37,
+          "cells": 5,
+          "complete": true,
+          "listed": [
+            {
+              "category": 0,
+              "column": 3,
+              "count": 14,
+              "examples": [
+                {
+                  "record": 4,
+                  "value": "CLI-0000072"
+                },
+                {
+                  "record": 190,
+                  "value": "CLI-0003004"
+                },
+                {
+                  "record": 213,
+                  "value": "CLI-0003382"
+                }
+              ]
+            },
+            {
+              "category": 0,
+              "column": 4,
+              "count": 12,
+              "examples": [
+                {
+                  "record": 10,
+                  "value": "CLI--00001642"
+                },
+                {
+                  "record": 126,
+                  "value": "CLI--00019558"
+                },
+                {
+                  "record": 181,
+                  "value": "CLI--00028886"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 5,
+              "count": 5,
+              "examples": [
+                {
+                  "record": 1483,
+                  "value": "QC-0004-721"
+                },
+                {
+                  "record": 2744,
+                  "value": "QC-0000-783"
+                },
+                {
+                  "record": 2809,
+                  "value": "QC-0001-966"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 6,
+              "count": 5,
+              "examples": [
+                {
+                  "record": 2802,
+                  "value": "QC--0001-8419"
+                },
+                {
+                  "record": 2806,
+                  "value": "QC--0001-9299"
+                },
+                {
+                  "record": 2843,
+                  "value": "QC--0002-4879"
+                }
+              ]
+            },
+            {
+              "category": 2,
+              "column": 7,
+              "count": 1,
+              "examples": [
+                {
+                  "record": 1163,
+                  "value": "ONT000933"
+                }
+              ]
+            }
+          ]
+        },
+        "rules": [
+          {
+            "status": "candidate",
+            "provenance": "learned",
+            "category": 0,
+            "column": 1,
+            "support": 2185,
+            "confidence": 0.9881006864988559,
+            "exceptions": 26
+          },
+          {
+            "status": "candidate",
+            "provenance": "learned",
+            "category": 1,
+            "column": 2,
+            "support": 568,
+            "confidence": 0.9823943661971831,
+            "exceptions": 10
+          },
+          {
+            "status": "candidate",
+            "provenance": "learned",
+            "category": 2,
+            "column": 0,
+            "support": 247,
+            "confidence": 0.9959514170040485,
+            "exceptions": 1
+          }
+        ]
+      }
+    },
+    {
       "id": "category_crosstab:rows:column_8>column_12:value",
       "analyzer": "category_crosstab",
       "analyzer_version": 1,
@@ -46501,7 +46840,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "3cc0dc464f512a84ab6428395272c23ed1b46b3cb9d6ab403b470334e7088ca2",
+      "key": "8ba8809c211f82ef7ccaaebe8ded5e69ff3e13559ee01d09f0a7c9b0d7ffe316",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -46847,7 +47186,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "208cb3cd65e1b2f04f06342bbefe9a1fc07c8c484512a4ddff029f4bc0ef1637",
+      "key": "261a894d7ce8ff2afa9200b4eb63d16c7979c6c5967ac728e8d476813a7001fd",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -47230,7 +47569,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "4671965267a19d2a911b08ee87635980b526a196950cbc1dfd8cee05c1f24127",
+      "key": "7b1f277ae25f3d73b79ade2edb5056cd5fe50acc7b8b9a3423d7604d8f2a11c6",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -47698,7 +48037,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "b3617647cc9c904605b107c8d6bc0f420188b3c22ac883a3785ef458d1005384",
+      "key": "de5a4a8b655f40b125fae7487564c3fe7db8102d3128ca134417e3c7e5f7c438",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48165,7 +48504,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "1ffe997c252d33d9be1c1f77aa196ee8011f6968d13a7d2057c895552108f66a",
+      "key": "d34d11706b9ab3d3cd4a2309263a971368b1df3c139c9e4fd0a958d02be6815d",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -48771,7 +49110,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "28d2ef63ef673fbfa88a9ba619655f053f3c5e2df57e9d6370d975fd5ccedd59",
+      "key": "c1e97473df5b0088ac6cd77c626ee5f078340045f46f32ab5c0bff47f6784b27",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -49364,305 +49703,6 @@
       }
     },
     {
-      "id": "category_crosstab:rows:column_8>column_16:pattern",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_8",
-      "partner": "column_16",
-      "display": "langue_preferee and province_nom (pattern)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "pattern",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30
-      },
-      "domain": "mixed",
-      "key": "6bb285862158a993845e8d590d6a127ceb4720c07149e101775b72f51e160c4f",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "pattern",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_8",
-          "display": "langue_preferee",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "fr",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "en",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_16",
-          "display": "province_nom",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "p1",
-              "label": "Xx{4,11}",
-              "kind": "value"
-            },
-            {
-              "id": "p2",
-              "label": "Xx{6,7}-Xx{5,10}",
-              "kind": "value"
-            },
-            {
-              "id": "p3",
-              "label": "x{6,7}",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 3000,
-        "counted": 3000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            103,
-            40,
-            8,
-            1950
-          ],
-          [
-            475,
-            102,
-            3,
-            319
-          ],
-          [
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          2101,
-          899,
-          0
-        ],
-        "column_totals": [
-          578,
-          142,
-          11,
-          2269
-        ],
-        "by_category": [
-          {
-            "rows": 2101,
-            "classified": 2101,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 1950,
-            "purity": 0.9281294621608758,
-            "exceptions": 151
-          },
-          {
-            "rows": 899,
-            "classified": 899,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 475,
-            "purity": 0.5283648498331479,
-            "exceptions": 424
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 2425,
-            "total": 3000,
-            "value": 0.8083333333333333
-          },
-          "reverse": {
-            "dominant": 2535,
-            "total": 3000,
-            "value": 0.845
-          },
-          "baseline": 0.7563333333333333
-        },
-        "association": {
-          "defined": true,
-          "n": 3000,
-          "effective_categories": 2,
-          "effective_classes": 4,
-          "chi_square": 1143.0526227760888,
-          "degrees": 3,
-          "cramers_v": 0.6172661832024843,
-          "corrected": 0.6165581597773074,
-          "low_share": 0.125,
-          "stable": true,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 575,
-          "cells": 6,
-          "complete": true,
-          "listed": [
-            {
-              "category": 1,
-              "column": 3,
-              "count": 319,
-              "examples": [
-                {
-                  "record": 16,
-                  "value": "Québec"
-                },
-                {
-                  "record": 21,
-                  "value": "Québec"
-                },
-                {
-                  "record": 23,
-                  "value": "Nouvelle-Écosse"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 0,
-              "count": 103,
-              "examples": [
-                {
-                  "record": 19,
-                  "value": "Ontario"
-                },
-                {
-                  "record": 133,
-                  "value": "Ontario"
-                },
-                {
-                  "record": 142,
-                  "value": "Alberta"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 102,
-              "examples": [
-                {
-                  "record": 81,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 123,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 155,
-                  "value": "Colombie-Britannique"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 1,
-              "count": 40,
-              "examples": [
-                {
-                  "record": 20,
-                  "value": "Nouveau-Brunswick"
-                },
-                {
-                  "record": 42,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 96,
-                  "value": "Nouveau-Brunswick"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 8,
-              "examples": [
-                {
-                  "record": 32,
-                  "value": "quebec"
-                },
-                {
-                  "record": 68,
-                  "value": "quebec"
-                },
-                {
-                  "record": 641,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 3,
-              "examples": [
-                {
-                  "record": 11,
-                  "value": "quebec"
-                },
-                {
-                  "record": 1083,
-                  "value": "quebec"
-                },
-                {
-                  "record": 1152,
-                  "value": "ontario"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
       "id": "category_crosstab:rows:column_8>column_14:prefix",
       "analyzer": "category_crosstab",
       "analyzer_version": 1,
@@ -49682,7 +49722,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "18bceeb7c72356aee8c160dfc14688a95a319ef95749109b05c27be7fc574693",
+      "key": "00c9f46c626f9b8a44ec77a0cb4462b161964e53b71df4be77d42ebb2645624f",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -50321,7 +50361,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "b6dc590b2cea4eed75bf678c8e8b4caa33ade12593a35f8cd9a3d54d25f3a9a4",
+      "key": "ffc1816a87aa8338b783d4eab310d2a209857d8e6f97b90f8728c7edb3195f07",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -50546,369 +50586,6 @@
       }
     },
     {
-      "id": "category_crosstab:rows:column_1>column_16:pattern",
-      "analyzer": "category_crosstab",
-      "analyzer_version": 1,
-      "dataset": "rows",
-      "field": "column_1",
-      "partner": "column_16",
-      "display": "filiale and province_nom (pattern)",
-      "method": "contingency_table",
-      "parameters": {
-        "feature": "pattern",
-        "max_categories": 30,
-        "examples": 3,
-        "max_exception_cells": 20,
-        "rule_purity": 90,
-        "rule_support": 30
-      },
-      "domain": "mixed",
-      "key": "689a7c9f15ce2e372fb1eb62a85c91c9a4e9e1947c52890a128c483449aaf7e8",
-      "status": "complete",
-      "result": {
-        "kind": "crosstab",
-        "accuracy": "exact_counts",
-        "precision": "float64",
-        "source": "source",
-        "feature": {
-          "kind": "pattern",
-          "version": 1
-        },
-        "categories": {
-          "field": "column_1",
-          "display": "filiale",
-          "domain": "analytical",
-          "classes": [
-            {
-              "id": "c1",
-              "label": "principal",
-              "kind": "value"
-            },
-            {
-              "id": "c2",
-              "label": "quebec",
-              "kind": "value"
-            },
-            {
-              "id": "c3",
-              "label": "ontario",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "classes": {
-          "field": "column_16",
-          "display": "province_nom",
-          "domain": "original",
-          "classes": [
-            {
-              "id": "p1",
-              "label": "Xx{4,11}",
-              "kind": "value"
-            },
-            {
-              "id": "p2",
-              "label": "Xx{6,7}-Xx{5,10}",
-              "kind": "value"
-            },
-            {
-              "id": "p3",
-              "label": "x{6,7}",
-              "kind": "value"
-            },
-            {
-              "id": "other",
-              "label": "other",
-              "kind": "other"
-            }
-          ]
-        },
-        "rows": 3000,
-        "counted": 3000,
-        "excluded": {
-          "category_missing": 0,
-          "feature_missing": 0,
-          "both_missing": 0,
-          "unclassified": 0
-        },
-        "counts": [
-          [
-            303,
-            117,
-            9,
-            1756
-          ],
-          [
-            71,
-            22,
-            1,
-            474
-          ],
-          [
-            204,
-            3,
-            1,
-            39
-          ],
-          [
-            0,
-            0,
-            0,
-            0
-          ]
-        ],
-        "row_totals": [
-          2185,
-          568,
-          247,
-          0
-        ],
-        "column_totals": [
-          578,
-          142,
-          11,
-          2269
-        ],
-        "by_category": [
-          {
-            "rows": 2185,
-            "classified": 2185,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 1756,
-            "purity": 0.8036613272311213,
-            "exceptions": 429
-          },
-          {
-            "rows": 568,
-            "classified": 568,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 3,
-            "dominant_count": 474,
-            "purity": 0.8345070422535211,
-            "exceptions": 94
-          },
-          {
-            "rows": 247,
-            "classified": 247,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "coverage": 1.0,
-            "dominant": 0,
-            "dominant_count": 204,
-            "purity": 0.8259109311740891,
-            "exceptions": 43
-          },
-          {
-            "rows": 0,
-            "classified": 0,
-            "feature_missing": 0,
-            "unclassified": 0,
-            "dominant_count": 0,
-            "exceptions": 0
-          }
-        ],
-        "purity": {
-          "forward": {
-            "dominant": 2434,
-            "total": 3000,
-            "value": 0.8113333333333334
-          },
-          "reverse": {
-            "dominant": 2185,
-            "total": 3000,
-            "value": 0.7283333333333334
-          },
-          "baseline": 0.7563333333333333
-        },
-        "association": {
-          "defined": true,
-          "n": 3000,
-          "effective_categories": 3,
-          "effective_classes": 4,
-          "chi_square": 698.4858834875395,
-          "degrees": 6,
-          "cramers_v": 0.34119541895311245,
-          "corrected": 0.3398396682899577,
-          "low_share": 0.16666666666666666,
-          "stable": false,
-          "sparse": 0
-        },
-        "exceptions": {
-          "count": 566,
-          "cells": 9,
-          "complete": true,
-          "listed": [
-            {
-              "category": 0,
-              "column": 0,
-              "count": 303,
-              "examples": [
-                {
-                  "record": 6,
-                  "value": "Manitoba"
-                },
-                {
-                  "record": 9,
-                  "value": "Ontario"
-                },
-                {
-                  "record": 12,
-                  "value": "Ontario"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 1,
-              "count": 117,
-              "examples": [
-                {
-                  "record": 20,
-                  "value": "Nouveau-Brunswick"
-                },
-                {
-                  "record": 42,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 81,
-                  "value": "Colombie-Britannique"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 0,
-              "count": 71,
-              "examples": [
-                {
-                  "record": 1264,
-                  "value": "Quebec"
-                },
-                {
-                  "record": 1288,
-                  "value": "Saskatchewan"
-                },
-                {
-                  "record": 1291,
-                  "value": "Ontario"
-                }
-              ]
-            },
-            {
-              "category": 2,
-              "column": 3,
-              "count": 39,
-              "examples": [
-                {
-                  "record": 1115,
-                  "value": "Québec"
-                },
-                {
-                  "record": 1116,
-                  "value": "Québec"
-                },
-                {
-                  "record": 1123,
-                  "value": "Québec"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 1,
-              "count": 22,
-              "examples": [
-                {
-                  "record": 1253,
-                  "value": "Nouveau-Brunswick"
-                },
-                {
-                  "record": 1259,
-                  "value": "Nouveau-Brunswick"
-                },
-                {
-                  "record": 1261,
-                  "value": "Colombie-Britannique"
-                }
-              ]
-            },
-            {
-              "category": 0,
-              "column": 2,
-              "count": 9,
-              "examples": [
-                {
-                  "record": 11,
-                  "value": "quebec"
-                },
-                {
-                  "record": 32,
-                  "value": "quebec"
-                },
-                {
-                  "record": 68,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 2,
-              "column": 1,
-              "count": 3,
-              "examples": [
-                {
-                  "record": 1154,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 1188,
-                  "value": "Colombie-Britannique"
-                },
-                {
-                  "record": 2700,
-                  "value": "Nouveau-Brunswick"
-                }
-              ]
-            },
-            {
-              "category": 1,
-              "column": 2,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 2740,
-                  "value": "quebec"
-                }
-              ]
-            },
-            {
-              "category": 2,
-              "column": 2,
-              "count": 1,
-              "examples": [
-                {
-                  "record": 1152,
-                  "value": "ontario"
-                }
-              ]
-            }
-          ]
-        },
-        "rules": []
-      }
-    },
-    {
       "id": "category_crosstab:rows:column_8>column_14:length",
       "analyzer": "category_crosstab",
       "analyzer_version": 1,
@@ -50927,7 +50604,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "d59de9cd5dd2843a271aa0fd9b53985ae667e1ea40001f0ab867f32d560c9a5b",
+      "key": "7461044a8bc9a82aada48cc0aa37b456768f8111cc46bc98b985aafc59e61e27",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -51566,7 +51243,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "20ad4763ed5b42ec936410c121a1300aeddaeca02e43fa0cf99a17c1559b97b5",
+      "key": "90c8417638e2433c4f7e9411f35604b01af6cd0f6365bd19e258292290a99d6e",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -51823,7 +51500,7 @@
         "max_classes": 12
       },
       "domain": "mixed",
-      "key": "99c8cfb912159285096139c84c1a714a857839f84e51ed6bc01ff7bb347586e3",
+      "key": "a3255761d7e6574f5b221e6dcc61b1c55cf2af8640cb1caee0088199b162ce27",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -52086,7 +51763,7 @@
         "prefix_length": 2
       },
       "domain": "mixed",
-      "key": "86203de63d7703fd609ee66cc94d3f934826845a36382ee475593d3e1af8d71f",
+      "key": "674b7660e438e0d157d0b4a8600c6f86f7f0c0789b93e72453dd56d957c35bf1",
       "status": "complete",
       "result": {
         "kind": "crosstab",
@@ -52331,6 +52008,532 @@
       }
     },
     {
+      "id": "category_crosstab:rows:column_8>column_1:value",
+      "analyzer": "category_crosstab",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_8",
+      "partner": "column_1",
+      "display": "langue_preferee and filiale (value)",
+      "method": "contingency_table",
+      "parameters": {
+        "feature": "value",
+        "max_categories": 30,
+        "examples": 3,
+        "max_exception_cells": 20,
+        "rule_purity": 90,
+        "rule_support": 30,
+        "max_classes": 12
+      },
+      "domain": "mixed",
+      "key": "10a93502c419f132283b534c577b1e4953fb9d7a8abb3838d9cf166e1b2a48cb",
+      "status": "complete",
+      "result": {
+        "kind": "crosstab",
+        "accuracy": "exact_counts",
+        "precision": "float64",
+        "source": "source",
+        "feature": {
+          "kind": "value",
+          "version": 1
+        },
+        "categories": {
+          "field": "column_8",
+          "display": "langue_preferee",
+          "domain": "analytical",
+          "classes": [
+            {
+              "id": "c1",
+              "label": "fr",
+              "kind": "value"
+            },
+            {
+              "id": "c2",
+              "label": "en",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "classes": {
+          "field": "column_1",
+          "display": "filiale",
+          "domain": "analytical",
+          "classes": [
+            {
+              "id": "c1",
+              "label": "principal",
+              "kind": "value"
+            },
+            {
+              "id": "c2",
+              "label": "quebec",
+              "kind": "value"
+            },
+            {
+              "id": "c3",
+              "label": "ontario",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "rows": 3000,
+        "counted": 3000,
+        "excluded": {
+          "category_missing": 0,
+          "feature_missing": 0,
+          "both_missing": 0,
+          "unclassified": 0
+        },
+        "counts": [
+          [
+            1619,
+            435,
+            47,
+            0
+          ],
+          [
+            566,
+            133,
+            200,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "row_totals": [
+          2101,
+          899,
+          0
+        ],
+        "column_totals": [
+          2185,
+          568,
+          247,
+          0
+        ],
+        "by_category": [
+          {
+            "rows": 2101,
+            "classified": 2101,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 0,
+            "dominant_count": 1619,
+            "purity": 0.7705854355069015,
+            "exceptions": 482
+          },
+          {
+            "rows": 899,
+            "classified": 899,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 0,
+            "dominant_count": 566,
+            "purity": 0.6295884315906563,
+            "exceptions": 333
+          },
+          {
+            "rows": 0,
+            "classified": 0,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "dominant_count": 0,
+            "exceptions": 0
+          }
+        ],
+        "purity": {
+          "forward": {
+            "dominant": 2185,
+            "total": 3000,
+            "value": 0.7283333333333334
+          },
+          "reverse": {
+            "dominant": 2254,
+            "total": 3000,
+            "value": 0.7513333333333333
+          },
+          "baseline": 0.7283333333333334
+        },
+        "association": {
+          "defined": true,
+          "n": 3000,
+          "effective_categories": 2,
+          "effective_classes": 3,
+          "chi_square": 334.9824380500312,
+          "degrees": 2,
+          "cramers_v": 0.3341568683767307,
+          "corrected": 0.33321306453484145,
+          "low_share": 0.0,
+          "stable": true,
+          "sparse": 0
+        },
+        "exceptions": {
+          "count": 815,
+          "cells": 4,
+          "complete": true,
+          "listed": [
+            {
+              "category": 0,
+              "column": 1,
+              "count": 435,
+              "examples": [
+                {
+                  "record": 1239,
+                  "value": "quebec"
+                },
+                {
+                  "record": 1240,
+                  "value": "quebec"
+                },
+                {
+                  "record": 1241,
+                  "value": "quebec"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 2,
+              "count": 200,
+              "examples": [
+                {
+                  "record": 1115,
+                  "value": "ontario"
+                },
+                {
+                  "record": 1116,
+                  "value": "ontario"
+                },
+                {
+                  "record": 1117,
+                  "value": "ontario"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 1,
+              "count": 133,
+              "examples": [
+                {
+                  "record": 1238,
+                  "value": "quebec"
+                },
+                {
+                  "record": 1244,
+                  "value": "quebec"
+                },
+                {
+                  "record": 1257,
+                  "value": "quebec"
+                }
+              ]
+            },
+            {
+              "category": 0,
+              "column": 2,
+              "count": 47,
+              "examples": [
+                {
+                  "record": 1119,
+                  "value": "ontario"
+                },
+                {
+                  "record": 1121,
+                  "value": "ontario"
+                },
+                {
+                  "record": 1122,
+                  "value": "ontario"
+                }
+              ]
+            }
+          ]
+        },
+        "rules": []
+      }
+    },
+    {
+      "id": "category_crosstab:rows:column_8>column_2:prefix",
+      "analyzer": "category_crosstab",
+      "analyzer_version": 1,
+      "dataset": "rows",
+      "field": "column_8",
+      "partner": "column_2",
+      "display": "langue_preferee and id_client (prefix)",
+      "method": "contingency_table",
+      "parameters": {
+        "feature": "prefix",
+        "max_categories": 30,
+        "examples": 3,
+        "max_exception_cells": 20,
+        "rule_purity": 90,
+        "rule_support": 30,
+        "max_classes": 12,
+        "prefix_length": 2
+      },
+      "domain": "mixed",
+      "key": "3d4e812b3046ba40928ecdcecf3def3d583d1f18c43c2424bf2bd17bfe3af59d",
+      "status": "complete",
+      "result": {
+        "kind": "crosstab",
+        "accuracy": "exact_counts",
+        "precision": "float64",
+        "source": "source",
+        "feature": {
+          "kind": "prefix",
+          "version": 1,
+          "prefix_length": 2
+        },
+        "categories": {
+          "field": "column_8",
+          "display": "langue_preferee",
+          "domain": "analytical",
+          "classes": [
+            {
+              "id": "c1",
+              "label": "fr",
+              "kind": "value"
+            },
+            {
+              "id": "c2",
+              "label": "en",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "classes": {
+          "field": "column_2",
+          "display": "id_client",
+          "domain": "original",
+          "classes": [
+            {
+              "id": "x1",
+              "label": "CL",
+              "kind": "value"
+            },
+            {
+              "id": "x2",
+              "label": "QC",
+              "kind": "value"
+            },
+            {
+              "id": "x3",
+              "label": "ON",
+              "kind": "value"
+            },
+            {
+              "id": "other",
+              "label": "other",
+              "kind": "other"
+            }
+          ]
+        },
+        "rows": 3000,
+        "counted": 3000,
+        "excluded": {
+          "category_missing": 0,
+          "feature_missing": 0,
+          "both_missing": 0,
+          "unclassified": 0
+        },
+        "counts": [
+          [
+            1619,
+            435,
+            47,
+            0
+          ],
+          [
+            566,
+            133,
+            200,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "row_totals": [
+          2101,
+          899,
+          0
+        ],
+        "column_totals": [
+          2185,
+          568,
+          247,
+          0
+        ],
+        "by_category": [
+          {
+            "rows": 2101,
+            "classified": 2101,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 0,
+            "dominant_count": 1619,
+            "purity": 0.7705854355069015,
+            "exceptions": 482
+          },
+          {
+            "rows": 899,
+            "classified": 899,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "coverage": 1.0,
+            "dominant": 0,
+            "dominant_count": 566,
+            "purity": 0.6295884315906563,
+            "exceptions": 333
+          },
+          {
+            "rows": 0,
+            "classified": 0,
+            "feature_missing": 0,
+            "unclassified": 0,
+            "dominant_count": 0,
+            "exceptions": 0
+          }
+        ],
+        "purity": {
+          "forward": {
+            "dominant": 2185,
+            "total": 3000,
+            "value": 0.7283333333333334
+          },
+          "reverse": {
+            "dominant": 2254,
+            "total": 3000,
+            "value": 0.7513333333333333
+          },
+          "baseline": 0.7283333333333334
+        },
+        "association": {
+          "defined": true,
+          "n": 3000,
+          "effective_categories": 2,
+          "effective_classes": 3,
+          "chi_square": 334.9824380500312,
+          "degrees": 2,
+          "cramers_v": 0.3341568683767307,
+          "corrected": 0.33321306453484145,
+          "low_share": 0.0,
+          "stable": true,
+          "sparse": 0
+        },
+        "exceptions": {
+          "count": 815,
+          "cells": 4,
+          "complete": true,
+          "listed": [
+            {
+              "category": 0,
+              "column": 1,
+              "count": 435,
+              "examples": [
+                {
+                  "record": 1239,
+                  "value": "QC-0000-0548"
+                },
+                {
+                  "record": 1240,
+                  "value": "QC-0000-0846"
+                },
+                {
+                  "record": 1241,
+                  "value": "QC-0000-1143"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 2,
+              "count": 200,
+              "examples": [
+                {
+                  "record": 1115,
+                  "value": "ONT0000116"
+                },
+                {
+                  "record": 1116,
+                  "value": "ONT0000508"
+                },
+                {
+                  "record": 1117,
+                  "value": "ONT0000556"
+                }
+              ]
+            },
+            {
+              "category": 1,
+              "column": 1,
+              "count": 133,
+              "examples": [
+                {
+                  "record": 1238,
+                  "value": "QC-0000-0025"
+                },
+                {
+                  "record": 1244,
+                  "value": "QC-0000-1933"
+                },
+                {
+                  "record": 1257,
+                  "value": "QC-0000-4170"
+                }
+              ]
+            },
+            {
+              "category": 0,
+              "column": 2,
+              "count": 47,
+              "examples": [
+                {
+                  "record": 1119,
+                  "value": "ONT0000920"
+                },
+                {
+                  "record": 1121,
+                  "value": "ONT0001824"
+                },
+                {
+                  "record": 1122,
+                  "value": "ONT0001863"
+                }
+              ]
+            }
+          ]
+        },
+        "rules": []
+      }
+    },
+    {
       "id": "category_stats:rows:column_22>column_33",
       "analyzer": "category_stats",
       "analyzer_version": 1,
@@ -52345,7 +52548,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "5393f1691d5e7ec621e9bdf35b842df186259d1404aded99fb24ace7ac97a5cc",
+      "key": "c37b790d2bd513ff3600415786e551ddc853c7c4768370ea389f30a4d1316df1",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -53209,7 +53412,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "69484073e6f581d77cbf603bed39a1267b0ce2445495f8ba0500b63a53204262",
+      "key": "445445640a53ef0b1d302930c9698b5719b644e0c74d69039871355803f161fc",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -54171,7 +54374,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "9d5ea54b2e3297840b3da5190ec2b814e8fc82fb88554f72df907bac19dcdb02",
+      "key": "5122f7f8ff8f3fd37b89bf8727374c20e6efe7f85aba9d90ed94bfb891d72ade",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -54677,7 +54880,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "255bbe3b64ca11cca243ccca70ac57257db06240ad171453a26160a0ed12bce0",
+      "key": "7387b3e960e61c30fa0986e59829958f9ea5b1aca4efa1e8e9005e47742734ec",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -55183,7 +55386,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "9f47f1af5b5a003a328e972b6ef37f132148cd266293a9b55c9c18c7e3b28986",
+      "key": "58fb69124fe2835b7abacb17562913369a21b7452a8b2a9581a217a0a56e60f1",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -56047,7 +56250,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "9c0c5597cb8c72db3efb724cd7b617ab8720bdca3601d77bc18075c4fb73335e",
+      "key": "46c1039525aed654393c5b91ed14c0b8e9f22b6fb074531b1d0a3928b87fabc4",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -56781,7 +56984,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "b38ff5b760bcb73a2af4d0a05bf837b789872329b76f9be25c3a63e6a73d2751",
+      "key": "1c75d6d11ed6db8f27e03b0abb31d4bc778f233ad1a78d9234d7953727e1db6d",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -57971,7 +58174,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "398b7a645bef4e739490aac076e42a9f3b29e6d8fed1895dabbbac51cd41631c",
+      "key": "e80f957c9f0e1c582eedd08066e1113992d0f91dd924854f42fc45446e0c2dbd",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -58835,7 +59038,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "e87ef3d91d6c66d4930927bdb0140b1c2c5d649daa68eec4523b12583b6e92f5",
+      "key": "d2f97403065bcf26cc6d72e11c543f8daf9717f87c44a28ce069ab1dc5b762e7",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -59455,7 +59658,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "5c671d9e1ce36ca999393eb92e71cd96535c4a263d1ef115ab3b3c83fe415f05",
+      "key": "86c5126861e14502529622d2ba2478f9a37b73fd00f08f7e7eba27302abecc8e",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -61785,7 +61988,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "7588574ef206d7e1439cec5be251ac080b1d27a22687b3ac21c4e9ae828a8cee",
+      "key": "76ecffccc7617b6df28ddf9c51c7ef65a7a09f7e987ec5412bdccc695a6bd5d0",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -62975,7 +63178,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "31ca0c3e786efacc5f75b5e80ad267558592e47bf718b098c5074a6b981a88ba",
+      "key": "b9f291498bccf04dad0cd1db2d96eba5ab4a872e3d482209b06109271a476474",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -64279,7 +64482,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "63dc6a93ff3d105bddbca7f7514075f84b0647cbea15560e2477f17d0fd6ec77",
+      "key": "961acc7d750ebba568d3adb9c3457e92bce4dcef1efea452a62b75506ef470e5",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -65241,7 +65444,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "8eecbe2fa4d24ef9fe4dec4e91225d7973784aa1255e34c9ac65d9c8a7e34dfc",
+      "key": "01270f937af2a3f76e85eadf93ce14b97acca592be8ae8a74492b17da6a3e548",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -67375,7 +67578,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "cb374a181e07e6a837b64c450b38e6decf0c9b96beb42331074efdc79b82d3c7",
+      "key": "f7876a95a87eb6b5db0dea246ab9d53c5e4df4a2451cf84c5441ab28d72fb07e",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -67995,7 +68198,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "f7c9f42726d6c2be3c2e18a046ebb78a28f592c989284ca2417fee94548b8264",
+      "key": "9ef507fb2184fe38b1753a7b6d786ab3660a195b96ddc753aa065a11396facac",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -71351,7 +71554,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "615aa398afc326db3cf64b869798c051ccc40fb4751d31dd955fec9115989841",
+      "key": "7e918e1fef08e925f878ea5b65b7ed411ee3be86d5ce72a6088c9f4b20fb47f2",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -72313,7 +72516,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "d02d881cae7e25fc30e5f1b0e0384737d25b6f7321f86c5fa7e6f22520705fd8",
+      "key": "6510ba365ab1ee35bf4dbce316b9361bc9b02b87ec370738915c21da92832701",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -72819,7 +73022,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "1a6e52afbae61e79eda59420a36001877de534a405bd97043aee91ee875bd14f",
+      "key": "01ee2eaaba10ea955896e561564590a78a01f810368500e5654730ea693fc283",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -73325,7 +73528,7 @@
         "strategy": "linear"
       },
       "domain": "analytical",
-      "key": "999f51a19434deffefdd8e2f00eecb1a66b7d1ffa1beda2b32e73db74c86e706",
+      "key": "df717cbacf178ad663d7443c6cda0718d3c5324413e1e846b199ba35ccb49cd5",
       "status": "complete",
       "result": {
         "kind": "category_stats",
@@ -73829,7 +74032,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "7d237e808966c9654e2f9608d81e6722b3f7ff0739bf9a26fea91e045efbded6",
+      "key": "b8985262954cc53bd967026a57ec81d6a20cbae7f3e5e11397ff1d3e901fde5f",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -74434,7 +74637,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "1708bc87702d1268225dcee2b758edc434ac69369810b93bf2e348a9b19ca34a",
+      "key": "a9a70fe72ab3d6c39394e30a812f28d17a1bd57efa614f09f686c4ae08fe1b54",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -75039,7 +75242,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "5289db34b34241baecfe95ae830b16fec7cc56829d8cf1d983b1987b21aa80ff",
+      "key": "558bfa0a5686f0c9453c4d187385ebf0536c6b7374f38a964ffaa1424298644a",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -75383,7 +75586,7 @@
         "bins": 100
       },
       "domain": "analytical",
-      "key": "0fa50bae4a74c5f03def1e5dacceb4579774e523049ef20151aec221c29f24a4",
+      "key": "b350ad80794376d046a1b797b92c266b1af7ad7fa560e0150cbc4cbf51f5f2c4",
       "status": "complete",
       "result": {
         "kind": "numeric_shape",
@@ -75728,7 +75931,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "a39bfd655e54c1aedb2d5568eda8d785d4b2810ef229c10b7b71ba9c0fcd22bf",
+      "key": "9eaf9952a1b03b19b49a3f48fe0aa4d773714770c6eb95d0ed3844ae49616b57",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -81524,7 +81727,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "2d94d35dec2a7ce6d930521109771d0e272df3aaa49298771f41a9097959dad1",
+      "key": "9861037a33afb4df8f6519cac8e94836862d730d78cc7135fe5e774c41206c04",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -83124,7 +83327,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "5c5ec764fefee43c405b8ad97ecd606da97f4d3eeba256940e4a792aed7ccb1b",
+      "key": "7711060faf1da321d93227ede3f0adfd869b32dcacd42372d9cb3f66d78ad147",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -84140,7 +84343,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "752874de79ac1a2300c6040242bdf32ba8ca68b918e00e30a28e28f1da8ef5fd",
+      "key": "3af2e68bf6fa2914c82b012d675e4124e5dd0f9309aa3b056f7a0b6c9c858128",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -85676,7 +85879,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "b76a4ed2ad4343efc3cf47095162a3a90821b5bb12f86bc85a9cd82f4ca99ef5",
+      "key": "0028d6d1566e2a965258c508460f66cb9f0aac24601b8691a0c5188eb84c206d",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -86984,7 +87187,7 @@
         "date_order": ""
       },
       "domain": "analytical",
-      "key": "50368483b6b4a552fad92df53b3df44b40249df72a92c74414329ea0740f61b9",
+      "key": "2e7e17be2d833562fa1cfc51a3b761b5ddccaa8f5751d82de0b0db7662aa8f63",
       "status": "complete",
       "result": {
         "kind": "datetime_parts",
@@ -87821,7 +88024,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "40932cb9583415fd27c21e28907ea302f5005142b1a4d6e522746c15f7ad0aec",
+      "key": "3a441e0ae3d122ee54f53bd9dfc3f948d6669a42052236824f50a39996a7c0d1",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88009,7 +88212,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "1aa1d0a03a8e926a24a36e0954aaa1c68b7b3737ed09bed0a3dd433221fabc33",
+      "key": "4e9025a697aa87ed03e51406726c79f4f04123f4f8fbb31e382ac86905fe5954",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88178,7 +88381,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "2361efc9127bdbf05def1fa6f5b4f57fa9af008db2308d48bc3495c023836466",
+      "key": "ba10dea879df992a35ecfcc144e3501d33836c4e0eb590771e9b885511e08ce5",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88276,7 +88479,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "5911bde8e45ebc49e0966b61743a49352729b192e31393645ab0307f52fbba4d",
+      "key": "a547a22585d68e5e1f7e1cef86cbe1d9de63c31dd9433ddffa7913885fbf237a",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88374,7 +88577,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "6865a1d98f4fac047a12cdc8827c86fa57bdc16416f28e47b8c175a712bd9c03",
+      "key": "befa9330b5dd33fa260e9cd9283028d5b99a3ae7e45ea12776905e473ec5b278",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88473,7 +88676,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "3f53c1d74cdda9279c98c1cf6d5baf44899f8deea79d3d3a3a0c6e4b2352339f",
+      "key": "b6bf32b301ff672983852ef71b0525bd7ea01888b01d2ac371f6b74434e87825",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88643,7 +88846,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "d3e740b9a9e6349c914d4b8123a9bae77eef29ba9ce957e3379624eeb8ba3d2d",
+      "key": "01c2e46d23791ecfa5d8362f090da51d6364e227868f14f70147b7c94436b01d",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -88813,7 +89016,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "7f1fd5167068588bebb4ac52763a215de6524de9bb0c9fbe0ce23436708fa821",
+      "key": "8149013ea97770810b3e83bd65cd9cb02777a07d0d023e55e2af2981a98b6bca",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -89163,7 +89366,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "3af3b83dc0b3b3385625f51647f0e884746282118a902162445204c60bbea6db",
+      "key": "0e9dd4ecff986111b9c3b9108bc280f4c1be81057f88a77e1b51f38c36a72e4e",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -89445,7 +89648,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "56854498cd055da836c244a4f1c58a6a031d801879ae6e80aa43bd07cb131c0d",
+      "key": "4adad3a1b145760ed142612801ac9c30e11f72b1cb7533db456aff83f77026b9",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -89544,7 +89747,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "94089e1cab821454a81d81175dd2b892f7dc6fdf9739de6ae8147c9fd717a614",
+      "key": "1c98ec3407289fe8ebee6af80bf0402945ed2b6378d7537e03a3b50e8cb03b48",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -89899,7 +90102,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "aaf5a6c030ed09f8f3cba81863f945974b1d7450738162c141d932892af985c7",
+      "key": "5c1d43be416f71583798525e8d2592bae5bb46a67c0f2a31bd8c20002a4363ae",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90249,7 +90452,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "3780587299b72b8c3e2226f1a19998883a520832958608959749618374095f82",
+      "key": "82bba7d5725319e83a3fca9184936289b45549dc4cc696d3613f79a9abf270b3",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90418,7 +90621,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "0eccacc48414fc80951bc923cd3b47c464c2ee6f63d35bb60da77658aa04db2e",
+      "key": "9721d0700113acfa47666f808899514c198fbbab89339463d3e13d90f20836fa",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90517,7 +90720,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "fc7dc27ba8ddea1b4cd2fcdaa7f2dccc203b9eed813ff0f34b8733281fe79805",
+      "key": "cebaf0ee43207601de8edf13a90289181a17526e6df7fe3b73e7a96966773425",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90763,7 +90966,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "b908ed41c2785af462f4e9676f06ccffd9f334464f8b2c17cf9d436da1f6492a",
+      "key": "02489bbea034aca45093d8b453f2c4bf6d51bcc308fe8198f3bd7128b778c4c7",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -90862,7 +91065,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "3c3e53a9d88a06bc1b80d5ad33e73568695f10ca336865c70601f0717deeb3ac",
+      "key": "4cc4edee7b410d6afb8986a52cd4cc8a9ff8af930192a9826998736a2d6e5ad9",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91104,7 +91307,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "6a4f75cea1af4b25c5580d49a98b74ddae0d64c9aceaa1f7ce313f7838791efd",
+      "key": "a282478ef8a4510393a72d17c412130ddb73067c14f1c884722e1d7bce7f244b",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91346,7 +91549,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "0950c64e1e9d10a872cb324103d2fd576106d82f8e98834fcc9c31e5a69cdc54",
+      "key": "1197f32321dfeda76389830938d4f67622d45571abd44dcab145c49836364cc8",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91642,7 +91845,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "b122cf7df5d62e5a820af9134e0f4c76c5860c2c8bd0bb89777a0b75240f7826",
+      "key": "cbd866f5714c5ebcf57b505f06ceafaac709399ffe4ebef188ad44a431444ec7",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -91991,7 +92194,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "be28ce8ccc6ae3d32c49ab3c09b0f15df645d0a5cc89545ade9722f8b7ff918b",
+      "key": "eb7235fca13ffc1705db292681b033d33cf34fffab159ddd45f0173a273fed3e",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92089,7 +92292,7 @@
         "values": 0
       },
       "domain": "analytical",
-      "key": "fec808f8e2ab30c5bdadfa988292875603b5732325b0941ffb64f3496e422640",
+      "key": "7f3acbb122a8a21625c25c423d911e4839250cbc603a93a98f091a906adcdbad",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92188,7 +92391,7 @@
         "max_listed": 12
       },
       "domain": "analytical",
-      "key": "8c79823e56f6256400374f885c2c13249957da1ed1509c77cb8eb7b60843451d",
+      "key": "06299036541c330451cb3189cf2a491beb8b9f0b1a884880adc603044b429f99",
       "status": "complete",
       "result": {
         "kind": "position_drift",
@@ -92398,7 +92601,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "1816ffe00c23294ca498b45d23b67db960d2dd3f0f53f1fa5add147d8e8c9e06",
+      "key": "11278711b0a4ba7f0b75b6be8874937a39236e3b5f9084f5cf792d40ddc7ca1e",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92467,7 +92670,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "2727e4e78c82d35a52c79e78f095130ee73ddfbd9af08f523f518e7e02f6e61e",
+      "key": "ebbe2b09a558c6884eaecc0405f0c9141ded1a767c7ec0c0c144b11ab2e8eb97",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92524,7 +92727,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "19494f061e5ffebf0d14d53323281c25e06f7c5e1369429d915d6cce0bddf7b4",
+      "key": "40017471e75431e5fffc15912491f4ecad6c844b26d310cab12ebe5249e2de2a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92587,7 +92790,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "314c2a92168254e853313cc093cfa2685e6a498fba4b639a03eaeaa5b24fac86",
+      "key": "ca8b5ff9c63c8349732006d8ea77a5c9f8d76ffea156c61d23d8ddfba7a11570",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92674,7 +92877,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "2d89cbb7e8b01c0126b31e0d275b41fe012e04b96271132bc4b5ecb47a948ce6",
+      "key": "4498258a6afb78d731b92354109e5e8206c8015ff3ce3a944df7959aa6e0fbaa",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92761,7 +92964,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "9345213e39ff214ecc8117e68faf47204e98d0ff587aa5db2df3d215069d86ea",
+      "key": "8444128d43fac2d5143f01d6f24ff8ddba2d56d55ac0f9cbad778932c8a57a9e",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92818,7 +93021,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "c86837fcfeefbb867b74eae079129ee6d19af4c192dc5fdc765f9a0538e00177",
+      "key": "461e8e0607c9d463a47cabbf8ac669a6c3b09170a688461dc486e5a312df3818",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92881,7 +93084,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "0c154c06b25ceda5854a5d7a27100709a5f07dd84b70143b06d90f06f30c3a63",
+      "key": "bc245158e097d239f941d2df8aa2bbc744d0f33f53a8f4d946dd0c5e6a0910c8",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -92938,7 +93141,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "c45188bc86faaa62c0202c8bb36dbd2cba37d838bdd564429a5bb7fb08c9c49e",
+      "key": "adbf12f654c7e9f20ab4eb6a96eaa39fcf691f9571ae3088e0f66234db069b0a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -93007,7 +93210,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "58396f5cf41a4cfba6c43fa660418d4a256cee45762454a51bf1d31cb8936f3e",
+      "key": "82e786a5a0f56fb84094992e96b62ded6f7424cebe3dcea33f334b11b236df52",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -93094,7 +93297,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "d913d70dc4c707cb99d166c0129d9c363ec64b8e61cb31c35da71939c89e52e7",
+      "key": "e6a60caccb8dca489e358a498b65021ae0b483da96f55416c2d078945e79983a",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",
@@ -93181,7 +93384,7 @@
         "max_listed": 10
       },
       "domain": "analytical",
-      "key": "73805b16f4803bec3585ff7e65a0d01e3858aaceaa5e42427be19cd9775ef0c8",
+      "key": "4cc829766e33a6f41a1fcecfa71e8dd3575690bf39887961c4c31f86c80a3d85",
       "status": "complete",
       "result": {
         "kind": "missing_matrix",

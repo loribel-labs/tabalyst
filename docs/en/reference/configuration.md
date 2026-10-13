@@ -386,7 +386,9 @@ object of each configuration file. The complete object with its defaults is:
     "patterns": [],
     "exposure": {"sensitive_values": "mask"},
     "pattern_inference": {
-      "enabled": true, "max_patterns": 8,
+      "enabled": true, "max_values": 10000,
+      "max_families": 16, "max_patterns_per_family": 32,
+      "max_patterns": 128,
       "max_value_length": 64, "min_distinct": 2
     },
     "observations": {"enabled": true, "max_items": 1000},
@@ -668,9 +670,12 @@ not the configured patterns above.
 | Setting | Default | Maximum | Meaning |
 | --- | --- | --- | --- |
 | `pattern_inference.enabled` | `true` | | `false` skips the inference and leaves `derived` out of the document. |
-| `pattern_inference.max_patterns` | 8 | 64 | Most candidate patterns per field; the smallest structures are generalized or counted in `other`. |
+| `pattern_inference.max_values` | 10,000 | 20,000 | Distinct values of a field that the discovery reads. |
+| `pattern_inference.max_families` | 16 | 1,024 | Most families per field; the others are counted in `other`. |
+| `pattern_inference.max_patterns_per_family` | 32 | 1,024 | Most patterns per family; the other lengths are counted in a table. |
+| `pattern_inference.max_patterns` | 128 | 1,024 | Most patterns and nodes per field. |
 | `pattern_inference.max_value_length` | 64 | 1,000 | Longer values do not take part and are counted as excluded. |
-| `pattern_inference.min_distinct` | 2 | 1,000 | Distinct values a candidate needs. |
+| `pattern_inference.min_distinct` | 2 | 1,000 | Distinct values a field needs to be assessed for patterns. |
 
 ### Observations
 

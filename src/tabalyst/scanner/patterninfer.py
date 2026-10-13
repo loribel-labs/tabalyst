@@ -2,16 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Structural pattern inference from the samples of a scan (design 18.12): the
-grammar, the linear matcher and the candidates of an eligible field. It never
-reads the source.
+"""Hierarchical pattern discovery from the samples of a scan (design 18.12): the
+grammar, the linear matcher, and the families and patterns of fixed length of an
+eligible field. It never reads the source.
 """
 
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from collections.abc import Sequence
+from dataclasses import dataclass
 from itertools import groupby
+from os.path import commonprefix
 
 from tabalyst.scanner import pattern_eligibility
 from tabalyst.scanner.config import PatternInferenceSettings
@@ -19,69 +22,80 @@ from tabalyst.scanner.diagnostics import DiagnosticCollector
 from tabalyst.scanner.models import (
     DatasetResult,
     DerivedPatterns,
+    FamilyPattern,
     FieldPatterns,
     FieldPatternsComplete,
     FieldPatternsFailed,
     FieldPatternsNotApplicable,
     FieldResult,
-    PatternCandidate,
-    PatternConfidence,
-    PatternCoverage,
+    PatternAlgorithm,
     PatternEligibility,
     PatternExcluded,
+    PatternFamily,
     PatternGrammar,
-    PatternLengths,
-    PatternOther,
-    PatternOverlap,
+    PatternLimit,
+    PatternNode,
+    PatternOtherStructures,
     PatternPopulation,
+    PatternTable,
+    PatternTableCell,
+    PatternTableOthers,
     PatternToken,
+    PatternTokenKind,
     SampleEntry,
 )
 
 GRAMMAR_NAME = "tabalyst.pattern"
-# Raised when a token class, a generalization rule or the rendering changes.
-GRAMMAR_VERSION = 1
-# A run of letters or digits that is the same in at least this many distinct
-# values of a structure is a literal (so that `A` is not any capital): with
-# fewer values a constant may be chance.
-LITERAL_MIN_SUPPORT = 5
+# Raised when a token class, a rule of the signatures or the rendering changes.
+GRAMMAR_VERSION = 2
+# Raised when the discovery, a constant of it or the order of its steps changes
+# (FR-020). It is part of the cache key of the discovery.
+ALGORITHM_VERSION = 1
 # A value with more tokens is excluded: the signature stays readable and the
 # work per value bounded.
 MAX_TOKENS = 32
-# The most values one field's inference reads (design 18.12). The default
-# sample sizes stay under it; a field with a larger sample is read in id order.
-MAX_VALUES = 20_000
 EXAMPLES = 3
+# Structures merge into one family only at the edge of a block, over at most
+# this many positions (E2); each must be material: two distinct values or this
+# share of the distinct values or of the occurrences.
+MERGE_MAX_WIDTH = 2
+MATERIAL_SHARE = 0.05
 
 # A token read from a value: (class code, literal character, count, text). The
 # codes are D digits, U ASCII capitals, L ASCII lowercase letters, X letters of
-# a run that has a non-ASCII letter (any letter once generalized), N letters or
-# digits (generalized) and P a literal character repeated ``count`` times.
+# a run that has a non-ASCII letter and P a literal character repeated ``count``
+# times. The Z codes only appear in the rows of a pattern that merges
+# structures: the position is of several classes.
 Token = tuple[str, str | None, int, str]
-_KIND = {
+_KIND: dict[str, PatternTokenKind] = {
     "D": "digit_ascii",
     "U": "upper_ascii",
     "L": "lower_ascii",
     "X": "letter_unicode",
-    "N": "alphanumeric",
+    "ZDU": "upper_digit",
+    "ZDL": "lower_digit",
+    "ZDUL": "alphanumeric",
     "P": "literal",
 }
-_CODE = {kind: code for code, kind in _KIND.items()}
 _SYMBOL = {
     "digit_ascii": "9",
-    "upper_ascii": "X",
-    "lower_ascii": "x",
+    "upper_ascii": "A",
+    "lower_ascii": "a",
     "letter_unicode": "@",
+    "upper_digit": "X",
+    "lower_digit": "x",
     "alphanumeric": "#",
 }
 _ASCII_RUNS = re.compile(r"([0-9]+)|([A-Z]+)|([a-z]+)|((.)\5*)", re.DOTALL)
 _CASE_RUNS = re.compile(r"[A-Z]+|[a-z]+")
 _GROUP_CODE = {1: "D", 2: "U", 3: "L"}
-_LETTER_CODES = frozenset("ULX")
-_ALNUM_CODES = frozenset("DULXN")
+# The classes a position of a merged block can take, and the codes of the union.
+_MERGEABLE = "DUL"
 # Characters that need quotes in the human rendering, on top of letters, digits
-# and white space.
-_RESERVED = frozenset("'{}@#")
+# and white space. `?` is never produced but belongs to the notation.
+_RESERVED = frozenset("'{}@#?")
+# A literal repeated up to this many times is written out in a run of literals.
+_MAX_PLAIN_REPEAT = 4
 
 
 def tokenize(value: str) -> list[Token]:
@@ -129,26 +143,6 @@ def _tokenize_unicode(value: str) -> list[Token]:
     return tokens
 
 
-def generalize(tokens: Sequence[Token], level: int) -> list[Token]:
-    """The tokens at a generalization level: 1 turns adjacent letter tokens into
-    one letter token of any case or script, 2 turns adjacent letters and digits
-    into one alphanumeric token. Level 0 is the tokens as read."""
-    if level == 0:
-        return list(tokens)
-    codes = _LETTER_CODES if level == 1 else _ALNUM_CODES
-    target = "X" if level == 1 else "N"
-    merged: list[Token] = []
-    for code, literal, count, text in tokens:
-        if code not in codes:
-            merged.append((code, literal, count, text))
-        elif merged and merged[-1][0] == target:
-            _, _, before, joined = merged[-1]
-            merged[-1] = (target, None, before + count, joined + text)
-        else:
-            merged.append((target, None, count, text))
-    return merged
-
-
 # Signatures --------------------------------------------------------------------
 
 
@@ -161,7 +155,13 @@ def _is_class_char(kind: str, char: str) -> bool:
         return "a" <= char <= "z"
     if kind == "letter_unicode":
         return char.isalpha()
-    return "0" <= char <= "9" or char.isalpha()
+    if "0" <= char <= "9":
+        return True
+    if kind == "upper_digit":
+        return "A" <= char <= "Z"
+    if kind == "lower_digit":
+        return "a" <= char <= "z"
+    return "A" <= char <= "Z" or "a" <= char <= "z"
 
 
 Matcher = tuple[tuple[str, str | None, int, int], ...]
@@ -175,11 +175,10 @@ def compile_signature(signature: Sequence[PatternToken]) -> Matcher:
 def matches(matcher: Matcher, value: str) -> bool:
     """Whether the whole of ``value`` matches the signature.
 
-    Adjacent class tokens never share a character (the grammar merges letters
-    and digits into one token before they could), and a class token is followed
-    by a literal outside it or by a class of another kind, so taking as many
-    characters as allowed is always right: one pass, no backtracking, whatever
-    the value.
+    A class token takes as many characters as it is allowed. That is right for
+    the signatures the discovery writes, whose tokens all have a fixed length,
+    and for a written pattern whose adjacent tokens never share a character: one
+    pass, no backtracking, whatever the value.
     """
     position = 0
     size = len(value)
@@ -215,172 +214,51 @@ def _repeat(low: int, high: int) -> str:
 
 
 def render_signature(signature: Sequence[PatternToken]) -> str:
-    """The compact human rendering of a signature: `9` digit, `X` capital, `x`
-    lowercase letter, `@` any letter, `#` letter or digit, repeated by a count
-    (`X{2,3}`); literal letters, digits and spaces are quoted (`XX9999'A'`), so
-    a literal `A` is never read as a capital."""
-    parts = []
-    for token in signature:
+    """The compact human rendering of a signature (DEC-032): `9` digit, `A`
+    capital, `a` lowercase letter, `@` letter of either case, `X` capital or
+    digit, `x` lowercase letter or digit, `#` ASCII letter or digit, repeated by
+    a count (`A{2,3}`); literal letters and digits are quoted (`AA9999'A'`), so a
+    literal `A` is never read as a capital. A fixed value and the separators that
+    touch it are written as one text (`'CLI-00'999999`), since `''` between two
+    quoted texts is an apostrophe. A single space between two elements is written
+    as it is and ends the text before it (`'AK' 9999`, `A9A 9A9`); at the start or
+    the end, or repeated, a space is quoted with the text it touches."""
+    parts: list[str] = []
+    run = ""
+    last = len(signature) - 1
+    for index, token in enumerate(signature):
         low, high = token.min, token.max
         if token.kind == "literal":
             text = token.text or ""
-            quoted = _needs_quotes(text)
-            unit = _quote(text) if quoted else text
-            if low == high and (low == 1 or (not quoted and low <= 4)):
-                parts.append(unit * low)
+            if text == " " and low == high == 1 and 0 < index < last and (
+                signature[index - 1].text != " " and signature[index + 1].text != " "
+            ):
+                _flush_literals(parts, run)
+                run = ""
+                parts.append(" ")
+            elif low == high and low <= _MAX_PLAIN_REPEAT:
+                run += text * low
             else:
+                _flush_literals(parts, run)
+                run = ""
                 parts.append(_quote(text) + _repeat(low, high))
+            continue
+        _flush_literals(parts, run)
+        run = ""
+        symbol = _SYMBOL[token.kind]
+        if low == high and low <= 6:
+            parts.append(symbol * low)
         else:
-            symbol = _SYMBOL[token.kind]
-            if low == high and low <= 6:
-                parts.append(symbol * low)
-            else:
-                parts.append(symbol + _repeat(low, high))
+            parts.append(symbol + _repeat(low, high))
+    _flush_literals(parts, run)
     return "".join(parts)
 
 
-# Groups of values that share a structure ------------------------------------------
-
-
-class _Group:
-    """The values of one structure, with the range of each token's length and the
-    text of the tokens that never vary."""
-
-    __slots__ = ("highs", "key", "level", "lows", "members", "merged", "texts")
-
-    def __init__(self, key: tuple[tuple[str, str | None], ...], level: int) -> None:
-        self.key = key
-        self.members: list[int] = []
-        self.lows: list[int] = []
-        self.highs: list[int] = []
-        self.texts: list[str | None] = []
-        self.level = level
-        self.merged = 0
-
-    def add(self, index: int, tokens: Sequence[Token]) -> None:
-        if not self.members:
-            self.lows = [token[2] for token in tokens]
-            self.highs = list(self.lows)
-            self.texts = [token[3] for token in tokens]
-        else:
-            lows, highs, texts = self.lows, self.highs, self.texts
-            for position, (_, _, count, text) in enumerate(tokens):
-                if count < lows[position]:
-                    lows[position] = count
-                elif count > highs[position]:
-                    highs[position] = count
-                if texts[position] != text:
-                    texts[position] = None
-        self.members.append(index)
-
-    def absorb(self, other: _Group) -> None:
-        """Take the values of a group of the same key."""
-        if not self.members:
-            self.lows, self.highs, self.texts = other.lows, other.highs, other.texts
-        else:
-            for position, count in enumerate(other.lows):
-                self.lows[position] = min(self.lows[position], count)
-                self.highs[position] = max(self.highs[position], other.highs[position])
-                if self.texts[position] != other.texts[position]:
-                    self.texts[position] = None
-        self.members.extend(other.members)
-        self.merged += other.merged
-        self.level = max(self.level, other.level)
-
-
-def _key(tokens: Sequence[Token]) -> tuple[tuple[str, str | None], ...]:
-    return tuple((token[0], token[1]) for token in tokens)
-
-
-def _key_text(key: tuple[tuple[str, str | None], ...]) -> str:
-    return "".join(code if literal is None else code + literal for code, literal in key)
-
-
-def _group_values(all_tokens: Sequence[Sequence[Token]]) -> list[_Group]:
-    groups: dict[tuple[tuple[str, str | None], ...], _Group] = {}
-    for index, tokens in enumerate(all_tokens):
-        key = _key(tokens)
-        group = groups.get(key)
-        if group is None:
-            group = groups[key] = _Group(key, 0)
-            group.merged = 1
-        group.add(index, tokens)
-    return list(groups.values())
-
-
-def _ranked(groups: Sequence[_Group]) -> list[_Group]:
-    return sorted(groups, key=lambda group: (-len(group.members), _key_text(group.key)))
-
-
-def _regroup(
-    tail: Sequence[_Group], all_tokens: Sequence[Sequence[Token]], level: int
-) -> list[_Group]:
-    """The groups of ``tail`` merged under the structure of ``level``."""
-    regrouped: dict[tuple[tuple[str, str | None], ...], _Group] = {}
-    for source in tail:
-        key = _key(generalize(all_tokens[source.members[0]], level))
-        group = regrouped.get(key)
-        if group is None:
-            group = regrouped[key] = _Group(key, level)
-        group.merged += source.merged
-        for index in source.members:
-            group.add(index, generalize(all_tokens[index], level))
-    return list(regrouped.values())
-
-
-def _final_groups(
-    groups: list[_Group],
-    all_tokens: Sequence[Sequence[Token]],
-    settings: PatternInferenceSettings,
-) -> tuple[list[_Group], bool]:
-    """The groups after the generalization ladder, and whether it ran.
-
-    With more structures than ``max_patterns`` the smallest ones are generalized
-    step by step (adjacent letters, then letters and digits) until the groups
-    that can be candidates fit; a generalized group whose structure equals a kept
-    one joins it.
-    """
-    ranked = _ranked(groups)
-    limit = settings.max_patterns
-    if len(ranked) <= limit:
-        return ranked, False
-    head, tail = ranked[: limit - 1], ranked[limit - 1 :]
-    by_key = {group.key: group for group in head}
-    for level in (1, 2):
-        regrouped = []
-        for group in _regroup(tail, all_tokens, level):
-            kept = by_key.get(group.key)
-            if kept is None:
-                regrouped.append(group)
-            else:
-                kept.absorb(group)
-        tail = regrouped
-        eligible = sum(
-            len(group.members) >= settings.min_distinct for group in head + tail
-        )
-        if eligible <= limit:
-            break
-    return _ranked(head + tail), True
-
-
-def _signature(group: _Group) -> list[PatternToken]:
-    """The signature of a group: promoted literals only for a structure read as
-    it is, with enough values to rule out chance."""
-    promote = group.level == 0 and len(group.members) >= LITERAL_MIN_SUPPORT
-    signature = []
-    for position, (code, literal) in enumerate(group.key):
-        low, high = group.lows[position], group.highs[position]
-        if code == "P":
-            signature.append(
-                PatternToken(kind="literal", text=literal, min=low, max=high)
-            )
-            continue
-        text = group.texts[position]
-        if promote and text is not None:
-            signature.append(PatternToken(kind="literal", text=text, min=1, max=1))
-        else:
-            signature.append(PatternToken(kind=_KIND[code], min=low, max=high))
-    return signature
+def _flush_literals(parts: list[str], run: str) -> None:
+    """Write a run of literals: quoted when it holds a letter, a digit, a space or
+    a character of the notation, as it is otherwise."""
+    if run:
+        parts.append(_quote(run) if _needs_quotes(run) else run)
 
 
 def candidate_order(
@@ -397,6 +275,34 @@ def candidate_order(
     return (-literal_chars, level, width, order)
 
 
+def _build_signature(rows: Sequence[Sequence[Token]], fold: bool) -> list[PatternToken]:
+    """The signature of rows of tokens that share their classes and lengths.
+
+    With ``fold`` the characters that every row has at the start of a class
+    token become a literal, and a token that every row repeats entirely a
+    literal alone (DEC-026): `'AK'-9999`. A position of several classes is never
+    folded.
+    """
+    signature: list[PatternToken] = []
+    for position, (code, literal, count, _) in enumerate(rows[0]):
+        if code == "P":
+            signature.append(PatternToken(kind="literal", text=literal, min=count, max=count))
+            continue
+        size = 0
+        if fold and len(code) == 1:
+            texts = [row[position][3] for row in rows]
+            size = len(commonprefix(texts))
+            if size:
+                signature.append(
+                    PatternToken(kind="literal", text=texts[0][:size], min=1, max=1)
+                )
+        if count > size:
+            signature.append(
+                PatternToken(kind=_KIND[code], min=count - size, max=count - size)
+            )
+    return signature
+
+
 # Population -----------------------------------------------------------------------
 
 
@@ -404,7 +310,7 @@ def _population(
     field: FieldResult, settings: PatternInferenceSettings
 ) -> tuple[list[SampleEntry], PatternExcluded, bool, int]:
     """The usable entries of the samples of a field, the exclusions, whether the
-    population was cut at ``MAX_VALUES`` and the usable count before the cut.
+    population was cut at ``max_values`` and the usable count before the cut.
 
     An integer is read as its decimal text, so a column of digits typed as
     integers takes part (design 18.12); other non-string values are excluded."""
@@ -435,7 +341,12 @@ def _population(
         too_long_values=too_long,
         too_complex_values=0,
     )
-    return usable[:MAX_VALUES], excluded, len(usable) > MAX_VALUES, len(usable)
+    return (
+        usable[: settings.max_values],
+        excluded,
+        len(usable) > settings.max_values,
+        len(usable),
+    )
 
 
 def _not_applicable(
@@ -448,6 +359,316 @@ def _not_applicable(
         reason=pattern_eligibility.deciding_reason(eligibility),
     )
 
+
+# Families -------------------------------------------------------------------------
+
+Key = tuple[tuple[str, str | None], ...]
+
+
+def _key(tokens: Sequence[Token]) -> Key:
+    return tuple((token[0], token[1]) for token in tokens)
+
+
+def _key_text(key: Key) -> str:
+    return "".join(code if literal is None else code + literal for code, literal in key)
+
+
+@dataclass(frozen=True, slots=True)
+class _Merge:
+    """Structures merged at the edge of a block (E2). The base structure has the
+    class ``base_code`` at its token ``token``; each merged one has a token of
+    another class, ``parts[key]``, of ``width`` positions, after it (``suffix``)
+    or before it (``prefix``). The position is of the union of the classes."""
+
+    token: int
+    edge: str
+    width: int
+    base_code: str
+    parts: dict[Key, str]
+
+    def union(self, keys: Sequence[Key], base: Key) -> str:
+        """The code of the class of the merged positions of a pattern that holds
+        the structures ``keys``: the classes of those structures only."""
+        classes = {self.parts.get(key, self.base_code) if key != base else self.base_code for key in keys}
+        return "Z" + "".join(code for code in _MERGEABLE if code in classes)
+
+
+@dataclass(slots=True)
+class _Family:
+    """The distinct values of one structure or of merged structures."""
+
+    keys: list[Key]
+    members: list[int]
+    merge: _Merge | None = None
+
+
+def _material(members: Sequence[int], entries: Sequence[SampleEntry], total_d: int, total_o: int) -> bool:
+    """Whether a structure is more than chance: two distinct values, or a share
+    of the distinct values or of the occurrences."""
+    if len(members) >= 2:
+        return True
+    occurrences = sum(entries[index].count for index in members)
+    return len(members) >= MATERIAL_SHARE * total_d or occurrences >= MATERIAL_SHARE * total_o
+
+
+def _merge_options(base: Key) -> list[tuple[int, str, str, Key]]:
+    """The structures that could merge into ``base``: for each of its tokens
+    that is a block by itself, a token of another class after or before it."""
+    options = []
+    for index, (code, _) in enumerate(base):
+        if code not in _MERGEABLE:
+            continue
+        if index and base[index - 1][0] != "P":
+            continue
+        if index + 1 < len(base) and base[index + 1][0] != "P":
+            continue
+        for other in _MERGEABLE:
+            if other == code or "D" not in (code, other):
+                continue
+            extra = ((other, None),)
+            options.append((index, "suffix", other, base[: index + 1] + extra + base[index + 1 :]))
+            options.append((index, "prefix", other, base[:index] + extra + base[index:]))
+    return options
+
+
+def _edge_positions(index: int, edge: str) -> tuple[int, int]:
+    """The positions of the stable token and of the added token in a merged block
+    whose base token is ``index``: the added one follows it (suffix) or precedes
+    it (prefix)."""
+    return (index, index + 1) if edge == "suffix" else (index + 1, index)
+
+
+def _merged_width(
+    key: Key,
+    members: Sequence[int],
+    tokens: Sequence[Sequence[Token]],
+    index: int,
+    edge: str,
+    allowed: set[int],
+) -> int | None:
+    """The positions a structure adds to the block of its base, when its values
+    all add the same number of them (``MERGE_MAX_WIDTH`` at most), keep a stable
+    part at least as long as the added one and give a block length the base also
+    has (E2); ``None`` otherwise."""
+    stable, mixed = _edge_positions(index, edge)
+    widths = set()
+    for member in members:
+        row = tokens[member]
+        width = row[mixed][2]
+        if width > MERGE_MAX_WIDTH or row[stable][2] < width:
+            return None
+        if row[stable][2] + width not in allowed:
+            return None
+        widths.add(width)
+    return widths.pop() if len(widths) == 1 else None
+
+
+def _best_merge(
+    base: Key,
+    groups: dict[Key, list[int]],
+    tokens: Sequence[Sequence[Token]],
+    usable: set[Key],
+) -> _Merge | None:
+    """The structures that merge into ``base`` at one edge of one block: of the
+    edges that have some, the one that gathers most values (E2). Structures of
+    another width than the largest one's stay apart."""
+    found: dict[tuple[int, str], list[tuple[Key, str, int]]] = defaultdict(list)
+    allowed: dict[int, set[int]] = {}
+    for index, edge, other, key in _merge_options(base):
+        if key not in usable:
+            continue
+        lengths = allowed.get(index)
+        if lengths is None:
+            lengths = allowed[index] = {tokens[member][index][2] for member in groups[base]}
+        width = _merged_width(key, groups[key], tokens, index, edge, lengths)
+        if width is not None:
+            found[(index, edge)].append((key, other, width))
+    best: tuple[int, tuple[int, str], _Merge] | None = None
+    for (index, edge), options in sorted(found.items()):
+        options.sort(key=lambda item: (-len(groups[item[0]]), _key_text(item[0])))
+        width = options[0][2]
+        parts = {key: other for key, other, size in options if size == width}
+        size = sum(len(groups[key]) for key in parts)
+        if best is None or size > best[0]:
+            best = (size, (index, edge), _Merge(index, edge, width, base[index][0], parts))
+    return None if best is None else best[2]
+
+
+def _families(
+    groups: dict[Key, list[int]],
+    entries: Sequence[SampleEntry],
+    tokens: Sequence[Sequence[Token]],
+) -> list[_Family]:
+    """The families of the structures, unranked (PAT-14, E2): one per structure,
+    except the structures that merge at the edge of a block."""
+    total_d = len(entries)
+    total_o = sum(entry.count for entry in entries)
+    material = {
+        key for key, members in groups.items() if _material(members, entries, total_d, total_o)
+    }
+    ordered = sorted(groups, key=lambda key: (-len(groups[key]), _key_text(key)))
+    claimed: set[Key] = set()
+    merges: dict[Key, _Merge] = {}
+    # The structures that can still be merged into a base: a structure that is
+    # the base of a merge, or was merged, is never merged into another.
+    usable = set(material)
+    for base in ordered:
+        if base in claimed or base not in material:
+            continue
+        merge = _best_merge(base, groups, tokens, usable)
+        if merge is not None:
+            merges[base] = merge
+            claimed.update(merge.parts)
+            usable.difference_update(merge.parts)
+            usable.discard(base)
+    families = []
+    for key in ordered:
+        if key in claimed:
+            continue
+        merge = merges.get(key)
+        keys = [key, *sorted(merge.parts, key=_key_text)] if merge else [key]
+        members = sorted(index for item in keys for index in groups[item])
+        families.append(_Family(keys, members, merge))
+    return families
+
+
+def _vector(row: Sequence[Token], merge: _Merge | None, key: Key, base: Key) -> tuple[int, ...]:
+    """The lengths of a value in the skeleton of its family: a merged block
+    counts as one token, as long as the whole block."""
+    if merge is None or key == base:
+        return tuple(token[2] for token in row)
+    stable, mixed = _edge_positions(merge.token, merge.edge)
+    counts = [token[2] for token in row]
+    counts[stable] += counts[mixed]
+    del counts[mixed]
+    return tuple(counts)
+
+
+def _union_row(row: Sequence[Token], merge: _Merge, union: str, base: bool) -> list[Token]:
+    """The row of a value of a merging pattern: its block split into the stable
+    part and the positions of the class ``union``, whichever structure it has."""
+    index = merge.token
+    if base:
+        code, _, count, text = row[index]
+        width = merge.width
+        if merge.edge == "suffix":
+            split: list[Token] = [
+                (code, None, count - width, text[:-width]),
+                (union, None, width, text[-width:]),
+            ]
+        else:
+            split = [
+                (union, None, width, text[:width]),
+                (code, None, count - width, text[width:]),
+            ]
+        return [*row[:index], *split, *row[index + 1 :]]
+    first, second = row[index], row[index + 1]
+    if merge.edge == "suffix":
+        tail: list[Token] = [first, (union, None, second[2], second[3])]
+    else:
+        tail = [(union, None, first[2], first[3]), second]
+    return [*row[:index], *tail, *row[index + 2 :]]
+
+
+def _score(count_d: int, count_o: int, total_d: int, total_o: int) -> float:
+    return round(max(count_d / total_d, count_o / total_o), 9)
+
+
+@dataclass(slots=True)
+class _BuiltNode:
+    """A structure of a merging pattern, before its identifier."""
+
+    key: Key
+    signature: list[PatternToken]
+    d: int
+    o: int
+
+
+@dataclass(slots=True)
+class _Built:
+    """A pattern before its identifier: its members, signature and nodes."""
+
+    vector: tuple[int, ...]
+    members: list[int]
+    d: int
+    o: int
+    signature: list[PatternToken]
+    nodes: list[_BuiltNode]
+
+
+def _patterns(
+    family: _Family,
+    entries: Sequence[SampleEntry],
+    tokens: Sequence[Sequence[Token]],
+    row_keys: Sequence[Key],
+    total_d: int,
+    total_o: int,
+) -> list[_Built]:
+    """The patterns of a family, one per combination of lengths, the largest
+    first (PAT-15). A pattern that holds several of the merged structures has a
+    position of the union class and a node per structure (composition)."""
+    base = family.keys[0]
+    merge = family.merge
+    by_vector: dict[tuple[int, ...], list[int]] = defaultdict(list)
+    for member in family.members:
+        by_vector[_vector(tokens[member], merge, row_keys[member], base)].append(member)
+    built = []
+    for vector, members in by_vector.items():
+        keys = sorted({row_keys[member] for member in members}, key=_key_text)
+        fold = len(members) >= 2
+        nodes = []
+        if merge is not None and len(keys) > 1:
+            union = merge.union(keys, base)
+            rows = [
+                _union_row(tokens[member], merge, union, row_keys[member] == base)
+                for member in members
+            ]
+            signature = _build_signature(rows, fold)
+            for key in keys:
+                part = [member for member in members if row_keys[member] == key]
+                nodes.append(
+                    _BuiltNode(
+                        key,
+                        _build_signature([tokens[member] for member in part], len(part) >= 2),
+                        len(part),
+                        sum(entries[member].count for member in part),
+                    )
+                )
+            nodes.sort(key=lambda node: (-node.d, -node.o, _key_text(node.key)))
+        else:
+            signature = _build_signature([tokens[member] for member in members], fold)
+        built.append(
+            _Built(
+                vector,
+                members,
+                len(members),
+                sum(entries[member].count for member in members),
+                signature,
+                nodes,
+            )
+        )
+    built.sort(key=lambda item: (-_score(item.d, item.o, total_d, total_o), item.vector))
+    return built
+
+
+def _lengths(vector: tuple[int, ...], base: Key) -> list[int]:
+    return [count for count, (code, _) in zip(vector, base, strict=False) if code != "P"]
+
+
+def _format(
+    members: Sequence[int], entries: Sequence[SampleEntry], tokens: Sequence[Sequence[Token]]
+) -> str:
+    """The exact form of the commonest value of a pattern, one symbol per
+    character: `AA-9999`."""
+    commonest = min(members, key=lambda member: (-entries[member].count, entries[member].value))
+    return render_signature(_build_signature([tokens[commonest]], False))
+
+
+def _examples(members: Sequence[int], entries: Sequence[SampleEntry]) -> list[int]:
+    return sorted(entries[member].id for member in members)[:EXAMPLES]
+
+
+# Entry of a field -----------------------------------------------------------------
 
 # What ``_infer`` reads: the entries, their tokens, the exclusions, whether the
 # population was cut and the available count.
@@ -483,7 +704,7 @@ def _prepare(
 def infer_field(
     dataset: str, field: FieldResult, settings: PatternInferenceSettings
 ) -> FieldPatterns:
-    """The inferred patterns of one field, or its eligibility when it is not
+    """The discovered patterns of one field, or its eligibility when it is not
     eligible (design 18.12)."""
     return _entry(dataset, field, settings, *_prepare(field, settings))
 
@@ -495,11 +716,32 @@ def _entry(
     eligibility: PatternEligibility,
     prepared: _Prepared | None,
 ) -> FieldPatterns:
-    """The entry of a field once its eligibility is known: inferred when it is
+    """The entry of a field once its eligibility is known: discovered when it is
     eligible, ``not_applicable`` otherwise."""
     if prepared is None:
         return _not_applicable(dataset, field.id, eligibility)
     return _infer(dataset, field, settings, eligibility, *prepared)
+
+
+def _lengths_table(cells: Sequence[tuple[str, int, int]], limit: int) -> PatternTable:
+    """The table of the combinations of lengths kept out of the patterns: the
+    largest ``limit`` cells, the rest in ``others``."""
+    merged: dict[str, list[int]] = {}
+    for text, d, o in cells:
+        total = merged.setdefault(text, [0, 0])
+        total[0] += d
+        total[1] += o
+    ranked = sorted(merged.items(), key=lambda item: (-item[1][1], -item[1][0], item[0]))
+    kept, rest = ranked[:limit], ranked[limit:]
+    return PatternTable(
+        facet="lengths",
+        cells=[PatternTableCell(value=text, d=total[0], o=total[1]) for text, total in kept],
+        others=PatternTableOthers(
+            distinct=len(rest),
+            d=sum(total[0] for _, total in rest),
+            o=sum(total[1] for _, total in rest),
+        ),
+    )
 
 
 def _infer(
@@ -523,70 +765,54 @@ def _infer(
         or excluded.too_long_values
         or excluded.too_complex_values
     )
-    basis = "all_distinct" if complete else "sample"
-    total = len(entries)
-    groups, laddered = _final_groups(_group_values(tokens), tokens, settings)
-    eligible = [g for g in groups if len(g.members) >= settings.min_distinct]
-    chosen = eligible[: settings.max_patterns]
-    signatures = [_signature(group) for group in chosen]
-    owner: dict[int, int] = {}
-    for number, group in enumerate(chosen):
-        for index in group.members:
-            owner[index] = number
-    specificity = [
-        candidate_order(signatures[number], chosen[number].level, number)
-        for number in range(len(chosen))
-    ]
-    broad = [
-        number
-        for number, signature in enumerate(signatures)
-        if any(token.kind in ("letter_unicode", "alphanumeric") for token in signature)
-    ]
-    matchers = {number: compile_signature(signatures[number]) for number in broad}
-    attributed: list[list[int]] = [[] for _ in chosen]
-    overlaps: dict[tuple[int, ...], int] = {}
-    for index, entry in enumerate(entries):
-        if not broad:
-            if index in owner:
-                attributed[owner[index]].append(index)
-            continue
-        found = {owner[index]} if index in owner else set()
-        for number in broad:
-            if number not in found and matches(matchers[number], entry.value):
-                found.add(number)
-        if not found:
-            continue
-        if len(found) > 1:
-            key = tuple(sorted(found))
-            overlaps[key] = overlaps.get(key, 0) + 1
-        attributed[min(found, key=lambda number: specificity[number])].append(index)
-    candidates = []
-    for number, members in enumerate(attributed):
-        signature = signatures[number]
-        lengths = [len(entries[index].value) for index in members] or [0]
-        count = len(members)
-        share = count / total
-        candidates.append(
-            PatternCandidate(
-                id=f"p{number + 1}",
-                role="principal" if number == 0 else "secondary",
-                signature=signature,
-                render=render_signature(signature),
-                lengths=PatternLengths(min=min(lengths), max=max(lengths)),
-                generalization=chosen[number].level,
-                merged_structures=chosen[number].merged,
-                coverage=PatternCoverage(
-                    distinct=count, share=round(share, 4), basis=basis
-                ),
-                confidence=PatternConfidence(
-                    method="laplace_share", value=round(share * count / (count + 1), 4)
-                ),
-                examples=sorted(entries[index].id for index in members)[:EXAMPLES],
-            )
+    total_d = len(entries)
+    total_o = sum(entry.count for entry in entries)
+    row_keys = [_key(row) for row in tokens]
+    groups: dict[Key, list[int]] = defaultdict(list)
+    for index, key in enumerate(row_keys):
+        groups[key].append(index)
+    ranked = sorted(
+        _families(groups, entries, tokens),
+        key=lambda family: (
+            -_score(
+                len(family.members),
+                sum(entries[member].count for member in family.members),
+                total_d,
+                total_o,
+            ),
+            _key_text(family.keys[0]),
+        ),
+    )
+    limits: set[PatternLimit] = {"max_values"} if cut else set()
+    kept, dropped = ranked[: settings.max_families], ranked[settings.max_families :]
+    if dropped:
+        limits.add("max_families")
+    built = [_patterns(family, entries, tokens, row_keys, total_d, total_o) for family in kept]
+    cut_patterns: list[list[_Built]] = [[] for _ in kept]
+    for number, patterns in enumerate(built):
+        if len(patterns) > settings.max_patterns_per_family:
+            cut_patterns[number] = patterns[settings.max_patterns_per_family :]
+            built[number] = patterns[: settings.max_patterns_per_family]
+            limits.add("max_patterns_per_family")
+    _fit_budget(kept, dropped, built, cut_patterns, settings.max_patterns, limits)
+    families = [
+        _publish_family(
+            f"f{number}", family, built[number - 1], cut_patterns[number - 1], entries, tokens, settings
         )
-    left = len(groups) - len(chosen)
-    other_count = total - sum(len(members) for members in attributed)
-    limited = laddered or len(eligible) > settings.max_patterns
+        for number, family in enumerate(kept, 1)
+    ]
+    other_members = [member for family in dropped for member in family.members]
+    other = PatternOtherStructures(
+        structures=sum(len(family.keys) for family in dropped),
+        d=len(other_members),
+        o=sum(entries[member].count for member in other_members),
+    )
+    order: tuple[PatternLimit, ...] = (
+        "max_values",
+        "max_families",
+        "max_patterns_per_family",
+        "max_patterns",
+    )
     return FieldPatternsComplete(
         dataset=dataset,
         field=field.id,
@@ -596,25 +822,119 @@ def _infer(
             selection=samples.selection,
             complete=complete,
             available=available,
-            distinct=total,
+            distinct=total_d,
+            occurrences=total_o,
+            occurrences_basis="exact" if complete else "sample",
             excluded=excluded,
         ),
-        candidates=candidates,
-        other=PatternOther(
-            distinct=other_count,
-            share=round(other_count / total, 4),
-            structures=left,
-        ),
-        overlaps=[
-            PatternOverlap(
-                patterns=[f"p{number + 1}" for number in key], values=values
+        families=families,
+        other=other,
+        limits=[name for name in order if name in limits],
+    )
+
+
+def _fit_budget(
+    kept: list[_Family],
+    dropped: list[_Family],
+    built: list[list[_Built]],
+    cut_patterns: list[list[_Built]],
+    budget: int,
+    limits: set[PatternLimit],
+) -> None:
+    """Keep the patterns and nodes of the field within ``max_patterns``: first
+    the nodes of the smallest patterns go (a pattern keeps all its nodes or
+    none), then the smallest patterns, each family keeping its largest one, which
+    go to the table of lengths of their family, then the smallest families, which
+    go to ``dropped`` (counted in ``other``) so that a budget below the number of
+    families is met too."""
+
+    def size() -> int:
+        return sum(1 + len(pattern.nodes) for patterns in built for pattern in patterns)
+
+    if size() <= budget:
+        return
+    limits.add("max_patterns")
+    everything = sorted(
+        ((number, pattern) for number, patterns in enumerate(built) for pattern in patterns),
+        key=lambda item: (item[1].d, item[1].o),
+    )
+    for _, pattern in everything:
+        if size() <= budget:
+            return
+        pattern.nodes = []
+    for number, pattern in everything:
+        if size() <= budget:
+            return
+        patterns = built[number]
+        if patterns[0] is not pattern:
+            patterns[:] = [item for item in patterns if item is not pattern]
+            cut_patterns[number].append(pattern)
+    while size() > budget and len(kept) > 1:
+        dropped.append(kept.pop())
+        built.pop()
+        cut_patterns.pop()
+
+
+def _publish_family(
+    identifier: str,
+    family: _Family,
+    patterns: list[_Built],
+    left_out: list[_Built],
+    entries: Sequence[SampleEntry],
+    tokens: Sequence[Sequence[Token]],
+    settings: PatternInferenceSettings,
+) -> PatternFamily:
+    base = family.keys[0]
+    published = []
+    for number, pattern in enumerate(patterns, 1):
+        pattern_id = f"{identifier}.p{number}"
+        nodes = [
+            PatternNode(
+                id=f"{pattern_id}.n{position}",
+                parent=pattern_id,
+                level=2,
+                facet="composition",
+                signature=built.signature,
+                render=render_signature(built.signature),
+                d=built.d,
+                o=built.o,
+                role="principal" if position == 1 else "secondary",
             )
-            for key, values in sorted(overlaps.items())
-        ],
-        limits=[
-            *(["max_patterns"] if limited else []),
-            *(["max_values"] if cut else []),
-        ],
+            for position, built in enumerate(pattern.nodes, 1)
+        ]
+        published.append(
+            FamilyPattern(
+                id=pattern_id,
+                signature=pattern.signature,
+                render=render_signature(pattern.signature),
+                format=_format(pattern.members, entries, tokens),
+                lengths=_lengths(pattern.vector, base),
+                d=pattern.d,
+                o=pattern.o,
+                examples=_examples(pattern.members, entries),
+                nodes=nodes,
+            )
+        )
+    tables = []
+    if left_out:
+        tables.append(
+            _lengths_table(
+                [
+                    (",".join(map(str, _lengths(item.vector, base))), item.d, item.o)
+                    for item in left_out
+                ],
+                settings.max_patterns_per_family,
+            )
+        )
+    return PatternFamily(
+        id=identifier,
+        key=_key_text(base),
+        composition=[_key_text(key) for key in family.keys] if family.merge else [],
+        d=len(family.members),
+        o=sum(entries[member].count for member in family.members),
+        patterns=published,
+        tables=tables,
+        examples=_examples(family.members, entries),
     )
 
 
@@ -652,18 +972,19 @@ def infer_patterns(
     settings: PatternInferenceSettings,
     diagnostics: DiagnosticCollector,
 ) -> DerivedPatterns | None:
-    """The patterns inferred in every field of ``datasets``, or ``None`` when the
-    inference is turned off.
+    """The patterns discovered in every field of ``datasets``, or ``None`` when
+    the discovery is turned off.
 
     One entry per field, in the order of the datasets and fields. The result
     depends on the samples only, not on how the scan ran (principle 6). A field
-    on which the inference raises gets a ``failed`` entry and an error in
+    on which the discovery raises gets a ``failed`` entry and an error in
     ``diagnostics``; the others are unaffected.
     """
     if not settings.enabled:
         return None
     return DerivedPatterns(
         grammar=PatternGrammar(name=GRAMMAR_NAME, version=GRAMMAR_VERSION),
+        algorithm=PatternAlgorithm(version=ALGORITHM_VERSION),
         domain="original",
         fields=[
             _infer_isolated(dataset.id, field, settings, diagnostics)

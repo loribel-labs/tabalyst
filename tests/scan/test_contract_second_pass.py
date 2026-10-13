@@ -228,9 +228,12 @@ def test_D03_a_plan_of_several_analyses_reads_the_source_once(tmp_path, monkeypa
         "position_drift",
         "length_distribution",
         "pattern_validation",
+        # `note 7` and `note 70` are two patterns of fixed length: the age against
+        # the pattern of the note is a table the plan also makes.
+        "category_crosstab",
     }
     # The patterns of `note` come from the exact counts of the Scan: no reading.
-    assert len(outcome.executed) == 7 and len(opened) == 1
+    assert len(outcome.executed) == 8 and len(opened) == 1
     assert outcome.document.run.records_read == 500
 
 

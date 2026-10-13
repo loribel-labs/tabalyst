@@ -37,7 +37,6 @@ from tabalyst.scanner.models import (
     Scope,
     SourceInfo,
 )
-from tabalyst.scanner.patterninfer import MAX_VALUES
 
 OBSERVATIONS_VERSION = 2
 # A minority pattern (``minority_pattern``): a candidate that covers at most
@@ -383,9 +382,12 @@ def _field_limits(
     if isinstance(entry, FieldPatternsFailed):
         found.limit(*where, "derived.patterns", entry.reason, diagnostic=entry.diagnostic)
     elif isinstance(entry, FieldPatternsComplete):
+        settings = config.pattern_inference
         sizes = {
-            "max_patterns": config.pattern_inference.max_patterns,
-            "max_values": MAX_VALUES,
+            "max_patterns": settings.max_patterns,
+            "max_values": settings.max_values,
+            "max_families": settings.max_families,
+            "max_patterns_per_family": settings.max_patterns_per_family,
         }
         for reason in entry.limits:
             identifiers.append(

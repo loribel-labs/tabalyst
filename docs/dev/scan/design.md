@@ -1887,6 +1887,7 @@ makes by itself writes none.
 | 2026-10-12 | IN-25 | New decisions O61 to O64, new sections 20.33 to 20.36, rows in 20.5, notes in 12.8, 20.17 and 20.29: `array_profile`, `structure_variants` (`planner/analyzers/structure.py`, `secondpass/structure.py`), `text_profile`, `fingerprint_distinct` (`planner/analyzers/texts.py`, `secondpass/texts.py`), `sensitive_forms` (`planner/analyzers/forms.py`, `secondpass/forms.py`), `ip_class` and `phone_class`, `ArrayProfileResult`, `StructureResult`, `TextProfileResult`, `FingerprintResult`, `FormsResult`, `ArraySettings`, `StructureSettings`, `TextSettings`, `SensitiveSettings` (`deep.arrays`, `deep.structure`, `deep.texts`, `deep.sensitive`), `FieldFacts.arrays`, `objects`, `object_keys`, `object_varies`, `untracked_paths`, `dataset_fields`, `strings_content`, `classified`, `cells`, `ROOT_FIELD`, `root_facts`, `Analyzer.roots`, `FieldRoute.arrays`, `texts`, `fingerprints`, `forms`, `Router(structures=)`, `PARTS` `texts` and `forms`, the family accuracy `fingerprint`, `COST_MODEL_VERSION` 13, `tests/scan/test_insight_lot18.py`. | Lot 18 of the Insight milestone: leads B7, B8 and B10 of 10.30 of the technical documentation. |
 | 2026-10-13 | PT-P1 | New decision O65, sections 18.12 and 20.9 rewritten: the contract of the hierarchical discovery and validation of patterns (eligibility, weighted population, families, patterns of fixed length, facets and score, tree, budgets, determinism, exposure, declared keys, target format of `derived.patterns` grammar 2 and of `pattern_counts` revision 2, PAT-12 to PAT-27), ADR `2026-10-13-hierarchical-patterns-fixed-lengths`, the tests of `tests/patterns/` marked by lot. No code of the engine changes. | Lot P1 of the Patterns plan. Maintainer decisions of 2026-10-13 (Porte 0, Q1 to Q9, "tout par defaut"). |
 | 2026-10-13 | PT-C1 | New decision O66, section 9.2 rewritten, a note in 12.8: the character profile of `string_characteristics` (`scanner/characters.py`, `CharacterProfile`), `limits.max_special_characters` and `max_distinct_characters`, the column page of the Report, `tests/scan/test_character_profile.py`. Format revision 4 (in preparation). | Lot C1 of the Patterns plan: the first pass counts the classes and the characters of the strings. |
+| 2026-10-13 | PT-P3 | Section 18.12: the discovery of families and patterns of fixed length (`scanner/patterninfer.py` rewritten: families by structure key, merge of composition at the edge of a block, one pattern per combination of lengths, constants folded, budgets `max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, table of lengths), grammar 2 and `ALGORITHM_VERSION` 1, the models of the hierarchy (`PatternFamily`, `FamilyPattern`, `PatternNode`, `PatternTable`, `PatternOtherStructures`), the flat view `FieldPatternsComplete.candidates` that the consumers read until P6 and P7, `check_scan` of the sums, `tests/patterns/pattern_adapter.py` (`discover`, `published_text`), lot P3 enabled. Format revision 4 (in preparation). | Lot P3 of the Patterns plan. |
 | 2026-10-12 | IN-23 |
 
 ## 18. Bottom-k samplers (O26, O28)
@@ -2477,8 +2478,11 @@ This section is the contract of the hierarchical discovery. It replaces the flat
 (a list of structures with generalization levels and `overlaps`). Its sources are the specification (`DEC-001` to
 `DEC-034`, `FR-001` to `FR-024`, `TR-001` to `TR-011`), the algorithm (version 1.1) and the notation; this section states what the code must do and does not depend on reading them. The decision
 record is the ADR `2026-10-13-hierarchical-patterns-fixed-lengths`. The lots P2 to P8 of the Patterns plan implement
-it; until a lot delivers, the code keeps the behavior of the lot 4a and the tests of `tests/patterns/` for that lot
-stay skipped ("to enable").
+it; until a lot delivers, the tests of `tests/patterns/` for that lot stay skipped ("to enable"). The lot P3 delivered the
+families, the patterns of fixed length, the folded constants, the merge of composition, the budgets and the target
+format without gains, tables of content or depth (lot P4); the consumers of the flat list of the lot 4a read it
+through `FieldPatternsComplete.candidates`, a view of the hierarchy, until the lots P6 and P7 make them read the
+hierarchy.
 
 After the scan, `tabalyst.scanner.patterninfer.infer_patterns(datasets, settings)` discovers the structural patterns
 of the fields from their samples. It reads the finished datasets, never the source (PAT-01), and `scan()` calls it once
@@ -2488,7 +2492,7 @@ patterns are not the configured ones (12.7): those stay detectors (`pattern:<id>
 second-pass analyzer (O65), so a Scan alone, and a Report made from it, show patterns without any second reading.
 
 **Vocabulary.** A *format* is the exact form of one value, a symbol per character (`AA-9999`). A *pattern* describes
-values of one structure and one set of lengths, with its constants (`'AK'-9999`); a discovered pattern has a fixed
+values of one structure and one set of lengths, with its constants (`'AK-'9999`); a discovered pattern has a fixed
 length for each position and never a range. A *family* gathers the patterns of one structure that differ only by
 their lengths or their constants; it is not a pattern, has no rendering as a range and presents itself as the list of
 its patterns with their counts. A *facet* is a dimension along which a family can be specialized (composition,
@@ -2518,13 +2522,13 @@ and suffixes, separators, positional constants). Only an `eligible` field is dis
   a semantic detector (a date) lowers its score and is not excluded (AC-002).
 - The fixed-length criterion (DEC-034): a field is relevant only if at most `N` formats of fixed length cover at
   least `P` percent of its values; the ISBN with hyphens of RC-12 (more than six combinations of lengths), names and
-  free text fail it, `A9A 9A9` and `'AK'-9999` pass it. `N`, `P` and the weights of the score were calibrated at
+  free text fail it, `A9A 9A9` and `'AK-'9999` pass it. `N`, `P` and the weights of the score were calibrated at
   the lot P2 on the corpus (OPEN-009, below); the relative order is the contract of AC-001: an identifier scores
   strictly more than a free description and more than a column of five statuses.
 - The state and the reasons are published for every field, so a reader can tell "no pattern" from "not looked at".
-  A field in a state other than `eligible` has the status `not_applicable` and no `families` (the entry below).
-  Until the entries of grammar 2 (lot P3), such an entry keeps the `reason` of the lot 4a, which is now the deciding
-  reason of its eligibility (the first that is not `regular_structure` or `integer_digits`).
+  A field in a state other than `eligible` has the status `not_applicable` and no `families` (the entry below). Such
+  an entry keeps a `reason`, the deciding reason of its eligibility (the first that is not `regular_structure` or
+  `integer_digits`), for the readers that want one word.
 
 **Calibration of the eligibility (lot P2, OPEN-009, `scanner/pattern_eligibility.py`).** The first phase reads the
 facts, in this order: an exposure that masks or hides (`excluded`, `exposure`), the technical type `boolean`
@@ -2579,7 +2583,7 @@ uniform amounts of five digits is structurally a code and is eligible; the numer
 
 **Population (PAT-13, FR-002, FR-003, DEC-010, DEC-018).** The stored distinct original values of the field, each with
 its count: the `listed` of `values.samples` and the pool of `by_length.listed` (once each, by `id`), in id order, at
-most `max_values` (10,000; the technical ceiling is 20,000; `limits` says `max_values` when the cut acts). The two
+most `max_values` (10,000; the setting runs up to 20,000; `limits` says `max_values` when the cut acts). The two
 selection laws are not added (LEN-06). The counts are used: every score, order and coverage is computed on the pairs
 (value, count), in the two measures `d` and `o`. The counts are exact when the sample is `all` (`population.complete`)
 and the basis of the occurrences is `sample` otherwise; a coverage in occurrences is then a discovery indicator and
@@ -2592,7 +2596,7 @@ ASCII lowercase letters, a run of letters that has a non-ASCII letter, and every
 the same character is one token with a count). The notation changes (DEC-032): `9` a digit, `A` a capital, `a` a
 lowercase letter, `@` a letter of either case (non-ASCII too), `X` a capital or a digit, `x` a lowercase letter or a
 digit, `#` an ASCII letter of either case or a digit; `?` (any character) is never produced by the discovery and
-belongs to written patterns; literals are quoted (`'AK'`), with `''` for an apostrophe; repeats are `{n}`, and only a
+belongs to written patterns; literals are quoted (`'AK'`), with `''` for an apostrophe, and a fixed value with the separators or spaces that touch it is one block of text (`'CLI-00'999999`); a separator alone stays as it is (`-9999`), and a single space between two elements is written as it is and ends the block (`'AK' 9999`, `A9A 9A9`), quoted with the text it touches at the start, at the end or repeated; repeats are `{n}`, and only a
 written pattern uses `{m,n}` and `{a|b}`. A position that mixes a non-ASCII letter and a digit has no class: the
 formats stay apart. The match of a signature is still one pass without backtracking (PAT-04). A change of a class, a
 rule or the rendering raises `GRAMMAR_VERSION`, here to 2 (the notation of version 1, where `X` was a capital and `#`
@@ -2603,7 +2607,15 @@ text in the notation above.
 structure key. A family is a group of one key, or of keys merged at the edge of a block, only when all hold: same
 skeleton of separators and same block lengths; the classes differ only on a prefix or a suffix of one or two
 positions; the stable part of the block is not empty and at least as long as the mixed part; every structure is
-material (`d` at least 2, or a share of at least 5% in `d` or `o`). `DDDDU` and `DDDDD` merge into `DDDDZ` (a position
+material (`d` at least 2, or a share of at least 5% in `d` or `o`). The rule as the lot P3 implements it (the
+maintainer accepted it on 2026-10-13): the base structure has a block of one class token `T` (`D`, `U` or `L`), a
+merged structure has the same block with a token of another class `Y` of `k` positions (1 or 2) right after `T`
+(suffix) or right before it (prefix), and `D` is one of the two classes; all the values of the merged structure add the
+same `k`, keep `T` at least `k` characters long and give a total block length that the base structure also has.
+Several merged structures (`Y` being `U`, then `L`) join one base at the same edge and width, the edge with most values
+wins, and a structure that is a base, or was merged, is never merged into another. The classes of the merged positions
+become one: `D` with `U` is `X` (`upper_digit`), `D` with `L` is `x` (`lower_digit`), the three together are `#`.
+`DDDDU` and `DDDDD` merge into `DDDDZ` (a position
 that is a capital or a digit, `X` in the notation); `UDD` with `UUD` (the mixed position is in the middle) and `AK`
 with `ak` (the stable part is empty) do not. The families are disjoint by construction, since a value has one
 structure key; the five raw variants of `AK-1234` (RC-15) are five families. They are ranked by the larger of their
@@ -2611,11 +2623,18 @@ shares in `d` and `o`, then by key text; those beyond `max_families` (16) go to 
 ladder of the lot 4a (levels 1 and 2) and `overlaps` disappear.
 
 **Patterns of fixed length (PAT-15, FR-008, DEC-034).** In a family, each combination of the lengths of the variable
-tokens that the population shows is one pattern, with no test of gain, within `max_patterns_per_family` (32): `'INV'-999`,
-`'INV'-9999` and `'INV'-99999` are three patterns of one family. A constant carried by all the members of a pattern,
-in `d` and in `o`, creates no child: it is folded into the rendering (`'AK'-9999`), while the parent stays general so
-that a later value is a new variant, not an unknown structure (DEC-026). A family whose patterns would need more
-combinations than the budget keeps the largest and counts the rest in the table of its lengths, with `limits`.
+tokens that the population shows is one pattern, with no test of gain, within `max_patterns_per_family` (32): `'INV-'999`,
+`'INV-'9999` and `'INV-'99999` are three patterns of one family. The lengths are those of every token of the
+family's skeleton, a literal run counting too, and a merged block counts as one token as long as the whole block. A
+constant carried by all the members of a pattern, in `d` and in `o`, creates no child: it is folded into the
+rendering (`'AK-'9999`), while the parent stays general so that a later value is a new variant, not an unknown
+structure (DEC-026). What is folded (lot P3): the characters that every member has at the start of a class token, the
+whole token when it is all constant (`'202'9`, `'INV'`), never the end of a token (a tail is a facet, lot P4) and never
+a position of several classes; a pattern of one distinct value folds nothing, a lone value proving no constant. A
+pattern that holds several of the merged structures has the union class at the merged positions (`'A'A-9999X`) and a
+node of the facet `composition` for each structure (`'A'A-99999`, `'A'A-9999A`), with no test of gain. A family whose
+patterns would need more combinations than the budget keeps the largest and counts the rest in the `lengths` table of
+the family (one cell per combination of class lengths, `others` for the rest), with `limits`.
 
 **Facets and score (PAT-16, FR-006, FR-007, FR-010, DEC-023, DEC-029 to DEC-031).** A family can be specialized by,
 in this order: its composition (the merged structures become nodes without a test of gain); its lengths (above); its
@@ -2652,9 +2671,13 @@ deepest, so a node's counts equal the sum of its children and the rest, and the 
 **Budgets and limits (PAT-18, FR-011, DEC-006).** The settings of `scan.pattern_inference` are `enabled`,
 `max_values` (10,000, at most 20,000), `max_families` (16), `max_patterns_per_family` (32), `max_patterns` (128: the
 patterns and the nodes published for a field, which changes the meaning of the setting of the lot 4a, whose default
-was 8 and whose upper bound of 64 rises to 1,024), `max_depth` (3, at most 4), `max_value_length` (64) and `min_distinct` (2). When a budget acts, the branches of the lowest gain are folded into the `others` of their
-parent and `limits` names the budget (`max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`,
-`max_depth`). The names and defaults are the ones the maintainer accepted on 2026-10-13; the values are not
+was 8 and whose upper bound of 64 rises to 1,024), `max_depth` (3, at most 4; added by the lot P4, which develops the tree), `max_value_length` (64) and `min_distinct`
+(2, a condition of the eligibility of the field: a structure with one value is a family of its own). When a budget
+acts, the branches of the lowest gain are folded into the `others` of their parent and `limits` names the budget
+(`max_values`, `max_families`, `max_patterns_per_family`, `max_patterns`, `max_depth`). The families beyond
+`max_families` are counted in `other` (`structures`, `d`, `o`). Under `max_patterns` the nodes of the smallest patterns
+go first (a pattern keeps all its nodes or none), then the smallest patterns, each family keeping its largest, into
+the `lengths` table of their family. The names and defaults are the ones the maintainer accepted on 2026-10-13; the values are not
 final and a change of any setting makes the Scan stale like any other (21).
 
 **Determinism (FR-018, AC-019).** Same values, counts and settings give the same result, byte for byte, whatever the
@@ -2695,12 +2718,14 @@ datasets and fields, each with `dataset`, `field`, `status` (`complete`, `not_ap
 - `population`: `source`, `selection`, `complete`, `available`, `distinct`, `occurrences`, `occurrences_basis`
   (`exact` or `sample`), `excluded`;
 - `families`: each with `id` (`f1`, ...), `key`, `d`, `o`, optional `composition` (the merged keys), `patterns`
-  (each with `id` `f1.p1`, `signature`, `render`, `format` of the commonest value, `lengths`, `d`, `o`, `nodes`),
-  `tables` (each with `facet`, `extractor`, `cells` of `{value, d, o}`, `others` `{distinct, d, o}`, `gain`), and
-  `examples` (up to three ids of entries of the samples, the smallest);
+  (each with `id` `f1.p1`, `signature`, `render`, `format` of the commonest value, `lengths`, `d`, `o`, `examples`,
+  `nodes`), `tables` (each with `facet`, `extractor`, `cells` of `{value, d, o}`, `others` `{distinct, d, o}`,
+  `gain`; the lot P3 writes only the `lengths` table, without `extractor` or `gain`), and `examples` (up to three ids
+  of entries of the samples, the smallest);
 - a node: `id` (`f1.p1.n1`), `parent`, `level`, `facet`, `signature`, `render`, `d`, `o`, `gain` (`bits_d`,
   `bits_o`, `sigma`), `role` (`principal` for the largest of its siblings, `secondary`), `nodes`;
-- `other`: the structures and values read by no family (`structures`, `d`, `o`);
+- `other`: the structures and values read by no family (`structures`, `d`, `o`); `unmatched`, `candidates` and
+  `PatternCandidate` are views of the model for the readers of the flat list, never written;
 - `limits`: the budgets that acted.
 
 Percentages are not stored (they are computed from `d` and `o`). `coverage.basis` of the lot 4a is now `occurrences_basis`
@@ -2723,7 +2748,7 @@ candidates are not kept: no compatibility with the flat list is promised (beta).
                     {"kind": "digit_ascii", "min": 4, "max": 4}],
       "nodes": [
         {"id": "f1.p1.n1", "parent": "f1.p1", "level": 2, "facet": "head:1",
-         "render": "'AK'-9999", "d": 50, "o": 50}
+         "render": "'AK-'9999", "d": 50, "o": 50}
       ]
     }],
     "tables": [], "examples": [12, 40, 41]

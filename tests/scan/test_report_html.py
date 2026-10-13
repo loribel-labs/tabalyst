@@ -268,9 +268,12 @@ def test_column_page_reads_its_observations_patterns_and_rows(tmp_path):
     assert "Row 1" in page
 
 
-def test_a_limit_that_is_a_constant_does_not_point_to_a_setting():
+def test_a_limit_that_is_not_a_setting_does_not_point_to_one():
     from tabalyst.report_labels import REASON_NOTES, REASON_SETTINGS
 
-    # The inference reads at most 20,000 distinct values: no setting raises it.
-    assert "max_values" not in REASON_SETTINGS
-    assert "20,000" in REASON_NOTES["max_values"]
+    # The exposure withholds the values of a column: no setting raises it.
+    assert "exposure" not in REASON_SETTINGS
+    assert "exposure" in REASON_NOTES
+    # The budgets of the discovery of patterns are settings.
+    for budget in ("max_values", "max_families", "max_patterns_per_family", "max_patterns"):
+        assert REASON_SETTINGS[budget] == f"scan.pattern_inference.{budget}"

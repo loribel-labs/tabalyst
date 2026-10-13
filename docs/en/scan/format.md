@@ -567,7 +567,8 @@ structure, not a rule that the data must follow.
 {
   "derived": {
     "patterns": {
-      "grammar": {"name": "tabalyst.pattern", "version": 1},
+      "grammar": {"name": "tabalyst.pattern", "version": 2},
+      "algorithm": {"version": 1},
       "domain": "original",
       "fields": [
         {
@@ -581,32 +582,37 @@ structure, not a rule that the data must follow.
           "population": {
             "source": "samples", "selection": "all", "complete": true,
             "available": 3000, "distinct": 3000,
+            "occurrences": 3000, "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0, "non_string_values": 0,
               "empty_values": 0, "too_long_values": 0,
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1", "role": "principal",
-              "signature": [
-                {"kind": "literal", "text": "CLI", "min": 1, "max": 1},
-                {"kind": "literal", "text": "-", "min": 1, "max": 2},
-                {"kind": "digit_ascii", "min": 7, "max": 8}
+              "id": "f1", "key": "UP-D", "d": 3000, "o": 3000,
+              "patterns": [
+                {
+                  "id": "f1.p1",
+                  "signature": [
+                    {"kind": "literal", "text": "CLI", "min": 1, "max": 1},
+                    {"kind": "literal", "text": "-", "min": 1, "max": 1},
+                    {"kind": "digit_ascii", "min": 7, "max": 7}
+                  ],
+                  "render": "'CLI-'9{7}",
+                  "format": "AAA-9{7}",
+                  "lengths": [3, 7],
+                  "d": 2178, "o": 2178,
+                  "examples": [0, 1, 2],
+                  "nodes": []
+                }
               ],
-              "render": "'CLI''-'{1,2}9{7,8}",
-              "lengths": {"min": 11, "max": 13},
-              "generalization": 0, "merged_structures": 1,
-              "coverage": {
-                "distinct": 2178, "share": 0.726, "basis": "all_distinct"
-              },
-              "confidence": {"method": "laplace_share", "value": 0.7257},
+              "tables": [],
               "examples": [0, 1, 2]
             }
           ],
-          "other": {"distinct": 0, "share": 0.0, "structures": 0},
-          "overlaps": [],
+          "other": {"structures": 0, "d": 0, "o": 0},
           "limits": []
         }
       ]
@@ -616,7 +622,9 @@ structure, not a rule that the data must follow.
 ```
 
 - `grammar` names the version of the rules that cut a value into tokens and
-  generalize them. A change of the rules raises its `version`.
+  write a signature, and of the notation of `render`. A change of the rules
+  raises its `version`. `algorithm.version` is the version of the discovery
+  itself (its scores and constants).
 - Each field has an entry. `status` is `complete`, `failed` or
   `not_applicable` with a `reason`. `failed` means the inference raised on
   that field (`reason` `inference_error`): `diagnostic` is the index of a
@@ -659,40 +667,54 @@ structure, not a rule that the data must follow.
   neither strings nor integers (an integer is read as its decimal text), are
   empty, are longer than `scan.pattern_inference.max_value_length` or have more
   than 32 tokens.
-- A candidate has an `id` (`p1`, `p2`, ...), a `role` (`principal` for the first,
-  the most common, then `secondary`) and a `signature`, the list of its tokens.
-  A token is a class of characters (`digit_ascii`, `upper_ascii`, `lower_ascii`,
-  `letter_unicode` for letters of any script, `alphanumeric` for letters and
-  digits) repeated `min` to `max` times, or a `literal` text. Separators, spaces
-  and signs are always literals. A letter or digit that is the same in at least
-  5 values of a structure is a literal too, so a fixed final `A` and a final
-  capital are different patterns.
-- `render` is a short reading of the signature: `9` for a digit, `X` for a
-  capital, `x` for a lowercase letter, `@` for any letter, `#` for a letter or a
-  digit, a count in braces for longer or variable repeats, and literal letters,
-  digits and spaces between quotes: `XX9999'A'` is two capitals, four digits and
-  the letter A. The `signature` is the reference.
-- `lengths` are the shortest and longest value counted for the candidate.
-  `generalization` is 0 for a structure kept as it is, 1 when letters of
-  different case or script were merged and 2 when letters and digits were;
-  `merged_structures` counts the structures the candidate stands for.
-- `coverage` is the number of distinct values of the population that the
-  candidate takes, and their `share`. Each value counts once, for the most
-  specific candidate that reads it. `basis` is `all_distinct` when the
-  population is every distinct value and `sample` when it is a sample. It is an
-  indicator of discovery on distinct values: it is not the share of the rows of
-  the file, which only a later pass can give. `confidence` is a heuristic, the
-  share damped by the number of values, not a probability.
+- `families` gather the values of one structure: the classes of their tokens
+  (digits, capitals, lowercase letters, other letters) and their separators,
+  without the lengths (`key`: `UP-D` is capitals, a hyphen, digits). Two
+  structures that differ only at the start or at the end of a block, by one or
+  two positions, are one family when the part they share is at least as long:
+  `AK-12345` and `AK-1234X` (`composition` lists their keys). Each family has an
+  `id` (`f1`, `f2`, ...), ranked by the larger of its shares of the distinct
+  values and of the occurrences, and its counts: `d` distinct values and `o`
+  occurrences. A structure with a single value is a family of its own.
+- A family lists its `patterns`, one for each combination of lengths found in
+  the values, with `id` `f1.p1`: `'INV-'999`, `'INV-'9999` and `'INV-'99999` are
+  three patterns of one family. A pattern has a fixed length at every position
+  and never a range. Its `signature` is the list of its tokens: a class of
+  characters (`digit_ascii`, `upper_ascii`, `lower_ascii`, `letter_unicode` for
+  letters of any script, `upper_digit`, `lower_digit`, `alphanumeric`) repeated
+  `min` to `max` times (always the same number), or a `literal` text. Separators,
+  spaces and signs are always literals. The characters that all the values of a
+  pattern have at the start of a token become a literal: `'AK-'9999`; a fixed value and the separators that touch it are written as one block of text, and a single space between two elements as it is: `'AK-' 9999`. A pattern
+  of a single value folds nothing.
+- `render` is a short reading of the signature: `9` for a digit, `A` for a
+  capital, `a` for a lowercase letter, `@` for any letter, `X` for a capital or a
+  digit, `x` for a lowercase letter or a digit, `#` for a letter or a digit, a
+  count in braces for longer repeats, and literal letters and digits
+  between quotes: `AA9999'A'` is two capitals, four digits and the letter A. The
+  `signature` is the reference. `format` is the exact form of the commonest
+  value of the pattern, and `lengths` the lengths of its tokens (a merged block
+  counts as one).
+- When a pattern holds several merged structures, its last positions are of the
+  classes of all of them (`'AK-'9999X`), and `nodes` lists the structures with
+  their own counts (`'AK-'99999`, `'AK-'9999A`). The counts of the nodes add up to
+  the pattern, those of the patterns to the family.
+- `d` and `o` count distinct values and occurrences. The distinct values are
+  those of the population. `o` is `exact` when the population is every distinct
+  value (`occurrences_basis`), and an indicator of discovery on a sample
+  otherwise: it is not the share of the rows of the file, which only a later
+  pass can give. Each value counts for one family and one pattern.
 - `examples` are ids of entries of the field's sample (see
   [Distinct values and samples](#distinct-values-and-samples)). A report keeps
   fewer sample values, so some ids may not be found in it.
-- `other` counts the distinct values that no candidate takes, and the number
-  of structures they have. `overlaps` lists the sets of candidates that read
-  the same values (a candidate with `letter_unicode` or `alphanumeric` tokens
-  can read values of another structure) and how many values each set shares.
-  `limits` says `max_patterns` when more structures were found than
-  `scan.pattern_inference.max_patterns` allows (the smallest were generalized
-  or left in `other`) and `max_values` when the population was cut.
+- `tables` lists, for a family, the combinations of lengths that
+  `scan.pattern_inference.max_patterns_per_family` kept out of its patterns:
+  `facet` `lengths`, `cells` of `value`, `d` and `o`, and `others`.
+- `other` counts the structures that no published family reads, with their
+  distinct values (`d`) and occurrences (`o`). `limits` names the budgets that
+  acted: `max_values` (the population was cut to
+  `scan.pattern_inference.max_values`), `max_families`,
+  `max_patterns_per_family` and `max_patterns` (the patterns and nodes of the
+  field, the smallest going first).
 - `scan.pattern_inference.enabled` set to `false` leaves `derived` out of the
   document. A [report](../report/json-profile.md) carries the block as it is.
 

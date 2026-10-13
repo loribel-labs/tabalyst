@@ -160,7 +160,11 @@ def test_E04_unexpected_categories_and_patterns_go_to_explicit_classes(tmp_path)
     rows, oracle = branch_rows(branches=40, per_branch=30)
     rows.append("branch-41,??##")
     oracle.append(("branch-41", "??##", "??##"))
-    result = scan_csv(tmp_path, "branch,client", rows)
+    # Five families only: the structure of the last value is not published, so
+    # no pattern reads it.
+    result = scan_csv(
+        tmp_path, "branch,client", rows, pattern_inference={"max_families": 5}
+    )
     deep = DeepSettings(crosstab=CrosstabSettings(max_categories=5))
 
     outcome = run_tables(result, tmp_path / "data.csv", "branch", "client", deep=deep)

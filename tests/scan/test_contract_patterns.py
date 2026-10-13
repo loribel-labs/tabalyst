@@ -27,8 +27,13 @@ def _entry(result: dict, display: str) -> dict:
     return entries[0]
 
 
-def _renders(entry: dict) -> dict[str, dict]:
-    return {candidate["render"]: candidate for candidate in entry["candidates"]}
+def _patterns(entry: dict) -> dict[str, dict]:
+    """The patterns of every family of an entry, by rendering."""
+    return {
+        pattern["render"]: pattern
+        for family in entry["families"]
+        for pattern in family["patterns"]
+    }
 
 
 def _csv(directory, name: str, header: str, rows) -> object:
@@ -54,15 +59,13 @@ def test_C07_sorted_old_and_new_id_formats_are_both_discovered(tmp_path):
     entry = _entry(result, "id")
 
     assert entry["status"] == "complete"
-    found = _renders(entry)
-    assert set(found) == {"XX9999", "XX9999X"}
+    assert set(_patterns(entry)) == {"AA9999", "AA9999A"}
     assert entry["population"]["selection"] == "bottom_k"
     assert not entry["population"]["complete"]
-    for candidate in found.values():
-        assert candidate["coverage"]["basis"] == "sample"
-        assert candidate["coverage"]["share"] > 0.3
-    assert entry["other"]["distinct"] == 0
-    assert entry["overlaps"] == []
+    assert entry["population"]["occurrences_basis"] == "sample"
+    for family in entry["families"]:
+        assert family["d"] / entry["population"]["distinct"] > 0.3
+    assert entry["other"] == {"structures": 0, "d": 0, "o": 0}
 
 
 @pytest.mark.scan_json_lot("4a")
@@ -87,21 +90,22 @@ def test_C08_a_literal_letter_is_not_a_generic_capital(tmp_path):
     fixed_entry = _entry(result, "fixed")
     varying_entry = _entry(result, "varying")
 
-    [literal] = fixed_entry["candidates"]
-    assert literal["render"] == "XX9999'A'"
+    [literal] = _patterns(fixed_entry).values()
+    # The digits all start with 1 (1000 to 1177): a constant of the pattern too.
+    assert literal["render"] == "AA'1'999'A'"
     assert literal["signature"][-1] == {"kind": "literal", "text": "A", "min": 1, "max": 1}
-    [generic] = varying_entry["candidates"]
-    assert generic["render"] == "XX9999X"
+    [generic] = _patterns(varying_entry).values()
+    assert generic["render"] == "AA'1'999A"
     assert generic["signature"][-1] == {"kind": "upper_ascii", "min": 1, "max": 1}
     assert literal["render"] != generic["render"]
     assert fixed_entry["population"]["complete"]
 
 
 @pytest.mark.scan_json_lot("4a")
-def test_C09_overlapping_patterns_are_classified_exclusively_and_traced(tmp_path):
-    # Six-character values of five structures; three candidates only, so the
-    # three smallest structures are generalized into one that also matches the
-    # two kept ones: an overlap, which classifies exclusively.
+def test_C09_structures_are_disjoint_families_and_the_budget_leaves_the_rest_in_other(tmp_path):
+    # Six-character values of five structures: each value belongs to the one
+    # family of its structure, so nothing overlaps; with three families the two
+    # smallest structures are counted in `other`.
     rows = (
         [f"{LETTERS[i % 26]}{LETTERS[(i * 3) % 26]}{1000 + i:04d}" for i in range(40)]
         + [f"{LETTERS[i % 26].lower()}{LETTERS[(i * 3) % 26].lower()}{2000 + i:04d}" for i in range(30)]
@@ -114,22 +118,17 @@ def test_C09_overlapping_patterns_are_classified_exclusively_and_traced(tmp_path
     )
     source = _csv(tmp_path, "mixed.csv", "code", rows)
 
-    result = run_scan(source, pattern_inference={"max_patterns": 3})
+    result = run_scan(source, pattern_inference={"max_families": 3})
     entry = _entry(result, "code")
 
-    found = _renders(entry)
-    assert list(found) == ["XX9999", "xx9999", "######"]
-    general = found["######"]
-    assert general["generalization"] == 2
-    assert general["merged_structures"] == 3
-    assert "max_patterns" in entry["limits"]
-    overlaps = {tuple(item["patterns"]): item["values"] for item in entry["overlaps"]}
-    assert overlaps == {("p1", "p3"): 40, ("p2", "p3"): 30}
-    # Exclusive: every distinct value counts once, the specific pattern first.
-    taken = [candidate["coverage"]["distinct"] for candidate in entry["candidates"]]
-    assert taken == [40, 30, 30]
-    assert sum(taken) + entry["other"]["distinct"] == entry["population"]["distinct"]
-    assert entry["population"]["distinct"] == 100
+    assert [family["d"] for family in entry["families"]] == [40, 30, 10]
+    assert [family["key"] for family in entry["families"]][:2] == ["UD", "LD"]
+    assert "overlaps" not in entry
+    assert entry["limits"] == ["max_families"]
+    assert entry["other"] == {"structures": 2, "d": 20, "o": 20}
+    # Every distinct value counts once: the families and `other` add up.
+    taken = sum(family["d"] for family in entry["families"])
+    assert taken + entry["other"]["d"] == entry["population"]["distinct"] == 100
 
 
 @pytest.mark.scan_json_lot("4a")
@@ -153,7 +152,8 @@ def test_C10_the_preview_of_a_long_text_never_certifies_a_pattern(tmp_path):
     partial = _entry(result, "mixed")
     assert partial["status"] == "complete"
     assert partial["population"]["excluded"]["long_text_occurrences"] == 30
-    [candidate] = partial["candidates"]
-    assert candidate["render"] == "'ID'99999"
-    assert candidate["lengths"] == {"min": 7, "max": 7}
+    [pattern] = _patterns(partial).values()
+    # ID00000 to ID00039: the first three digits are a constant of the pattern.
+    assert pattern["render"] == "'ID000'99"
+    assert pattern["lengths"] == [2, 5]
     assert partial["population"]["distinct"] == 40

@@ -3641,6 +3641,9 @@
         "grammar": {
           "$ref": "#/$defs/PatternGrammar"
         },
+        "algorithm": {
+          "$ref": "#/$defs/PatternAlgorithm"
+        },
         "domain": {
           "const": "original",
           "title": "Domain",
@@ -3674,6 +3677,7 @@
       },
       "required": [
         "grammar",
+        "algorithm",
         "domain",
         "fields"
       ],
@@ -5497,6 +5501,73 @@
       "title": "Failed",
       "type": "object"
     },
+    "FamilyPattern": {
+      "additionalProperties": false,
+      "description": "A pattern of fixed length (DEC-034) of a family: one combination of the\nlengths of the variable tokens, its constants folded into the signature.\n``lengths`` are those of the class tokens, a merged block counting as one;\n``format`` is the exact form of the commonest value, one symbol per\ncharacter.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "signature": {
+          "items": {
+            "$ref": "#/$defs/PatternToken"
+          },
+          "title": "Signature",
+          "type": "array"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "format": {
+          "title": "Format",
+          "type": "string"
+        },
+        "lengths": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Lengths",
+          "type": "array"
+        },
+        "d": {
+          "title": "D",
+          "type": "integer"
+        },
+        "o": {
+          "title": "O",
+          "type": "integer"
+        },
+        "examples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/PatternNode"
+          },
+          "title": "Nodes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "signature",
+        "render",
+        "format",
+        "lengths",
+        "d",
+        "o",
+        "examples",
+        "nodes"
+      ],
+      "title": "FamilyPattern",
+      "type": "object"
+    },
     "FieldPatternsComplete": {
       "additionalProperties": false,
       "properties": {
@@ -5520,28 +5591,23 @@
         "population": {
           "$ref": "#/$defs/PatternPopulation"
         },
-        "candidates": {
+        "families": {
           "items": {
-            "$ref": "#/$defs/PatternCandidate"
+            "$ref": "#/$defs/PatternFamily"
           },
-          "title": "Candidates",
+          "title": "Families",
           "type": "array"
         },
         "other": {
-          "$ref": "#/$defs/PatternOther"
-        },
-        "overlaps": {
-          "items": {
-            "$ref": "#/$defs/PatternOverlap"
-          },
-          "title": "Overlaps",
-          "type": "array"
+          "$ref": "#/$defs/PatternOtherStructures"
         },
         "limits": {
           "items": {
             "enum": [
-              "max_patterns",
-              "max_values"
+              "max_values",
+              "max_families",
+              "max_patterns_per_family",
+              "max_patterns"
             ],
             "type": "string"
           },
@@ -5554,9 +5620,8 @@
         "field",
         "eligibility",
         "population",
-        "candidates",
+        "families",
         "other",
-        "overlaps",
         "limits",
         "status"
       ],
@@ -5607,7 +5672,7 @@
     },
     "FieldPatternsNotApplicable": {
       "additionalProperties": false,
-      "description": "A field the discovery does not read: its eligibility says why. ``reason``\nrepeats the deciding code of the eligibility until the entries of grammar 2\nreplace it (Patterns lot P3).",
+      "description": "A field the discovery does not read: its eligibility says why. ``reason``\nrepeats the deciding code of the eligibility, for the readers that want one\nword.",
       "properties": {
         "dataset": {
           "title": "Dataset",
@@ -8814,92 +8879,19 @@
       "title": "PartsResult",
       "type": "object"
     },
-    "PatternCandidate": {
+    "PatternAlgorithm": {
       "additionalProperties": false,
-      "description": "A structural pattern found in the samples of a field (PAT-06).\n\n``examples`` are ids of entries of the field's samples. ``generalization``\nis 0 for the structures as read, 1 when adjacent letters were merged and 2\nwhen letters and digits were; ``merged_structures`` counts the structures\nthe candidate stands for.",
+      "description": "The version of the discovery: scores, constants and order of its steps.\nA change of the algorithm or of a constant of it raises it (FR-020).",
       "properties": {
-        "id": {
-          "title": "Id",
-          "type": "string"
-        },
-        "role": {
-          "enum": [
-            "principal",
-            "secondary"
-          ],
-          "title": "Role",
-          "type": "string"
-        },
-        "signature": {
-          "items": {
-            "$ref": "#/$defs/PatternToken"
-          },
-          "title": "Signature",
-          "type": "array"
-        },
-        "render": {
-          "title": "Render",
-          "type": "string"
-        },
-        "lengths": {
-          "$ref": "#/$defs/PatternLengths"
-        },
-        "generalization": {
-          "title": "Generalization",
+        "version": {
+          "title": "Version",
           "type": "integer"
-        },
-        "merged_structures": {
-          "title": "Merged Structures",
-          "type": "integer"
-        },
-        "coverage": {
-          "$ref": "#/$defs/PatternCoverage"
-        },
-        "confidence": {
-          "$ref": "#/$defs/PatternConfidence"
-        },
-        "examples": {
-          "items": {
-            "type": "integer"
-          },
-          "title": "Examples",
-          "type": "array"
         }
       },
       "required": [
-        "id",
-        "role",
-        "signature",
-        "render",
-        "lengths",
-        "generalization",
-        "merged_structures",
-        "coverage",
-        "confidence",
-        "examples"
+        "version"
       ],
-      "title": "PatternCandidate",
-      "type": "object"
-    },
-    "PatternConfidence": {
-      "additionalProperties": false,
-      "description": "Heuristic confidence, not a calibrated probability: the share of the\ncandidate damped by its support, ``share * n / (n + 1)``.",
-      "properties": {
-        "method": {
-          "const": "laplace_share",
-          "title": "Method",
-          "type": "string"
-        },
-        "value": {
-          "title": "Value",
-          "type": "number"
-        }
-      },
-      "required": [
-        "method",
-        "value"
-      ],
-      "title": "PatternConfidence",
+      "title": "PatternAlgorithm",
       "type": "object"
     },
     "PatternCounts": {
@@ -8973,35 +8965,6 @@
       "title": "PatternCounts",
       "type": "object"
     },
-    "PatternCoverage": {
-      "additionalProperties": false,
-      "description": "Distinct values of the inference population that the candidate takes.\n``basis`` is ``all_distinct`` when the population is every distinct stored\nvalue of the field, ``sample`` when it is a sample: a discovery indicator,\nnever a frequency of the file (specification 10.1).",
-      "properties": {
-        "distinct": {
-          "title": "Distinct",
-          "type": "integer"
-        },
-        "share": {
-          "title": "Share",
-          "type": "number"
-        },
-        "basis": {
-          "enum": [
-            "all_distinct",
-            "sample"
-          ],
-          "title": "Basis",
-          "type": "string"
-        }
-      },
-      "required": [
-        "distinct",
-        "share",
-        "basis"
-      ],
-      "title": "PatternCoverage",
-      "type": "object"
-    },
     "PatternEligibility": {
       "additionalProperties": false,
       "description": "Whether a field is a candidate for the discovery (design 18.12, PAT-12).\n\n``score`` runs from 0 to 1 (four decimals) and is 0 for a field that is\n``excluded`` or ``not_assessable``; only an ``eligible`` field is\ndiscovered. ``reasons`` are codes, never empty, so a reader can tell \"no\npattern\" from \"not looked at\".",
@@ -9056,7 +9019,7 @@
     },
     "PatternExcluded": {
       "additionalProperties": false,
-      "description": "What did not take part in the inference. ``long_text_occurrences`` counts\noccurrences of values too long to be stored (their previews never serve:\nLONG-05); the others count distinct sampled values.",
+      "description": "What did not take part in the discovery. ``long_text_occurrences`` counts\noccurrences of values too long to be stored (their previews never serve:\nLONG-05); the others count distinct sampled values.",
       "properties": {
         "long_text_occurrences": {
           "title": "Long Text Occurrences",
@@ -9114,9 +9077,71 @@
       "title": "PatternExclusions",
       "type": "object"
     },
+    "PatternFamily": {
+      "additionalProperties": false,
+      "description": "The values of one structure (the classes of their tokens, without\nlengths), or of structures merged at the edge of a block (``composition``\nlists their keys). A family is not a pattern: it presents itself as its\npatterns (design 18.12).",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "composition": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Composition",
+          "type": "array"
+        },
+        "d": {
+          "title": "D",
+          "type": "integer"
+        },
+        "o": {
+          "title": "O",
+          "type": "integer"
+        },
+        "patterns": {
+          "items": {
+            "$ref": "#/$defs/FamilyPattern"
+          },
+          "title": "Patterns",
+          "type": "array"
+        },
+        "tables": {
+          "items": {
+            "$ref": "#/$defs/PatternTable"
+          },
+          "title": "Tables",
+          "type": "array"
+        },
+        "examples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Examples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "d",
+        "o",
+        "patterns",
+        "tables",
+        "examples"
+      ],
+      "title": "PatternFamily",
+      "type": "object"
+    },
     "PatternGrammar": {
       "additionalProperties": false,
-      "description": "The versioned grammar and generalization rules (PAT-04).",
+      "description": "The versioned grammar of the signatures and their rendering (PAT-04).",
       "properties": {
         "name": {
           "title": "Name",
@@ -9136,16 +9161,37 @@
     },
     "PatternInferenceSettings": {
       "additionalProperties": false,
-      "description": "Inference of structural patterns from the samples (design 18.12).\n\nThe inference reads the samples of the finished scan, never the source.\n``max_patterns`` bounds the candidates of a field, ``max_value_length`` the\nstored values that take part (longer ones are counted as excluded) and\n``min_distinct`` the distinct values a candidate needs.",
+      "description": "Discovery of structural patterns from the samples (design 18.12).\n\nThe discovery reads the samples of the finished scan, never the source.\n``max_values`` bounds the distinct values a field's discovery reads,\n``max_families`` the families it publishes, ``max_patterns_per_family`` the\npatterns of one family and ``max_patterns`` the patterns and nodes of a\nfield. ``max_value_length`` bounds the stored values that take part (longer\nones are counted as excluded) and ``min_distinct`` the distinct values a\nfield needs to be assessed.",
       "properties": {
         "enabled": {
           "default": true,
           "title": "Enabled",
           "type": "boolean"
         },
+        "max_values": {
+          "default": 10000,
+          "maximum": 20000,
+          "minimum": 1,
+          "title": "Max Values",
+          "type": "integer"
+        },
+        "max_families": {
+          "default": 16,
+          "maximum": 1024,
+          "minimum": 1,
+          "title": "Max Families",
+          "type": "integer"
+        },
+        "max_patterns_per_family": {
+          "default": 32,
+          "maximum": 1024,
+          "minimum": 1,
+          "title": "Max Patterns Per Family",
+          "type": "integer"
+        },
         "max_patterns": {
-          "default": 8,
-          "maximum": 64,
+          "default": 128,
+          "maximum": 1024,
           "minimum": 1,
           "title": "Max Patterns",
           "type": "integer"
@@ -9168,71 +9214,92 @@
       "title": "PatternInferenceSettings",
       "type": "object"
     },
-    "PatternLengths": {
+    "PatternNode": {
       "additionalProperties": false,
+      "description": "A specialization of a pattern (design 18.12): the values of one of the\nstructures a family merged (``facet`` ``composition``), with its counts in\ndistinct values (``d``) and occurrences (``o``). The nodes of a pattern add\nup to it.",
       "properties": {
-        "min": {
-          "title": "Min",
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "parent": {
+          "title": "Parent",
+          "type": "string"
+        },
+        "level": {
+          "title": "Level",
           "type": "integer"
         },
-        "max": {
-          "title": "Max",
+        "facet": {
+          "const": "composition",
+          "title": "Facet",
+          "type": "string"
+        },
+        "signature": {
+          "items": {
+            "$ref": "#/$defs/PatternToken"
+          },
+          "title": "Signature",
+          "type": "array"
+        },
+        "render": {
+          "title": "Render",
+          "type": "string"
+        },
+        "d": {
+          "title": "D",
           "type": "integer"
+        },
+        "o": {
+          "title": "O",
+          "type": "integer"
+        },
+        "role": {
+          "enum": [
+            "principal",
+            "secondary"
+          ],
+          "title": "Role",
+          "type": "string"
         }
       },
       "required": [
-        "min",
-        "max"
+        "id",
+        "parent",
+        "level",
+        "facet",
+        "signature",
+        "render",
+        "d",
+        "o",
+        "role"
       ],
-      "title": "PatternLengths",
+      "title": "PatternNode",
       "type": "object"
     },
-    "PatternOther": {
+    "PatternOtherStructures": {
       "additionalProperties": false,
-      "description": "The values no candidate takes, with the number of structures they have.",
+      "description": "The values no published family reads: ``structures`` counts the\nstructures left out (``max_families``), ``d`` and ``o`` their values.",
       "properties": {
-        "distinct": {
-          "title": "Distinct",
-          "type": "integer"
-        },
-        "share": {
-          "title": "Share",
-          "type": "number"
-        },
         "structures": {
           "title": "Structures",
           "type": "integer"
-        }
-      },
-      "required": [
-        "distinct",
-        "share",
-        "structures"
-      ],
-      "title": "PatternOther",
-      "type": "object"
-    },
-    "PatternOverlap": {
-      "additionalProperties": false,
-      "description": "Distinct values that match every pattern of ``patterns`` (PAT-08).",
-      "properties": {
-        "patterns": {
-          "items": {
-            "type": "string"
-          },
-          "title": "Patterns",
-          "type": "array"
         },
-        "values": {
-          "title": "Values",
+        "d": {
+          "title": "D",
+          "type": "integer"
+        },
+        "o": {
+          "title": "O",
           "type": "integer"
         }
       },
       "required": [
-        "patterns",
-        "values"
+        "structures",
+        "d",
+        "o"
       ],
-      "title": "PatternOverlap",
+      "title": "PatternOtherStructures",
       "type": "object"
     },
     "PatternOverlapCount": {
@@ -9260,7 +9327,7 @@
     },
     "PatternPopulation": {
       "additionalProperties": false,
-      "description": "The values the inference read. ``distinct`` took part out of\n``available`` usable values (a cap on the population may leave some out).",
+      "description": "The values the discovery read. ``distinct`` took part out of\n``available`` usable values (a cap on the population may leave some out);\n``occurrences`` is the sum of their counts, ``exact`` when the population is\nthe whole distribution of the field and ``sample`` otherwise.",
       "properties": {
         "source": {
           "const": "samples",
@@ -9287,6 +9354,18 @@
           "title": "Distinct",
           "type": "integer"
         },
+        "occurrences": {
+          "title": "Occurrences",
+          "type": "integer"
+        },
+        "occurrences_basis": {
+          "enum": [
+            "exact",
+            "sample"
+          ],
+          "title": "Occurrences Basis",
+          "type": "string"
+        },
         "excluded": {
           "$ref": "#/$defs/PatternExcluded"
         }
@@ -9297,6 +9376,8 @@
         "complete",
         "available",
         "distinct",
+        "occurrences",
+        "occurrences_basis",
         "excluded"
       ],
       "title": "PatternPopulation",
@@ -9425,6 +9506,82 @@
       "title": "PatternSettings",
       "type": "object"
     },
+    "PatternTable": {
+      "additionalProperties": false,
+      "description": "The values of a facet of a family with their counts. The table of the\n``lengths`` lists the combinations of lengths that ``max_patterns_per_family``\nor ``max_patterns`` kept out of the patterns; ``others`` is the rest of the\ntable.",
+      "properties": {
+        "facet": {
+          "const": "lengths",
+          "title": "Facet",
+          "type": "string"
+        },
+        "cells": {
+          "items": {
+            "$ref": "#/$defs/PatternTableCell"
+          },
+          "title": "Cells",
+          "type": "array"
+        },
+        "others": {
+          "$ref": "#/$defs/PatternTableOthers"
+        }
+      },
+      "required": [
+        "facet",
+        "cells",
+        "others"
+      ],
+      "title": "PatternTable",
+      "type": "object"
+    },
+    "PatternTableCell": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "d": {
+          "title": "D",
+          "type": "integer"
+        },
+        "o": {
+          "title": "O",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value",
+        "d",
+        "o"
+      ],
+      "title": "PatternTableCell",
+      "type": "object"
+    },
+    "PatternTableOthers": {
+      "additionalProperties": false,
+      "properties": {
+        "distinct": {
+          "title": "Distinct",
+          "type": "integer"
+        },
+        "d": {
+          "title": "D",
+          "type": "integer"
+        },
+        "o": {
+          "title": "O",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "distinct",
+        "d",
+        "o"
+      ],
+      "title": "PatternTableOthers",
+      "type": "object"
+    },
     "PatternTally": {
       "additionalProperties": false,
       "description": "Occurrences read by one candidate pattern of the Scan, exclusively: each\nvalue counts for the most specific candidate that reads it (PAT-08).",
@@ -9452,7 +9609,7 @@
     },
     "PatternToken": {
       "additionalProperties": false,
-      "description": "One token of a pattern signature (design 18.12): a class of characters\nrepeated ``min`` to ``max`` times (characters), or a ``literal`` text\nrepeated ``min`` to ``max`` times.",
+      "description": "One token of a pattern signature (design 18.12): a class of characters\nrepeated ``min`` to ``max`` times (characters), or a ``literal`` text\nrepeated ``min`` to ``max`` times. A discovered pattern has ``min`` equal\nto ``max`` everywhere (DEC-034).",
       "properties": {
         "kind": {
           "enum": [
@@ -9460,6 +9617,8 @@
             "upper_ascii",
             "lower_ascii",
             "letter_unicode",
+            "upper_digit",
+            "lower_digit",
             "alphanumeric",
             "literal"
           ],

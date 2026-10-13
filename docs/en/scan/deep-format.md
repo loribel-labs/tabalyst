@@ -227,18 +227,18 @@ the file, in the original domain.
   "kind": "pattern_counts",
   "accuracy": "exact",
   "computed_from": "source",
-  "grammar_version": 1,
+  "grammar_version": 2,
   "values": 3000,
   "matched": 2990,
-  "candidates": [{"id": "p1", "render": "XX9999'A'", "occurrences": 2100}],
+  "candidates": [{"id": "f1.p1", "render": "AA9999'A'", "occurrences": 2100}],
   "other": 10,
   "excluded": {"non_string": 0, "too_long": 0, "too_complex": 0},
-  "overlaps": [{"patterns": ["p1", "p2"], "occurrences": 12}]
+  "overlaps": []
 }
 ```
 
-`matched` is the sum of the `occurrences` of the candidates, which are those of
-the scan (`derived.patterns`) in the same order. They add up: `matched + other +
+`matched` is the sum of the `occurrences` of the candidates, which are the
+patterns of the scan (`derived.patterns`, ids like `f1.p1`), the largest first. They add up: `matched + other +
 excluded = values`, with `excluded` the sum of its three members. An occurrence
 counts for one candidate, the most specific that reads it; `overlaps` says how many
 occurrences several candidates read. `computed_from` is `samples` when the exact

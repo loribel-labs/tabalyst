@@ -23,17 +23,17 @@
   },
   "status": "complete",
   "run": {
-    "started_at": "2026-10-13T11:56:24.861363Z",
-    "duration_seconds": 0.31434,
+    "started_at": "2026-10-13T13:31:42.030387Z",
+    "duration_seconds": 0.304265,
     "timings": {
-      "reading": 0.010503,
-      "analysis": 0.023826,
-      "finalize": 0.267357,
-      "derived": 0.012218,
-      "other": 0.000436
+      "reading": 0.010184,
+      "analysis": 0.023214,
+      "finalize": 0.255328,
+      "derived": 0.013347,
+      "other": 0.002192
     },
     "workers": 1,
-    "peak_memory_bytes": 83386368
+    "peak_memory_bytes": 83599360
   },
   "source": {
     "format": "csv",
@@ -324,7 +324,10 @@
     },
     "pattern_inference": {
       "enabled": true,
-      "max_patterns": 8,
+      "max_values": 10000,
+      "max_families": 16,
+      "max_patterns_per_family": 32,
+      "max_patterns": 128,
       "max_value_length": 64,
       "min_distinct": 2
     },
@@ -334,7 +337,7 @@
     },
     "random_seed": 42
   },
-  "config_sha256": "1008b288d844b8628f9439581c3b52323cc72f75b7365235dc203990a01d0723",
+  "config_sha256": "c1674d218b2da14dfdc6f492b037a806f4117fa48cec170647e79919c72d1bdd",
   "scope": {
     "collections": null,
     "records_read": 3000,
@@ -45274,6 +45277,9 @@
     "patterns": {
       "grammar": {
         "name": "tabalyst.pattern",
+        "version": 2
+      },
+      "algorithm": {
         "version": 1
       },
       "domain": "original",
@@ -45311,6 +45317,8 @@
             "complete": false,
             "available": 237,
             "distinct": 237,
+            "occurrences": 237,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -45319,39 +45327,78 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UD",
+              "d": 101,
+              "o": 101,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "ONT",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "ONT",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "'ONT00'99999",
+                  "format": "AAA9{7}",
+                  "lengths": [
+                    3,
+                    7
+                  ],
+                  "d": 100,
+                  "o": 100,
+                  "examples": [
+                    74,
+                    85,
+                    91
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "digit_ascii",
-                  "min": 6,
-                  "max": 7
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "AAA999999",
+                  "format": "AAA999999",
+                  "lengths": [
+                    3,
+                    6
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    100
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'ONT'9{6,7}",
-              "lengths": {
-                "min": 9,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 101,
-                "share": 0.4262,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.422
-              },
+              "tables": [],
               "examples": [
                 74,
                 85,
@@ -45359,43 +45406,139 @@
               ]
             },
             {
-              "id": "p2",
-              "role": "secondary",
-              "signature": [
+              "id": "f2",
+              "key": "UP-D",
+              "d": 101,
+              "o": 101,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "CLI",
-                  "min": 1,
-                  "max": 1
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CLI",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "'CLI-00'999999",
+                  "format": "AAA-9{8}",
+                  "lengths": [
+                    3,
+                    8
+                  ],
+                  "d": 75,
+                  "o": 75,
+                  "examples": [
+                    0,
+                    1,
+                    3
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 2
+                  "id": "f2.p2",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CLI",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "'CLI-00'99999",
+                  "format": "AAA-9{7}",
+                  "lengths": [
+                    3,
+                    7
+                  ],
+                  "d": 14,
+                  "o": 14,
+                  "examples": [
+                    195,
+                    196,
+                    197
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "digit_ascii",
-                  "min": 7,
-                  "max": 8
+                  "id": "f2.p3",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CLI",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "'CLI--00'999999",
+                  "format": "AAA--9{8}",
+                  "lengths": [
+                    3,
+                    8
+                  ],
+                  "d": 12,
+                  "o": 12,
+                  "examples": [
+                    221,
+                    222,
+                    223
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'CLI''-'{1,2}9{7,8}",
-              "lengths": {
-                "min": 11,
-                "max": 13
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 101,
-                "share": 0.4262,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.422
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -45403,54 +45546,175 @@
               ]
             },
             {
-              "id": "p3",
-              "role": "secondary",
-              "signature": [
+              "id": "f3",
+              "key": "UP-DP-D",
+              "d": 35,
+              "o": 35,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "QC",
-                  "min": 1,
-                  "max": 1
+                  "id": "f3.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "QC",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "000",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "'QC-000'9-9999",
+                  "format": "AA-9999-9999",
+                  "lengths": [
+                    2,
+                    4,
+                    4
+                  ],
+                  "d": 25,
+                  "o": 25,
+                  "examples": [
+                    2,
+                    11,
+                    12
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 2
+                  "id": "f3.p2",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "QC",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "000",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 3,
+                      "max": 3
+                    }
+                  ],
+                  "render": "'QC-000'9-999",
+                  "format": "AA-9999-999",
+                  "lengths": [
+                    2,
+                    4,
+                    3
+                  ],
+                  "d": 5,
+                  "o": 5,
+                  "examples": [
+                    99,
+                    198,
+                    200
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "digit_ascii",
-                  "min": 4,
-                  "max": 4
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 3,
-                  "max": 4
+                  "id": "f3.p3",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "QC",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "000",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "'QC--000'9-9999",
+                  "format": "AA--9999-9999",
+                  "lengths": [
+                    2,
+                    4,
+                    4
+                  ],
+                  "d": 5,
+                  "o": 5,
+                  "examples": [
+                    220,
+                    225,
+                    226
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'QC''-'{1,2}9999-9{3,4}",
-              "lengths": {
-                "min": 11,
-                "max": 13
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 35,
-                "share": 0.1477,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.1436
-              },
+              "tables": [],
               "examples": [
                 2,
                 11,
@@ -45459,11 +45723,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -45526,6 +45789,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 105,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -45534,55 +45799,109 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 100,
+              "o": 105,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "9999-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 70,
+                  "o": 75,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "99-99-9999",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 30,
+                  "o": 30,
+                  "examples": [
+                    5,
+                    6,
+                    14
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -45591,11 +45910,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -45750,6 +46068,8 @@
             "complete": true,
             "available": 18,
             "distinct": 18,
+            "occurrences": 3000,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -45758,38 +46078,185 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "X",
+              "d": 1,
+              "o": 2224,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 4,
-                  "max": 11
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "letter_unicode",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "@@@@@@",
+                  "format": "@@@@@@",
+                  "lengths": [
+                    6
+                  ],
+                  "d": 1,
+                  "o": 2224,
+                  "examples": [
+                    0
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "Xx{4,11}",
-              "lengths": {
-                "min": 5,
-                "max": 12
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 7,
-                "share": 0.3889,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.3403
-              },
+              "tables": [],
+              "examples": [
+                0
+              ]
+            },
+            {
+              "id": "f2",
+              "key": "UL",
+              "d": 7,
+              "o": 578,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "Aaaaaaa",
+                  "format": "Aaaaaaa",
+                  "lengths": [
+                    1,
+                    6
+                  ],
+                  "d": 3,
+                  "o": 508,
+                  "examples": [
+                    2,
+                    7,
+                    14
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f2.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "Aaaaa",
+                  "format": "Aaaaa",
+                  "lengths": [
+                    1,
+                    4
+                  ],
+                  "d": 1,
+                  "o": 5,
+                  "examples": [
+                    11
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f2.p3",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aaaaaa",
+                  "format": "Aaaaaa",
+                  "lengths": [
+                    1,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 10,
+                  "examples": [
+                    13
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f2.p4",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    }
+                  ],
+                  "render": "Aa{7}",
+                  "format": "Aa{7}",
+                  "lengths": [
+                    1,
+                    7
+                  ],
+                  "d": 1,
+                  "o": 32,
+                  "examples": [
+                    1
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f2.p5",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 11,
+                      "max": 11
+                    }
+                  ],
+                  "render": "Aa{11}",
+                  "format": "Aa{11}",
+                  "lengths": [
+                    1,
+                    11
+                  ],
+                  "d": 1,
+                  "o": 23,
+                  "examples": [
+                    9
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
               "examples": [
                 1,
                 2,
@@ -45797,52 +46264,148 @@
               ]
             },
             {
-              "id": "p2",
-              "role": "secondary",
-              "signature": [
+              "id": "f3",
+              "key": "ULP-UL",
+              "d": 3,
+              "o": 142,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f3.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 8,
+                      "max": 8
+                    }
+                  ],
+                  "render": "Aaaaaaa-Aa{8}",
+                  "format": "Aaaaaaa-Aa{8}",
+                  "lengths": [
+                    1,
+                    6,
+                    1,
+                    8
+                  ],
+                  "d": 1,
+                  "o": 56,
+                  "examples": [
+                    4
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "lower_ascii",
-                  "min": 6,
-                  "max": 7
+                  "id": "f3.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    }
+                  ],
+                  "render": "Aa{7}-Aaaaaa",
+                  "format": "Aa{7}-Aaaaaa",
+                  "lengths": [
+                    1,
+                    7,
+                    1,
+                    5
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    16
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "lower_ascii",
-                  "min": 5,
-                  "max": 10
+                  "id": "f3.p3",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 10,
+                      "max": 10
+                    }
+                  ],
+                  "render": "Aa{7}-Aa{10}",
+                  "format": "Aa{7}-Aa{10}",
+                  "lengths": [
+                    1,
+                    7,
+                    1,
+                    10
+                  ],
+                  "d": 1,
+                  "o": 85,
+                  "examples": [
+                    8
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "Xx{6,7}-Xx{5,10}",
-              "lengths": {
-                "min": 15,
-                "max": 20
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 3,
-                "share": 0.1667,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.125
-              },
+              "tables": [],
               "examples": [
                 4,
                 8,
@@ -45850,46 +46413,412 @@
               ]
             },
             {
-              "id": "p3",
-              "role": "secondary",
-              "signature": [
+              "id": "f4",
+              "key": "L",
+              "d": 2,
+              "o": 11,
+              "patterns": [
                 {
-                  "kind": "lower_ascii",
-                  "min": 6,
-                  "max": 7
+                  "id": "f4.p1",
+                  "signature": [
+                    {
+                      "kind": "lower_ascii",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "aaaaaa",
+                  "format": "aaaaaa",
+                  "lengths": [
+                    6
+                  ],
+                  "d": 1,
+                  "o": 10,
+                  "examples": [
+                    3
+                  ],
+                  "nodes": []
+                },
+                {
+                  "id": "f4.p2",
+                  "signature": [
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    }
+                  ],
+                  "render": "a{7}",
+                  "format": "a{7}",
+                  "lengths": [
+                    7
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    15
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "x{6,7}",
-              "lengths": {
-                "min": 6,
-                "max": 7
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 2,
-                "share": 0.1111,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.0741
-              },
+              "tables": [],
               "examples": [
                 3,
                 15
               ]
+            },
+            {
+              "id": "f5",
+              "key": "LP-L",
+              "d": 1,
+              "o": 1,
+              "patterns": [
+                {
+                  "id": "f5.p1",
+                  "signature": [
+                    {
+                      "kind": "lower_ascii",
+                      "min": 8,
+                      "max": 8
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 11,
+                      "max": 11
+                    }
+                  ],
+                  "render": "a{8}-a{11}",
+                  "format": "a{8}-a{11}",
+                  "lengths": [
+                    8,
+                    11
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    17
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                17
+              ]
+            },
+            {
+              "id": "f6",
+              "key": "ULP LP ULP-UL",
+              "d": 1,
+              "o": 2,
+              "patterns": [
+                {
+                  "id": "f6.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 10,
+                      "max": 10
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "Aa{10} aa Aaaa-Aaaaa",
+                  "format": "Aa{10} aa Aaaa-Aaaaa",
+                  "lengths": [
+                    1,
+                    10,
+                    2,
+                    1,
+                    3,
+                    1,
+                    4
+                  ],
+                  "d": 1,
+                  "o": 2,
+                  "examples": [
+                    12
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                12
+              ]
+            },
+            {
+              "id": "f7",
+              "key": "ULP-ULP-LP-UL",
+              "d": 1,
+              "o": 12,
+              "patterns": [
+                {
+                  "id": "f7.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    }
+                  ],
+                  "render": "Aaaaa-Aaaaa-aa-Aa{7}",
+                  "format": "Aaaaa-Aaaaa-aa-Aa{7}",
+                  "lengths": [
+                    1,
+                    4,
+                    1,
+                    4,
+                    2,
+                    1,
+                    7
+                  ],
+                  "d": 1,
+                  "o": 12,
+                  "examples": [
+                    10
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                10
+              ]
+            },
+            {
+              "id": "f8",
+              "key": "ULP-X",
+              "d": 1,
+              "o": 23,
+              "patterns": [
+                {
+                  "id": "f8.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 7,
+                      "max": 7
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "letter_unicode",
+                      "min": 6,
+                      "max": 6
+                    }
+                  ],
+                  "render": "Aa{7}-@@@@@@",
+                  "format": "Aa{7}-@@@@@@",
+                  "lengths": [
+                    1,
+                    7,
+                    6
+                  ],
+                  "d": 1,
+                  "o": 23,
+                  "examples": [
+                    5
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                5
+              ]
+            },
+            {
+              "id": "f9",
+              "key": "XP-LP-ULP-X",
+              "d": 1,
+              "o": 7,
+              "patterns": [
+                {
+                  "id": "f9.p1",
+                  "signature": [
+                    {
+                      "kind": "letter_unicode",
+                      "min": 3,
+                      "max": 3
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "lower_ascii",
+                      "min": 5,
+                      "max": 5
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "letter_unicode",
+                      "min": 7,
+                      "max": 7
+                    }
+                  ],
+                  "render": "@@@-aa-Aaaaaa-@{7}",
+                  "format": "@@@-aa-Aaaaaa-@{7}",
+                  "lengths": [
+                    3,
+                    2,
+                    1,
+                    5,
+                    7
+                  ],
+                  "d": 1,
+                  "o": 7,
+                  "examples": [
+                    6
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                6
+              ]
             }
           ],
           "other": {
-            "distinct": 6,
-            "share": 0.3333,
-            "structures": 6
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
-          "limits": [
-            "max_patterns"
-          ]
+          "limits": []
         },
         {
           "dataset": "rows",
@@ -45909,6 +46838,8 @@
             "complete": false,
             "available": 175,
             "distinct": 175,
+            "occurrences": 177,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -45917,64 +46848,133 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UDUP DUD",
+              "d": 154,
+              "o": 156,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "A9A 9A9",
+                  "format": "A9A 9A9",
+                  "lengths": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "d": 100,
+                  "o": 102,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 2
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "A9A'  '9A9",
+                  "format": "A9A'  '9A9",
+                  "lengths": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "d": 54,
+                  "o": 54,
+                  "examples": [
+                    121,
+                    122,
+                    123
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "X9X' '{1,2}9X9",
-              "lengths": {
-                "min": 7,
-                "max": 8
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 154,
-                "share": 0.88,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.8743
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -45982,57 +46982,66 @@
               ]
             },
             {
-              "id": "p2",
-              "role": "secondary",
-              "signature": [
+              "id": "f2",
+              "key": "DUP DUD",
+              "d": 9,
+              "o": 9,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "9A 9A9",
+                  "format": "9A 9A9",
+                  "lengths": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "d": 9,
+                  "o": 9,
+                  "examples": [
+                    101,
+                    103,
+                    107
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9X' '9X9",
-              "lengths": {
-                "min": 6,
-                "max": 6
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 9,
-                "share": 0.0514,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.0463
-              },
+              "tables": [],
               "examples": [
                 101,
                 103,
@@ -46040,57 +47049,66 @@
               ]
             },
             {
-              "id": "p3",
-              "role": "secondary",
-              "signature": [
+              "id": "f3",
+              "key": "UDP DUD",
+              "d": 7,
+              "o": 7,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
+                  "id": "f3.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "A9 9A9",
+                  "format": "A9 9A9",
+                  "lengths": [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ],
+                  "d": 7,
+                  "o": 7,
+                  "examples": [
+                    84,
+                    100,
+                    102
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "X9' '9X9",
-              "lengths": {
-                "min": 6,
-                "max": 6
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 7,
-                "share": 0.04,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.035
-              },
+              "tables": [],
               "examples": [
                 84,
                 100,
@@ -46098,52 +47116,60 @@
               ]
             },
             {
-              "id": "p4",
-              "role": "secondary",
-              "signature": [
+              "id": "f4",
+              "key": "UDUP D",
+              "d": 5,
+              "o": 5,
+              "patterns": [
                 {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "literal",
-                  "text": " ",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
+                  "id": "f4.p1",
+                  "signature": [
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": " ",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "A9A 99",
+                  "format": "A9A 99",
+                  "lengths": [
+                    1,
+                    1,
+                    1,
+                    2
+                  ],
+                  "d": 5,
+                  "o": 5,
+                  "examples": [
+                    104,
+                    112,
+                    116
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "X9X' '99",
-              "lengths": {
-                "min": 6,
-                "max": 6
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 5,
-                "share": 0.0286,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.0238
-              },
+              "tables": [],
               "examples": [
                 104,
                 112,
@@ -46152,11 +47178,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46218,6 +47243,8 @@
             "complete": false,
             "available": 136,
             "distinct": 136,
+            "occurrences": 136,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46226,45 +47253,123 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UP-D",
+              "d": 136,
+              "o": 136,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "CTR",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CTR",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 10,
+                      "max": 10
+                    }
+                  ],
+                  "render": "'CTR-'9{10}",
+                  "format": "AAA-9{10}",
+                  "lengths": [
+                    3,
+                    10
+                  ],
+                  "d": 100,
+                  "o": 100,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 2
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CTR",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 9,
+                      "max": 9
+                    }
+                  ],
+                  "render": "'CTR-'9{9}",
+                  "format": "AAA-9{9}",
+                  "lengths": [
+                    3,
+                    9
+                  ],
+                  "d": 22,
+                  "o": 22,
+                  "examples": [
+                    7,
+                    100,
+                    101
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "digit_ascii",
-                  "min": 9,
-                  "max": 10
+                  "id": "f1.p3",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "CTR",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 10,
+                      "max": 10
+                    }
+                  ],
+                  "render": "'CTR--'9{10}",
+                  "format": "AAA--9{10}",
+                  "lengths": [
+                    3,
+                    10
+                  ],
+                  "d": 14,
+                  "o": 14,
+                  "examples": [
+                    14,
+                    21,
+                    124
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'CTR''-'{1,2}9{9,10}",
-              "lengths": {
-                "min": 13,
-                "max": 15
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 136,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9927
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -46273,11 +47378,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46313,6 +47417,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 119,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46321,55 +47427,121 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 100,
+              "o": 119,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'20'99-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 70,
+                  "o": 87,
+                  "examples": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99-99'-20'99",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 30,
+                  "o": 32,
+                  "examples": [
+                    0,
+                    8,
+                    12
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -46378,11 +47550,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46402,6 +47573,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 222,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46410,55 +47583,121 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 100,
+              "o": 222,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'20'99-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 56,
+                  "o": 156,
+                  "examples": [
+                    0,
+                    2,
+                    5
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99-99'-20'99",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 44,
+                  "o": 66,
+                  "examples": [
+                    1,
+                    3,
+                    4
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -46467,11 +47706,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46553,6 +47791,8 @@
             "complete": true,
             "available": 27,
             "distinct": 27,
+            "occurrences": 3000,
+            "occurrences_basis": "exact",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46561,56 +47801,123 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "UP-UP-D",
+              "d": 27,
+              "o": 3000,
+              "patterns": [
                 {
-                  "kind": "literal",
-                  "text": "AG",
-                  "min": 1,
-                  "max": 1
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "AG",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'AG-'AA'-00'9",
+                  "format": "AA-AA-999",
+                  "lengths": [
+                    2,
+                    2,
+                    3
+                  ],
+                  "d": 20,
+                  "o": 2984,
+                  "examples": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 2
-                },
-                {
-                  "kind": "upper_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 3,
-                  "max": 3
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "AG",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "upper_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "00",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "'AG--'AA'-00'9",
+                  "format": "AA--AA-999",
+                  "lengths": [
+                    2,
+                    2,
+                    3
+                  ],
+                  "d": 7,
+                  "o": 16,
+                  "examples": [
+                    9,
+                    11,
+                    13
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "'AG''-'{1,2}XX-999",
-              "lengths": {
-                "min": 9,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 27,
-                "share": 1.0,
-                "basis": "all_distinct"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9643
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -46619,11 +47926,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46643,6 +47949,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 122,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46651,68 +47959,190 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 99,
+              "o": 121,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'20'99-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 65,
+                  "o": 87,
+                  "examples": [
+                    2,
+                    3,
+                    5
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99-99'-20'99",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 34,
+                  "o": 34,
+                  "examples": [
+                    0,
+                    1,
+                    4
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 99,
-                "share": 0.99,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9801
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
                 2
               ]
+            },
+            {
+              "id": "f2",
+              "key": "DP/DP/D",
+              "d": 1,
+              "o": 1,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "/",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "/",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    }
+                  ],
+                  "render": "99/99/9999",
+                  "format": "99/99/9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    11
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                11
+              ]
             }
           ],
           "other": {
-            "distinct": 1,
-            "share": 0.01,
-            "structures": 1
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46732,6 +48162,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 152,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46740,68 +48172,190 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 99,
+              "o": 151,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'20'99-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 64,
+                  "o": 110,
+                  "examples": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "202",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 1,
+                      "max": 1
+                    }
+                  ],
+                  "render": "99-99'-202'9",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 35,
+                  "o": 41,
+                  "examples": [
+                    0,
+                    8,
+                    11
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 99,
-                "share": 0.99,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9801
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
                 2
               ]
+            },
+            {
+              "id": "f2",
+              "key": "DP/DP/D",
+              "d": 1,
+              "o": 1,
+              "patterns": [
+                {
+                  "id": "f2.p1",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 4,
+                      "max": 4
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "/",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "/",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "9999/99/99",
+                  "format": "9999/99/99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 1,
+                  "o": 1,
+                  "examples": [
+                    92
+                  ],
+                  "nodes": []
+                }
+              ],
+              "tables": [],
+              "examples": [
+                92
+              ]
             }
           ],
           "other": {
-            "distinct": 1,
-            "share": 0.01,
-            "structures": 1
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46821,6 +48375,8 @@
             "complete": false,
             "available": 100,
             "distinct": 100,
+            "occurrences": 105,
+            "occurrences_basis": "sample",
             "excluded": {
               "long_text_occurrences": 0,
               "non_string_values": 0,
@@ -46829,55 +48385,121 @@
               "too_complex_values": 0
             }
           },
-          "candidates": [
+          "families": [
             {
-              "id": "p1",
-              "role": "principal",
-              "signature": [
+              "id": "f1",
+              "key": "DP-DP-D",
+              "d": 100,
+              "o": 105,
+              "patterns": [
                 {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p1",
+                  "signature": [
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "'20'99-99-99",
+                  "format": "9999-99-99",
+                  "lengths": [
+                    4,
+                    2,
+                    2
+                  ],
+                  "d": 75,
+                  "o": 78,
+                  "examples": [
+                    0,
+                    2,
+                    3
+                  ],
+                  "nodes": []
                 },
                 {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 2
-                },
-                {
-                  "kind": "literal",
-                  "text": "-",
-                  "min": 1,
-                  "max": 1
-                },
-                {
-                  "kind": "digit_ascii",
-                  "min": 2,
-                  "max": 4
+                  "id": "f1.p2",
+                  "signature": [
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "-",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "literal",
+                      "text": "20",
+                      "min": 1,
+                      "max": 1
+                    },
+                    {
+                      "kind": "digit_ascii",
+                      "min": 2,
+                      "max": 2
+                    }
+                  ],
+                  "render": "99-99'-20'99",
+                  "format": "99-99-9999",
+                  "lengths": [
+                    2,
+                    2,
+                    4
+                  ],
+                  "d": 25,
+                  "o": 27,
+                  "examples": [
+                    1,
+                    6,
+                    7
+                  ],
+                  "nodes": []
                 }
               ],
-              "render": "9{2,4}-99-9{2,4}",
-              "lengths": {
-                "min": 10,
-                "max": 10
-              },
-              "generalization": 0,
-              "merged_structures": 1,
-              "coverage": {
-                "distinct": 100,
-                "share": 1.0,
-                "basis": "sample"
-              },
-              "confidence": {
-                "method": "laplace_share",
-                "value": 0.9901
-              },
+              "tables": [],
               "examples": [
                 0,
                 1,
@@ -46886,11 +48508,10 @@
             }
           ],
           "other": {
-            "distinct": 0,
-            "share": 0.0,
-            "structures": 0
+            "structures": 0,
+            "d": 0,
+            "o": 0
           },
-          "overlaps": [],
           "limits": []
         },
         {
@@ -46930,9 +48551,9 @@
     "truncated": false,
     "summary": {
       "informational": 19,
-      "candidate_anomalies": 27,
+      "candidate_anomalies": 26,
       "confirmed_issues": 0,
-      "limits": 3,
+      "limits": 2,
       "has_observations": true,
       "has_quality_issues": true,
       "has_limits": true
@@ -46941,9 +48562,9 @@
       {
         "dataset": "rows",
         "informational": 19,
-        "candidate_anomalies": 27,
+        "candidate_anomalies": 26,
         "confirmed_issues": 0,
-        "limits": 3,
+        "limits": 2,
         "has_observations": true,
         "has_quality_issues": true,
         "has_limits": true
@@ -47085,22 +48706,6 @@
       },
       {
         "id": "o12",
-        "rule": "minority_pattern",
-        "category": "patterns",
-        "status": "candidate_anomaly",
-        "dataset": "rows",
-        "field": "column_17",
-        "population": "distinct_values",
-        "count": 12,
-        "of": 175,
-        "accuracy": "sample",
-        "patterns": [
-          "p3",
-          "p4"
-        ]
-      },
-      {
-        "id": "o13",
         "rule": "minority_length",
         "category": "patterns",
         "status": "candidate_anomaly",
@@ -47112,7 +48717,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o14",
+        "id": "o13",
         "rule": "variant_groups",
         "category": "normalization",
         "status": "candidate_anomaly",
@@ -47123,7 +48728,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o15",
+        "id": "o14",
         "rule": "minority_length",
         "category": "patterns",
         "status": "candidate_anomaly",
@@ -47135,7 +48740,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o16",
+        "id": "o15",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47147,7 +48752,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o17",
+        "id": "o16",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47159,7 +48764,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o18",
+        "id": "o17",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47171,7 +48776,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o19",
+        "id": "o18",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47183,7 +48788,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o20",
+        "id": "o19",
         "rule": "variant_groups",
         "category": "normalization",
         "status": "candidate_anomaly",
@@ -47194,7 +48799,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o21",
+        "id": "o20",
         "rule": "minority_length",
         "category": "patterns",
         "status": "candidate_anomaly",
@@ -47206,7 +48811,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o22",
+        "id": "o21",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47218,7 +48823,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o23",
+        "id": "o22",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47230,7 +48835,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o24",
+        "id": "o23",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47242,7 +48847,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o25",
+        "id": "o24",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47254,7 +48859,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o26",
+        "id": "o25",
         "rule": "type_outliers",
         "category": "types",
         "status": "candidate_anomaly",
@@ -47266,7 +48871,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o27",
+        "id": "o26",
         "rule": "ambiguous_dates",
         "category": "dates",
         "status": "candidate_anomaly",
@@ -47278,7 +48883,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o28",
+        "id": "o27",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47290,7 +48895,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o29",
+        "id": "o28",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47302,7 +48907,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o30",
+        "id": "o29",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47314,7 +48919,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o31",
+        "id": "o30",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47326,7 +48931,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o32",
+        "id": "o31",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47338,7 +48943,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o33",
+        "id": "o32",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47350,7 +48955,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o34",
+        "id": "o33",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47362,7 +48967,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o35",
+        "id": "o34",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47374,7 +48979,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o36",
+        "id": "o35",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47386,7 +48991,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o37",
+        "id": "o36",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47398,7 +49003,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o38",
+        "id": "o37",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47410,7 +49015,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o39",
+        "id": "o38",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47422,7 +49027,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o40",
+        "id": "o39",
         "rule": "collapsed_whitespace",
         "category": "normalization",
         "status": "informational",
@@ -47434,7 +49039,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o41",
+        "id": "o40",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47446,7 +49051,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o42",
+        "id": "o41",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47458,7 +49063,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o43",
+        "id": "o42",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47470,7 +49075,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o44",
+        "id": "o43",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47482,7 +49087,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o45",
+        "id": "o44",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47494,7 +49099,7 @@
         "accuracy": "exact"
       },
       {
-        "id": "o46",
+        "id": "o45",
         "rule": "missing_values",
         "category": "presence",
         "status": "informational",
@@ -47510,20 +49115,12 @@
       {
         "id": "l1",
         "dataset": "rows",
-        "field": "column_16",
-        "measure": "derived.patterns",
-        "reason": "max_patterns",
-        "limit": 8
-      },
-      {
-        "id": "l2",
-        "dataset": "rows",
         "field": "column_19",
         "measure": "values.samples",
         "reason": "exposure"
       },
       {
-        "id": "l3",
+        "id": "l2",
         "dataset": "rows",
         "field": "column_20",
         "measure": "values.samples",

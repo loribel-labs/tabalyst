@@ -158,3 +158,28 @@ final until the release that ships it.
   `distinct_characters` and the inventory `special_characters`, both measure
   envelopes. New settings `scan.limits.max_special_characters` (256, 0 turns the
   inventory off) and `max_distinct_characters` (1,024).
+
+- The inferred patterns become a hierarchy of **families** (grammar 2).
+  `derived.patterns` has an `algorithm.version` next to its `grammar`, and a
+  `complete` entry has `population`, `families`, `other` and `limits` in place of
+  `candidates`, `other`, `overlaps` and `limits`. A family gathers the values of
+  one structure, or of structures merged at the edge of a block (`AK-1234` with
+  `AK-1234X`, listed in `composition`), and lists its `patterns`: one pattern per
+  combination of lengths, each of fixed length with its constants folded into the
+  signature (`'INV-'999`, `'INV-'9999`). A pattern holding several merged
+  structures lists a `nodes` entry for each. Every count is given in distinct
+  values (`d`) and occurrences (`o`). `candidates`, `generalization`,
+  `merged_structures`, `confidence`, `lengths` and `overlaps` are gone: there is
+  no compatibility with the flat list of revision 3.
+- The notation of the signatures changes (grammar 2): `A` a capital, `a` a
+  lowercase letter, `@` a letter of either case, `X` a capital or a digit, `x` a
+  lowercase letter or a digit, `#` an ASCII letter or a digit, `9` a digit. The
+  token kinds `upper_digit` and `lower_digit` are new, and `alphanumeric` no
+  longer reads non-ASCII letters.
+- A structure with one value is a family of its own, and the generalization of
+  the smallest structures into wider ones is gone. A combination of lengths
+  that `max_patterns_per_family` keeps out of a family is counted in a `lengths`
+  table of that family.
+- `scan.pattern_inference` has new settings: `max_values` (10,000, at most
+  20,000), `max_families` (16), `max_patterns_per_family` (32); `max_patterns`
+  now counts the patterns and nodes of a field (128, at most 1,024).
